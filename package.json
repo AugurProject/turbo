@@ -1,0 +1,10 @@
+{
+  "name": "supreme-eureka",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/AugurProject/supreme-eureka",
+  "license": "MIT",
+  "devDependencies": {
+    "hardhat": "^2.1.1"
+  }
+}
