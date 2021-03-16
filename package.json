@@ -13,6 +13,9 @@
     "pretest": "hardhat typechain",
     "test": "hardhat test"
   },
+  "files": [
+    "contracts"
+  ],
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-etherscan": "^2.1.1",

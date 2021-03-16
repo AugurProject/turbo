@@ -15,14 +15,19 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
   }
 });
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
-
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
 const config: HardhatUserConfig = {
-  solidity: "0.7.3",
+  solidity: {
+    compilers: [
+      {
+        version: "0.7.3",
+        settings: {},
+      },
+      {
+        version: "0.5.15",
+        settings: {},
+      },
+    ],
+  },
   networks: {
     hardhat: {},
     kovan: {
@@ -34,7 +39,7 @@ const config: HardhatUserConfig = {
 const PRIVATE_KEY = process.env['PRIVATE_KEY'];
 if (PRIVATE_KEY) module.exports.networks.kovan.accounts = [PRIVATE_KEY];
 
-const ETHERSCAN_API_KEY = process.env['ETHERSCAN_API_KEY']
-if (ETHERSCAN_API_KEY) module.exports.etherscan = { apiKey: ETHERSCAN_API_KEY}
+const ETHERSCAN_API_KEY = process.env['ETHERSCAN_API_KEY'] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
+if (ETHERSCAN_API_KEY) module.exports.etherscan = { apiKey: ETHERSCAN_API_KEY };
 
 export default config;
