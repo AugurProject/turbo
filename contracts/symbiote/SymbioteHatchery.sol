@@ -11,7 +11,6 @@ import "../augur-para/IParaOICash.sol";
 import "./ISymbioteShareTokenFactory.sol";
 import "./IArbiter.sol";
 
-
 contract SymbioteHatchery is Initializable {
     using SafeMathUint256 for uint256;
 
@@ -76,7 +75,7 @@ contract SymbioteHatchery is Initializable {
         return _id;
     }
 
-    function getShareTokens(uint256 _id) external returns (ISymbioteShareToken[] memory) {
+    function getShareTokens(uint256 _id) external view returns (ISymbioteShareToken[] memory) {
         return symbiotes[_id].shareTokens;
     }
 
@@ -140,5 +139,7 @@ contract SymbioteHatchery is Initializable {
         require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
 
         underlyingCurrency.transfer(symbiotes[_id].creator, symbiotes[_id].creatorFees);
+
+        return true;
     }
 }
