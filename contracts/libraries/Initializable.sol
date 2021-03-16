@@ -1,11 +1,11 @@
-pragma solidity ^0.7.0;
+pragma solidity 0.5.15;
 
 
 contract Initializable {
     bool private initialized = false;
 
     modifier beforeInitialized {
-        require(!initialized, "contract is already initialized");
+        require(!initialized);
         _;
     }
 

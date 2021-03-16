@@ -43,5 +43,6 @@ contract IMarket is IOwnable {
     function isFinalizedAsInvalid() public view returns (bool);
     function finalize() public returns (bool);
     function isFinalized() public view returns (bool);
+    function isForkingMarket() public view returns (bool);
     function getOpenInterest() public view returns (uint256);
 }
