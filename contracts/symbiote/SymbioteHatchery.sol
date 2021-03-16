@@ -42,7 +42,7 @@ contract SymbioteHatchery is Initializable {
     event CompleteSetsBurned(uint256 symbioteId, uint256 amount, address target);
     event Claim(uint256 symbioteId);
 
-    function initialize(IParaUniverse _universe, ISymbioteShareTokenFactory _tokenFactory) public returns (bool) {
+    function initialize(IParaUniverse _universe, ISymbioteShareTokenFactory _tokenFactory) public beforeInitialized returns (bool) {
         endInitialization();
         paraUniverse = _universe;
         tokenFactory = _tokenFactory;

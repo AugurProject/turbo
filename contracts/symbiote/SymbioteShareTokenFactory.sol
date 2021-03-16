@@ -13,7 +13,7 @@ contract SymbioteShareTokenFactory is Initializable {
     
     address public hatchery;
 
-    function initialize(address _hatchery) public returns (bool) {
+    function initialize(address _hatchery) public beforeInitialized returns (bool) {
         endInitialization();
         hatchery = _hatchery;
         return true;

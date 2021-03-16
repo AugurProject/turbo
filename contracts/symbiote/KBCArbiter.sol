@@ -7,10 +7,8 @@ import "../augur-core/reporting/IUniverse.sol";
 import "../libraries/Initializable.sol";
 import "./IArbiter.sol";
 import "../libraries/SafeMathUint256.sol";
+import "../augur-para/IParaUniverse.sol";
 
-interface IParaUniverse {
-    function originUniverse() external returns (IUniverse);
-}
 
 interface ISymbioteHatchery {
     function paraUniverse() external returns (IParaUniverse);
@@ -73,6 +71,7 @@ contract KBCArbiter is IArbiter, Initializable {
         uint256 threshold;          // 4
         uint256 numTicks;           // 5
         bytes32[] outcomeNames;
+        string[] outcomeSymbols; // TODO does this mess up struct layout?
         int256[] prices;
         IMarket.MarketType marketType;  // 6
         bytes32 winningPayoutHash;      // 7
@@ -90,7 +89,7 @@ contract KBCArbiter is IArbiter, Initializable {
     event Stake(uint256 symbioteId, uint256[] payout, uint256 amount, bool isWinner, address staker);
     event Withdraw(uint256 symbioteId, address staker, uint256 amount);
 
-    function initialize(ISymbioteHatchery _hatchery) public returns (bool) {
+    function initialize(ISymbioteHatchery _hatchery) public beforeInitialized returns (bool) {
         endInitialization();
         hatchery = address(_hatchery);
         universe = _hatchery.paraUniverse().originUniverse();
@@ -118,6 +117,7 @@ contract KBCArbiter is IArbiter, Initializable {
         symbioteData[_id].numTicks = _numTicks;
         symbioteData[_id].prices = _config.prices;
         symbioteData[_id].outcomeNames = _outcomeNames;
+        symbioteData[_id].outcomeSymbols = _outcomeSymbols;
         symbioteData[_id].marketType = _config.marketType;
     }
 
@@ -129,11 +129,11 @@ contract KBCArbiter is IArbiter, Initializable {
         string memory _extraInfo,
         int256[] memory _prices,
         IMarket.MarketType _marketType
-    ) public returns (bytes memory) {
+    ) public pure returns (bytes memory) {
         return abi.encode(KBCConfiguration(_duration, _responseDuration, _threshold, _endTime, _extraInfo, _prices, _marketType));
     }
 
-    function decodeConfiguration(bytes memory _arbiterConfiguration) public returns (KBCConfiguration memory) {
+    function decodeConfiguration(bytes memory _arbiterConfiguration) public pure returns (KBCConfiguration memory) {
         (KBCConfiguration memory _config) = abi.decode(_arbiterConfiguration, (KBCConfiguration));
         return _config;
     }
@@ -174,7 +174,7 @@ contract KBCArbiter is IArbiter, Initializable {
         emit Stake(_id, _payout, _amount, symbioteData[_id].winningPayoutHash == _payoutHash, msg.sender);
     }
 
-    function validatePayout(uint256 _id, uint256[] memory _payout) public returns (bool) {
+    function validatePayout(uint256 _id, uint256[] memory _payout) public view returns (bool) {
         uint256 _numOutcomes = symbioteData[_id].outcomeNames.length + 1;
         uint256 _numTicks = symbioteData[_id].numTicks;
         require(_payout[0] == 0 || _payout[0] == _numTicks);
@@ -185,9 +185,10 @@ contract KBCArbiter is IArbiter, Initializable {
             _sum = _sum.add(_value);
         }
         require(_sum == _numTicks, "Malformed payout sum");
+        return true;
     }
 
-    function getPayoutHash(uint256[] memory _payout) public returns (bytes32) {
+    function getPayoutHash(uint256[] memory _payout) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_payout));
     }
 
