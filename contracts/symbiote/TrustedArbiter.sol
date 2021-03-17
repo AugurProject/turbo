@@ -9,24 +9,8 @@ import "../libraries/SafeMathUint256.sol";
 import "./ISymbioteHatchery.sol";
 import "../libraries/Ownable.sol";
 
-
-contract TrustedArbiter is IArbiter, Initializable, Ownable {
+contract TrustedArbiter is IArbiter, Ownable {
     using SafeMathUint256 for uint256;
-
-    // How long the dispute takes in the best case
-    uint256 private constant MIN_DURATION = 2 hours;
-    uint256 private constant MAX_DURATION = 7 days;
-
-    // When the winning payout changes the duration will be extended if needed to ensure at least the configured response time remains
-    uint256 private constant MIN_RESPONSE_DURATION = 1 hours;
-    uint256 private constant MAX_RESPONSE_DURATION = 2 days;
-
-    // If a single stake exceeds the threshold KBC staking ends and a fallback market becomes needed to resolve the symbiote
-    uint256 private constant MIN_THRESHOLD = 1000 * 10**18;
-    uint256 private constant MAX_THRESHOLD = 50000 * 10**18;
-
-    uint256 private constant MAX_UINT = 2**256 - 1;
-    address private constant NULL_ADDRESS = address(0);
 
     struct TrustedConfiguration {
         uint256 startTime;
@@ -53,14 +37,9 @@ contract TrustedArbiter is IArbiter, Initializable, Ownable {
     address public hatchery;
     mapping(uint256 => SymbioteData) public symbioteData;
 
-    constructor(address _owner) public {
+    constructor(address _owner, ISymbioteHatchery _hatchery) public {
         owner = _owner;
-    }
-
-    function initialize(ISymbioteHatchery _hatchery) public beforeInitialized onlyOwner returns (bool) {
-        endInitialization();
         hatchery = address(_hatchery);
-        return true;
     }
 
     function onSymbioteCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
@@ -101,10 +80,14 @@ contract TrustedArbiter is IArbiter, Initializable, Ownable {
     }
 
     // symbiote id => payout
-    mapping(uint256 => uint256[]) private getSymbioteResolution;
+    mapping(uint256 => uint256[]) private symbioteResolutions;
+
+    function getSymbioteResolution(uint256 _id) public returns (uint256[] memory) {
+        return symbioteResolutions[_id];
+    }
 
     function setSymbioteResolution(uint256 _id, uint256[] calldata _payout) external onlyOwner {
-        getSymbioteResolution[_id] = _payout;
+        symbioteResolutions[_id] = _payout;
     }
 
     function validatePayout(uint256 _id, uint256[] memory _payout) public view returns (bool) {
@@ -124,4 +107,6 @@ contract TrustedArbiter is IArbiter, Initializable, Ownable {
     function getPayoutHash(uint256[] memory _payout) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_payout));
     }
+
+    function onTransferOwnership(address, address) internal {}
 }

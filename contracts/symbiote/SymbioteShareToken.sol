@@ -6,12 +6,12 @@ import "../libraries/VariableSupplyToken.sol";
 
 contract SymbioteShareToken is VariableSupplyToken, ISymbioteShareToken {
     
-    string public name;
+    bytes32 public name;
     string public symbol;
 
     address public hatchery;
 
-    constructor(string memory _symbol, string memory _name, address _hatchery) public {
+    constructor(string memory _symbol, bytes32 _name, address _hatchery) public {
         symbol = _symbol;
         name = _name;
         hatchery = _hatchery;

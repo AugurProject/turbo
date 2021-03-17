@@ -9,7 +9,7 @@ import "./SymbioteShareToken.sol";
 contract SymbioteShareTokenFactory is Initializable {
 
     string constant public INVALID_SYMBOL = "INVALID";
-    string constant public INVALID_NAME = "INVALID SHARE";
+    bytes32 constant public INVALID_NAME = "INVALID SHARE";
     
     address public hatchery;
 
@@ -25,7 +25,7 @@ contract SymbioteShareTokenFactory is Initializable {
         ISymbioteShareToken[] memory _tokens = new ISymbioteShareToken[](_numOutcomes);
         _tokens[0] = new SymbioteShareToken(INVALID_SYMBOL, INVALID_NAME, hatchery);
         for (uint256 _i = 1; _i < _numOutcomes; _i++) {
-            _tokens[_i] = new SymbioteShareToken(_symbols[_i-1], string(abi.encodePacked(_names[_i-1])), hatchery);
+            _tokens[_i] = new SymbioteShareToken(_symbols[_i-1], _names[_i-1], hatchery);
         }
         return _tokens;
     }

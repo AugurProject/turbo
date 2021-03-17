@@ -47,7 +47,7 @@ contract SymbioteHatchery is ISymbioteHatchery, Initializable {
             ));
         }
         _arbiter.onSymbioteCreated(_id, _outcomeSymbols, _outcomeNames, _numTicks, _arbiterConfiguration);
-        emit SymbioteCreated(_creatorFee, _outcomeSymbols, _outcomeNames, _numTicks, _arbiter, _arbiterConfiguration);
+        emit SymbioteCreated(_id, _creatorFee, _outcomeSymbols, _outcomeNames, _numTicks, _arbiter, _arbiterConfiguration);
         return _id;
     }
 
@@ -66,18 +66,18 @@ contract SymbioteHatchery is ISymbioteHatchery, Initializable {
         return true;
     }
 
-    function burnCompleteSets(uint256 _id, uint256 _amount) public returns (bool) {
+    function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool) {
         for (uint256 _i = 0; _i < symbiotes[_id].shareTokens.length; _i++) {
             symbiotes[_id].shareTokens[_i].trustedBurn(msg.sender, _amount);
         }
         uint256 _numTicks = symbiotes[_id].numTicks;
-        payout(_id, msg.sender, _amount.mul(_numTicks), false, false);
+        payout(_id, _receiver, _amount.mul(_numTicks), false, false);
         emit CompleteSetsBurned(_id, _amount, msg.sender);
         return true;
     }
 
     function claimWinnings(uint256 _id) public returns (bool) {
-        // We expect this to revert if the symbiote is not resolved
+        // We expect this to revert or return an empty array if the symbiote is not resolved
         uint256[] memory _winningPayout = symbiotes[_id].arbiter.getSymbioteResolution(_id);
         require(_winningPayout.length > 0, "market not resolved");
         uint256 _winningBalance = 0;
@@ -110,8 +110,7 @@ contract SymbioteHatchery is ISymbioteHatchery, Initializable {
         // We expect this to revert if the symbiote is not resolved
         uint256[] memory _winningPayout = symbiotes[_id].arbiter.getSymbioteResolution(_id);
         require(_winningPayout.length > 0, "market not resolved");
-
-    require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
+        require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
 
         collateral.transfer(symbiotes[_id].creator, symbiotes[_id].creatorFees);
 
