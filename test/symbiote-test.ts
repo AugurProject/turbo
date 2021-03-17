@@ -3,12 +3,16 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
 import {
-  SymbioteHatchery__factory, SymbioteHatchery,
+  SymbioteHatchery__factory,
+  SymbioteHatchery,
   SymbioteShareTokenFactory__factory,
   FeePot__factory,
   Cash__factory,
   TrustedArbiter__factory,
-  SymbioteShareToken__factory, SymbioteShareToken, Cash, TrustedArbiter,
+  SymbioteShareToken__factory,
+  SymbioteShareToken,
+  Cash,
+  TrustedArbiter,
 } from "../typechain";
 import { BigNumber } from "ethers";
 
@@ -17,7 +21,7 @@ const DEAD_ADDRESS = "0x000000000000000000000000000000000000DEAD";
 enum MarketTypes {
   YES_NO,
   CATEGORICAL,
-  SCALAR
+  SCALAR,
 }
 
 describe("Symbiote", () => {
@@ -30,14 +34,13 @@ describe("Symbiote", () => {
   let factorySymbioteShareToken: SymbioteShareToken__factory;
 
   before(async () => {
-    [ signer ] = await ethers.getSigners();
+    [signer] = await ethers.getSigners();
     symbioteHatcherFactory = new SymbioteHatchery__factory(signer);
     symbioteShareTokenFactoryFactory = new SymbioteShareTokenFactory__factory(signer);
     feePotFactory = new FeePot__factory(signer);
     cashFactory = new Cash__factory(signer);
     trustedArbiterFactory = new TrustedArbiter__factory(signer);
     factorySymbioteShareToken = new SymbioteShareToken__factory(signer);
-
   });
 
   const creatorFee = 1;
@@ -78,16 +81,25 @@ describe("Symbiote", () => {
   it("can create a market", async () => {
     arbiter = await trustedArbiterFactory.deploy(signer.address, symbioteHatchery.address);
     const arbiterConfiguration = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
-    await symbioteHatchery.createSymbiote(creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiter.address, arbiterConfiguration);
+    await symbioteHatchery.createSymbiote(
+      creatorFee,
+      outcomeSymbols,
+      outcomeNames,
+      numTicks,
+      arbiter.address,
+      arbiterConfiguration
+    );
     const filter = symbioteHatchery.filters.SymbioteCreated(null, null, null, null, null, null, null);
     const logs = await symbioteHatchery.queryFilter(filter);
     expect(logs.length).to.equal(1);
-    const [ log ] = logs;
-    [ symbioteId ] = log.args;
+    const [log] = logs;
+    [symbioteId] = log.args;
     expect(symbioteId).to.equal(0);
 
     const shareTokens = await symbioteHatchery.getShareTokens(symbioteId);
-    [ invalid, all, many, few, none ] = await Promise.all(shareTokens.map(addr => factorySymbioteShareToken.attach(addr)));
+    [invalid, all, many, few, none] = await Promise.all(
+      shareTokens.map((addr) => factorySymbioteShareToken.attach(addr))
+    );
     expect(await invalid.symbol()).to.equal("INVALID");
     expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
     expect(await all.symbol()).to.equal("ALL");

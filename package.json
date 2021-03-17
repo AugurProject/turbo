@@ -10,7 +10,11 @@
     "clean": "git clean -e .idea -xdf",
     "rebuild": "yarn clean && yarn && yarn build",
     "pretest": "hardhat typechain",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "deploy:turbo": "hardhat run scripts/deploy-turbo.ts",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.json",
+    "format:check": "prettier . -c",
+    "format:write": "prettier . -w"
   },
   "files": [
     "contracts"
@@ -24,7 +28,11 @@
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.1",
     "@types/node": "^14.14.35",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
     "chai": "^4.3.4",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
     "hardhat": "^2.1.1",

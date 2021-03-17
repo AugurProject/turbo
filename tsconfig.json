@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "lib": [
-      "es2018"
-    ],
+    "lib": ["es2018"],
     "module": "CommonJS",
     "outDir": "dist",
     "downlevelIteration": true,
@@ -19,19 +17,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/hardhat/types"
-    ]
+    "typeRoots": ["node_modules/@types", "node_modules/hardhat/types"]
   },
-  "include": [
-    "./scripts",
-    "./test"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/build",
-    "dist"
-  ],
+  "include": ["./scripts", "./test"],
+  "exclude": ["**/node_modules", "**/build", "dist"],
   "files": ["./hardhat.config.ts"]
 }
