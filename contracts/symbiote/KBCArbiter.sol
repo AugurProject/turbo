@@ -3,21 +3,11 @@ pragma experimental ABIEncoderV2;
 
 import "../libraries/IERC20.sol";
 import "../augur-core/reporting/IMarket.sol";
-import "../augur-core/reporting/IUniverse.sol";
 import "../libraries/Initializable.sol";
 import "./IArbiter.sol";
 import "../libraries/SafeMathUint256.sol";
-import "../augur-para/IParaUniverse.sol";
+import "./ISymbioteHatchery.sol";
 
-
-interface ISymbioteHatchery {
-    function paraUniverse() external returns (IParaUniverse);
-}
-
-interface IUniverseAccessors {
-    function augur() external returns (address);
-    function cash() external returns (IERC20);
-}
 
 interface IMarketAccesors {
     function repBond() external returns (uint256);
@@ -83,19 +73,18 @@ contract KBCArbiter is IArbiter, Initializable {
     mapping(uint256 => SymbioteData) public symbioteData;
 
     IERC20 public reputationToken;
-    IERC20 public cash;
+    IERC20 public collateral;
     IUniverse public universe;
 
     event Stake(uint256 symbioteId, uint256[] payout, uint256 amount, bool isWinner, address staker);
     event Withdraw(uint256 symbioteId, address staker, uint256 amount);
 
-    function initialize(ISymbioteHatchery _hatchery) public beforeInitialized returns (bool) {
+    function initialize(ISymbioteHatchery _hatchery, IUniverse _universe) public beforeInitialized returns (bool) {
         endInitialization();
         hatchery = address(_hatchery);
-        universe = _hatchery.paraUniverse().originUniverse();
-        cash = IUniverseAccessors(address(universe)).cash();
-        reputationToken = IERC20(universe.getReputationToken());
-        cash.approve(IUniverseAccessors(address(universe)).augur(), MAX_UINT);
+        universe = _universe;
+        collateral = _hatchery.collateral();
+        reputationToken = IFeePot(_hatchery.feePot()).reputationToken();
         return true;
     }
 
@@ -108,7 +97,7 @@ contract KBCArbiter is IArbiter, Initializable {
         require(_config.prices.length == 2);
         require(_config.prices[0] < _config.prices[1]);
         require(uint256(_config.prices[1] - _config.prices[0]) > _numTicks);
-        require(_config.marketType != IMarket.MarketType.YES_NO, "YES/NO not permitted");
+        require(_config.marketType != IMarket.MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
         symbioteData[_id].beginTime = _config.endTime;
         symbioteData[_id].endTime = _config.endTime + _config.duration;
         symbioteData[_id].responseDuration = _config.responseDuration;
@@ -209,7 +198,7 @@ contract KBCArbiter is IArbiter, Initializable {
         require(symbioteData[_id].fallbackMarket == IMarket(0), "Fallback market already made");
         require(symbioteData[_id].totalStake >= symbioteData[_id].threshold, "Threshold has not been hit");
         // Pull in Validity bond from msg.sender
-        cash.transferFrom(msg.sender, address(this), universe.getOrCacheValidityBond());
+        collateral.transferFrom(msg.sender, address(this), universe.getOrCacheValidityBond());
         // Pull in REP bond from msg.sender
         reputationToken.transferFrom(msg.sender, address(this), universe.getOrCacheMarketRepBond());
         SymbioteData memory _symbioteData = symbioteData[_id];

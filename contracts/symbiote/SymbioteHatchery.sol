@@ -9,9 +9,9 @@ import "../augur-para/IFeePot.sol";
 import "../augur-para/IParaOICash.sol";
 import "./ISymbioteShareTokenFactory.sol";
 import "./IArbiter.sol";
-import "./IOracle.sol";
+import "./ISymbioteHatchery.sol";
 
-contract SymbioteHatchery is Initializable {
+contract SymbioteHatchery is ISymbioteHatchery, Initializable {
     using SafeMathUint256 for uint256;
 
     uint256 private constant MIN_OUTCOMES = 2; // Does not Include Invalid
@@ -20,29 +20,8 @@ contract SymbioteHatchery is Initializable {
     address private constant NULL_ADDRESS = address(0);
     uint256 private constant MAX_UINT = 2**256 - 1;
 
-    struct Symbiote {
-        address creator;
-        uint256 creatorFee;
-        uint256 numTicks;
-        IArbiter arbiter;
-        ISymbioteShareToken[] shareTokens;
-        uint256 creatorFees;
-    }
-
-    Symbiote[] public symbiotes;
-    ISymbioteShareTokenFactory public tokenFactory;
-    IOracle public oracle;
-    IFeePot public feePot;
-    IERC20 public collateral;
-
-    event SymbioteCreated(uint256 creatorFee, string[] outcomeSymbols, bytes32[] outcomeNames, uint256 numTicks, IArbiter arbiter, bytes arbiterConfiguration);
-    event CompleteSetsMinted(uint256 symbioteId, uint256 amount, address target);
-    event CompleteSetsBurned(uint256 symbioteId, uint256 amount, address target);
-    event Claim(uint256 symbioteId);
-
-    function initialize(IOracle _oracle, ISymbioteShareTokenFactory _tokenFactory, IFeePot _feePot) public beforeInitialized returns (bool) {
+    function initialize(ISymbioteShareTokenFactory _tokenFactory, IFeePot _feePot) public beforeInitialized returns (bool) {
         endInitialization();
-        oracle = _oracle;
         tokenFactory = _tokenFactory;
         feePot = _feePot;
         collateral = _feePot.collateral();
@@ -100,6 +79,7 @@ contract SymbioteHatchery is Initializable {
     function claimWinnings(uint256 _id) public returns (bool) {
         // We expect this to revert if the symbiote is not resolved
         uint256[] memory _winningPayout = symbiotes[_id].arbiter.getSymbioteResolution(_id);
+        require(_winningPayout.length > 0, "market not resolved");
         uint256 _winningBalance = 0;
         for (uint256 _i = 0; _i < symbiotes[_id].shareTokens.length; _i++) {
             _winningBalance = _winningBalance.add(symbiotes[_id].shareTokens[_i].trustedBurnAll(msg.sender) * _winningPayout[_i]);
@@ -129,8 +109,9 @@ contract SymbioteHatchery is Initializable {
     function withdrawCreatorFees(uint256 _id) external returns (bool) {
         // We expect this to revert if the symbiote is not resolved
         uint256[] memory _winningPayout = symbiotes[_id].arbiter.getSymbioteResolution(_id);
+        require(_winningPayout.length > 0, "market not resolved");
 
-        require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
+    require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
 
         collateral.transfer(symbiotes[_id].creator, symbiotes[_id].creatorFees);
 
