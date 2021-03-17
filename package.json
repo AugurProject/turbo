@@ -8,7 +8,7 @@
     "prebuild": "hardhat typechain",
     "build": "tsc -b && hardhat compile",
     "clean": "git clean -e .idea -xdf",
-    "rebuild": "clean && yarn && build",
+    "rebuild": "yarn clean && yarn && yarn build",
     "pretest": "hardhat typechain",
     "test": "hardhat test"
   },

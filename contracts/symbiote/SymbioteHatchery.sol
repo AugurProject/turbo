@@ -2,7 +2,6 @@ pragma solidity 0.5.15;
 pragma experimental ABIEncoderV2;
 
 import "./ISymbioteShareToken.sol";
-import "../augur-para/IParaUniverse.sol";
 import "../libraries/Initializable.sol";
 import "../libraries/SafeMathUint256.sol";
 import "../libraries/IERC20.sol";
@@ -10,6 +9,7 @@ import "../augur-para/IFeePot.sol";
 import "../augur-para/IParaOICash.sol";
 import "./ISymbioteShareTokenFactory.sol";
 import "./IArbiter.sol";
+import "./IOracle.sol";
 
 contract SymbioteHatchery is Initializable {
     using SafeMathUint256 for uint256;
@@ -31,25 +31,22 @@ contract SymbioteHatchery is Initializable {
 
     Symbiote[] public symbiotes;
     ISymbioteShareTokenFactory public tokenFactory;
-    IParaUniverse public paraUniverse;
-    IParaOICash public OICash;
+    IOracle public oracle;
     IFeePot public feePot;
-    IERC20 public underlyingCurrency;
+    IERC20 public collateral;
 
     event SymbioteCreated(uint256 creatorFee, string[] outcomeSymbols, bytes32[] outcomeNames, uint256 numTicks, IArbiter arbiter, bytes arbiterConfiguration);
     event CompleteSetsMinted(uint256 symbioteId, uint256 amount, address target);
     event CompleteSetsBurned(uint256 symbioteId, uint256 amount, address target);
     event Claim(uint256 symbioteId);
 
-    function initialize(IParaUniverse _universe, ISymbioteShareTokenFactory _tokenFactory) public beforeInitialized returns (bool) {
+    function initialize(IOracle _oracle, ISymbioteShareTokenFactory _tokenFactory, IFeePot _feePot) public beforeInitialized returns (bool) {
         endInitialization();
-        paraUniverse = _universe;
+        oracle = _oracle;
         tokenFactory = _tokenFactory;
-        OICash = IParaOICash(_universe.openInterestCash());
-        feePot = _universe.getFeePot();
-        underlyingCurrency = IERC20(_universe.cash());
-        underlyingCurrency.approve(_universe.augur(), MAX_UINT);
-        underlyingCurrency.approve(address(feePot), MAX_UINT);
+        feePot = _feePot;
+        collateral = _feePot.collateral();
+        collateral.approve(address(_feePot), MAX_UINT);
         return true;
     }
 
@@ -82,8 +79,7 @@ contract SymbioteHatchery is Initializable {
     function mintCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool) {
         uint256 _numTicks = symbiotes[_id].numTicks;
         uint256 _cost = _amount.mul(_numTicks);
-        underlyingCurrency.transferFrom(msg.sender, address(this), _cost);
-        OICash.deposit(_cost);
+        collateral.transferFrom(msg.sender, address(this), _cost);
         for (uint256 _i = 0; _i < symbiotes[_id].shareTokens.length; _i++) {
             symbiotes[_id].shareTokens[_i].trustedMint(_receiver, _amount);
         }
@@ -116,20 +112,18 @@ contract SymbioteHatchery is Initializable {
     function payout(uint256 _id, address _payee, uint256 _payout, bool _finalized, bool _invalid) private {
         uint256 _creatorFee = symbiotes[_id].creatorFee.mul(_payout) / 10**18;
 
-        (bool _, uint256 _payoutAfterFees) = OICash.withdraw(_payout);
-
         if (_finalized) {
             if (_invalid) {
                 feePot.depositFees(_creatorFee + symbiotes[_id].creatorFees);
                 symbiotes[_id].creatorFees = 0;
             } else {
-                underlyingCurrency.transfer(symbiotes[_id].creator, _creatorFee);
+                collateral.transfer(symbiotes[_id].creator, _creatorFee);
             }
         } else {
             symbiotes[_id].creatorFees = symbiotes[_id].creatorFees.add(_creatorFee);
         }
 
-        underlyingCurrency.transfer(_payee, _payoutAfterFees.sub(_creatorFee));
+        collateral.transfer(_payee, _payout.sub(_creatorFee));
     }
 
     function withdrawCreatorFees(uint256 _id) external returns (bool) {
@@ -138,7 +132,7 @@ contract SymbioteHatchery is Initializable {
 
         require(_winningPayout[0] == 0, "Can only withdraw creator fees from a valid market");
 
-        underlyingCurrency.transfer(symbiotes[_id].creator, symbiotes[_id].creatorFees);
+        collateral.transfer(symbiotes[_id].creator, symbiotes[_id].creatorFees);
 
         return true;
     }
