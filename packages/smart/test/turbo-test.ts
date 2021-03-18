@@ -56,10 +56,7 @@ describe("Turbo", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const turboShareTokenFactory = await new TurboShareTokenFactory__factory(signer).deploy();
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    turboHatchery = await new TurboHatchery__factory(signer).deploy(
-      turboShareTokenFactory.address,
-      feePot.address
-    );
+    turboHatchery = await new TurboHatchery__factory(signer).deploy(turboShareTokenFactory.address, feePot.address);
 
     await turboShareTokenFactory.initialize(turboHatchery.address);
 

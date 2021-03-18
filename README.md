@@ -53,11 +53,13 @@ ETHERSCAN_API_KEY=$yourEtherscanAPIKeyHere yarn smart contracts:verify --network
 
 This repo uses eslint with a few options and prettier with 120 columns.
 Before committing any code, please run prettier:
+
 ```shell
 yarn format:write
 ```
 
 Then run the linter:
+
 ```shell
 yarn lint
 ```
