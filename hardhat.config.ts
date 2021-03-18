@@ -37,8 +37,7 @@ const config: HardhatUserConfig = {
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
-if (PRIVATE_KEY) {
-  // @ts-ignore
+if (PRIVATE_KEY && config.networks?.kovan) {
   config.networks.kovan.accounts = [PRIVATE_KEY];
 }
 
