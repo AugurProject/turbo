@@ -6,9 +6,10 @@
   "license": "MIT",
   "scripts": {
     "build": "hardhat typechain && hardhat compile && tsc -b",
-    "test": "hardhat typechain && hardhat test",
-    "build:contracts": "hardhat compile",
-    "deploy:contracts": "hardhat run ./scripts/deploy-turbo.ts",
+    "test": "hardhat test",
+    "contracts:build": "hardhat compile",
+    "contracts:deploy": "hardhat run ./scripts/deploy-turbo.ts",
+    "contracts:verify": "hardhat verify",
     "ethereumNode": "hardhat node"
   },
   "files": [

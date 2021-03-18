@@ -9,7 +9,6 @@
     "clean": "git clean -e .idea -xdf",
     "rebuild": "yarn clean && yarn && yarn build",
     "test": "yarn smart test",
-    "deploy:contracts": "yarn smart deploy:contracts",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.json",
     "format": "prettier . -c",
     "format:write": "prettier . -w",
