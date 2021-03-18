@@ -3,7 +3,7 @@
     "target": "es2018",
     "lib": ["es2018"],
     "module": "CommonJS",
-    "outDir": "dist",
+    "composite": true,
     "downlevelIteration": true,
     "sourceMap": true,
     "experimentalDecorators": true,
@@ -19,7 +19,12 @@
     "skipLibCheck": true,
     "typeRoots": ["node_modules/@types", "node_modules/hardhat/types"]
   },
-  "include": ["./scripts", "./test"],
-  "exclude": ["**/node_modules", "**/build", "dist"],
-  "files": ["./hardhat.config.ts"]
+  "references": [
+    {
+      "path": "./packages/smart"
+    }
+  ],
+  "exclude": ["**/node_modules", "**/build", "**/dist"],
+  "files": [],
+  "include": []
 }

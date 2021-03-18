@@ -1,0 +1,6 @@
+#Hardhat files
+cache
+artifacts
+
+# typechain
+typechain

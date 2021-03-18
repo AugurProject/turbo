@@ -118,10 +118,3 @@ dist
 # IDEs
 .idea/
 node_modules
-
-#Hardhat files
-cache
-artifacts
-
-# typechain
-typechain

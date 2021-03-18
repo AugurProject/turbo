@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["./scripts", "./typechain"],
+  "files": ["./hardhat.config.ts"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "."
+  }
+}

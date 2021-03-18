@@ -62,7 +62,6 @@ describe("Symbiote", () => {
     );
 
     await symbioteShareTokenFactory.initialize(symbioteHatchery.address);
-    await symbioteHatchery.initialize(symbioteShareTokenFactory.address, feePot.address);
 
     expect(await symbioteHatchery.tokenFactory()).to.equal(symbioteShareTokenFactory.address);
     expect(await symbioteHatchery.feePot()).to.equal(feePot.address);
