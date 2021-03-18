@@ -6,7 +6,7 @@ import "../augur-core/reporting/IMarket.sol";
 import "../libraries/Initializable.sol";
 import "./IArbiter.sol";
 import "../libraries/SafeMathUint256.sol";
-import "./ISymbioteHatchery.sol";
+import "./ITurboHatchery.sol";
 
 
 interface IMarketAccesors {
@@ -29,7 +29,7 @@ contract KBCArbiter is IArbiter, Initializable {
     uint256 private constant MIN_RESPONSE_DURATION = 1 hours;
     uint256 private constant MAX_RESPONSE_DURATION = 2 days;
 
-    // If a single stake exceeds the threshold KBC staking ends and a fallback market becomes needed to resolve the symbiote
+    // If a single stake exceeds the threshold KBC staking ends and a fallback market becomes needed to resolve the turbo
     uint256 private constant MIN_THRESHOLD = 1000 * 10**18;
     uint256 private constant MAX_THRESHOLD = 50000 * 10**18;
 
@@ -52,7 +52,7 @@ contract KBCArbiter is IArbiter, Initializable {
         uint256[] payout;
     }
 
-    struct SymbioteData {
+    struct TurboData {
         mapping(bytes32 => PayoutStake) stakes;
         uint256 beginTime;          // 0
         uint256 endTime;            // 1
@@ -70,16 +70,16 @@ contract KBCArbiter is IArbiter, Initializable {
     }
 
     address public hatchery;
-    mapping(uint256 => SymbioteData) public symbioteData;
+    mapping(uint256 => TurboData) public turboData;
 
     IERC20 public reputationToken;
     IERC20 public collateral;
     IUniverse public universe;
 
-    event Stake(uint256 symbioteId, uint256[] payout, uint256 amount, bool isWinner, address staker);
-    event Withdraw(uint256 symbioteId, address staker, uint256 amount);
+    event Stake(uint256 turboId, uint256[] payout, uint256 amount, bool isWinner, address staker);
+    event Withdraw(uint256 turboId, address staker, uint256 amount);
 
-    function initialize(ISymbioteHatchery _hatchery, IUniverse _universe) public beforeInitialized returns (bool) {
+    function initialize(ITurboHatchery _hatchery, IUniverse _universe) public beforeInitialized returns (bool) {
         endInitialization();
         hatchery = address(_hatchery);
         universe = _universe;
@@ -88,8 +88,8 @@ contract KBCArbiter is IArbiter, Initializable {
         return true;
     }
 
-    function onSymbioteCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
-        require(msg.sender == hatchery, "Can only call `onSymbioteCreated` from the hatchery");
+    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
+        require(msg.sender == hatchery, "Can only call `onTurboCreated` from the hatchery");
         (KBCConfiguration memory _config) = abi.decode(_arbiterConfiguration, (KBCConfiguration));
         require(_config.duration >= MIN_DURATION && _config.duration <= MAX_DURATION, "KBC duration is out of bounds");
         require(_config.threshold >= MIN_THRESHOLD && _config.threshold <= MAX_THRESHOLD, "KBC threshold is out of bounds");
@@ -98,16 +98,16 @@ contract KBCArbiter is IArbiter, Initializable {
         require(_config.prices[0] < _config.prices[1]);
         require(uint256(_config.prices[1] - _config.prices[0]) > _numTicks);
         require(_config.marketType != IMarket.MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
-        symbioteData[_id].beginTime = _config.endTime;
-        symbioteData[_id].endTime = _config.endTime + _config.duration;
-        symbioteData[_id].responseDuration = _config.responseDuration;
-        symbioteData[_id].threshold = _config.threshold;
-        symbioteData[_id].extraInfo = _config.extraInfo;
-        symbioteData[_id].numTicks = _numTicks;
-        symbioteData[_id].prices = _config.prices;
-        symbioteData[_id].outcomeNames = _outcomeNames;
-        symbioteData[_id].outcomeSymbols = _outcomeSymbols;
-        symbioteData[_id].marketType = _config.marketType;
+        turboData[_id].beginTime = _config.endTime;
+        turboData[_id].endTime = _config.endTime + _config.duration;
+        turboData[_id].responseDuration = _config.responseDuration;
+        turboData[_id].threshold = _config.threshold;
+        turboData[_id].extraInfo = _config.extraInfo;
+        turboData[_id].numTicks = _numTicks;
+        turboData[_id].prices = _config.prices;
+        turboData[_id].outcomeNames = _outcomeNames;
+        turboData[_id].outcomeSymbols = _outcomeSymbols;
+        turboData[_id].marketType = _config.marketType;
     }
 
     function encodeConfiguration(
@@ -127,45 +127,45 @@ contract KBCArbiter is IArbiter, Initializable {
         return _config;
     }
 
-    function getSymbioteResolution(uint256 _id) public returns (uint256[] memory) {
+    function getTurboResolution(uint256 _id) public returns (uint256[] memory) {
         uint256 _currentTime = block.timestamp;
-        require(_currentTime >= symbioteData[_id].endTime, "KBC Arbiter has not finished resolving this symbiote");
-        if (symbioteData[_id].fallbackMarket != IMarket(0)) {
-            require(symbioteData[_id].fallbackMarket.isFinalized(), "KBC Arbiter fallback market is not resolved");
-            bool _isForked = symbioteData[_id].fallbackMarket.isForkingMarket();
+        require(_currentTime >= turboData[_id].endTime, "KBC Arbiter has not finished resolving this turbo");
+        if (turboData[_id].fallbackMarket != IMarket(0)) {
+            require(turboData[_id].fallbackMarket.isFinalized(), "KBC Arbiter fallback market is not resolved");
+            bool _isForked = turboData[_id].fallbackMarket.isForkingMarket();
             if (_isForked) {
-                symbioteData[_id].fallbackMarket.getUniverse().getWinningChildUniverse().getPayoutNumerators();
+                turboData[_id].fallbackMarket.getUniverse().getWinningChildUniverse().getPayoutNumerators();
             }
-            return symbioteData[_id].fallbackMarket.getWinningReportingParticipant().getPayoutNumerators();
+            return turboData[_id].fallbackMarket.getWinningReportingParticipant().getPayoutNumerators();
         }
-        require(symbioteData[_id].totalStake < symbioteData[_id].threshold, "Threshold has been hit. Augur Fallback must be initiated and complete before resolution");
-        return symbioteData[_id].stakes[symbioteData[_id].winningPayoutHash].payout;
+        require(turboData[_id].totalStake < turboData[_id].threshold, "Threshold has been hit. Augur Fallback must be initiated and complete before resolution");
+        return turboData[_id].stakes[turboData[_id].winningPayoutHash].payout;
     }
 
     function stake(uint256 _id, uint256[] calldata _payout, uint256 _amount) external {
         validatePayout(_id, _payout);
         uint256 _currentTime = block.timestamp;
-        require(_currentTime < symbioteData[_id].endTime, "KBC Arbiter has finished staking time");
-        require(symbioteData[_id].totalStake < symbioteData[_id].threshold, "Threshold has been hit. No more stake can be added to the KBC arbiter");
+        require(_currentTime < turboData[_id].endTime, "KBC Arbiter has finished staking time");
+        require(turboData[_id].totalStake < turboData[_id].threshold, "Threshold has been hit. No more stake can be added to the KBC arbiter");
         reputationToken.transferFrom(msg.sender, address(this), _amount);
         bytes32 _payoutHash = getPayoutHash(_payout);
-        symbioteData[_id].stakes[_payoutHash].userStake[msg.sender] += _amount;
-        symbioteData[_id].stakes[_payoutHash].totalPayoutStake += _amount;
-        symbioteData[_id].stakes[_payoutHash].payout = _payout;
-        symbioteData[_id].totalStake += _amount;
-        bytes32 _winningPayoutHash = symbioteData[_id].winningPayoutHash;
-        if (_payoutHash != _winningPayoutHash && symbioteData[_id].stakes[_payoutHash].totalPayoutStake > symbioteData[_id].stakes[_winningPayoutHash].totalPayoutStake) {
-            symbioteData[_id].winningPayoutHash = _payoutHash;
-            if ((symbioteData[_id].endTime - _currentTime) < symbioteData[_id].responseDuration) {
-                symbioteData[_id].endTime = _currentTime + symbioteData[_id].responseDuration;
+        turboData[_id].stakes[_payoutHash].userStake[msg.sender] += _amount;
+        turboData[_id].stakes[_payoutHash].totalPayoutStake += _amount;
+        turboData[_id].stakes[_payoutHash].payout = _payout;
+        turboData[_id].totalStake += _amount;
+        bytes32 _winningPayoutHash = turboData[_id].winningPayoutHash;
+        if (_payoutHash != _winningPayoutHash && turboData[_id].stakes[_payoutHash].totalPayoutStake > turboData[_id].stakes[_winningPayoutHash].totalPayoutStake) {
+            turboData[_id].winningPayoutHash = _payoutHash;
+            if ((turboData[_id].endTime - _currentTime) < turboData[_id].responseDuration) {
+                turboData[_id].endTime = _currentTime + turboData[_id].responseDuration;
             }
         }
-        emit Stake(_id, _payout, _amount, symbioteData[_id].winningPayoutHash == _payoutHash, msg.sender);
+        emit Stake(_id, _payout, _amount, turboData[_id].winningPayoutHash == _payoutHash, msg.sender);
     }
 
     function validatePayout(uint256 _id, uint256[] memory _payout) public view returns (bool) {
-        uint256 _numOutcomes = symbioteData[_id].outcomeNames.length + 1;
-        uint256 _numTicks = symbioteData[_id].numTicks;
+        uint256 _numOutcomes = turboData[_id].outcomeNames.length + 1;
+        uint256 _numTicks = turboData[_id].numTicks;
         require(_payout[0] == 0 || _payout[0] == _numTicks);
         require(_payout.length == _numOutcomes, "Malformed payout length");
         uint256 _sum = 0;
@@ -182,11 +182,11 @@ contract KBCArbiter is IArbiter, Initializable {
     }
 
     function withdraw(uint256 _id) external {
-        uint256[] memory _payout = getSymbioteResolution(_id);
+        uint256[] memory _payout = getTurboResolution(_id);
         bytes32 _payoutHash = getPayoutHash(_payout);
-        uint256 _userStake = symbioteData[_id].stakes[_payoutHash].userStake[msg.sender];
-        uint256 _totalPayoutStake = symbioteData[_id].stakes[_payoutHash].totalPayoutStake;
-        uint256 _totalStake = symbioteData[_id].totalStake;
+        uint256 _userStake = turboData[_id].stakes[_payoutHash].userStake[msg.sender];
+        uint256 _totalPayoutStake = turboData[_id].stakes[_payoutHash].totalPayoutStake;
+        uint256 _totalStake = turboData[_id].totalStake;
         uint256 _repPayout = _userStake * _totalStake / _totalPayoutStake;
         reputationToken.transfer(msg.sender, _repPayout);
         emit Withdraw(_id, msg.sender, _repPayout);
@@ -195,26 +195,26 @@ contract KBCArbiter is IArbiter, Initializable {
     // Fallback Market Functions
 
     function initateAugurResolution(uint256 _id) external {
-        require(symbioteData[_id].fallbackMarket == IMarket(0), "Fallback market already made");
-        require(symbioteData[_id].totalStake >= symbioteData[_id].threshold, "Threshold has not been hit");
+        require(turboData[_id].fallbackMarket == IMarket(0), "Fallback market already made");
+        require(turboData[_id].totalStake >= turboData[_id].threshold, "Threshold has not been hit");
         // Pull in Validity bond from msg.sender
         collateral.transferFrom(msg.sender, address(this), universe.getOrCacheValidityBond());
         // Pull in REP bond from msg.sender
         reputationToken.transferFrom(msg.sender, address(this), universe.getOrCacheMarketRepBond());
-        SymbioteData memory _symbioteData = symbioteData[_id];
+        TurboData memory _turboData = turboData[_id];
         IMarket _market;
-        if (_symbioteData.marketType == IMarket.MarketType.CATEGORICAL) {
-            _market = universe.createCategoricalMarket(block.timestamp + 1, 0, IAffiliateValidator(NULL_ADDRESS), 0, address(this), symbioteData[_id].outcomeNames, symbioteData[_id].extraInfo);
+        if (_turboData.marketType == IMarket.MarketType.CATEGORICAL) {
+            _market = universe.createCategoricalMarket(block.timestamp + 1, 0, IAffiliateValidator(NULL_ADDRESS), 0, address(this), turboData[_id].outcomeNames, turboData[_id].extraInfo);
         } else {
-            _market = universe.createScalarMarket(block.timestamp + 1, 0, IAffiliateValidator(NULL_ADDRESS), 0, address(this), symbioteData[_id].prices, symbioteData[_id].numTicks, symbioteData[_id].extraInfo);
+            _market = universe.createScalarMarket(block.timestamp + 1, 0, IAffiliateValidator(NULL_ADDRESS), 0, address(this), turboData[_id].prices, turboData[_id].numTicks, turboData[_id].extraInfo);
         }
         _market.transferOwnership(msg.sender);
         IMarketAccesors(address(_market)).transferRepBondOwnership(msg.sender);
-        symbioteData[_id].fallbackMarket = _market;
+        turboData[_id].fallbackMarket = _market;
     }
 
     function doInitialReportInFallback(uint256 _id, uint256[] calldata _payout, uint256 _additionalStake) external {
-        IMarket _market = symbioteData[_id].fallbackMarket;
+        IMarket _market = turboData[_id].fallbackMarket;
         uint256 _requiredStake = IMarketAccesors(address(_market)).repBond();
         uint256 _totalREPRequired = _requiredStake.add(_additionalStake);
         bytes32 _payoutHash = getPayoutHash(_payout);
@@ -224,7 +224,7 @@ contract KBCArbiter is IArbiter, Initializable {
     }
 
     function contributeInFallback(uint256 _id, uint256[] calldata _payout, uint256 _amount) external {
-        IMarket _market = symbioteData[_id].fallbackMarket;
+        IMarket _market = turboData[_id].fallbackMarket;
         bytes32 _payoutHash = getPayoutHash(_payout);
         reduceStake(_id, _payoutHash, msg.sender, _amount);
         IMarketAccesors(address(_market)).contribute(_payout, _amount, "");
@@ -233,7 +233,7 @@ contract KBCArbiter is IArbiter, Initializable {
     }
 
     function contributeToTentativeInFallback(uint256 _id, uint256[] calldata _payout, uint256 _amount) external {
-        IMarket _market = symbioteData[_id].fallbackMarket;
+        IMarket _market = turboData[_id].fallbackMarket;
         bytes32 _payoutHash = getPayoutHash(_payout);
         reduceStake(_id, _payoutHash, msg.sender, _amount);
         IMarketAccesors(address(_market)).contributeToTentative(_payout, _amount, "");
@@ -242,8 +242,8 @@ contract KBCArbiter is IArbiter, Initializable {
     }
 
     function reduceStake(uint256 _id, bytes32 _payoutHash, address _user, uint256 _amount) private {
-        symbioteData[_id].stakes[_payoutHash].userStake[_user] = symbioteData[_id].stakes[_payoutHash].userStake[_user].sub(_amount);
-        symbioteData[_id].stakes[_payoutHash].totalPayoutStake = symbioteData[_id].stakes[_payoutHash].totalPayoutStake.sub(_amount);
-        symbioteData[_id].totalStake = symbioteData[_id].totalStake.sub(_amount);
+        turboData[_id].stakes[_payoutHash].userStake[_user] = turboData[_id].stakes[_payoutHash].userStake[_user].sub(_amount);
+        turboData[_id].stakes[_payoutHash].totalPayoutStake = turboData[_id].stakes[_payoutHash].totalPayoutStake.sub(_amount);
+        turboData[_id].totalStake = turboData[_id].totalStake.sub(_amount);
     }
 }

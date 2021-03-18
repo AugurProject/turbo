@@ -3,8 +3,8 @@
 import * as hre from "hardhat"; // imported for IDEs; is injected into globals by hardhat
 
 import {
-  SymbioteHatchery__factory,
-  SymbioteShareTokenFactory__factory,
+  TurboHatchery__factory,
+  TurboShareTokenFactory__factory,
   FeePot__factory,
   Cash__factory,
   TrustedArbiter__factory,
@@ -20,21 +20,21 @@ class Deployer {
     const collateral = await this.deployCash("USDC", "USDC", 18);
     const reputationToken = await this.deployCash("REPv2", "REPv2", 18);
 
-    const symbioteShareTokenFactory = await this.deploySymbioteShareTokenFactory();
+    const turboShareTokenFactory = await this.deployTurboShareTokenFactory();
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
-    const symbioteHatchery = await this.deploySymbioteHatchery(symbioteShareTokenFactory.address, feePot.address);
+    const turboHatchery = await this.deployTurboHatchery(turboShareTokenFactory.address, feePot.address);
 
-    console.log("Initializing symbioteShareTokenFactory");
-    await symbioteShareTokenFactory.initialize(symbioteHatchery.address);
+    console.log("Initializing turboShareTokenFactory");
+    await turboShareTokenFactory.initialize(turboHatchery.address);
 
-    const arbiter = await this.deployTrustedArbiter(this.signer.address, symbioteHatchery.address);
+    const arbiter = await this.deployTrustedArbiter(this.signer.address, turboHatchery.address);
 
     return mapOverObject(
       {
         collateral,
         reputationToken,
-        symbioteHatchery,
-        symbioteShareTokenFactory,
+        turboHatchery,
+        turboShareTokenFactory,
         feePot,
         arbiter,
       },
@@ -46,9 +46,9 @@ class Deployer {
     return this.logDeploy(name, () => new Cash__factory(this.signer).deploy(name, symbol, decimals));
   }
 
-  async deploySymbioteShareTokenFactory() {
-    return this.logDeploy("symbioteShareTokenFactory", () =>
-      new SymbioteShareTokenFactory__factory(this.signer).deploy()
+  async deployTurboShareTokenFactory() {
+    return this.logDeploy("turboShareTokenFactory", () =>
+      new TurboShareTokenFactory__factory(this.signer).deploy()
     );
   }
 
@@ -56,9 +56,9 @@ class Deployer {
     return this.logDeploy("feePot", () => new FeePot__factory(this.signer).deploy(collateral, reputationToken));
   }
 
-  async deploySymbioteHatchery(symbioteShareTokenFactory: string, feePot: string) {
-    return this.logDeploy("symbioteHatchery", () =>
-      new SymbioteHatchery__factory(this.signer).deploy(symbioteShareTokenFactory, feePot)
+  async deployTurboHatchery(turboShareTokenFactory: string, feePot: string) {
+    return this.logDeploy("turboHatchery", () =>
+      new TurboHatchery__factory(this.signer).deploy(turboShareTokenFactory, feePot)
     );
   }
 

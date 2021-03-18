@@ -1,7 +1,7 @@
 pragma solidity 0.5.15;
 
 
-interface ISymbioteShareToken {
+interface ITurboShareToken {
     function trustedTransfer(address _from, address _to, uint256 _amount) external;
     function trustedMint(address _target, uint256 _amount) external;
     function trustedBurn(address _target, uint256 _amount) external;

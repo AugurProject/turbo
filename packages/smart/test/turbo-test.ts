@@ -3,14 +3,14 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
 import {
-  SymbioteHatchery__factory,
-  SymbioteHatchery,
-  SymbioteShareTokenFactory__factory,
+  TurboHatchery__factory,
+  TurboHatchery,
+  TurboShareTokenFactory__factory,
   FeePot__factory,
   Cash__factory,
   TrustedArbiter__factory,
-  SymbioteShareToken__factory,
-  SymbioteShareToken,
+  TurboShareToken__factory,
+  TurboShareToken,
   Cash,
   TrustedArbiter,
 } from "../typechain";
@@ -24,7 +24,7 @@ enum MarketTypes {
   SCALAR,
 }
 
-describe("Symbiote", () => {
+describe("Turbo", () => {
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -42,36 +42,36 @@ describe("Symbiote", () => {
   const marketType = MarketTypes.CATEGORICAL;
 
   let collateral: Cash;
-  let symbioteHatchery: SymbioteHatchery;
-  let symbioteId: BigNumber;
-  let invalid: SymbioteShareToken;
-  let all: SymbioteShareToken;
-  let many: SymbioteShareToken;
-  let few: SymbioteShareToken;
-  let none: SymbioteShareToken;
+  let turboHatchery: TurboHatchery;
+  let turboId: BigNumber;
+  let invalid: TurboShareToken;
+  let all: TurboShareToken;
+  let many: TurboShareToken;
+  let few: TurboShareToken;
+  let none: TurboShareToken;
   let arbiter: TrustedArbiter;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const symbioteShareTokenFactory = await new SymbioteShareTokenFactory__factory(signer).deploy();
+    const turboShareTokenFactory = await new TurboShareTokenFactory__factory(signer).deploy();
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    symbioteHatchery = await new SymbioteHatchery__factory(signer).deploy(
-      symbioteShareTokenFactory.address,
+    turboHatchery = await new TurboHatchery__factory(signer).deploy(
+      turboShareTokenFactory.address,
       feePot.address
     );
 
-    await symbioteShareTokenFactory.initialize(symbioteHatchery.address);
+    await turboShareTokenFactory.initialize(turboHatchery.address);
 
-    expect(await symbioteHatchery.tokenFactory()).to.equal(symbioteShareTokenFactory.address);
-    expect(await symbioteHatchery.feePot()).to.equal(feePot.address);
-    expect(await symbioteHatchery.collateral()).to.equal(collateral.address);
+    expect(await turboHatchery.tokenFactory()).to.equal(turboShareTokenFactory.address);
+    expect(await turboHatchery.feePot()).to.equal(feePot.address);
+    expect(await turboHatchery.collateral()).to.equal(collateral.address);
   });
 
   it("can create a market", async () => {
-    arbiter = await new TrustedArbiter__factory(signer).deploy(signer.address, symbioteHatchery.address);
+    arbiter = await new TrustedArbiter__factory(signer).deploy(signer.address, turboHatchery.address);
     const arbiterConfiguration = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
-    await symbioteHatchery.createSymbiote(
+    await turboHatchery.createTurbo(
       creatorFee,
       outcomeSymbols,
       outcomeNames,
@@ -79,16 +79,16 @@ describe("Symbiote", () => {
       arbiter.address,
       arbiterConfiguration
     );
-    const filter = symbioteHatchery.filters.SymbioteCreated(null, null, null, null, null, null, null);
-    const logs = await symbioteHatchery.queryFilter(filter);
+    const filter = turboHatchery.filters.TurboCreated(null, null, null, null, null, null, null);
+    const logs = await turboHatchery.queryFilter(filter);
     expect(logs.length).to.equal(1);
     const [log] = logs;
-    [symbioteId] = log.args;
-    expect(symbioteId).to.equal(0);
+    [turboId] = log.args;
+    expect(turboId).to.equal(0);
 
-    const shareTokens = await symbioteHatchery.getShareTokens(symbioteId);
+    const shareTokens = await turboHatchery.getShareTokens(turboId);
     [invalid, all, many, few, none] = await Promise.all(
-      shareTokens.map((addr) => new SymbioteShareToken__factory(signer).attach(addr))
+      shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
     );
     expect(await invalid.symbol()).to.equal("INVALID");
     expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
@@ -107,8 +107,8 @@ describe("Symbiote", () => {
 
   it("can mint sets", async () => {
     await collateral.faucet(costToMint);
-    await collateral.approve(symbioteHatchery.address, costToMint);
-    await symbioteHatchery.mintCompleteSets(symbioteId, setsToMint, signer.address);
+    await collateral.approve(turboHatchery.address, costToMint);
+    await turboHatchery.mintCompleteSets(turboId, setsToMint, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(0);
     expect(await invalid.balanceOf(signer.address)).to.equal(setsToMint);
@@ -122,7 +122,7 @@ describe("Symbiote", () => {
   const setsLeft = setsToMint - setsToBurn;
 
   it("can burn sets", async () => {
-    await symbioteHatchery.burnCompleteSets(symbioteId, setsToBurn, signer.address);
+    await turboHatchery.burnCompleteSets(turboId, setsToBurn, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(9 * numTicks);
     expect(await invalid.balanceOf(signer.address)).to.equal(setsLeft);
@@ -133,14 +133,14 @@ describe("Symbiote", () => {
   });
 
   it("can claim winnings", async () => {
-    await arbiter.setSymbioteResolution(symbioteId, [0, numTicks, 0, 0, 0]);
+    await arbiter.setTurboResolution(turboId, [0, numTicks, 0, 0, 0]);
     // can burn non-winning shares
     await invalid.transfer(DEAD_ADDRESS, setsLeft);
     await many.transfer(DEAD_ADDRESS, setsLeft);
     await few.transfer(DEAD_ADDRESS, setsLeft);
     await none.transfer(DEAD_ADDRESS, setsLeft);
 
-    await symbioteHatchery.claimWinnings(symbioteId);
+    await turboHatchery.claimWinnings(turboId);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(costToMint); // got all your money back
     expect(await invalid.balanceOf(signer.address)).to.equal(0);

@@ -6,7 +6,7 @@ import "../augur-core/reporting/IMarket.sol";
 import "../libraries/Initializable.sol";
 import "./IArbiter.sol";
 import "../libraries/SafeMathUint256.sol";
-import "./ISymbioteHatchery.sol";
+import "./ITurboHatchery.sol";
 import "../libraries/Ownable.sol";
 
 contract TrustedArbiter is IArbiter, Ownable {
@@ -20,7 +20,7 @@ contract TrustedArbiter is IArbiter, Ownable {
         IMarket.MarketType marketType;
     }
 
-    struct SymbioteData {
+    struct TurboData {
         uint256 startTime;
         uint256 endTime;
         string extraInfo;
@@ -35,15 +35,15 @@ contract TrustedArbiter is IArbiter, Ownable {
     }
 
     address public hatchery;
-    mapping(uint256 => SymbioteData) public symbioteData;
+    mapping(uint256 => TurboData) public turboData;
 
-    constructor(address _owner, ISymbioteHatchery _hatchery) public {
+    constructor(address _owner, ITurboHatchery _hatchery) public {
         owner = _owner;
         hatchery = address(_hatchery);
     }
 
-    function onSymbioteCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
-        require(msg.sender == hatchery, "Can only call `onSymbioteCreated` from the hatchery");
+    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
+        require(msg.sender == hatchery, "Can only call `onTurboCreated` from the hatchery");
 
         (TrustedConfiguration memory _config) = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
         require(_config.startTime > block.timestamp, "Cannot create a market that is already over");
@@ -54,14 +54,14 @@ contract TrustedArbiter is IArbiter, Ownable {
         }
         require(_config.marketType != IMarket.MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
 
-        symbioteData[_id].startTime = _config.startTime;
-        symbioteData[_id].endTime = _config.startTime + _config.duration;
-        symbioteData[_id].extraInfo = _config.extraInfo;
-        symbioteData[_id].numTicks = _numTicks;
-        symbioteData[_id].prices = _config.prices;
-        symbioteData[_id].outcomeNames = _outcomeNames;
-        symbioteData[_id].outcomeSymbols = _outcomeSymbols;
-        symbioteData[_id].marketType = _config.marketType;
+        turboData[_id].startTime = _config.startTime;
+        turboData[_id].endTime = _config.startTime + _config.duration;
+        turboData[_id].extraInfo = _config.extraInfo;
+        turboData[_id].numTicks = _numTicks;
+        turboData[_id].prices = _config.prices;
+        turboData[_id].outcomeNames = _outcomeNames;
+        turboData[_id].outcomeSymbols = _outcomeSymbols;
+        turboData[_id].marketType = _config.marketType;
     }
 
     function encodeConfiguration(
@@ -79,20 +79,20 @@ contract TrustedArbiter is IArbiter, Ownable {
         return _config;
     }
 
-    // symbiote id => payout
-    mapping(uint256 => uint256[]) private symbioteResolutions;
+    // turbo id => payout
+    mapping(uint256 => uint256[]) private turboResolutions;
 
-    function getSymbioteResolution(uint256 _id) public returns (uint256[] memory) {
-        return symbioteResolutions[_id];
+    function getTurboResolution(uint256 _id) public returns (uint256[] memory) {
+        return turboResolutions[_id];
     }
 
-    function setSymbioteResolution(uint256 _id, uint256[] calldata _payout) external onlyOwner {
-        symbioteResolutions[_id] = _payout;
+    function setTurboResolution(uint256 _id, uint256[] calldata _payout) external onlyOwner {
+        turboResolutions[_id] = _payout;
     }
 
     function validatePayout(uint256 _id, uint256[] memory _payout) public view returns (bool) {
-        uint256 _numOutcomes = symbioteData[_id].outcomeNames.length + 1;
-        uint256 _numTicks = symbioteData[_id].numTicks;
+        uint256 _numOutcomes = turboData[_id].outcomeNames.length + 1;
+        uint256 _numTicks = turboData[_id].numTicks;
         require(_payout[0] == 0 || _payout[0] == _numTicks, "Invalid payout must be all or none");
         require(_payout.length == _numOutcomes, "Malformed payout length");
         uint256 _sum = 0;
