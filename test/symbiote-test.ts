@@ -26,21 +26,9 @@ enum MarketTypes {
 
 describe("Symbiote", () => {
   let signer: SignerWithAddress;
-  let symbioteHatcherFactory: SymbioteHatchery__factory;
-  let symbioteShareTokenFactoryFactory: SymbioteShareTokenFactory__factory;
-  let feePotFactory: FeePot__factory;
-  let cashFactory: Cash__factory;
-  let trustedArbiterFactory: TrustedArbiter__factory;
-  let factorySymbioteShareToken: SymbioteShareToken__factory;
 
   before(async () => {
     [signer] = await ethers.getSigners();
-    symbioteHatcherFactory = new SymbioteHatchery__factory(signer);
-    symbioteShareTokenFactoryFactory = new SymbioteShareTokenFactory__factory(signer);
-    feePotFactory = new FeePot__factory(signer);
-    cashFactory = new Cash__factory(signer);
-    trustedArbiterFactory = new TrustedArbiter__factory(signer);
-    factorySymbioteShareToken = new SymbioteShareToken__factory(signer);
   });
 
   const creatorFee = 1;
@@ -64,11 +52,14 @@ describe("Symbiote", () => {
   let arbiter: TrustedArbiter;
 
   it("is deployable", async () => {
-    collateral = await cashFactory.deploy("USDC", "USDC", 18);
-    const reputationToken = await cashFactory.deploy("REPv2", "REPv2", 18);
-    symbioteHatchery = await symbioteHatcherFactory.deploy();
-    const symbioteShareTokenFactory = await symbioteShareTokenFactoryFactory.deploy();
-    const feePot = await feePotFactory.deploy(collateral.address, reputationToken.address);
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
+    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    const symbioteShareTokenFactory = await new SymbioteShareTokenFactory__factory(signer).deploy();
+    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    symbioteHatchery = await new SymbioteHatchery__factory(signer).deploy(
+      symbioteShareTokenFactory.address,
+      feePot.address
+    );
 
     await symbioteShareTokenFactory.initialize(symbioteHatchery.address);
     await symbioteHatchery.initialize(symbioteShareTokenFactory.address, feePot.address);
@@ -79,7 +70,7 @@ describe("Symbiote", () => {
   });
 
   it("can create a market", async () => {
-    arbiter = await trustedArbiterFactory.deploy(signer.address, symbioteHatchery.address);
+    arbiter = await new TrustedArbiter__factory(signer).deploy(signer.address, symbioteHatchery.address);
     const arbiterConfiguration = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
     await symbioteHatchery.createSymbiote(
       creatorFee,
@@ -98,7 +89,7 @@ describe("Symbiote", () => {
 
     const shareTokens = await symbioteHatchery.getShareTokens(symbioteId);
     [invalid, all, many, few, none] = await Promise.all(
-      shareTokens.map((addr) => factorySymbioteShareToken.attach(addr))
+      shareTokens.map((addr) => new SymbioteShareToken__factory(signer).attach(addr))
     );
     expect(await invalid.symbol()).to.equal("INVALID");
     expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));

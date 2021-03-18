@@ -37,9 +37,12 @@ const config: HardhatUserConfig = {
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
-if (PRIVATE_KEY) module.exports.networks.kovan.accounts = [PRIVATE_KEY];
+if (PRIVATE_KEY) {
+  // @ts-ignore
+  config.networks.kovan.accounts = [PRIVATE_KEY];
+}
 
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
-if (ETHERSCAN_API_KEY) module.exports.etherscan = { apiKey: ETHERSCAN_API_KEY };
+if (ETHERSCAN_API_KEY) config.etherscan = { apiKey: ETHERSCAN_API_KEY };
 
 export default config;

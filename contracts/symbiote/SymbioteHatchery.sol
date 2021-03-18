@@ -2,7 +2,6 @@ pragma solidity 0.5.15;
 pragma experimental ABIEncoderV2;
 
 import "./ISymbioteShareToken.sol";
-import "../libraries/Initializable.sol";
 import "../libraries/SafeMathUint256.sol";
 import "../libraries/IERC20.sol";
 import "../augur-para/IFeePot.sol";
@@ -11,7 +10,7 @@ import "./ISymbioteShareTokenFactory.sol";
 import "./IArbiter.sol";
 import "./ISymbioteHatchery.sol";
 
-contract SymbioteHatchery is ISymbioteHatchery, Initializable {
+contract SymbioteHatchery is ISymbioteHatchery {
     using SafeMathUint256 for uint256;
 
     uint256 private constant MIN_OUTCOMES = 2; // Does not Include Invalid
@@ -20,13 +19,11 @@ contract SymbioteHatchery is ISymbioteHatchery, Initializable {
     address private constant NULL_ADDRESS = address(0);
     uint256 private constant MAX_UINT = 2**256 - 1;
 
-    function initialize(ISymbioteShareTokenFactory _tokenFactory, IFeePot _feePot) public beforeInitialized returns (bool) {
-        endInitialization();
+    constructor(ISymbioteShareTokenFactory _tokenFactory, IFeePot _feePot) public {
         tokenFactory = _tokenFactory;
         feePot = _feePot;
         collateral = _feePot.collateral();
         collateral.approve(address(_feePot), MAX_UINT);
-        return true;
     }
 
     function createSymbiote(uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) public returns (uint256) {
