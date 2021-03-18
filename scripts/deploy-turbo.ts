@@ -63,9 +63,7 @@ class Deployer {
   }
 
   async deployTrustedArbiter(owner: string, hatchery: string) {
-    return this.logDeploy("trustedArbiter", () =>
-      new TrustedArbiter__factory(this.signer).deploy(owner, hatchery)
-    );
+    return this.logDeploy("trustedArbiter", () => new TrustedArbiter__factory(this.signer).deploy(owner, hatchery));
   }
 
   async logDeploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>) {
@@ -86,7 +84,6 @@ async function main() {
 function mapOverObject<V1, V2>(o: { [k: string]: V1 }, fn: (k: string, v: V1) => [string, V2]): { [k: string]: V2 } {
   const o2: { [k: string]: V2 } = {};
   for (const key in o) {
-    if (!o.hasOwnProperty(key)) continue;
     const value = o[key];
     const [k, v] = fn(key, value);
     o2[k] = v;

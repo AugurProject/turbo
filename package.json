@@ -13,7 +13,7 @@
     "test": "hardhat test",
     "deploy:turbo": "hardhat run scripts/deploy-turbo.ts",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.json",
-    "format:check": "prettier . -c",
+    "format": "prettier . -c",
     "format:write": "prettier . -w"
   },
   "files": [
