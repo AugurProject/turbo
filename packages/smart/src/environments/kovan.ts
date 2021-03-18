@@ -11,8 +11,8 @@ import { Configuration } from "../configuration";
 const config: Configuration = {
   contractDeploy: {
     strategy: "test",
-    rpcURL: "http://127.0.0.1:8545/",
-    chainID: 31337,
+    rpcURL: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
+    chainID: 42,
   },
 };
 export default config;

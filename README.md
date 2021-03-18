@@ -14,13 +14,6 @@ yarn test
 ```
 
 Want to test deploying?
-You can test deploy against the internal test environment.
-
-```shell
-yarn smart contracts:deploy
-```
-
-Want to test a deploy you can actually interact with?
 First start a local ethereum node:
 
 ```shell
