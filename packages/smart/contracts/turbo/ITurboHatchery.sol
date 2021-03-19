@@ -6,7 +6,6 @@ import "../libraries/Initializable.sol";
 import "../libraries/SafeMathUint256.sol";
 import "../libraries/IERC20.sol";
 import "../augur-para/IFeePot.sol";
-import "../augur-para/IParaOICash.sol";
 import "./ITurboShareTokenFactory.sol";
 import "./IArbiter.sol";
 
