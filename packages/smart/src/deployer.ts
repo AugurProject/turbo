@@ -1,36 +1,30 @@
 import {
+  AMMFactory,
+  AMMFactory__factory,
+  BFactory,
   BFactory__factory,
+  BPool,
+  BPool__factory,
+  Cash,
   Cash__factory,
-  FeePot__factory,
-  HatcheryRegistry__factory,
   HatcheryRegistry,
+  HatcheryRegistry__factory,
+  TrustedArbiter,
   TrustedArbiter__factory,
+  TurboHatchery,
   TurboHatchery__factory,
-  TurboShareTokenFactory__factory, TurboHatchery
 } from "../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumberish, Contract } from "ethers";
-import { mapOverObject } from "./util";
+import { mapOverObject, MarketTypes } from "./util";
 import { Configuration, isContractDeployProductionConfig, isContractDeployTestConfig } from "./configuration";
-
-export class TurboCreator {
-  constructor(readonly hatcheryRegistry: HatcheryRegistry) {}
-
-  async createHatchery(collateral: string): Promise<TurboHatchery> {
-    await this.hatcheryRegistry.createHatchery(collateral);
-
-    const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
-    const logs = await this.hatcheryRegistry.queryFilter(filter);
-    const [log] = logs;
-    const [hatchery] = log.args;
-    return TurboHatchery__factory.connect(hatchery, this.hatcheryRegistry.signer);
-  }
-}
+import { ethers } from "hardhat";
+import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
 
 export class Deployer {
   constructor(readonly signer: SignerWithAddress, readonly config: Configuration) {}
 
-  async deploy() {
+  async deploy(): Promise<Deploy> {
     switch (this.config?.contractDeploy?.strategy) {
       case "test":
         return this.deployTest();
@@ -42,84 +36,223 @@ export class Deployer {
   }
 
   // Deploys the test contracts (faucets etc)
-  async deployTest() {
+  async deployTest(): Promise<Deploy> {
     if (!isContractDeployTestConfig(this.config?.contractDeploy))
       throw Error(`Use test config for deploy not ${JSON.stringify(this.config.contractDeploy)}`);
 
+    console.log("Deploying test contracts");
     const collateral = await this.deployCash("USDC", "USDC", 18);
     const reputationToken = await this.deployCash("REPv2", "REPv2", 18);
+    const balancerFactory = await this.deployBalancerFactory();
 
+    console.log("Deploying core Turbo system");
     const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken.address);
 
     console.log("Creating a hatchery for testing");
     const creator = new TurboCreator(hatcheryRegistry);
     const hatchery = await creator.createHatchery(collateral.address);
-
     const arbiter = await this.deployTrustedArbiter(this.signer.address, hatchery.address);
-    const balancerFactory = await this.deployBalancerFactory();
 
-    return mapOverObject(
+    console.log("Creating a turbo for testing");
+    const turboId = await creator.createTurbo(
+      hatchery.address,
+      TurboCreator.buildTrustedArbiterConfiguration({ arbiter: arbiter.address })
+    );
+
+    console.log("Creating AMM for testing");
+    const basis = ethers.BigNumber.from(10).pow(18);
+    const weights = [
+      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
+      basis.mul(2).div(2), // Invalid at 2%
+      basis.mul(49).div(2), // No at 49%
+      basis.mul(49).div(2), // Yes at 49%
+    ];
+    const ammFactory = await this.deployAMMFactory(balancerFactory.address);
+    const initialLiquidity = basis.mul(1000); // 1000 of the collateral
+    console.log("Fauceting collateral for AMM");
+    await collateral.faucet(initialLiquidity);
+    console.log("Approving the AMM to spend some of the deployer's collateral");
+    await collateral.approve(ammFactory.address, initialLiquidity);
+    console.log("Creating pool");
+    const pool = await creator.createPool(ammFactory.address, hatchery.address, turboId, initialLiquidity, weights);
+
+    console.log("Done deploying!");
+
+    const addresses = mapOverObject(
       {
         collateral,
         reputationToken,
+        balancerFactory,
         hatcheryRegistry,
         hatchery,
         arbiter,
-        balancerFactory,
+        ammFactory,
+        pool,
       },
       (name, contract) => [name, contract.address]
     );
+    return {
+      addresses,
+      turboId: turboId,
+    };
   }
 
-  async deployProduction() {
+  async deployProduction(): Promise<Deploy> {
     if (!isContractDeployProductionConfig(this.config?.contractDeploy))
       throw Error(`Use production config for deploy not ${JSON.stringify(this.config.contractDeploy)}`);
-    const { collateral, reputationToken } = this.config.contractDeploy.externalAddresses;
+    const { reputationToken } = this.config.contractDeploy.externalAddresses;
 
-    const turboShareTokenFactory = await this.deployTurboShareTokenFactory();
-    const feePot = await this.deployFeePot(collateral, reputationToken);
-    const turboHatchery = await this.deployTurboHatchery(turboShareTokenFactory.address, feePot.address);
+    console.log("Deploying core Turbo system");
+    const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken.address);
 
-    console.log("Initializing turboShareTokenFactory");
-    await turboShareTokenFactory.initialize(turboHatchery.address);
+    const addresses = mapOverObject(
+      {
+        hatcheryRegistry,
+      },
+      (name, contract) => [name, contract.address]
+    );
+
+    return { addresses };
   }
 
-  async deployCash(name: string, symbol: string, decimals: BigNumberish) {
+  async deployCash(name: string, symbol: string, decimals: BigNumberish): Promise<Cash> {
     return this.logDeploy(name, () => new Cash__factory(this.signer).deploy(name, symbol, decimals));
   }
 
-  async deployHatcheryRegistry(owner: string, reputationToken: string) {
+  async deployHatcheryRegistry(owner: string, reputationToken: string): Promise<HatcheryRegistry> {
     return this.logDeploy("hatcheryRegistry", () =>
       new HatcheryRegistry__factory(this.signer).deploy(owner, reputationToken)
     );
   }
 
-  async deployTurboShareTokenFactory() {
-    return this.logDeploy("turboShareTokenFactory", () => new TurboShareTokenFactory__factory(this.signer).deploy());
-  }
-
-  async deployFeePot(collateral: string, reputationToken: string) {
-    return this.logDeploy("feePot", () => new FeePot__factory(this.signer).deploy(collateral, reputationToken));
-  }
-
-  async deployTurboHatchery(turboShareTokenFactory: string, feePot: string) {
-    return this.logDeploy("turboHatchery", () =>
-      new TurboHatchery__factory(this.signer).deploy(turboShareTokenFactory, feePot)
-    );
-  }
-
-  async deployTrustedArbiter(owner: string, hatchery: string) {
+  async deployTrustedArbiter(owner: string, hatchery: string): Promise<TrustedArbiter> {
     return this.logDeploy("trustedArbiter", () => new TrustedArbiter__factory(this.signer).deploy(owner, hatchery));
   }
 
-  async deployBalancerFactory() {
+  async deployBalancerFactory(): Promise<BFactory> {
     return this.logDeploy("balancerFactory", () => new BFactory__factory(this.signer).deploy());
   }
 
-  async logDeploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>) {
+  async deployAMMFactory(balancerFactory: string): Promise<AMMFactory> {
+    return this.logDeploy("ammFactory", () => new AMMFactory__factory(this.signer).deploy(balancerFactory));
+  }
+
+  async logDeploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>): Promise<T> {
     console.log(`Deploying ${name}`);
     const contract = await deployFn.bind(this)();
     console.log(`Deployed ${name}: ${contract.address}`);
     return contract;
   }
+}
+
+export interface Deploy {
+  addresses: { [name: string]: string };
+  [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
+}
+
+export class TurboCreator {
+  constructor(readonly hatcheryRegistry: HatcheryRegistry) {}
+
+  async createHatchery(collateral: string): Promise<TurboHatchery> {
+    await this.hatcheryRegistry.createHatchery(collateral);
+
+    const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
+    const [log] = await this.hatcheryRegistry.queryFilter(filter);
+    const [hatchery] = log.args;
+    return TurboHatchery__factory.connect(hatchery, this.hatcheryRegistry.signer);
+  }
+
+  async createTurbo(hatcheryAddress: string, arbiterConfiguration: TrustedArbiterConfiguration): Promise<BigNumberish> {
+    const {
+      creatorFee,
+      outcomeSymbols,
+      outcomeNames,
+      numTicks,
+      arbiter: arbiterAddress,
+      startTime,
+      duration,
+      extraInfo,
+      prices,
+      marketType,
+    } = arbiterConfiguration;
+
+    const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
+    const arbiter = TrustedArbiter__factory.connect(arbiterAddress, this.hatcheryRegistry.signer);
+
+    const index = randomAddress(); // just a hexadecimal between 0 and 2**160
+    const arbiterConfig = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
+    await hatchery.createTurbo(
+      index,
+      creatorFee,
+      outcomeSymbols,
+      outcomeNames,
+      numTicks,
+      arbiterAddress,
+      arbiterConfig
+    );
+    const filter = hatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
+    const [log] = await hatchery.queryFilter(filter);
+    const [id] = log.args;
+    return id;
+  }
+
+  static buildTrustedArbiterConfiguration(
+    specified: Partial<TrustedArbiterConfiguration> & { arbiter: string }
+  ): TrustedArbiterConfiguration {
+    return {
+      creatorFee: ethers.BigNumber.from(10).pow(16),
+      outcomeSymbols: ["NO", "YES"],
+      outcomeNames: ["NO", "YES"].map(ethers.utils.formatBytes32String),
+      numTicks: 1000,
+      startTime: Date.now() + 60,
+      duration: 60 * 60 * 24,
+      extraInfo: "",
+      prices: [],
+      marketType: MarketTypes.CATEGORICAL,
+      ...specified,
+    };
+  }
+
+  async createPool(
+    ammFactoryAddress: string,
+    hatcheryAddress: string,
+    turboId: BigNumberish,
+    initialLiquidity: BigNumberish,
+    weights: BigNumberish[]
+  ): Promise<BPool> {
+    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, this.hatcheryRegistry.signer);
+    const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
+
+    await ammFactory.createPool(
+      hatchery.address,
+      turboId,
+      initialLiquidity,
+      weights,
+      await this.hatcheryRegistry.signer.getAddress()
+    );
+    const filter = ammFactory.filters.PoolCreated(
+      null,
+      hatcheryAddress,
+      turboId,
+      await this.hatcheryRegistry.signer.getAddress()
+    );
+    const [log] = await ammFactory.queryFilter(filter);
+    const [pool] = log.args;
+    return BPool__factory.connect(pool, this.hatcheryRegistry.signer);
+  }
+}
+
+export interface TrustedArbiterConfiguration {
+  creatorFee: BigNumberish;
+  outcomeSymbols: string[];
+  outcomeNames: string[];
+  numTicks: BigNumberish;
+  arbiter: string;
+
+  // encoded in TrustedArbiter.TrustedConfiguration
+  startTime: BigNumberish;
+  duration: BigNumberish;
+  extraInfo: string;
+  prices: BigNumberish[];
+  marketType: MarketTypes;
 }

@@ -6,7 +6,7 @@ import "./ITurboHatchery.sol";
 import "../libraries/Ownable.sol";
 
 
-contract TurboShareToken is VariableSupplyToken, ITurboShareToken, Ownable {
+contract TurboShareToken is ITurboShareToken, VariableSupplyToken, Ownable {
     
     bytes32 public name;
     string public symbol;

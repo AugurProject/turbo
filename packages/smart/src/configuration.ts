@@ -23,7 +23,6 @@ export interface ContractDeployProductionConfig extends ContractDeployCommonConf
 }
 
 export interface ContractDeployExternalAddresses {
-  collateral: string;
   reputationToken: string;
 }
 

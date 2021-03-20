@@ -3,26 +3,19 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
 import {
-  TurboHatchery__factory,
-  TurboHatchery,
-  TurboShareTokenFactory__factory,
-  FeePot__factory,
-  Cash__factory,
-  TrustedArbiter__factory,
-  TurboShareToken__factory,
-  TurboShareToken,
   Cash,
+  Cash__factory,
+  FeePot__factory,
   TrustedArbiter,
+  TrustedArbiter__factory,
+  TurboHatchery,
+  TurboHatchery__factory,
+  TurboShareToken,
+  TurboShareToken__factory,
+  TurboShareTokenFactory__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
-
-const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-const DEAD_ADDRESS = "0x000000000000000000000000000000000000DEAD";
-enum MarketTypes {
-  YES_NO,
-  CATEGORICAL,
-  SCALAR,
-}
+import { DEAD_ADDRESS, MarketTypes } from "../src/util";
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
@@ -68,7 +61,9 @@ describe("Turbo", () => {
   it("can create a market", async () => {
     arbiter = await new TrustedArbiter__factory(signer).deploy(signer.address, turboHatchery.address);
     const arbiterConfiguration = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
+    const index = 42; // arbitrary uint256 for easy log filtering
     await turboHatchery.createTurbo(
+      index,
       creatorFee,
       outcomeSymbols,
       outcomeNames,
@@ -76,7 +71,7 @@ describe("Turbo", () => {
       arbiter.address,
       arbiterConfiguration
     );
-    const filter = turboHatchery.filters.TurboCreated(null, null, null, null, null, null, null);
+    const filter = turboHatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
     const logs = await turboHatchery.queryFilter(filter);
     expect(logs.length).to.equal(1);
     const [log] = logs;
