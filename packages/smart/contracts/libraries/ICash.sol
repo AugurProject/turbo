@@ -1,6 +1,6 @@
 pragma solidity 0.5.15;
 
-import "../libraries/IERC20.sol";
+import "./IERC20.sol";
 
 
 contract ICash is IERC20 {

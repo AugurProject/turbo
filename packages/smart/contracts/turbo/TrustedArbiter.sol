@@ -2,7 +2,6 @@ pragma solidity 0.5.15;
 pragma experimental ABIEncoderV2;
 
 import "../libraries/IERC20.sol";
-import "../augur-core/reporting/IMarket.sol";
 import "../libraries/Initializable.sol";
 import "./IArbiter.sol";
 import "../libraries/SafeMathUint256.sol";
@@ -12,12 +11,18 @@ import "../libraries/Ownable.sol";
 contract TrustedArbiter is IArbiter, Ownable {
     using SafeMathUint256 for uint256;
 
+    enum MarketType {
+        YES_NO,
+        CATEGORICAL,
+        SCALAR
+    }
+
     struct TrustedConfiguration {
         uint256 startTime;
         uint256 duration;
         string extraInfo;
         int256[] prices;
-        IMarket.MarketType marketType;
+        MarketType marketType;
     }
 
     struct TurboData {
@@ -28,10 +33,9 @@ contract TrustedArbiter is IArbiter, Ownable {
         bytes32[] outcomeNames;
         string[] outcomeSymbols;
         int256[] prices;
-        IMarket.MarketType marketType;
+        MarketType marketType;
         bytes32 winningPayoutHash;
         uint256 totalStake;
-        IMarket fallbackMarket;
     }
 
     address public hatchery;
@@ -52,7 +56,7 @@ contract TrustedArbiter is IArbiter, Ownable {
             require(_config.prices[0] < _config.prices[1], "First price is the minimum");
             require(uint256(_config.prices[1] - _config.prices[0]) > _numTicks, "Price range must be larger than numticks");
         }
-        require(_config.marketType != IMarket.MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
+        require(_config.marketType != MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
 
         turboData[_id].startTime = _config.startTime;
         turboData[_id].endTime = _config.startTime + _config.duration;
@@ -69,7 +73,7 @@ contract TrustedArbiter is IArbiter, Ownable {
         uint256 _duration,
         string memory _extraInfo,
         int256[] memory _prices,
-        IMarket.MarketType _marketType
+        MarketType _marketType
     ) public pure returns (bytes memory) {
         return abi.encode(TrustedConfiguration(_startTime, _duration, _extraInfo, _prices, _marketType));
     }
