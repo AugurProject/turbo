@@ -25,7 +25,7 @@ contract TurboHatchery is ITurboHatchery {
         collateral.approve(address(_feePot), MAX_UINT);
     }
 
-    function createTurbo(uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) public returns (uint256) {
+    function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) public returns (uint256) {
         require(_numTicks.isMultipleOf(2), "TurboHatchery.createTurbo: numTicks must be multiple of 2");
         require(_numTicks >= _outcomeSymbols.length, "TurboHatchery.createTurbo: numTicks lower than numOutcomes");
         require(MIN_OUTCOMES <= _outcomeSymbols.length && _outcomeSymbols.length <= MAX_OUTCOMES, "TurboHatchery.createTurbo: Number of outcomes is not acceptable");
@@ -43,7 +43,7 @@ contract TurboHatchery is ITurboHatchery {
             ));
         }
         _arbiter.onTurboCreated(_id, _outcomeSymbols, _outcomeNames, _numTicks, _arbiterConfiguration);
-        emit TurboCreated(_id, _creatorFee, _outcomeSymbols, _outcomeNames, _numTicks, _arbiter, _arbiterConfiguration);
+        emit TurboCreated(_id, _creatorFee, _outcomeSymbols, _outcomeNames, _numTicks, _arbiter, _arbiterConfiguration, _index);
         return _id;
     }
 

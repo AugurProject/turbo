@@ -2,7 +2,6 @@
 
 import program from "commander";
 import { Option } from "commander";
-import * as hre from "hardhat"; // imported for IDEs; is injected into globals by hardhat
 import { ethers } from "ethers";
 
 import { Deployer, Environment, environments } from "../src";
@@ -36,8 +35,9 @@ async function main() {
   const signer = await SignerWithAddress.create(provider.getSigner());
 
   const deployer = new Deployer(signer, config);
-  const addresses = await deployer.deployTest();
-  console.log(JSON.stringify(addresses, null, 2));
+  const deploy = await deployer.deployTest();
+  deploy.turboId = deploy.turboId.toString();
+  console.log(JSON.stringify(deploy, null, 2));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

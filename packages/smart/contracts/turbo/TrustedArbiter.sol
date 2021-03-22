@@ -47,7 +47,7 @@ contract TrustedArbiter is IArbiter, Ownable {
 
         (TrustedConfiguration memory _config) = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
         require(_config.startTime > block.timestamp, "Cannot create a market that is already over");
-        require(_config.prices.length == 2 || _config.prices.length == 0, "Scalar markets have 2 prices. all others have 0");
+        require(_config.prices.length == 2 || _config.prices.length == 0, "Scalar markets have 2 prices. All others have 0");
         if (_config.prices.length == 2) {
             require(_config.prices[0] < _config.prices[1], "First price is the minimum");
             require(uint256(_config.prices[1] - _config.prices[0]) > _numTicks, "Price range must be larger than numticks");
