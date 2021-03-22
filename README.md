@@ -1,3 +1,5 @@
+[![Packages CI](https://github.com/AugurProject/turbo/actions/workflows/node.js.yml/badge.svg)](https://github.com/AugurProject/turbo/actions/workflows/node.js.yml)
+
 # How To Use
 
 First get dependencies and build everything.
