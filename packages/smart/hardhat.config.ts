@@ -2,6 +2,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
+import "hardhat-docgen";
 
 import { task, HardhatUserConfig } from "hardhat/config";
 import {
@@ -121,6 +122,10 @@ const config: HardhatUserConfig = {
   contractDeploy: {
     strategy: "test",
   },
+  docgen: {
+    path: './docs',
+    clear: true,
+  }
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
