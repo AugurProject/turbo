@@ -103,7 +103,7 @@ export class Deployer {
     const { reputationToken } = this.config.contractDeploy.externalAddresses;
 
     console.log("Deploying core Turbo system");
-    const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken.address);
+    const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken);
 
     const addresses = mapOverObject(
       {
