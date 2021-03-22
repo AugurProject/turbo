@@ -1,8 +1,8 @@
 pragma solidity 0.5.15;
 
 import "./ICash.sol";
-import "../libraries/ITyped.sol";
-import "../libraries/VariableSupplyToken.sol";
+import "./ITyped.sol";
+import "./VariableSupplyToken.sol";
 
 
 /**
