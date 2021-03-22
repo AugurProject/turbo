@@ -7,3 +7,5 @@ dist
 typechain
 # don't lint nyc coverage output
 coverage
+#ignore actions
+.github
