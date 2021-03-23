@@ -1,9 +1,3 @@
 #Hardhat files
 cache
 artifacts
-
-# typechain
-typechain
-
-# abis
-abi

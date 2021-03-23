@@ -5,9 +5,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 
 jobs:
   build:
@@ -41,5 +41,5 @@ jobs:
     - run: yarn
     - run: yarn build
     - run: yarn lint
-    - run: yarn format
+    - run: yarn prettier -c ./
     - run: yarn test

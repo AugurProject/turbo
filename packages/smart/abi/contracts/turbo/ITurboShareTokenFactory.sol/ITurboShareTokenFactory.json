@@ -1,0 +1,28 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "_names",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_symbols",
+        "type": "string[]"
+      }
+    ],
+    "name": "createShareTokens",
+    "outputs": [
+      {
+        "internalType": "contract ITurboShareToken[]",
+        "name": "tokens",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

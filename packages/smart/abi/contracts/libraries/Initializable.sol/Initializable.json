@@ -1,0 +1,17 @@
+[
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
