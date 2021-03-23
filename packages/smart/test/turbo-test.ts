@@ -7,8 +7,6 @@ import {
   AMMFactory__factory,
   BFactory,
   BFactory__factory,
-  BPool,
-  BPool__factory,
   Cash,
   Cash__factory,
   FeePot__factory,
@@ -52,7 +50,6 @@ describe("Turbo", () => {
   let arbiter: TrustedArbiter;
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
-  let pool: BPool;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
@@ -150,11 +147,6 @@ describe("Turbo", () => {
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(turboHatchery.address, turboId, initialLiquidity, weights, signer.address);
-
-    const filter = ammFactory.filters.PoolCreated(null, turboHatchery.address, turboId, signer.address);
-    const [log] = await ammFactory.queryFilter(filter);
-    const [poolAddress] = log.args;
-    pool = BPool__factory.connect(poolAddress, signer);
   });
 
   it("can buy shares from the AMM", async () => {

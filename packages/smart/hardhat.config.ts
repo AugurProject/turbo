@@ -3,7 +3,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
 import "hardhat-contract-sizer";
 
-import { task, HardhatUserConfig, types, extendConfig } from "hardhat/config";
+import { task, HardhatUserConfig } from "hardhat/config";
 import {
   ContractDeployConfig,
   ContractDeployProductionConfig,
@@ -93,8 +93,6 @@ export function isContractDeployProductionConfig(
 ): thing is ContractDeployProductionConfig {
   return thing?.strategy === "production";
 }
-
-extendConfig((config, userConfig) => {});
 
 const config: HardhatUserConfig = {
   solidity: {
