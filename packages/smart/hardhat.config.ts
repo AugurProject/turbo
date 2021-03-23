@@ -43,12 +43,12 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre: HardhatRuntimeEnviron
 declare module "hardhat/types/config" {
   export interface HardhatUserConfig {
     contractDeploy?: ContractDeployConfig;
-    etherscanVerification?: EtherscanVerificationConfig; // TODO use this for full verification, not the one-offs hardhat makes easy
+    etherscanVerification?: EtherscanVerificationConfig;
   }
 
   export interface HardhatConfig {
     contractDeploy?: ContractDeployConfig;
-    etherscanVerification?: EtherscanVerificationConfig; // TODO use this for full verification, not the one-offs hardhat makes easy
+    etherscanVerification?: EtherscanVerificationConfig;
   }
 
   export type DeployStrategy = "test" | "production";
