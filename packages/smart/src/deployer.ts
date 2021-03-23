@@ -14,44 +14,28 @@ import {
   TurboHatchery,
   TurboHatchery__factory,
 } from "../typechain";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumberish, Contract } from "ethers";
+import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
 import { mapOverObject, MarketTypes } from "./util";
-import { Configuration, isContractDeployProductionConfig, isContractDeployTestConfig } from "./configuration";
-import { ethers } from "hardhat";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
+import { ContractDeployExternalAddresses } from "hardhat/types";
 
 export class Deployer {
-  constructor(readonly signer: SignerWithAddress, readonly config: Configuration) {}
-
-  async deploy(): Promise<Deploy> {
-    switch (this.config?.contractDeploy?.strategy) {
-      case "test":
-        return this.deployTest();
-      case "production":
-        return this.deployProduction();
-      default:
-        throw Error("To deploy, config must contain contractDeploy");
-    }
-  }
+  constructor(readonly signer: Signer) {}
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
-    if (!isContractDeployTestConfig(this.config?.contractDeploy))
-      throw Error(`Use test config for deploy not ${JSON.stringify(this.config.contractDeploy)}`);
-
     console.log("Deploying test contracts");
-    const collateral = await this.deployCash("USDC", "USDC", 18);
-    const reputationToken = await this.deployCash("REPv2", "REPv2", 18);
+    const collateral = await this.deployCollateral("USDC", "USDC", 18);
+    const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
 
     console.log("Deploying core Turbo system");
-    const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken.address);
+    const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
 
     console.log("Creating a hatchery for testing");
     const creator = new TurboCreator(hatcheryRegistry);
     const hatchery = await creator.createHatchery(collateral.address);
-    const arbiter = await this.deployTrustedArbiter(this.signer.address, hatchery.address);
+    const arbiter = await this.deployTrustedArbiter(await this.signer.getAddress(), hatchery.address);
 
     console.log("Creating a turbo for testing");
     const turboId = await creator.createTurbo(
@@ -60,7 +44,7 @@ export class Deployer {
     );
 
     console.log("Creating AMM for testing");
-    const basis = ethers.BigNumber.from(10).pow(18);
+    const basis = BigNumber.from(10).pow(18);
     const weights = [
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
       basis.mul(2).div(2), // Invalid at 2%
@@ -97,13 +81,11 @@ export class Deployer {
     };
   }
 
-  async deployProduction(): Promise<Deploy> {
-    if (!isContractDeployProductionConfig(this.config?.contractDeploy))
-      throw Error(`Use production config for deploy not ${JSON.stringify(this.config.contractDeploy)}`);
-    const { reputationToken } = this.config.contractDeploy.externalAddresses;
+  async deployProduction(externalAddresses: ContractDeployExternalAddresses): Promise<Deploy> {
+    const { reputationToken } = externalAddresses;
 
     console.log("Deploying core Turbo system");
-    const hatcheryRegistry = await this.deployHatcheryRegistry(this.signer.address, reputationToken);
+    const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken);
 
     const addresses = mapOverObject(
       {
@@ -115,7 +97,7 @@ export class Deployer {
     return { addresses };
   }
 
-  async deployCash(name: string, symbol: string, decimals: BigNumberish): Promise<Cash> {
+  async deployCollateral(name: string, symbol: string, decimals: BigNumberish): Promise<Cash> {
     return this.logDeploy(name, () => new Cash__factory(this.signer).deploy(name, symbol, decimals));
   }
 
@@ -139,7 +121,12 @@ export class Deployer {
 
   async logDeploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>): Promise<T> {
     console.log(`Deploying ${name}`);
-    const contract = await deployFn.bind(this)();
+    const contract = await deployFn
+      .bind(this)()
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
     console.log(`Deployed ${name}: ${contract.address}`);
     return contract;
   }
@@ -154,7 +141,7 @@ export class TurboCreator {
   constructor(readonly hatcheryRegistry: HatcheryRegistry) {}
 
   async createHatchery(collateral: string): Promise<TurboHatchery> {
-    await this.hatcheryRegistry.createHatchery(collateral);
+    await this.hatcheryRegistry.createHatchery(collateral).then((tx) => tx.wait());
 
     const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
     const [log] = await this.hatcheryRegistry.queryFilter(filter);
@@ -181,15 +168,9 @@ export class TurboCreator {
 
     const index = randomAddress(); // just a hexadecimal between 0 and 2**160
     const arbiterConfig = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
-    await hatchery.createTurbo(
-      index,
-      creatorFee,
-      outcomeSymbols,
-      outcomeNames,
-      numTicks,
-      arbiterAddress,
-      arbiterConfig
-    );
+    await hatchery
+      .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
+      .then((tx) => tx.wait());
     const filter = hatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
     const [log] = await hatchery.queryFilter(filter);
     const [id] = log.args;
@@ -200,9 +181,9 @@ export class TurboCreator {
     specified: Partial<TrustedArbiterConfiguration> & { arbiter: string }
   ): TrustedArbiterConfiguration {
     return {
-      creatorFee: ethers.BigNumber.from(10).pow(16),
+      creatorFee: BigNumber.from(10).pow(16),
       outcomeSymbols: ["NO", "YES"],
-      outcomeNames: ["NO", "YES"].map(ethers.utils.formatBytes32String),
+      outcomeNames: ["NO", "YES"].map(utils.formatBytes32String),
       numTicks: 1000,
       startTime: Date.now() + 60,
       duration: 60 * 60 * 24,
@@ -223,13 +204,9 @@ export class TurboCreator {
     const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, this.hatcheryRegistry.signer);
     const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
 
-    await ammFactory.createPool(
-      hatchery.address,
-      turboId,
-      initialLiquidity,
-      weights,
-      await this.hatcheryRegistry.signer.getAddress()
-    );
+    await ammFactory
+      .createPool(hatchery.address, turboId, initialLiquidity, weights, await this.hatcheryRegistry.signer.getAddress())
+      .then((tx) => tx.wait());
     const filter = ammFactory.filters.PoolCreated(
       null,
       hatcheryAddress,
