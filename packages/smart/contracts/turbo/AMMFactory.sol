@@ -57,7 +57,7 @@ contract AMMFactory is HasTurboStruct {
         IERC20 _collateral = _hatchery.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
         uint256 _sets = _collateralIn / _turbo.numTicks;
-        _hatchery.mintCompleteSets(_turboId, _sets, address (this));
+        _hatchery.mintCompleteSets(_turboId, _sets, address(this));
 
         BPool _pool = pools[address(_hatchery)][_turboId];
         require(_pool != BPool(0), "Pool needs to be created");

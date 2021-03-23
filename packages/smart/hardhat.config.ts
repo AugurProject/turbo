@@ -55,7 +55,7 @@ declare module "hardhat/types/config" {
 
   export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;
   export interface ContractDeployCommonConfig {
-    strategy: DeployStrategy
+    strategy: DeployStrategy;
   }
   export interface ContractDeployTestConfig extends ContractDeployCommonConfig {
     strategy: "test";

@@ -121,7 +121,12 @@ export class Deployer {
 
   async logDeploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>): Promise<T> {
     console.log(`Deploying ${name}`);
-    const contract = await deployFn.bind(this)().catch(err => { console.error(err); throw err});
+    const contract = await deployFn
+      .bind(this)()
+      .catch((err) => {
+        console.error(err);
+        throw err;
+      });
     console.log(`Deployed ${name}: ${contract.address}`);
     return contract;
   }
@@ -136,7 +141,7 @@ export class TurboCreator {
   constructor(readonly hatcheryRegistry: HatcheryRegistry) {}
 
   async createHatchery(collateral: string): Promise<TurboHatchery> {
-    await this.hatcheryRegistry.createHatchery(collateral).then(tx => tx.wait());
+    await this.hatcheryRegistry.createHatchery(collateral).then((tx) => tx.wait());
 
     const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
     const [log] = await this.hatcheryRegistry.queryFilter(filter);
@@ -163,15 +168,9 @@ export class TurboCreator {
 
     const index = randomAddress(); // just a hexadecimal between 0 and 2**160
     const arbiterConfig = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
-    await hatchery.createTurbo(
-      index,
-      creatorFee,
-      outcomeSymbols,
-      outcomeNames,
-      numTicks,
-      arbiterAddress,
-      arbiterConfig
-    ).then(tx => tx.wait());
+    await hatchery
+      .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
+      .then((tx) => tx.wait());
     const filter = hatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
     const [log] = await hatchery.queryFilter(filter);
     const [id] = log.args;
@@ -205,13 +204,9 @@ export class TurboCreator {
     const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, this.hatcheryRegistry.signer);
     const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
 
-    await ammFactory.createPool(
-      hatchery.address,
-      turboId,
-      initialLiquidity,
-      weights,
-      await this.hatcheryRegistry.signer.getAddress()
-    ).then(tx => tx.wait());
+    await ammFactory
+      .createPool(hatchery.address, turboId, initialLiquidity, weights, await this.hatcheryRegistry.signer.getAddress())
+      .then((tx) => tx.wait());
     const filter = ammFactory.filters.PoolCreated(
       null,
       hatcheryAddress,

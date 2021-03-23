@@ -3,6 +3,10 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
 import {
+  AMMFactory,
+  AMMFactory__factory,
+  BFactory,
+  BFactory__factory, BPool, BPool__factory,
   Cash,
   Cash__factory,
   FeePot__factory,
@@ -12,7 +16,7 @@ import {
   TurboHatchery__factory,
   TurboShareToken,
   TurboShareToken__factory,
-  TurboShareTokenFactory__factory,
+  TurboShareTokenFactory__factory
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { DEAD_ADDRESS, MarketTypes } from "../src/util";
@@ -33,6 +37,7 @@ describe("Turbo", () => {
   const extraInfo = "";
   const prices: number[] = [];
   const marketType = MarketTypes.CATEGORICAL;
+  const basis = BigNumber.from(10).pow(18);
 
   let collateral: Cash;
   let turboHatchery: TurboHatchery;
@@ -43,6 +48,9 @@ describe("Turbo", () => {
   let few: TurboShareToken;
   let none: TurboShareToken;
   let arbiter: TrustedArbiter;
+  let bFactory: BFactory;
+  let ammFactory: AMMFactory;
+  let pool: BPool;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
@@ -96,6 +104,7 @@ describe("Turbo", () => {
 
   const setsToMint = 100;
   const costToMint = setsToMint * numTicks;
+const collateralIn = basis.mul(2);
 
   it("can mint sets", async () => {
     await collateral.faucet(costToMint);
@@ -124,6 +133,42 @@ describe("Turbo", () => {
     expect(await none.balanceOf(signer.address)).to.equal(setsLeft);
   });
 
+  it("can make an AMM", async () => {
+    bFactory = await new BFactory__factory(signer).deploy();
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address);
+    const weights = [
+      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
+      basis.mul(2).div(2), // Invalid at 2%
+      basis.mul(24).div(2), // All at 24%
+      basis.mul(25).div(2), // Some at 25%
+      basis.mul(25).div(2), // Few at 25%
+      basis.mul(24).div(2), // None at 24%
+    ];
+    const initialLiquidity = basis.mul(1000); // 1000 of the collateral
+    await collateral.faucet(initialLiquidity);
+    await collateral.approve(ammFactory.address, initialLiquidity);
+    await ammFactory.createPool(turboHatchery.address, turboId, initialLiquidity, weights, signer.address);
+
+    const filter = ammFactory.filters.PoolCreated(
+      null,
+      turboHatchery.address,
+      turboId,
+      signer.address
+    );
+    const [log] = await ammFactory.queryFilter(filter);
+    const [poolAddress] = log.args;
+    pool = BPool__factory.connect(poolAddress, signer);
+  });
+
+  it("can buy shares from the AMM", async () => {
+    const outcome = 1; // outcome "All"
+    await collateral.faucet(collateralIn);
+    await collateral.approve(ammFactory.address, collateralIn);
+    expect(await all.balanceOf(signer.address)).to.equal(91); // minted 100 sets, burned 9
+    await ammFactory.buy(turboHatchery.address, turboId, outcome, collateralIn, 0);
+    expect(await all.balanceOf(signer.address)).to.equal(8307028779219649); // taken from balancer swap
+  });
+
   it("can claim winnings", async () => {
     await arbiter.setTurboResolution(turboId, [0, numTicks, 0, 0, 0]);
     // can burn non-winning shares
@@ -132,9 +177,11 @@ describe("Turbo", () => {
     await few.transfer(DEAD_ADDRESS, setsLeft);
     await none.transfer(DEAD_ADDRESS, setsLeft);
 
+    expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
     await turboHatchery.claimWinnings(turboId);
 
-    expect(await collateral.balanceOf(signer.address)).to.equal(costToMint); // got all your money back
+    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307028779219649").mul(1000))
+    expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await invalid.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);
     expect(await many.balanceOf(signer.address)).to.equal(0);
