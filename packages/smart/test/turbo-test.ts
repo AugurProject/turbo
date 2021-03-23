@@ -6,7 +6,9 @@ import {
   AMMFactory,
   AMMFactory__factory,
   BFactory,
-  BFactory__factory, BPool, BPool__factory,
+  BFactory__factory,
+  BPool,
+  BPool__factory,
   Cash,
   Cash__factory,
   FeePot__factory,
@@ -16,7 +18,7 @@ import {
   TurboHatchery__factory,
   TurboShareToken,
   TurboShareToken__factory,
-  TurboShareTokenFactory__factory
+  TurboShareTokenFactory__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { DEAD_ADDRESS, MarketTypes } from "../src/util";
@@ -104,7 +106,7 @@ describe("Turbo", () => {
 
   const setsToMint = 100;
   const costToMint = setsToMint * numTicks;
-const collateralIn = basis.mul(2);
+  const collateralIn = basis.mul(2);
 
   it("can mint sets", async () => {
     await collateral.faucet(costToMint);
@@ -149,12 +151,7 @@ const collateralIn = basis.mul(2);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(turboHatchery.address, turboId, initialLiquidity, weights, signer.address);
 
-    const filter = ammFactory.filters.PoolCreated(
-      null,
-      turboHatchery.address,
-      turboId,
-      signer.address
-    );
+    const filter = ammFactory.filters.PoolCreated(null, turboHatchery.address, turboId, signer.address);
     const [log] = await ammFactory.queryFilter(filter);
     const [poolAddress] = log.args;
     pool = BPool__factory.connect(poolAddress, signer);
@@ -180,7 +177,7 @@ const collateralIn = basis.mul(2);
     expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
     await turboHatchery.claimWinnings(turboId);
 
-    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307028779219649").mul(1000))
+    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307028779219649").mul(1000));
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await invalid.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);
