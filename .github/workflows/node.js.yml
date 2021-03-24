@@ -48,5 +48,5 @@ jobs:
         eslint: true
         prettier: true
         eslint_extensions: ts,tsx
-        prettier_args: --config .prettierrc.json
+        prettier_args: --print-width 120
     - run: yarn test
