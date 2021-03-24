@@ -5,9 +5,9 @@
   "repository": "https://github.com/AugurProject/turbo/packages/smart",
   "license": "MIT",
   "scripts": {
-    "build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile && tsc -b",
+    "build": "yarn contracts:build && tsc -b",
     "test": "hardhat test",
-    "contracts:build": "hardhat compile",
+    "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
     "contracts:deploy": "ts-node --files ./scripts/deploy-turbo.ts",
     "contracts:verify": "hardhat verify",
     "ethereumNode": "hardhat node"
