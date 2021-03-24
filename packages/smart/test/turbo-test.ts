@@ -18,7 +18,7 @@ import {
   TurboHatchery__factory,
   TurboShareToken,
   TurboShareToken__factory,
-  TurboShareTokenFactory__factory
+  TurboShareTokenFactory__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { DEAD_ADDRESS, MarketTypes } from "../src/util";
@@ -90,7 +90,7 @@ describe("Turbo", () => {
 
     const shareTokens = await turboHatchery.getShareTokens(turboId);
     [invalid, all, many, few, none] = await Promise.all(
-      shareTokens.map(addr => new TurboShareToken__factory(signer).attach(addr))
+      shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
     );
     expect(await invalid.symbol()).to.equal("INVALID");
     expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
@@ -144,7 +144,7 @@ describe("Turbo", () => {
       basis.mul(24).div(2), // All at 24%
       basis.mul(25).div(2), // Some at 25%
       basis.mul(25).div(2), // Few at 25%
-      basis.mul(24).div(2) // None at 24%
+      basis.mul(24).div(2), // None at 24%
     ];
     const initialLiquidity = basis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
@@ -184,9 +184,7 @@ describe("Turbo", () => {
     expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
     await turboHatchery.claimWinnings(turboId);
 
-    const expectedWinnings = BigNumber.from(setsToBurn)
-      .mul(1000)
-      .add(BigNumber.from("8307054961011936").mul(1000));
+    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307054961011936").mul(1000));
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await invalid.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

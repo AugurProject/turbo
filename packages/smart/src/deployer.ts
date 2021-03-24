@@ -12,7 +12,7 @@ import {
   TrustedArbiter,
   TrustedArbiter__factory,
   TurboHatchery,
-  TurboHatchery__factory
+  TurboHatchery__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
 import { mapOverObject, MarketTypes } from "./util";
@@ -49,7 +49,7 @@ export class Deployer {
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
       basis.mul(2).div(2), // Invalid at 2%
       basis.mul(49).div(2), // No at 49%
-      basis.mul(49).div(2) // Yes at 49%
+      basis.mul(49).div(2), // Yes at 49%
     ];
     const ammFactory = await this.deployAMMFactory(balancerFactory.address);
     const initialLiquidity = basis.mul(1000); // 1000 of the collateral
@@ -71,13 +71,13 @@ export class Deployer {
         hatchery,
         arbiter,
         ammFactory,
-        pool
+        pool,
       },
       (name, contract) => [name, contract.address]
     );
     return {
       addresses,
-      turboId: turboId
+      turboId: turboId,
     };
   }
 
@@ -89,7 +89,7 @@ export class Deployer {
 
     const addresses = mapOverObject(
       {
-        hatcheryRegistry
+        hatcheryRegistry,
       },
       (name, contract) => [name, contract.address]
     );
@@ -123,7 +123,7 @@ export class Deployer {
     console.log(`Deploying ${name}`);
     const contract = await deployFn
       .bind(this)()
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         throw err;
       });
@@ -141,7 +141,7 @@ export class TurboCreator {
   constructor(readonly hatcheryRegistry: HatcheryRegistry) {}
 
   async createHatchery(collateral: string): Promise<TurboHatchery> {
-    await this.hatcheryRegistry.createHatchery(collateral).then(tx => tx.wait());
+    await this.hatcheryRegistry.createHatchery(collateral).then((tx) => tx.wait());
 
     const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
     const [log] = await this.hatcheryRegistry.queryFilter(filter);
@@ -160,7 +160,7 @@ export class TurboCreator {
       duration,
       extraInfo,
       prices,
-      marketType
+      marketType,
     } = arbiterConfiguration;
 
     const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
@@ -170,7 +170,7 @@ export class TurboCreator {
     const arbiterConfig = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
     await hatchery
       .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
-      .then(tx => tx.wait());
+      .then((tx) => tx.wait());
     const filter = hatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
     const [log] = await hatchery.queryFilter(filter);
     const [id] = log.args;
@@ -190,7 +190,7 @@ export class TurboCreator {
       extraInfo: "",
       prices: [],
       marketType: MarketTypes.CATEGORICAL,
-      ...specified
+      ...specified,
     };
   }
 
@@ -206,7 +206,7 @@ export class TurboCreator {
 
     await ammFactory
       .createPool(hatchery.address, turboId, initialLiquidity, weights, await this.hatcheryRegistry.signer.getAddress())
-      .then(tx => tx.wait());
+      .then((tx) => tx.wait());
     const filter = ammFactory.filters.PoolCreated(
       null,
       hatcheryAddress,
