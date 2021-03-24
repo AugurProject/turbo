@@ -35,6 +35,7 @@
     "hardhat": "^2.1.1",
     "hardhat-abi-exporter": "^2.2.0",
     "hardhat-contract-sizer": "^2.0.3",
+    "hardhat-docgen": "^1.1.0",
     "hardhat-typechain": "^0.3.5",
     "ts-generator": "^0.1.1",
     "ts-node": "^9.1.1",
