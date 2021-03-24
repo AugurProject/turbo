@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn contracts:build && tsc -b",
+    "build:watch": "tsc -b -w",
     "test": "hardhat test",
     "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
     "contracts:deploy": "ts-node --files ./scripts/deploy-turbo.ts",
@@ -14,8 +15,7 @@
   },
   "files": [
     "./contracts",
-    "./src",
-    "./tasks"
+    "./src"
   ],
   "devDependencies": {
     "@eth-optimism/smock": "^0.2.1-alpha.0",

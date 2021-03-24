@@ -7,6 +7,9 @@ import {
   EtherscanVerificationConfig,
   isContractDeployTestConfig,
 } from "../src";
+import { updateAddressConfig } from "../src/addressesConfigUpdater";
+import path from "path";
+
 import "hardhat/types/config";
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
@@ -16,6 +19,8 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   const deployer = new Deployer(signer);
 
   let deploy: Deploy;
+  let networkId = await signer.getNetworkId();
+
   if (isContractDeployTestConfig(hre.config.contractDeploy)) {
     deploy = await deployer.deployTest();
     deploy.turboId = deploy.turboId.toString();
@@ -23,6 +28,9 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
     const { externalAddresses } = hre.config.contractDeploy;
     deploy = await deployer.deployProduction(externalAddresses);
   }
+
+  const addressFilePath = path.resolve(__dirname, "../addresses.ts");
+  updateAddressConfig(addressFilePath, networkId, deploy.addresses);
 
   console.log(JSON.stringify(deploy, null, 2));
 });
