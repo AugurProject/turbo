@@ -27,7 +27,9 @@ export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 export enum MarketTypes {
   YES_NO,
   CATEGORICAL,
-  SCALAR,
+  SCALAR
 }
 
-export const MAX_UINT256 = ethers.BigNumber.from(2).pow(256).sub(1);
+export const MAX_UINT256 = ethers.BigNumber.from(2)
+  .pow(256)
+  .sub(1);

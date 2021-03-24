@@ -9,7 +9,7 @@ import {
   ContractDeployConfig,
   ContractDeployProductionConfig,
   ContractDeployTestConfig,
-  HardhatRuntimeEnvironment,
+  HardhatRuntimeEnvironment
 } from "hardhat/types";
 import { Deploy, Deployer } from "./src";
 
@@ -100,31 +100,31 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: "0.7.3",
-        settings: {},
+        settings: {}
       },
       {
         version: "0.5.15",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
-          },
-        },
-      },
-    ],
+            runs: 200
+          }
+        }
+      }
+    ]
   },
   networks: {
     hardhat: {},
     kovan: {
-      url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
-    },
+      url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1"
+    }
   },
   contractDeploy: {
-    strategy: "test",
+    strategy: "test"
   },
   docgen: {
-    path: './docs',
-    clear: true,
+    path: "./docs",
+    clear: true
   }
 };
 

@@ -6,7 +6,9 @@ import {
   AMMFactory,
   AMMFactory__factory,
   BFactory,
-  BFactory__factory, BPool, BPool__factory,
+  BFactory__factory,
+  BPool,
+  BPool__factory,
   Cash,
   Cash__factory,
   FeePot__factory,
@@ -88,7 +90,7 @@ describe("Turbo", () => {
 
     const shareTokens = await turboHatchery.getShareTokens(turboId);
     [invalid, all, many, few, none] = await Promise.all(
-      shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
+      shareTokens.map(addr => new TurboShareToken__factory(signer).attach(addr))
     );
     expect(await invalid.symbol()).to.equal("INVALID");
     expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
@@ -142,7 +144,7 @@ describe("Turbo", () => {
       basis.mul(24).div(2), // All at 24%
       basis.mul(25).div(2), // Some at 25%
       basis.mul(25).div(2), // Few at 25%
-      basis.mul(24).div(2), // None at 24%
+      basis.mul(24).div(2) // None at 24%
     ];
     const initialLiquidity = basis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
@@ -158,7 +160,7 @@ describe("Turbo", () => {
     await collateral.approve(ammFactory.address, additionalLiquidity);
 
     const pool = BPool__factory.connect(await ammFactory.pools(turboHatchery.address, turboId), signer);
-    await ammFactory.addLiquidity(turboHatchery.address, turboId, additionalLiquidity, 0, signer.address)
+    await ammFactory.addLiquidity(turboHatchery.address, turboId, additionalLiquidity, 0, signer.address);
     expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("100099999924075385080")); // hardcoded from observation
   });
 
@@ -182,7 +184,9 @@ describe("Turbo", () => {
     expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
     await turboHatchery.claimWinnings(turboId);
 
-    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307054961011936").mul(1000));
+    const expectedWinnings = BigNumber.from(setsToBurn)
+      .mul(1000)
+      .add(BigNumber.from("8307054961011936").mul(1000));
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await invalid.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

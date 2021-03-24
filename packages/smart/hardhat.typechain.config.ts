@@ -9,19 +9,19 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: "0.7.3",
-        settings: {},
+        settings: {}
       },
       {
         version: "0.5.15",
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
-          },
-        },
-      },
-    ],
-  },
+            runs: 200
+          }
+        }
+      }
+    ]
+  }
 };
 
 export default config;
