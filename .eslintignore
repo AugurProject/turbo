@@ -8,5 +8,5 @@ typechain
 abi
 # don't lint nyc coverage output
 coverage
-#ignore actions
+# ignore actions
 .github

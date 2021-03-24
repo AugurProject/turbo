@@ -9,7 +9,7 @@
     "clean": "git clean -e .idea -xdf",
     "rebuild": "yarn clean && yarn && yarn build",
     "test": "yarn smart test",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint": "eslint .",
     "format": "prettier . -c",
     "format:write": "prettier . -w",
     "smart": "yarn workspace @turbo/smart"

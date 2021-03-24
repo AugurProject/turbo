@@ -123,9 +123,9 @@ const config: HardhatUserConfig = {
     strategy: "test",
   },
   docgen: {
-    path: './docs',
+    path: "./docs",
     clear: true,
-  }
+  },
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
