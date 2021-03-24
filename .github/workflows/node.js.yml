@@ -47,4 +47,5 @@ jobs:
         # Enable linters
         eslint: true
         prettier: true
+        eslint_extensions: ts,tsx
     - run: yarn test
