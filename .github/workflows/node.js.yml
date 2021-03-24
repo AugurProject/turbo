@@ -48,5 +48,5 @@ jobs:
         eslint: true
         prettier: true
         eslint_extensions: ts,tsx
-        prettier_args: --ignore-path .prettierignore
+        prettier_args: --config .prettierrc.json
     - run: yarn test
