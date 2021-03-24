@@ -48,4 +48,5 @@ jobs:
         eslint: true
         prettier: true
         eslint_extensions: ts,tsx
+        eslint_args: -c .eslintrc.js
     - run: yarn test
