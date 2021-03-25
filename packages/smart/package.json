@@ -1,5 +1,5 @@
 {
-  "name": "@turbo/smart",
+  "name": "@augurproject/smart",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/AugurProject/turbo/packages/smart",
