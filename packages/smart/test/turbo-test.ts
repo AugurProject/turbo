@@ -20,7 +20,7 @@ import {
   TurboShareToken__factory,
   TurboShareTokenFactory__factory,
 } from "../typechain";
-import { BigNumber } from "ethers";
+import { BigNumber, BytesLike } from "ethers";
 import { DEAD_ADDRESS, MarketTypes } from "../src/util";
 
 describe("Turbo", () => {
@@ -32,7 +32,7 @@ describe("Turbo", () => {
 
   const creatorFee = 1;
   const outcomeSymbols = ["ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String);
+  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
   const numTicks = 1000;
   const startTime: number = Date.now() + 60;
   const duration = 60 * 60;

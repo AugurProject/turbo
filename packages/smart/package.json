@@ -14,7 +14,8 @@
   },
   "files": [
     "./contracts",
-    "./src"
+    "./src",
+    "./tasks"
   ],
   "devDependencies": {
     "@eth-optimism/smock": "^0.2.1-alpha.0",
