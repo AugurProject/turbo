@@ -1,8 +1,13 @@
 import { task } from "hardhat/config";
 
-import { ContractDeployConfig, Deploy, Deployer, EtherscanVerificationConfig, isContractDeployTestConfig } from "../src";
+import {
+  ContractDeployConfig,
+  Deploy,
+  Deployer,
+  EtherscanVerificationConfig,
+  isContractDeployTestConfig,
+} from "../src";
 import "hardhat/types/config";
-
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   if (!hre.config.contractDeploy) throw Error(`When deploying you must specify deployConfig in the hardhat config`);
@@ -22,15 +27,14 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   console.log(JSON.stringify(deploy, null, 2));
 });
 
-
 declare module "hardhat/types/config" {
-    export interface HardhatUserConfig {
-        contractDeploy?: ContractDeployConfig;
-        etherscanVerification?: EtherscanVerificationConfig;
-    }
+  export interface HardhatUserConfig {
+    contractDeploy?: ContractDeployConfig;
+    etherscanVerification?: EtherscanVerificationConfig;
+  }
 
-    export interface HardhatConfig {
-        contractDeploy?: ContractDeployConfig;
-        etherscanVerification?: EtherscanVerificationConfig;
-    }
+  export interface HardhatConfig {
+    contractDeploy?: ContractDeployConfig;
+    etherscanVerification?: EtherscanVerificationConfig;
+  }
 }

@@ -233,9 +233,6 @@ export interface TrustedArbiterConfiguration {
   marketType: MarketTypes;
 }
 
-
-
-
 export type DeployStrategy = "test" | "production";
 
 export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;

@@ -11,7 +11,6 @@ import "./tasks/balance.ts";
 import "./tasks/accounts.ts";
 import "./tasks/deploy.ts";
 
-
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
