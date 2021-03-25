@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
 
@@ -9,7 +10,7 @@ import "./ERC20.sol";
  * @title Variable Supply Token
  * @notice A Standard Token wrapper which adds the ability to internally burn and mint tokens
  */
-contract VariableSupplyToken is ERC20 {
+abstract contract VariableSupplyToken is ERC20 {
     using SafeMathUint256 for uint256;
 
     function mint(address _target, uint256 _amount) internal returns (bool) {

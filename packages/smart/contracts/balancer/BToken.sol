@@ -11,13 +11,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
 import "./BNum.sol";
 
 interface IERC20Balancer {
-    event Approval(address indexed src, address indexed dst, uint amt);
-    event Transfer(address indexed src, address indexed dst, uint amt);
+    // event Approval(address indexed src, address indexed dst, uint amt);
+    // event Transfer(address indexed src, address indexed dst, uint amt);
 
     function totalSupply() external view returns (uint);
     function balanceOf(address whom) external view returns (uint);
@@ -86,19 +87,19 @@ contract BToken is BTokenBase, IERC20Balancer {
         return _decimals;
     }
 
-    function allowance(address src, address dst) external view returns (uint) {
+    function allowance(address src, address dst) override external view returns (uint) {
         return _allowance[src][dst];
     }
 
-    function balanceOf(address whom) external view returns (uint) {
+    function balanceOf(address whom) override external view returns (uint) {
         return _balance[whom];
     }
 
-    function totalSupply() public view returns (uint) {
+    function totalSupply() override public view returns (uint) {
         return _totalSupply;
     }
 
-    function approve(address dst, uint amt) external returns (bool) {
+    function approve(address dst, uint amt) override external returns (bool) {
         _allowance[msg.sender][dst] = amt;
         emit Approval(msg.sender, dst, amt);
         return true;
@@ -121,12 +122,12 @@ contract BToken is BTokenBase, IERC20Balancer {
         return true;
     }
 
-    function transfer(address dst, uint amt) external returns (bool) {
+    function transfer(address dst, uint amt) override external returns (bool) {
         _move(msg.sender, dst, amt);
         return true;
     }
 
-    function transferFrom(address src, address dst, uint amt) external returns (bool) {
+    function transferFrom(address src, address dst, uint amt) override external returns (bool) {
         require(msg.sender == src || amt <= _allowance[src][msg.sender], "ERR_BTOKEN_BAD_CALLER");
         _move(src, dst, amt);
         if (msg.sender != src && _allowance[src][msg.sender] != uint256(-1)) {

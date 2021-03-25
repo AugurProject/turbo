@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
@@ -41,12 +42,12 @@ contract TrustedArbiter is IArbiter, Ownable {
     address public hatchery;
     mapping(uint256 => TurboData) public turboData;
 
-    constructor(address _owner, ITurboHatchery _hatchery) public {
+    constructor(address _owner, ITurboHatchery _hatchery) {
         owner = _owner;
         hatchery = address(_hatchery);
     }
 
-    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public {
+    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) override public {
         require(msg.sender == hatchery, "Can only call `onTurboCreated` from the hatchery");
 
         (TrustedConfiguration memory _config) = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
@@ -86,7 +87,7 @@ contract TrustedArbiter is IArbiter, Ownable {
     // turbo id => payout
     mapping(uint256 => uint256[]) private turboResolutions;
 
-    function getTurboResolution(uint256 _id) public returns (uint256[] memory) {
+    function getTurboResolution(uint256 _id) override public returns (uint256[] memory) {
         return turboResolutions[_id];
     }
 
@@ -112,5 +113,5 @@ contract TrustedArbiter is IArbiter, Ownable {
         return keccak256(abi.encodePacked(_payout));
     }
 
-    function onTransferOwnership(address, address) internal {}
+    function onTransferOwnership(address, address) override internal {}
 }

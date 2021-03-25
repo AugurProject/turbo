@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
@@ -18,14 +19,14 @@ contract TurboHatchery is ITurboHatchery {
     address private constant NULL_ADDRESS = address(0);
     uint256 private constant MAX_UINT = 2**256 - 1;
 
-    constructor(ITurboShareTokenFactory _tokenFactory, IFeePot _feePot) public {
+    constructor(ITurboShareTokenFactory _tokenFactory, IFeePot _feePot) {
         tokenFactory = _tokenFactory;
         feePot = _feePot;
         collateral = _feePot.collateral();
         collateral.approve(address(_feePot), MAX_UINT);
     }
 
-    function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) public returns (uint256) {
+    function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) override public returns (uint256) {
         require(_numTicks.isMultipleOf(2), "TurboHatchery.createTurbo: numTicks must be multiple of 2");
         require(_numTicks >= _outcomeSymbols.length, "TurboHatchery.createTurbo: numTicks lower than numOutcomes");
         require(MIN_OUTCOMES <= _outcomeSymbols.length && _outcomeSymbols.length <= MAX_OUTCOMES, "TurboHatchery.createTurbo: Number of outcomes is not acceptable");
@@ -47,11 +48,11 @@ contract TurboHatchery is ITurboHatchery {
         return _id;
     }
 
-    function getShareTokens(uint256 _id) external view returns (ITurboShareToken[] memory) {
+    function getShareTokens(uint256 _id) override external view returns (ITurboShareToken[] memory) {
         return turbos[_id].shareTokens;
     }
 
-    function mintCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool) {
+    function mintCompleteSets(uint256 _id, uint256 _amount, address _receiver) override public returns (bool) {
         uint256 _numTicks = turbos[_id].numTicks;
         uint256 _cost = _amount.mul(_numTicks);
         collateral.transferFrom(msg.sender, address(this), _cost);
@@ -62,7 +63,7 @@ contract TurboHatchery is ITurboHatchery {
         return true;
     }
 
-    function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool) {
+    function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) override public returns (bool) {
         for (uint256 _i = 0; _i < turbos[_id].shareTokens.length; _i++) {
             turbos[_id].shareTokens[_i].trustedBurn(msg.sender, _amount);
         }
@@ -72,7 +73,7 @@ contract TurboHatchery is ITurboHatchery {
         return true;
     }
 
-    function claimWinnings(uint256 _id) public returns (bool) {
+    function claimWinnings(uint256 _id) override public returns (bool) {
         // We expect this to revert or return an empty array if the turbo is not resolved
         uint256[] memory _winningPayout = turbos[_id].arbiter.getTurboResolution(_id);
         require(_winningPayout.length > 0, "market not resolved");
@@ -102,7 +103,7 @@ contract TurboHatchery is ITurboHatchery {
         collateral.transfer(_payee, _payout.sub(_creatorFee));
     }
 
-    function withdrawCreatorFees(uint256 _id) external returns (bool) {
+    function withdrawCreatorFees(uint256 _id) override external returns (bool) {
         // We expect this to revert if the turbo is not resolved
         uint256[] memory _winningPayout = turbos[_id].arbiter.getTurboResolution(_id);
         require(_winningPayout.length > 0, "market not resolved");

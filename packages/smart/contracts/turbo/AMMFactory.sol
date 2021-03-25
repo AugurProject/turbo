@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
@@ -17,7 +18,7 @@ contract AMMFactory is HasTurboStruct {
 
     event PoolCreated(address _pool, address indexed _hatchery, uint256 indexed _turboId, address indexed _creator);
 
-    constructor(BFactory _bFactory) public {
+    constructor(BFactory _bFactory) {
         bFactory = _bFactory;
     }
 

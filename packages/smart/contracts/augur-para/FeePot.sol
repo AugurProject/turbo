@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
 import "../libraries/SafeMathUint256.sol";
@@ -12,8 +13,8 @@ contract FeePot is VariableSupplyToken, IFeePot {
 
     uint256 constant internal magnitude = 2**128;
 
-    IERC20 public collateral;
-    IERC20DynamicSymbol public reputationToken;
+    IERC20 public override collateral;
+    IERC20DynamicSymbol public override reputationToken;
 
     uint256 public magnifiedFeesPerShare;
 
@@ -22,7 +23,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
 
     uint256 public feeReserve;
 
-    constructor(IERC20 _collateral, IERC20DynamicSymbol _reputationToken) public {
+    constructor(IERC20 _collateral, IERC20DynamicSymbol _reputationToken) {
         collateral = _collateral;
         reputationToken = _reputationToken;
 
@@ -33,7 +34,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return string(abi.encodePacked("S_", reputationToken.symbol()));
     }
 
-    function depositFees(uint256 _amount) public returns (bool) {
+    function depositFees(uint256 _amount) override public returns (bool) {
         collateral.transferFrom(msg.sender, address(this), _amount);
         uint256 _totalSupply = totalSupply; // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
         if (_totalSupply == 0) {
@@ -48,7 +49,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function withdrawableFeesOf(address _owner) public view returns(uint256) {
+    function withdrawableFeesOf(address _owner) override public view returns(uint256) {
         return earnedFeesOf(_owner).add(storedFees[_owner]);
     }
 
@@ -58,7 +59,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return _magnifiedFees.sub(magnifiedFeesCorrections[_owner]) / magnitude;
     }
 
-    function _transfer(address _from, address _to, uint256 _amount) internal {
+    function _transfer(address _from, address _to, uint256 _amount) override internal {
         storedFees[_from] = storedFees[_from].add(earnedFeesOf(_from));
         super._transfer(_from, _to, _amount);
 
@@ -81,7 +82,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function redeem() public returns (bool) {
+    function redeem() override public returns (bool) {
         redeemInternal(msg.sender);
         magnifiedFeesCorrections[msg.sender] =  magnifiedFeesPerShare.mul(balanceOf(msg.sender));
         return true;
@@ -95,5 +96,5 @@ contract FeePot is VariableSupplyToken, IFeePot {
         }
     }
 
-    function onTokenTransfer(address _from, address _to, uint256 _value) internal {}
+    function onTokenTransfer(address _from, address _to, uint256 _value) override internal {}
 }

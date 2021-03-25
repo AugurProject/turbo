@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
@@ -20,7 +21,7 @@ contract HasTurboStruct {
     }
 }
 
-contract ITurboHatchery is HasTurboStruct {
+abstract contract ITurboHatchery is HasTurboStruct {
     Turbo[] public turbos;
     ITurboShareTokenFactory public tokenFactory;
     IFeePot public feePot;
@@ -31,10 +32,10 @@ contract ITurboHatchery is HasTurboStruct {
     event CompleteSetsBurned(uint256 turboId, uint256 amount, address target);
     event Claim(uint256 turboId);
 
-    function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) public returns (uint256);
-    function getShareTokens(uint256 _id) external view returns (ITurboShareToken[] memory);
-    function mintCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool);
-    function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) public returns (bool);
-    function claimWinnings(uint256 _id) public returns (bool);
-    function withdrawCreatorFees(uint256 _id) external returns (bool);
+    function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) virtual public returns (uint256);
+    function getShareTokens(uint256 _id) virtual external view returns (ITurboShareToken[] memory);
+    function mintCompleteSets(uint256 _id, uint256 _amount, address _receiver) virtual public returns (bool);
+    function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) virtual public returns (bool);
+    function claimWinnings(uint256 _id) virtual public returns (bool);
+    function withdrawCreatorFees(uint256 _id) virtual external returns (bool);
 }
