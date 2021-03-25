@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["./typechain"],
-  "files": ["./addresses.ts"],
+  "files": ["./index.ts","./addresses.ts"],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "."
