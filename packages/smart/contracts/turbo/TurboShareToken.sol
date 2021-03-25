@@ -1,4 +1,4 @@
-pragma solidity 0.5.15;
+pragma solidity 0.7.3;
 
 import "./ITurboShareToken.sol";
 import "../libraries/VariableSupplyToken.sol";

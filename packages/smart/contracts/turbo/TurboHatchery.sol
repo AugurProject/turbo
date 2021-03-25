@@ -1,4 +1,4 @@
-pragma solidity 0.5.15;
+pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
 import "./ITurboShareToken.sol";

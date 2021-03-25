@@ -1,4 +1,4 @@
-pragma solidity 0.5.15;
+pragma solidity 0.7.3;
 
 import "../libraries/SafeMathUint256.sol";
 import "../libraries/VariableSupplyToken.sol";

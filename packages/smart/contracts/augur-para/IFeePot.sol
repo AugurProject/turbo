@@ -1,10 +1,10 @@
-pragma solidity 0.5.15;
+pragma solidity 0.7.3;
 
 import "../libraries/IERC20.sol";
 import "../libraries/IERC20DynamicSymbol.sol";
 
 
-contract IFeePot is IERC20 {
+abstract contract IFeePot is IERC20 {
     function depositFees(uint256 _amount) external returns (bool);
     function withdrawableFeesOf(address _owner) external view returns(uint256);
     function redeem() external returns (bool);

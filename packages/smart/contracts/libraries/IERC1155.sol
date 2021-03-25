@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity 0.5.15;
+pragma solidity 0.7.3;
 
 
 /// @title ERC-1155 Multi Token Standard
