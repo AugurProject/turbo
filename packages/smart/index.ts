@@ -25,10 +25,7 @@ export interface ContractInterfaces {
   TrustedArbiter: TrustedArbiter;
 }
 
-export function buildContractInterfaces(
-  signerOrProvider: Signer | Provider,
-  chainId: ChainId
-): ContractInterfaces {
+export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
   const contractAddresses = addresses[chainId];
   if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${chainId} not found.`);
 
