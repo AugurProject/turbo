@@ -1,7 +1,5 @@
-import { BigNumberish, BytesLike } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
-import { MarketTypes } from "../src/util";
 
 task("markets", "retreive markets").setAction(async (args, hre) => {
   console.log("get markets data");
