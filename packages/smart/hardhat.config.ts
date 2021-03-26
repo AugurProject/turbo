@@ -11,6 +11,7 @@ import "./types";
 import "./tasks/balance.ts";
 import "./tasks/accounts.ts";
 import "./tasks/deploy.ts";
+import "./tasks/cannedMarkets.ts";
 
 const config: HardhatUserConfig = {
   solidity: {
