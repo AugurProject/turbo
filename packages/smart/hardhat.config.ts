@@ -5,6 +5,7 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 
 import { HardhatUserConfig } from "hardhat/config";
+import "./types";
 
 // add tasks in task directory and import here
 import "./tasks/balance.ts";

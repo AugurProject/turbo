@@ -1,10 +1,8 @@
 import { task } from "hardhat/config";
 
 import {
-  ContractDeployConfig,
   Deploy,
   Deployer,
-  EtherscanVerificationConfig,
   isContractDeployTestConfig,
 } from "../src";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
@@ -19,7 +17,7 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   const deployer = new Deployer(signer);
 
   let deploy: Deploy;
-  let networkId = await signer.getNetworkId();
+  const network = await hre.ethers.provider.getNetwork();
 
   if (isContractDeployTestConfig(hre.config.contractDeploy)) {
     deploy = await deployer.deployTest();
@@ -30,19 +28,7 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   }
 
   const addressFilePath = path.resolve(__dirname, "../addresses.ts");
-  updateAddressConfig(addressFilePath, networkId, deploy.addresses);
+  updateAddressConfig(addressFilePath, network.chainId, deploy.addresses);
 
   console.log(JSON.stringify(deploy, null, 2));
 });
-
-declare module "hardhat/types/config" {
-  export interface HardhatUserConfig {
-    contractDeploy?: ContractDeployConfig;
-    etherscanVerification?: EtherscanVerificationConfig;
-  }
-
-  export interface HardhatConfig {
-    contractDeploy?: ContractDeployConfig;
-    etherscanVerification?: EtherscanVerificationConfig;
-  }
-}
