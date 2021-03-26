@@ -1,2 +1,2 @@
-export * from './typechain';
-export * from './addresses';
+export * from "./typechain";
+export * from "./addresses";

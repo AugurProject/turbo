@@ -133,6 +133,7 @@ export class Deployer {
 
 export interface Deploy {
   addresses: { [name: string]: string };
+
   [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
 }
 
@@ -236,12 +237,15 @@ export interface TrustedArbiterConfiguration {
 export type DeployStrategy = "test" | "production";
 
 export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;
+
 export interface ContractDeployCommonConfig {
   strategy: DeployStrategy;
 }
+
 export interface ContractDeployTestConfig extends ContractDeployCommonConfig {
   strategy: "test";
 }
+
 export interface ContractDeployProductionConfig extends ContractDeployCommonConfig {
   strategy: "production";
   externalAddresses: ContractDeployExternalAddresses;

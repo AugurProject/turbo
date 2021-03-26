@@ -1,10 +1,6 @@
 import { task } from "hardhat/config";
 
-import {
-  Deploy,
-  Deployer,
-  isContractDeployTestConfig,
-} from "../src";
+import { Deploy, Deployer, isContractDeployTestConfig } from "../src";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
 import path from "path";
 

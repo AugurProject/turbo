@@ -12,9 +12,7 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
     ts.ScriptTarget.Latest
   );
 
-  const transformerFactory: ts.TransformerFactory<ts.Node> = (
-    context: ts.TransformationContext
-  ) => {
+  const transformerFactory: ts.TransformerFactory<ts.Node> = (context: ts.TransformationContext) => {
     return (rootNode) => {
       function addAddressToObject(node: ts.VariableDeclaration): ts.VariableDeclaration {
         const objectDef = node.getChildAt(4, sourceFile);
@@ -23,20 +21,20 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
             node.name,
             node.exclamationToken,
             node.type,
-            context.factory.createObjectLiteralExpression(
-              [
-                // Remove object with passed chainId if present.
-                ...objectDef.properties.filter((node) => {
-                  return node.name?.getText(sourceFile) !== `${chainId}`;
-                }),
-                context.factory.createPropertyAssignment(`${chainId}`,
-                  ts.factory.createObjectLiteralExpression(
-                    Object.entries(addresses).map(([key, addy]) => {
-                      return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(addy));
-                    })
-                  ))
-              ]
-            )
+            context.factory.createObjectLiteralExpression([
+              // Remove object with passed chainId if present.
+              ...objectDef.properties.filter((node) => {
+                return node.name?.getText(sourceFile) !== `${chainId}`;
+              }),
+              context.factory.createPropertyAssignment(
+                `${chainId}`,
+                ts.factory.createObjectLiteralExpression(
+                  Object.entries(addresses).map(([key, addy]) => {
+                    return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(addy));
+                  })
+                )
+              ),
+            ])
           );
         }
 
@@ -44,11 +42,7 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
       }
 
       function visit(node: ts.Node): ts.Node {
-        if (
-          ts.isSourceFile(node) ||
-          ts.isVariableDeclarationList(node) ||
-          node.kind == SyntaxKind.FirstStatement
-        ) {
+        if (ts.isSourceFile(node) || ts.isVariableDeclarationList(node) || node.kind == SyntaxKind.FirstStatement) {
           return ts.visitEachChild(node, visit, context);
         }
 
@@ -66,7 +60,7 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
   const transformationResult = ts.transform(sourceFile, [transformerFactory]);
   const output = printer.printNode(EmitHint.Unspecified, transformationResult.transformed[0], sourceFile);
   const formattedOutput = prettier.format(output, {
-    parser: "babel-ts"
+    parser: "babel-ts",
   });
 
   fs.writeFileSync(addressFilePath, formattedOutput);
