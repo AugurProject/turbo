@@ -5,8 +5,10 @@ import {
   Cash__factory,
   HatcheryRegistry,
   HatcheryRegistry__factory,
+  TrustedArbiter__factory,
   TurboHatchery,
   TurboHatchery__factory,
+  TrustedArbiter,
 } from "./typechain";
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";
@@ -15,17 +17,18 @@ import { Provider } from "@ethersproject/providers";
 export * from "./typechain";
 export * from "./addresses";
 
-interface ContractInterfaces {
+export interface ContractInterfaces {
   AMMFactory: AMMFactory;
   Hatchery: TurboHatchery;
   HatcheryRegistry: HatcheryRegistry;
   ReputationToken: Cash;
+  TrustedArbiter: TrustedArbiter;
 }
 
-export async function buildContractInterfaces(
+export function buildContractInterfaces(
   signerOrProvider: Signer | Provider,
   chainId: ChainId
-): Promise<ContractInterfaces> {
+): ContractInterfaces {
   const contractAddresses = addresses[chainId];
   if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${chainId} not found.`);
 
@@ -34,5 +37,6 @@ export async function buildContractInterfaces(
     Hatchery: TurboHatchery__factory.connect(contractAddresses.hatchery, signerOrProvider),
     HatcheryRegistry: HatcheryRegistry__factory.connect(contractAddresses.hatcheryRegistry, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
+    TrustedArbiter: TrustedArbiter__factory.connect(contractAddresses.arbiter, signerOrProvider),
   };
 }
