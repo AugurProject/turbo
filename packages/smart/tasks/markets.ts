@@ -16,9 +16,9 @@ task("markets", "retreive markets").setAction(async (args, hre) => {
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { Hatchery, TrustedArbiter } = contracts;
 
-  const turbos = await Hatchery.getTurboLength()
+  const turbos = await Hatchery.getTurboLength();
   const totalTurbos = turbos.toNumber();
-  for(let i = 0; i < totalTurbos; i++) {
+  for (let i = 0; i < totalTurbos; i++) {
     const data = await TrustedArbiter.turboData(i);
     console.log("data", data);
   }
