@@ -5,7 +5,7 @@ import prettier from "prettier";
 
 const printer = ts.createPrinter();
 
-export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Record<string, string>) {
+export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Record<string, string>): void {
   const sourceFile = ts.createSourceFile(
     "addresses.ts",
     fs.readFileSync(addressFilePath, "utf8"),
