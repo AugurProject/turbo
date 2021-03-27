@@ -14,7 +14,7 @@ export class EthersFastSubmitWallet extends ethers.Wallet {
     const wallet = new EthersFastSubmitWallet(privateKey, provider);
     const nonce = await provider.getTransactionCount(wallet.address, "pending");
     wallet.setNonce(nonce);
-    wallet.startGasPriceCheck(); // intentionally hanging promise
+    wallet.startGasPriceCheck();
     return wallet;
   }
 
@@ -22,11 +22,16 @@ export class EthersFastSubmitWallet extends ethers.Wallet {
     this.nonce = nonce;
   }
 
-  async startGasPriceCheck(): Promise<void> {
-    if (!this?.provider) return; // finish if object is garbage collected
-    const gasPrice = await this.provider.getGasPrice();
-    this.gasPrice = Math.round(gasPrice.toNumber() * 1.1);
-    setTimeout(this.startGasPriceCheck.bind(this), 15000);
+  startGasPriceCheck(): void {
+    const repeater = (): void => {
+      if (!this?.provider) return; // finish if object is garbage collected
+      void this.provider.getGasPrice().then((gasPrice) => {
+        this.gasPrice = Math.round(gasPrice.toNumber() * 1.1);
+        setTimeout(repeater, 15000);
+      });
+    };
+
+    repeater();
   }
 
   // If we ever have a use case for a different kind of message signing split this into `signMessage` (new) and `signBinaryMessage` (below)
