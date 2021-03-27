@@ -15,7 +15,7 @@ import {
   TurboHatchery__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
-import { mapOverObject, MarketTypes } from "./util";
+import { mapOverObject, MarketTypes, sleep } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
 
 export class Deployer {
@@ -34,7 +34,10 @@ export class Deployer {
     console.log("Creating a hatchery for testing");
     const creator = new TurboCreator(hatcheryRegistry);
     const hatchery = await creator.createHatchery(collateral.address);
+    console.log(`Created hatchery: ${hatchery.address}`);
     const arbiter = await this.deployTrustedArbiter(await this.signer.getAddress(), hatchery.address);
+
+    await sleep(10000);
 
     console.log("Creating a turbo for testing");
     const turboId = await creator.createTurbo(
@@ -57,7 +60,15 @@ export class Deployer {
     console.log("Approving the AMM to spend some of the deployer's collateral");
     await collateral.approve(ammFactory.address, initialLiquidity);
     console.log("Creating pool");
-    const pool = await creator.createPool(ammFactory.address, hatchery.address, turboId, initialLiquidity, weights);
+    await sleep(10000);
+    const pool = await createPool(
+      this.signer,
+      ammFactory.address,
+      hatchery.address,
+      turboId,
+      initialLiquidity,
+      weights
+    );
 
     console.log("Done deploying!");
 
@@ -143,7 +154,7 @@ export class TurboCreator {
   async createHatchery(collateral: string): Promise<TurboHatchery> {
     await this.hatcheryRegistry.createHatchery(collateral).then((tx) => tx.wait());
 
-    const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral);
+    const filter = this.hatcheryRegistry.filters.NewHatchery(null, collateral, null, null);
     const [log] = await this.hatcheryRegistry.queryFilter(filter);
     const [hatchery] = log.args;
     return TurboHatchery__factory.connect(hatchery, this.hatcheryRegistry.signer);
@@ -167,7 +178,13 @@ export class TurboCreator {
     const arbiter = TrustedArbiter__factory.connect(arbiterAddress, this.hatcheryRegistry.signer);
 
     const index = randomAddress(); // just a hexadecimal between 0 and 2**160
-    const arbiterConfig = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
+    const arbiterConfig = await arbiter.callStatic.encodeConfiguration(
+      startTime,
+      duration,
+      extraInfo,
+      prices,
+      marketType
+    );
     await hatchery
       .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
       .then((tx) => tx.wait());
@@ -193,30 +210,29 @@ export class TurboCreator {
       ...specified,
     };
   }
+}
 
-  async createPool(
-    ammFactoryAddress: string,
-    hatcheryAddress: string,
-    turboId: BigNumberish,
-    initialLiquidity: BigNumberish,
-    weights: BigNumberish[]
-  ): Promise<BPool> {
-    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, this.hatcheryRegistry.signer);
-    const hatchery = TurboHatchery__factory.connect(hatcheryAddress, this.hatcheryRegistry.signer);
+export async function createPool(
+  signer: Signer,
+  ammFactoryAddress: string,
+  hatcheryAddress: string,
+  turboId: BigNumberish,
+  initialLiquidity: BigNumberish,
+  weights: BigNumberish[]
+): Promise<BPool> {
+  const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
+  const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
+  const lpTokenRecipient = await signer.getAddress();
 
-    await ammFactory
-      .createPool(hatchery.address, turboId, initialLiquidity, weights, await this.hatcheryRegistry.signer.getAddress())
-      .then((tx) => tx.wait());
-    const filter = ammFactory.filters.PoolCreated(
-      null,
-      hatcheryAddress,
-      turboId,
-      await this.hatcheryRegistry.signer.getAddress()
-    );
-    const [log] = await ammFactory.queryFilter(filter);
-    const [pool] = log.args;
-    return BPool__factory.connect(pool, this.hatcheryRegistry.signer);
-  }
+  await ammFactory
+    .createPool(hatchery.address, turboId, initialLiquidity, weights, lpTokenRecipient, {
+      gasLimit: 6000000, // Must set gas limit because gas estimation fails. It's not clear why.
+    })
+    .then((tx) => tx.wait()); // Logs take a moment to become available.
+  const filter = ammFactory.filters.PoolCreated(null, hatcheryAddress, turboId, lpTokenRecipient);
+  const [log] = await ammFactory.queryFilter(filter);
+  const [pool] = log.args;
+  return BPool__factory.connect(pool, signer);
 }
 
 export interface TrustedArbiterConfiguration {
@@ -259,15 +275,6 @@ export interface ContractDeployExternalAddresses {
 
 export interface EtherscanVerificationConfig {
   apiKey: string;
-}
-
-// We also extend the Config type, which represents the configuration
-// after it has been resolved. This is the type used during the execution
-// of tasks, tests and scripts.
-// Normally, you don't want things to be optional here. As you can apply
-// default values using the extendConfig function.
-export interface ProjectPathsConfig {
-  newPath: string;
 }
 
 export function isContractDeployTestConfig(thing?: ContractDeployConfig): thing is ContractDeployTestConfig {

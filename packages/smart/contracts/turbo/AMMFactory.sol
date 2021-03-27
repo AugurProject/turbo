@@ -22,13 +22,14 @@ contract AMMFactory is HasTurboStruct {
     }
 
     function createPool(ITurboHatchery _hatchery, uint256 _turboId, uint256 _initialLiquidity, uint256[] memory _weights, address _lpTokenRecipient) public returns (BPool) {
-        require(pools[address(_hatchery)][_turboId] == BPool(0), "Pool already created");
+    require(pools[address(_hatchery)][_turboId] == BPool(0), "Pool already created");
 
         Turbo memory _turbo = getTurbo(_hatchery, _turboId);
         require(_weights.length == _turbo.shareTokens.length, "Must have one weight for each share token");
 
         //  Turn collateral into shares
         IERC20 _collateral = _hatchery.collateral();
+        require(_collateral.allowance(msg.sender, address(this)) >= _initialLiquidity, "insufficient collateral allowance for initial liquidity");
         _collateral.transferFrom(msg.sender, address(this), _initialLiquidity);
         _collateral.approve(address(_hatchery), MAX_UINT);
         uint256 _sets = _initialLiquidity / _turbo.numTicks;
@@ -50,6 +51,7 @@ contract AMMFactory is HasTurboStruct {
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
         emit PoolCreated(address(_pool), address(_hatchery), _turboId, msg.sender);
+
         return _pool;
     }
 

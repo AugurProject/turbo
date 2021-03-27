@@ -5,14 +5,9 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 
 import { HardhatUserConfig } from "hardhat/config";
-import "./types";
 
-// add tasks in task directory and import here
-import "./tasks/balance.ts";
-import "./tasks/accounts.ts";
-import "./tasks/deploy.ts";
-import "./tasks/cannedMarkets.ts";
-import "./tasks/markets.ts";
+// add tasks tasks directory and export in in tasks/index.ts
+import "./tasks";
 
 const config: HardhatUserConfig = {
   solidity: {
