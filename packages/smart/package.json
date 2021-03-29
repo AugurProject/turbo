@@ -9,7 +9,7 @@
     "build:watch": "tsc -b -w",
     "test": "hardhat test",
     "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
-    "contracts:deploy": "ts-node --files ./scripts/deploy-turbo.ts",
+    "contracts:deploy": "yarn contracts:build && yarn hardhat deploy",
     "contracts:verify": "hardhat verify",
     "ethereumNode": "hardhat node"
   },

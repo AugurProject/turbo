@@ -14,7 +14,7 @@ contract HatcheryRegistry is Ownable {
     // collateral => hatchery
     mapping(address => TurboHatchery) public getHatchery;
 
-    event NewHatchery(address id, address indexed collateral);
+    event NewHatchery(address id, address indexed collateral, address shareTokenFactory, address feePot);
 
     constructor(address _owner, IERC20DynamicSymbol _reputationToken) public {
         owner = _owner;
@@ -29,7 +29,7 @@ contract HatcheryRegistry is Ownable {
         _shareTokenFactory.initialize(_hatchery);
         hatcheries.push(address(_hatchery));
         getHatchery[address(_collateral)] = _hatchery;
-        emit NewHatchery(address(_hatchery), address(_collateral));
+        emit NewHatchery(address(_hatchery), address(_collateral), address(_shareTokenFactory), address(_feePot));
         return _hatchery;
     }
 

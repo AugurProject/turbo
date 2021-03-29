@@ -25,13 +25,13 @@ yarn smart ethereumNode
 Then in another terminal:
 
 ```shell
-yarn smart hardhat deploy --network localhost
+yarn smart contracts:deploy --network localhost
 ```
 
 Want to deploy to kovan?
 
 ```shell
-PRIVATE_KEY=$yourPrivateKeyHere yarn smart hardhat deploy --network kovan
+PRIVATE_KEY=$yourPrivateKeyHere yarn smart contracts:deploy --network kovan
 ```
 
 Oh, now you want to verify your contracts on etherscan?
