@@ -41,7 +41,7 @@ abstract contract ERC20 is IERC20 {
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address _account) public override view returns (uint256) {
+    function balanceOf(address _account) public override view virtual returns (uint256) {
         return balances[_account];
     }
 
@@ -53,7 +53,7 @@ abstract contract ERC20 is IERC20 {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address _recipient, uint256 _amount) public override returns (bool) {
+    function transfer(address _recipient, uint256 _amount) public override virtual returns (bool) {
         _transfer(msg.sender, _recipient, _amount);
         return true;
     }
@@ -61,7 +61,7 @@ abstract contract ERC20 is IERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address _owner, address _spender) public override view returns (uint256) {
+    function allowance(address _owner, address _spender) public override virtual view returns (uint256) {
         return allowances[_owner][_spender];
     }
 
@@ -72,7 +72,7 @@ abstract contract ERC20 is IERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address _spender, uint256 _amount) public override returns (bool) {
+    function approve(address _spender, uint256 _amount) public override virtual returns (bool) {
         _approve(msg.sender, _spender, _amount);
         return true;
     }
@@ -89,7 +89,7 @@ abstract contract ERC20 is IERC20 {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address _sender, address _recipient, uint256 _amount) public override returns (bool) {
+    function transferFrom(address _sender, address _recipient, uint256 _amount) public override virtual returns (bool) {
         _transfer(_sender, _recipient, _amount);
         _approve(_sender, msg.sender, allowances[_sender][msg.sender].sub(_amount));
         return true;

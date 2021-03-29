@@ -9,7 +9,7 @@ interface ITurboShareToken {
     function trustedBurnAll(address _target) external returns (uint256);
 
     // IERC20
-    function totalSupply() external view returns (uint256);
+    function totalSupply2() external returns (uint256);
     function balanceOf(address owner) external view returns (uint256);
     function transfer(address to, uint256 amount) external returns (bool);
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
