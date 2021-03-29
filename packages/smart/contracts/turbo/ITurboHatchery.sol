@@ -38,4 +38,5 @@ abstract contract ITurboHatchery is HasTurboStruct {
     function burnCompleteSets(uint256 _id, uint256 _amount, address _receiver) virtual public returns (bool);
     function claimWinnings(uint256 _id) virtual public returns (bool);
     function withdrawCreatorFees(uint256 _id) virtual external returns (bool);
+    function getTurboLength() virtual external view returns (uint256);
 }

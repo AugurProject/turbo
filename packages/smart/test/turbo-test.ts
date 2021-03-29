@@ -7,6 +7,8 @@ import {
   AMMFactory__factory,
   BFactory,
   BFactory__factory,
+  BPool,
+  BPool__factory,
   Cash,
   Cash__factory,
   FeePot__factory,
@@ -18,7 +20,7 @@ import {
   TurboShareToken__factory,
   TurboShareTokenFactory__factory,
 } from "../typechain";
-import { BigNumber } from "ethers";
+import { BigNumber, BytesLike } from "ethers";
 import { DEAD_ADDRESS, MarketTypes } from "../src/util";
 
 describe("Turbo", () => {
@@ -30,7 +32,7 @@ describe("Turbo", () => {
 
   const creatorFee = 1;
   const outcomeSymbols = ["ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String);
+  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
   const numTicks = 1000;
   const startTime: number = Date.now() + 60;
   const duration = 60 * 60;
@@ -50,6 +52,7 @@ describe("Turbo", () => {
   let arbiter: TrustedArbiter;
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
+  let pool: BPool;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
@@ -147,6 +150,18 @@ describe("Turbo", () => {
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(turboHatchery.address, turboId, initialLiquidity, weights, signer.address);
+    pool = BPool__factory.connect(await ammFactory.pools(turboHatchery.address, turboId), signer);
+    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.div(10));
+  });
+
+  it("can add more liquidity to the AMM", async () => {
+    const additionalLiquidity = basis;
+    await collateral.faucet(additionalLiquidity);
+    await collateral.approve(ammFactory.address, additionalLiquidity);
+
+    const pool = BPool__factory.connect(await ammFactory.pools(turboHatchery.address, turboId), signer);
+    await ammFactory.addLiquidity(turboHatchery.address, turboId, additionalLiquidity, 0, signer.address);
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("100099999924075385080")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
@@ -155,7 +170,7 @@ describe("Turbo", () => {
     await collateral.approve(ammFactory.address, collateralIn);
     expect(await all.balanceOf(signer.address)).to.equal(91); // minted 100 sets, burned 9
     await ammFactory.buy(turboHatchery.address, turboId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal(8307028779219649); // taken from balancer swap
+    expect(await all.balanceOf(signer.address)).to.equal(8307054961011936); // hardcoded from observation
   });
 
   it("can claim winnings", async () => {
@@ -169,7 +184,7 @@ describe("Turbo", () => {
     expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
     await turboHatchery.claimWinnings(turboId);
 
-    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307028779219649").mul(1000));
+    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307054961011936").mul(1000));
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await invalid.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

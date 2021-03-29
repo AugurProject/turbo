@@ -17,7 +17,6 @@ import {
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
 import { mapOverObject, MarketTypes } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
-import { ContractDeployExternalAddresses } from "hardhat/types";
 
 export class Deployer {
   constructor(readonly signer: Signer) {}
@@ -134,6 +133,7 @@ export class Deployer {
 
 export interface Deploy {
   addresses: { [name: string]: string };
+
   [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
 }
 
@@ -232,4 +232,50 @@ export interface TrustedArbiterConfiguration {
   extraInfo: string;
   prices: BigNumberish[];
   marketType: MarketTypes;
+}
+
+export type DeployStrategy = "test" | "production";
+
+export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;
+
+export interface ContractDeployCommonConfig {
+  strategy: DeployStrategy;
+}
+
+export interface ContractDeployTestConfig extends ContractDeployCommonConfig {
+  strategy: "test";
+}
+
+export interface ContractDeployProductionConfig extends ContractDeployCommonConfig {
+  strategy: "production";
+  externalAddresses: ContractDeployExternalAddresses;
+}
+
+export interface ContractDeployExternalAddresses {
+  reputationToken: string;
+}
+
+// Contract Verification
+
+export interface EtherscanVerificationConfig {
+  apiKey: string;
+}
+
+// We also extend the Config type, which represents the configuration
+// after it has been resolved. This is the type used during the execution
+// of tasks, tests and scripts.
+// Normally, you don't want things to be optional here. As you can apply
+// default values using the extendConfig function.
+export interface ProjectPathsConfig {
+  newPath: string;
+}
+
+export function isContractDeployTestConfig(thing?: ContractDeployConfig): thing is ContractDeployTestConfig {
+  return thing?.strategy === "test";
+}
+
+export function isContractDeployProductionConfig(
+  thing?: ContractDeployConfig
+): thing is ContractDeployProductionConfig {
+  return thing?.strategy === "production";
 }

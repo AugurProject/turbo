@@ -26,6 +26,10 @@ contract TurboHatchery is ITurboHatchery {
         collateral.approve(address(_feePot), MAX_UINT);
     }
 
+    function getTurboLength() override external view returns (uint256) {
+        return turbos.length;
+    }
+    
     function createTurbo(uint256 _index, uint256 _creatorFee, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, IArbiter _arbiter, bytes memory _arbiterConfiguration) override public returns (uint256) {
         require(_numTicks.isMultipleOf(2), "TurboHatchery.createTurbo: numTicks must be multiple of 2");
         require(_numTicks >= _outcomeSymbols.length, "TurboHatchery.createTurbo: numTicks lower than numOutcomes");
