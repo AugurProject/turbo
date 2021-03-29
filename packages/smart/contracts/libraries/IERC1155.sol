@@ -16,7 +16,8 @@
 
 */
 
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 
 /// @title ERC-1155 Multi Token Standard
@@ -146,7 +147,7 @@ interface IERC1155 {
     /// @notice Get the balance of multiple account/token pairs
     /// @param owners The addresses of the token holders
     /// @param ids    ID of the Tokens
-    /// @return        The _owner's balance of the Token types requested
+    /// @return balances_  The _owner's balance of the Token types requested
     function balanceOfBatch(
         address[] calldata owners,
         uint256[] calldata ids

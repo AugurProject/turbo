@@ -1,4 +1,5 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 import "./IERC20.sol";
 import "./SafeMathUint256.sol";
@@ -28,19 +29,28 @@ import "./SafeMathUint256.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is IERC20 {
+abstract contract ERC20 is IERC20 {
     using SafeMathUint256 for uint256;
 
-    uint256 public totalSupply;
+    uint256 internal _totalSupply;
 
     mapping (address => uint256) public balances;
 
     mapping (address => mapping (address => uint256)) public allowances;
 
+
+    function decimals() public override view virtual returns (uint8) {
+        return 18;
+    }
+
+    function totalSupply() public override view virtual returns (uint256) {
+        return _totalSupply;
+    }
+
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address _account) public view returns (uint256) {
+    function balanceOf(address _account) public override view virtual returns (uint256) {
         return balances[_account];
     }
 
@@ -52,7 +62,7 @@ contract ERC20 is IERC20 {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address _recipient, uint256 _amount) public returns (bool) {
+    function transfer(address _recipient, uint256 _amount) public override virtual returns (bool) {
         _transfer(msg.sender, _recipient, _amount);
         return true;
     }
@@ -60,7 +70,7 @@ contract ERC20 is IERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address _owner, address _spender) public view returns (uint256) {
+    function allowance(address _owner, address _spender) public override view virtual returns (uint256) {
         return allowances[_owner][_spender];
     }
 
@@ -71,7 +81,7 @@ contract ERC20 is IERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address _spender, uint256 _amount) public returns (bool) {
+    function approve(address _spender, uint256 _amount) public override virtual returns (bool) {
         _approve(msg.sender, _spender, _amount);
         return true;
     }
@@ -88,7 +98,7 @@ contract ERC20 is IERC20 {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address _sender, address _recipient, uint256 _amount) public returns (bool) {
+    function transferFrom(address _sender, address _recipient, uint256 _amount) public override virtual returns (bool) {
         _transfer(_sender, _recipient, _amount);
         _approve(_sender, msg.sender, allowances[_sender][msg.sender].sub(_amount));
         return true;
@@ -144,7 +154,7 @@ contract ERC20 is IERC20 {
      * - `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(address _sender, address _recipient, uint256 _amount) internal {
+    function _transfer(address _sender, address _recipient, uint256 _amount) virtual internal {
         require(_sender != address(0), "ERC20: transfer from the zero address");
         require(_recipient != address(0), "ERC20: transfer to the zero address");
 
@@ -166,7 +176,7 @@ contract ERC20 is IERC20 {
     function _mint(address _account, uint256 _amount) internal {
         require(_account != address(0), "ERC20: mint to the zero address");
 
-        totalSupply = totalSupply.add(_amount);
+        _totalSupply = _totalSupply.add(_amount);
         balances[_account] = balances[_account].add(_amount);
         emit Transfer(address(0), _account, _amount);
     }
@@ -186,7 +196,7 @@ contract ERC20 is IERC20 {
         require(_account != address(0), "ERC20: burn from the zero address");
 
         balances[_account] = balances[_account].sub(_amount);
-        totalSupply = totalSupply.sub(_amount);
+        _totalSupply = _totalSupply.sub(_amount);
         emit Transfer(_account, address(0), _amount);
     }
 
@@ -223,5 +233,5 @@ contract ERC20 is IERC20 {
     }
 
     // Subclasses of this token generally want to send additional logs through the centralized Augur log emitter contract
-    function onTokenTransfer(address _from, address _to, uint256 _value) internal;
+    function onTokenTransfer(address _from, address _to, uint256 _value) virtual internal;
 }

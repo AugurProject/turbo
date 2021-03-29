@@ -11,7 +11,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 // Builds new BPools, logging their addresses and providing `isBPool(address) -> (bool)`
 
@@ -49,7 +50,7 @@ contract BFactory is BBronze {
 
     address private _blabs;
 
-    constructor() public {
+    constructor() {
         _blabs = msg.sender;
     }
 

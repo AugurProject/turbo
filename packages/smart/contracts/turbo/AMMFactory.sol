@@ -1,4 +1,5 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
 import "./HatcheryRegistry.sol";
@@ -17,7 +18,7 @@ contract AMMFactory is HasTurboStruct {
 
     event PoolCreated(address _pool, address indexed _hatchery, uint256 indexed _turboId, address indexed _creator);
 
-    constructor(BFactory _bFactory) public {
+    constructor(BFactory _bFactory) {
         bFactory = _bFactory;
     }
 
@@ -150,8 +151,8 @@ contract AMMFactory is HasTurboStruct {
     }
 
     function getTurbo(ITurboHatchery _hatchery, uint256 _turboId) private view returns (Turbo memory) {
-        (address _creator, uint256 _creatorFee, uint256 _numTicks, IArbiter _arbiter, uint256 _creatorFees) = _hatchery.turbos(_turboId);
+        Turbo memory turbo = _hatchery.turbos(_turboId);
         ITurboShareToken[] memory _shareTokens = _hatchery.getShareTokens(_turboId); // solidity won't return complex types in structs
-        return Turbo(_creator, _creatorFee, _numTicks, _arbiter, _shareTokens, _creatorFees);
+        return Turbo(turbo.creator, turbo.creatorFee, turbo.numTicks, turbo.arbiter, _shareTokens, turbo.creatorFees);
     }
 }

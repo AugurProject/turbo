@@ -1,8 +1,9 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 import "./IERC20.sol";
 
 
-contract IERC20DynamicSymbol is IERC20 {
-    function symbol() public view returns (string memory);
+interface IERC20DynamicSymbol is IERC20 {
+    function symbol() external view returns (string memory);
 }

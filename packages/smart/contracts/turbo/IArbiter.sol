@@ -1,8 +1,9 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
 
-contract IArbiter {
-    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) public;
-    function getTurboResolution(uint256 _id) public returns (uint256[] memory);
+interface IArbiter {
+    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) external;
+    function getTurboResolution(uint256 _id) external returns (uint256[] memory);
 }

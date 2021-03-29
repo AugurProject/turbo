@@ -1,8 +1,10 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 import "./IERC20.sol";
 
 
-contract ICash is IERC20 {
-    function faucet(uint256 _amount) public returns (bool);
+interface ICash is IERC20 {
+    function faucet(uint256 _amount) external returns (bool);
+    function decimals() override external view returns (uint8);
 }

@@ -1,6 +1,7 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 
-contract ITyped {
-    function getTypeName() public view returns (bytes32);
+interface ITyped {
+    function getTypeName() external view returns (bytes32);
 }

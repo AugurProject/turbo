@@ -1,4 +1,5 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 import "./TurboHatchery.sol";
 import "./TurboShareTokenFactory.sol";
@@ -16,7 +17,7 @@ contract HatcheryRegistry is Ownable {
 
     event NewHatchery(address id, address indexed collateral, address shareTokenFactory, address feePot);
 
-    constructor(address _owner, IERC20DynamicSymbol _reputationToken) public {
+    constructor(address _owner, IERC20DynamicSymbol _reputationToken) {
         owner = _owner;
         reputationToken = _reputationToken;
     }
@@ -33,5 +34,5 @@ contract HatcheryRegistry is Ownable {
         return _hatchery;
     }
 
-    function onTransferOwnership(address, address) internal {}
+    function onTransferOwnership(address, address) override internal {}
 }

@@ -1,7 +1,8 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 
-contract IOwnable {
-    function getOwner() public view returns (address);
-    function transferOwnership(address _newOwner) public returns (bool);
+interface IOwnable {
+    function getOwner() external view returns (address);
+    function transferOwnership(address _newOwner) external returns (bool);
 }

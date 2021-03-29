@@ -1,4 +1,5 @@
-pragma solidity 0.5.15;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 
 import "./ICash.sol";
 import "./ITyped.sol";
@@ -13,23 +14,27 @@ contract Cash is VariableSupplyToken, ITyped, ICash {
     using SafeMathUint256 for uint256;
 
     string public name;
-    uint8 public decimals;
+    uint8 private _decimals;
     string public symbol;
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals) public {
+constructor(string memory _name, string memory _symbol, uint8 decimals_) {
         name = _name;
         symbol = _symbol;
-        decimals = _decimals;
+        _decimals = decimals_;
     }
 
-    function faucet(uint256 _amount) public returns (bool) {
+    function decimals() override(ERC20, ICash) public view virtual returns (uint8) {
+        return _decimals;
+    }
+
+    function faucet(uint256 _amount) override public returns (bool) {
         mint(msg.sender, _amount);
         return true;
     }
 
-    function getTypeName() public view returns (bytes32) {
+    function getTypeName() override public pure returns (bytes32) {
         return "Cash";
     }
 
-    function onTokenTransfer(address _from, address _to, uint256 _value) internal {}
+    function onTokenTransfer(address _from, address _to, uint256 _value) override internal {}
 }
