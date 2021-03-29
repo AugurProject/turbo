@@ -16,21 +16,12 @@ export enum ChainId {
   Kovan = 42,
   HardHat = 31337,
   ArbitrumKovan4 = 212984383488152,
+  MaticMumbai = 80001,
 }
 type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
 export const addresses: AddressMapping = {
-  42: {
-    collateral: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
-    reputationToken: "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9",
-    balancerFactory: "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8",
-    hatcheryRegistry: "0x851356ae760d987E095750cCeb3bC6014560891C",
-    hatchery: "0xbA94C268049DD87Ded35F41F6D4C7542b4BdB767",
-    arbiter: "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
-    ammFactory: "0x70e0bA845a1A0F2DA3359C97E0285013525FFC49",
-    pool: "0x9467A509DA43CB50EB332187602534991Be1fEa4",
-  },
   31337: {
     collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
@@ -42,13 +33,33 @@ export const addresses: AddressMapping = {
     pool: "0x75537828f2ce51be7289709686A69CbFDbB714F1",
   },
   212984383488152: {
-    collateral: "0x1944b27eD848411f13bbe3e157a2F76c5c608DDa",
-    reputationToken: "0xe412D67837982D116b751D1D6Bb30544C3E866A9",
-    balancerFactory: "0xC9D8199aE8FC708059999ed5eBB5BEC25Cf2655d",
-    hatcheryRegistry: "0x2b19addaea2FE256EDBd11538ec4273fDA4F6A14",
-    hatchery: "0xCD2dAceA790411F6d28569Ec455BC9F10C1F1d91",
-    arbiter: "0xf6Ab4743ff9FB9fF205Ced60D0b1AbD3Dc969CC9",
-    ammFactory: "0x9EAD1A3cE5dE0C90395169c82F4B33419ACd7fB7",
-    pool: "0x96f2e00789a18825906a8FFA0189ceA58754198C",
+    collateral: "0x16B94A083Bf4013781a05c0cA5951AFc2B1141D8",
+    reputationToken: "0x4A6C1b27E8ab5a76C2D586553f757bB5Bf1fc036",
+    balancerFactory: "0xdE72C71D153ef6664d510542633CEB51FbB8A9DB",
+    hatcheryRegistry: "0x0aE2e61C5f0C5d40a93c44A855E649071F6Eb4C6",
+    hatchery: "0xDaD8B772740196a5256c571d66AA692BEc634A50",
+    arbiter: "0xd62e60a61F033658fc2D16cb82861e5776d1BFDf",
+    ammFactory: "0xe70ba5Aaa0bcB5CE7E0f0944367628566f73Be13",
+    pool: "0x1CaD7b2c36817FDdB51609d9bB735E0127B05A5C",
+  },
+  80001: {
+    collateral: "0xb23De8157b083eDB941c03be60e1bF37d04b485c",
+    reputationToken: "0x63383EF92f32B17C0A566Bce5C3e5aEE671aC47a",
+    balancerFactory: "0x66Ce9264E5af0415c0b9c71896A99D476f7c3f6E",
+    hatcheryRegistry: "0x513A20aF4721Fc74a9F2a5E1D2Bb979511255552",
+    hatchery: "0x73F930196dC32A9d389eC8111720b8aBBEa97465",
+    arbiter: "0x799b937040E25bBab622Fb9ACC6865e090fEd6Ca",
+    ammFactory: "0x6531D31bf6DC6642D30759DAE5379850d316D29A",
+    pool: "0xa64529f50205cECdFaB986852F066e21B8c15258",
+  },
+  42: {
+    collateral: "0xa8B96fA03798958c2C7E501da75a648a4Df157F4",
+    reputationToken: "0x366E88eCf16cA7FBaDbccD6925DB023e34196f5F",
+    balancerFactory: "0x022a2143b21996d0eCC89ad1aafd3620a3145aFe",
+    hatcheryRegistry: "0xAdE9FF4DfD41fD9612cd501855fa2f6E892d5df0",
+    hatchery: "0x7780D4451DF4C74B8Eda3758AC0A67b62c85A39d",
+    arbiter: "0x0e52F44CDB81bD6Caa19dE9C58b1F1421a9a9D28",
+    ammFactory: "0x61aF827883852A3177B65418E6f5229AEFc9650d",
+    pool: "0x24F786c4C1155d9005f82108840610fEE7AcAd5a",
   },
 };

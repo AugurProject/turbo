@@ -4,3 +4,4 @@ export * from "./balance";
 export * from "./createPool";
 export * from "./cannedMarkets";
 export * from "./markets";
+export * from "./verifyDeploy";

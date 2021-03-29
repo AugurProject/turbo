@@ -38,13 +38,19 @@ const config: HardhatUserConfig = {
     hardhat: {},
     kovan: {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
-      gas: 6000000, // to fit createPool calls, which fail to estimate gas correctly
+      gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
     },
     arbitrumKovan4: {
       url: "https://kovan4.arbitrum.io/rpc",
       chainId: 212984383488152,
       gas: 200000000, // arbitrum has as higher gas limit and cost for contract deploys from contracts
       gasPrice: 1,
+    },
+    maticMumbai: {
+      url: "https://rpc-mumbai.maticvigil.com/v1/d955b11199dbfd5871c21bdc750c994edfa52abd",
+      chainId: 80001,
+      gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
+      gasPrice: 20000000000,
     },
   },
   contractDeploy: {
