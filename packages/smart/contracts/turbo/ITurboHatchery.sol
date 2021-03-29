@@ -28,7 +28,7 @@ interface ITurboHatchery is HasTurboStruct {
     event CompleteSetsBurned(uint256 turboId, uint256 amount, address target);
     event Claim(uint256 turboId);
 
-    function turbos(uint256 _turboId) external view returns (Turbo[] memory);
+    function turbos(uint256 _turboId) external view returns (HasTurboStruct.Turbo memory);
     function tokenFactory() external view returns (ITurboShareTokenFactory);
     function feePot() external view returns (IFeePot);
     function collateral() external view returns (IERC20);

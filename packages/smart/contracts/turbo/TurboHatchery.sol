@@ -31,7 +31,7 @@ contract TurboHatchery is ITurboHatchery {
         _collateral.approve(address(_feePot), MAX_UINT);
     }
 
-    function turbos(uint256 _turboId) override external view returns (Turbo[] memory) {
+    function turbos(uint256 _turboId) override external view returns (HasTurboStruct.Turbo memory) {
         return _turbos[_turboId];
     }
 
