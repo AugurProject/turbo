@@ -14,8 +14,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-abstract contract BColor {
-    function getColor() virtual
+interface BColor {
+    function getColor()
         external view
         returns (bytes32);
 }

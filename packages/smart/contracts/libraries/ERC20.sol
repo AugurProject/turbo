@@ -32,7 +32,7 @@ import "./SafeMathUint256.sol";
 abstract contract ERC20 is IERC20 {
     using SafeMathUint256 for uint256;
 
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply;
 
     mapping (address => uint256) public balances;
 
@@ -70,7 +70,7 @@ abstract contract ERC20 is IERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address _owner, address _spender) public override virtual view returns (uint256) {
+    function allowance(address _owner, address _spender) public override view virtual returns (uint256) {
         return allowances[_owner][_spender];
     }
 
