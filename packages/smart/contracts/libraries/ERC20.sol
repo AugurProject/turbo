@@ -32,19 +32,19 @@ import "./SafeMathUint256.sol";
 abstract contract ERC20 is IERC20 {
     using SafeMathUint256 for uint256;
 
-    uint256 public totalSupplyVal;
+    uint256 private _totalSupply;
 
     mapping (address => uint256) public balances;
 
     mapping (address => mapping (address => uint256)) public allowances;
 
 
-    function setDecimals() public override view virtual returns (uint8) {
+    function decimals() public override view virtual returns (uint8) {
         return 18;
     }
 
     function totalSupply() public override view virtual returns (uint256) {
-        return totalSupplyVal;
+        return _totalSupply;
     }
 
     /**
@@ -176,7 +176,7 @@ abstract contract ERC20 is IERC20 {
     function _mint(address _account, uint256 _amount) internal {
         require(_account != address(0), "ERC20: mint to the zero address");
 
-        totalSupplyVal = totalSupplyVal.add(_amount);
+        _totalSupply = _totalSupply.add(_amount);
         balances[_account] = balances[_account].add(_amount);
         emit Transfer(address(0), _account, _amount);
     }
@@ -196,7 +196,7 @@ abstract contract ERC20 is IERC20 {
         require(_account != address(0), "ERC20: burn from the zero address");
 
         balances[_account] = balances[_account].sub(_amount);
-        totalSupplyVal = totalSupplyVal.sub(_amount);
+        _totalSupply = _totalSupply.sub(_amount);
         emit Transfer(_account, address(0), _amount);
     }
 
