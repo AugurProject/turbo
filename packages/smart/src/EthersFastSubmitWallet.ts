@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, ethers, Signer } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
 import { ExternallyOwnedAccount } from "@ethersproject/abstract-signer";
 import { SigningKey } from "@ethersproject/signing-key";

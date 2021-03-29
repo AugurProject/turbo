@@ -14,8 +14,8 @@ import {
   TurboHatchery,
   TurboHatchery__factory,
 } from "../typechain";
-import { BigNumberish, Contract, Signer, BigNumber, utils, Overrides } from "ethers";
-import { mapOverObject, MarketTypes, sleep } from "./util";
+import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
+import { mapOverObject, MarketTypes } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
 
 export class Deployer {
@@ -184,11 +184,8 @@ export async function createPool(
   hatcheryAddress: string,
   turboId: BigNumberish,
   initialLiquidity: BigNumberish,
-  weights: BigNumberish[],
-  override?: Overrides
+  weights: BigNumberish[]
 ): Promise<BPool> {
-  override = override || {};
-
   const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
   const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
   const lpTokenRecipient = await signer.getAddress();
