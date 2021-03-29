@@ -21,6 +21,10 @@ export type RecursivePartial<T> = {
     : T[P];
 };
 
+export async function sleep(milliseconds: number): Promise<void> {
+  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
 export const DEAD_ADDRESS = "0x000000000000000000000000000000000000DEAD";
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 

@@ -5,12 +5,7 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 
 import { HardhatUserConfig } from "hardhat/config";
-
-// add tasks in task directory and import here
-import "./tasks/balance.ts";
-import "./tasks/accounts.ts";
-import "./tasks/deploy.ts";
-import "./tasks/verifyDeploy.ts";
+import "./tasks";
 
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 

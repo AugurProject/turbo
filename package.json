@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier -c '**/**.ts'",
     "format:write": "prettier --write '**/**.ts'",
-    "smart": "yarn workspace @turbo/smart"
+    "smart": "yarn workspace @augurproject/smart"
   },
   "workspaces": {
     "packages": [

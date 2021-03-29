@@ -29,6 +29,7 @@ contract AMMFactory is HasTurboStruct {
 
         //  Turn collateral into shares
         IERC20 _collateral = _hatchery.collateral();
+        require(_collateral.allowance(msg.sender, address(this)) >= _initialLiquidity, "insufficient collateral allowance for initial liquidity");
         _collateral.transferFrom(msg.sender, address(this), _initialLiquidity);
         _collateral.approve(address(_hatchery), MAX_UINT);
         uint256 _sets = _initialLiquidity / _turbo.numTicks;
@@ -50,6 +51,7 @@ contract AMMFactory is HasTurboStruct {
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
         emit PoolCreated(address(_pool), address(_hatchery), _turboId, msg.sender);
+
         return _pool;
     }
 
