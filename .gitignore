@@ -118,3 +118,4 @@ dist
 # IDEs
 .idea/
 node_modules
+.vscode
