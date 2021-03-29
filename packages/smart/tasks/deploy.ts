@@ -14,7 +14,12 @@ import {
 } from "../src";
 import "hardhat/types/config";
 import { HttpNetworkConfig, NetworkConfig } from "hardhat/src/types/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import {
+  HardhatNetworkAccountConfig,
+  HardhatNetworkAccountsConfig,
+  HardhatNetworkConfig,
+  HardhatRuntimeEnvironment,
+} from "hardhat/types";
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   if (!hre.config.contractDeploy) throw Error(`When deploying you must specify deployConfig in the hardhat config`);
@@ -55,17 +60,36 @@ export function isHttpNetworkConfig(networkConfig: NetworkConfig): networkConfig
   return (networkConfig as HttpNetworkConfig).url !== undefined;
 }
 
+export function isHardhatNetworkConfig(networkConfig: NetworkConfig): networkConfig is HardhatNetworkConfig {
+  return (networkConfig as HttpNetworkConfig).url === undefined;
+}
+
+export function isHardhatNetworkAccountConfig(
+  accountConfig: HardhatNetworkAccountsConfig
+): accountConfig is HardhatNetworkAccountConfig[] {
+  return Array.isArray(accountConfig);
+}
+
 export async function makeSigner(hre: HardhatRuntimeEnvironment): Promise<ethers.Signer> {
-  const [signer] = await hre.ethers.getSigners();
+  const provider = hre.ethers.provider;
 
   // talk to a node
   if (isHttpNetworkConfig(hre.network.config) && Array.isArray(hre.network.config.accounts)) {
-    const { accounts } = hre.network.config;
+    const { accounts, gas, gasPrice } = hre.network.config;
     const [privateKey] = accounts;
-
-    if (!signer.provider) throw Error("Hardhat's signer is missing a provider");
-
-    return EthersFastSubmitWallet.create(privateKey, signer.provider);
+    const wallet = await EthersFastSubmitWallet.create(privateKey, provider);
+    wallet.gasLimit = gas;
+    wallet.gasPrice = gasPrice;
+    return wallet;
+  } else if (isHardhatNetworkConfig(hre.network.config)) {
+    if (isHardhatNetworkAccountConfig(hre.network.config.accounts)) {
+      const { accounts } = hre.network.config;
+      const [account] = accounts;
+      const { privateKey } = account;
+      return EthersFastSubmitWallet.create(privateKey, provider);
+    }
   }
+
+  const [signer] = await hre.ethers.getSigners();
   return signer;
 }
