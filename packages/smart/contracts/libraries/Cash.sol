@@ -14,13 +14,17 @@ contract Cash is VariableSupplyToken, ITyped, ICash {
     using SafeMathUint256 for uint256;
 
     string public name;
-    uint8 public _decimals;
+    uint8 private _decimals;
     string public symbol;
 
 constructor(string memory _name, string memory _symbol, uint8 _decimals) {
         name = _name;
         symbol = _symbol;
         _decimals = _decimals;
+    }
+
+    function decimals() override(ERC20, ICash) public view virtual returns (uint8) {
+        return _decimals;
     }
 
     function faucet(uint256 _amount) override public returns (bool) {
