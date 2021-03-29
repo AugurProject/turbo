@@ -10,6 +10,9 @@ import { HardhatUserConfig } from "hardhat/config";
 import "./tasks/balance.ts";
 import "./tasks/accounts.ts";
 import "./tasks/deploy.ts";
+import "./tasks/verifyDeploy.ts";
+
+const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -42,6 +45,9 @@ const config: HardhatUserConfig = {
     path: "./docs",
     clear: true,
   },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
@@ -49,7 +55,6 @@ if (PRIVATE_KEY && config.networks?.kovan) {
   config.networks.kovan.accounts = [PRIVATE_KEY];
 }
 
-const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 if (ETHERSCAN_API_KEY) config.etherscan = { apiKey: ETHERSCAN_API_KEY };
 
 export default config;

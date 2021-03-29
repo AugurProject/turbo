@@ -1,4 +1,5 @@
 import { task } from "hardhat/config";
+import "@nomiclabs/hardhat-etherscan";
 
 import {
   ContractDeployConfig,
@@ -22,6 +23,14 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   } else {
     const { externalAddresses } = hre.config.contractDeploy;
     deploy = await deployer.deployProduction(externalAddresses);
+  }
+
+  // Verify deploy
+  if (hre.network.name !== "localhost" && deploy && deploy.addresses) {
+    await hre.run("verifyDeploy", {
+      account: await signer.getAddress(),
+      addresses: JSON.stringify(deploy.addresses),
+    });
   }
 
   console.log(JSON.stringify(deploy, null, 2));
