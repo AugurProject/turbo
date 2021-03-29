@@ -36,7 +36,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
 
     function depositFees(uint256 _amount) override public returns (bool) {
         collateral.transferFrom(msg.sender, address(this), _amount);
-        uint256 _totalSupply = totalSupply; // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
+        uint256 _totalSupply = totalSupply(); // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
         if (_totalSupply == 0) {
             feeReserve = feeReserve.add(_amount);
             return true;

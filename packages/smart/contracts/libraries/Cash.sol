@@ -14,10 +14,10 @@ contract Cash is VariableSupplyToken, ITyped, ICash {
     using SafeMathUint256 for uint256;
 
     string public name;
-    // uint8 public decimals;
+    uint8 public decimals;
     string public symbol;
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals) {
+constructor(string memory _name, string memory _symbol, uint8 _decimals) {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;

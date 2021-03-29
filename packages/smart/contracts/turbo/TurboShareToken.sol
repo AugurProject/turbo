@@ -18,6 +18,10 @@ contract TurboShareToken is ITurboShareToken, VariableSupplyToken, Ownable {
         owner = address(_hatchery);
     }
 
+    function totalSupply() public override(ITurboShareToken, ERC20) view returns (uint256) {
+        return ERC20.totalSupply();
+    }
+
     function allowance(address _owner, address _spender) public override(ITurboShareToken, ERC20) view returns (uint256) {
         return ERC20.allowance(_owner, _spender);
     }
@@ -42,12 +46,6 @@ contract TurboShareToken is ITurboShareToken, VariableSupplyToken, Ownable {
     function trustedTransfer(address _from, address _to, uint256 _amount) onlyOwner override external {
         _transfer(_from, _to, _amount);
     }
-
-
-    function totalSupply2() override external view returns (uint256) {
-        return totalSupply;
-    }
-
 
     function trustedMint(address _target, uint256 _amount) onlyOwner override external {
         mint(_target, _amount);
