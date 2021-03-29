@@ -5,11 +5,11 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 
 import { HardhatUserConfig } from "hardhat/config";
-
-// add tasks tasks directory and export in in tasks/index.ts
 import "./tasks";
 import { mapOverObject } from "./src";
 import { NetworkUserConfig } from "hardhat/types";
+
+const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -54,6 +54,9 @@ const config: HardhatUserConfig = {
     path: "./docs",
     clear: true,
   },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
 };
 
 const PRIVATE_KEY = process.env["PRIVATE_KEY"];
@@ -64,7 +67,6 @@ if (PRIVATE_KEY && config.networks) {
   });
 }
 
-const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 if (ETHERSCAN_API_KEY) config.etherscan = { apiKey: ETHERSCAN_API_KEY };
 
 export default config;
