@@ -15,6 +15,7 @@ export enum ChainId {
   Rinkeby = 4,
   Kovan = 42,
   HardHat = 31337,
+  ArbitrumKovan4 = 212984383488152,
 }
 type AddressMapping = {
   [id in ChainId]?: Addresses;
@@ -39,5 +40,15 @@ export const addresses: AddressMapping = {
     arbiter: "0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9",
     ammFactory: "0x5FeaeBfB4439F3516c74939A9D04e95AFE82C4ae",
     pool: "0x4bb279a97dA674b94F5b79c9fE5c44Cf5896DCef",
+  },
+  212984383488152: {
+    collateral: "0x1944b27eD848411f13bbe3e157a2F76c5c608DDa",
+    reputationToken: "0xe412D67837982D116b751D1D6Bb30544C3E866A9",
+    balancerFactory: "0xC9D8199aE8FC708059999ed5eBB5BEC25Cf2655d",
+    hatcheryRegistry: "0x2b19addaea2FE256EDBd11538ec4273fDA4F6A14",
+    hatchery: "0xCD2dAceA790411F6d28569Ec455BC9F10C1F1d91",
+    arbiter: "0xf6Ab4743ff9FB9fF205Ced60D0b1AbD3Dc969CC9",
+    ammFactory: "0x9EAD1A3cE5dE0C90395169c82F4B33419ACd7fB7",
+    pool: "0x96f2e00789a18825906a8FFA0189ceA58754198C",
   },
 };
