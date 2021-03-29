@@ -2,6 +2,6 @@
 pragma solidity 0.7.6;
 
 
-abstract contract ITyped {
-    function getTypeName() virtual public view returns (bytes32);
+interface ITyped {
+    function getTypeName() external view returns (bytes32);
 }
