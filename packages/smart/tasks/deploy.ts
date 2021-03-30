@@ -5,14 +5,7 @@ import { updateAddressConfig } from "../src/addressesConfigUpdater";
 import path from "path";
 import "@nomiclabs/hardhat-etherscan";
 
-import {
-  ContractDeployConfig,
-  Deploy,
-  Deployer,
-  EtherscanVerificationConfig,
-  EthersFastSubmitWallet,
-  isContractDeployTestConfig,
-} from "../src";
+import { ContractDeployConfig, Deploy, Deployer, EthersFastSubmitWallet, isContractDeployTestConfig } from "../src";
 import "hardhat/types/config";
 import { HttpNetworkConfig, NetworkConfig } from "hardhat/src/types/config";
 import {
@@ -38,7 +31,7 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
     const { externalAddresses } = hre.config.contractDeploy;
     deploy = await deployer.deployProduction(externalAddresses);
   }
-  
+
   console.log(JSON.stringify(deploy, null, 2));
 
   const addressFilePath = path.resolve(__dirname, "../addresses.ts");
@@ -46,13 +39,13 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
 
   // Verify deploy
   if (hre.config.etherscan?.apiKey && deploy?.addresses && ["kovan", "mainnet"].includes(hre.network.name)) {
-    console.log("Verifying deployment")
+    console.log("Verifying deployment");
     await hre.run("verifyDeploy", {
       account: await signer.getAddress(),
       addresses: JSON.stringify(deploy.addresses),
     });
   } else {
-    console.log("Skipping verification of deployment")
+    console.log("Skipping verification of deployment");
   }
 });
 
