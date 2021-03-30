@@ -4,6 +4,7 @@
   "private": true,
   "main": "build",
   "dependencies": {
+    "@augurproject/ethereum-multicall": "^2.3.0-alpha.0",
     "@augurproject/sdk": "^2.2.0",
     "@augurproject/sdk-lite": "^2.2.0",
     "@uniswap/sdk": "^3.0.3",

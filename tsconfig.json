@@ -23,6 +23,9 @@
   "references": [
     {
       "path": "./packages/smart"
+    },
+    {
+      "path": "./packages/ethereum-multicall"
     }
   ],
   "exclude": ["**/node_modules", "**/build", "**/dist"],
