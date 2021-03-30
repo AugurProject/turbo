@@ -4,7 +4,6 @@
   "private": true,
   "main": "build",
   "dependencies": {
-    "@augurproject/ethereum-multicall": "^2.2.0",
     "@augurproject/sdk": "^2.2.0",
     "@augurproject/sdk-lite": "^2.2.0",
     "@uniswap/sdk": "^3.0.3",
@@ -41,7 +40,7 @@
     "check:watch": "npm run type-check -- --watch",
     "types": "tsc --emitDeclarationOnly",
     "build": "node scripts/build.js",
-    "transpile": "yarn types && babel src --out-dir build --extensions \".tsx\",\".ts\" --source-maps inline --copy-files",
+    "transpile": "babel src --out-dir build --extensions \".tsx\",\".ts\" --source-maps inline --copy-files",
     "transpile:watch": "yarn transpile --watch"
   },
   "eslintConfig": {

@@ -3,11 +3,11 @@ import { ParaShareToken, AddLiquidityRate, marketInvalidityCheck, getGasStation,
 import { TradingDirection, AmmExchange, AmmExchanges, AmmMarketShares, AmmTransaction, Cashes, CurrencyBalance, PositionBalance, TransactionTypes, UserBalances, MarketInfos, LPTokens, EstimateTradeResult, Cash, AddLiquidityBreakdown, LiquidityBreakdown, AmmOutcome } from './types'
 import ethers from 'ethers';
 import { Contract } from '@ethersproject/contracts'
-import {
-  Multicall,
-  ContractCallResults,
-  ContractCallContext,
-} from '@augurproject/ethereum-multicall';
+// import {
+//   Multicall,
+//   ContractCallResults,
+//   ContractCallContext,
+// } from '@augurproject/ethereum-multicall';
 import { TransactionResponse, Web3Provider } from '@ethersproject/providers'
 import { convertDisplayCashAmountToOnChainCashAmount, convertDisplayShareAmountToOnChainShareAmount, convertOnChainCashAmountToDisplayCashAmount, convertOnChainSharesToDisplayShareAmount, isSameAddress } from './format-number';
 import { augurSdkLite } from './augurlitesdk';
