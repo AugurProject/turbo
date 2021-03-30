@@ -12,7 +12,8 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier -c '**/**.ts'",
     "format:write": "prettier --write '**/**.ts'",
-    "smart": "yarn workspace @augurproject/smart"
+    "smart": "yarn workspace @augurproject/smart",
+    "comps": "yarn workspace @augurproject/comps"
   },
   "workspaces": {
     "packages": [
@@ -35,5 +36,11 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "**/puppeteer": "https://github.com/AugurProject/blackhole.git",
+    "**/scrypt": "https://github.com/AugurProject/blackhole.git",
+    "**/bcrypto": "https://github.com/AugurProject/blackhole.git",
+    "**/pull-ws": "https://github.com/pull-stream/pull-ws.git"
+  }
 }
