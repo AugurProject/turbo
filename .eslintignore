@@ -5,6 +5,7 @@ artifacts
 cache
 dist
 typechain
+build
 # don't lint nyc coverage output
 coverage
 #ignore actions
