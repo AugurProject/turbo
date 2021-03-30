@@ -13,7 +13,7 @@ import {
   ContractCallReturnContext,
   MulticallOptionsCustomJsonRpcProvider,
   MulticallOptionsEthers,
-  MulticallOptionsWeb3
+  MulticallOptionsWeb3,
 } from './models';
 import { Utils } from './utils';
 
@@ -44,20 +44,20 @@ export class Multicall {
       constant: true,
       inputs: [
         {
-          name: "addr",
-          type: "address"
-        }
+          name: 'addr',
+          type: 'address',
+        },
       ],
-      name: "getEthBalance",
+      name: 'getEthBalance',
       outputs: [
         {
-          name: "balance",
-          type: "uint256"
-        }
+          name: 'balance',
+          type: 'uint256',
+        },
       ],
       payable: false,
-      stateMutability: "view",
-      type: "function"
+      stateMutability: 'view',
+      type: 'function',
     },
   ];
 
@@ -284,9 +284,7 @@ export class Multicall {
       .ethersProvider;
 
     if (!ethersProvider) {
-      const customProvider = this.getTypedOptions<
-        MulticallOptionsCustomJsonRpcProvider
-      >();
+      const customProvider = this.getTypedOptions<MulticallOptionsCustomJsonRpcProvider>();
       if (customProvider.nodeUrl) {
         ethersProvider = new ethers.providers.JsonRpcProvider(
           customProvider.nodeUrl

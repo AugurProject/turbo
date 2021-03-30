@@ -27,11 +27,7 @@ import {
 } from "./types";
 import ethers from "ethers";
 import { Contract } from "@ethersproject/contracts";
-import {
-  Multicall,
-  ContractCallResults,
-  ContractCallContext,
-} from '@augurproject/ethereum-multicall';
+import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import {
   convertDisplayCashAmountToOnChainCashAmount,

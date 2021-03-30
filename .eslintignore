@@ -9,3 +9,5 @@ typechain
 coverage
 #ignore actions
 .github
+#ignore generated type files
+*.d.ts
