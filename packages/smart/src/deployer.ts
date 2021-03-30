@@ -15,7 +15,7 @@ import {
   TurboHatchery__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
-import { mapOverObject, MarketTypes } from "./util";
+import { mapOverObject, MarketTypes, sleep } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
 
 export class Deployer {
@@ -32,6 +32,8 @@ export class Deployer {
     const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
     const hatchery = await createHatchery(hatcheryRegistry.signer, hatcheryRegistry.address, collateral.address);
     const arbiter = await this.deployTrustedArbiter(await this.signer.getAddress(), hatchery.address);
+
+    await sleep(10000); // matic needs a little time
 
     console.log("Creating a turbo for testing");
     const turboId = await createTurbo(
@@ -56,6 +58,7 @@ export class Deployer {
     console.log("Approving the AMM to spend some of the deployer's collateral");
     await collateral.approve(ammFactory.address, initialLiquidity).then((tx) => tx.wait(2));
     console.log("Creating pool");
+    await sleep(10000); // matic needs a little time
     const pool = await createPool(
       this.signer,
       ammFactory.address,
@@ -133,7 +136,7 @@ export class Deployer {
         throw err;
       });
     await contract.deployTransaction.wait(2); // slow but some Arbitrum has issues if you deploy too quickly
-    console.log(`Deployed ${name}: ${contract.address}`);
+    console.log(`Deployed ${name}: ${contract.address} in ${contract.deployTransaction.hash}`);
     return contract;
   }
 }
@@ -170,33 +173,9 @@ export async function createHatchery(
   const registry = HatcheryRegistry__factory.connect(hatcheryRegistry, signer);
   await registry.createHatchery(collateral).then((tx) => tx.wait(2));
 
-  const filter = registry.filters.NewHatchery(null, collateral, null, null);
-  const [log] = await registry.queryFilter(filter);
-  const [hatchery] = log.args;
+  const hatchery = await registry.callStatic.getHatchery(collateral);
   console.log(`Created hatchery: ${hatchery}`);
-
   return TurboHatchery__factory.connect(hatchery, signer);
-}
-
-export async function createPool(
-  signer: Signer,
-  ammFactoryAddress: string,
-  hatcheryAddress: string,
-  turboId: BigNumberish,
-  initialLiquidity: BigNumberish,
-  weights: BigNumberish[]
-): Promise<BPool> {
-  const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
-  const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
-  const lpTokenRecipient = await signer.getAddress();
-
-  await ammFactory
-    .createPool(hatchery.address, turboId, initialLiquidity, weights, lpTokenRecipient, {})
-    .then((tx) => tx.wait(2)); // Logs take a moment to become available.
-  const filter = ammFactory.filters.PoolCreated(null, hatcheryAddress, turboId, lpTokenRecipient);
-  const [log] = await ammFactory.queryFilter(filter);
-  const [pool] = log.args;
-  return BPool__factory.connect(pool, signer);
 }
 
 async function createTurbo(
@@ -231,10 +210,28 @@ async function createTurbo(
   await hatchery
     .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
     .then((tx) => tx.wait(2));
-  const filter = hatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
-  const [log] = await hatchery.queryFilter(filter);
-  const [id] = log.args;
-  return id;
+  const turboLength = await hatchery.callStatic.getTurboLength();
+  return turboLength.sub(1);
+}
+
+export async function createPool(
+  signer: Signer,
+  ammFactoryAddress: string,
+  hatcheryAddress: string,
+  turboId: BigNumberish,
+  initialLiquidity: BigNumberish,
+  weights: BigNumberish[]
+): Promise<BPool> {
+  const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
+  const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
+  const lpTokenRecipient = await signer.getAddress();
+
+  await ammFactory
+    .createPool(hatchery.address, turboId, initialLiquidity, weights, lpTokenRecipient, {})
+    .then((tx) => tx.wait(2));
+
+  const pool = await ammFactory.callStatic.pools(hatcheryAddress, turboId);
+  return BPool__factory.connect(pool, signer);
 }
 
 export interface TrustedArbiterConfiguration {
