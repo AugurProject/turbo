@@ -1,6 +1,5 @@
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import {
-  ParaShareToken,
   AddLiquidityRate,
   marketInvalidityCheck,
   getGasStation,

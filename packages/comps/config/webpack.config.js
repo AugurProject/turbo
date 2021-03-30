@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -17,7 +15,6 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
-const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const paths = require('./paths');
 const modules = require('./modules');
@@ -57,10 +54,6 @@ const useTypeScript = fs.existsSync(paths.appTsConfig);
 
 // Get the path to the uncompiled service worker (if it exists).
 const swSrc = paths.swSrc;
-
-// style files regexes
-const cssRegex = /\.css$/;
-const cssModuleRegex = /\.module\.css$/;
 
 const hasJsxRuntime = (() => {
   if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
