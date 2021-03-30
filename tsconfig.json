@@ -23,6 +23,9 @@
   "references": [
     {
       "path": "./packages/smart"
+    },
+    {
+      "path": "./packages/comps",
     }
   ],
   "exclude": ["**/node_modules", "**/build", "**/dist"],
