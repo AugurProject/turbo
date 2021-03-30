@@ -1,11 +1,5 @@
 import BigNumber, { BigNumber as BN } from "bignumber.js";
-import {
-  ParaShareToken,
-  AddLiquidityRate,
-  marketInvalidityCheck,
-  getGasStation,
-  NetworkId,
-} from "@augurproject/sdk-lite";
+import { AddLiquidityRate, marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
 import {
   TradingDirection,
   AmmExchange,
@@ -27,11 +21,7 @@ import {
 } from "./types";
 import ethers from "ethers";
 import { Contract } from "@ethersproject/contracts";
-// import {
-//   Multicall,
-//   ContractCallResults,
-//   ContractCallContext,
-// } from '@augurproject/ethereum-multicall';
+import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import {
   convertDisplayCashAmountToOnChainCashAmount,
