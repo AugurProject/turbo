@@ -1,18 +1,14 @@
-import { AugurLite, NetworkId } from '@augurproject/sdk-lite';
-import { ethers } from 'ethers';
-import { getProviderOrSigner } from '../components/ConnectAccount/utils';
-import { createBigNumber } from './create-big-number';
-import { Web3Provider } from '@ethersproject/providers';
+import { AugurLite, NetworkId } from "@augurproject/sdk-lite";
+import { ethers } from "ethers";
+import { getProviderOrSigner } from "../components/ConnectAccount/utils";
+import { createBigNumber } from "./create-big-number";
+import { Web3Provider } from "@ethersproject/providers";
 
 export class SDKLite {
   client: AugurLite | null = null;
 
   // Async to remain consistent with the sdk 'makeClient' method.
-  async makeLiteClient(
-    provider: ethers.providers.Provider,
-    config: any,
-    account?: string,
-    ): Promise<AugurLite> {
+  async makeLiteClient(provider: ethers.providers.Provider, config: any, account?: string): Promise<AugurLite> {
     const networkId = config.networkId;
 
     let providerOrSigner = provider;
@@ -35,7 +31,7 @@ export class SDKLite {
     if (this.client) {
       return this.client;
     }
-    console.error('API must be initialized before use.');
+    console.error("API must be initialized before use.");
     return null;
   }
 
@@ -45,4 +41,4 @@ export class SDKLite {
 }
 
 export const augurSdkLite = new SDKLite();
-window['augurSdkLite'] = augurSdkLite;
+window["augurSdkLite"] = augurSdkLite;

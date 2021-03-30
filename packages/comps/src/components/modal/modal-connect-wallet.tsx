@@ -1,30 +1,26 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Header } from './common';
-import Styles from './modal.styles.less';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { AbstractConnector } from '@web3-react/abstract-connector';
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
-import MetamaskIcon from '../ConnectAccount/assets/metamask.png';
-import classNames from 'classnames';
-import { NETWORK_NAMES } from '../../stores/constants';
-import { SecondaryButton, TextButton, WalletButton } from '../common/buttons';
-import { ErrorBlock } from '../common/labels';
-import { isSafari } from '../ConnectAccount/utils';
-import { SUPPORTED_WALLETS } from '../ConnectAccount/constants';
-import {
-  NETWORK_CHAIN_ID,
-  portis,
-  injected,
-} from '../ConnectAccount/connectors';
-import { Loader } from '../ConnectAccount/components/Loader';
-import { AccountDetails } from '../ConnectAccount/components/AccountDetails';
-import { useActiveWeb3React } from '../ConnectAccount/hooks';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Header } from "./common";
+import Styles from "./modal.styles.less";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
+import { AbstractConnector } from "@web3-react/abstract-connector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
+import classNames from "classnames";
+import { NETWORK_NAMES } from "../../stores/constants";
+import { SecondaryButton, TextButton, WalletButton } from "../common/buttons";
+import { ErrorBlock } from "../common/labels";
+import { isSafari } from "../ConnectAccount/utils";
+import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
+import { NETWORK_CHAIN_ID, portis, injected } from "../ConnectAccount/connectors";
+import { Loader } from "../ConnectAccount/components/Loader";
+import { AccountDetails } from "../ConnectAccount/components/AccountDetails";
+import { useActiveWeb3React } from "../ConnectAccount/hooks";
 
 const WALLET_VIEWS = {
-  OPTIONS: 'options',
-  OPTIONS_SECONDARY: 'options_secondary',
-  ACCOUNT: 'account',
-  PENDING: 'pending',
+  OPTIONS: "options",
+  OPTIONS_SECONDARY: "options_secondary",
+  ACCOUNT: "account",
+  PENDING: "pending",
 };
 
 export function usePrevious<T>(value: T) {
@@ -66,7 +62,7 @@ const PendingWalletView = ({
   tryActivation,
   darkMode,
 }: PendingWalletViewProps) => {
-  const isMetamask = window['ethereum'] && window['ethereum']['isMetaMask'];
+  const isMetamask = window["ethereum"] && window["ethereum"]["isMetaMask"];
 
   return (
     <div className={Styles.PendingWalletView}>
@@ -93,8 +89,7 @@ const PendingWalletView = ({
         if (wallet.connector === connector) {
           if (
             wallet.connector === injected &&
-            ((isMetamask && wallet.name !== 'MetaMask') ||
-              (!isMetamask && wallet.name === 'MetaMask'))
+            ((isMetamask && wallet.name !== "MetaMask") || (!isMetamask && wallet.name === "MetaMask"))
           ) {
             return null;
           }
@@ -104,15 +99,7 @@ const PendingWalletView = ({
               id={`connect-${key}`}
               key={key}
               text={wallet.name}
-              icon={
-                <img
-                  src={
-                    require('../ConnectAccount/assets/' + wallet.iconName)
-                      .default
-                  }
-                  alt={wallet.name}
-                />
-              }
+              icon={<img src={require("../ConnectAccount/assets/" + wallet.iconName).default} alt={wallet.name} />}
             />
           );
         }
@@ -150,9 +137,7 @@ const ModalConnectWallet = ({
   const { active, account, connector, activate, error } = useWeb3React();
   const { deactivate } = useActiveWeb3React();
   const [walletView, setWalletView] = useState(WALLET_VIEWS.ACCOUNT);
-  const [pendingWallet, setPendingWallet] = useState<
-    AbstractConnector | undefined
-  >();
+  const [pendingWallet, setPendingWallet] = useState<AbstractConnector | undefined>();
   const [pendingError, setPendingError] = useState<boolean>();
   const previousAccount = usePrevious(account);
   const [walletList, setWalletList] = useState(null);
@@ -163,10 +148,7 @@ const ModalConnectWallet = ({
       setWalletView(WALLET_VIEWS.PENDING);
 
       // if the connector is WalletConnect and the user has already tried to connect, manually reset the connector
-      if (
-        connector instanceof WalletConnectConnector &&
-        connector.walletConnectProvider?.wc?.uri
-      ) {
+      if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
         connector.walletConnectProvider = undefined;
       }
 
@@ -192,7 +174,7 @@ const ModalConnectWallet = ({
   // close on connection, when logged out before
   useEffect(() => {
     if (autoLogin && !account) {
-      const option = SUPPORTED_WALLETS['METAMASK'];
+      const option = SUPPORTED_WALLETS["METAMASK"];
       tryActivation(option.connector);
       setWalletView(WALLET_VIEWS.ACCOUNT);
     }
@@ -203,42 +185,22 @@ const ModalConnectWallet = ({
   const connectorPrevious = usePrevious(connector);
 
   useEffect(() => {
-    if (
-      (active && !activePrevious) ||
-      (connector && connector !== connectorPrevious && !error)
-    ) {
+    if ((active && !activePrevious) || (connector && connector !== connectorPrevious && !error)) {
       setWalletView(WALLET_VIEWS.ACCOUNT);
     }
-  }, [
-    setWalletView,
-    active,
-    error,
-    connector,
-    activePrevious,
-    connectorPrevious,
-  ]);
+  }, [setWalletView, active, error, connector, activePrevious, connectorPrevious]);
 
   const getWalletButtons = useCallback(() => {
-    const isMetamask = window['ethereum'] && window['ethereum']['isMetaMask'];
-    const isWeb3 = window['web3'] || window['ethereum'];
+    const isMetamask = window["ethereum"] && window["ethereum"]["isMetaMask"];
+    const isWeb3 = window["web3"] || window["ethereum"];
     const walletButtons = Object.keys(SUPPORTED_WALLETS)
-      .filter((wallet) => !(wallet === 'PORTIS' && isSafari()))
+      .filter((wallet) => !(wallet === "PORTIS" && isSafari()))
       .map((key) => {
         const wallet = SUPPORTED_WALLETS[key];
         const commonWalletButtonProps = {
-          action: () =>
-            wallet.connector !== connector &&
-            !wallet.href &&
-            tryActivation(wallet.connector),
+          action: () => wallet.connector !== connector && !wallet.href && tryActivation(wallet.connector),
           href: wallet.href,
-          icon: (
-            <img
-              src={
-                require('../ConnectAccount/assets/' + wallet.iconName).default
-              }
-              alt={wallet.name}
-            />
-          ),
+          icon: <img src={require("../ConnectAccount/assets/" + wallet.iconName).default} alt={wallet.name} />,
           id: `connect-${key}`,
           key,
           selected: isLogged && wallet?.connector === connector,
@@ -247,20 +209,20 @@ const ModalConnectWallet = ({
 
         if (isMobile) {
           if (
-            !window['web3'] &&
-            !window['ethereum'] &&
+            !window["web3"] &&
+            !window["ethereum"] &&
             wallet.mobile &&
-            wallet.name !== SUPPORTED_WALLETS['METAMASK'].name &&
-            wallet.name !== SUPPORTED_WALLETS['INJECTED'].name &&
+            wallet.name !== SUPPORTED_WALLETS["METAMASK"].name &&
+            wallet.name !== SUPPORTED_WALLETS["INJECTED"].name &&
             wallet.connector !== portis
           ) {
             return commonWalletButtonProps;
           } else {
-            if (wallet.name === 'MetaMask' && !isMetamask) {
+            if (wallet.name === "MetaMask" && !isMetamask) {
               return null;
             }
 
-            if (wallet.name === SUPPORTED_WALLETS['INJECTED'].name && !isWeb3) {
+            if (wallet.name === SUPPORTED_WALLETS["INJECTED"].name && !isWeb3) {
               return null;
             }
 
@@ -270,22 +232,20 @@ const ModalConnectWallet = ({
           }
         } else {
           if (wallet.connector === injected) {
-            if (!(window['web3'] || window['ethereum'])) {
-              if (wallet.name === SUPPORTED_WALLETS['METAMASK'].name) {
+            if (!(window["web3"] || window["ethereum"])) {
+              if (wallet.name === SUPPORTED_WALLETS["METAMASK"].name) {
                 return {
                   ...commonWalletButtonProps,
-                  text: 'Install Metamask',
-                  href: 'https://metamask.io/',
+                  text: "Install Metamask",
+                  href: "https://metamask.io/",
                   icon: <img src={MetamaskIcon} alt={wallet.name} />,
                 };
               } else {
                 return null;
               }
             } else if (
-              (wallet.name === SUPPORTED_WALLETS['METAMASK'].name &&
-                !isMetamask) ||
-              (wallet.name === SUPPORTED_WALLETS['INJECTED'].name &&
-                !isMetamask)
+              (wallet.name === SUPPORTED_WALLETS["METAMASK"].name && !isMetamask) ||
+              (wallet.name === SUPPORTED_WALLETS["INJECTED"].name && !isMetamask)
             ) {
               return null;
             }
@@ -320,9 +280,9 @@ const ModalConnectWallet = ({
               Back
             </span>
           ) : account && walletView === WALLET_VIEWS.ACCOUNT ? (
-            'Account'
+            "Account"
           ) : (
-            'Connect a wallet'
+            "Connect a wallet"
           )
         }
       />
@@ -337,7 +297,7 @@ const ModalConnectWallet = ({
               text={
                 error instanceof UnsupportedChainIdError
                   ? `Please connect your wallet to the ${NETWORK_NAMES[NETWORK_CHAIN_ID]} Ethereum network and refresh the page.`
-                  : 'Error connecting. Try refreshing the page.'
+                  : "Error connecting. Try refreshing the page."
               }
             />
           ) : account && walletView === WALLET_VIEWS.ACCOUNT ? (
@@ -365,11 +325,7 @@ const ModalConnectWallet = ({
             <>
               {walletList && <WalletList walletList={walletList} />}
               <div className={Styles.LearnMore}>
-                New to Ethereum?{' '}
-                <TextButton
-                  href="https://ethereum.org/wallets/"
-                  text="Learn more about wallets"
-                />
+                New to Ethereum? <TextButton href="https://ethereum.org/wallets/" text="Learn more about wallets" />
               </div>
             </>
           )}

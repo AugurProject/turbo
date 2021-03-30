@@ -3,10 +3,7 @@
 // (Bool) whether return value of paths array should be formatted as string path or matching regex
 export default function makePath(paths, match = false) {
   // Invalid, return root
-  if (
-    (paths.constructor !== String && paths.constructor !== Array) ||
-    (match && paths.constructor !== Array)
-  )
+  if ((paths.constructor !== String && paths.constructor !== Array) || (match && paths.constructor !== Array))
     return "/";
   // Matching Regex for Route Component
   if (match) return `^/(${paths.constructor === Array ? paths.join("|") : paths})/`;

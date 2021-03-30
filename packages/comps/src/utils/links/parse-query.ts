@@ -13,9 +13,7 @@ export default function parseQuery(searchString) {
       if (pairSplit.length >= 1) {
         if (pairSplit[0].length) {
           if (pairSplit.length >= 2 && pairSplit[1]) {
-            p[decodeURIComponent(pairSplit[0])] = decodeURIComponent(
-              pairSplit[1]
-            );
+            p[decodeURIComponent(pairSplit[0])] = decodeURIComponent(pairSplit[1]);
           } else {
             p[decodeURIComponent(pairSplit[0])] = undefined;
           }
@@ -27,8 +25,8 @@ export default function parseQuery(searchString) {
 
 export function parseLocation(href) {
   let query = href;
-  if (query.indexOf('?') !== -1) {
-    query = query.replace('#!', '&').split('?')[1];
+  if (query.indexOf("?") !== -1) {
+    query = query.replace("#!", "&").split("?")[1];
   }
   return parseQuery(query);
 }

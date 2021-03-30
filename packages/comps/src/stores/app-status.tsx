@@ -1,15 +1,12 @@
-import React, { useEffect } from 'react';
-import { DEFAULT_APP_STATUS_STATE, STUBBED_APP_STATUS_ACTIONS } from './constants';
-import { useAppStatus } from './app-status-hooks';
-import { useUserStore } from './user';
-import { windowRef } from '../utils/window-ref';
+import React, { useEffect } from "react";
+import { DEFAULT_APP_STATUS_STATE, STUBBED_APP_STATUS_ACTIONS } from "./constants";
+import { useAppStatus } from "./app-status-hooks";
+import { useUserStore } from "./user";
+import { windowRef } from "../utils/window-ref";
 
 function checkIsMobile(setIsMobile) {
   const isMobile =
-    (
-      windowRef.getComputedStyle(document.body).getPropertyValue('--is-mobile') ||
-      ''
-    ).indexOf('true') !== -1;
+    (windowRef.getComputedStyle(document.body).getPropertyValue("--is-mobile") || "").indexOf("true") !== -1;
   setIsMobile(isMobile);
 }
 
@@ -26,9 +23,7 @@ export const AppStatusStore = {
 
 export const AppStatusProvider = ({ children }) => {
   const state = useAppStatus();
-  const {
-    account
-  } = useUserStore();
+  const { account } = useUserStore();
   if (!!account && !state.isLogged) {
     state.actions.setIsLogged(account);
   } else if (!account && state.isLogged) {
@@ -45,18 +40,14 @@ export const AppStatusProvider = ({ children }) => {
 
   useEffect(() => {
     const handleResize = () => checkIsMobile(state.actions.setIsMobile);
-    windowRef.addEventListener('resize', handleResize);
+    windowRef.addEventListener("resize", handleResize);
     handleResize();
     return () => {
-      windowRef.removeEventListener('resize', handleResize);
+      windowRef.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  return (
-    <AppStatusContext.Provider value={state}>
-      {children}
-    </AppStatusContext.Provider>
-  );
+  return <AppStatusContext.Provider value={state}>{children}</AppStatusContext.Provider>;
 };
 
 export const useAppStatusStore = () => React.useContext(AppStatusContext);
@@ -64,7 +55,7 @@ export const useAppStatusStore = () => React.useContext(AppStatusContext);
 const output = {
   AppStatusProvider,
   useAppStatusStore,
-  AppStatusStore
+  AppStatusStore,
 };
 
 export default output;

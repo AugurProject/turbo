@@ -1,15 +1,11 @@
-import React from 'react';
+import React from "react";
 
-import Styles from './modal.styles.less';
-import * as Icons from '../common/icons';
+import Styles from "./modal.styles.less";
+import * as Icons from "../common/icons";
 
 const { CloseIcon } = Icons;
 
-export const Header = ({
-  title,
-  subtitle = { value: null, label: null },
-  closeModal,
-}) => {
+export const Header = ({ title, subtitle = { value: null, label: null }, closeModal }) => {
   return (
     <div className={Styles.Header}>
       <span>{title}</span>

@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useState } from "react";
+import classNames from "classnames";
 
-import Styles from './market-card.styles.less';
-import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from '../../utils/types';
-import { formatCashPrice, formatDai, formatPercent } from '../../utils/format-number';
-import { getMarketsData } from '../../apollo/client';
-import { CategoryIcon, CategoryLabel, CurrencyTipIcon, InvalidFlagTipIcon, ReportingStateLabel, ValueLabel } from '../common/labels';
-import { MARKET_STATUS } from '../../utils/constants';
-import { PrimaryButton } from '../common/buttons';
-import { MarketLink } from '../../utils/links/links';
-import { ConfirmedCheck } from '../common/icons';
+import Styles from "./market-card.styles.less";
+import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
+import { formatCashPrice, formatDai, formatPercent } from "../../utils/format-number";
+import { getMarketsData } from "../../apollo/client";
+import {
+  CategoryIcon,
+  CategoryLabel,
+  CurrencyTipIcon,
+  InvalidFlagTipIcon,
+  ReportingStateLabel,
+  ValueLabel,
+} from "../common/labels";
+import { MARKET_STATUS } from "../../utils/constants";
+import { PrimaryButton } from "../common/buttons";
+import { MarketLink } from "../../utils/links/links";
+import { ConfirmedCheck } from "../common/icons";
 
 export const LoadingMarketCard = () => {
   return (
@@ -33,21 +40,18 @@ export const LoadingMarketCard = () => {
   );
 };
 
-export const MarketCard = ({marketId}) => {
+export const MarketCard = ({ marketId }) => {
   const [market, setMarket] = useState(null);
   useEffect(() => {
     getMarketsData((graphData, block, errors) => {
-      setMarket(graphData.markets.find(market => market.id === marketId));
+      setMarket(graphData.markets.find((market) => market.id === marketId));
     });
   }, []);
   if (!market) return <LoadingMarketCard />;
-  return <MarketCardView market={market as MarketInfo} />
-}
+  return <MarketCardView market={market as MarketInfo} />;
+};
 
-export const combineOutcomeData = (
-  ammOutcomes: AmmOutcome[],
-  marketOutcomes: MarketOutcome[]
-) => {
+export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
   return marketOutcomes.map((mOutcome, index) => ({
     ...mOutcome,
@@ -55,20 +59,13 @@ export const combineOutcomeData = (
   }));
 };
 
-export const outcomesToDisplay = (
-  ammOutcomes: AmmOutcome[],
-  marketOutcomes: MarketOutcome[]
-) => {
+export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   const combinedData = combineOutcomeData(ammOutcomes, marketOutcomes);
   const invalid = combinedData.slice(0, 1);
   const yes = combinedData.slice(2, 3);
   const no = combinedData.slice(1, 2);
   let newOrder = invalid.concat(yes).concat(no).concat(combinedData.slice(3));
-  if (
-    newOrder[0].isFinalNumerator &&
-    newOrder[0].payoutNumerator !== '0' &&
-    newOrder[0].payoutNumerator !== null
-  ) {
+  if (newOrder[0].isFinalNumerator && newOrder[0].payoutNumerator !== "0" && newOrder[0].payoutNumerator !== null) {
     // invalid is winner -- only pass invalid
     newOrder = invalid;
   } else {
@@ -93,7 +90,7 @@ const OutcomesTable = ({
   >
     {outcomesToDisplay(amm.ammOutcomes, marketOutcomes).map((outcome) => {
       const isWinner =
-        outcome.isFinalNumerator && outcome.payoutNumerator !== '0' && reportingState === MARKET_STATUS.FINALIZED;
+        outcome.isFinalNumerator && outcome.payoutNumerator !== "0" && reportingState === MARKET_STATUS.FINALIZED;
       return (
         <div
           key={`${outcome.name}-${amm?.marketId}-${outcome.id}`}
@@ -104,10 +101,10 @@ const OutcomesTable = ({
             {isWinner
               ? ConfirmedCheck
               : outcome.isFinalNumerator
-              ? ''
-              : amm?.liquidity !== '0'
+              ? ""
+              : amm?.liquidity !== "0"
               ? formatCashPrice(outcome.price, amm?.cash?.name).full
-              : '-'}
+              : "-"}
           </span>
         </div>
       );
@@ -124,14 +121,7 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const {
-    categories,
-    description,
-    marketId,
-    amm,
-    reportingState,
-    outcomes,
-  } = market;
+  const { categories, description, marketId, amm, reportingState, outcomes } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   return (
     <article
@@ -146,12 +136,12 @@ export const MarketCardView = ({
             [Styles.Trading]: reportingState === MARKET_STATUS.TRADING,
           })}
         >
-          <ReportingStateLabel {...{reportingState}} />
-          <CategoryIcon {...{categories}} />
-          <CategoryLabel {...{categories}} />
+          <ReportingStateLabel {...{ reportingState }} />
+          <CategoryIcon {...{ categories }} />
+          <CategoryLabel {...{ categories }} />
           <div>
-            <ReportingStateLabel {...{reportingState}} />
-            <InvalidFlagTipIcon {...{market}} />
+            <ReportingStateLabel {...{ reportingState }} />
+            <InvalidFlagTipIcon {...{ market }} />
             <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
           </div>
         </article>
@@ -174,10 +164,7 @@ export const MarketCardView = ({
         ) : (
           <MarketLink id={marketId} dontGoToMarket={!amm} ammId={amm?.id}>
             <span>{description}</span>
-            <ValueLabel
-              label="total volume"
-              value={formatDai(market.amm?.volumeTotalUSD).full}
-            />
+            <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
             <OutcomesTable amm={amm} marketOutcomes={outcomes} reportingState={reportingState} />
           </MarketLink>

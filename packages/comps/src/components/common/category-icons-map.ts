@@ -33,8 +33,8 @@ import {
   CHAINLINK,
   LITECOIN,
   ADDITIONAL_TOKENS,
-} from '@augurproject/sdk-lite';
-import { FINANCE } from '../../utils/constants';
+} from "@augurproject/sdk-lite";
+import { FINANCE } from "../../utils/constants";
 import {
   MedicalIcon,
   PoliticsIcon,
@@ -83,7 +83,7 @@ import {
   XRPIcon,
   XTZIcon,
   USDTIcon,
-} from './category-icons';
+} from "./category-icons";
 // SUB CATEGORIES
 // MEDICAL
 // POLITICS
@@ -92,19 +92,19 @@ import {
 // CRYPTO
 // SPORTS
 
-const WETH: string = 'WETH';
-const ETC: string = 'ETC';
-const ATOM: string = 'ATOM';
-const ALGO: string = 'ALGO';
-const DASH: string = 'DASH';
-const EOS: string = 'EOS';
-const KNC: string = 'KNC';
-const OMG: string = 'OMG';
-const OXT: string = 'OXT';
-const XLM: string = 'XLM';
-const XRP: string = 'XRP';
-const XTZ: string = 'XTZ';
-const USDT: string = 'USDT';
+const WETH: string = "WETH";
+const ETC: string = "ETC";
+const ATOM: string = "ATOM";
+const ALGO: string = "ALGO";
+const DASH: string = "DASH";
+const EOS: string = "EOS";
+const KNC: string = "KNC";
+const OMG: string = "OMG";
+const OXT: string = "OXT";
+const XLM: string = "XLM";
+const XRP: string = "XRP";
+const XTZ: string = "XTZ";
+const USDT: string = "USDT";
 
 export const CATEGORIES_ICON_MAP = {
   [MEDICAL.toLowerCase()]: {

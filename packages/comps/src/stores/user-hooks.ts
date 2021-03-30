@@ -1,10 +1,10 @@
-import { dispatchMiddleware, getSavedUserInfo } from './utils';
-import { useReducer } from 'react';
-import { windowRef } from '../utils/window-ref';
-import { USER_ACTIONS, USER_KEYS, DEFAULT_USER_STATE } from './constants';
-import { UserBalances, TransactionDetails } from '../utils/types';
-import { augurSdkLite } from '../utils/augurlitesdk';
-import { TX_STATUS } from '../utils/constants';
+import { dispatchMiddleware, getSavedUserInfo } from "./utils";
+import { useReducer } from "react";
+import { windowRef } from "../utils/window-ref";
+import { USER_ACTIONS, USER_KEYS, DEFAULT_USER_STATE } from "./constants";
+import { UserBalances, TransactionDetails } from "../utils/types";
+import { augurSdkLite } from "../utils/augurlitesdk";
+import { TX_STATUS } from "../utils/constants";
 
 const {
   ADD_TRANSACTION,
@@ -17,13 +17,7 @@ const {
   UPDATE_TRANSACTION,
   LOGOUT,
 } = USER_ACTIONS;
-const {
-  ACCOUNT,
-  BALANCES,
-  LOGIN_ACCOUNT,
-  SEEN_POSITION_WARNINGS,
-  TRANSACTIONS,
-} = USER_KEYS;
+const { ACCOUNT, BALANCES, LOGIN_ACCOUNT, SEEN_POSITION_WARNINGS, TRANSACTIONS } = USER_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = JSON.parse(window.localStorage.getItem(userAccount)) || null;
@@ -55,7 +49,7 @@ export function UserReducer(state, action) {
   switch (action.type) {
     case LOGOUT: {
       augurSdkLite.destroy();
-      window.localStorage.setItem('lastUser', null);
+      window.localStorage.setItem("lastUser", null);
       updatedState = { ...DEFAULT_USER_STATE };
       break;
     }
@@ -65,8 +59,7 @@ export function UserReducer(state, action) {
       const savedInfo = getSavedUserInfo(account);
       updatedState[ACCOUNT] = account || null;
       if (savedInfo) {
-        updatedState[SEEN_POSITION_WARNINGS] =
-          savedInfo?.seenPositionWarnings || state[SEEN_POSITION_WARNINGS];
+        updatedState[SEEN_POSITION_WARNINGS] = savedInfo?.seenPositionWarnings || state[SEEN_POSITION_WARNINGS];
         const accTransactions = savedInfo.transactions.map((t) => ({
           ...t,
           timestamp: now,
@@ -74,10 +67,7 @@ export function UserReducer(state, action) {
         updatedState[TRANSACTIONS] = accTransactions;
       } else if (!!account && action?.account?.library?.provider?.isMetamask) {
         // no saved info for this account, must be first login...
-        window.localStorage.setItem(
-          account,
-          JSON.stringify({ account })
-        );
+        window.localStorage.setItem(account, JSON.stringify({ account }));
       }
       break;
     }
@@ -86,9 +76,7 @@ export function UserReducer(state, action) {
       break;
     }
     case UPDATE_TRANSACTION: {
-      const transactionIndex = updatedState[TRANSACTIONS].findIndex(
-        (transaction) => transaction.hash === action.hash
-      );
+      const transactionIndex = updatedState[TRANSACTIONS].findIndex((transaction) => transaction.hash === action.hash);
       if (transactionIndex >= 0) {
         updatedState[TRANSACTIONS][transactionIndex] = {
           ...updatedState[TRANSACTIONS][transactionIndex],
@@ -99,17 +87,12 @@ export function UserReducer(state, action) {
       break;
     }
     case ADD_TRANSACTION: {
-      updatedState[TRANSACTIONS] = [
-        ...updatedState[TRANSACTIONS],
-        { ...action.transaction, timestamp: now },
-      ];
+      updatedState[TRANSACTIONS] = [...updatedState[TRANSACTIONS], { ...action.transaction, timestamp: now }];
       break;
     }
     case REMOVE_TRANSACTION: {
       if (action.hash) {
-        updatedState[TRANSACTIONS] = updatedState[TRANSACTIONS].filter(
-          (tx) => tx.hash !== action.hash
-        );
+        updatedState[TRANSACTIONS] = updatedState[TRANSACTIONS].filter((tx) => tx.hash !== action.hash);
       }
       break;
     }
@@ -128,8 +111,8 @@ export function UserReducer(state, action) {
         updatedState[SEEN_POSITION_WARNINGS][action.id][action.warningType] = action.seenPositionWarning;
       } else {
         updatedState[SEEN_POSITION_WARNINGS][action.id] = {
-          [action.warningType]: action.seenPositionWarning
-        }
+          [action.warningType]: action.seenPositionWarning,
+        };
       }
       break;
     }
@@ -156,24 +139,18 @@ export const useUser = (defaultState = DEFAULT_USER_STATE) => {
   return {
     ...state,
     actions: {
-      updateLoginAccount: (account) =>
-        dispatch({ type: SET_LOGIN_ACCOUNT, account }),
-      updateUserBalances: (userBalances: UserBalances) =>
-        dispatch({ type: UPDATE_USER_BALANCES, userBalances }),
-      updateTransaction: (hash, updates) =>
-        dispatch({ type: UPDATE_TRANSACTION, hash, updates }),
-      addTransaction: (transaction: TransactionDetails) =>
-        dispatch({ type: ADD_TRANSACTION, transaction }),
-      removeTransaction: (hash: string) =>
-        dispatch({ type: REMOVE_TRANSACTION, hash }),
-      finalizeTransaction: (hash, receipt) =>
-        dispatch({ type: FINALIZE_TRANSACTION, hash, receipt }),
+      updateLoginAccount: (account) => dispatch({ type: SET_LOGIN_ACCOUNT, account }),
+      updateUserBalances: (userBalances: UserBalances) => dispatch({ type: UPDATE_USER_BALANCES, userBalances }),
+      updateTransaction: (hash, updates) => dispatch({ type: UPDATE_TRANSACTION, hash, updates }),
+      addTransaction: (transaction: TransactionDetails) => dispatch({ type: ADD_TRANSACTION, transaction }),
+      removeTransaction: (hash: string) => dispatch({ type: REMOVE_TRANSACTION, hash }),
+      finalizeTransaction: (hash, receipt) => dispatch({ type: FINALIZE_TRANSACTION, hash, receipt }),
       updateSeenPositionWarning: (id, seenPositionWarning, warningType) =>
         dispatch({
           type: UPDATE_SEEN_POSITION_WARNING,
           id,
           seenPositionWarning,
-          warningType
+          warningType,
         }),
       addSeenPositionWarnings: (seenPositionWarnings) =>
         dispatch({ type: ADD_SEEN_POSITION_WARNINGS, seenPositionWarnings }),

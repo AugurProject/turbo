@@ -1,11 +1,7 @@
-import { dispatchMiddleware } from './utils';
-import { useReducer } from 'react';
-import { windowRef } from '../utils/window-ref';
-import {
-  GRAPH_DATA_ACTIONS,
-  GRAPH_DATA_KEYS,
-  DEFAULT_GRAPH_DATA_STATE,
-} from './constants';
+import { dispatchMiddleware } from "./utils";
+import { useReducer } from "react";
+import { windowRef } from "../utils/window-ref";
+import { GRAPH_DATA_ACTIONS, GRAPH_DATA_KEYS, DEFAULT_GRAPH_DATA_STATE } from "./constants";
 
 const { UPDATE_GRAPH_HEARTBEAT } = GRAPH_DATA_ACTIONS;
 const { AMM_EXCHANGES, BLOCKNUMBER, CASHES, ERRORS, MARKETS } = GRAPH_DATA_KEYS;
@@ -37,11 +33,7 @@ export const useGraphData = (defaultState = DEFAULT_GRAPH_DATA_STATE) => {
   return {
     ...state,
     actions: {
-      updateGraphHeartbeat: (
-        { markets, cashes, ammExchanges },
-        blocknumber,
-        errors
-      ) =>
+      updateGraphHeartbeat: ({ markets, cashes, ammExchanges }, blocknumber, errors) =>
         dispatch({
           type: UPDATE_GRAPH_HEARTBEAT,
           ammExchanges,

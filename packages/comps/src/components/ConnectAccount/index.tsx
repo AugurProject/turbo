@@ -1,15 +1,15 @@
-import React, { ReactElement, useEffect, useState } from 'react';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { Activity as NetworkIcon } from 'react-feather';
-import { ethers } from 'ethers';
-import { SecondaryButton } from '../common/buttons';
-import classNames from 'classnames';
-import ButtonStyles from '../common/buttons.styles.less';
-import { GetWalletIcon } from '../common/get-wallet-icon';
-import { useActiveWeb3React } from './hooks';
-import { MODAL_CONNECT_WALLET, TX_STATUS } from '../../utils/constants';
-import { tryAutoLogin } from './utils';
-import { Spinner } from '../common/spinner';
+import React, { ReactElement, useEffect, useState } from "react";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
+import { Activity as NetworkIcon } from "react-feather";
+import { ethers } from "ethers";
+import { SecondaryButton } from "../common/buttons";
+import classNames from "classnames";
+import ButtonStyles from "../common/buttons.styles.less";
+import { GetWalletIcon } from "../common/get-wallet-icon";
+import { useActiveWeb3React } from "./hooks";
+import { MODAL_CONNECT_WALLET, TX_STATUS } from "../../utils/constants";
+import { tryAutoLogin } from "./utils";
+import { Spinner } from "../common/spinner";
 
 export interface LoginButtonProps {
   action: Function;
@@ -19,20 +19,14 @@ export interface LoginButtonProps {
   className: string;
 }
 
-const LoginButton = ({
-  action,
-  text,
-  icon,
-  darkMode,
-  className,
-}: LoginButtonProps) => (
+const LoginButton = ({ action, text, icon, darkMode, className }: LoginButtonProps) => (
   <SecondaryButton
     action={action}
     text={text}
     icon={icon}
     className={classNames(
       {
-        'dark-mode': darkMode,
+        "dark-mode": darkMode,
       },
       className
     )}
@@ -60,14 +54,12 @@ const ConnectAccountButton = ({
   darkMode = false,
   transactions,
   isMobile,
-  setModal
+  setModal,
 }) => {
   const { account, activate, connector, error } = useWeb3React();
   const activeWeb3 = useActiveWeb3React();
-  const [ initialLogin, setInitalLogin ]= useState(false);
-  const pendingTransaction = transactions.filter(
-    (tx) => tx.status === TX_STATUS.PENDING
-  );
+  const [initialLogin, setInitalLogin] = useState(false);
+  const pendingTransaction = transactions.filter((tx) => tx.status === TX_STATUS.PENDING);
   const hasPendingTransaction = pendingTransaction.length > 0 || false;
 
   useEffect(() => {
@@ -96,7 +88,7 @@ const ConnectAccountButton = ({
     className: null,
     darkMode,
     icon: null,
-    text: 'Connect Wallet',
+    text: "Connect Wallet",
   };
 
   if (account) {
@@ -118,10 +110,7 @@ const ConnectAccountButton = ({
     buttonProps = {
       ...buttonProps,
       className: ButtonStyles.Error,
-      text:
-        error instanceof UnsupportedChainIdError
-          ? 'Unsupported Network'
-          : 'Error',
+      text: error instanceof UnsupportedChainIdError ? "Unsupported Network" : "Error",
       icon: <NetworkIcon />,
     };
   }
@@ -135,9 +124,8 @@ export const ConnectAccount = ({
   darkMode = false,
   transactions,
   isMobile,
-  setModal
-}) => 
-(
+  setModal,
+}) => (
   <ConnectAccountButton
     autoLogin={autoLogin}
     updateLoginAccount={updateLoginAccount}
@@ -147,4 +135,3 @@ export const ConnectAccount = ({
     setModal={setModal}
   />
 );
-

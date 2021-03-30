@@ -1,23 +1,10 @@
-import { useReducer } from 'react';
-import {
-  APP_STATUS_ACTIONS,
-  MOCK_APP_STATUS_STATE,
-  APP_STATE_KEYS,
-} from './constants';
-import { windowRef } from '../utils/window-ref';
-import { dispatchMiddleware } from './utils';
-const {
-  SET_IS_MOBILE,
-  SET_MODAL,
-  CLOSE_MODAL,
-  SET_IS_LOGGED,
-} = APP_STATUS_ACTIONS;
+import { useReducer } from "react";
+import { APP_STATUS_ACTIONS, MOCK_APP_STATUS_STATE, APP_STATE_KEYS } from "./constants";
+import { windowRef } from "../utils/window-ref";
+import { dispatchMiddleware } from "./utils";
+const { SET_IS_MOBILE, SET_MODAL, CLOSE_MODAL, SET_IS_LOGGED } = APP_STATUS_ACTIONS;
 
-const {
-  IS_MOBILE,
-  MODAL,
-  IS_LOGGED,
-} = APP_STATE_KEYS;
+const { IS_MOBILE, MODAL, IS_LOGGED } = APP_STATE_KEYS;
 
 export function AppStatusReducer(state, action) {
   const updatedState = { ...state };

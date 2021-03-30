@@ -1,13 +1,8 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const GET_BLOCK = gql`
   query blocksAround($begin: Int, $end: Int) {
-    blocks(
-      first: 1
-      orderBy: timestamp
-      orderDirection: asc
-      where: { timestamp_gt: $begin, timestamp_lt: $end }
-    ) {
+    blocks(first: 1, orderBy: timestamp, orderDirection: asc, where: { timestamp_gt: $begin, timestamp_lt: $end }) {
       id
       number
       timestamp

@@ -1,6 +1,6 @@
-import React from 'react';
-import { DEFAULT_USER_STATE, STUBBED_USER_ACTIONS } from './constants';
-import { useUser } from './user-hooks';
+import React from "react";
+import { DEFAULT_USER_STATE, STUBBED_USER_ACTIONS } from "./constants";
+import { useUser } from "./user-hooks";
 
 export const UserContext = React.createContext({
   ...DEFAULT_USER_STATE,
@@ -24,11 +24,7 @@ export const UserProvider = ({ children }) => {
   delete readableState.actions;
   UserStore.get = () => readableState;
 
-  return (
-    <UserContext.Provider value={state}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={state}>{children}</UserContext.Provider>;
 };
 
 export const useUserStore = () => React.useContext(UserContext);
@@ -36,7 +32,7 @@ export const useUserStore = () => React.useContext(UserContext);
 const output = {
   UserProvider,
   useUserStore,
-  UserStore
+  UserStore,
 };
 
 export default output;

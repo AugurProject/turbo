@@ -1,5 +1,5 @@
 const DURATION_IN_SECONDS = {
-  epochs: ['year', 'month', 'day', 'hour', 'minute', 'second'],
+  epochs: ["year", "month", "day", "hour", "minute", "second"],
   year: 31536000,
   month: 2592000,
   day: 86400,
@@ -25,7 +25,7 @@ const getDuration = (seconds: number) => {
 
   return {
     interval,
-    epoch
+    epoch,
   };
 };
 
@@ -36,7 +36,7 @@ export const timeSince = (timestamp: number) => {
   const ts = new Date(timestamp).getTime();
   const seconds = Math.floor((now - ts) / 1000);
   const { interval, epoch } = getDuration(seconds);
-  const suffix = interval >= 0 ? 's' : '';
+  const suffix = interval >= 0 ? "s" : "";
   return `${interval} ${epoch}${suffix} ago`;
 };
 

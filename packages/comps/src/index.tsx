@@ -1,7 +1,6 @@
 import './assets/styles/shared.less';
 import * as _ContractCalls from './utils/contract-calls';
 import addCommasToNumber from './utils/add-commas-to-number';
-import { isMobileBrowser, isMobileBrowserTall } from './utils/common-functions';
 import * as _Constants from './utils/constants';
 import { createBigNumber } from './utils/create-big-number';
 import * as DateUtils from './utils/date-utils';
@@ -123,8 +122,6 @@ const PathUtils = {
 };
 export const Utils = {
   addCommasToNumber,
-  isMobileBrowser,
-  isMobileBrowserTall,
   createBigNumber,
   DateUtils,
   Formatter,

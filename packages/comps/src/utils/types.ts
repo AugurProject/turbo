@@ -1,5 +1,5 @@
-import { ReactNode, MouseEvent } from 'react';
-import { Getters } from '@augurproject/sdk';
+import { ReactNode, MouseEvent } from "react";
+import { Getters } from "@augurproject/sdk";
 import type {
   Address,
   PayoutNumeratorValue,
@@ -9,26 +9,23 @@ import type {
   MarketOrderBook,
   MarketTradingHistory,
   Orders,
-} from '@augurproject/sdk-lite';
-import type {
-  TransactionMetadataParams,
-  EthersSigner,
-} from '@augurproject/contract-dependencies-ethers';
-import type { BigNumber } from '../utils/create-big-number';
-import type { Template } from '@augurproject/templates';
-import { ethers } from 'ethers';
+} from "@augurproject/sdk-lite";
+import type { TransactionMetadataParams, EthersSigner } from "@augurproject/contract-dependencies-ethers";
+import type { BigNumber } from "../utils/create-big-number";
+import type { Template } from "@augurproject/templates";
+import { ethers } from "ethers";
 
 export enum SizeTypes {
-  SMALL = 'small',
-  NORMAL = 'normal',
-  LARGE = 'large',
+  SMALL = "small",
+  NORMAL = "normal",
+  LARGE = "large",
 }
 
 export const TransactionTypes = {
-  ENTER: 'ENTER',
-  EXIT: 'EXIT',
-  ADD_LIQUIDITY: 'ADD_LIQUIDITY',
-  REMOVE_LIQUIDITY: 'REMOVE_LIQUIDITY',
+  ENTER: "ENTER",
+  EXIT: "EXIT",
+  ADD_LIQUIDITY: "ADD_LIQUIDITY",
+  REMOVE_LIQUIDITY: "REMOVE_LIQUIDITY",
 };
 export interface TextLink {
   text: string;
@@ -228,7 +225,7 @@ export interface MarketInfo {
   outcomes: MarketOutcome[];
   amm: AmmExchange | null;
   reportingState: string;
-  claimedProceeds: ClaimedProceeds[]
+  claimedProceeds: ClaimedProceeds[];
   isInvalid: boolean;
   numTicks: string;
 }
@@ -596,9 +593,7 @@ export interface Draft {
   created: number;
   updated: number;
   isValid: boolean;
-  validations:
-    | NewMarketPropertiesValidations[]
-    | NewMarketPropertyValidations[];
+  validations: NewMarketPropertiesValidations[] | NewMarketPropertyValidations[];
   currentStep: number;
   type: string;
   outcomes: string[];
@@ -706,8 +701,8 @@ export interface GasPriceInfo {
 }
 
 export enum INVALID_OPTIONS {
-  Show = 'show',
-  Hide = 'hide',
+  Show = "show",
+  Hide = "hide",
 }
 
 export interface FilterSortOptions {
@@ -863,14 +858,9 @@ export interface WindowApp extends Window {
   showIndexedDbSize?: Function;
 }
 
-export type ButtonActionType = (
-  event: MouseEvent<HTMLButtonElement | HTMLAnchorElement>
-) => void;
+export type ButtonActionType = (event: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 
-export type NodeStyleCallback = (
-  err: Error | string | null,
-  result?: any
-) => void;
+export type NodeStyleCallback = (err: Error | string | null, result?: any) => void;
 
 export type DataCallback = (result?: any) => void;
 
@@ -900,8 +890,8 @@ export interface WalletObject {
 }
 
 export enum TradingDirection {
-  ENTRY = 'ENTRY',
-  EXIT = 'EXIT',
+  ENTRY = "ENTRY",
+  EXIT = "EXIT",
 }
 export interface TradeInfo {
   marketId: string;
@@ -1178,7 +1168,7 @@ export interface UserState {
   loginAccount: LoginAccount;
   seenPositionWarnings: {
     [id: string]: SeenPositionWarnings;
-  }
+  };
   transactions: TransactionDetails[];
 }
 

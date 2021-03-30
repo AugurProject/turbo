@@ -1,9 +1,9 @@
-import React from 'react';
-import Styles from './index.less';
+import React from "react";
+import Styles from "./index.less";
 
 export const Loader = ({
   darkMode,
-  size = '16px',
+  size = "16px",
   stroke,
 }: {
   darkMode: boolean;
@@ -22,7 +22,7 @@ export const Loader = ({
       style={{
         height: size,
         width: size,
-        margin: '0 1rem',
+        margin: "0 1rem",
       }}
     >
       <path
@@ -30,7 +30,7 @@ export const Loader = ({
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        stroke={darkMode ? '#2172E5' : '#2172E5'}
+        stroke={darkMode ? "#2172E5" : "#2172E5"}
       />
     </svg>
   );

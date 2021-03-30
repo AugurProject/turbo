@@ -1,10 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
-import makePath from './make-path';
-import makeQuery from './make-query';
-import { MARKET, MARKETS, MARKET_ID_PARAM_NAME } from '../constants';
-import { PARA_CONFIG } from '../../stores/constants';
+import makePath from "./make-path";
+import makeQuery from "./make-query";
+import { MARKET, MARKETS, MARKET_ID_PARAM_NAME } from "../constants";
+import { PARA_CONFIG } from "../../stores/constants";
 
 interface MarketLinkProps {
   id: string;
@@ -14,13 +14,13 @@ interface MarketLinkProps {
 }
 
 const RECEIPT_LINKS = {
-  42: 'https://kovan.etherscan.io/tx/',
-  1: 'https://etherscan.io/tx/',
+  42: "https://kovan.etherscan.io/tx/",
+  1: "https://etherscan.io/tx/",
 };
 
 const ADDRESS_LINKS = {
-  42: 'https://kovan.etherscan.io/address/',
-  1: 'https://etherscan.io/address/',
+  42: "https://kovan.etherscan.io/address/",
+  1: "https://etherscan.io/address/",
 };
 
 export const MarketsLink = ({ children, id }: MarketLinkProps) => (
@@ -34,15 +34,10 @@ export const MarketsLink = ({ children, id }: MarketLinkProps) => (
   </Link>
 );
 export const createMarketAmmId = (id, ammId) => {
-  return `${id}${ammId ? '-' + ammId : ''}`;
+  return `${id}${ammId ? "-" + ammId : ""}`;
 };
 
-export const MarketLink = ({
-  id,
-  ammId,
-  dontGoToMarket,
-  children,
-}: MarketLinkProps) => {
+export const MarketLink = ({ id, ammId, dontGoToMarket, children }: MarketLinkProps) => {
   const idString = createMarketAmmId(id, ammId);
   return (
     <>
@@ -75,12 +70,7 @@ interface ExternalLinkProps {
 }
 
 export const ExternalLink = ({ URL, label }: ExternalLinkProps) => (
-  <a
-    key={`${URL}-${label}`}
-    href={URL}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
+  <a key={`${URL}-${label}`} href={URL} target="_blank" rel="noopener noreferrer">
     {label}
   </a>
 );
@@ -90,7 +80,7 @@ interface ReceiptLinkProps {
   label?: string;
 }
 
-export const ReceiptLink = ({ hash, label = 'View Txn' }: ReceiptLinkProps) => {
+export const ReceiptLink = ({ hash, label = "View Txn" }: ReceiptLinkProps) => {
   const URL = `${RECEIPT_LINKS[PARA_CONFIG.networkId] || RECEIPT_LINKS[1]}${hash}`;
   return <ExternalLink {...{ URL, label }} />;
 };
@@ -101,9 +91,7 @@ interface AccountLinkProps {
 }
 
 export const AddressLink = ({ account, short = false }: AccountLinkProps) => {
-  const label = short
-    ? `${account.slice(0, 6)}...${account.slice(38, 42)}`
-    : account;
+  const label = short ? `${account.slice(0, 6)}...${account.slice(38, 42)}` : account;
   const URL = `${ADDRESS_LINKS[PARA_CONFIG.networkId] || ADDRESS_LINKS[1]}${account}`;
   return <ExternalLink {...{ URL, label }} />;
 };
