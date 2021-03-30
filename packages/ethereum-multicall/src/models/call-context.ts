@@ -12,12 +12,12 @@ export interface CallContext {
   /**
    * Method parameters you want it to pass in
    */
-  // tslint:disable-next-line: no-any
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   methodParameters: any[];
 
   /**
    *  Context is a generic databucket
    */
-  // tslint:disable-next-line: no-any
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   context?: any;
 }

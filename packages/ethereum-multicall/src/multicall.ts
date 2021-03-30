@@ -142,7 +142,7 @@ export class Multicall {
 
         if (outputTypes && outputTypes.length > 0) {
           const decodedReturnValue = defaultAbiCoder.decode(
-            // tslint:disable-next-line: no-any
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
             outputTypes as any,
             methodContext.returnData
           );

@@ -6,7 +6,7 @@ interface MulticallOptionsBase {
 
 export interface MulticallOptionsWeb3 extends MulticallOptionsBase {
   // so we can support any version of web3 typings
-  // tslint:disable-next-line: no-any
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   web3Instance: any;
 }
 
