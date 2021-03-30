@@ -1,0 +1,151 @@
+@import (reference) '~assets/styles/shared';
+
+.TradingForm {
+  .FixedBoxShadow;
+
+  border-radius: @size-16;
+  display: flex;
+  height: fit-content;
+  background: var(--simple-light-bg);
+  flex-direction: column;
+
+  > div:first-of-type {
+    padding: @size-16 @size-32;
+    border-bottom: @size-1 solid var(--simple-border);
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    flex: 1;
+    align-items: center;
+    margin-bottom: @size-24;
+
+    > button {
+      grid-column: 1 / span 2;
+    }
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      > span {
+        &:first-of-type {
+          .text-16;
+
+          color: var(--simple-secondary-text);
+          text-transform: capitalize;
+        }
+
+        &:nth-of-type(2) {
+          .text-20-semi-bold;
+
+          color: var(--simple-primary-text);
+          margin-top: @size-4;
+        }
+      }
+
+      &:last-of-type {
+        display: none;
+      }
+    }
+  }
+
+  > div:nth-of-type(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 @size-24 @size-24;
+
+    > button {
+      flex: 1;
+      margin-top: @size-24;
+
+      &:nth-of-type(2) {
+        margin-top: @size-16;
+      }
+    }
+
+    > div:nth-of-type(2) {
+      margin-top: @size-8;
+    }
+
+    > div:nth-of-type(3) {
+      margin-top: @size-24;
+    }
+  }
+}
+
+.OrderInfo {
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    display: flex;
+    flex: 1;
+
+    > span {
+      .text-16-semi-bold;
+
+      color: var(--simple-secondary-text);
+
+      &:first-of-type {
+        display: flex;
+        align-items: center;
+        text-transform: capitalize;
+
+        > span {
+          margin-left: @size-4;
+        }
+      }
+
+      &:last-of-type {
+        flex: 1;
+        justify-content: flex-end;
+        display: flex;
+      }
+    }
+
+    &:not(:last-of-type) {
+      margin-bottom: @size-8;
+    }
+  }
+
+  &.Populated {
+    > div > span:last-of-type {
+      color: var(--simple-primary-text);
+    }
+  }
+}
+
+@media @breakpoint-mobile-tiny {
+  .TradingForm {
+    filter: unset;
+    border-radius: unset;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 12;
+    height: 100vh;
+    width: unset;
+
+    > div:first-of-type {
+      flex: unset;
+      grid-template-columns: auto auto 1fr auto;
+      padding: @size-10 @size-16 @size-11;
+
+      > div:last-of-type {
+        .SimpleBorder;
+
+        cursor: pointer;
+        display: flex;
+        margin-left: @size-24;
+        padding: @size-12 @size-16;
+      }
+    }
+
+    > div:nth-of-type(2) {
+      padding: 0 @size-16 @size-24;
+    }
+  }
+}

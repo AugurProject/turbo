@@ -1,0 +1,314 @@
+@import (reference) '~assets/styles/shared';
+@import (reference) '~modules/common/buttons.styles.less';
+
+.TopNav {
+  align-items: center;
+  background: transparent;
+  border-bottom: @size-1 solid var(--simple-border);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  height: @simple-top-bar-height;
+  min-height: @simple-top-bar-height;
+  max-height: @simple-top-bar-height;
+  width: 100%;
+  position: fixed;
+  z-index: @above-all-content;
+
+  > section {
+    align-items: center;
+    background: var(--light-background-color);
+    box-sizing: border-box;
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    flex: 1;
+    grid-gap: @size-16;
+    width: 100%;
+    height: 100%;
+
+    &:first-of-type {
+      max-width: @size-912;
+      padding-left: @size-88;
+      grid-template-columns: 0fr 1fr;
+      grid-gap: @size-80;
+
+      @media @breakpoint-mobile-tablet {
+        grid-template-columns: auto;
+        grid-gap: 0;
+      }
+
+      > ol {
+        align-items: center;
+        list-style: none;
+        display: flex;
+        flex-flow: row nowrap;
+        margin: 0;
+        padding: 0;
+        min-height: @size-32;
+        height: @size-32;
+
+        > li {
+          flex: 0 auto;
+          margin-right: @size-40;
+
+          &:last-of-type {
+            margin-right: 0;
+          }
+
+          > a {
+            .text-20-bold;
+
+            text-decoration: none;
+            color: var(--simple-secondary-text);
+          }
+
+          &:hover {
+            > a {
+              color: var(--simple-primary-text);
+
+              &[disabled] {
+                color: var(--simple-secondary-text);
+              }
+            }
+          }
+
+          &.Active {
+            > a {
+              color: var(--simple-primary-text);
+            }
+          }
+        }
+      }
+    }
+
+    &:last-of-type {
+      max-width: @size-528;
+      padding-right: @size-88;
+      grid-gap: @size-8;
+      align-items: center;
+      justify-content: flex-end;
+
+      > button:first-of-type:first-of-type {
+        margin-left: auto;
+      }
+    }
+  }
+
+  &.TwoTone > section:last-of-type {
+    background: var(--simple-light-bg);
+  }
+}
+
+@media @breakpoint-tiny {
+  .TopNav {
+    &.OnMarketsView {
+      &.TwoTone > section:last-of-type {
+        background: var(--light-background-color);
+      }
+    }
+    &.TwoTone > section:first-of-type {
+      padding-left: @size-44;
+    }
+    &.TwoTone > section:last-of-type {
+      max-width: @size-340;
+      width: @size-340;
+      padding-right: @size-44;
+    }
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .TopNav {
+    background: var(--light-background-color);
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    > section:first-of-type {
+      padding-left: @size-16;
+      grid-column: 1;
+
+      > a > section {
+        width: @size-56;
+        align-items: center;
+        display: flex;
+        align-content: center;
+      }
+    }
+
+    > section:last-of-type {
+      padding-right: @size-16;
+      grid-column: 2;
+      margin-left: auto;
+    }
+
+    &.TwoTone > section:last-of-type {
+      background: transparent;
+    }
+  }
+}
+
+.SettingsButton {
+  .RoundedButton;
+  .text-16-bold;
+
+  background: var(--light-background-color);
+  border: @size-1 solid var(--simple-border);
+  min-height: @size-48;
+  max-height: @size-48;
+  height: @size-48;
+  padding: 0 @size-14;
+  color: var(--simple-primary-text);
+
+  &:hover,
+  &:active,
+  &:hover:active {
+    background: var(--simple-alternate-background);
+    border: @size-1 solid var(--simple-border);
+  }
+
+  &:focus {
+    background: var(--light-background-color);
+    outline: auto;
+    outline-color: var(--simple-outline-color);
+  }
+}
+
+.SettingsMenuWrapper {
+  position: relative;
+}
+
+.SettingsMenu {
+  .SimpleBorder;
+  .FixedBoxShadow;
+
+  background: var(--simple-light-bg);
+  border-radius: @size-16;
+  position: absolute;
+  top: @size-60;
+  right: 0;
+  display: grid;
+  padding: @size-24;
+  grid-gap: @size-24;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  max-width: 261px;
+  min-width: 261px;
+
+  @media @breakpoint-mobile-tablet {
+    top: auto;
+    bottom: 61px;
+    right: 0;
+  }
+
+  > li {
+    > h2 {
+      .text-16-bold;
+
+      color: var(--simple-primary-text);
+      margin: 0;
+    }
+
+    > label {
+      .text-14;
+
+      color: var(--simple-primary-text);
+      margin-bottom: @size-12;
+      display: flex;
+      align-items: center;
+      line-height: @size-22;
+
+      > span {
+        margin-left: @size-5;
+      }
+    }
+
+    > ul {
+      display: flex;
+      flex-flow: row nowrap;
+      grid-gap: @size-8;
+      align-self: flex-end;
+
+      > li > div {
+        .SimpleBorder;
+
+        background-color: transparent;
+        box-sizing: border-box;
+        display: flex;
+        flex-flow: row nowrap;
+        padding: @size-5 @size-8;
+        max-height: @size-25;
+        min-height: @size-25;
+        align-items: center;
+        justify-content: center;
+
+        > input[type='number'] {
+          -moz-appearance: textfield;
+          .text-12-semi-bold;
+
+          background: transparent;
+          color: var(--simple-secondary-text);
+          padding: 0;
+          text-align: right;
+          outline-style: none;
+          border: none;
+          min-width: @size-45;
+
+          &::-webkit-outer-spin-button,
+          &::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+          }
+
+          &:focus {
+            color: var(--simple-primary-text);
+            outline-style: none;
+            border: none;
+          }
+        }
+
+        > span {
+          .text-12-semi-bold;
+
+          color: var(--simple-primary-text);
+          margin-left: @size-4;
+        }
+
+        &[class*='Selected'] {
+          background-color: var(--simple-alternate-background);
+          border: @size-1 solid var(--simple-secondary-text);
+
+          > input {
+            color: var(--simple-primary-text);
+          }
+
+          &:not(:disabled):not(.Disabled) {
+            &:hover {
+              background-color: var(--simple-alternate-background);
+              border: @size-1 solid var(--simple-secondary-text);
+            }
+
+            &:focus {
+              background-color: var(--simple-alternate-background);
+            }
+
+            &:active {
+              background-color: var(--simple-alternate-background);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.Selected {
+  background: var(--simple-alternate-background);
+}
+
+.MobileMenuButton {
+  .Button;
+
+  max-width: @size-56;
+  min-width: @size-56;
+  width: @size-56;
+  padding: none;
+}

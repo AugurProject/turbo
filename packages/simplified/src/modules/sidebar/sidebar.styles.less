@@ -1,0 +1,103 @@
+@import (reference) '~assets/styles/shared';
+@import (reference) '~modules/common/buttons.styles.less';
+
+div.Sidebar {
+  @media @breakpoint-mobile-tablet {
+    position: fixed;
+    background: var(--light-background-color);
+    z-index: @above-all-content-top-layer;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: unset;
+    height: 100%;
+    grid-template-rows: @size-72 auto @size-72;
+  }
+
+}
+
+.Header {
+  padding: 0 @size-16;
+  border-bottom: @size-1 solid var(--simple-border);
+  display: flex;
+  height: @simple-top-bar-height;
+  min-height: @simple-top-bar-height;
+  max-height: @simple-top-bar-height;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1;
+  grid-row: 1;
+
+  > span:first-of-type {
+    .text-20-bold;
+
+    text-transform: capitalize;
+    flex: 1;
+    justify-content: center;
+    display: flex;
+    padding-left: @size-58;
+  }
+
+  > span:last-of-type {
+    .Button;
+
+    width: @size-56;
+    max-width: @size-56;
+    min-width: @size-56;
+    padding: 0;
+  }
+}
+
+.Body {
+  display: flex;
+  flex-direction: column;
+  padding: @size-40 @size-66 @size-24 @size-16;
+  flex: 1;
+  grid-column: 1;
+  grid-row: 2;
+  overflow: auto;
+  
+  > div:not(:last-of-type) {
+    margin-bottom: @size-24;
+  }
+
+  > ol {
+    > li {
+      &:first-of-type {
+        margin-bottom: @size-32;
+      }
+      > a {
+        .text-30-bold;
+
+        color: var(--simple-secondary-text);
+        text-decoration: none;
+      }
+
+      &.Active {
+        > a {
+          color: var(--simple-primary-text);
+        }
+      }
+    }
+  }
+}
+
+.Footer {
+  border-top: @size-1 solid var(--simple-border);
+  display: flex;
+  justify-content: space-between;
+  padding: @size-12 @size-16;
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.NavigationFooter {
+  .Footer;
+
+  justify-content: flex-end;
+}

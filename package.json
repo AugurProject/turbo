@@ -13,7 +13,8 @@
     "format": "prettier -c '**/**.ts'",
     "format:write": "prettier --write '**/**.ts'",
     "smart": "yarn workspace @augurproject/smart",
-    "comps": "yarn workspace @augurproject/comps"
+    "comps": "yarn workspace @augurproject/comps",
+    "simp": "yarn workspace @augurproject/simplified"
   },
   "workspaces": {
     "packages": [
