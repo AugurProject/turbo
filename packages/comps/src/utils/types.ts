@@ -295,9 +295,8 @@ export interface Universe extends Getters.Universe.UniverseDetails {
   totalOpenInterest: string;
   numberOfMarkets: number;
   warpSyncHash: string;
-  children: null | Array<Getters.Universe.UniverseDetails>;
+  children: Array<Getters.Universe.UniverseDetails>;
   parentUniverseId: null | string;
-  id: null | string;
   disputeWindow: {
     address: Address;
     startTime: number;

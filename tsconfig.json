@@ -26,10 +26,7 @@
     },
     {
       "path": "./packages/ethereum-multicall"
-    },
-    {
-      "path": "./packages/simplified"
-    },
+    }
   ],
   "exclude": ["**/node_modules", "**/build", "**/dist"],
   "files": [],
