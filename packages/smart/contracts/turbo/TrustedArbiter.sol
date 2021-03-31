@@ -35,8 +35,6 @@ contract TrustedArbiter is IArbiter, Ownable {
         string[] outcomeSymbols;
         int256[] prices;
         MarketType marketType;
-        bytes32 winningPayoutHash;
-        uint256 totalStake;
     }
 
     address public hatchery;
