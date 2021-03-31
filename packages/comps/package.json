@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "build",
+  "types": "build/index.d.ts",
   "dependencies": {
     "@augurproject/ethereum-multicall": "^2.3.0-alpha.0",
     "@augurproject/sdk": "^2.2.0",

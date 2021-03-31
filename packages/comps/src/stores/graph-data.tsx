@@ -40,26 +40,26 @@ export const GraphDataProvider = ({ children, client = GraphClient.client }) => 
   GraphDataStore.get = () => readableState;
   // useEffect is here to keep data fresh, fetch on mount then use network
   // interval map to determine update cadence.
-  useEffect(() => {
-    let isMounted = true;
-    // get data immediately, then setup interval
-    getMarketsData(async (graphData, block, errors) => {
-      isMounted && !!errors
-        ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
-        : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
-    });
-    const intervalId = setInterval(() => {
-      getMarketsData(async (graphData, block, errors) => {
-        isMounted && !!errors
-          ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
-          : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
-      });
-    }, NETWORK_BLOCK_REFRESH_TIME[PARA_CONFIG.networkId] || NETWORK_BLOCK_REFRESH_TIME[1]);
-    return () => {
-      isMounted = false;
-      clearInterval(intervalId);
-    };
-  }, [library]);
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   // get data immediately, then setup interval
+  //   getMarketsData(async (graphData, block, errors) => {
+  //     isMounted && !!errors
+  //       ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
+  //       : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
+  //   });
+  //   const intervalId = setInterval(() => {
+  //     getMarketsData(async (graphData, block, errors) => {
+  //       isMounted && !!errors
+  //         ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
+  //         : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
+  //     });
+  //   }, NETWORK_BLOCK_REFRESH_TIME[PARA_CONFIG.networkId] || NETWORK_BLOCK_REFRESH_TIME[1]);
+  //   return () => {
+  //     isMounted = false;
+  //     clearInterval(intervalId);
+  //   };
+  // }, [library]);
 
   return (
     <ApolloProvider client={client}>

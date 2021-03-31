@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  // "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "build",
     "rootDir": "src",
@@ -23,12 +23,11 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "node_modules/@augurproject/types/types",
-      "node_modules/@types"
-    ],
+    // "typeRoots": [
+    //   "node_modules/@augurproject/types/types",
+    //   "node_modules/@types"
+    // ],
     "declaration": true,
-    "emitDeclarationOnly": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "src",

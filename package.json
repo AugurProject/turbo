@@ -5,7 +5,7 @@
   "repository": "https://github.com/AugurProject/turbo",
   "license": "MIT",
   "scripts": {
-    "build": "yarn smart build && tsc -b",
+    "build": "yarn smart build && yarn comps transpile && tsc -b",
     "clean": "git clean -e .idea -xdf",
     "rebuild": "yarn clean && yarn && yarn build",
     "test": "yarn smart test",
