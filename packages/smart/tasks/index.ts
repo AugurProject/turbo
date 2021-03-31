@@ -5,3 +5,4 @@ export * from "./createPool";
 export * from "./cannedMarkets";
 export * from "./markets";
 export * from "./verifyDeploy";
+export * from "./setTrustedResolution";
