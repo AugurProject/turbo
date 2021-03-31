@@ -17,6 +17,7 @@ import { MARKET_STATUS } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
+import { useGraphDataStore } from '../../stores/graph-data';
 
 export const LoadingMarketCard = () => {
   return (
@@ -41,11 +42,10 @@ export const LoadingMarketCard = () => {
 };
 
 export const MarketCard = ({ marketId }) => {
+  const { markets } = useGraphDataStore();
   const [market, setMarket] = useState(null);
   useEffect(() => {
-    getMarketsData((graphData, block, errors) => {
-      setMarket(graphData.markets.find((market) => market.id === marketId));
-    });
+      setMarket(markets[marketId]);
   }, []);
   if (!market) return <LoadingMarketCard />;
   return <MarketCardView market={market as MarketInfo} />;

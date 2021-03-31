@@ -54,4 +54,12 @@
   },
   "include": ["src/index.tsx", "src"],
   "exclude": ["**/node_modules", "**/build", "**/dist"],
+  "references": [
+    {
+      "path": "../smart"
+    },
+    {
+      "path": "../ethereum-multicall"
+    },
+  ],
 }

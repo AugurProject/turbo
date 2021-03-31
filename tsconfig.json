@@ -31,6 +31,9 @@
     },
     {
       "path": "./packages/ethereum-multicall"
+    },
+    {
+      "path": "./packages/comps"
     }
   ],
   "exclude": ["**/node_modules", "**/build", "**/dist"],

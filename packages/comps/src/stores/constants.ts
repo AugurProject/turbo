@@ -1,8 +1,12 @@
 import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../utils/types";
+import { addresses } from "@augurproject/smart";
 
 export const PARA_CONFIG: ParaDeploys =
   // @ts-ignore
-  (process.env.CONFIGURATION as unknown) as ParaDeploys;
+  ({
+    networkId: "42",
+    ...addresses["42"]
+  }) as ParaDeploys;
 
 export const STUBBED_GRAPH_DATA_ACTIONS = {
   updateGraphHeartbeat: (processed, blocknumber, errors) => {},

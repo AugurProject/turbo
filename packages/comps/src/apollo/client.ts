@@ -8,6 +8,8 @@ import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { ETH } from "../utils/constants";
 import { SEARCH_MARKETS } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
+import { getMarketInfos } from "../utils/contract-calls";
+import { Web3Provider } from "@ethersproject/providers";
 
 dayjs.extend(utc);
 
@@ -43,8 +45,11 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
-export async function getMarketsData(updateHeartbeat) {
+export async function getMarketsData(library: Web3Provider, updateHeartbeat: Function) {
   const cashes = getCashesInfo();
+  let markets = {};
+  let past = {}
+  /*
   const clientConfig = getClientConfig();
   let response = null;
   let responseUsd = null;
@@ -80,6 +85,27 @@ export async function getMarketsData(updateHeartbeat) {
       response?.errors
     );
   }
+  */
+
+  // todo: need this in a config file, 
+  //const url = "https://eth-kovan.alchemyapi.io/jsonrpc/1FomA6seLdWDvpIRvL9J5NhwPHLIGbWA";
+  //const library = new ethers.providers.JsonRpcProvider(url);
+
+  // call to get markets
+  markets = getMarketInfos(library, cashes)
+
+
+  // todo: version 0 hardcoding
+  updateHeartbeat(
+    {
+      markets,
+      past,
+      cashes,
+    },
+    0,
+    ''
+  );
+
 }
 
 export async function searchMarkets(searchString, cb) {
@@ -193,40 +219,22 @@ const paraCashes = {
     networkId: "42",
     Cashes: [
       {
-        name: "ETH",
-        displayDecimals: 4,
-      },
-      {
         name: "USDC",
         displayDecimals: 2,
+        // todo: hardcoding for version 0
+        address: "0xa8B96fA03798958c2C7E501da75a648a4Df157F4",
+        decimals: 6,
+        usdPrice: 1
       },
     ],
     network: "kovan",
   },
 };
 
-const getCashesInfo = (): Cash[] => {
-  const { networkId, paraDeploys } = PARA_CONFIG;
-  const paraValues = Object.values(paraDeploys);
-  const keysValues = paraValues.reduce((p, v) => ({ ...p, [v.name]: v }), {});
+const getCashesInfo = (): { [address: string]: Cash } => {
+  const { networkId } = PARA_CONFIG;
   const cashes = paraCashes[String(networkId)].Cashes;
-  // fill in address and shareToken
-  cashes.forEach((c) => {
-    if (c.name === ETH) {
-      const ethPara = keysValues["WETH"];
-      if (!ethPara) throw new Error("WETH not found in para deploy configuration");
-      c.address = ethPara.addresses.Cash.toLowerCase();
-      c.shareToken = ethPara.addresses.ShareToken.toLowerCase();
-      c.decimals = ethPara.decimals;
-    } else {
-      // TODO: will need to be changed, in mainnet deploy this will prob be 'USDC'
-      const stablecoinPara = keysValues["USDT"];
-      if (!stablecoinPara) throw new Error("USDT/USDC not found in para deploy configuration");
-      c.address = stablecoinPara.addresses.Cash.toLowerCase();
-      c.shareToken = stablecoinPara.addresses.ShareToken.toLowerCase();
-      c.decimals = stablecoinPara.decimals;
-    }
-  });
 
-  return cashes;
+  // need to figure out share token
+  return (cashes).reduce((p, a) => ({ ...p, [a.address]: a }), {});
 };

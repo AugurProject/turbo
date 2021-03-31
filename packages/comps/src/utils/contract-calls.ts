@@ -49,6 +49,7 @@ import { PARA_CONFIG } from "../stores/constants";
 import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
+import TurboHatcheryABI from "@augurproject/smart/abi/contracts/turbo/TurboHatchery.sol/TurboHatchery.json";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -1334,3 +1335,16 @@ export const getERC1155ApprovedForAll = async (
   const isApproved = await contract.isApprovedForAll(account, spender);
   return Boolean(isApproved);
 };
+
+export const getMarketInfos = (
+  provider: Web3Provider,
+  cashes: Cashes
+): MarketInfos => {
+  const { hatchery } = PARA_CONFIG;
+  const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, null);
+  const numMarkets = hatcheryContract.getTurboLength();
+  console.log('numMarkets', numMarkets);
+
+
+
+}
