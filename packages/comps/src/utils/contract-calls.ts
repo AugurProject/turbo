@@ -1278,6 +1278,7 @@ const getUserTrades = (
 };
 
 export const isAddress = (value) => {
+  console.log('isAddress', value, ethers.utils.getAddress(value.toLowerCase()))
   try {
     return ethers.utils.getAddress(value.toLowerCase());
   } catch {
