@@ -4,7 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import "./ITurboShareToken.sol";
 
-
 interface ITurboShareTokenFactory {
-    function createShareTokens(bytes32[] calldata _names, string[] calldata _symbols) external returns (ITurboShareToken[] memory tokens);
+    function createShareTokens(bytes32[] calldata _names, string[] calldata _symbols)
+        external
+        returns (ITurboShareToken[] memory tokens);
 }

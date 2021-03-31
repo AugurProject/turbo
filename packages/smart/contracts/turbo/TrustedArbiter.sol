@@ -12,11 +12,7 @@ import "../libraries/Ownable.sol";
 contract TrustedArbiter is IArbiter, Ownable {
     using SafeMathUint256 for uint256;
 
-    enum MarketType {
-        YES_NO,
-        CATEGORICAL,
-        SCALAR
-    }
+    enum MarketType {YES_NO, CATEGORICAL, SCALAR}
 
     struct TrustedConfiguration {
         uint256 startTime;
@@ -47,15 +43,27 @@ contract TrustedArbiter is IArbiter, Ownable {
         hatchery = address(_hatchery);
     }
 
-    function onTurboCreated(uint256 _id, string[] memory _outcomeSymbols, bytes32[] memory _outcomeNames, uint256 _numTicks, bytes memory _arbiterConfiguration) override public {
+    function onTurboCreated(
+        uint256 _id,
+        string[] memory _outcomeSymbols,
+        bytes32[] memory _outcomeNames,
+        uint256 _numTicks,
+        bytes memory _arbiterConfiguration
+    ) public override {
         require(msg.sender == hatchery, "Can only call `onTurboCreated` from the hatchery");
 
-        (TrustedConfiguration memory _config) = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
+        TrustedConfiguration memory _config = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
         require(_config.startTime > block.timestamp, "Cannot create a market that is already over");
-        require(_config.prices.length == 2 || _config.prices.length == 0, "Scalar markets have 2 prices. All others have 0");
+        require(
+            _config.prices.length == 2 || _config.prices.length == 0,
+            "Scalar markets have 2 prices. All others have 0"
+        );
         if (_config.prices.length == 2) {
             require(_config.prices[0] < _config.prices[1], "First price is the minimum");
-            require(uint256(_config.prices[1] - _config.prices[0]) > _numTicks, "Price range must be larger than numticks");
+            require(
+                uint256(_config.prices[1] - _config.prices[0]) > _numTicks,
+                "Price range must be larger than numticks"
+            );
         }
         require(_config.marketType != MarketType.YES_NO, "YES/NO not permitted"); // just use categorical
 
@@ -80,14 +88,14 @@ contract TrustedArbiter is IArbiter, Ownable {
     }
 
     function decodeConfiguration(bytes memory _arbiterConfiguration) public pure returns (TrustedConfiguration memory) {
-        (TrustedConfiguration memory _config) = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
+        TrustedConfiguration memory _config = abi.decode(_arbiterConfiguration, (TrustedConfiguration));
         return _config;
     }
 
     // turbo id => payout
     mapping(uint256 => uint256[]) private turboResolutions;
 
-    function getTurboResolution(uint256 _id) view override public returns (uint256[] memory) {
+    function getTurboResolution(uint256 _id) public view override returns (uint256[] memory) {
         return turboResolutions[_id];
     }
 
@@ -113,5 +121,5 @@ contract TrustedArbiter is IArbiter, Ownable {
         return keccak256(abi.encodePacked(_payout));
     }
 
-    function onTransferOwnership(address, address) override internal {}
+    function onTransferOwnership(address, address) internal override {}
 }

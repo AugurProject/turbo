@@ -6,7 +6,6 @@ import "./TurboShareTokenFactory.sol";
 import "../libraries/Ownable.sol";
 import "../augur-para/FeePot.sol";
 
-
 contract HatcheryRegistry is Ownable {
     using SafeMathUint256 for uint256;
 
@@ -34,5 +33,5 @@ contract HatcheryRegistry is Ownable {
         return _hatchery;
     }
 
-    function onTransferOwnership(address, address) override internal {}
+    function onTransferOwnership(address, address) internal override {}
 }

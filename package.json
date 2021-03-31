@@ -11,7 +11,7 @@
     "test": "yarn smart test",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier -c '**/**.ts'",
-    "format:write": "prettier --write '**/**.ts'",
+    "format:write": "prettier --write '**/**.ts' && prettier --write '**/contracts/**/*.sol'",
     "smart": "yarn workspace @augurproject/smart",
     "comps": "yarn workspace @augurproject/comps"
   },

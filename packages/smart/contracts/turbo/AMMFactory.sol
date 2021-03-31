@@ -22,7 +22,13 @@ contract AMMFactory is HasTurboStruct {
         bFactory = _bFactory;
     }
 
-    function createPool(ITurboHatchery _hatchery, uint256 _turboId, uint256 _initialLiquidity, uint256[] memory _weights, address _lpTokenRecipient) public returns (BPool) {
+    function createPool(
+        ITurboHatchery _hatchery,
+        uint256 _turboId,
+        uint256 _initialLiquidity,
+        uint256[] memory _weights,
+        address _lpTokenRecipient
+    ) public returns (BPool) {
         require(pools[address(_hatchery)][_turboId] == BPool(0), "Pool already created");
 
         Turbo memory _turbo = getTurbo(_hatchery, _turboId);
@@ -30,7 +36,10 @@ contract AMMFactory is HasTurboStruct {
 
         //  Turn collateral into shares
         IERC20 _collateral = _hatchery.collateral();
-        require(_collateral.allowance(msg.sender, address(this)) >= _initialLiquidity, "insufficient collateral allowance for initial liquidity");
+        require(
+            _collateral.allowance(msg.sender, address(this)) >= _initialLiquidity,
+            "insufficient collateral allowance for initial liquidity"
+        );
         _collateral.transferFrom(msg.sender, address(this), _initialLiquidity);
         _collateral.approve(address(_hatchery), MAX_UINT);
         uint256 _sets = _initialLiquidity / _turbo.numTicks;
@@ -38,7 +47,7 @@ contract AMMFactory is HasTurboStruct {
 
         // Setup pool
         BPool _pool = bFactory.newBPool();
-        for (uint i = 0; i < _turbo.shareTokens.length; i++) {
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
             ITurboShareToken _token = _turbo.shareTokens[i];
             _token.approve(address(_pool), MAX_UINT);
             _pool.bind(address(_token), _sets, _weights[i]);
@@ -56,7 +65,13 @@ contract AMMFactory is HasTurboStruct {
         return _pool;
     }
 
-    function addLiquidity(ITurboHatchery _hatchery, uint256 _turboId, uint256 _collateralIn, uint256 _minLPTokensOut, address _lpTokenRecipient) public returns (uint256) {
+    function addLiquidity(
+        ITurboHatchery _hatchery,
+        uint256 _turboId,
+        uint256 _collateralIn,
+        uint256 _minLPTokensOut,
+        address _lpTokenRecipient
+    ) public returns (uint256) {
         BPool _pool = pools[address(_hatchery)][_turboId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -71,7 +86,7 @@ contract AMMFactory is HasTurboStruct {
 
         // Add liquidity to pool
         uint256 _totalLPTokens = 0;
-        for (uint i = 0; i < _turbo.shareTokens.length; i++) {
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
             ITurboShareToken _token = _turbo.shareTokens[i];
             uint256 __acquiredLPTokens = _pool.joinswapExternAmountIn(address(_token), _sets, 0);
             _totalLPTokens += __acquiredLPTokens;
@@ -84,7 +99,12 @@ contract AMMFactory is HasTurboStruct {
         return _totalLPTokens;
     }
 
-    function removeLiquidity(ITurboHatchery _hatchery, uint256 _turboId, uint256[] memory _lpTokensPerOutcome, uint256 _minCollateralOut) public returns (uint256) {
+    function removeLiquidity(
+        ITurboHatchery _hatchery,
+        uint256 _turboId,
+        uint256[] memory _lpTokensPerOutcome,
+        uint256 _minCollateralOut
+    ) public returns (uint256) {
         BPool _pool = pools[address(_hatchery)][_turboId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -92,7 +112,7 @@ contract AMMFactory is HasTurboStruct {
 
         uint256 _minSetsToSell = _minCollateralOut / _turbo.numTicks;
         uint256 _setsToSell = MAX_UINT;
-        for (uint i = 0; i < _turbo.shareTokens.length; i++) {
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
             ITurboShareToken _token = _turbo.shareTokens[i];
             uint256 _lpTokens = _lpTokensPerOutcome[i];
             uint256 _acquiredToken = _pool.exitswapPoolAmountIn(address(_token), _lpTokens, _minSetsToSell);
@@ -103,7 +123,13 @@ contract AMMFactory is HasTurboStruct {
         return _setsToSell;
     }
 
-    function buy(ITurboHatchery _hatchery, uint256 _turboId, uint256 _outcome, uint256 _collateralIn, uint256 _minTokensOut) external returns (uint256) {
+    function buy(
+        ITurboHatchery _hatchery,
+        uint256 _turboId,
+        uint256 _outcome,
+        uint256 _collateralIn,
+        uint256 _minTokensOut
+    ) external returns (uint256) {
         BPool _pool = pools[address(_hatchery)][_turboId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -116,10 +142,11 @@ contract AMMFactory is HasTurboStruct {
 
         ITurboShareToken _desiredToken = _turbo.shareTokens[_outcome];
         uint256 _totalDesiredOutcome = _sets;
-        for (uint i = 0; i < _turbo.shareTokens.length; i++) {
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
             if (i == _outcome) continue;
             ITurboShareToken _token = _turbo.shareTokens[i];
-            (uint256 _acquiredToken,) = _pool.swapExactAmountIn(address(_token), _sets, address(_desiredToken), 0, MAX_UINT);
+            (uint256 _acquiredToken, ) =
+                _pool.swapExactAmountIn(address(_token), _sets, address(_desiredToken), 0, MAX_UINT);
             _totalDesiredOutcome += _acquiredToken;
         }
         require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
@@ -129,7 +156,13 @@ contract AMMFactory is HasTurboStruct {
         return _totalDesiredOutcome;
     }
 
-    function sell(ITurboHatchery _hatchery, uint256 _turboId, uint256 _outcome, uint256[] calldata _swaps, uint256 _minCollateralOut) external returns (uint256) {
+    function sell(
+        ITurboHatchery _hatchery,
+        uint256 _turboId,
+        uint256 _outcome,
+        uint256[] calldata _swaps,
+        uint256 _minCollateralOut
+    ) external returns (uint256) {
         BPool _pool = pools[address(_hatchery)][_turboId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -138,11 +171,12 @@ contract AMMFactory is HasTurboStruct {
         uint256 _minSetsToSell = _minCollateralOut / _turbo.numTicks;
         uint256 _setsToSell = MAX_UINT;
         ITurboShareToken _undesiredToken = _turbo.shareTokens[_outcome];
-        for (uint i = 0; i < _turbo.shareTokens.length; i++) {
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
             if (i == _outcome) continue;
             ITurboShareToken _token = _turbo.shareTokens[i];
             uint256 _swap = _swaps[i];
-            (uint256 _acquiredToken,) = _pool.swapExactAmountIn(address(_undesiredToken), _swap, address(_token), _minSetsToSell, MAX_UINT);
+            (uint256 _acquiredToken, ) =
+                _pool.swapExactAmountIn(address(_undesiredToken), _swap, address(_token), _minSetsToSell, MAX_UINT);
             if (_acquiredToken < _setsToSell) _setsToSell = _acquiredToken; // sell as many complete sets as you can
         }
         _hatchery.burnCompleteSets(_turboId, _setsToSell, msg.sender);

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-
 /**
  * @title SafeMathInt256
  * @dev Int256 math operations with safety checks that throw on error
@@ -65,11 +64,19 @@ library SafeMathInt256 {
     }
 
     // Float [fixed point] Operations
-    function fxpMul(int256 a, int256 b, int256 base) internal pure returns (int256) {
+    function fxpMul(
+        int256 a,
+        int256 b,
+        int256 base
+    ) internal pure returns (int256) {
         return div(mul(a, b), base);
     }
 
-    function fxpDiv(int256 a, int256 b, int256 base) internal pure returns (int256) {
+    function fxpDiv(
+        int256 a,
+        int256 b,
+        int256 base
+    ) internal pure returns (int256) {
         return div(mul(a, base), b);
     }
 

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-
 /**
  * @title SafeMathUint256
  * @dev Uint256 math operations with safety checks that throw on error
@@ -33,7 +32,11 @@ library SafeMathUint256 {
         return a - b;
     }
 
-    function subS(uint256 a, uint256 b, string memory message) internal pure returns (uint256) {
+    function subS(
+        uint256 a,
+        uint256 b,
+        string memory message
+    ) internal pure returns (uint256) {
         require(b <= a, message);
         return a - b;
     }
@@ -87,11 +90,19 @@ library SafeMathUint256 {
     }
 
     // Float [fixed point] Operations
-    function fxpMul(uint256 a, uint256 b, uint256 base) internal pure returns (uint256) {
+    function fxpMul(
+        uint256 a,
+        uint256 b,
+        uint256 base
+    ) internal pure returns (uint256) {
         return div(mul(a, b), base);
     }
 
-    function fxpDiv(uint256 a, uint256 b, uint256 base) internal pure returns (uint256) {
+    function fxpDiv(
+        uint256 a,
+        uint256 b,
+        uint256 base
+    ) internal pure returns (uint256) {
         return div(mul(a, base), b);
     }
 }
