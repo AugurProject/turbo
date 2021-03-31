@@ -47,11 +47,13 @@ const ModalView = () => {
   const {
     actions: { logout, removeTransaction },
   } = useUserStore();
-  const [locationKeys, setLocationKeys] = useState([]);
+  const [locationKeys, setLocationKeys]: [any[], Function] = useState([]);
 
   const handleKeyDown = (e) => {
     if (e.keyCode === ESCAPE_KEYCODE) {
+      // @ts-ignore
       if (modal && modal.cb) {
+        // @ts-ignore
         modal.cb();
       }
       closeModal();

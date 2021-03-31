@@ -3,7 +3,6 @@ import Styles from 'modules/market/trading-form.styles.less';
 import classNames from 'classnames';
 import { useSimplifiedStore } from '../stores/simplified';
 import {
-  AmmExchange,
   AmmOutcome,
   Cash,
   EstimateTradeResult,
@@ -75,7 +74,7 @@ export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
         <div key={infoNumber.label}>
           <span>
             {infoNumber.label}
-            {infoNumber.tooltipText &&
+            {infoNumber.tooltipText && infoNumber.tooltipKey &&
               generateTooltip(infoNumber.tooltipText, infoNumber.tooltipKey)}
           </span>
           <span>{infoNumber.value}</span>
@@ -85,12 +84,12 @@ export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
   );
 };
 
-const getEnterBreakdown = (breakdown: EstimateTradeResult, cash: Cash) => {
+const getEnterBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) => {
   return [
     {
       label: 'Average Price',
       value: !isNaN(Number(breakdown?.averagePrice))
-        ? formatCashPrice(breakdown.averagePrice, cash?.name).full
+        ? formatCashPrice(breakdown?.averagePrice || 0, cash?.name).full
         : '-',
       tooltipText: AVG_PRICE_TIP,
       tooltipKey: 'averagePrice',
@@ -98,30 +97,30 @@ const getEnterBreakdown = (breakdown: EstimateTradeResult, cash: Cash) => {
     {
       label: 'Estimated Shares',
       value: !isNaN(Number(breakdown?.outputValue))
-        ? formatSimpleShares(breakdown.outputValue).full
+        ? formatSimpleShares(breakdown?.outputValue || 0).full
         : '-',
     },
     {
       label: 'Max Profit',
       value: !isNaN(Number(breakdown?.maxProfit))
-        ? formatCash(breakdown.maxProfit, cash?.name).full
+        ? formatCash(breakdown?.maxProfit || 0, cash?.name).full
         : '-',
     },
     {
       label: 'Estimated Fees (Shares)',
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatSimpleShares(breakdown.tradeFees).full
+        ? formatSimpleShares(breakdown?.tradeFees || 0).full
         : '-',
     },
   ];
 };
 
-const getExitBreakdown = (breakdown: EstimateTradeResult, cash: Cash) => {
+const getExitBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) => {
   return [
     {
       label: 'Average Price',
       value: !isNaN(Number(breakdown?.averagePrice))
-        ? formatCashPrice(breakdown.averagePrice, cash?.name).full
+        ? formatCashPrice(breakdown?.averagePrice || 0, cash?.name).full
         : '-',
       tooltipText: AVG_PRICE_TIP,
       tooltipKey: 'averagePrice',
@@ -129,19 +128,19 @@ const getExitBreakdown = (breakdown: EstimateTradeResult, cash: Cash) => {
     {
       label: `Amount You'll Recieve`,
       value: !isNaN(Number(breakdown?.outputValue))
-        ? formatCash(breakdown.outputValue, cash?.name).full
+        ? formatCash(breakdown?.outputValue || 0, cash?.name).full
         : '-',
     },
     {
       label: 'Remaining Shares',
       value: !isNaN(Number(breakdown?.remainingShares))
-        ? formatSimpleShares(breakdown.remainingShares).full
+        ? formatSimpleShares(breakdown?.remainingShares || 0).full
         : '-',
     },
     {
       label: `Estimated Fees (${cash.name})`,
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatCash(breakdown.tradeFees, cash?.name).full
+        ? formatCash(breakdown?.tradeFees || 0, cash?.name).full
         : '-',
     },
   ];
@@ -149,7 +148,7 @@ const getExitBreakdown = (breakdown: EstimateTradeResult, cash: Cash) => {
 
 const formatBreakdown = (
   isBuy: boolean,
-  breakdown: EstimateTradeResult,
+  breakdown: EstimateTradeResult | null,
   cash: Cash
 ) =>
   isBuy
@@ -157,9 +156,9 @@ const formatBreakdown = (
     : getExitBreakdown(breakdown, cash);
 
 interface TradingFormProps {
-  amm: AmmExchange;
+  amm: any;
   marketType?: string;
-  initialSelectedOutcome: AmmOutcome;
+  initialSelectedOutcome: AmmOutcome | any;
 }
 
 interface CanTradeProps {
@@ -189,7 +188,7 @@ const TradingForm = ({
     initialSelectedOutcome
   );
   const { tradingEstimateEvents, tradingEvents } = useTrackedEvents();
-  const [breakdown, setBreakdown] = useState<EstimateTradeResult>(null);
+  const [breakdown, setBreakdown] = useState<EstimateTradeResult | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [waitingToSign, setWaitingToSign] = useState(false);
   const ammCash = amm?.cash;
@@ -237,7 +236,7 @@ const TradingForm = ({
 
     const getEstimate = async () => {
       const outputYesShares = selectedOutcomeId === YES_OUTCOME_ID;
-      let userBalances = [];
+      let userBalances: string[] = [];
       if (outcomeSharesRaw) {
         userBalances = marketShares?.outcomeSharesRaw;
       }
@@ -246,11 +245,11 @@ const TradingForm = ({
         : await estimateExitTrade(amm, amount, outputYesShares, userBalances);
 
       tradingEstimateEvents(
-        isBuy ? BUY : SELL,
+        isBuy,
         outputYesShares,
         amm?.cash?.name,
         amount,
-        breakdown?.outputValue
+        breakdown?.outputValue || ''
       );
 
       isMounted && setBreakdown(breakdown);
@@ -288,7 +287,7 @@ const TradingForm = ({
 
   const canMakeTrade: CanTradeProps = useMemo(() => {
     let actionText = buttonError || orderType;
-    let subText = null;
+    let subText: string | null = null;
     let disabled = false;
     if (!isLogged) {
       actionText = 'Connect Wallet';
@@ -436,7 +435,7 @@ const TradingForm = ({
           rate={
             !isNaN(Number(breakdown?.ratePerCash))
               ? `1 ${amm?.cash?.name} = ${
-                  formatSimpleShares(breakdown?.ratePerCash, {
+                  formatSimpleShares(breakdown?.ratePerCash || 0, {
                     denomination: (v) => `${v} Shares`,
                   }).full
                 }`

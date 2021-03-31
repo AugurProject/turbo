@@ -198,7 +198,7 @@ export function useApprovalStatus({
   cash,
   actionType,
 }: {
-  amm?: AmmExchange;
+  amm?: AmmExchange | null | undefined;
   cash: Cash;
   actionType: ApprovalAction;
 }) {

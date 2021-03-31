@@ -38,13 +38,18 @@ const AppBody = () => {
 
   useEffect(() => {
     const html = windowRef.document.firstElementChild;
-    const isHeightUnset = html.style.height === '';
+    // @ts-ignore
+    const isHeightUnset = html?.style?.height === '';
     const eitherOr = (modalShowing || showTradingForm);
     if (eitherOr && isHeightUnset) {
+      // @ts-ignore
       html.style.height = '100%';
+      // @ts-ignore
       html.style.overflow = 'hidden';
     } else if (!eitherOr && !isHeightUnset) {
+      // @ts-ignore
       html.style.height = '';
+      // @ts-ignore
       html.style.overflow = '';
     }
   }, [modalShowing, showTradingForm]);

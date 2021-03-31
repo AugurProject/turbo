@@ -1129,6 +1129,7 @@ export interface GraphData {
 
 export interface Modal {
   type?: string;
+  cb?: Function;
 }
 
 export interface Settings {

@@ -253,7 +253,7 @@ const MarketsView = () => {
     >
       <SEO {...MARKETS_LIST_HEAD_TAGS} />
       <NetworkMismatchBanner />
-      {isLogged ? <AppViewStats /> : <TopBanner />}
+      {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />}
       {isMobile && (
         <div>
           <SecondaryButton
@@ -310,6 +310,7 @@ const MarketsView = () => {
       </ul>
       <SearchInput
         value={filter}
+        // @ts-ignore
         onChange={(e) => setFilter(e.target.value)}
         clearValue={() => setFilter('')}
         showFilter={showFilter}

@@ -11,7 +11,7 @@ import type {
 import type { TransactionMetadataParams, EthersSigner } from "@augurproject/contract-dependencies-ethers";
 import type { BigNumber } from "bignumber.js";
 import type { Template } from "@augurproject/templates";
-import { JsonRpcProvider } from "ethers/providers";
+import { ethers } from "ethers";
 
 export const TransactionTypes = {
   ENTER: "ENTER",
@@ -718,7 +718,7 @@ export interface LoginAccountMeta {
   accountType: string;
   address: string;
   signer: any | EthersSigner;
-  provider: JsonRpcProvider;
+  provider: ethers.providers.JsonRpcProvider;
   isWeb3: boolean;
   profileImage?: string;
   email?: string;

@@ -43,6 +43,7 @@ const calculateTotalWinnings = (claimbleMarketsPerCash) => {
       claimableWinnings: { claimableBalance },
     }) => {
       total = total.plus(createBigNumber(claimableBalance));
+      // @ts-ignore
       marketIds.push(marketId);
     }
   );
@@ -168,7 +169,8 @@ export const ClaimWinningsSection = () => {
               ethCash,
               ETHTotals.marketIds,
               addTransaction,
-              canClaimETH
+              canClaimETH,
+              setPendingClaim
             );
           }}
         />

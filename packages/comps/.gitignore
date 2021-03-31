@@ -30,3 +30,5 @@ src/assets/**/*.less.d.ts
 src/utils/**/*.less.d.ts
 src/modules/**/*.styles.less.d.ts
 src/modules/**/*.less.d.ts
+# make sure to whitelist specifically externals.d.ts
+!externals.d.ts

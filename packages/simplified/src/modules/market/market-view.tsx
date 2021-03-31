@@ -13,7 +13,7 @@ import {
   TransactionsTable,
 } from '../common/tables';
 import TradingForm from './trading-form';
-import { AmmExchange, MarketInfo } from '../types';
+import { MarketInfo } from '../types';
 import {
   Constants,
   useAppStatusStore,
@@ -156,7 +156,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const { markets } = useGraphDataStore();
 
   useScrollToTopOnMount();
-
+  // @ts-ignore
   const market: MarketInfo = !!defaultMarket
     ? defaultMarket
     : markets[marketId];
@@ -172,10 +172,12 @@ const MarketView = ({ defaultMarket = null }) => {
     () => getMarketEndtimeFull(market?.endTimestamp),
     [market?.endTimestamp]
   );
+  // @ts-ignore
   const amm: AmmExchange = market?.amm;
 
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
+  // @ts-ignore
   const currentAMMs = getCurrentAmms(market, markets);
   const { reportingState, outcomes } = market;
   const winningOutcomes = getWinningOutcome(amm?.ammOutcomes, outcomes);
