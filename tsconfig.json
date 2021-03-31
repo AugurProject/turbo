@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "lib": ["dom", "es2018"],
+    "lib": [
+      "es2015",
+      "dom",
+      "webworker",
+      "es2018"
+    ],
     "module": "CommonJS",
     "composite": true,
     "downlevelIteration": true,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import { AddLiquidityRate, marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
 import {

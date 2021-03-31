@@ -849,6 +849,7 @@ export interface WindowApp extends Window {
   };
   appStatus?: any;
   graphData?: any;
+  simplified?: any;
   markets?: any;
   betslip?: any;
   trading?: any;

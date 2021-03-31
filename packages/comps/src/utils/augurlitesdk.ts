@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AugurLite, NetworkId } from "@augurproject/sdk-lite";
 import { ethers } from "ethers";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";

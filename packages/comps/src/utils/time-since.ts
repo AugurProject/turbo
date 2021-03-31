@@ -9,7 +9,7 @@ const DURATION_IN_SECONDS = {
 };
 
 const getDuration = (seconds: number) => {
-  let epoch: string = '';
+  let epoch: string = "";
   let interval: number = 0;
 
   for (let i = 0; i < DURATION_IN_SECONDS.epochs.length; i++) {
