@@ -167,7 +167,9 @@ contract BPool is BBronze, BToken, BMath {
         address token,
         uint256 balance,
         uint256 denorm
-    ) external _logs_ // _lock_  Bind does not lock because it jumps to `rebind`, which does
+    )
+        external
+        _logs_ // _lock_  Bind does not lock because it jumps to `rebind`, which does
     {
         require(msg.sender == _controller, "ERR_NOT_CONTROLLER");
         require(!_records[token].bound, "ERR_IS_BOUND");
