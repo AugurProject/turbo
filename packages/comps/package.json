@@ -40,7 +40,8 @@
     "check": "tsc --noEmit",
     "check:watch": "npm run type-check -- --watch",
     "types": "tsc --emitDeclarationOnly",
-    "transpile": "babel src --out-dir build --extensions \".tsx\",\".ts\" --source-maps inline --copy-files",
+    "types:watch": "yarn types -- --watch",
+    "transpile": "yarn types && babel src --out-dir build --extensions \".tsx\",\".ts\" --source-maps inline --copy-files",
     "transpile:watch": "yarn transpile --watch"
   },
   "eslintConfig": {
