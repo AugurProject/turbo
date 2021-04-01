@@ -95,7 +95,7 @@
   },
   "scripts": {
     "start": "TSC_COMPILE_ON_ERROR=true node scripts/start.js",
-    "build": "node scripts/build.js"
+    "build": "SC_COMPILE_ON_ERROR=true node scripts/build.js"
   },
   "eslintConfig": {
     "extends": [
