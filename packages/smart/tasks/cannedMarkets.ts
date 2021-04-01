@@ -1,7 +1,7 @@
 import { BigNumberish, BytesLike, ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
-import { MarketTypes } from "../src/util";
+import { MarketTypes } from "../src/utils/constants";
 
 task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   console.log("creating canned markets");
