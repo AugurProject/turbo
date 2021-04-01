@@ -22,7 +22,8 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const creatorFee = 1;
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
-  const extraInfo = "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '[example, market, category]'}";
+  const extraInfo =
+    "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '[example, market, category]'}";
   const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(

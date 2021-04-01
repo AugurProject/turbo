@@ -1346,12 +1346,12 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
   console.log("numMarkets", numMarkets);
   if (numMarkets < currentNumMarkets) {
     let indexes = [];
-    for(let i = currentNumMarkets; i < numMarkets; i++) {
+    for (let i = currentNumMarkets; i < numMarkets; i++) {
       indexes.push(i);
     }
     const newMarkets = await retrieveMarkets(indexes, arbiter, provider);
     if (newMarkets && newMarkets.length > 0) {
-      console.log('newMarkets', newMarkets)
+      console.log("newMarkets", newMarkets);
     }
   }
 
@@ -1361,35 +1361,33 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
 const retrieveMarkets = async (indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
   const multicall = new Multicall({ ethersProvider: provider });
 
-  const contractMarketsCall: ContractCallContext[] = indexes.map(
-    index => [
-      {
-        reference: `${arbiterAddress}-${index}`,
-        contractAddress: arbiterAddress,
-        abi: TrustedArbiterABI,
-        calls: [
-          {
-            reference: `${arbiterAddress}-${index}`,
-            methodName: "turboData",
-            methodParameters: [index],
-            context: {
-              index,
-              arbiterAddress,
-            },
+  const contractMarketsCall: ContractCallContext[] = indexes.map((index) => [
+    {
+      reference: `${arbiterAddress}-${index}`,
+      contractAddress: arbiterAddress,
+      abi: TrustedArbiterABI,
+      calls: [
+        {
+          reference: `${arbiterAddress}-${index}`,
+          methodName: "turboData",
+          methodParameters: [index],
+          context: {
+            index,
+            arbiterAddress,
           },
-        ],
-      },
-    ]
-  );
+        },
+      ],
+    },
+  ]);
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const marketData = marketsResult.results[key].callsReturnContext[0].returnValues as ethers.utils.Result;
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
 
-    console.log('marketData', marketData);
-    console.log('context', context);
+    console.log("marketData", marketData);
+    console.log("context", context);
   }
 
-  return []
-}
+  return [];
+};
