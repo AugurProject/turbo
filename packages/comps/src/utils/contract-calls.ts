@@ -50,6 +50,7 @@ import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
 import TurboHatcheryABI from "@augurproject/smart/abi/contracts/turbo/TurboHatchery.sol/TurboHatchery.json";
+import TrustedArbiterABI from "@augurproject/smart/abi/contracts/turbo/TrustedArbiter.sol/TrustedArbiter.json";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -1336,12 +1337,40 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-export const getMarketInfos = (provider: Web3Provider, account: string, cashes: Cashes): MarketInfos => {
-  const { hatchery } = PARA_CONFIG;
+export const getMarketInfos = (provider: Web3Provider, markets: MarketInfos, account: string): MarketInfos => {
+  const { hatchery, arbiter } = PARA_CONFIG;
+  const currentNumMarkets = Object.keys(markets).length;
   console.log("account", account);
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = hatcheryContract.getTurboLength();
   console.log("numMarkets", numMarkets);
 
+
   return {};
 };
+
+const retrieveMarkets(indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
+  const multicall = new Multicall({ ethersProvider: provider });
+
+  const contractMarketsCall: ContractCallContext[] = indexes.map(
+    index => [
+      {
+        reference: `${arbiterAddress}-${index}`,
+        contractAddress: arbiterAddress,
+        abi: TrustedArbiterABI,
+        calls: [
+          {
+            reference: `${arbiterAddress}-${index}`,
+            methodName: "turboData",
+            methodParameters: [index],
+            context: {
+              index,
+              arbiterAddress,
+            },
+          },
+        ],
+      },
+    ]
+  );
+
+}
