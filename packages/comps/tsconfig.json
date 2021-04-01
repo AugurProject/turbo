@@ -1,12 +1,33 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "build",
     "rootDir": "src",
-    "target": "ES2017",
-    "module": "es2020",
+    "lib": [
+      "es2015",
+      "dom",
+      "webworker",
+      "es2018"
+    ],
+    "target": "es2018",
+    "module": "CommonJS",
     "jsx": "react",
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "watch": false,
+    "strictNullChecks": false,
+    "alwaysStrict": false,
+    "strict": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@augurproject/types/types",
+      "node_modules/@types"
+    ],
     "declaration": true,
+    "emitDeclarationOnly": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "src",
@@ -31,14 +52,14 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "files": [],
-  "include": [
-    "src/**/*",
-    "src/externals.d.ts",
-    "src/**/*.json",
-    "src/**/*.png",
+  "include": ["src/index.tsx", "src"],
+  "exclude": ["**/node_modules", "**/build", "**/dist"],
+  "references": [
+    {
+      "path": "../smart"
+    },
+    {
+      "path": "../ethereum-multicall"
+    },
   ],
-  "exclude": [
-    "node_modules",
-  ]
 }

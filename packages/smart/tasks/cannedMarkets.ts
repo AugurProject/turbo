@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike } from "ethers";
+import { BigNumberish, BytesLike, ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
 import { MarketTypes } from "../src/util";
@@ -41,7 +41,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     numTicks,
     TrustedArbiter.address,
     arbiterConfiguration
-  ).then((tx) => {
+  ).then((tx: ContractTransaction) => {
     return tx.wait();
   });
 

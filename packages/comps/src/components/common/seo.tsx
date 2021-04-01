@@ -81,8 +81,8 @@ export const SEO = ({
     )}
     {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
     {ogType && <meta property="og:type" content={ogType} />}
-    {articleTag?.length > 0 &&
-    articleTag.map(tag => <meta property="article:tag" content={tag} key={tag} />)}
+    {articleTag && articleTag?.length > 0 &&
+    articleTag?.map(tag => <meta property="article:tag" content={tag} key={tag} />)}
     {articlePublishedTime && (
       <meta
         property="article:published_time"

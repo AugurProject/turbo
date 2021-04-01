@@ -1,0 +1,199 @@
+@import (reference) '~assets/styles/shared';
+
+.AppStats {
+  .SimpleBorder;
+
+  padding: 0 @size-36;
+  border-radius: @size-8;
+  height: @size-150;
+  background: var(--simple-light-bg);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+
+  > div {
+    border-right: @size-1 solid var(--simple-border);
+    padding: 0 @size-36;
+
+    &:first-of-type {
+      padding-left: 0;
+    }
+
+    &:nth-of-type(3),
+    &:nth-of-type(4),
+    &:nth-of-type(5) {
+      padding: 0 @size-36;
+    }
+
+    &:last-of-type {
+      border-right: 0;
+      padding-right: 0;
+    }
+
+    > span:first-of-type {
+      margin-top: auto;
+      margin-bottom: @size-16;
+    }
+
+    > span:last-of-type,
+    > span:nth-of-type(2) {
+      margin-bottom: auto;
+      height: @size-24;
+    }
+  }
+
+  &.CashAmounts {
+    display: flex;
+
+    > div {
+      padding-right: @size-36;
+
+      &:last-of-type {
+        border-right: @size-1 solid var(--simple-border);
+      }
+    }
+  }
+
+  &.small {
+    height: 102px;
+
+    > div {
+      > span:first-of-type {
+        margin-bottom: @size-8;
+      }
+    }
+  }
+}
+
+.AddLiquidity {
+  .SimpleBorder;
+  .HoverDropShadow;
+
+  background: transparent;
+  padding: @size-16;
+  display: flex;
+  flex-flow: column wrap;
+  height: fit-content;
+  cursor: pointer;
+  outline-style: none;
+
+  > span:first-of-type {
+    .text-20-bold;
+
+    text-transform: capitalize;
+    color: var(--simple-primary-text);
+
+    > svg {
+      margin-right: @size-10;
+    }
+  }
+
+  > span:last-of-type {
+    .text-16;
+
+    margin-top: @size-8;
+    text-transform: capitalize;
+    color: var(--simple-secondary-text);
+  }
+
+  &:not(:disabled):hover {
+    background: var(--simple-light-bg);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.AddCurrencyLiquidity {
+  .AddLiquidity;
+  .text-14-semi-bold;
+
+  align-items: center;
+  color: var(--simple-secondary-text);
+  flex-flow: row nowrap;
+  margin-top: @size-12;
+
+  > svg {
+    margin-right: @size-12;
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .AppStats {
+    height: auto;
+    padding: 0;
+    padding-left: @size-4;
+    padding-right: @size-4;
+
+    > div {
+      padding: @size-18 @size-8;
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      justify-content: center;
+
+      > span:first-of-type {
+        text-align: center;
+        white-space: pre-wrap;
+        margin-bottom: @size-2;
+      }
+
+      &:nth-of-type(3),
+      &:nth-of-type(4) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: @size-14 @size-8;
+
+        > span:first-of-type {
+          margin-bottom: @size-2;
+          text-align: center;
+        }
+
+        > span:last-of-type  {
+          margin-left: @size-4;
+        }
+      }
+    }
+
+    &.small {
+      height: auto;
+    }
+  }
+}
+
+.NetworkMismatch {
+  .SimpleBorder;
+  .text-16-bold;
+
+  border: none;
+  background: var(--simple-no-15);
+  color: var(--simple-failed);
+  text-align: center;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: @size-13 @size-16;
+  max-height: @size-48;
+  min-height: @size-48;
+  height: @size-48;
+  margin-bottom: @size-16;
+  margin-top: -@size-24;
+  white-space: nowrap;
+
+  @media @breakpoint-mobile-tablet {
+    margin-top: 0;
+  }
+
+  &.Market {
+    margin-bottom: -@size-24;
+
+    @media @breakpoint-mobile-tablet {
+      margin-bottom: @size-16;
+    }
+  }
+}

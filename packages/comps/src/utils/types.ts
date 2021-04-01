@@ -295,9 +295,8 @@ export interface Universe extends Getters.Universe.UniverseDetails {
   totalOpenInterest: string;
   numberOfMarkets: number;
   warpSyncHash: string;
-  children: null | Array<Getters.Universe.UniverseDetails>;
+  children: Array<Getters.Universe.UniverseDetails>;
   parentUniverseId: null | string;
-  id: null | string;
   disputeWindow: {
     address: Address;
     startTime: number;
@@ -850,6 +849,7 @@ export interface WindowApp extends Window {
   };
   appStatus?: any;
   graphData?: any;
+  simplified?: any;
   markets?: any;
   betslip?: any;
   trading?: any;
@@ -1129,6 +1129,7 @@ export interface GraphData {
 
 export interface Modal {
   type?: string;
+  cb?: Function;
 }
 
 export interface Settings {

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "react-feather";
 import CopyHelper from "./CopyHelper";
 import { getEtherscanLink, shortenAddress } from "../../utils";
-import { injected, walletlink } from "../../connectors";
+// import { injected, walletlink } from "../../connectors";
+import { injected } from "../../connectors";
 import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
 import Styles from "./index.less";
@@ -130,6 +131,7 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
 
 const formatConnectorName = (connector) => {
   const ethereum = window["ethereum"];
+  // @ts-ignore
   const isMetaMask = !!(ethereum && ethereum.isMetaMask);
   return (
     "Connected with " +
@@ -165,6 +167,9 @@ export const AccountDetails = ({
     setConnectorName(formatConnectorName(connector));
   }, [account, connector, transactions]);
 
+  // const notWalletLink = connector !== walletlink;
+  const notWalletLink = true;
+
   return (
     <div
       className={classNames(Styles.AccountDetails, {
@@ -176,10 +181,10 @@ export const AccountDetails = ({
       </section>
       <section>
         <TinyButton action={() => openOptions()} text="Switch Wallet" />
-        {connector !== injected && connector !== walletlink && (
+        {connector !== injected && notWalletLink && (
           <TinyButton action={() => (connector as any).close()} text="Sign Out" />
         )}
-        {connector === injected && connector !== walletlink && (
+        {connector === injected && notWalletLink && (
           <TinyButton
             action={() => {
               logout();

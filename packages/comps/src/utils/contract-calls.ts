@@ -1,3 +1,4 @@
+// @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import { AddLiquidityRate, marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
 import {
@@ -19,7 +20,7 @@ import {
   LiquidityBreakdown,
   AmmOutcome,
 } from "./types";
-import ethers from "ethers";
+import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
@@ -48,6 +49,7 @@ import { PARA_CONFIG } from "../stores/constants";
 import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
+import TurboHatcheryABI from "@augurproject/smart/abi/contracts/turbo/TurboHatchery.sol/TurboHatchery.json";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -1332,4 +1334,14 @@ export const getERC1155ApprovedForAll = async (
   const contract = getErc1155Contract(tokenAddress, provider, account);
   const isApproved = await contract.isApprovedForAll(account, spender);
   return Boolean(isApproved);
+};
+
+export const getMarketInfos = (provider: Web3Provider, account: string, cashes: Cashes): MarketInfos => {
+  const { hatchery } = PARA_CONFIG;
+  console.log("account", account);
+  const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
+  const numMarkets = hatcheryContract.getTurboLength();
+  console.log("numMarkets", numMarkets);
+
+  return {};
 };

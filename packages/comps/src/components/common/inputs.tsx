@@ -86,7 +86,7 @@ export interface AmountInputProps {
   showCurrencyDropdown?: boolean;
   updateCash?: (string) => void;
   chosenCash: string;
-  rate?: string;
+  rate?: string | null;
   error?: boolean;
   updateAmountError?: Function;
   ammCash: Cash;

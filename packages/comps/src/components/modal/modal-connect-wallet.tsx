@@ -11,7 +11,8 @@ import { SecondaryButton, TextButton, WalletButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
-import { NETWORK_CHAIN_ID, portis, injected } from "../ConnectAccount/connectors";
+// import { NETWORK_CHAIN_ID, portis, injected } from "../ConnectAccount/connectors";
+import { NETWORK_CHAIN_ID, injected } from "../ConnectAccount/connectors";
 import { Loader } from "../ConnectAccount/components/Loader";
 import { AccountDetails } from "../ConnectAccount/components/AccountDetails";
 import { useActiveWeb3React } from "../ConnectAccount/hooks";
@@ -213,8 +214,8 @@ const ModalConnectWallet = ({
             !window["ethereum"] &&
             wallet.mobile &&
             wallet.name !== SUPPORTED_WALLETS["METAMASK"].name &&
-            wallet.name !== SUPPORTED_WALLETS["INJECTED"].name &&
-            wallet.connector !== portis
+            wallet.name !== SUPPORTED_WALLETS["INJECTED"].name
+            //&& wallet.connector !== portis
           ) {
             return commonWalletButtonProps;
           } else {
@@ -226,7 +227,8 @@ const ModalConnectWallet = ({
               return null;
             }
 
-            if (wallet.mobile && wallet.connector !== portis) {
+            // if (wallet.mobile && wallet.connector !== portis) {
+            if (wallet.mobile) {
               return commonWalletButtonProps;
             }
           }

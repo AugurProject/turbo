@@ -1,0 +1,454 @@
+@import (reference) '~assets/styles/shared';
+
+.MarketView,
+.EmptyMarketView {
+  .TwoTonePage;
+  .TwoTonePageGrid;
+
+  > section {
+    &:first-of-type {
+      display: flex;
+      flex-flow: column nowrap;
+
+      > button {
+        display: none;
+      }
+
+      > h1 {
+        .text-30-bold;
+
+        color: var(--simple-primary-text);
+        margin: 0;
+        padding: 0;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+      }
+
+      > div[class*='Outcomes'] {
+        display: none;
+      }
+
+      > div,
+      > h1,
+      > ul,
+      > span,
+      > article,
+      > section {
+        margin-bottom: @size-40;
+      }
+    }
+
+    &:last-of-type:not(:first-of-type) {
+      display: flex;
+      flex-direction: column;
+
+      > div:first-of-type {
+        margin-bottom: @size-32;
+      }
+    }
+  }
+}
+
+.EmptyMarketView {
+  > section {
+    display: grid;
+    > section > div,
+    > div {
+      .ShimmerEmptyBlock;
+
+      border-radius: @size-16;
+      background: var(--simple-alternate-background);
+      background-size: 1600px 400px;
+      background-image: linear-gradient(
+        to right,
+        #edeff1 0%,
+        #f6f7f8 20%,
+        #edeff1 40%,
+        #edeff1 100%
+      );
+    }
+  }
+
+  > section:first-of-type {
+    grid-template-columns: repeat(3, auto);
+
+    > section:first-of-type {
+      display: grid;
+      grid-template-columns: @size-55 @size-100 1fr;
+      grid-gap: @size-12;
+      margin-bottom: @size-48;
+
+      > div {
+        height: @size-44;
+
+        &:last-of-type {
+          min-width: 169px;
+          margin-left: auto;
+        }
+      }
+    }
+
+    > section:nth-of-type(2) {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, @size-32);
+      grid-gap: @size-8;
+
+      > div:last-of-type {
+        max-width: 352px;
+      }
+    }
+
+    > section:nth-of-type(3) {
+      display: grid;
+      grid-template-columns: repeat(4, 195px);
+      grid-template-rows: @size-85;
+      grid-gap: @size-2;
+
+      > div:nth-of-type(1) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      > div:nth-of-type(2),
+      > div:nth-of-type(3) {
+        border-radius: 0;
+      }
+
+      > div:nth-of-type(4) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    }
+
+    > section:nth-of-type(4) {
+      display: grid;
+      grid-template-columns: 39px @size-30 @size-40 59px;
+      grid-template-rows: @size-24;
+      grid-gap: @size-4;
+      margin-bottom: 0;
+      margin-left: auto;
+    }
+
+    > section:last-of-type {
+      > div {
+        width: 781px;
+        height: 450px;
+        margin-top: @size-16;
+      }
+    }
+  }
+
+  > section:nth-of-type(2) {
+    grid-template-columns: 1fr;
+
+    > div:first-of-type {
+      width: 395px;
+      height: 676px;
+    }
+
+    > div:nth-of-type(2) {
+      width: 395px;
+      height: 101px;
+    }
+
+    > div:nth-of-type(3) {
+      width: 395px;
+      height: @size-48;
+      margin-top: @size-16;
+    }
+  }
+}
+
+.topRow {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  align-items: center;
+  height: @size-44;
+
+  @media @breakpoint-mobile-tablet {
+    margin-bottom: @size-16;
+    height: @size-32;
+  }
+
+  > div[class*='CategoryLabel'] {
+    margin-left: @size-8;
+    margin-right: auto;
+  }
+
+  > span[class*='CurrencyLabel'] {
+    margin-left: @size-8;
+  }
+
+  > span[class*='InvalidFlagTipIcon'] {
+    margin-left: @size-8;
+  }
+}
+
+.WinningOutcomeLabel {
+  .SimpleBorder;
+
+  border: @size-1 solid var(--simple-alternate-background);
+  background: var(--simple-alternate-background);
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  min-width: 100%;
+  min-height: @size-124;
+  height: @size-124;
+  max-height: @size-124;
+  justify-content: center;
+  padding: @size-24;
+
+  > span {
+    align-items: center;
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+
+    &:first-of-type {
+      .text-20-semi-bold;
+
+      color: var(--simple-secondary-text);
+      margin-bottom: @size-8;
+    }
+
+    &:last-of-type {
+      .text-36-bold;
+
+      color: var(--simple-primary-text);
+
+      > svg {
+        height: @size-32;
+        width: @size-32;
+        margin-left: @size-8;
+      }
+    }
+  }
+}
+
+.StatsRow {
+  .SimpleBorder;
+
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  height: @size-86;
+
+  > li {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex: 1;
+    grid-gap: @size-8;
+
+    &:not(:last-of-type) {
+      border-right: @size-1 solid var(--simple-border);
+    }
+
+    > span:first-of-type {
+      .text-16;
+
+      color: var(--simple-secondary-text);
+    }
+
+    > span:last-of-type {
+      .text-20-semi-bold;
+
+      color: var(--simple-primary-text);
+    }
+  }
+}
+
+.Details {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  > h4 {
+    .text-20-bold;
+
+    color: var(--simple-primary-text);
+    line-height: @size-24;
+    margin: 0 0 @size-24;
+  }
+
+  > h5 {
+    .text-14-bold;
+
+    line-height: @size-20;
+    margin: 0 0 @size-12;
+  }
+
+  > p {
+    .text-14;
+
+    color: var(--simple-primary-text);
+    line-height: @size-22;
+    flex: 1;
+    margin: 0 0 @size-12;
+  }
+
+  > button {
+    .RoundedButton;
+    .text-16-bold;
+
+    background: none;
+    border: none;
+    line-height: 140%;
+    padding: 0;
+    text-decoration: underline;
+    color: var(--simple-primary-text);
+
+    &:hover {
+      border: none;
+    }
+  }
+}
+
+.isClosed {
+  > p:not(:first-of-type) {
+    display: none;
+  }
+}
+
+.TransactionsTable {
+  > span {
+    .TableTitle;
+
+    color: var(--simple-primary-text);
+    margin-bottom: @size-24;
+    display: flex;
+    margin-top: @size-16;
+  }
+}
+
+.MobileLiquidSection {
+  display: none;
+
+  > button {
+    width: 100%;
+  }
+}
+
+@media @breakpoint-mobile-tiny {
+  .MarketView {
+    grid-template-columns: 1fr;
+    padding-bottom: @size-72;
+
+    > section {
+      &:first-of-type > div[class*='Outcomes'] {
+        display: grid;
+      }
+
+      &:last-of-type:not(:first-of-type) {
+        > button {
+          display: none;
+        }
+
+        > div {
+          height: 0;
+          top: 100%;
+          overflow: hidden;
+          transition: top 200ms ease-in-out, height 200ms ease-in-out;
+        }
+      }
+    }
+
+    > section:first-of-type {
+      > button {
+        display: flex;
+        position: fixed;
+        bottom: @size-16;
+        width: calc(100% - @size-32);
+      }
+    }
+  }
+
+  .MobileLiquidSection {
+    display: block;
+  }
+}
+
+.MarketView > section.ShowTradingForm:last-of-type:not(:first-of-type) {
+  > div {
+    height: 100vh;
+    overflow: auto;
+    top: 0;
+  }
+
+  @media @breakpoint-tiny {
+    > div {
+      top: 0;
+    }
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .MarketView {
+    padding: @size-24 @size-16 @size-72;
+    position: relative;
+
+    > section:first-of-type {
+      background-color: var(--light-background-color);
+      padding: 0;
+      max-width: unset;
+      grid-gap: unset;
+
+      > div,
+      > h1,
+      > ul,
+      > span,
+      > article,
+      > section {
+        margin-bottom: @size-24;
+      }
+
+      > section[class*='SimpleChartSection'] {
+        margin-bottom: @size-16;
+      }
+    }
+
+    > section:nth-of-type(2) {
+      padding: 0;
+    }
+  }
+
+  .TransactionsTable {
+    > span {
+      margin-top: 0;
+    }
+  }
+
+  .StatsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    height: unset;
+    margin-bottom: @size-24;
+
+    > li {
+      padding: @size-12;
+      height: unset;
+      grid-gap: @size-4;
+
+      > span:first-of-type {
+        .text-12;
+      }
+
+      > span:last-of-type {
+        .text-16-semi-bold;
+      }
+
+      &:last-of-type {
+        grid-column: 1 / span 3;
+        border-top: @size-1 solid var(--simple-border);
+      }
+    }
+  }
+}
