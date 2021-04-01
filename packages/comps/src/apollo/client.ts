@@ -45,7 +45,7 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
-export async function getMarketsData(library: Web3Provider, updateHeartbeat: Function) {
+export async function getMarketsData(library: Web3Provider, account: string, updateHeartbeat: Function) {
   const cashes = getCashesInfo();
   let markets = {};
   let past = {}
@@ -92,7 +92,7 @@ export async function getMarketsData(library: Web3Provider, updateHeartbeat: Fun
   //const library = new ethers.providers.JsonRpcProvider(url);
 
   // call to get markets
-  markets = getMarketInfos(library, cashes)
+  markets = getMarketInfos(library, account, cashes)
 
 
   // todo: version 0 hardcoding

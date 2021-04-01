@@ -23,6 +23,9 @@ export const GraphDataProvider = ({ children, client = GraphClient.client }) => 
   const state = useGraphData();
   const { loginAccount } = useUserStore();
   const library = loginAccount?.library ? loginAccount.library : null;
+  const { account } = useUserStore();
+
+  console.log('loginAccount', loginAccount)
   const {
     ammExchanges,
     cashes,
@@ -43,23 +46,27 @@ export const GraphDataProvider = ({ children, client = GraphClient.client }) => 
   useEffect(() => {
     let isMounted = true;
     // get data immediately, then setup interval
-    getMarketsData(library, async (graphData, block, errors) => {
-      isMounted && !!errors
-        ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
-        : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
-    });
-    const intervalId = setInterval(() => {
-      getMarketsData(library, async (graphData, block, errors) => {
+    if (library && account) {
+      getMarketsData(library, account, async (graphData, block, errors) => {
         isMounted && !!errors
           ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
           : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
-      });
+      });  
+    }
+    const intervalId = setInterval(() => {
+      if (library && account) {
+        getMarketsData(library, account, async (graphData, block, errors) => {
+          isMounted && !!errors
+            ? updateGraphHeartbeat({ ammExchanges, cashes, markets }, blocknumber, errors)
+            : updateGraphHeartbeat(await processGraphMarkets(graphData, library), block, errors);
+        });
+      }
     }, NETWORK_BLOCK_REFRESH_TIME[PARA_CONFIG.networkId] || NETWORK_BLOCK_REFRESH_TIME[1]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [library]);
+  }, [library, account]);
 
   return (
     <ApolloProvider client={client}>

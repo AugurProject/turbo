@@ -20,7 +20,7 @@ import {
   LiquidityBreakdown,
   AmmOutcome,
 } from "./types";
-import ethers from "ethers";
+import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
@@ -1278,7 +1278,6 @@ const getUserTrades = (
 };
 
 export const isAddress = (value) => {
-  console.log('isAddress', value, ethers.utils.getAddress(value.toLowerCase()))
   try {
     return ethers.utils.getAddress(value.toLowerCase());
   } catch {
@@ -1339,10 +1338,12 @@ export const getERC1155ApprovedForAll = async (
 
 export const getMarketInfos = (
   provider: Web3Provider,
+  account: string,
   cashes: Cashes
 ): MarketInfos => {
   const { hatchery } = PARA_CONFIG;
-  const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, null);
+  console.log('account', account)
+  const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = hatcheryContract.getTurboLength();
   console.log('numMarkets', numMarkets);
 
