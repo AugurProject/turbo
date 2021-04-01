@@ -124,7 +124,7 @@ export const MOCK_APP_STATUS_STATE = {
 };
 
 export const STUBBED_DATA_ACTIONS = {
-  updateGraphHeartbeat: (processed, blocknumber, errors) => {},
+  updateDataHeartbeat: (processed, blocknumber, errors) => {},
 };
 
 export const DEFAULT_DATA_STATE: GraphDataState = {

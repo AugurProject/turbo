@@ -26,9 +26,10 @@ export function DataReducer(state, action) {
 }
 
 export const useData = (cashes, defaultState = DEFAULT_DATA_STATE) => {
-  const stateCashes = cashes.map((cash) => {
-    return { [cash.address]: { ...cash } };
-  });
+  const stateCashes = cashes.reduce((acc, cash) => {
+    acc[cash.address] = cash;
+    return acc;
+  }, {});
 
   const [state, pureDispatch] = useReducer(DataReducer, { ...defaultState, [CASHES]: stateCashes });
   const dispatch = dispatchMiddleware(pureDispatch);

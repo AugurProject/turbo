@@ -7,7 +7,7 @@ import { MarketInfo } from '../types';
 import { TopBanner } from '../common/top-banner';
 import {
   useAppStatusStore,
-  useGraphDataStore,
+  useDataStore,
   useScrollToTopOnMount,
   GraphClient,
   SEO,
@@ -173,8 +173,8 @@ const MarketsView = () => {
     ammExchanges,
     cashes,
     markets,
-    actions: { updateGraphHeartbeat },
-  } = useGraphDataStore();
+    actions: { updateDataHeartbeat },
+  } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -201,7 +201,7 @@ const MarketsView = () => {
         showInvalidMarkets,
       },
       (err) =>
-        updateGraphHeartbeat(
+      updateDataHeartbeat(
           { ammExchanges, cashes, markets },
           blocknumber,
           err

@@ -4,7 +4,6 @@ import { useData } from "./data-hooks";
 import { useUserStore } from "./user";
 import { getMarketInfos } from '../utils/contract-calls';
 
-
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
   actions: STUBBED_DATA_ACTIONS,
@@ -20,7 +19,13 @@ export const DataProvider = ({ children }) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account, loginAccount } = useUserStore();
-  const provider = loginAccount?.library || null;
+  const provider = loginAccount?.library ? loginAccount.library : null;
+  const {
+    ammExchanges,
+    cashes,
+    blocknumber,
+    actions: { updateDataHeartbeat },
+  } = state;
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
     DataStore.actionsSet = true;
@@ -31,24 +36,26 @@ export const DataProvider = ({ children }) => {
 
   useEffect(() => {
     let isMounted = true;
-    if (!!account && provider) {
-      // get data immediately, then setup interval
-      const markets = getMarketInfos(provider, state.markets, account);
-      const { cashes, ammExchanges, blocknumber, actions: { updateDataHeartbeat } } = state;
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
-    }
-    const intervalId = setInterval(() => {
-      if (!!account && provider) {
-        const markets = getMarketInfos(provider, state.markets, account);
-        const { cashes, ammExchanges, blocknumber, actions: { updateDataHeartbeat } } = state;
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+    const getMarkets = async () => {
+      if (provider && account) {
+        return getMarketInfos(provider, state.markets, account);
       }
+      return {};
+    };
+    getMarkets().then((markets) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+    })
+    
+    const intervalId = setInterval(() => {
+      getMarkets().then((markets) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+      })
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [account, provider]);
+  }, [provider, account]);
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 };
