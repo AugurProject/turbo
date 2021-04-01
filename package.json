@@ -10,8 +10,8 @@
     "rebuild": "yarn clean && yarn && yarn build",
     "test": "yarn smart test",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "format": "prettier -c '**/**.ts'",
-    "format:write": "prettier --write '**/**.ts'",
+    "format": "prettier -c '**/**.ts' '**/contracts/**/*.sol'",
+    "format:write": "prettier --write '**/**.ts' '**/contracts/**/*.sol'",
     "smart": "yarn workspace @augurproject/smart",
     "comps": "yarn workspace @augurproject/comps"
   },

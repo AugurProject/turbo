@@ -3,7 +3,6 @@ pragma solidity 0.7.6;
 
 import "./IOwnable.sol";
 
-
 /**
  * @title Ownable
  * @dev The Ownable contract has an owner address, and provides basic authorization control
@@ -28,7 +27,7 @@ abstract contract Ownable is IOwnable {
         _;
     }
 
-    function getOwner() override public view returns (address) {
+    function getOwner() public view override returns (address) {
         return owner;
     }
 
@@ -36,7 +35,7 @@ abstract contract Ownable is IOwnable {
      * @dev Allows the current owner to transfer control of the contract to a newOwner.
      * @param _newOwner The address to transfer ownership to.
      */
-    function transferOwnership(address _newOwner) override public onlyOwner returns (bool) {
+    function transferOwnership(address _newOwner) public override onlyOwner returns (bool) {
         require(_newOwner != address(0));
         onTransferOwnership(owner, _newOwner);
         owner = _newOwner;
@@ -44,5 +43,5 @@ abstract contract Ownable is IOwnable {
     }
 
     // Subclasses of this token may want to send additional logs through the centralized Augur log emitter contract
-    function onTransferOwnership(address, address) virtual internal;
+    function onTransferOwnership(address, address) internal virtual;
 }

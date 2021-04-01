@@ -7,11 +7,10 @@ import "../libraries/IERC20.sol";
 import "./IFeePot.sol";
 import "../libraries/IERC20DynamicSymbol.sol";
 
-
 contract FeePot is VariableSupplyToken, IFeePot {
     using SafeMathUint256 for uint256;
 
-    uint256 constant internal magnitude = 2**128;
+    uint256 internal constant magnitude = 2**128;
 
     IERC20 public override collateral;
     IERC20DynamicSymbol public override reputationToken;
@@ -34,7 +33,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return string(abi.encodePacked("S_", reputationToken.symbol()));
     }
 
-    function depositFees(uint256 _amount) override public returns (bool) {
+    function depositFees(uint256 _amount) public override returns (bool) {
         collateral.transferFrom(msg.sender, address(this), _amount);
         uint256 _totalSupply = _totalSupply; // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
         if (_totalSupply == 0) {
@@ -49,17 +48,21 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function withdrawableFeesOf(address _owner) override public view returns(uint256) {
+    function withdrawableFeesOf(address _owner) public view override returns (uint256) {
         return earnedFeesOf(_owner).add(storedFees[_owner]);
     }
 
-    function earnedFeesOf(address _owner) public view returns(uint256) {
+    function earnedFeesOf(address _owner) public view returns (uint256) {
         uint256 _ownerBalance = balanceOf(_owner);
         uint256 _magnifiedFees = magnifiedFeesPerShare.mul(_ownerBalance);
         return _magnifiedFees.sub(magnifiedFeesCorrections[_owner]) / magnitude;
     }
 
-    function _transfer(address _from, address _to, uint256 _amount) override internal {
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal override {
         storedFees[_from] = storedFees[_from].add(earnedFeesOf(_from));
         super._transfer(_from, _to, _amount);
 
@@ -70,7 +73,9 @@ contract FeePot is VariableSupplyToken, IFeePot {
     function stake(uint256 _amount) external returns (bool) {
         reputationToken.transferFrom(msg.sender, address(this), _amount);
         _mint(msg.sender, _amount);
-        magnifiedFeesCorrections[msg.sender] = magnifiedFeesCorrections[msg.sender].add(magnifiedFeesPerShare.mul(_amount));
+        magnifiedFeesCorrections[msg.sender] = magnifiedFeesCorrections[msg.sender].add(
+            magnifiedFeesPerShare.mul(_amount)
+        );
         return true;
     }
 
@@ -82,9 +87,9 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function redeem() override public returns (bool) {
+    function redeem() public override returns (bool) {
         redeemInternal(msg.sender);
-        magnifiedFeesCorrections[msg.sender] =  magnifiedFeesPerShare.mul(balanceOf(msg.sender));
+        magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare.mul(balanceOf(msg.sender));
         return true;
     }
 
@@ -96,5 +101,9 @@ contract FeePot is VariableSupplyToken, IFeePot {
         }
     }
 
-    function onTokenTransfer(address _from, address _to, uint256 _value) override internal {}
+    function onTokenTransfer(
+        address _from,
+        address _to,
+        uint256 _value
+    ) internal override {}
 }
