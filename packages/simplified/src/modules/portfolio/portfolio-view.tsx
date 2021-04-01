@@ -23,7 +23,7 @@ const { formatCash } = Formatter;
 const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
 const {
   Hooks: {
-    useGraphDataStore,
+    useDataStore,
     useAppStatusStore,
     useScrollToTopOnMount,
     useCanExitCashPosition,
@@ -114,7 +114,7 @@ export const ClaimWinningsSection = () => {
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
-  const { cashes } = useGraphDataStore();
+  const { cashes } = useDataStore();
   const claimableMarkets = marketShares
     ? keyedObjToArray(marketShares).filter((m) => !!m?.claimableWinnings)
     : [];

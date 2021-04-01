@@ -17,7 +17,7 @@ import { MarketInfo } from '../types';
 import {
   Constants,
   useAppStatusStore,
-  useGraphDataStore,
+  useDataStore,
   useScrollToTopOnMount,
   Stores,
   Utils,
@@ -153,7 +153,7 @@ const MarketView = ({ defaultMarket = null }) => {
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { markets } = useGraphDataStore();
+  const { markets } = useDataStore();
 
   useScrollToTopOnMount();
   // @ts-ignore

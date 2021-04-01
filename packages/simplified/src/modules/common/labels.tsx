@@ -6,7 +6,7 @@ import { MarketInfo } from '../types';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
   useAppStatusStore,
-  useGraphDataStore,
+  useDataStore,
   useUserStore,
   Icons,
   Utils,
@@ -146,7 +146,7 @@ export const AddCurrencyLiquidity = ({
 };
 
 export const NetworkMismatchBanner = () => {
-  const { errors } = useGraphDataStore();
+  const { errors } = useDataStore();
   const { loginAccount } = useUserStore();
   const { error } = useWeb3React();
   const { networkId } = PARA_CONFIG;

@@ -11,7 +11,7 @@ import {
   ContractCalls,
   createBigNumber,
   useAppStatusStore,
-  useGraphDataStore,
+  useDataStore,
   useApprovalStatus,
   useUserStore,
   Formatter,
@@ -119,7 +119,7 @@ const ModalAddLiquidity = ({
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes } = useGraphDataStore();
+  const { cashes } = useDataStore();
   const history = useHistory();
 
   let amm = market?.amm;

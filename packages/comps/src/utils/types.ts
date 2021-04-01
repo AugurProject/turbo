@@ -847,6 +847,7 @@ export interface WindowApp extends Window {
     trading?: any;
     pendingOrders?: any;
   };
+  data?: any;
   appStatus?: any;
   graphData?: any;
   simplified?: any;

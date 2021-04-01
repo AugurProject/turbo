@@ -15,7 +15,7 @@ import {
 import {
   PARA_CONFIG,
   useAppStatusStore,
-  useGraphDataStore,
+  useDataStore,
   useUserStore,
   useCanExitCashPosition,
   Constants,
@@ -434,7 +434,7 @@ export const AllLiquidityTable = ({ page }) => {
   const {
     balances: { lpTokens },
   } = useUserStore();
-  const { ammExchanges } = useGraphDataStore();
+  const { ammExchanges } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
         ammExchange: ammExchanges[ammId],
@@ -530,7 +530,7 @@ export const PositionsLiquidityViewSwitcher = ({
   const {
     balances: { lpTokens, marketShares },
   } = useUserStore();
-  const { ammExchanges } = useGraphDataStore();
+  const { ammExchanges } = useDataStore();
 
   const ammId = ammExchange?.id;
   let userPositions = [];

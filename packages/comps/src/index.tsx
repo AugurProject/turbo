@@ -37,6 +37,10 @@ import _GraphDataStore, {
   useGraphDataStore,
   GraphDataStore,
 } from './stores/graph-data';
+import _DataStore, {
+  useDataStore,
+  DataStore,
+} from './stores/data';
 import _UserDataStore, { useUserStore, UserStore } from './stores/user';
 import _AppStatusStore, { useAppStatusStore, AppStatusStore } from './stores/app-status';
 import * as _StoreConstants from './stores/constants';
@@ -68,6 +72,7 @@ export const ContractCalls = _ContractCalls;
 export const GraphClient = _GraphClient;
 export const Stores = {
   AppStatus: _AppStatusStore,
+  Data: _DataStore,
   GraphData: _GraphDataStore,
   User: _UserDataStore,
   ConnectAccount: {
@@ -77,6 +82,7 @@ export const Stores = {
     useAppStatusStore,
     useUserStore,
     useGraphDataStore,
+    useDataStore,
     useCanExitCashPosition,
     useCanEnterCashPosition,
     useUserBalances,
@@ -159,7 +165,9 @@ export {
   useScrollToTopOnMount,
   useGraphDataStore,
   useApprovalStatus,
+  useDataStore,
   GraphDataStore,
+  DataStore,
   createBigNumber,
   Formatter,
   DateUtils,
