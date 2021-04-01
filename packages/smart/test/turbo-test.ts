@@ -177,12 +177,12 @@ describe("Turbo", () => {
     const prices = await ammFactory.prices(turboHatchery.address, turboId);
 
     const expectedPrices = [
-      '0x48811dc9f25e0a',
-      '0x036d51c056e026ca',
-      '0x038a4e2fc19db6f1',
-      '0x038a4e2fc19db6f1',
-      '0x03660d9e7c6e7230'
-    ]
+      "0x48811dc9f25e0a",
+      "0x036d51c056e026ca",
+      "0x038a4e2fc19db6f1",
+      "0x038a4e2fc19db6f1",
+      "0x03660d9e7c6e7230",
+    ];
     prices.forEach((price, index) => {
       expect(price.toHexString()).to.equal(expectedPrices[index]);
     });
