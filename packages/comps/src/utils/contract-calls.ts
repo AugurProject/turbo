@@ -1358,7 +1358,7 @@ export const getMarketInfos = (provider: Web3Provider, markets: MarketInfos, acc
   return {};
 };
 
-const retrieveMarkets = (indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
+const retrieveMarkets = async (indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
   const multicall = new Multicall({ ethersProvider: provider });
 
   const contractMarketsCall: ContractCallContext[] = indexes.map(
