@@ -155,4 +155,41 @@ contract AMMFactory is HasTurboStruct {
         ITurboShareToken[] memory _shareTokens = _hatchery.getShareTokens(_turboId); // solidity won't return complex types in structs
         return Turbo(turbo.creator, turbo.creatorFee, turbo.numTicks, turbo.arbiter, _shareTokens, turbo.creatorFees);
     }
+
+    // Returns an array of prices (in collateral) matching each outcome.
+    // The prices are out of 10**18, with some imprecision due to rounding.
+    // DO NOT USE FOR PRECISE VALUES. This is purely for imprecise usecases like UIs.
+    function prices(ITurboHatchery _hatchery, uint256 _turboId) external view returns (uint256[] memory) {
+        BPool _pool = pools[address(_hatchery)][_turboId];
+        Turbo memory _turbo = getTurbo(_hatchery, _turboId);
+        address _basisToken = address(_turbo.shareTokens[0]);
+        uint256 _total = 0;
+        uint256[] memory _prices = new uint256[](_turbo.shareTokens.length);
+        _prices[0] = 10**18;
+        for (uint256 i = 1; i < _turbo.shareTokens.length; i++) {
+            uint256 _price = _pool.getSpotPrice(_basisToken, address(_turbo.shareTokens[i]));
+            _prices[i] = _price;
+            _total += _price;
+        }
+        _total /= 10**18;
+        for (uint256 i = 0; i < _turbo.shareTokens.length; i++) {
+            _prices[i] = _prices[i] / _total;
+        }
+        return _prices;
+    }
+
+    function tokenRatios(ITurboHatchery _hatchery, uint256 _turboId) external view returns (uint256[] memory) {
+        BPool _pool = pools[address(_hatchery)][_turboId];
+        Turbo memory _turbo = getTurbo(_hatchery, _turboId);
+        address _basisToken = address(_turbo.shareTokens[0]);
+        uint256[] memory _prices = new uint256[](_turbo.shareTokens.length);
+        _prices[0] = 10**18;
+        for (uint256 i = 1; i < _turbo.shareTokens.length; i++) {
+            uint256 _price = _pool.getSpotPrice(_basisToken, address(_turbo.shareTokens[i]));
+            _prices[i] = _price;
+        }
+        return _prices;
+    }
 }
+
+import "hardhat/console.sol";
