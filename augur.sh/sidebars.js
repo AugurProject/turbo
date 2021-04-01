@@ -5,6 +5,7 @@ module.exports = {
       label: 'Augur Turbo Guides',
       items: [
         'getting-started',
+        'hardhat-tasks',
       ],
     },
   ],
