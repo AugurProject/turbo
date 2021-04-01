@@ -21,7 +21,7 @@ import {
   TurboShareTokenFactory__factory,
 } from "../typechain";
 import { BigNumber, BytesLike } from "ethers";
-import { DEAD_ADDRESS, MarketTypes } from "../src/util";
+import { DEAD_ADDRESS, MarketTypes } from "../src";
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
@@ -171,6 +171,21 @@ describe("Turbo", () => {
     expect(await all.balanceOf(signer.address)).to.equal(91); // minted 100 sets, burned 9
     await ammFactory.buy(turboHatchery.address, turboId, outcome, collateralIn, 0);
     expect(await all.balanceOf(signer.address)).to.equal(8307054961011936); // hardcoded from observation
+  });
+
+  it("can see the outcome prices in the AMM", async () => {
+    const prices = await ammFactory.prices(turboHatchery.address, turboId);
+
+    const expectedPrices = [
+      '0x48811dc9f25e0a',
+      '0x036d51c056e026ca',
+      '0x038a4e2fc19db6f1',
+      '0x038a4e2fc19db6f1',
+      '0x03660d9e7c6e7230'
+    ]
+    prices.forEach((price, index) => {
+      expect(price.toHexString()).to.equal(expectedPrices[index]);
+    });
   });
 
   it("can claim winnings", async () => {
