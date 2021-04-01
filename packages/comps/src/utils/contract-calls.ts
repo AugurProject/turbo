@@ -1344,12 +1344,21 @@ export const getMarketInfos = (provider: Web3Provider, markets: MarketInfos, acc
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = hatcheryContract.getTurboLength();
   console.log("numMarkets", numMarkets);
-
+  if (numMarkets < currentNumMarkets) {
+    let indexes = [];
+    for(let i = currentNumMarkets; i < numMarkets; i++) {
+      indexes.push(i);
+    }
+    const newMarkets = await retrieveMarkets(indexes, arbiter, provider);
+    if (newMarkets && newMarkets.length > 0) {
+      console.log('newMarkets', newMarkets)
+    }
+  }
 
   return {};
 };
 
-const retrieveMarkets(indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
+const retrieveMarkets = (indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
   const multicall = new Multicall({ ethersProvider: provider });
 
   const contractMarketsCall: ContractCallContext[] = indexes.map(
@@ -1372,5 +1381,15 @@ const retrieveMarkets(indexes: number[], arbiterAddress: string, provider: Web3P
       },
     ]
   );
+  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const marketData = marketsResult.results[key].callsReturnContext[0].returnValues as ethers.utils.Result;
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
 
+    console.log('marketData', marketData);
+    console.log('context', context);
+  }
+
+  return []
 }
