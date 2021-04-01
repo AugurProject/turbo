@@ -123,6 +123,30 @@ export const MOCK_APP_STATUS_STATE = {
   ...DEFAULT_APP_STATUS_STATE,
 };
 
+export const STUBBED_DATA_ACTIONS = {
+  updateGraphHeartbeat: (processed, blocknumber, errors) => {},
+};
+
+export const DEFAULT_DATA_STATE: GraphDataState = {
+  ammExchanges: {},
+  blocknumber: null,
+  cashes: {},
+  errors: null,
+  markets: {},
+};
+
+export const DATA_KEYS = {
+  AMM_EXCHANGES: "ammExchanges",
+  BLOCKNUMBER: "blocknumber",
+  CASHES: "cashes",
+  ERRORS: "errors",
+  MARKETS: "markets",
+};
+
+export const DATA_ACTIONS = {
+  UPDATE_DATA_HEARTBEAT: "UPDATE_DATA_HEARTBEAT",
+};
+
 export const MAINNET: string = "1";
 export const KOVAN: string = "42";
 export const NETWORK_NAMES = {

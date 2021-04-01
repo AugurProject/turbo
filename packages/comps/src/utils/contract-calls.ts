@@ -1336,7 +1336,7 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-export const getMarketInfos = (provider: Web3Provider, account: string, cashes: Cashes): MarketInfos => {
+export const getMarketInfos = (provider: Web3Provider, markets: any, account: string): MarketInfos => {
   const { hatchery } = PARA_CONFIG;
   console.log("account", account);
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
