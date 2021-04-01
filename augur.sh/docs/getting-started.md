@@ -3,26 +3,61 @@ title: Getting Started
 slug: /
 ---
 
-## Step 1: Generate a new Docusaurus site
+# How To Use
 
-If you haven't already, generate a new Docusaurus site using the classic template:
-
-```shell
-npx @docusaurus/init@latest init my-website classic
-```
-
-## Step 2: Start your Docusaurus site
-
-Run the development server in the newly created `my-website` folder:
+First get dependencies and build everything.
+(Everything. Contracts, generated files, then finally the typescript itself.)
 
 ```shell
-cd my-website
-
-npx docusaurus start
+yarn && yarn build
 ```
 
-Open `docs/getting-started.md` and edit some lines. The site reloads automatically and display your changes.
+Now if you want to, run all the tests:
 
-## That's it!
+```shell
+yarn test
+```
 
-Congratulations! You've successfully run and modified your Docusaurus project.
+Want to test deploying?
+First start a local ethereum node:
+
+```shell
+yarn smart ethereumNode
+```
+
+Then in another terminal:
+
+```shell
+yarn smart contracts:deploy --network localhost
+```
+
+Want to deploy to kovan?
+
+```shell
+PRIVATE_KEY=$yourPrivateKeyHere yarn smart contracts:deploy --network kovan
+```
+
+Oh, now you want to verify your contracts on etherscan?
+You will need an etherscan api key, so get one.
+Then run this bad boy:
+
+```shell
+ETHERSCAN_API_KEY=$yourEtherscanAPIKeyHere yarn smart contracts:verify --network kovan $contractAddress $firstConstructorArg $secondConstructorArg
+```
+
+(This process will be automated further, to apply to most or all of the deployed contracts without needing to know their constructor arguments.)
+
+# Want To Write Code
+
+This repo uses eslint with a few options and prettier with 120 columns.
+Before committing any code, please run prettier:
+
+```shell
+yarn format:write
+```
+
+Then run the linter:
+
+```shell
+yarn lint
+```
