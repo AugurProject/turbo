@@ -21,10 +21,9 @@ export const GraphDataStore = {
 // default to GraphClient.client if no client is passed...
 export const GraphDataProvider = ({ children, client = GraphClient.client }) => {
   const state = useGraphData();
-  const { loginAccount } = useUserStore();
+  const { loginAccount, account } = useUserStore();
   const library = loginAccount?.library ? loginAccount.library : null;
-  const { account } = useUserStore();
-
+  
   console.log('loginAccount', loginAccount)
   const {
     ammExchanges,
