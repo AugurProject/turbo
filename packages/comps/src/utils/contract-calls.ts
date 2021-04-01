@@ -1348,5 +1348,5 @@ export const getMarketInfos = (
   console.log('numMarkets', numMarkets);
 
 
-
+  return {};
 }

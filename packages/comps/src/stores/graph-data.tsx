@@ -23,8 +23,7 @@ export const GraphDataProvider = ({ children, client = GraphClient.client }) => 
   const state = useGraphData();
   const { loginAccount, account } = useUserStore();
   const library = loginAccount?.library ? loginAccount.library : null;
-  
-  console.log('loginAccount', loginAccount)
+
   const {
     ammExchanges,
     cashes,
