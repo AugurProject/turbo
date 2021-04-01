@@ -3,10 +3,10 @@ import { addresses } from "@augurproject/smart";
 
 export const PARA_CONFIG: ParaDeploys =
   // @ts-ignore
-  ({
+  {
     networkId: "42",
-    ...addresses["42"]
-  }) as ParaDeploys;
+    ...addresses["42"],
+  } as ParaDeploys;
 
 export const STUBBED_GRAPH_DATA_ACTIONS = {
   updateGraphHeartbeat: (processed, blocknumber, errors) => {},

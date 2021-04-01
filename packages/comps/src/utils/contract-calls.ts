@@ -1336,17 +1336,12 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-export const getMarketInfos = (
-  provider: Web3Provider,
-  account: string,
-  cashes: Cashes
-): MarketInfos => {
+export const getMarketInfos = (provider: Web3Provider, account: string, cashes: Cashes): MarketInfos => {
   const { hatchery } = PARA_CONFIG;
-  console.log('account', account)
+  console.log("account", account);
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = hatcheryContract.getTurboLength();
-  console.log('numMarkets', numMarkets);
-
+  console.log("numMarkets", numMarkets);
 
   return {};
-}
+};

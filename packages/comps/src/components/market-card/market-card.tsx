@@ -4,7 +4,6 @@ import classNames from "classnames";
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
 import { formatCashPrice, formatDai, formatPercent } from "../../utils/format-number";
-import { getMarketsData } from "../../apollo/client";
 import {
   CategoryIcon,
   CategoryLabel,

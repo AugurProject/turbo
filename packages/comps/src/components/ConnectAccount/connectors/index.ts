@@ -10,16 +10,16 @@ import { ChainId } from "@uniswap/sdk";
 import { PARA_CONFIG } from "../../../stores/constants";
 
 const networkId = PARA_CONFIG.networkId;
-const PORTIS_ID = "ede221f9-710f-44c9-a429-ed28bbb54376";
-const FORTMATIC_API_KEY = "pk_live_8001A50CCA35D8CB";
-const FORTMATIC_API_TEST_KEY = "pk_test_5185BE42CA372148";
-let FORMATIC_KEY = FORTMATIC_API_TEST_KEY;
+// const PORTIS_ID = "ede221f9-710f-44c9-a429-ed28bbb54376";
+// const FORTMATIC_API_KEY = "pk_live_8001A50CCA35D8CB";
+// const FORTMATIC_API_TEST_KEY = "pk_test_5185BE42CA372148";
+// let FORMATIC_KEY = FORTMATIC_API_TEST_KEY;
 
 export const NETWORK_CHAIN_ID: number = networkId ? parseInt(networkId) : ChainId.KOVAN;
 
-if (NETWORK_CHAIN_ID === ChainId.MAINNET) {
-  FORMATIC_KEY = FORTMATIC_API_KEY;
-}
+// if (NETWORK_CHAIN_ID === ChainId.MAINNET) {
+//   FORMATIC_KEY = FORTMATIC_API_KEY;
+// }
 
 const NETWORK_URL =
   NETWORK_CHAIN_ID === ChainId.MAINNET
