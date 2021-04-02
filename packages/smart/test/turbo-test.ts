@@ -189,8 +189,14 @@ describe("Turbo", () => {
   });
 
   it("can read turbo from arbiter", async () => {
-    const stuff = await arbiter.callStatic.getTurbo(turboId);
-    expect(stuff.outcomeNames.length).to.equal(4);
+    const turbo = await arbiter.callStatic.getTurbo(turboId);
+    expect(turbo.outcomeNames.length).to.equal(4); // excludes invalid
+  });
+
+  it("can read turbo balances", async () => {
+    const balances = await ammFactory.getPoolBalances(turboHatchery.address, turboId);
+    console.log(balances);
+    expect(balances.length).to.equal(5); // includes invalid
   });
 
   it("can claim winnings", async () => {
