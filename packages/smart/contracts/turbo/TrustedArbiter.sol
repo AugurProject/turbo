@@ -94,12 +94,8 @@ contract TrustedArbiter is IArbiter, Ownable {
 
     function getTurbo(uint256 _id) external view returns (
         TurboData memory _data
-//        TurboData memory _data, bytes32[] memory _outcomeNames, string[] memory _outcomeSymbols, int256[] memory _prices
     ) {
         _data = turboData[_id];
-//        _outcomeNames = _data.outcomeNames;
-//        _outcomeSymbols = _data.outcomeSymbols;
-//        _prices = _data.prices;
     }
 
     // turbo id => payout
