@@ -20,22 +20,26 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TrustedArbiter, Hatchery } = contracts;
   const index = 42; // arbitrary uint256 for easy log filtering
-  const creatorFee = 1;
+  const creatorFee = "1";
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
-  const extraInfo =
-    "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '['example', 'market', 'category']'}";
+  const extraInfoObj = {
+    description: 'Here is a Categorical Market',
+    details: 'market details',
+    categories: ['example', 'market', 'category']
+  };
+  
   const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
 
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(
     startTime,
     duration,
-    extraInfo,
+    JSON.stringify(extraInfoObj),
     prices,
     marketType
   );
-  console.log('create')
+
   const response = await Hatchery.createTurbo(
     index,
     creatorFee,
@@ -45,11 +49,8 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     TrustedArbiter.address,
     arbiterConfiguration
   ).then((tx: ContractTransaction) => {
-      console.log('waiting')
     return tx.wait(2);
   });
-
-  console.log('did create')
 
   if (!response) return;
   if (!response.events) return;

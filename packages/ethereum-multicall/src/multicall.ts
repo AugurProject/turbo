@@ -146,7 +146,6 @@ export class Multicall {
             outputTypes as any,
             methodContext.returnData
           );
-
           returnObjectResult.callsReturnContext.push(
             Utils.deepClone<CallReturnContext>({
               // ethers put the result of the decode in an array
