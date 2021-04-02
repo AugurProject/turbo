@@ -229,7 +229,7 @@ contract AMMFactory is HasTurboStruct {
         BPool _pool = pools[address(_hatchery)][_turboId];
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _balances = new uint256[](_tokens.length);
-        for (uint i = 0; i < _tokens.length; i++) {
+        for (uint256 i = 0; i < _tokens.length; i++) {
             _balances[i] = _pool.getBalance(_tokens[i]);
         }
         return _balances;
