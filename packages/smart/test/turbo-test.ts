@@ -188,6 +188,17 @@ describe("Turbo", () => {
     });
   });
 
+  it("can read turbo from arbiter", async () => {
+    const turbo = await arbiter.callStatic.getTurbo(turboId);
+    expect(turbo.outcomeNames.length).to.equal(4); // excludes invalid
+  });
+
+  it("can read turbo balances", async () => {
+    const balances = await ammFactory.getPoolBalances(turboHatchery.address, turboId);
+    console.log(balances);
+    expect(balances.length).to.equal(5); // includes invalid
+  });
+
   it("can claim winnings", async () => {
     await arbiter.setTurboResolution(turboId, [0, numTicks, 0, 0, 0]);
     // can burn non-winning shares

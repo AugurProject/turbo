@@ -12,3 +12,5 @@ coverage
 .github
 #ignore generated type files
 *.d.ts
+# ignore docs
+augur.sh

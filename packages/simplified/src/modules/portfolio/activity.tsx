@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import Styles from './activity.styles.less';
-import { useAppStatusStore, useGraphDataStore, useUserStore, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
+import { useAppStatusStore, useDataStore, useUserStore, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
 import { ActivityItem } from '../types';
 const { Pagination, sliceByPage } = PaginationComps;
 const { ReceiptLink } = Links;
@@ -25,7 +25,7 @@ const ACTIVITY_PAGE_LIMIT = 5;
 export const Activity = () => {
   const { isLogged } = useAppStatusStore();
   const { account } = useUserStore();
-  const { ammExchanges, markets } = useGraphDataStore();
+  const { ammExchanges, markets } = useDataStore();
   const activity = useMemo(
     () => shapeUserActvity(account, markets, ammExchanges),
     [ammExchanges, account, markets]
