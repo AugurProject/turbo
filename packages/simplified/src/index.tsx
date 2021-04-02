@@ -4,6 +4,7 @@ import App from './modules/App';
 import * as comps from '@augurproject/comps';
 const { windowRef } = comps;
 console.log(comps);
+// @ts-ignore
 windowRef.appStatus = {};
 windowRef.data = {};
 windowRef.user = {};
