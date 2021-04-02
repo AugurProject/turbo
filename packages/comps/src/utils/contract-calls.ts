@@ -630,7 +630,7 @@ export const getUserBalances = async (
   const ammAddresses: string[] = Object.keys(ammExchanges);
   const exchanges = Object.values(ammExchanges);
   // share tokens
-  const shareTokens: string[] = Object.keys(cashes).map((id) => cashes[id].shareToken);
+  const shareTokens: string[] = []; //Object.keys(cashes).map((id) => cashes[id].shareToken);
   // markets
   const marketIds: string[] = ammAddresses.reduce(
     (p, a) => (p.includes(ammExchanges[a].marketId) ? p : [...p, ammExchanges[a].marketId]),
@@ -1097,9 +1097,9 @@ const getInitPositionValues = (
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
-        .times(totalLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(totalLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1127,13 +1127,13 @@ const accumSharesPrice = (
       (p, t) =>
         isYesOutcome
           ? {
-              shares: p.shares.plus(new BN(t.yesShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-            }
+            shares: p.shares.plus(new BN(t.yesShares)),
+            cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
+          }
           : {
-              shares: p.shares.plus(new BN(t.noShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-            },
+            shares: p.shares.plus(new BN(t.noShares)),
+            cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
+          },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
@@ -1340,11 +1340,9 @@ export const getERC1155ApprovedForAll = async (
 export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfos, account: string): MarketInfos => {
   const { hatchery, arbiter } = PARA_CONFIG;
   const currentNumMarkets = Object.keys(markets).length;
-  console.log("account", account);
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
-  const numMarkets = hatcheryContract.getTurboLength();
-  console.log("numMarkets", numMarkets);
-  if (numMarkets < currentNumMarkets) {
+  const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
+  if (currentNumMarkets < numMarkets) {
     let indexes = [];
     for (let i = currentNumMarkets; i < numMarkets; i++) {
       indexes.push(i);
@@ -1360,8 +1358,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
 
 const retrieveMarkets = async (indexes: number[], arbiterAddress: string, provider: Web3Provider): Market[] => {
   const multicall = new Multicall({ ethersProvider: provider });
-
-  const contractMarketsCall: ContractCallContext[] = indexes.map((index) => [
+  const contractMarketsCall: ContractCallContext[] = indexes.map(index => (
     {
       reference: `${arbiterAddress}-${index}`,
       contractAddress: arbiterAddress,
@@ -1377,8 +1374,8 @@ const retrieveMarkets = async (indexes: number[], arbiterAddress: string, provid
           },
         },
       ],
-    },
-  ]);
+    })
+  );
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1391,3 +1388,8 @@ const retrieveMarkets = async (indexes: number[], arbiterAddress: string, provid
 
   return [];
 };
+
+export const DecodeMarket = (marketData: any[]) => {
+
+  console.log(turboData);
+}

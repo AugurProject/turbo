@@ -2,6 +2,7 @@ import { BigNumberish, BytesLike, ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
 import { MarketTypes } from "../src/util";
+import { makeSigner } from "./deploy";
 
 task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   console.log("creating canned markets");
@@ -10,7 +11,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   // get turboHatchery to create market on
   // create market
   //const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const [signer] = await ethers.getSigners();
+  const signer = await makeSigner(hre);
   const network = await ethers.provider.getNetwork();
   const outcomeSymbols = ["Invalid", "No", "yes"];
   const outcomeNames = outcomeSymbols.map(ethers.utils.formatBytes32String) as BytesLike[];
@@ -23,9 +24,10 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
   const extraInfo =
-    "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '[example, market, category]'}";
+    "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '['example', 'market', 'category']'}";
   const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
+
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(
     startTime,
     duration,
@@ -33,7 +35,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     prices,
     marketType
   );
-
+  console.log('create')
   const response = await Hatchery.createTurbo(
     index,
     creatorFee,
@@ -43,8 +45,11 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     TrustedArbiter.address,
     arbiterConfiguration
   ).then((tx: ContractTransaction) => {
-    return tx.wait();
+      console.log('waiting')
+    return tx.wait(2);
   });
+
+  console.log('did create')
 
   if (!response) return;
   if (!response.events) return;
