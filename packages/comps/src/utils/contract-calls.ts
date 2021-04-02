@@ -1098,9 +1098,9 @@ const getInitPositionValues = (
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
-      .times(totalLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(totalLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1128,13 +1128,13 @@ const accumSharesPrice = (
       (p, t) =>
         isYesOutcome
           ? {
-            shares: p.shares.plus(new BN(t.yesShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-          }
+              shares: p.shares.plus(new BN(t.yesShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
+            }
           : {
-            shares: p.shares.plus(new BN(t.noShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-          },
+              shares: p.shares.plus(new BN(t.noShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
+            },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
@@ -1357,29 +1357,36 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
   return {};
 };
 
-const retrieveMarkets = async (indexes: number[], arbiterAddress: string, hatcheryAddress: string, provider: Web3Provider): Market[] => {
+const retrieveMarkets = async (
+  indexes: number[],
+  arbiterAddress: string,
+  hatcheryAddress: string,
+  provider: Web3Provider
+): Market[] => {
   const multicall = new Multicall({ ethersProvider: provider });
-  const contractMarketsCall: ContractCallContext[] = indexes.reduce((p, index) => (
-    [...p, 
-    {
-      reference: `${arbiterAddress}-${index}`,
-      contractAddress: arbiterAddress,
-      abi: TrustedArbiterABI,
-      calls: [
-        {
-          reference: `${arbiterAddress}-${index}`,
-          methodName: "turboData",
-          methodParameters: [index],
-          context: {
-            index,
-            arbiterAddress,
+  const contractMarketsCall: ContractCallContext[] = indexes.reduce(
+    (p, index) => [
+      ...p,
+      {
+        reference: `${arbiterAddress}-${index}`,
+        contractAddress: arbiterAddress,
+        abi: TrustedArbiterABI,
+        calls: [
+          {
+            reference: `${arbiterAddress}-${index}`,
+            methodName: "turboData",
+            methodParameters: [index],
+            context: {
+              index,
+              arbiterAddress,
+            },
           },
-        },
-      ],
-    },
-  ]), []
+        ],
+      },
+    ],
+    []
   );
-  let markets = []
+  let markets = [];
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1387,36 +1394,36 @@ const retrieveMarkets = async (indexes: number[], arbiterAddress: string, hatche
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
 
     const market = decodeMarket(marketData);
-    market.marketId = `${context.arbiterAddress}-${context.index}`
+    market.marketId = `${context.arbiterAddress}-${context.index}`;
     if (market) markets.push(market);
   }
   return markets;
 };
 
 export const decodeMarket = (marketData: any) => {
-  let json = { categories: [], description: '', details: ''}
+  let json = { categories: [], description: "", details: "" };
   try {
     json = JSON.parse(marketData[2]);
     if (json.categories && Array.isArray(json.categories)) {
-      json.categories.map(c => c.toLowerCase())
+      json.categories.map((c) => c.toLowerCase());
     } else {
       json.categories = [];
     }
-  } catch(e) {
-    console.error('can not parse extra info');
+  } catch (e) {
+    console.error("can not parse extra info");
   }
 
   const turboData = {
-    endTime: String(marketData['endTime']),    
-    marketType: marketData['marketType'] || 1,
-    numTicks: String(marketData['numTicks']),
-    startTime: String(marketData['startTime']),
-    totalStake: String(marketData['totalStake']),
-    winningPayoutHash: String(marketData['winningPayoutHash']),
-    description: json['description'],
-    details: json['details'],
-    categories: json['categories'],
-    outcomes: []
-  }
+    endTime: String(marketData["endTime"]),
+    marketType: marketData["marketType"] || 1,
+    numTicks: String(marketData["numTicks"]),
+    startTime: String(marketData["startTime"]),
+    totalStake: String(marketData["totalStake"]),
+    winningPayoutHash: String(marketData["winningPayoutHash"]),
+    description: json["description"],
+    details: json["details"],
+    categories: json["categories"],
+    outcomes: [],
+  };
   return turboData;
-}
+};

@@ -19,7 +19,7 @@ import { mapOverObject, MarketTypes, sleep } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
 
 export class Deployer {
-  constructor(readonly signer: Signer) { }
+  constructor(readonly signer: Signer) {}
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
@@ -150,11 +150,10 @@ export interface Deploy {
 function buildTrustedArbiterConfiguration(
   specified: Partial<TrustedArbiterConfiguration> & { arbiter: string }
 ): TrustedArbiterConfiguration {
-
   const extraInfoObj = {
-    description: 'Initial Market Created',
-    details: 'market details',
-    categories: ['test', 'market', 'category']
+    description: "Initial Market Created",
+    details: "market details",
+    categories: ["test", "market", "category"],
   };
 
   return {
@@ -162,7 +161,7 @@ function buildTrustedArbiterConfiguration(
     outcomeSymbols: ["No Contest", "NO", "YES"],
     outcomeNames: ["No Contest", "NO", "YES"].map(utils.formatBytes32String),
     numTicks: 1000,
-    startTime: (Date.now() / 1000) + 60,
+    startTime: Date.now() / 1000 + 60,
     duration: 60 * 60 * 24,
     extraInfo: JSON.stringify(extraInfoObj),
     prices: [],

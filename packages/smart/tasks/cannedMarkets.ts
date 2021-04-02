@@ -24,11 +24,11 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
   const extraInfoObj = {
-    description: 'Here is a Categorical Market',
-    details: 'market details',
-    categories: ['example', 'market', 'category']
+    description: "Here is a Categorical Market",
+    details: "market details",
+    categories: ["example", "market", "category"],
   };
-  
+
   const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
 
