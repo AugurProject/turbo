@@ -2,6 +2,7 @@ import { BigNumberish, BytesLike, ContractTransaction } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
 import { MarketTypes } from "../src/util";
+import { makeSigner } from "./deploy";
 
 task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   console.log("creating canned markets");
@@ -10,7 +11,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   // get turboHatchery to create market on
   // create market
   //const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const [signer] = await ethers.getSigners();
+  const signer = await makeSigner(hre);
   const network = await ethers.provider.getNetwork();
   const outcomeSymbols = ["Invalid", "No", "yes"];
   const outcomeNames = outcomeSymbols.map(ethers.utils.formatBytes32String) as BytesLike[];
@@ -19,17 +20,22 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TrustedArbiter, Hatchery } = contracts;
   const index = 42; // arbitrary uint256 for easy log filtering
-  const creatorFee = 1;
+  const creatorFee = "1";
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
-  const extraInfo =
-    "{description: 'Here is a Categorical Market', longDescription: 'long description example', categories: '[example, market, category]'}";
+  const extraInfoObj = {
+    description: "Here is a Categorical Market",
+    details: "market details",
+    categories: ["example", "market", "category"],
+  };
+
   const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
+
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(
     startTime,
     duration,
-    extraInfo,
+    JSON.stringify(extraInfoObj),
     prices,
     marketType
   );
@@ -43,7 +49,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     TrustedArbiter.address,
     arbiterConfiguration
   ).then((tx: ContractTransaction) => {
-    return tx.wait();
+    return tx.wait(2);
   });
 
   if (!response) return;

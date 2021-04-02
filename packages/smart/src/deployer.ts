@@ -150,14 +150,20 @@ export interface Deploy {
 function buildTrustedArbiterConfiguration(
   specified: Partial<TrustedArbiterConfiguration> & { arbiter: string }
 ): TrustedArbiterConfiguration {
+  const extraInfoObj = {
+    description: "Initial Market Created",
+    details: "market details",
+    categories: ["test", "market", "category"],
+  };
+
   return {
     creatorFee: BigNumber.from(10).pow(16),
-    outcomeSymbols: ["NO", "YES"],
-    outcomeNames: ["NO", "YES"].map(utils.formatBytes32String),
+    outcomeSymbols: ["No Contest", "NO", "YES"],
+    outcomeNames: ["No Contest", "NO", "YES"].map(utils.formatBytes32String),
     numTicks: 1000,
-    startTime: Date.now() + 60,
+    startTime: Date.now() / 1000 + 60,
     duration: 60 * 60 * 24,
-    extraInfo: "",
+    extraInfo: JSON.stringify(extraInfoObj),
     prices: [],
     marketType: MarketTypes.CATEGORICAL,
     ...specified,
