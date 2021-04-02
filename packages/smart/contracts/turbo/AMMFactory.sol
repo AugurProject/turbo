@@ -224,6 +224,16 @@ contract AMMFactory is HasTurboStruct {
         }
         return _prices;
     }
+
+    function getPoolBalances(ITurboHatchery _hatchery, uint256 _turboId) external view returns (uint256[] memory) {
+        BPool _pool = pools[address(_hatchery)][_turboId];
+        address[] memory _tokens = _pool.getCurrentTokens();
+        uint256[] memory _balances = new uint256[](_tokens.length);
+        for (uint i = 0; i < _tokens.length; i++) {
+            _balances[i] = _pool.getBalance(_tokens[i]);
+        }
+        return _balances;
+    }
 }
 
 import "hardhat/console.sol";
