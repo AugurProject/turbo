@@ -69,6 +69,14 @@ contract TrustedArbiter is IArbiter, Ownable {
         turboData[_id].marketType = _config.marketType;
     }
 
+    function getEncodedTurboData(uint256 _turboId) external view returns (bytes memory) {
+        return abi.encode(turboData[_turboId]);
+    }
+
+    function decodeTurboData(bytes memory _turbo) external view returns (TurboData memory) {
+        return abi.decode(_turbo, (TurboData));
+    }
+
     function encodeConfiguration(
         uint256 _startTime,
         uint256 _duration,

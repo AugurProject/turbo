@@ -88,6 +88,13 @@ describe("Turbo", () => {
     [turboId] = log.args;
     expect(turboId).to.equal(0);
 
+    const data = await arbiter.getEncodedTurboData(turboId.toNumber());
+    const turboData = await arbiter.decodeTurboData(data);
+    console.log("turboData", turboData);
+
+    // Checking one random property should be sufficient.
+    expect(turboData[3]).to.equal(numTicks);
+
     const shareTokens = await turboHatchery.getShareTokens(turboId);
     [invalid, all, many, few, none] = await Promise.all(
       shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
