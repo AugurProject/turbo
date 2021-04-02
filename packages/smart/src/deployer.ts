@@ -161,7 +161,7 @@ function buildTrustedArbiterConfiguration(
     outcomeSymbols: ["No Contest", "NO", "YES"],
     outcomeNames: ["No Contest", "NO", "YES"].map(utils.formatBytes32String),
     numTicks: 1000,
-    startTime: Date.now() / 1000 + 60,
+    startTime: Math.floor(Date.now() / 1000) + 60,
     duration: 60 * 60 * 24,
     extraInfo: JSON.stringify(extraInfoObj),
     prices: [],
