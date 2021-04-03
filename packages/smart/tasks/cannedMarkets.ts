@@ -49,7 +49,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     TrustedArbiter.address,
     arbiterConfiguration
   ).then((tx: ContractTransaction) => {
-    return tx.wait(2);
+    return tx.wait();
   });
 
   if (!response) return;
