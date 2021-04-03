@@ -185,9 +185,10 @@ contract AMMFactory is HasTurboStruct {
     }
 
     function getTurbo(ITurboHatchery _hatchery, uint256 _turboId) private view returns (Turbo memory) {
-        Turbo memory turbo = _hatchery.turbos(_turboId);
+        Turbo memory _turbo = _hatchery.turbos(_turboId);
         ITurboShareToken[] memory _shareTokens = _hatchery.getShareTokens(_turboId); // solidity won't return complex types in structs
-        return Turbo(turbo.creator, turbo.creatorFee, turbo.numTicks, turbo.arbiter, _shareTokens, turbo.creatorFees);
+        return
+            Turbo(_turbo.creator, _turbo.creatorFee, _turbo.numTicks, _turbo.arbiter, _shareTokens, _turbo.creatorFees);
     }
 
     // Returns an array of prices (in collateral) matching each outcome.

@@ -1,25 +1,37 @@
-import { task } from "hardhat/config";
+import { extendConfig, HardhatUserConfig, task } from "hardhat/config";
 import { ethers } from "ethers";
 
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
 import path from "path";
 import "@nomiclabs/hardhat-etherscan";
 
-import { ContractDeployConfig, Deploy, Deployer, EthersFastSubmitWallet, isContractDeployTestConfig } from "../src";
-import "hardhat/types/config";
-import { HttpNetworkConfig, NetworkConfig } from "hardhat/src/types/config";
 import {
+  ContractDeployConfig,
+  Deploy,
+  Deployer,
+  EthersFastSubmitWallet,
+  isContractDeployTestConfig,
+  mapOverObject,
+} from "../src";
+import "hardhat/types/config";
+import {
+  HardhatConfig,
   HardhatNetworkAccountConfig,
   HardhatNetworkAccountsConfig,
   HardhatNetworkConfig,
   HardhatRuntimeEnvironment,
+  HttpNetworkUserConfig,
+  NetworkUserConfig,
+  HttpNetworkConfig,
+  NetworkConfig,
 } from "hardhat/types";
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   if (!hre.config.contractDeploy) throw Error(`When deploying you must specify deployConfig in the hardhat config`);
 
   const signer = await makeSigner(hre);
-  const deployer = new Deployer(signer);
+  const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
+  const deployer = new Deployer(signer, confirmations);
 
   let deploy: Deploy;
   const network = await hre.ethers.provider.getNetwork();
@@ -57,10 +69,34 @@ declare module "hardhat/types/config" {
   export interface HardhatConfig {
     contractDeploy?: ContractDeployConfig;
   }
+
+  export interface HttpNetworkUserConfig {
+    confirmations?: number; // how many confirmations to wait after issuing a transaction
+  }
+
+  export interface HttpNetworkConfig {
+    confirmations: number; // how many confirmations to wait after issuing a transaction
+  }
 }
 
-export function isHttpNetworkConfig(networkConfig: NetworkConfig): networkConfig is HttpNetworkConfig {
-  return (networkConfig as HttpNetworkConfig).url !== undefined;
+extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
+  if (!userConfig.networks) return;
+
+  mapOverObject(userConfig.networks, (name, networkConfig) => {
+    if (isHttpNetworkUserConfig(networkConfig)) {
+      (config.networks[name] as HttpNetworkConfig).confirmations =
+        networkConfig.confirmations === undefined ? 0 : networkConfig.confirmations;
+    }
+    return [name, networkConfig];
+  });
+});
+
+export function isHttpNetworkConfig(networkConfig?: NetworkConfig): networkConfig is HttpNetworkConfig {
+  return (networkConfig as HttpNetworkConfig)?.url !== undefined;
+}
+
+export function isHttpNetworkUserConfig(networkConfig?: NetworkUserConfig): networkConfig is HttpNetworkUserConfig {
+  return (networkConfig as HttpNetworkUserConfig)?.url !== undefined; // will always need a url anyway
 }
 
 export function isHardhatNetworkConfig(networkConfig: NetworkConfig): networkConfig is HardhatNetworkConfig {
