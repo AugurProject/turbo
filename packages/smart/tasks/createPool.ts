@@ -48,7 +48,6 @@ task("createPool", "Create a balancer pool for an AMM")
       initialLiquidity as BigNumberish,
       weights,
       confirmations
-
     );
     console.log(`Pool: ${pool.address}`);
   });
