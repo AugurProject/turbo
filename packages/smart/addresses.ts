@@ -42,16 +42,6 @@ export const addresses: AddressMapping = {
     ammFactory: "0x6531D31bf6DC6642D30759DAE5379850d316D29A",
     pool: "0xa64529f50205cECdFaB986852F066e21B8c15258",
   },
-  42: {
-    collateral: "0x8dC2ac107C096420a026A3ed32e5d60635623b0a",
-    reputationToken: "0xe65cD851357395a65D2f99cE49f492C5844e072C",
-    balancerFactory: "0xE05402D29ccd60f560389451ab33a717BE84846b",
-    hatcheryRegistry: "0xd51cca5Db2B5c56B613E3B1553B30048468c0FC4",
-    hatchery: "0x169e6528AACF8Fd1973095d4bfE40c78f0228C37",
-    arbiter: "0x643968b16b2b4BA428eB22d1c8b95498323e7eD1",
-    ammFactory: "0x0EB3a9E6eF4E6d93ce5F945080ac59146Fda6296",
-    pool: "0xe04830557765FDE5E173c61C0C6c43b8a24bfa4F",
-  },
   31337: {
     collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
@@ -61,5 +51,15 @@ export const addresses: AddressMapping = {
     arbiter: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
     ammFactory: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
     pool: "0x75537828f2ce51be7289709686A69CbFDbB714F1",
+  },
+  42: {
+    collateral: "0xc05865ed1fe3bafe417d47AD8597883411b4400a",
+    reputationToken: "0x31051c3BcDeF06f7199490d7a10eba4C717F7E58",
+    balancerFactory: "0x24aEF617ee197F0BDb882bd8494c5894f73131f7",
+    hatcheryRegistry: "0x66c25a7A850b7748123FC124c3b8a939fC7e7309",
+    hatchery: "0xEccC24FCd131488b86392fD1ce6514bB194E0188",
+    arbiter: "0xebb6779A8190Aa3266B4B24d79Cbe580EA9Fc379",
+    ammFactory: "0xdD6D2A7dC74a759e0a8d0B6092a7045b9bD3B428",
+    pool: "0xC0BffeEC963fA7d94F4ee99bf66E84143A96DFD6",
   },
 };
