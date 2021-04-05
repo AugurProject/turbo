@@ -8,9 +8,6 @@ import "./TurboShareToken.sol";
 import "./ITurboHatchery.sol";
 
 contract TurboShareTokenFactory is Initializable {
-    string public constant INVALID_SYMBOL = "INVALID";
-    bytes32 public constant INVALID_NAME = "INVALID SHARE";
-
     ITurboHatchery public hatchery;
 
     function initialize(ITurboHatchery _hatchery) public beforeInitialized returns (bool) {
@@ -24,11 +21,10 @@ contract TurboShareTokenFactory is Initializable {
         returns (ITurboShareToken[] memory)
     {
         require(msg.sender == address(hatchery), "Only hatchery may create new share tokens");
-        uint256 _numOutcomes = _names.length + 1;
+        uint256 _numOutcomes = _names.length;
         ITurboShareToken[] memory _tokens = new ITurboShareToken[](_numOutcomes);
-        _tokens[0] = new TurboShareToken(INVALID_SYMBOL, INVALID_NAME, hatchery);
-        for (uint256 _i = 1; _i < _numOutcomes; _i++) {
-            _tokens[_i] = new TurboShareToken(_symbols[_i - 1], _names[_i - 1], hatchery);
+        for (uint256 _i = 0; _i < _numOutcomes; _i++) {
+            _tokens[_i] = new TurboShareToken(_symbols[_i], _names[_i ], hatchery);
         }
         return _tokens;
     }

@@ -31,8 +31,8 @@ describe("Turbo", () => {
   });
 
   const creatorFee = 1;
-  const outcomeSymbols = ["ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
+  const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
+  const outcomeNames = ["No Contest", "All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
   const numTicks = 1000;
   const startTime: number = Date.now() + 60;
   const duration = 60 * 60;
@@ -44,7 +44,7 @@ describe("Turbo", () => {
   let collateral: Cash;
   let turboHatchery: TurboHatchery;
   let turboId: BigNumber;
-  let invalid: TurboShareToken;
+  let noContest: TurboShareToken;
   let all: TurboShareToken;
   let many: TurboShareToken;
   let few: TurboShareToken;
@@ -89,11 +89,11 @@ describe("Turbo", () => {
     expect(turboId).to.equal(0);
 
     const shareTokens = await turboHatchery.getShareTokens(turboId);
-    [invalid, all, many, few, none] = await Promise.all(
+    [noContest, all, many, few, none] = await Promise.all(
       shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
     );
-    expect(await invalid.symbol()).to.equal("INVALID");
-    expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
+    expect(await noContest.symbol()).to.equal("NO CONTEST");
+    expect(await noContest.name()).to.equal(ethers.utils.formatBytes32String("No Contest"));
     expect(await all.symbol()).to.equal("ALL");
     expect(await all.name()).to.equal(ethers.utils.formatBytes32String("All"));
     expect(await many.symbol()).to.equal("MANY");
@@ -114,7 +114,7 @@ describe("Turbo", () => {
     await turboHatchery.mintCompleteSets(turboId, setsToMint, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(0);
-    expect(await invalid.balanceOf(signer.address)).to.equal(setsToMint);
+    expect(await noContest.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await all.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await many.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await few.balanceOf(signer.address)).to.equal(setsToMint);
@@ -128,7 +128,7 @@ describe("Turbo", () => {
     await turboHatchery.burnCompleteSets(turboId, setsToBurn, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(9 * numTicks);
-    expect(await invalid.balanceOf(signer.address)).to.equal(setsLeft);
+    expect(await noContest.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await all.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await many.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await few.balanceOf(signer.address)).to.equal(setsLeft);
@@ -190,19 +190,19 @@ describe("Turbo", () => {
 
   it("can read turbo from arbiter", async () => {
     const turbo = await arbiter.callStatic.getTurbo(turboId);
-    expect(turbo.outcomeNames.length).to.equal(4); // excludes invalid
+    expect(turbo.outcomeNames.length).to.equal(5);
   });
 
   it("can read turbo balances", async () => {
     const balances = await ammFactory.getPoolBalances(turboHatchery.address, turboId);
     console.log(balances);
-    expect(balances.length).to.equal(5); // includes invalid
+    expect(balances.length).to.equal(5);
   });
 
   it("can claim winnings", async () => {
     await arbiter.setTurboResolution(turboId, [0, numTicks, 0, 0, 0]);
     // can burn non-winning shares
-    await invalid.transfer(DEAD_ADDRESS, setsLeft);
+    await noContest.transfer(DEAD_ADDRESS, setsLeft);
     await many.transfer(DEAD_ADDRESS, setsLeft);
     await few.transfer(DEAD_ADDRESS, setsLeft);
     await none.transfer(DEAD_ADDRESS, setsLeft);
@@ -212,7 +212,7 @@ describe("Turbo", () => {
 
     const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307054961011936").mul(1000));
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
-    expect(await invalid.balanceOf(signer.address)).to.equal(0);
+    expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
