@@ -95,6 +95,7 @@ contract TurboHatchery is ITurboHatchery {
             _arbiterConfiguration,
             _index
         );
+        
         return _id;
     }
 
