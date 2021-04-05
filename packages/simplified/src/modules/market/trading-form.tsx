@@ -15,7 +15,6 @@ import {
   ContractCalls,
   useAppStatusStore,
   useUserStore,
-  useApprovalStatus,
   Components,
 } from '@augurproject/comps';
 import { useTrackedEvents } from '../../utils/tracker';
@@ -194,13 +193,14 @@ const TradingForm = ({
   const ammCash = amm?.cash;
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
-  const approvalStatus = useApprovalStatus({
-    cash: ammCash,
-    amm,
-    actionType: isBuy
-      ? ApprovalAction.ENTER_POSITION
-      : ApprovalAction.EXIT_POSITION,
-  });
+  const approvalStatus = ApprovalState.APPROVED;
+  // const approvalStatus = useApprovalStatus({
+  //   cash: ammCash,
+  //   amm,
+  //   actionType: isBuy
+  //     ? ApprovalAction.ENTER_POSITION
+  //     : ApprovalAction.EXIT_POSITION,
+  // });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
   const hasLiquidity = amm.liquidity !== '0';
   const approvalAction = isBuy

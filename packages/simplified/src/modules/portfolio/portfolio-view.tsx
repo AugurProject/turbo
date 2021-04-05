@@ -26,7 +26,6 @@ const {
     useDataStore,
     useAppStatusStore,
     useScrollToTopOnMount,
-    useCanExitCashPosition,
     useUserStore,
   },
   Utils: { keyedObjToArray },
@@ -129,7 +128,8 @@ export const ClaimWinningsSection = () => {
   );
   const ETHTotals = calculateTotalWinnings(claimableEthMarkets);
   const USDCTotals = calculateTotalWinnings(claimableUSDCMarkets);
-  const canClaimETH = useCanExitCashPosition(ethCash);
+  // const canClaimETH = useCanExitCashPosition(ethCash);
+  const canClaimETH = true;
 
   return (
     <div className={Styles.ClaimableWinningsSection}>
