@@ -1351,7 +1351,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
     }
     const newMarkets = await retrieveMarkets(indexes, arbiter, hatchery, provider);
     if (newMarkets && newMarkets.length > 0) {
-      marketInfos = newMarkets.filter((m) => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
+      marketInfos = newMarkets.filter(m => m.categories.length > 1).filter((m) => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
   }
   console.log("marketInfos", marketInfos);
@@ -1402,7 +1402,7 @@ const retrieveMarkets = async (
 };
 
 export const decodeMarket = (marketData: any) => {
-  let json = { categories: [], description: "", details: "" };
+  let json = { categories: ['', '', ''], description: "", details: "" };
   try {
     json = JSON.parse(marketData[2]);
     if (json.categories && Array.isArray(json.categories)) {
