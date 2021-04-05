@@ -1098,9 +1098,9 @@ const getInitPositionValues = (
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
-      .times(totalLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(totalLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1128,13 +1128,13 @@ const accumSharesPrice = (
       (p, t) =>
         isYesOutcome
           ? {
-            shares: p.shares.plus(new BN(t.yesShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-          }
+              shares: p.shares.plus(new BN(t.yesShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
+            }
           : {
-            shares: p.shares.plus(new BN(t.noShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-          },
+              shares: p.shares.plus(new BN(t.noShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
+            },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
@@ -1351,7 +1351,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
     }
     const newMarkets = await retrieveMarkets(indexes, arbiter, hatchery, provider);
     if (newMarkets && newMarkets.length > 0) {
-      marketInfos = newMarkets.filter(m => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {})
+      marketInfos = newMarkets.filter((m) => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
   }
   console.log("marketInfos", marketInfos);
