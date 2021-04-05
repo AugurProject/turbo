@@ -166,8 +166,8 @@ function buildTrustedArbiterConfiguration(
 
   return {
     creatorFee: BigNumber.from(10).pow(16),
-    outcomeSymbols: ["NO", "YES"], // excludes invalid/no contest because it's implied; this will change with upcoming redesign
-    outcomeNames: ["NO", "YES"].map(utils.formatBytes32String),
+    outcomeSymbols: ["No Contest", "NO", "YES"], // excludes invalid/no contest because it's implied; this will change with upcoming redesign
+    outcomeNames: ["No Contest", "NO", "YES"].map(utils.formatBytes32String),
     numTicks: 1000,
     startTime: BigNumber.from(Date.now()).div(1000).add(60),
     duration: 60 * 60 * 24,
