@@ -706,7 +706,7 @@ export const getUserBalances = async (
     // const value = String(
     //   new BN(JSON.parse(JSON.stringify(balanceResult.results[key].callsReturnContext[0].returnValues)).hex)
     // );
-    const value =  String(new BN(balanceResult.results[key].callsReturnContext[0].returnValues[0]._hex));
+    const value = String(new BN(balanceResult.results[key].callsReturnContext[0].returnValues[0]._hex));
     balances.push(value);
 
     const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
