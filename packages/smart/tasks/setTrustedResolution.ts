@@ -2,8 +2,8 @@ import { task, types } from "hardhat/config";
 
 import "hardhat/types/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
-import { sleep } from "../src/util";
 import { makeSigner } from "./deploy";
+import { sleep } from "../src/utils/common-functions";
 
 task("setTrustedResolution", "Set turbo resolution for the TrustedArbiter")
   .addParam("turbo", undefined, undefined, types.int)

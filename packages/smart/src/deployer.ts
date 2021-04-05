@@ -15,8 +15,9 @@ import {
   TurboHatchery__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
-import { mapOverObject, MarketTypes, sleep } from "./util";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
+import { MarketTypes } from "./utils/constants";
+import { mapOverObject, sleep } from "./utils/common-functions";
 
 export class Deployer {
   constructor(readonly signer: Signer) {}

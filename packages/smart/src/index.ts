@@ -1,3 +1,4 @@
 export * from "./deployer";
-export * from "./util";
 export * from "./EthersFastSubmitWallet";
+export * from "./utils/constants";
+export * from "./utils/common-functions";
