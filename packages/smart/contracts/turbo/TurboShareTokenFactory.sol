@@ -24,7 +24,7 @@ contract TurboShareTokenFactory is Initializable {
         uint256 _numOutcomes = _names.length;
         ITurboShareToken[] memory _tokens = new ITurboShareToken[](_numOutcomes);
         for (uint256 _i = 0; _i < _numOutcomes; _i++) {
-            _tokens[_i] = new TurboShareToken(_symbols[_i], _names[_i ], hatchery);
+            _tokens[_i] = new TurboShareToken(_symbols[_i], _names[_i], hatchery);
         }
         return _tokens;
     }

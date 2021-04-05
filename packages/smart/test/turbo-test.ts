@@ -32,7 +32,9 @@ describe("Turbo", () => {
 
   const creatorFee = 1;
   const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["No Contest", "All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
+  const outcomeNames = ["No Contest", "All", "Many", "Few", "None"].map(
+    ethers.utils.formatBytes32String
+  ) as BytesLike[];
   const numTicks = 1000;
   const startTime: number = Date.now() + 60;
   const duration = 60 * 60;
