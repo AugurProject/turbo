@@ -1340,6 +1340,7 @@ export const getERC1155ApprovedForAll = async (
 
 export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfos, account: string): MarketInfos => {
   const { hatchery, arbiter } = PARA_CONFIG;
+  let marketInfos = {};
   const currentNumMarkets = Object.keys(markets).length;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
@@ -1350,11 +1351,11 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
     }
     const newMarkets = await retrieveMarkets(indexes, arbiter, hatchery, provider);
     if (newMarkets && newMarkets.length > 0) {
-      console.log("newMarkets", newMarkets);
+      marketInfos = newMarkets.filter((m) => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
   }
-
-  return {};
+  console.log("marketInfos", marketInfos);
+  return marketInfos;
 };
 
 const retrieveMarkets = async (
