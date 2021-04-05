@@ -41,7 +41,20 @@ connect to a specific network.
 yarn hardhat [task] --network [kovan|mumbai|arbitrum|...]
 ```
 
-## Canned Markets:w
+## Specifying a private key
+
+To deploy to anywhere but hardhat or localhost, you must provide a private key using an environment variable like so:
+```bash
+PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 yarn hardhat --network kovan deploy
+```
+
+Or you may export the environment variable into your shell's ENV list:
+```bash
+export PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+yarn hardhat --network kovan deploy
+```
+
+## Canned Markets
 A variety of test markets can be created by using the `cannedMarkets`
 task. This is useful for both local and testnet deploys, allowing you to
 start with a list of markets that is consistent.
@@ -49,6 +62,3 @@ start with a list of markets that is consistent.
 ```bash
 yarn hardhat cannedMarkets
 ```
-
-
-
