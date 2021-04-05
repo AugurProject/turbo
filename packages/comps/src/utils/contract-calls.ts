@@ -1404,7 +1404,7 @@ const retrieveMarkets = async (
 };
 
 export const decodeMarket = (marketData: any) => {
-  let json = { categories: ["", "", ""], description: "", details: "" };
+  let json = { categories: [], description: "", details: "" };
   try {
     json = JSON.parse(marketData[2]);
     if (json.categories && Array.isArray(json.categories)) {
