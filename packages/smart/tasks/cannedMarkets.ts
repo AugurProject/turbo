@@ -13,7 +13,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   //const Greeter = await hre.ethers.getContractFactory("Greeter");
   const signer = await makeSigner(hre);
   const network = await ethers.provider.getNetwork();
-  const outcomeSymbols = ["Invalid", "No", "yes"];
+  const outcomeSymbols = ["No Contest", "No", "yes"];
   const outcomeNames = outcomeSymbols.map(ethers.utils.formatBytes32String) as BytesLike[];
   const numTicks = 1000;
 
@@ -29,7 +29,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     categories: ["example", "market", "category"],
   };
 
-  const prices: BigNumberish[] = [0, 2000];
+  const prices: BigNumberish[] = [0, 1000];
   const marketType = MarketTypes.CATEGORICAL;
 
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(
