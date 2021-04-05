@@ -183,7 +183,7 @@ const MarketsView = () => {
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState('');
   const [showFilter, setShowFilter] = useState(false);
-  console.log("filteredMarkets", filteredMarkets);
+
   useScrollToTopOnMount(page);
 
   const handleFilterSort = () => {

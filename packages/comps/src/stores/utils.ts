@@ -142,8 +142,7 @@ export function useUserBalances(ammExchanges, cashes, markets) {
   } = useUserStore();
   useEffect(() => {
     const createClient = (provider, config, account) => augurSdkLite.makeLiteClient(provider, config, account);
-    const fetchUserBalances = (library, account, ammExchanges, cashes, markets) =>
-      getUserBalances(library, account, ammExchanges, cashes, markets);
+    const fetchUserBalances = (library, account, ammExchanges, cashes, markets) => getUserBalances(library, account, ammExchanges, cashes, markets);
     if (loginAccount?.library && loginAccount?.account) {
       if (!augurSdkLite.ready()) createClient(loginAccount.library, PARA_CONFIG, loginAccount?.account);
       fetchUserBalances(

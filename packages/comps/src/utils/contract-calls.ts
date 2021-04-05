@@ -697,25 +697,24 @@ export const getUserBalances = async (
     ];
   }
 
-  const balananceCalls = [...contractLpBalanceCall, ...contractMarketShareBalanceCall, ...basicBalanceCalls];
+  const balanceCalls = [...contractLpBalanceCall, ...contractMarketShareBalanceCall, ...basicBalanceCalls];
 
   let balances: string[] = [];
-  const balanceResult: ContractCallResults = await multicall.call(balananceCalls);
-
+  const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
-    const value = String(
-      new BN(JSON.parse(JSON.stringify(balanceResult.results[key].callsReturnContext[0].returnValues)).hex)
-    );
+    // const value = String(
+    //   new BN(JSON.parse(JSON.stringify(balanceResult.results[key].callsReturnContext[0].returnValues)).hex)
+    // );
+    const value =  String(new BN(balanceResult.results[key].callsReturnContext[0].returnValues[0]._hex));
     balances.push(value);
 
     const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
     const contractAddress = String(balanceResult.results[key].originalContractCallContext.contractAddress);
 
-    const balanceValue = balanceResult.results[key].callsReturnContext[0].returnValues as ethers.utils.Result;
+    const balanceValue = balanceResult.results[key].callsReturnContext[0].returnValues[0] as ethers.utils.Result;
     const context = balanceResult.results[key].originalContractCallContext.calls[0].context;
-    const rawBalance = new BN(balanceValue.hex).toFixed();
-
+    const rawBalance = new BN(balanceValue._hex).toFixed();
     if (method === BALANCE_OF) {
       if (usdc && contractAddress === usdc.address) {
         const usdcValue = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(usdc.decimals));
