@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike, ContractTransaction } from "ethers";
+import { BigNumberish, BytesLike, ContractTransaction, BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
 import { MarketTypes } from "../src/utils/constants";
@@ -20,7 +20,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TrustedArbiter, Hatchery } = contracts;
   const index = 42; // arbitrary uint256 for easy log filtering
-  const creatorFee = "1";
+  const creatorFee = BigNumber.from(10).pow(16).mul(2);
   const startTime: BigNumberish = Math.floor(Date.now() / 1000) + 60;
   const duration: BigNumberish = 60 * 60;
   const extraInfoObj = {
@@ -29,7 +29,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     categories: ["example", "market", "category"],
   };
 
-  const prices: BigNumberish[] = [0, 1000];
+  const prices: BigNumberish[] = [0, 2000];
   const marketType = MarketTypes.CATEGORICAL;
 
   const arbiterConfiguration = await TrustedArbiter.encodeConfiguration(
@@ -55,11 +55,9 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   if (!response) return;
   if (!response.events) return;
   if (response.events.length === 0) return;
-  if (!response.events[0].args) return;
-  if (response.events[0].args.length === 0) return;
-  const marketId = response.events[0].args[0].toNumber();
-  const turbo = await Hatchery.turbos(marketId);
-  console.log("turbo", turbo);
-  const data = await TrustedArbiter.turboData(marketId);
+
+  const turboCount = await (await Hatchery.getTurboLength()).sub(1);
+  console.log("turbo Count", turboCount);
+  const data = await TrustedArbiter.getTurbo(turboCount);
   console.log("data", data);
 });
