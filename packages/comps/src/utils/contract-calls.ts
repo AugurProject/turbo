@@ -51,7 +51,6 @@ import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
 import TurboHatcheryABI from "@augurproject/smart/abi/contracts/turbo/TurboHatchery.sol/TurboHatchery.json";
 import TrustedArbiterABI from "@augurproject/smart/abi/contracts/turbo/TrustedArbiter.sol/TrustedArbiter.json";
-import { MarketTypes } from "@augurproject/smart";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -1351,7 +1350,10 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
     }
     const newMarkets = await retrieveMarkets(indexes, arbiter, hatchery, provider);
     if (newMarkets && newMarkets.length > 0) {
-      marketInfos = newMarkets.filter((m) => m.description).reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
+      marketInfos = newMarkets
+        .filter((m) => m.description)
+        .filter((m) => m.categories.length > 1)
+        .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
   }
   console.log("marketInfos", marketInfos);
