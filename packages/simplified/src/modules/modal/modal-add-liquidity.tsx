@@ -12,7 +12,6 @@ import {
   createBigNumber,
   useAppStatusStore,
   useDataStore,
-  useApprovalStatus,
   useUserStore,
   Formatter,
   Constants,
@@ -166,19 +165,21 @@ const ModalAddLiquidity = ({
       : Object.values(cashes)[0];
   }, [chosenCash]);
   const isRemove = modalType === REMOVE;
-  const approvedToTransfer = useApprovalStatus({
-    cash,
-    amm,
-    actionType: ApprovalAction.TRANSFER_LIQUIDITY,
-  });
+  const approvedToTransfer = ApprovalState.APPROVED;
+  // const approvedToTransfer = useApprovalStatus({
+  //   cash,
+  //   amm,
+  //   actionType: ApprovalAction.TRANSFER_LIQUIDITY,
+  // });
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
-  const isApprovedMain = useApprovalStatus({
-    cash,
-    amm,
-    actionType: !isRemove
-    ? ApprovalAction.ADD_LIQUIDITY
-    : ApprovalAction.REMOVE_LIQUIDITY
-  });
+  const isApprovedMain = ApprovalState.APPROVED;
+  // const isApprovedMain = useApprovalStatus({
+  //   cash,
+  //   amm,
+  //   actionType: !isRemove
+  //   ? ApprovalAction.ADD_LIQUIDITY
+  //   : ApprovalAction.REMOVE_LIQUIDITY
+  // });
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
 
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : '0';
