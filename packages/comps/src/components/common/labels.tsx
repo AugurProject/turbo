@@ -80,15 +80,15 @@ export const CategoryLabel = ({ categories, big = false }: CategoriesProps) => (
 );
 
 export const CategoryIcon = ({ categories, big = false }: CategoriesProps) => {
-  const prime = CATEGORIES_ICON_MAP[categories[0].toLowerCase()];
-  const secondary = prime?.subOptions[categories[1].toLowerCase()];
+  const prime = CATEGORIES_ICON_MAP[categories[0]?.toLowerCase()];
+  const secondary = prime?.subOptions[categories[1]?.toLowerCase()];
   const icon = secondary?.icon ? secondary.icon : prime?.icon;
   return (
     <div
       data-big={big}
       className={classNames(
         Styles.CategoryIcon,
-        Styles[`${categories[0].toLowerCase()}`]
+        Styles[`${categories[0]?.toLowerCase()}`]
       )}
     >
       {!!icon ? icon : AugurBlankIcon}

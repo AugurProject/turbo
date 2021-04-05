@@ -63,98 +63,100 @@ const applyFiltersAndSort = (
   },
   handleGraphError
 ) => {
-  searchMarkets(filter, (err, searchedMarkets) => {
-    if (err) handleGraphError(err);
-    let updatedFilteredMarkets = passedInMarkets;
+  // TODO: put this back in
+  setFilteredMarkets(passedInMarkets);
+  // searchMarkets(filter, (err, searchedMarkets) => {
+  //   if (err) handleGraphError(err);
+  //   let updatedFilteredMarkets = passedInMarkets;
 
-    if (filter !== '') {
-      updatedFilteredMarkets = updatedFilteredMarkets.filter(
-        (market) => searchedMarkets.indexOf(market.marketId) !== -1
-      );
-    }
+  //   if (filter !== '') {
+  //     updatedFilteredMarkets = updatedFilteredMarkets.filter(
+  //       (market) => searchedMarkets.indexOf(market.marketId) !== -1
+  //     );
+  //   }
 
-    updatedFilteredMarkets = updatedFilteredMarkets.filter(
-      (market: MarketInfo) => {
-        if (
-          showLiquidMarkets &&
-          (!market.amm ||
-            isNaN(market?.amm?.liquidityUSD) ||
-            !market?.amm?.liquidityUSD)
-        ) {
-          return false;
-        }
-        if (!showInvalidMarkets && market.isInvalid) {
-          return false;
-        }
-        if (
-          categories !== ALL_MARKETS &&
-          categories !== OTHER &&
-          market.categories[0].toLowerCase() !== categories.toLowerCase()
-        ) {
-          return false;
-        }
-        if (
-          categories === OTHER &&
-          POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]
-        ) {
-          return false;
-        }
-        if (currency !== ALL_CURRENCIES) {
-          if (!market.amm) {
-            return false;
-          } else if (market?.amm?.cash?.name !== currency) {
-            return false;
-          }
-        }
-        if (reportingState === OPEN) {
-          if (market.reportingState !== MARKET_STATUS.TRADING) {
-            return false;
-          }
-        } else if (reportingState === IN_SETTLEMENT) {
-          if (
-            market.reportingState !== MARKET_STATUS.REPORTING &&
-            market.reportingState !== MARKET_STATUS.DISPUTING
-          )
-            return false;
-        } else if (reportingState === RESOLVED) {
-          if (
-            market.reportingState !== MARKET_STATUS.FINALIZED &&
-            market.reportingState !== MARKET_STATUS.SETTLED
-          )
-            return false;
-        }
-        return true;
-      }
-    );
+  //   updatedFilteredMarkets = updatedFilteredMarkets.filter(
+  //     (market: MarketInfo) => {
+  //       if (
+  //         showLiquidMarkets &&
+  //         (!market.amm ||
+  //           isNaN(market?.amm?.liquidityUSD) ||
+  //           !market?.amm?.liquidityUSD)
+  //       ) {
+  //         return false;
+  //       }
+  //       if (!showInvalidMarkets && market.isInvalid) {
+  //         return false;
+  //       }
+  //       if (
+  //         categories !== ALL_MARKETS &&
+  //         categories !== OTHER &&
+  //         market.categories[0].toLowerCase() !== categories.toLowerCase()
+  //       ) {
+  //         return false;
+  //       }
+  //       if (
+  //         categories === OTHER &&
+  //         POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]
+  //       ) {
+  //         return false;
+  //       }
+  //       if (currency !== ALL_CURRENCIES) {
+  //         if (!market.amm) {
+  //           return false;
+  //         } else if (market?.amm?.cash?.name !== currency) {
+  //           return false;
+  //         }
+  //       }
+  //       if (reportingState === OPEN) {
+  //         if (market.reportingState !== MARKET_STATUS.TRADING) {
+  //           return false;
+  //         }
+  //       } else if (reportingState === IN_SETTLEMENT) {
+  //         if (
+  //           market.reportingState !== MARKET_STATUS.REPORTING &&
+  //           market.reportingState !== MARKET_STATUS.DISPUTING
+  //         )
+  //           return false;
+  //       } else if (reportingState === RESOLVED) {
+  //         if (
+  //           market.reportingState !== MARKET_STATUS.FINALIZED &&
+  //           market.reportingState !== MARKET_STATUS.SETTLED
+  //         )
+  //           return false;
+  //       }
+  //       return true;
+  //     }
+  //   );
 
-    updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
-      if (sortBy === TOTAL_VOLUME) {
-        return (marketB?.amm?.volumeTotalUSD || 0) >
-          (marketA?.amm?.volumeTotalUSD || 0)
-          ? 1
-          : -1;
-      } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
-        return (marketB?.amm?.volume24hrTotalUSD || 0) >
-          (marketA?.amm?.volume24hrTotalUSD || 0)
-          ? 1
-          : -1;
-      } else if (sortBy === LIQUIDITY) {
-        return (marketB?.amm?.liquidityUSD || 0) >
-          (marketA?.amm?.liquidityUSD || 0)
-          ? 1
-          : -1;
-      } else if (sortBy === ENDING_SOON) {
-        return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
-      }
-      return true;
-    });
-    if (sortBy !== ENDING_SOON) {
-      updatedFilteredMarkets = updatedFilteredMarkets
-        .filter((m) => m.amm !== null)
-        .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
-    }
-    setFilteredMarkets(updatedFilteredMarkets);
-  });
+  //   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+  //     if (sortBy === TOTAL_VOLUME) {
+  //       return (marketB?.amm?.volumeTotalUSD || 0) >
+  //         (marketA?.amm?.volumeTotalUSD || 0)
+  //         ? 1
+  //         : -1;
+  //     } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
+  //       return (marketB?.amm?.volume24hrTotalUSD || 0) >
+  //         (marketA?.amm?.volume24hrTotalUSD || 0)
+  //         ? 1
+  //         : -1;
+  //     } else if (sortBy === LIQUIDITY) {
+  //       return (marketB?.amm?.liquidityUSD || 0) >
+  //         (marketA?.amm?.liquidityUSD || 0)
+  //         ? 1
+  //         : -1;
+  //     } else if (sortBy === ENDING_SOON) {
+  //       return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
+  //     }
+  //     return true;
+  //   });
+  //   if (sortBy !== ENDING_SOON) {
+  //     updatedFilteredMarkets = updatedFilteredMarkets
+  //       .filter((m) => m.amm !== null)
+  //       .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
+  //   }
+  //   setFilteredMarkets(updatedFilteredMarkets);
+  // });
 };
 
 const MarketsView = () => {
@@ -181,7 +183,7 @@ const MarketsView = () => {
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState('');
   const [showFilter, setShowFilter] = useState(false);
-
+  console.log("filteredMarkets", filteredMarkets);
   useScrollToTopOnMount(page);
 
   const handleFilterSort = () => {
