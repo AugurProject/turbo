@@ -20,7 +20,7 @@ import { MarketTypes } from "./utils/constants";
 import { mapOverObject, sleep } from "./utils/common-functions";
 
 export class Deployer {
-  constructor(readonly signer: Signer) {}
+  constructor(readonly signer: Signer, public confirmations: number = 0) {}
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
@@ -31,7 +31,12 @@ export class Deployer {
 
     console.log("Deploying core Turbo system");
     const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
-    const hatchery = await createHatchery(hatcheryRegistry.signer, hatcheryRegistry.address, collateral.address);
+    const hatchery = await createHatchery(
+      hatcheryRegistry.signer,
+      hatcheryRegistry.address,
+      collateral.address,
+      this.confirmations
+    );
     const arbiter = await this.deployTrustedArbiter(await this.signer.getAddress(), hatchery.address);
 
     await sleep(10000); // matic needs a little time
@@ -40,7 +45,8 @@ export class Deployer {
     const turboId = await createTurbo(
       this.signer,
       hatchery.address,
-      buildTrustedArbiterConfiguration({ arbiter: arbiter.address })
+      buildTrustedArbiterConfiguration({ arbiter: arbiter.address }),
+      this.confirmations
     );
     console.log(`Created turbo: ${turboId}`);
 
@@ -55,9 +61,9 @@ export class Deployer {
     const ammFactory = await this.deployAMMFactory(balancerFactory.address);
     const initialLiquidity = basis.mul(1000); // 1000 of the collateral
     console.log("Fauceting collateral for AMM");
-    await collateral.faucet(initialLiquidity).then((tx) => tx.wait(2));
+    await collateral.faucet(initialLiquidity).then((tx) => tx.wait(this.confirmations));
     console.log("Approving the AMM to spend some of the deployer's collateral");
-    await collateral.approve(ammFactory.address, initialLiquidity).then((tx) => tx.wait(2));
+    await collateral.approve(ammFactory.address, initialLiquidity).then((tx) => tx.wait(this.confirmations));
     console.log("Creating pool");
     await sleep(10000); // matic needs a little time
     const pool = await createPool(
@@ -66,7 +72,8 @@ export class Deployer {
       hatchery.address,
       turboId,
       initialLiquidity,
-      weights
+      weights,
+      this.confirmations
     );
 
     console.log("Done deploying!");
@@ -136,7 +143,7 @@ export class Deployer {
         console.error(err);
         throw err;
       });
-    await contract.deployTransaction.wait(2); // slow but some Arbitrum has issues if you deploy too quickly
+    await contract.deployTransaction.wait(this.confirmations); // slow but some Arbitrum has issues if you deploy too quickly
     console.log(`Deployed ${name}: ${contract.address} in ${contract.deployTransaction.hash}`);
     return contract;
   }
@@ -159,10 +166,10 @@ function buildTrustedArbiterConfiguration(
 
   return {
     creatorFee: BigNumber.from(10).pow(16),
-    outcomeSymbols: ["No Contest", "NO", "YES"],
-    outcomeNames: ["No Contest", "NO", "YES"].map(utils.formatBytes32String),
+    outcomeSymbols: ["NO", "YES"], // excludes invalid/no contest because it's implied; this will change with upcoming redesign
+    outcomeNames: ["NO", "YES"].map(utils.formatBytes32String),
     numTicks: 1000,
-    startTime: Date.now() / 1000 + 60,
+    startTime: BigNumber.from(Date.now()).div(1000).add(60),
     duration: 60 * 60 * 24,
     extraInfo: JSON.stringify(extraInfoObj),
     prices: [],
@@ -174,11 +181,12 @@ function buildTrustedArbiterConfiguration(
 export async function createHatchery(
   signer: Signer,
   hatcheryRegistry: string,
-  collateral: string
+  collateral: string,
+  confirmations: number
 ): Promise<TurboHatchery> {
   console.log("Creating a hatchery for testing");
   const registry = HatcheryRegistry__factory.connect(hatcheryRegistry, signer);
-  await registry.createHatchery(collateral).then((tx) => tx.wait(2));
+  await registry.createHatchery(collateral).then((tx) => tx.wait(confirmations));
 
   const hatchery = await registry.callStatic.getHatchery(collateral);
   console.log(`Created hatchery: ${hatchery}`);
@@ -188,7 +196,8 @@ export async function createHatchery(
 async function createTurbo(
   signer: Signer,
   hatcheryAddress: string,
-  arbiterConfiguration: TrustedArbiterConfiguration
+  arbiterConfiguration: TrustedArbiterConfiguration,
+  confirmations: number
 ): Promise<BigNumberish> {
   const {
     creatorFee,
@@ -216,7 +225,7 @@ async function createTurbo(
   );
   await hatchery
     .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
-    .then((tx) => tx.wait(2));
+    .then((tx) => tx.wait(confirmations));
   const turboLength = await hatchery.callStatic.getTurboLength();
   return turboLength.sub(1);
 }
@@ -227,7 +236,8 @@ export async function createPool(
   hatcheryAddress: string,
   turboId: BigNumberish,
   initialLiquidity: BigNumberish,
-  weights: BigNumberish[]
+  weights: BigNumberish[],
+  confirmations: number
 ): Promise<BPool> {
   const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
   const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
@@ -235,7 +245,7 @@ export async function createPool(
 
   await ammFactory
     .createPool(hatchery.address, turboId, initialLiquidity, weights, lpTokenRecipient, {})
-    .then((tx) => tx.wait(2));
+    .then((tx) => tx.wait(confirmations));
 
   const pool = await ammFactory.callStatic.pools(hatcheryAddress, turboId);
   return BPool__factory.connect(pool, signer);

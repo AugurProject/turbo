@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 
 import { createPool } from "../src";
 import "hardhat/types/config";
-import { makeSigner } from "./deploy";
+import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { ethers } from "ethers";
 import { Cash__factory, TurboHatchery__factory } from "../typechain";
 import { BigNumberish } from "ethers/lib/ethers";
@@ -23,6 +23,7 @@ task("createPool", "Create a balancer pool for an AMM")
       throw Error(`Weights must be an array of strings that represent numbers, not ${weights}`);
 
     const signer = await makeSigner(hre);
+    const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
     initialLiquidity = ethers.BigNumber.from(10).pow(18).mul(initialLiquidity);
     const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
@@ -45,7 +46,8 @@ task("createPool", "Create a balancer pool for an AMM")
       hatcheryAddress,
       turboId,
       initialLiquidity as BigNumberish,
-      weights
+      weights,
+      confirmations
     );
     console.log(`Pool: ${pool.address}`);
   });
