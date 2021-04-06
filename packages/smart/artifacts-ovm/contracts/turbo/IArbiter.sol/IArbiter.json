@@ -1,0 +1,63 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IArbiter",
+  "sourceName": "contracts/turbo/IArbiter.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTurboResolution",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string[]",
+          "name": "_outcomeSymbols",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_outcomeNames",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_numTicks",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_arbiterConfiguration",
+          "type": "bytes"
+        }
+      ],
+      "name": "onTurboCreated",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

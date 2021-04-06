@@ -1,0 +1,24 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Initializable",
+  "sourceName": "contracts/libraries/Initializable.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "getInitialized",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60806040526000805460ff19169055348015601957600080fd5b506086806100286000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063ee89dab414602d575b600080fd5b60336047565b604080519115158252519081900360200190f35b60005460ff169056fea264697066735822122040e9e4e83077ad7c6d30234d089a5cf124b1cb211febb5ef194f964f7b947b2b64736f6c63430007060033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063ee89dab414602d575b600080fd5b60336047565b604080519115158252519081900360200190f35b60005460ff169056fea264697066735822122040e9e4e83077ad7c6d30234d089a5cf124b1cb211febb5ef194f964f7b947b2b64736f6c63430007060033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -1,0 +1,1319 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\augur-para\\FeePot.sol": {
+      "lastModificationDate": 1617582718414,
+      "contentHash": "92ea6eac7bfe520f863d6c6d9c47193d",
+      "sourceName": "contracts/augur-para/FeePot.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/SafeMathUint256.sol",
+        "../libraries/VariableSupplyToken.sol",
+        "../libraries/IERC20.sol",
+        "./IFeePot.sol",
+        "../libraries/IERC20DynamicSymbol.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "FeePot"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\SafeMathUint256.sol": {
+      "lastModificationDate": 1617582718422,
+      "contentHash": "9fc526ed4f08a4c01c5049c7b62280a6",
+      "sourceName": "contracts/libraries/SafeMathUint256.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "SafeMathUint256"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\VariableSupplyToken.sol": {
+      "lastModificationDate": 1617582718422,
+      "contentHash": "e45601d02394747e78bbcfe995ac0083",
+      "sourceName": "contracts/libraries/VariableSupplyToken.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./SafeMathUint256.sol",
+        "./ERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "VariableSupplyToken"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\IERC20.sol": {
+      "lastModificationDate": 1617582718419,
+      "contentHash": "263dc6735105624d8f6b1d7c69242776",
+      "sourceName": "contracts/libraries/IERC20.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\augur-para\\IFeePot.sol": {
+      "lastModificationDate": 1617582718415,
+      "contentHash": "c33416a9f6624c733387ff86c711177f",
+      "sourceName": "contracts/augur-para/IFeePot.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/IERC20.sol",
+        "../libraries/IERC20DynamicSymbol.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IFeePot"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\IERC20DynamicSymbol.sol": {
+      "lastModificationDate": 1617582718420,
+      "contentHash": "1e35c1a5df36a215788a51c68f1fd006",
+      "sourceName": "contracts/libraries/IERC20DynamicSymbol.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IERC20DynamicSymbol"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\ERC20.sol": {
+      "lastModificationDate": 1617582718418,
+      "contentHash": "f6d95563159a0954eb689ce263fa16b9",
+      "sourceName": "contracts/libraries/ERC20.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./SafeMathUint256.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\HatcheryRegistry.sol": {
+      "lastModificationDate": 1617582718423,
+      "contentHash": "967f01677414c8d5a9796e100a7f55d4",
+      "sourceName": "contracts/turbo/HatcheryRegistry.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./TurboHatchery.sol",
+        "./TurboShareTokenFactory.sol",
+        "../libraries/Ownable.sol",
+        "../augur-para/FeePot.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "HatcheryRegistry"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\TurboHatchery.sol": {
+      "lastModificationDate": 1617582718425,
+      "contentHash": "4c1831e6327bdcfc51bffcae757cd7e1",
+      "sourceName": "contracts/turbo/TurboHatchery.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ITurboShareToken.sol",
+        "../libraries/SafeMathUint256.sol",
+        "../libraries/IERC20.sol",
+        "../augur-para/IFeePot.sol",
+        "./ITurboShareTokenFactory.sol",
+        "./IArbiter.sol",
+        "./ITurboHatchery.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "TurboHatchery"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\TurboShareTokenFactory.sol": {
+      "lastModificationDate": 1617582718425,
+      "contentHash": "8a671ab94ce0681be3e80af39fd904a4",
+      "sourceName": "contracts/turbo/TurboShareTokenFactory.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/Initializable.sol",
+        "./ITurboShareToken.sol",
+        "./TurboShareToken.sol",
+        "./ITurboHatchery.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "TurboShareTokenFactory"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\Ownable.sol": {
+      "lastModificationDate": 1617582718421,
+      "contentHash": "b12fe9a342d12a957b061eb23212b6f9",
+      "sourceName": "contracts/libraries/Ownable.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IOwnable.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\ITurboShareToken.sol": {
+      "lastModificationDate": 1617582718424,
+      "contentHash": "e06ef634d55e34a68c19b5e8b7aaa5cd",
+      "sourceName": "contracts/turbo/ITurboShareToken.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "ITurboShareToken"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\ITurboShareTokenFactory.sol": {
+      "lastModificationDate": 1617582718424,
+      "contentHash": "1a8d2157e67c58829f698d2c819d4de0",
+      "sourceName": "contracts/turbo/ITurboShareTokenFactory.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ITurboShareToken.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "ITurboShareTokenFactory"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\IArbiter.sol": {
+      "lastModificationDate": 1617582718423,
+      "contentHash": "552d31aa8737773edfbaed3184ef63f9",
+      "sourceName": "contracts/turbo/IArbiter.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IArbiter"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\ITurboHatchery.sol": {
+      "lastModificationDate": 1617582718424,
+      "contentHash": "ba69e6cb58c942d0de60e8cba8f3ef29",
+      "sourceName": "contracts/turbo/ITurboHatchery.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ITurboShareToken.sol",
+        "../libraries/Initializable.sol",
+        "../libraries/SafeMathUint256.sol",
+        "../libraries/IERC20.sol",
+        "../augur-para/IFeePot.sol",
+        "./ITurboShareTokenFactory.sol",
+        "./IArbiter.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "HasTurboStruct",
+        "ITurboHatchery"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\Initializable.sol": {
+      "lastModificationDate": 1617582718421,
+      "contentHash": "c850bec17a538f91493473653a091364",
+      "sourceName": "contracts/libraries/Initializable.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\TurboShareToken.sol": {
+      "lastModificationDate": 1617582718425,
+      "contentHash": "e0f00585e574a85a3459a93c7a3e5dae",
+      "sourceName": "contracts/turbo/TurboShareToken.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ITurboShareToken.sol",
+        "../libraries/VariableSupplyToken.sol",
+        "./ITurboHatchery.sol",
+        "../libraries/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "TurboShareToken"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\IOwnable.sol": {
+      "lastModificationDate": 1617582718420,
+      "contentHash": "17363839fb355e1e6a3eb9a81aeca4a8",
+      "sourceName": "contracts/libraries/IOwnable.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IOwnable"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\TrustedArbiter.sol": {
+      "lastModificationDate": 1617582718425,
+      "contentHash": "c68f93cb385ec992ffdac13bd971e234",
+      "sourceName": "contracts/turbo/TrustedArbiter.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/IERC20.sol",
+        "../libraries/Initializable.sol",
+        "./IArbiter.sol",
+        "../libraries/SafeMathUint256.sol",
+        "./ITurboHatchery.sol",
+        "../libraries/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "TrustedArbiter"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\Cash.sol": {
+      "lastModificationDate": 1617582718418,
+      "contentHash": "675dda8c4fd3cfb280fefd32a18f7c6f",
+      "sourceName": "contracts/libraries/Cash.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ICash.sol",
+        "./ITyped.sol",
+        "./VariableSupplyToken.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "Cash"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\ICash.sol": {
+      "lastModificationDate": 1617582718419,
+      "contentHash": "e16e960a160cc4cefddff947ebce8652",
+      "sourceName": "contracts/libraries/ICash.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "ICash"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\ITyped.sol": {
+      "lastModificationDate": 1617582718420,
+      "contentHash": "b5605705fe8fe7215982d93665a92a8a",
+      "sourceName": "contracts/libraries/ITyped.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "ITyped"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\turbo\\AMMFactory.sol": {
+      "lastModificationDate": 1617582718423,
+      "contentHash": "cb4842839905569eaea94cafc2a61887",
+      "sourceName": "contracts/turbo/AMMFactory.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./HatcheryRegistry.sol",
+        "../balancer/BFactory.sol",
+        "./IArbiter.sol",
+        "./ITurboHatchery.sol",
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "AMMFactory"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BFactory.sol": {
+      "lastModificationDate": 1617582718416,
+      "contentHash": "8e16dda2bf9ac384577a45543da322a4",
+      "sourceName": "contracts/balancer/BFactory.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BPool.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BFactory"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\node_modules\\hardhat\\console.sol": {
+      "lastModificationDate": 1617453315228,
+      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
+      "sourceName": "hardhat/console.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.22 <0.9.0"
+      ],
+      "artifacts": [
+        "console"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BPool.sol": {
+      "lastModificationDate": 1617582718417,
+      "contentHash": "1ba08a401cdf9322004d0d4b97d2d0fa",
+      "sourceName": "contracts/balancer/BPool.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BToken.sol",
+        "./BMath.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BPool"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BToken.sol": {
+      "lastModificationDate": 1617582718417,
+      "contentHash": "100b4939b8a07db9df866865e9b6300b",
+      "sourceName": "contracts/balancer/BToken.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BNum.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BToken",
+        "BTokenBase",
+        "IERC20Balancer"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BMath.sol": {
+      "lastModificationDate": 1617582718416,
+      "contentHash": "3e6cbbacb060c2bd7e91fc17982f6cb0",
+      "sourceName": "contracts/balancer/BMath.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BNum.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BMath"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BNum.sol": {
+      "lastModificationDate": 1617582718416,
+      "contentHash": "cae5e01a947d4427959074c8e2f2c752",
+      "sourceName": "contracts/balancer/BNum.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BConst.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BNum"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BConst.sol": {
+      "lastModificationDate": 1617582718415,
+      "contentHash": "12e4afd4feaa85c1cd82d88aa64d041b",
+      "sourceName": "contracts/balancer/BConst.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BColor.sol"
+      ],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BConst"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\BColor.sol": {
+      "lastModificationDate": 1617582718415,
+      "contentHash": "209c162e48ecfecb2e705942312ce177",
+      "sourceName": "contracts/balancer/BColor.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "BBronze",
+        "BColor"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\balancer\\Migrations.sol": {
+      "lastModificationDate": 1617582718418,
+      "contentHash": "3f987ab3bb1e9cf8d9c504c9ec0d878f",
+      "sourceName": "contracts/balancer/Migrations.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "Migrations"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\IERC1155.sol": {
+      "lastModificationDate": 1617582718419,
+      "contentHash": "b9ca42081e8edf39c347a475fcaa610c",
+      "sourceName": "contracts/libraries/IERC1155.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "IERC1155"
+      ]
+    },
+    "C:\\GitCoin\\turbo\\packages\\smart\\contracts\\libraries\\SafeMathInt256.sol": {
+      "lastModificationDate": 1617582718421,
+      "contentHash": "26c16d26ace89f3f86d900aa74c1259f",
+      "sourceName": "contracts/libraries/SafeMathInt256.sol",
+      "solcConfig": {
+        "version": "0.7.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "devdoc",
+                "userdoc"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.7.6"
+      ],
+      "artifacts": [
+        "SafeMathInt256"
+      ]
+    }
+  }
+}

@@ -11,7 +11,10 @@
     "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
     "contracts:deploy": "yarn contracts:build && yarn hardhat deploy",
     "contracts:verify": "hardhat verify",
-    "ethereumNode": "hardhat node"
+    "ethereumNode": "hardhat node",
+    "contracts:OVM": "TARGET=ovm npx hardhat compile",
+    "test:OVM": "TARGET=ovm npx hardhat --network optimisticKovan test",
+    "contracts:deploy:OVM": "TARGET=ovm npx hardhat --network optimisticKovan deploy"
   },
   "files": [
     "./contracts",
@@ -44,6 +47,7 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
+    "@eth-optimism/plugins": "^1.0.0-alpha.2",
     "prettier-plugin-solidity": "^1.0.0-beta.6"
   }
 }

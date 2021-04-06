@@ -1,0 +1,396 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ITurboHatchery",
+  "sourceName": "contracts/turbo/ITurboHatchery.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "turboId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Claim",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "turboId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        }
+      ],
+      "name": "CompleteSetsBurned",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "turboId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "target",
+          "type": "address"
+        }
+      ],
+      "name": "CompleteSetsMinted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "creatorFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string[]",
+          "name": "outcomeSymbols",
+          "type": "string[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32[]",
+          "name": "outcomeNames",
+          "type": "bytes32[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "numTicks",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "contract IArbiter",
+          "name": "arbiter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "arbiterConfiguration",
+          "type": "bytes"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "TurboCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_receiver",
+          "type": "address"
+        }
+      ],
+      "name": "burnCompleteSets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimWinnings",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "collateral",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_creatorFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string[]",
+          "name": "_outcomeSymbols",
+          "type": "string[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_outcomeNames",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_numTicks",
+          "type": "uint256"
+        },
+        {
+          "internalType": "contract IArbiter",
+          "name": "_arbiter",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_arbiterConfiguration",
+          "type": "bytes"
+        }
+      ],
+      "name": "createTurbo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feePot",
+      "outputs": [
+        {
+          "internalType": "contract IFeePot",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getShareTokens",
+      "outputs": [
+        {
+          "internalType": "contract ITurboShareToken[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTurboLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_receiver",
+          "type": "address"
+        }
+      ],
+      "name": "mintCompleteSets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenFactory",
+      "outputs": [
+        {
+          "internalType": "contract ITurboShareTokenFactory",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_turboId",
+          "type": "uint256"
+        }
+      ],
+      "name": "turbos",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "creator",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "creatorFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numTicks",
+              "type": "uint256"
+            },
+            {
+              "internalType": "contract IArbiter",
+              "name": "arbiter",
+              "type": "address"
+            },
+            {
+              "internalType": "contract ITurboShareToken[]",
+              "name": "shareTokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "creatorFees",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct HasTurboStruct.Turbo",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawCreatorFees",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -3,6 +3,8 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
 import "hardhat-docgen";
+import "@nomiclabs/hardhat-ethers";
+import "@eth-optimism/plugins/hardhat/compiler"
 
 import { HardhatUserConfig } from "hardhat/config";
 import "./tasks";
@@ -51,6 +53,15 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
       gasPrice: 20000000000,
+    },
+    optimisticKovan: {
+      url: "https://kovan.optimism.io", // "http://127.0.0.1:8545", //
+      chainId: 69,
+      gas: "auto",
+      gasPrice: "auto",
+      accounts: {
+        mnemonic: 'test test test test test test test test test test test junk'
+      },
     },
   },
   contractDeploy: {
