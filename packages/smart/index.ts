@@ -9,6 +9,8 @@ import {
   TurboHatchery,
   TurboHatchery__factory,
   TrustedArbiter,
+  TheRundownChainlink,
+  TheRundownChainlink__factory
 } from "./typechain";
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";
@@ -23,6 +25,7 @@ export interface ContractInterfaces {
   HatcheryRegistry: HatcheryRegistry;
   ReputationToken: Cash;
   TrustedArbiter: TrustedArbiter;
+  TheRundownChainlink: TheRundownChainlink;
 }
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
@@ -35,5 +38,6 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
     HatcheryRegistry: HatcheryRegistry__factory.connect(contractAddresses.hatcheryRegistry, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
     TrustedArbiter: TrustedArbiter__factory.connect(contractAddresses.arbiter, signerOrProvider),
+    TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
   };
 }

@@ -17,9 +17,9 @@ task("requestScore", "Request and set score in TheRundownChainlink")
     const signer = await makeSigner(hre);
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
-    const { TrustedArbiter } = contracts;
-    // await TrustedArbiter.setTurboResolution(turbo, outcomes);
-    // await sleep(10000);
+    const { TheRundownChainlink } = contracts;
+    await TheRundownChainlink.requestScore("0x56dd6586DB0D08c6Ce7B2f2805af28616E082455", "dbb65efc02d34cddb920eca1bec22ade", "2fc5fdbdea181a1b38eee8dc49072043");
+    await sleep(10000);
     // const turboResolution = await TrustedArbiter.getTurboResolution(turbo);
-    //console.log(`Set trusted resolution: ${turboResolution}`);
+    console.log(`contract: ${TheRundownChainlink.score}`);
   });

@@ -18,7 +18,8 @@ contract TheRundownChainlink is ChainlinkClient {
         bytes32 _jobId,
         string memory _matchId
     ) public {
-        Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
+        // changed this to address(this)
+        Chainlink.Request memory req = buildChainlinkRequest(_jobId, address(this), this.fulfill.selector);
         req.add("matchId", _matchId);
         sendChainlinkRequestTo(_oracle, req, oraclePayment);
     }

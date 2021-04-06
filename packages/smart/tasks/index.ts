@@ -6,3 +6,4 @@ export * from "./cannedMarkets";
 export * from "./markets";
 export * from "./verifyDeploy";
 export * from "./setTrustedResolution";
+export * from "./requestScore";

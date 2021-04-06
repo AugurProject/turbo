@@ -13,6 +13,8 @@ import {
   TrustedArbiter__factory,
   TurboHatchery,
   TurboHatchery__factory,
+  TheRundownChainlink,
+  TheRundownChainlink__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
 import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
@@ -28,6 +30,7 @@ export class Deployer {
     const collateral = await this.deployCollateral("USDC", "USDC", 18);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
+    const theRundownChainlink = await this.deployTheRundownChainlink("18");
 
     console.log("Deploying core Turbo system");
     const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
@@ -88,6 +91,7 @@ export class Deployer {
         arbiter,
         ammFactory,
         pool,
+        theRundownChainlink
       },
       (name, contract) => [name, contract.address]
     );
@@ -125,6 +129,10 @@ export class Deployer {
 
   async deployTrustedArbiter(owner: string, hatchery: string): Promise<TrustedArbiter> {
     return this.deploy("trustedArbiter", () => new TrustedArbiter__factory(this.signer).deploy(owner, hatchery));
+  }
+
+  async deployTheRundownChainlink(oraclePayment: string): Promise<TheRundownChainlink> {
+    return this.deploy("theRundownChainlink", () => new TheRundownChainlink__factory(this.signer).deploy(oraclePayment));
   }
 
   async deployBalancerFactory(): Promise<BFactory> {

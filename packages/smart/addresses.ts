@@ -8,6 +8,7 @@ export interface Addresses {
   arbiter: string;
   ammFactory: string;
   pool: string;
+  theRundownChainlink: string;
 }
 export enum ChainId {
   Mainnet = 1,
@@ -31,6 +32,7 @@ export const addresses: AddressMapping = {
     arbiter: "0xd62e60a61F033658fc2D16cb82861e5776d1BFDf",
     ammFactory: "0xe70ba5Aaa0bcB5CE7E0f0944367628566f73Be13",
     pool: "0x1CaD7b2c36817FDdB51609d9bB735E0127B05A5C",
+    theRundownChainlink: "0x0",
   },
   80001: {
     collateral: "0xb23De8157b083eDB941c03be60e1bF37d04b485c",
@@ -41,16 +43,7 @@ export const addresses: AddressMapping = {
     arbiter: "0x799b937040E25bBab622Fb9ACC6865e090fEd6Ca",
     ammFactory: "0x6531D31bf6DC6642D30759DAE5379850d316D29A",
     pool: "0xa64529f50205cECdFaB986852F066e21B8c15258",
-  },
-  42: {
-    collateral: "0x8dC2ac107C096420a026A3ed32e5d60635623b0a",
-    reputationToken: "0xe65cD851357395a65D2f99cE49f492C5844e072C",
-    balancerFactory: "0xE05402D29ccd60f560389451ab33a717BE84846b",
-    hatcheryRegistry: "0xd51cca5Db2B5c56B613E3B1553B30048468c0FC4",
-    hatchery: "0x169e6528AACF8Fd1973095d4bfE40c78f0228C37",
-    arbiter: "0x643968b16b2b4BA428eB22d1c8b95498323e7eD1",
-    ammFactory: "0x0EB3a9E6eF4E6d93ce5F945080ac59146Fda6296",
-    pool: "0xe04830557765FDE5E173c61C0C6c43b8a24bfa4F",
+    theRundownChainlink: "0x0",
   },
   31337: {
     collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
@@ -61,5 +54,17 @@ export const addresses: AddressMapping = {
     arbiter: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
     ammFactory: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
     pool: "0x75537828f2ce51be7289709686A69CbFDbB714F1",
+    theRundownChainlink: "0x0",
+  },
+  42: {
+    collateral: "0xf45881780e11C5954C860bEC7Ac47Cf20408e926",
+    reputationToken: "0x81BD701bBBC80CB4bC8fc8C542b792b805531853",
+    balancerFactory: "0xcd8279772C4377562c5FCD90dFfcB4e4fb21C862",
+    hatcheryRegistry: "0xF0aEa019baC76EEa1855F3101e79266Caf82Ca33",
+    hatchery: "0xfb2b0885E579139148282700eA62148c47663e29",
+    arbiter: "0x9788bB171974F2B901cEF84f473C35C90A6221cc",
+    ammFactory: "0x717770F98A6b7106054B67B61024B44494f2C142",
+    pool: "0xfa7726C9B1f140d5EbFD62643Fe04eaf4Af66d9E",
+    theRundownChainlink: "0x821F1942BCECaeB8f1c5AcE6560C5a023B56f976",
   },
 };
