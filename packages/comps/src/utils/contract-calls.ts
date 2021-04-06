@@ -1420,7 +1420,7 @@ const retrieveMarkets = async (
             },
           },
         ],
-      },      
+      },
     ],
     []
   );
@@ -1441,16 +1441,16 @@ const retrieveMarkets = async (
       market.marketId = `${context.arbiterAddress}-${context.index}`;
       market.hatcheryAddress = hatcheryAddress;
       market.turboId = context.index;
-      if (market) markets.push(market);  
+      if (market) markets.push(market);
     }
   }
 
   // populate outcomes share token addresses
   if (Object.keys(shareTokens).length > 0) {
-    for(let j = 0; j < markets.length; j++) {
+    for (let j = 0; j < markets.length; j++) {
       const m = markets[j];
       const tokens = shareTokens[m.turboId];
-      tokens.forEach((t, i) => m.outcomes[i].shareToken = t);
+      tokens.forEach((t, i) => (m.outcomes[i].shareToken = t));
     }
   }
 
