@@ -262,8 +262,8 @@ const shapeMarketInfo = (market: GraphMarket, ammExchange: AmmExchange, cashes: 
     reportingState,
     claimedProceeds,
     isInvalid: false,
-    hatcheryAddress: '',
-    turboId: ''
+    hatcheryAddress: "",
+    turboId: "",
   };
 };
 
