@@ -1402,6 +1402,8 @@ const retrieveMarkets = async (
 
     const market = decodeMarket(marketData[0]);
     market.marketId = `${context.arbiterAddress}-${context.index}`;
+    market.turboId = context.index;
+    market.hatcheryAddress = hatcheryAddress;
     if (market) markets.push(market);
   }
   return markets;

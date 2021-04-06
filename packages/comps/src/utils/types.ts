@@ -213,6 +213,8 @@ export interface ClaimedProceeds {
 }
 export interface MarketInfo {
   marketId: string;
+  hatcheryAddress: string;
+  turboId: string;
   description: string;
   endTimestamp: number;
   creationTimestamp: string;
