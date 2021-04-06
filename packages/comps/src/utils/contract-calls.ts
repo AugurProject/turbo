@@ -118,11 +118,7 @@ export async function estimateAddLiquidity(
   priceNo: string,
   priceYes: string
 ): Promise<AddLiquidityBreakdown> {
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !augurClient.amm) {
-    console.error("augurClient is null");
-    return null;
-  }
+  const { ammFactory } = PARA_CONFIG;
 
   const hasLiquidity = amm !== null && amm?.id !== undefined && amm?.liquidity !== "0";
   const sharetoken = cash?.shareToken;
@@ -158,7 +154,7 @@ export async function estimateAddLiquidity(
     ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityYes || "0"), new BN(amm?.cash?.decimals))
     : new BN(0);
 
-  const addLiquidityResults: AddLiquidityRate = await augurClient.amm.getAddLiquidity(
+  const addLiquidityResults: AddLiquidityRate = await amm.getAddLiquidity(
     new BN(amm?.totalSupply || "0"),
     liqNo,
     liqYes,
@@ -1336,7 +1332,11 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfos, account: string): MarketInfos => {
+export const getMarketInfos = async (
+  provider: Web3Provider,
+  markets: MarketInfos,
+  account: string
+): { marketInfos: MarketInfos; ammExchanges: AmmExchanges } => {
   const { hatchery, arbiter } = PARA_CONFIG;
   let marketInfos = {};
   const currentNumMarkets = Object.keys(markets).length;
@@ -1356,7 +1356,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
     }
     console.log("markets", marketInfos);
   }
-  return marketInfos;
+  return { marketInfos, ammExchanges: {} };
 };
 
 const retrieveMarkets = async (
