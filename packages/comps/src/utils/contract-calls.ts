@@ -1405,23 +1405,55 @@ const retrieveMarkets = async (
           },
         ],
       },
+      {
+        reference: `${arbiterAddress}-${index}-sharetoken`,
+        contractAddress: hatcheryAddress,
+        abi: TurboHatcheryABI,
+        calls: [
+          {
+            reference: `${arbiterAddress}-${index}-sharetoken`,
+            methodName: GET_SHARETOKENS,
+            methodParameters: [index],
+            context: {
+              index,
+              arbiterAddress,
+            },
+          },
+        ],
+      },      
     ],
     []
   );
   let markets = [];
+  const shareTokens = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
-    const marketData = marketsResult.results[key].callsReturnContext[0].returnValues;
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues;
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
 
-    const market = decodeMarket(marketData[0]);
-    market.marketId = `${context.arbiterAddress}-${context.index}`;
-    market.hatcheryAddress = hatcheryAddress;
-    market.turboId = context.index;
-    if (market) markets.push(market);
+    if (method === GET_SHARETOKENS) {
+      const shares = data[0];
+      shareTokens[context.index] = shares;
+    } else {
+      const market = decodeMarket(data[0]);
+      market.marketId = `${context.arbiterAddress}-${context.index}`;
+      market.hatcheryAddress = hatcheryAddress;
+      market.turboId = context.index;
+      if (market) markets.push(market);  
+    }
   }
+
+  // populate outcomes share token addresses
+  if (Object.keys(shareTokens).length > 0) {
+    for(let j = 0; j < markets.length; j++) {
+      const m = markets[j];
+      const tokens = shareTokens[m.turboId];
+      tokens.forEach((t, i) => m.outcomes[i].shareToken = t);
+    }
+  }
+
   return markets;
 };
 
