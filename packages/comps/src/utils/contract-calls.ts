@@ -1354,8 +1354,8 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
         .filter((m) => m.categories.length > 1)
         .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
+    console.log('markets', marketInfos)
   }
-  console.log('markets', marketInfos)
   return marketInfos;
 };
 
