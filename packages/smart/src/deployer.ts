@@ -30,7 +30,7 @@ export class Deployer {
     const collateral = await this.deployCollateral("USDC", "USDC", 18);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
-    const theRundownChainlink = await this.deployTheRundownChainlink("18");
+    const theRundownChainlink = await this.deployTheRundownChainlink(1800);
 
     console.log("Deploying core Turbo system");
     const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
@@ -131,7 +131,7 @@ export class Deployer {
     return this.deploy("trustedArbiter", () => new TrustedArbiter__factory(this.signer).deploy(owner, hatchery));
   }
 
-  async deployTheRundownChainlink(oraclePayment: string): Promise<TheRundownChainlink> {
+  async deployTheRundownChainlink(oraclePayment: BigNumberish): Promise<TheRundownChainlink> {
     return this.deploy("theRundownChainlink", () => new TheRundownChainlink__factory(this.signer).deploy(oraclePayment));
   }
 
