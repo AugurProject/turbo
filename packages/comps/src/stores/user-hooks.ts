@@ -3,7 +3,7 @@ import { useReducer } from "react";
 import { windowRef } from "../utils/window-ref";
 import { USER_ACTIONS, USER_KEYS, DEFAULT_USER_STATE } from "./constants";
 import { UserBalances, TransactionDetails } from "../utils/types";
-import { augurSdkLite } from "../utils/augurlitesdk";
+// import { augurSdkLite } from "../utils/augurlitesdk";
 import { TX_STATUS } from "../utils/constants";
 
 const {
@@ -48,7 +48,7 @@ export function UserReducer(state, action) {
 
   switch (action.type) {
     case LOGOUT: {
-      augurSdkLite.destroy();
+      // augurSdkLite.destroy();
       window.localStorage.setItem("lastUser", null);
       updatedState = { ...DEFAULT_USER_STATE };
       break;

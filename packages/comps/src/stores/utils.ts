@@ -10,7 +10,7 @@ import { PARA_CONFIG } from "./constants";
 import { ETH, TX_STATUS, ApprovalAction, ApprovalState } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
-import { augurSdkLite } from "../utils/augurlitesdk";
+// import { augurSdkLite } from "../utils/augurlitesdk";
 import { getUserBalances } from "../utils/contract-calls";
 
 const isAsync = (obj) =>

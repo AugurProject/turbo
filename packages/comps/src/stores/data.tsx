@@ -83,6 +83,15 @@ const getCashesInfo = (): any[] => {
       shareToken: '',
       usdPrice: '1',
       asset: '',
+    },
+    {
+      name: "ETH",
+      displayDecimals: 4,
+      decimals: 18,
+      address: '',
+      shareToken: '',
+      usdPrice: '2000',
+      asset: 'ETH'
     }
   ];
   // const cashes = paraCashes[String(networkId)].Cashes;
