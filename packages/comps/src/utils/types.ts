@@ -235,7 +235,7 @@ export interface MarketOutcome {
   isFinalNumerator?: boolean;
   payoutNumerator?: string;
   name: string;
-  symbol: string;
+  symbol?: string;
   isInvalid: boolean;
   isWinner: boolean;
 }
