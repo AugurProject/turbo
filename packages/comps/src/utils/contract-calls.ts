@@ -1255,7 +1255,7 @@ const getEthBalance = async (provider: Web3Provider, cashes: Cashes, account: st
   const ethCash = Object.values(cashes).find((c) => c.name === ETH);
   const ethbalance = await provider.getBalance(account);
   const ethValue = convertOnChainCashAmountToDisplayCashAmount(new BN(String(ethbalance)), 18);
-  
+
   return {
     balance: String(ethValue),
     rawBalance: String(ethbalance),
