@@ -1354,7 +1354,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
         .filter((m) => m.categories.length > 1)
         .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
-    console.log('markets', marketInfos)
+    console.log("markets", marketInfos);
   }
   return marketInfos;
 };
@@ -1388,7 +1388,7 @@ const retrieveMarkets = async (
             },
           },
         ],
-      }
+      },
     ],
     []
   );
@@ -1426,7 +1426,7 @@ export const decodeMarket = (marketData: any) => {
   const reportingState = MARKET_STATUS.TRADING;
   const turboData = {
     endTime: new BN(String(marketData["endTime"])).toNumber(),
-    creationTimestamp: String(start), 
+    creationTimestamp: String(start),
     marketType: marketData["marketType"] || 1,
     numTicks: String(marketData["numTicks"]),
     totalStake: String(marketData["totalStake"]),
@@ -1442,10 +1442,7 @@ export const decodeMarket = (marketData: any) => {
 
 const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
   return outcomeNames.map((outcome, i) => {
-    const name = Buffer.from(outcome.replace('0x', ''), 'hex')
-      .toString()
-      .trim()
-      .replace(/\0/g, '');
+    const name = Buffer.from(outcome.replace("0x", ""), "hex").toString().trim().replace(/\0/g, "");
     const symbol = outcomeSymbols[i];
     return {
       id: i,
@@ -1453,6 +1450,6 @@ const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
       symbol,
       isInvalid: i === 0,
       isWinner: false, // need to get based on winning payout hash
-    }
+    };
   });
-}
+};
