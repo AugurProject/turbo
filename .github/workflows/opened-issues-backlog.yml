@@ -1,0 +1,15 @@
+name: Move new issues into Backlog
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alex-page/github-project-automation-plus@v0.5.1
+        with:
+          project: Product
+          column: Backlog
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
