@@ -1355,7 +1355,7 @@ export const getMarketInfos = async (provider: Web3Provider, markets: MarketInfo
         .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
     }
   }
-  console.log("marketInfos", marketInfos);
+  console.log('markets', marketInfos)
   return marketInfos;
 };
 
@@ -1365,6 +1365,10 @@ const retrieveMarkets = async (
   hatcheryAddress: string,
   provider: Web3Provider
 ): Market[] => {
+  const GET_TURBO = "getTurbo";
+  const GET_SHARETOKENS = "getShareTokens";
+  const GET_PRICES = "prices";
+  const GET_RATIONS = "tokenRatios";
   const multicall = new Multicall({ ethersProvider: provider });
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
@@ -1376,7 +1380,7 @@ const retrieveMarkets = async (
         calls: [
           {
             reference: `${arbiterAddress}-${index}`,
-            methodName: "turboData",
+            methodName: GET_TURBO,
             methodParameters: [index],
             context: {
               index,
@@ -1384,7 +1388,7 @@ const retrieveMarkets = async (
             },
           },
         ],
-      },
+      }
     ],
     []
   );
@@ -1394,8 +1398,9 @@ const retrieveMarkets = async (
     const key = Object.keys(marketsResult.results)[i];
     const marketData = marketsResult.results[key].callsReturnContext[0].returnValues;
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
 
-    const market = decodeMarket(marketData);
+    const market = decodeMarket(marketData[0]);
     market.marketId = `${context.arbiterAddress}-${context.index}`;
     if (market) markets.push(market);
   }
@@ -1415,17 +1420,39 @@ export const decodeMarket = (marketData: any) => {
     console.error("can not parse extra info");
   }
 
+  // todo: need to get market creation time
+  const start = Math.floor(Date.now() / 1000);
+  const outcomes = decodeOutcomes(marketData[4], marketData[5]);
+  const reportingState = MARKET_STATUS.TRADING;
   const turboData = {
-    endTime: String(marketData["endTime"]),
+    endTime: new BN(String(marketData["endTime"])).toNumber(),
+    creationTimestamp: String(start), 
     marketType: marketData["marketType"] || 1,
     numTicks: String(marketData["numTicks"]),
-    startTime: String(marketData["startTime"]),
     totalStake: String(marketData["totalStake"]),
     winningPayoutHash: String(marketData["winningPayoutHash"]),
     description: json["description"],
-    details: json["details"],
+    longDescription: json["details"],
     categories: json["categories"],
-    outcomes: [],
+    reportingState,
+    outcomes,
   };
   return turboData;
 };
+
+const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
+  return outcomeNames.map((outcome, i) => {
+    const name = Buffer.from(outcome.replace('0x', ''), 'hex')
+      .toString()
+      .trim()
+      .replace(/\0/g, '');
+    const symbol = outcomeSymbols[i];
+    return {
+      id: i,
+      name,
+      symbol,
+      isInvalid: i === 0,
+      isWinner: false, // need to get based on winning payout hash
+    }
+  });
+}
