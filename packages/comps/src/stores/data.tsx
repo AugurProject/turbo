@@ -40,15 +40,15 @@ export const DataProvider = ({ children }) => {
       if (provider && account) {
         return getMarketInfos(provider, state.markets, account);
       }
-      return {};
+      return { marketInfos: {}, ammExchanges: {} };
     };
-    getMarkets().then((markets) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+    getMarkets().then(({ marketInfos, ammExchanges }) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, marketInfos }, blocknumber ? blocknumber + 1 : 0, null);
     })
     
     const intervalId = setInterval(() => {
-      getMarkets().then((markets) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+      getMarkets().then(({ marketInfos, ammExchanges }) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, marketInfos }, blocknumber ? blocknumber + 1 : 0, null);
       })
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
