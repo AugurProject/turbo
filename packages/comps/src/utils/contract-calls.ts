@@ -1356,7 +1356,6 @@ export const getMarketInfos = async (
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
 
-  console.log("numMarkets", numMarkets, "currentNumMarkets", currentNumMarkets);
   if (currentNumMarkets < numMarkets) {
     let indexes = [];
     for (let i = currentNumMarkets; i < numMarkets; i++) {
