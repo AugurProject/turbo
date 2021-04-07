@@ -15,7 +15,7 @@ export function DataReducer(state, action) {
       updatedState[CASHES] = cashes;
       updatedState[AMM_EXCHANGES] = ammExchanges;
       updatedState[ERRORS] = errors || null;
-      updatedState[BLOCKNUMBER] = blocknumber;
+      updatedState[BLOCKNUMBER] = blocknumber ? blocknumber : updatedState[BLOCKNUMBER];
       break;
     }
     default:

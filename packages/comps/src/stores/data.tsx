@@ -36,19 +36,23 @@ export const DataProvider = ({ children }) => {
     let isMounted = true;
     const getMarkets = async () => {
       if (provider && account) {
-        return getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, account);
+        const blocknumber = await provider.getBlock();
+        const marketInfos = await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, account);
+        return {
+          ...marketInfos,
+          blocknumber: blocknumber?.number
+        };
       }
-      return { markets: {}, ammExchanges: {} };
+      return { markets: {}, ammExchanges: {}, blocknumber: null };
     };
-    getMarkets().then(({ markets, ammExchanges }) => {
-      const { blocknumber } = DataStore.get();
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+    
+    getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
     })
 
     const intervalId = setInterval(() => {
-      getMarkets().then(({ markets, ammExchanges }) => {
-        const { blocknumber } = DataStore.get();
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber ? blocknumber + 1 : 0, null);
+      getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
       })
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
