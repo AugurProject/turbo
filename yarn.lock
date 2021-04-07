@@ -4753,6 +4753,13 @@ axios@0.19.2:
   dependencies:
     follow-redirects "1.5.10"
 
+axios@0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  dependencies:
+    follow-redirects "^1.10.0"
+
 axios@^0.18.0:
   version "0.18.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.18.1.tgz#ff3f0de2e7b5d180e757ad98000f1081b87bcea3"
@@ -5484,10 +5491,6 @@ bcrypt-pbkdf@^1.0.0:
   integrity sha1-pDAdOJtqQ/m2f/PKEaP2Y342Dp4=
   dependencies:
     tweetnacl "^0.14.3"
-
-"bcrypto@https://github.com/AugurProject/blackhole.git", "puppeteer@https://github.com/AugurProject/blackhole.git", "scrypt@https://github.com/AugurProject/blackhole.git":
-  version "1.0.0"
-  resolved "https://github.com/AugurProject/blackhole.git#f8230443bf4fc9d5921655e06ebe2755d84afbcd"
 
 bech32@1.1.4, bech32@^1.1.2:
   version "1.1.4"
@@ -9594,7 +9597,7 @@ follow-redirects@1.5.10:
   dependencies:
     debug "=3.1.0"
 
-follow-redirects@^1.0.0, follow-redirects@^1.12.1:
+follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.12.1:
   version "1.13.3"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.3.tgz#e5598ad50174c1bc4e872301e82ac2cd97f90267"
   integrity sha512-DUgl6+HDzB0iEptNQEXLx/KhTmDb8tZUHSeLqpnjpknR70H0nC2t9N73BK6fN4hOvJ84pKlIQVQ4k5FFlBedKA==
@@ -16853,7 +16856,7 @@ pull-window@^2.1.4:
   dependencies:
     looper "^2.0.0"
 
-"pull-ws@https://github.com/pull-stream/pull-ws.git", pull-ws@hugomrdias/pull-ws#fix/bundle-size:
+pull-ws@hugomrdias/pull-ws#fix/bundle-size:
   version "3.3.2"
   resolved "https://github.com/pull-stream/pull-ws.git#9c1a9cf612ff6d1a030b763cb64b02922ae3c824"
   dependencies:
