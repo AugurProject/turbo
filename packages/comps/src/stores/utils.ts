@@ -197,16 +197,18 @@ export function useApprovalStatus({
   amm,
   cash,
   actionType,
+  optionalTokenArray = [],
 }: {
   amm?: AmmExchange | null | undefined;
   cash: Cash;
   actionType: ApprovalAction;
+  optionalTokenArray?: string[];
 }) {
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
   // @ts-ignore
-  const { ammFactory } = PARA_CONFIG;
+  const { ammFactory, pool } = PARA_CONFIG;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;
@@ -230,13 +232,15 @@ export function useApprovalStatus({
       let checkApprovalFunction = checkAllowance;
       switch (actionType) {
         case EXIT_POSITION: {
+          // TODO: handle sell orders. need multicall approval check on optionalTokenArray in this case, one share token per outcome.
           // checkApprovalFunction = isERC1155ContractApproved;
           // address = shareToken;
           // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = invalidPoolId;
+          address = pool;
+          // address = invalidPoolId;
           break;
         }
         case TRANSFER_LIQUIDITY: {
