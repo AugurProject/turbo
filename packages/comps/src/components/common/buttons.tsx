@@ -199,7 +199,6 @@ export const ApprovalButton = ({
   // const { addresses } = PARA_CONFIG;
   // const { AMMFactory, WethWrapperForAMMExchange } = addresses;
   // const isETH = marketCashType === ETH;
-  
   const approve = useCallback(async () => {
     try {
       setIsPendingTx(true);

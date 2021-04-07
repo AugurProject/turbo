@@ -13,7 +13,7 @@ import { AmmExchange, LoginAccount, TransactionDetails } from "../utils/types";
 import { useUserStore } from "./user";
 import { PARA_CONFIG } from "./constants";
 
-const APPROVAL_AMOUNT = String(new BN(2 ** 255).minus(1));
+const APPROVAL_AMOUNT = String(new BN(2 ** 255).minus(1).toFixed());
 
 export const useIsTokenApproved = (tokenAddress: string): Promise<boolean> => {
   const { loginAccount } = useUserStore();
@@ -351,13 +351,11 @@ export const approveERC20Contract = async (
     console.error("no spender");
     return null;
   }
-
   const tokenContract = getErc20Contract(tokenAddress, library, account);
-  const estimatedGas = await tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT).catch(() => {
+  const estimatedGas = await tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT).catch((e) => {
     // general fallback for tokens who restrict approval amounts
     return tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT);
   });
-
   try {
     const response: TransactionResponse = await tokenContract.approve(spender, APPROVAL_AMOUNT, {
       gasLimit: estimatedGas,
