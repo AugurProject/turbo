@@ -1592,7 +1592,7 @@ const retrieveExchangeInfos = async (
           isInvalid: i === 0,
           name: market.outcomes[i]?.name,
         },
-      ]);  
+      ]);
     }
   });
 
