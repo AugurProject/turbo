@@ -9,7 +9,6 @@ contract TheRundownChainlink is ChainlinkClient {
     ChainlinkRequestInterface private oracle;
 
     constructor(uint256 _oraclePayment) public {
-        setPublicChainlinkToken();
         oraclePayment = _oraclePayment;
     }
 
@@ -26,5 +25,13 @@ contract TheRundownChainlink is ChainlinkClient {
 
     function fulfill(bytes32 _requestId, uint256 _score) public recordChainlinkFulfillment(_requestId) {
         score = _score;
+    }
+
+     function setChainlinkTokenAddress(address _link) public {
+        setChainlinkToken(_link);
+    }
+
+    function setPublicChainlinkTokenAddress() public {
+        setPublicChainlinkToken();
     }
 }
