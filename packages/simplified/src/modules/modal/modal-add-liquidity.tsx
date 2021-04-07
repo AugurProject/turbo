@@ -22,7 +22,9 @@ const {
   checkConvertLiquidityProperties,
   doAmmLiquidity,
   doRemoveAmmLiquidity,
+  // eslint-disable-next-line
   estimateAddLiquidity,
+  // eslint-disable-next-line
   getRemoveLiquidity,
 } = ContractCalls;
 const {
@@ -173,15 +175,15 @@ const ModalAddLiquidity = ({
   // });
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
   // const isApprovedMain = ApprovalState.APPROVED;
-  const isApprovedMain = useApprovalStatus({
+  const approvedMain = useApprovalStatus({
     cash,
     amm,
     actionType: !isRemove
     ? ApprovalAction.ADD_LIQUIDITY
     : ApprovalAction.REMOVE_LIQUIDITY
   });
+  const isApprovedMain = approvedMain === ApprovalState.APPROVED;
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
-
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : '0';
   const shareBalance =
     balances &&
@@ -290,33 +292,33 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      customName
+      ''
     );
     if (!properties) {
       return setBreakdown(defaultAddLiquidityBreakdown);
     }
     async function getResults() {
       let results: LiquidityBreakdown;
-      if (isRemove) {
-        results = await getRemoveLiquidity(
-          properties.marketId,
-          cash,
-          onChainFee,
-          amount
-        );
-      } else {
-        results = await estimateAddLiquidity(
-          properties.account,
-          loginAccount?.library?.provider,
-          properties.amm,
-          properties.marketId,
-          properties.cash,
-          properties.fee,
-          properties.amount,
-          properties.priceNo,
-          properties.priceYes
-        );
-      }
+      // if (isRemove) {
+      //   results = await getRemoveLiquidity(
+      //     properties.marketId,
+      //     cash,
+      //     onChainFee,
+      //     amount
+      //   );
+      // } else {
+      //   results = await estimateAddLiquidity(
+      //     properties.account,
+      //     loginAccount?.library?.provider,
+      //     properties.amm,
+      //     properties.marketId,
+      //     properties.cash,
+      //     properties.fee,
+      //     properties.amount,
+      //     properties.priceNo,
+      //     properties.priceYes
+      //   );
+      // }
 
       if (!results) {
         return setBreakdown(defaultAddLiquidityBreakdown);
@@ -387,7 +389,7 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      customName
+      ''
     );
     if (!properties) {
       setBreakdown(defaultAddLiquidityBreakdown);
@@ -712,7 +714,7 @@ const ModalAddLiquidity = ({
                   amm={amm}
                   cash={cash}
                   actionType={
-                    isRemove
+                    !isRemove
                       ? ApprovalAction.ADD_LIQUIDITY
                       : ApprovalAction.REMOVE_LIQUIDITY
                   }
