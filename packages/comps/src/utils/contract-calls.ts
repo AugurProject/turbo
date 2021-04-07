@@ -31,7 +31,6 @@ import {
   convertOnChainSharesToDisplayShareAmount,
   isSameAddress,
 } from "./format-number";
-import { augurSdkLite } from "./augurlitesdk";
 import {
   ETH,
   NO_OUTCOME_ID,
@@ -68,7 +67,6 @@ interface LiquidityProperties {
   priceNo: string;
   priceYes: string;
   symbols: string[];
-  symbolRoot: string;
 }
 
 export const checkConvertLiquidityProperties = (
@@ -78,20 +76,14 @@ export const checkConvertLiquidityProperties = (
   fee: string,
   outcomes: AmmOutcome[],
   cash: Cash,
-  amm: AmmExchange,
-  customName: string
+  amm: AmmExchange
 ): LiquidityProperties => {
   if (!account || !marketId || !amount || !outcomes || outcomes.length === 0 || !cash) return null;
   const priceNo = outcomes[NO_OUTCOME_ID]?.price;
   const priceYes = outcomes[YES_OUTCOME_ID]?.price;
-  let symbolRoot = customName;
   if (!isValidPrice(priceNo) || !isValidPrice(priceYes)) return null;
   if (amount === "0" || amount === "0.00") return null;
   if (Number(fee) < 0) return null;
-  if (amm?.symbols && amm?.symbols.length > 0) {
-    // derive symbol root
-    symbolRoot = amm?.symbols[0].slice(1);
-  }
 
   return {
     account,
@@ -102,14 +94,12 @@ export const checkConvertLiquidityProperties = (
     amount,
     priceNo,
     priceYes,
-    symbols: amm?.symbols,
-    symbolRoot,
   };
 };
 
 const convertPriceToPercent = (price: string) => String(new BN(price).times(100));
 
-export async function estimateAddLiquidity(
+export async function getAddLiquidity(
   account: string,
   provider: Web3Provider,
   amm: AmmExchange,
@@ -120,11 +110,14 @@ export async function estimateAddLiquidity(
   priceNo: string,
   priceYes: string
 ): Promise<AddLiquidityBreakdown> {
+  if (!provider) console.error("provider is null");
+  console.log("provider", provider);
   const ammFactoryContract = getAmmFactoryContract(provider, account);
 
   const hasLiquidity = amm !== null && amm?.id !== undefined && amm?.liquidity !== "0";
   const sharetoken = cash?.shareToken;
   const ammAddress = amm?.id;
+  const { hatchery, turboId } = amm;
   const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals);
   console.log(
     "getAddAmmLiquidity",
@@ -165,9 +158,10 @@ export async function estimateAddLiquidity(
     poolNoPercent
   );
 */
-  if (!hasLiquidity) {
-    ammFactoryContract.createPool();
+  if (!ammAddress) {
+    ammFactoryContract.callStatic.createPool(hatchery, turboId);
   } else {
+    ammFactoryContract.callStatic.addLiquidity(hatchery, turboId);
   }
 
   if (addLiquidityResults) {
@@ -191,8 +185,9 @@ export async function estimateAddLiquidity(
   return null;
 }
 
-export function doAmmLiquidity(
+export function doAddLiquidity(
   account: string,
+  provider: Web3Provider,
   amm: AmmExchange,
   marketId: string,
   cash: Cash,
@@ -200,14 +195,10 @@ export function doAmmLiquidity(
   cashAmount: string,
   hasLiquidity: boolean,
   priceNo: string,
-  priceYes: string,
-  symbolRoot: string
+  priceYes: string
 ): Promise<TransactionResponse | null> {
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !augurClient.amm) {
-    console.error("augurClient is null");
-    return null;
-  }
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
+
   const sharetoken = cash?.shareToken;
   const ammAddress = amm?.id;
   const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals);
@@ -223,9 +214,7 @@ export function doAmmLiquidity(
     "No",
     String(priceNo),
     "Yes",
-    String(priceYes),
-    "symbol",
-    symbolRoot
+    String(priceYes)
   );
 
   // converting odds to pool percentage. odds is the opposit of pool percentage
@@ -233,7 +222,7 @@ export function doAmmLiquidity(
   const poolYesPercent = new BN(convertPriceToPercent(priceNo));
   const poolNoPercent = new BN(convertPriceToPercent(priceYes));
 
-  return augurClient.amm.doAddLiquidity(
+  return ammFactoryContract.addLiquidity(
     account,
     ammAddress,
     hasLiquidity,
@@ -242,26 +231,26 @@ export function doAmmLiquidity(
     new BN(fee),
     new BN(amount),
     poolYesPercent,
-    poolNoPercent,
-    symbolRoot
+    poolNoPercent
   );
 }
 
 export async function getRemoveLiquidity(
   marketId: string,
+  provider: Web3Provider,
   cash: Cash,
   fee: string,
   lpTokenBalance: string
 ): Promise<LiquidityBreakdown | null> {
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !marketId || !cash?.shareToken || !fee || !cash?.decimals) {
-    console.error("getRemoveLiquidity: augurClient is null or no amm address");
+  if (!provider) {
+    console.error("getRemoveLiquidity: no provider");
     return null;
   }
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
   const balance = convertDisplayShareAmountToOnChainShareAmount(lpTokenBalance, cash?.decimals);
 
-  const results = await augurClient.amm
-    .getRemoveLiquidity(marketId, cash.shareToken, new BN(String(fee)), new BN(String(balance)))
+  const results = await ammFactoryContract.callStatic
+    .removeLiquidity(marketId, cash.shareToken, new BN(String(fee)), new BN(String(balance)))
     .catch((e) => console.log(e));
 
   if (!results) return null;
@@ -275,24 +264,16 @@ export async function getRemoveLiquidity(
   };
 }
 
-export function doRemoveAmmLiquidity({
-  marketId,
-  cash,
-  fee,
-  amount,
-  symbols,
-}: {
-  marketId: string;
-  cash: Cash;
-  fee: string;
-  amount: string;
-  symbols: string[];
-}): Promise<TransactionResponse | null> {
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !marketId || !cash?.shareToken || !fee) {
-    console.error("doRemoveLiquidity: augurClient is null or no amm address");
+export function doRemoveLiquidity(
+  amm: AmmExchange,
+  provider: Web3Provider,
+  amount: string
+): Promise<TransactionResponse | null> {
+  if (!provider) {
+    console.error("doRemoveLiquidity: no provider");
     return null;
   }
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
   const balance = convertDisplayShareAmountToOnChainShareAmount(amount, cash?.decimals);
   console.log(
     "doRemoveLiquidity",
@@ -307,16 +288,18 @@ export function doRemoveAmmLiquidity({
     "symbols",
     symbols
   );
-  return augurClient.amm.doRemoveLiquidity(marketId, cash.shareToken, new BN(fee), balance, symbols);
+  return ammFactoryContract.removeLiquidity(marketId, cash.shareToken, new BN(fee), balance, symbols);
 }
 
-export const estimateEnterTrade = async (
+export const estimateBuyTrade = async (
   amm: AmmExchange,
+  provider: Web3Provider,
   inputDisplayAmount: string,
   outputYesShares: boolean = true
 ): Promise<EstimateTradeResult | null> => {
-  const breakdownWithFeeRaw = await estimateEnterPosition(
+  const breakdownWithFeeRaw = await estimateTrade(
     TradingDirection.ENTRY,
+    provider,
     amm,
     inputDisplayAmount,
     outputYesShares
@@ -343,19 +326,18 @@ export const estimateEnterTrade = async (
   };
 };
 
-export const estimateExitTrade = async (
+export const estimateSellTrade = async (
   amm: AmmExchange,
+  provider: Web3Provider,
   inputDisplayAmount: string,
   outputYesShares: boolean = true,
   userBalances: string[] = []
 ): Promise<EstimateTradeResult | null> => {
-  const augurClient = augurSdkLite.get();
-  const ammId = amm?.id;
-  if (!augurClient || !ammId) {
-    console.error("estimateExitTrade: augurClient is null or amm address");
+  if (!provider) {
+    console.error("estimateSellTrade: no provider");
     return null;
   }
-
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
   let longShares = new BN("0");
   let shortShares = new BN("0");
   let invalidShares = new BN(userBalances[0]);
@@ -381,8 +363,8 @@ export const estimateExitTrade = async (
   // TODO get these from the graph or node. these values will be wrong most of the time
   const marketCreatorFeeDivisor = new BN(100);
   const reportingFee = new BN(10000);
-  const breakdownWithFeeRaw = await augurClient.amm
-    .getExitPosition(
+  const breakdownWithFeeRaw = await ammFactoryContract.callStatic
+    .sell(
       new BN(amm?.totalSupply || "0"),
       liqNo,
       liqYes,
@@ -425,18 +407,18 @@ export const estimateExitTrade = async (
   };
 };
 
-export const estimateEnterPosition = async (
+const estimateTrade = async (
   tradeDirection: TradingDirection,
+  provider: Web3Provider,
   amm: AmmExchange,
   inputDisplayAmount: string,
   outputYesShares: boolean = true
 ): Promise<string | null> => {
-  const augurClient = augurSdkLite.get();
-  const ammId = amm?.id;
-  if (!augurClient || !ammId) {
-    console.error("estimateTrade: augurClient is null or amm address");
+  if (!provider) {
+    console.error("estimateTrade: no provider");
     return null;
   }
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
   const includeFee = true;
   let breakdown = null;
   const { cash, marketId, feeRaw } = amm;
@@ -462,16 +444,15 @@ export const estimateEnterPosition = async (
       "includeFee:",
       includeFee
     );
-    breakdown = await augurClient.amm
-      .getEnterPosition(
-        amm.marketId,
-        cash.shareToken,
-        new BN(feeRaw),
-        inputOnChainCashAmount,
-        outputYesShares,
-        includeFee
-      )
-      .catch((e) => console.log("Error get enter position", e));
+    if (tradeDirection === TradingDirection.ENTRY) {
+      breakdown = await ammFactoryContract.callStatic
+        .buy(amm.marketId, cash.shareToken, new BN(feeRaw), inputOnChainCashAmount, outputYesShares, includeFee)
+        .catch((e) => console.log("Error get enter position", e));
+    } else {
+      breakdown = await ammFactoryContract.callStatic
+        .sell(amm.marketId, cash.shareToken, new BN(feeRaw), inputOnChainCashAmount, outputYesShares, includeFee)
+        .catch((e) => console.log("Error get enter position", e));
+    }
 
     return breakdown;
   }
@@ -481,16 +462,15 @@ export const estimateEnterPosition = async (
 
 export async function doTrade(
   tradeDirection: TradingDirection,
+  provider: Web3Provider,
   amm: AmmExchange,
   minAmount: string,
   inputDisplayAmount: string,
   outputYesShares: boolean = true,
-  userBalances: string[] = ["0", "0", "0"],
-  useEth: boolean = false
+  userBalances: string[] = ["0", "0", "0"]
 ) {
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !amm.id) return console.error("doTrade: augurClient is null or amm address");
-
+  if (!provider) return console.error("doTrade: no provider");
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
   if (tradeDirection === TradingDirection.ENTRY) {
     console.log(
       "doEnterPosition:",
@@ -511,7 +491,7 @@ export async function doTrade(
       bareMinAmount,
       amm.cash.decimals
     ).decimalPlaces(0);
-    return augurClient.amm.doEnterPosition(
+    return ammFactoryContract.buy(
       amm.marketId,
       amm.cash.shareToken,
       new BN(amm.feeRaw),
@@ -559,7 +539,7 @@ export async function doTrade(
       String(onChainMinAmount)
     );
 
-    return augurClient.amm.doExitPosition(
+    return ammFactoryContract.sell(
       amm.marketId,
       amm.cash.shareToken,
       new BN(amm.feeRaw),
@@ -574,17 +554,14 @@ export async function doTrade(
 
 export const claimWinnings = (
   account: string,
+  provider: Web3Provider,
   marketIds: string[],
   cash: Cash
 ): Promise<TransactionResponse | null> => {
-  if (!cash?.shareToken) return null;
-  const augurClient = augurSdkLite.get();
-  if (!augurClient || !augurClient.amm) {
-    console.error("augurClient is null");
-    return null;
-  }
+  if (!provider) return console.error("doTrade: no provider");
+  const hatcheryContract = getHatcheryContract(provider, account);
   const shareTokens = marketIds.map((m) => cash?.shareToken);
-  return augurClient.amm.claimMarketsProceeds(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
+  return hatcheryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
 };
 
 interface UserTrades {
@@ -1020,7 +997,7 @@ const getPositionUsdValues = (
 export const getLPCurrentValue = async (displayBalance: string, amm: AmmExchange): Promise<string> => {
   const usdPrice = amm.cash?.usdPrice ? amm.cash?.usdPrice : "0";
   const { marketId, cash, feeRaw, priceNo, priceYes } = amm;
-  const estimate = await getRemoveLiquidity(marketId, cash, feeRaw, displayBalance).catch((error) =>
+  const estimate = await getRemoveLiquidity(marketId, null, cash, feeRaw, displayBalance).catch((error) =>
     console.error("estimation error", error)
   );
   if (estimate) {
@@ -1297,7 +1274,12 @@ export const getContract = (tokenAddress: string, ABI: any, library: Web3Provide
 
 const getAmmFactoryContract = (library: Web3Provider, account?: string): Contract => {
   const { ammFactory } = PARA_CONFIG;
-  return getContract(ammFactory, AmmFactoryABI, provider, account);
+  return getContract(ammFactory, AmmFactoryABI, library, account);
+};
+
+const getHatcheryContract = (library: Web3Provider, account?: string): Contract => {
+  const { hatchery } = PARA_CONFIG;
+  return getContract(hatchery, TurboHatcheryABI, library, account);
 };
 
 // returns null on errors
@@ -1347,21 +1329,21 @@ export const getERC1155ApprovedForAll = async (
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
-  ammExchanges: AmmExchanges,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
   const { hatchery, arbiter, ammFactory } = PARA_CONFIG;
-  const currentNumMarkets = Object.keys(markets).length;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
 
   let indexes = [];
-  for (let i = currentNumMarkets; i < numMarkets; i++) {
+  for (let i = 0; i < numMarkets; i++) {
     indexes.push(i);
   }
 
   const { marketInfos, exchanges } = await retrieveMarkets(indexes, arbiter, hatchery, ammFactory, provider);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges };
+
+  console.log("exchanges", marketInfos, exchanges);
+  return { markets: marketInfos, ammExchanges: exchanges };
 };
 
 const retrieveMarkets = async (
@@ -1450,6 +1432,9 @@ const retrieveMarkets = async (
         id,
         hatcheryAddress: hatcheryAddress,
         turboId: context.index,
+        feeDecimal: "0.02",
+        feeRaw: "0",
+        feeInPercent: "2.0",
       };
     } else {
       const market = decodeMarket(data);
@@ -1474,13 +1459,9 @@ const retrieveMarkets = async (
     .filter((m) => m.categories.length > 1)
     .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
 
-  const numExchanges = Object.keys(exchanges).length;
-  if (numExchanges > 0) {
-    console.log("retrieveExchangeInfos", exchanges);
-    exchanges = retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
+  if (Object.keys(exchanges).length > 0) {
+    exchanges = await retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
   }
-
-  if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);
 
   return { marketInfos, exchanges };
 };
@@ -1499,7 +1480,6 @@ const retrieveExchangeInfos = async (
   const indexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id)
     .map((k) => exchanges[k].turboId);
-  console.log("indexes", indexes);
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
@@ -1589,14 +1569,12 @@ const retrieveExchangeInfos = async (
           ratio: toDisplayRatio(String(ratios[marketId][i])),
           balanceRaw: String(balances[marketId][i]), // mul numTicks div 10 ** 18
           balance: toDisplayBalance(String(balances[marketId][i]), numTicks),
-          isInvalid: i === 0,
+          isInvalid: i === INVALID_OUTCOME_ID,
           name: market.outcomes[i]?.name,
         },
       ]);
     }
   });
-
-  if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);
 
   return exchanges;
 };
@@ -1642,26 +1620,29 @@ const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
       id: i,
       name,
       symbol,
-      isInvalid: i === 0,
+      isInvalid: i === INVALID_OUTCOME_ID,
       isWinner: false, // need to get based on winning payout hash
     };
   });
 };
 
 const toDisplayPrice = (onChainPrice: string = "0"): string => {
-  // div 10 * 16
-  const MULTIPLIER = new BN(10).pow(18);
-  return String(new BN(onChainPrice).div(MULTIPLIER));
+  // todo: need to use cash to get decimals
+  return convertOnChainCashAmountToDisplayCashAmount(onChainPrice, 18);
 };
 
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
-  // div 10 * 18
-  const MULTIPLIER = new BN(10).pow(18);
-  return String(new BN(onChainRatio).div(MULTIPLIER));
+  // todo: need to use cash to get decimals
+  return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18);
 };
 
 const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
   // div 10 * 18
   const MULTIPLIER = new BN(10).pow(18);
   return String(new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER));
+};
+
+const toOnChainAmount = (displayAmount: string = "0"): string => {
+  // todo: need to use cash to get decimals
+  return convertDisplayCashAmountToOnChainCashAmount(displayAmount, 18);
 };

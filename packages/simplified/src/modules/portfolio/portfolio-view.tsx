@@ -68,7 +68,7 @@ const handleClaimAll = (
   } = PARA_CONFIG;
   if (from && canClaim) {
     setPendingClaim(true);
-    claimWinnings(from, marketIds, cash)
+    claimWinnings(from, loginAccount?.library?.provider, marketIds, cash)
       .then(response => {
         // handle transaction response here
         setPendingClaim(false);
