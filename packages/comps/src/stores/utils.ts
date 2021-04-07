@@ -6,7 +6,6 @@ import { ETH, TX_STATUS, ApprovalAction, ApprovalState } from "../utils/constant
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
 import { getUserBalances } from "../utils/contract-calls";
-import { useDataStore } from "./data";
 
 const isAsync = (obj) =>
   !!obj && (typeof obj === "object" || typeof obj === "function") && obj.constructor.name === "AsyncFunction";
@@ -150,22 +149,6 @@ export function useUserBalances(ammExchanges, cashes, markets) {
       ).then((userBalances) => updateUserBalances(userBalances));
     }
   }, [loginAccount?.account, loginAccount?.library, ammExchanges, cashes, markets, PARA_CONFIG]);
-};
-
-export function useBlockSubscription() {
-  const {
-    loginAccount
-  } = useUserStore();
-  const {
-    actions: { setBlocknumber }
-  } = useDataStore();
-
-  useEffect(() => {
-    const handleNewBlocks = (blocknumber: number) => { setBlocknumber(blocknumber) };
-    if (loginAccount?.library) {
-      loginAccount.library.getBlock();
-    }
-  }, [loginAccount?.library, loginAccount?.account])
 }
 
 export function useFinalizeUserTransactions(refresh: any = null) {
