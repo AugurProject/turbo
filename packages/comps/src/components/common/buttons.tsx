@@ -194,8 +194,10 @@ export const ApprovalButton = ({
   const marketCashType = cash?.name;
   const marketDescription = amm?.market?.description;
   const { shareToken } = cash;
-  const { addresses } = PARA_CONFIG;
-  const { AMMFactory, WethWrapperForAMMExchange } = addresses;
+  // @ts-ignore
+  const { ammFactory } = PARA_CONFIG;
+  // const { addresses } = PARA_CONFIG;
+  // const { AMMFactory, WethWrapperForAMMExchange } = addresses;
   const isETH = marketCashType === ETH;
   
   const approve = useCallback(async () => {
@@ -204,14 +206,14 @@ export const ApprovalButton = ({
       // defaults for ADD_LIQUIDITY/most used values.
       let ApprovalAction = approveERC20Contract;
       let address = cash?.address;
-      let spender = AMMFactory;
+      let spender = ammFactory;
       let text = `Liquidity (${marketCashType})`;
       switch (actionType) {
         case EXIT_POSITION: {
           ApprovalAction = approveERC1155Contract;
           address = shareToken;
           text = `To Sell (${marketCashType})`;
-          spender = isETH ? WethWrapperForAMMExchange : AMMFactory;
+          // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
           break;
         }
         case ENTER_POSITION: {

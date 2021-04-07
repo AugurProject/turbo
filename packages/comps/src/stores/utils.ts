@@ -205,9 +205,8 @@ export function useApprovalStatus({
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
-  const {
-    addresses: { WethWrapperForAMMExchange, AMMFactory },
-  } = PARA_CONFIG;
+  // @ts-ignore
+  const { ammFactory } = PARA_CONFIG;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;
@@ -227,13 +226,13 @@ export function useApprovalStatus({
     const checkIfApproved = async () => {
       let approvalCheck = UNKNOWN;
       let address = null;
-      let spender = AMMFactory;
+      let spender = ammFactory;
       let checkApprovalFunction = checkAllowance;
       switch (actionType) {
         case EXIT_POSITION: {
-          checkApprovalFunction = isERC1155ContractApproved;
-          address = shareToken;
-          spender = isETH ? WethWrapperForAMMExchange : AMMFactory;
+          // checkApprovalFunction = isERC1155ContractApproved;
+          // address = shareToken;
+          // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
           break;
         }
         case REMOVE_LIQUIDITY: {
