@@ -221,6 +221,7 @@ export interface MarketOutcome {
   id: number;
   isFinalNumerator?: boolean;
   payoutNumerator?: string;
+  shareToken: string;
   name: string;
   isInvalid: boolean;
   isWinner: boolean;

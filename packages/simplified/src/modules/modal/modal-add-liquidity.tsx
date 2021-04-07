@@ -311,6 +311,7 @@ const ModalAddLiquidity = ({
       } else {
         results = await estimateAddLiquidity(
           properties.account,
+          loginAccount?.library?.provider,
           properties.amm,
           properties.marketId,
           properties.cash,

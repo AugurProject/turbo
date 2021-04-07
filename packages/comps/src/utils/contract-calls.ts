@@ -51,6 +51,7 @@ import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
 import TurboHatcheryABI from "@augurproject/smart/abi/contracts/turbo/TurboHatchery.sol/TurboHatchery.json";
 import TrustedArbiterABI from "@augurproject/smart/abi/contracts/turbo/TrustedArbiter.sol/TrustedArbiter.json";
+import AmmFactoryABI from "@augurproject/smart/abi/contracts/turbo/AMMFactory.sol/AMMFactory.json";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -110,6 +111,7 @@ const convertPriceToPercent = (price: string) => String(new BN(price).times(100)
 
 export async function estimateAddLiquidity(
   account: string,
+  provider: Web3Provider,
   amm: AmmExchange,
   marketId: string,
   cash: Cash,
@@ -118,7 +120,7 @@ export async function estimateAddLiquidity(
   priceNo: string,
   priceYes: string
 ): Promise<AddLiquidityBreakdown> {
-  const { ammFactory } = PARA_CONFIG;
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
 
   const hasLiquidity = amm !== null && amm?.id !== undefined && amm?.liquidity !== "0";
   const sharetoken = cash?.shareToken;
@@ -153,7 +155,7 @@ export async function estimateAddLiquidity(
   const liqYes = amm?.liquidityYes
     ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityYes || "0"), new BN(amm?.cash?.decimals))
     : new BN(0);
-
+  /*
   const addLiquidityResults: AddLiquidityRate = await amm.getAddLiquidity(
     new BN(amm?.totalSupply || "0"),
     liqNo,
@@ -162,6 +164,11 @@ export async function estimateAddLiquidity(
     poolYesPercent,
     poolNoPercent
   );
+*/
+  if (!hasLiquidity) {
+    ammFactoryContract.createPool();
+  } else {
+  }
 
   if (addLiquidityResults) {
     const lpTokens = trimDecimalValue(
@@ -1288,6 +1295,11 @@ export const getContract = (tokenAddress: string, ABI: any, library: Web3Provide
   return new Contract(tokenAddress, ABI, getProviderOrSigner(library, account) as any);
 };
 
+const getAmmFactoryContract = (library: Web3Provider, account?: string): Contract => {
+  const { ammFactory } = PARA_CONFIG;
+  return getContract(ammFactory, AmmFactoryABI, provider, account);
+};
+
 // returns null on errors
 export const getErc20Contract = (tokenAddress: string, library: Web3Provider, account: string): Contract | null => {
   if (!tokenAddress || !library) return null;
@@ -1335,13 +1347,15 @@ export const getERC1155ApprovedForAll = async (
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   account: string
-): { marketInfos: MarketInfos; ammExchanges: AmmExchanges } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
   const { hatchery, arbiter } = PARA_CONFIG;
   let marketInfos = {};
   const currentNumMarkets = Object.keys(markets).length;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
+
   if (currentNumMarkets < numMarkets) {
     let indexes = [];
     for (let i = currentNumMarkets; i < numMarkets; i++) {
@@ -1353,10 +1367,12 @@ export const getMarketInfos = async (
         .filter((m) => m.description)
         .filter((m) => m.categories.length > 1)
         .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
+
+      console.log("market infos", marketInfos);
     }
-    console.log("markets", marketInfos);
   }
-  return { marketInfos, ammExchanges: {} };
+
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: {} };
 };
 
 const retrieveMarkets = async (
@@ -1389,23 +1405,55 @@ const retrieveMarkets = async (
           },
         ],
       },
+      {
+        reference: `${arbiterAddress}-${index}-sharetoken`,
+        contractAddress: hatcheryAddress,
+        abi: TurboHatcheryABI,
+        calls: [
+          {
+            reference: `${arbiterAddress}-${index}-sharetoken`,
+            methodName: GET_SHARETOKENS,
+            methodParameters: [index],
+            context: {
+              index,
+              arbiterAddress,
+            },
+          },
+        ],
+      },
     ],
     []
   );
   let markets = [];
+  const shareTokens = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
-    const marketData = marketsResult.results[key].callsReturnContext[0].returnValues;
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues;
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
 
-    const market = decodeMarket(marketData[0]);
-    market.marketId = `${context.arbiterAddress}-${context.index}`;
-    market.hatcheryAddress = hatcheryAddress;
-    market.turboId = context.index;
-    if (market) markets.push(market);
+    if (method === GET_SHARETOKENS) {
+      const shares = data[0];
+      shareTokens[context.index] = shares;
+    } else {
+      const market = decodeMarket(data[0]);
+      market.marketId = `${context.arbiterAddress}-${context.index}`;
+      market.hatcheryAddress = hatcheryAddress;
+      market.turboId = context.index;
+      if (market) markets.push(market);
+    }
   }
+
+  // populate outcomes share token addresses
+  if (Object.keys(shareTokens).length > 0) {
+    for (let j = 0; j < markets.length; j++) {
+      const m = markets[j];
+      const tokens = shareTokens[m.turboId];
+      tokens.forEach((t, i) => (m.outcomes[i].shareToken = t));
+    }
+  }
+
   return markets;
 };
 
