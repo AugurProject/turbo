@@ -78,7 +78,7 @@ const getCashesInfo = (): any[] => {
     {
       name: "USDC",
       displayDecimals: 2,
-      decimals: 6,
+      decimals: 18,
       address: collateral,
       shareToken: '',
       usdPrice: '1',
