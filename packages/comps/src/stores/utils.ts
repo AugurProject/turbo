@@ -1,16 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  checkIsERC20Approved,
-  checkIsERC1155Approved,
-  checkAllowance,
-  isERC1155ContractApproved,
-} from "./use-approval-callback";
+import { checkIsERC20Approved, checkIsERC1155Approved, checkAllowance } from "./use-approval-callback";
 import { Cash, MarketInfo, TransactionDetails, AmmExchange } from "../utils/types";
 import { PARA_CONFIG } from "./constants";
 import { ETH, TX_STATUS, ApprovalAction, ApprovalState } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
-// import { augurSdkLite } from "../utils/augurlitesdk";
 import { getUserBalances } from "../utils/contract-calls";
 
 const isAsync = (obj) =>
@@ -197,17 +191,18 @@ export function useApprovalStatus({
   amm,
   cash,
   actionType,
+  optionalTokenArray = [],
 }: {
   amm?: AmmExchange | null | undefined;
   cash: Cash;
   actionType: ApprovalAction;
+  optionalTokenArray?: string[];
 }) {
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
-  const {
-    addresses: { WethWrapperForAMMExchange, AMMFactory },
-  } = PARA_CONFIG;
+  // @ts-ignore
+  const { ammFactory, pool } = PARA_CONFIG;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;
@@ -227,17 +222,19 @@ export function useApprovalStatus({
     const checkIfApproved = async () => {
       let approvalCheck = UNKNOWN;
       let address = null;
-      let spender = AMMFactory;
+      let spender = ammFactory;
       let checkApprovalFunction = checkAllowance;
       switch (actionType) {
         case EXIT_POSITION: {
-          checkApprovalFunction = isERC1155ContractApproved;
-          address = shareToken;
-          spender = isETH ? WethWrapperForAMMExchange : AMMFactory;
+          // TODO: handle sell orders. need multicall approval check on optionalTokenArray in this case, one share token per outcome.
+          // checkApprovalFunction = isERC1155ContractApproved;
+          // address = shareToken;
+          // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = invalidPoolId;
+          address = pool;
+          // address = invalidPoolId;
           break;
         }
         case TRANSFER_LIQUIDITY: {

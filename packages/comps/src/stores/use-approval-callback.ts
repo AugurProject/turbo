@@ -189,16 +189,32 @@ export function useApproveERC1155Callback(
 }
 
 /*
-# AMM Middleware: Approvals Needed for Methods
-method                  | USDx                  | ETH
-----------------------------------------------------------------
-doAddLiquidity          | cash: factory         | none
-doRemoveLiquidity (1)   | bal pool: factory     | bal pool: factory
-doRemoveLiquidity (2)   | amm: factory          | amm: factory
-doEnterPosition         | cash: factory         | none
-doExitPosition          | share: factory        | share: wrapper
-doSwap                  | share: factory        | share: factory
-claim winnings          | none                  | share: wrapper
+Approvals for Turbo
+|====================================================================|
+| contract   | method          | approvals                           |
+|------------+-----------------+-------------------------------------|
+| ammfactory | buy             | cash.approve(ammfactory)            |
+| ammfactory | sell            | shareToken.approve(ammfactory)      |
+| ammfactory | addLiquidity    | cash.approve(ammfactory)            |
+| ammfactory | removeLiquidity | pool.approve(ammfactory)            |
+| hatchery   | claimWinnings   | none (share tokens trust hatchery)  |
+| ammfactory | createPool      | cash.approve(ammfactory)            |
+| feepot     | redeem          | none                                |
+| feepot     | stake           | rep.approve(feepot)                 |
+| feepot     | exit            | none                                |
+|------------+-----------------+-------------------------------------|
+| contract   | method          | explanation                         |
+|------------+-----------------+-------------------------------------|
+| ammfactory | buy             | collateral -> shares                |
+| ammfactory | sell            | shares -> collateral                |
+| ammfactory | addLiquidity    | collateral -> LP tokens             |
+| ammfactory | removeLiquidity | LP tokens -> collateral             |
+| hatchery   | claimWinnings   | winning shares -> collateral        |
+| ammfactory | createPool      | collateral -> new AMM               |
+| feepot     | redeem          | collect fees in collateral          |
+| feepot     | stake           | stake REP so you can collect fees   |
+| feepot     | exit            | unstake REP to stop collecting fees |
+|====================================================================|
 */
 
 // wraps useApproveCallback in the context of a swap

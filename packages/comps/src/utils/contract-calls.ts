@@ -1,6 +1,6 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
-import { AddLiquidityRate, marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
+import { marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
 import {
   TradingDirection,
   AmmExchange,
@@ -146,15 +146,15 @@ export async function estimateAddLiquidity(
 
   // converting odds to pool percentage. odds is the opposit of pool percentage
   // same when converting pool percentage to price
-  const poolYesPercent = new BN(convertPriceToPercent(priceNo));
-  const poolNoPercent = new BN(convertPriceToPercent(priceYes));
+  // const poolYesPercent = new BN(convertPriceToPercent(priceNo));
+  // const poolNoPercent = new BN(convertPriceToPercent(priceYes));
 
-  const liqNo = amm?.liquidityNo
-    ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityNo || "0"), new BN(amm?.cash?.decimals))
-    : new BN(0);
-  const liqYes = amm?.liquidityYes
-    ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityYes || "0"), new BN(amm?.cash?.decimals))
-    : new BN(0);
+  // const liqNo = amm?.liquidityNo
+  //   ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityNo || "0"), new BN(amm?.cash?.decimals))
+  //   : new BN(0);
+  // const liqYes = amm?.liquidityYes
+  //   ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityYes || "0"), new BN(amm?.cash?.decimals))
+  //   : new BN(0);
   /*
   const addLiquidityResults: AddLiquidityRate = await amm.getAddLiquidity(
     new BN(amm?.totalSupply || "0"),
@@ -1383,8 +1383,8 @@ const retrieveMarkets = async (
 ): Market[] => {
   const GET_TURBO = "getTurbo";
   const GET_SHARETOKENS = "getShareTokens";
-  const GET_PRICES = "prices";
-  const GET_RATIONS = "tokenRatios";
+  // const GET_PRICES = "prices";
+  // const GET_RATIONS = "tokenRatios";
   const multicall = new Multicall({ ethersProvider: provider });
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [

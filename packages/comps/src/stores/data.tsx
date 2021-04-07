@@ -88,7 +88,7 @@ const getCashesInfo = (): any[] => {
       name: "ETH",
       displayDecimals: 4,
       decimals: 18,
-      address: '',
+      address: '0x7290c2b7D5Fc91a112d462fe06aBBB8948668f56',
       shareToken: '',
       usdPrice: '2000',
       asset: 'ETH'
