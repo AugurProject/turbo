@@ -40,7 +40,6 @@ const {
     AmountInput,
     isInvalidNumber,
     OutcomesGrid,
-    TextInput,
   },
   LabelComps: {
     generateTooltip
@@ -194,10 +193,6 @@ const ModalAddLiquidity = ({
   const [amount, updateAmount] = useState(
     isRemove ? userMaxAmount : ''
   );
-
-  const [customName, setCustomName] = useState('');
-  const customNameCapitlized =
-    customName.charAt(0).toUpperCase() + customName.slice(1);
 
   const feePercentFormatted = useMemo(() => {
     const feeOption = TRADING_FEE_OPTIONS.find(
@@ -563,24 +558,6 @@ const ModalAddLiquidity = ({
       actionButtonText: 'Add',
       confirmButtonText: 'confirm market liquidity',
       currencyName: `${chosenCash}`,
-      customToken: {
-        title: 'Give your outcome tokens a custom name',
-        confirmationTitle: 'Token names',
-        breakdown: [
-          {
-            label: 'Yes',
-            value: `y${customNameCapitlized}`,
-          },
-          {
-            label: 'No',
-            value: `n${customNameCapitlized}`,
-          },
-          {
-            label: 'Invalid',
-            value: `i${customNameCapitlized}`,
-          },
-        ],
-      },
       footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
       breakdown: addCreateBreakdown,
       approvalButtonText: `approve ${chosenCash}`,
@@ -707,27 +684,6 @@ const ModalAddLiquidity = ({
                 />
               </>
             )}
-            {LIQUIDITY_STRINGS[modalType].customToken && (
-              <div className={Styles.LineBreak}>
-                <span className={Styles.SmallLabel}>
-                  {LIQUIDITY_STRINGS[modalType].customToken.title}
-                  {generateTooltip(
-                    'Name your AMM outcome share tokens, so they can be distinguished on other trading platforms.',
-                    'customTokenTitle'
-                  )}
-                </span>
-                <TextInput
-                  placeholder="Enter a custom name"
-                  value={customName}
-                  onChange={(value) => setCustomName(value)}
-                />
-                <InfoNumbers
-                  infoNumbers={
-                    LIQUIDITY_STRINGS[modalType].customToken.breakdown
-                  }
-                />
-              </div>
-            )}
             {LIQUIDITY_STRINGS[modalType].liquidityDetails && (
               <div className={Styles.LineBreak}>
                 <span className={Styles.SmallLabel}>
@@ -829,18 +785,6 @@ const ModalAddLiquidity = ({
                     infoNumbers={
                       LIQUIDITY_STRINGS[modalType].marketLiquidityDetails
                         .breakdown
-                    }
-                  />
-                </section>
-              )}
-              {LIQUIDITY_STRINGS[modalType].customToken && (
-                <section>
-                  <span className={Styles.SmallLabel}>
-                    {LIQUIDITY_STRINGS[modalType].customToken.confirmationTitle}
-                  </span>
-                  <InfoNumbers
-                    infoNumbers={
-                      LIQUIDITY_STRINGS[modalType].customToken.breakdown
                     }
                   />
                 </section>

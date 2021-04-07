@@ -1350,41 +1350,30 @@ export const getMarketInfos = async (
   ammExchanges: AmmExchanges,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
-  const { hatchery, arbiter } = PARA_CONFIG;
-  let marketInfos = {};
+  const { hatchery, arbiter, ammFactory } = PARA_CONFIG;
   const currentNumMarkets = Object.keys(markets).length;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
 
-  if (currentNumMarkets < numMarkets) {
-    let indexes = [];
-    for (let i = currentNumMarkets; i < numMarkets; i++) {
-      indexes.push(i);
-    }
-    const newMarkets = await retrieveMarkets(indexes, arbiter, hatchery, provider);
-    if (newMarkets && newMarkets.length > 0) {
-      marketInfos = newMarkets
-        .filter((m) => m.description)
-        .filter((m) => m.categories.length > 1)
-        .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
-
-      console.log("market infos", marketInfos);
-    }
+  let indexes = [];
+  for (let i = currentNumMarkets; i < numMarkets; i++) {
+    indexes.push(i);
   }
 
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: {} };
+  const { marketInfos, exchanges } = await retrieveMarkets(indexes, arbiter, hatchery, ammFactory, provider);
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges };
 };
 
 const retrieveMarkets = async (
   indexes: number[],
   arbiterAddress: string,
   hatcheryAddress: string,
+  ammFactoryAddress: string,
   provider: Web3Provider
 ): Market[] => {
   const GET_TURBO = "getTurbo";
   const GET_SHARETOKENS = "getShareTokens";
-  // const GET_PRICES = "prices";
-  // const GET_RATIONS = "tokenRatios";
+  const POOLS = "pools";
   const multicall = new Multicall({ ethersProvider: provider });
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
@@ -1400,23 +1389,39 @@ const retrieveMarkets = async (
             methodParameters: [index],
             context: {
               index,
-              arbiterAddress,
+              hatcheryAddress,
             },
           },
         ],
       },
       {
-        reference: `${arbiterAddress}-${index}-sharetoken`,
+        reference: `${hatcheryAddress}-${index}-sharetoken`,
         contractAddress: hatcheryAddress,
         abi: TurboHatcheryABI,
         calls: [
           {
-            reference: `${arbiterAddress}-${index}-sharetoken`,
+            reference: `${hatcheryAddress}-${index}-sharetoken`,
             methodName: GET_SHARETOKENS,
             methodParameters: [index],
             context: {
               index,
-              arbiterAddress,
+              hatcheryAddress,
+            },
+          },
+        ],
+      },
+      {
+        reference: `${ammFactoryAddress}-${index}-pools`,
+        contractAddress: ammFactoryAddress,
+        abi: AmmFactoryABI,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-pools`,
+            methodName: POOLS,
+            methodParameters: [hatcheryAddress, index],
+            context: {
+              index,
+              hatcheryAddress,
             },
           },
         ],
@@ -1426,19 +1431,29 @@ const retrieveMarkets = async (
   );
   let markets = [];
   const shareTokens = {};
+  let exchanges = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
-    const data = marketsResult.results[key].callsReturnContext[0].returnValues;
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
+    const marketId = `${context.hatcheryAddress}-${context.index}`;
 
     if (method === GET_SHARETOKENS) {
-      const shares = data[0];
+      const shares = data;
       shareTokens[context.index] = shares;
+    } else if (method === POOLS) {
+      const id = data === NULL_ADDRESS ? null : data;
+      exchanges[marketId] = {
+        marketId,
+        id,
+        hatcheryAddress: hatcheryAddress,
+        turboId: context.index,
+      };
     } else {
-      const market = decodeMarket(data[0]);
-      market.marketId = `${context.arbiterAddress}-${context.index}`;
+      const market = decodeMarket(data);
+      market.marketId = marketId;
       market.hatcheryAddress = hatcheryAddress;
       market.turboId = context.index;
       if (market) markets.push(market);
@@ -1454,10 +1469,139 @@ const retrieveMarkets = async (
     }
   }
 
-  return markets;
+  const marketInfos = markets
+    .filter((m) => m.description)
+    .filter((m) => m.categories.length > 1)
+    .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
+
+  const numExchanges = Object.keys(exchanges).length;
+  if (numExchanges > 0) {
+    console.log("retrieveExchangeInfos", exchanges);
+    exchanges = retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
+  }
+
+  if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);
+
+  return { marketInfos, exchanges };
 };
 
-export const decodeMarket = (marketData: any) => {
+const retrieveExchangeInfos = async (
+  exchanges: AmmExchanges,
+  marketInfos: MarketInfos,
+  hatcheryAddress: string,
+  ammFactoryAddress: string,
+  provider: Web3Provider
+): Market[] => {
+  const GET_PRICES = "prices";
+  const GET_RATIOS = "tokenRatios";
+  const GET_BALANCES = "getPoolBalances";
+  const multicall = new Multicall({ ethersProvider: provider });
+  const indexes = Object.keys(exchanges)
+    .filter((k) => exchanges[k].id)
+    .map((k) => exchanges[k].turboId);
+  console.log("indexes", indexes);
+  const contractMarketsCall: ContractCallContext[] = indexes.reduce(
+    (p, index) => [
+      ...p,
+      {
+        reference: `${ammFactoryAddress}-${index}-prices`,
+        contractAddress: ammFactoryAddress,
+        abi: AmmFactoryABI,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-prices`,
+            methodName: GET_PRICES,
+            methodParameters: [hatcheryAddress, index],
+            context: {
+              index,
+              hatcheryAddress,
+            },
+          },
+        ],
+      },
+      {
+        reference: `${ammFactoryAddress}-${index}-ratios`,
+        contractAddress: ammFactoryAddress,
+        abi: AmmFactoryABI,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-ratios`,
+            methodName: GET_RATIOS,
+            methodParameters: [hatcheryAddress, index],
+            context: {
+              index,
+              hatcheryAddress,
+            },
+          },
+        ],
+      },
+      {
+        reference: `${ammFactoryAddress}-${index}-balances`,
+        contractAddress: ammFactoryAddress,
+        abi: AmmFactoryABI,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-balances`,
+            methodName: GET_BALANCES,
+            methodParameters: [hatcheryAddress, index],
+            context: {
+              index,
+              hatcheryAddress,
+            },
+          },
+        ],
+      },
+    ],
+    []
+  );
+  const prices = {};
+  const ratios = {};
+  const balances = {};
+  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
+    const marketId = `${context.hatcheryAddress}-${context.index}`;
+
+    if (method === GET_PRICES) {
+      prices[marketId] = data;
+    } else if (method === GET_RATIOS) {
+      ratios[marketId] = data;
+    } else if (method === GET_BALANCES) {
+      balances[marketId] = data;
+    }
+  }
+
+  Object.keys(exchanges).forEach((marketId) => {
+    const exchange = exchanges[marketId];
+    if (exchange.id) {
+      const outcomePrices = prices[marketId];
+      const market = marketInfos[marketId];
+      const { numTicks } = market;
+      exchange.ammOutcomes = outcomePrices.map((o, i) => [
+        {
+          id: i,
+          priceRaw: String(o), // div 10 ** 16
+          price: toDisplayPrice(String(o)),
+          ratioRaw: String(ratios[marketId][i]), // div 10 ** 18
+          ratio: toDisplayRatio(String(ratios[marketId][i])),
+          balanceRaw: String(balances[marketId][i]), // mul numTicks div 10 ** 18
+          balance: toDisplayBalance(String(balances[marketId][i]), numTicks),
+          isInvalid: i === 0,
+          name: market.outcomes[i]?.name,
+        },
+      ]);
+    }
+  });
+
+  if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);
+
+  return exchanges;
+};
+
+const decodeMarket = (marketData: any) => {
   let json = { categories: [], description: "", details: "" };
   try {
     json = JSON.parse(marketData[2]);
@@ -1502,4 +1646,22 @@ const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
       isWinner: false, // need to get based on winning payout hash
     };
   });
+};
+
+const toDisplayPrice = (onChainPrice: string = "0"): string => {
+  // div 10 * 16
+  const MULTIPLIER = new BN(10).pow(18);
+  return String(new BN(onChainPrice).div(MULTIPLIER));
+};
+
+const toDisplayRatio = (onChainRatio: string = "0"): string => {
+  // div 10 * 18
+  const MULTIPLIER = new BN(10).pow(18);
+  return String(new BN(onChainRatio).div(MULTIPLIER));
+};
+
+const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
+  // div 10 * 18
+  const MULTIPLIER = new BN(10).pow(18);
+  return String(new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER));
 };
