@@ -62,3 +62,11 @@ start with a list of markets that is consistent.
 ```bash
 yarn hardhat cannedMarkets
 ```
+
+## The Rundown
+We are adding tasks to make it easy to fetch data from TheRunDown. In order to
+use these you will need a rundown api key from rapidapi.
+
+```
+yarn hardhat fetch-rundown-event --event [eventId] --key [rundownApiKey]
+```
