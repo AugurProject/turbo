@@ -3,7 +3,7 @@ import Styles from './buttons.styles.less';
 import classNames from 'classnames';
 import { Arrow, SearchIcon, ViewIcon } from './icons';
 import { Spinner } from './spinner';
-import { ApprovalAction, ApprovalState, ETH } from '../../utils/constants';
+import { ApprovalAction, ApprovalState } from '../../utils/constants';
 import { AmmExchange, Cash } from '../../utils/types';
 import { PARA_CONFIG } from '../../stores/constants';
 import { useUserStore } from '../../stores/user';
@@ -198,7 +198,7 @@ export const ApprovalButton = ({
   const { ammFactory } = PARA_CONFIG;
   // const { addresses } = PARA_CONFIG;
   // const { AMMFactory, WethWrapperForAMMExchange } = addresses;
-  const isETH = marketCashType === ETH;
+  // const isETH = marketCashType === ETH;
   
   const approve = useCallback(async () => {
     try {
