@@ -12,4 +12,4 @@ jobs:
         with:
           project: Product
           column: Backlog
-          repo-token: ${{ GITHUB_TOKEN }}
+          repo-token: ${{ secrets.PUBLIC_REPO_ACCESS }}
