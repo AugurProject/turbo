@@ -37,7 +37,7 @@ export const DataProvider = ({ children }) => {
     const getMarkets = async () => {
       if (provider && account) {
         const blocknumber = await provider.getBlock();
-        const marketInfos = await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, account);
+        const marketInfos = await getMarketInfos(provider, DataStore.get().markets, account);
         return {
           ...marketInfos,
           blocknumber: blocknumber?.number
