@@ -632,10 +632,10 @@ export function convertOnChainCashAmountToDisplayCashAmount(
 }
 
 export function convertDisplayCashAmountToOnChainCashAmount(
-  onChainAmount: NumStrBigNumber,
+  displayAmount: NumStrBigNumber,
   precision: NumStrBigNumber
 ): BigNumber {
-  return createBigNumber(onChainAmount).times(createBigNumber(10).pow(createBigNumber(precision)));
+  return createBigNumber(displayAmount).times(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
 export const isSameAddress = (address1: string, address2: string) =>

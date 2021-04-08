@@ -97,58 +97,28 @@ export const checkConvertLiquidityProperties = (
   };
 };
 
-const convertPriceToPercent = (price: string) => String(new BN(price).times(100));
-
-export async function getAddLiquidity(
+export async function estimateLiquidityPool(
   account: string,
   provider: Web3Provider,
   amm: AmmExchange,
-  marketId: string,
   cash: Cash,
   fee: string,
   cashAmount: string,
   priceNo: string,
   priceYes: string
-): Promise<AddLiquidityBreakdown> {
+): Promise<AddLiquidityBreakdown> | Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const { weights, amount, hatcheryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, priceNo, priceYes);
   const ammAddress = amm?.id;
-  const { hatcheryAddress, turboId } = amm;
-  const amount = String(convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals));
-  console.log(
-    "getAddAmmLiquidity",
-    account,
-    "amm",
-    amm,
-    "hatchery",
-    hatcheryAddress,
-    "marketId",
-    marketId,
-    "turboId",
-    turboId,
-    "amount",
-    String(amount),
-    "No",
-    String(priceNo),
-    "Yes",
-    String(priceYes)
-  );
 
   let addLiquidityResults = null;
   if (!ammAddress) {
-    const multiplier = new BN(10).pow(new BN(18));
-    // converting odds to pool percentage. odds is the opposit of pool percentage
-    // same when converting pool percentage to price
-    const poolYesPercent = new BN(convertPriceToPercent(priceNo)).minus(1);
-    const poolNoPercent = new BN(convertPriceToPercent(priceYes)).minus(1);
-    // defaulting weights until figured out a way to set prices to what user sets
-    const noContestWeight = new BN(2).times(multiplier);
-    const otherWeight = new BN(50).times(multiplier);
     addLiquidityResults = await ammFactoryContract.callStatic.createPool(
       hatcheryAddress,
       turboId,
       amount,
-      [noContestWeight, otherWeight, otherWeight],
+      weights,
       account
     );
   } else {
@@ -181,54 +151,61 @@ export async function getAddLiquidity(
   return null;
 }
 
-export function doAddLiquidity(
+export async function addLiquidityPool(
   account: string,
   provider: Web3Provider,
   amm: AmmExchange,
-  marketId: string,
   cash: Cash,
   fee: string,
   cashAmount: string,
-  hasLiquidity: boolean,
   priceNo: string,
   priceYes: string
-): Promise<TransactionResponse | null> {
+): Promise<AddLiquidityBreakdown> | Promise<TransactionResponse> {
+  if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-
-  const sharetoken = cash?.shareToken;
+  const { weights, amount, hatcheryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, priceNo, priceYes);
   const ammAddress = amm?.id;
-  const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals);
-  console.log(
-    "doAmmLiquidity",
-    account,
-    ammAddress,
-    hasLiquidity,
-    marketId,
-    sharetoken,
-    fee,
-    String(amount),
-    "No",
-    String(priceNo),
-    "Yes",
-    String(priceYes)
-  );
+  let tx = null;
+  if (!ammAddress) {
+    tx = await ammFactoryContract.createPool(hatcheryAddress, turboId, amount, weights, account);
+  } else {
+    // todo: get what the min lp token out is
+    tx = await ammFactoryContract.addLiquidity(hatcheryAddress, turboId, amount, 0, account);
+  }
 
-  // converting odds to pool percentage. odds is the opposit of pool percentage
-  // same when converting pool percentage to price
-  const poolYesPercent = new BN(convertPriceToPercent(priceNo));
-  const poolNoPercent = new BN(convertPriceToPercent(priceYes));
+  return tx;
+}
 
-  return ammFactoryContract.addLiquidity(
-    account,
-    ammAddress,
-    hasLiquidity,
-    marketId,
-    sharetoken,
-    new BN(fee),
-    new BN(amount),
-    poolYesPercent,
-    poolNoPercent
-  );
+function shapeAddLiquidityPool(
+  amm: AmmExchange,
+  cash: Cash,
+  cashAmount: string,
+  priceNo: string,
+  priceYes: string
+): {} {
+  const ammAddress = amm?.id;
+  const { hatcheryAddress, turboId } = amm;
+  const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals).toFixed();
+
+  let weights = [];
+  if (!ammAddress) {
+    const decimalPercentNoContest = 0.02;
+    const totalWeight = 50; // just how balancer weights work, total weight is 50
+    const multiplier = new BN(10).pow(new BN(18));
+    // convert price to percentage of weight in the balancer pool.
+    // each outcome gets a
+    const yesWeight = String(new BN(priceNo).minus(0.01).times(totalWeight).times(multiplier));
+    const noWeight = String(new BN(priceYes).minus(0.01).times(totalWeight).times(multiplier));
+    const noContestWeight = String(new BN(decimalPercentNoContest).times(totalWeight).times(multiplier));
+
+    weights = [noContestWeight, noWeight, yesWeight];
+  }
+  return {
+    hatcheryAddress,
+    turboId,
+    weights,
+    amount,
+  };
 }
 
 export async function getRemoveLiquidity(
@@ -1559,24 +1536,20 @@ const retrieveExchangeInfos = async (
 
   Object.keys(exchanges).forEach((marketId) => {
     const exchange = exchanges[marketId];
-    if (exchange.id) {
-      const outcomePrices = prices[marketId];
-      const market = marketInfos[marketId];
-      const { numTicks } = market;
-      exchange.ammOutcomes = outcomePrices.map((o, i) => [
-        {
-          id: i,
-          priceRaw: String(o), // div 10 ** 16
-          price: toDisplayPrice(String(o)),
-          ratioRaw: String(ratios[marketId][i]), // div 10 ** 18
-          ratio: toDisplayRatio(String(ratios[marketId][i])),
-          balanceRaw: String(balances[marketId][i]), // mul numTicks div 10 ** 18
-          balance: toDisplayBalance(String(balances[marketId][i]), numTicks),
-          isInvalid: i === INVALID_OUTCOME_ID,
-          name: market.outcomes[i]?.name,
-        },
-      ]);
-    }
+    const outcomePrices = prices[marketId];
+    const market = marketInfos[marketId];
+    const { numTicks } = market;
+    exchange.ammOutcomes = market.outcomes.map((o, i) => ({
+      id: i,
+      priceRaw: exchange.id ? String(outcomePrices[i]) : "",
+      price: exchange.id ? toDisplayPrice(String(outcomePrices[i])) : "",
+      ratioRaw: exchange.id ? String(ratios[marketId][i]) : "",
+      ratio: exchange.id ? toDisplayRatio(String(ratios[marketId][i])) : "",
+      balanceRaw: exchange.id ? String(balances[marketId][i]) : "",
+      balance: exchange.id ? toDisplayBalance(String(balances[marketId][i]), numTicks) : "",
+      isInvalid: o?.isInvalid,
+      name: o?.name,
+    }));
   });
 
   return exchanges;
@@ -1600,7 +1573,7 @@ const decodeMarket = (marketData: any) => {
   const outcomes = decodeOutcomes(marketData[4], marketData[5]);
   const reportingState = MARKET_STATUS.TRADING;
   const turboData = {
-    endTime: new BN(String(marketData["endTime"])).toNumber(),
+    endTimestamp: new BN(String(marketData["endTime"])).toNumber(),
     creationTimestamp: String(start),
     marketType: marketData["marketType"] || 1,
     numTicks: String(marketData["numTicks"]),
@@ -1611,6 +1584,7 @@ const decodeMarket = (marketData: any) => {
     categories: json["categories"],
     reportingState,
     outcomes,
+    settlementFee: String("creatorFee") || "0", // todo: get creation fee
   };
   return turboData;
 };
@@ -1632,16 +1606,16 @@ const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
 
 const toDisplayPrice = (onChainPrice: string = "0"): string => {
   // todo: need to use cash to get decimals
-  return convertOnChainCashAmountToDisplayCashAmount(onChainPrice, 18);
+  return convertOnChainCashAmountToDisplayCashAmount(onChainPrice, 18).toFixed();
 };
 
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
   // todo: need to use cash to get decimals
-  return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18);
+  return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18).toFixed();
 };
 
 const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
   // todo: need to use cash to get decimals
   const MULTIPLIER = new BN(10).pow(18);
-  return String(new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER));
+  return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
 };

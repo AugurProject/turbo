@@ -20,9 +20,9 @@ import {
 } from '@augurproject/comps';
 const {
   checkConvertLiquidityProperties,
-  doAddLiquidity,
   doRemoveLiquidity,
-  getAddLiquidity,
+  addLiquidityPool,
+  estimateLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
 const {
@@ -122,31 +122,10 @@ const ModalAddLiquidity = ({
   const history = useHistory();
 
   let amm = ammExchanges[market.marketId];
-  const mustSetPrices = !!amm?.id
+  const mustSetPrices = Boolean(!amm?.id);
   const modalType = Boolean(amm?.id) ? ADD : CREATE;
 
-  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(
-    !mustSetPrices && modalType !== CREATE
-      ? amm.ammOutcomes
-      : [
-        {
-          id: 0,
-          name: 'Invalid',
-          price: '',
-          isInvalid: true,
-        },
-        {
-          id: 1,
-          name: 'No',
-          price: '',
-        },
-        {
-          id: 2,
-          name: 'Yes',
-          price: '',
-        },
-      ]
-  );
+  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(amm.ammOutcomes);
   const [showBackView, setShowBackView] = useState(false);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -294,23 +273,22 @@ const ModalAddLiquidity = ({
       let results: LiquidityBreakdown;
       if (isRemove) {
         results = await getRemoveLiquidity(
-          properties.marketId,
+          market.marketId,
           loginAccount?.library,
           cash,
           onChainFee,
           amount
         );
       } else {
-        results = await getAddLiquidity(
+        results = await estimateLiquidityPool(
           account,
           loginAccount?.library,
           amm,
-          market.marketId,
           cash,
           properties.fee,
           amount,
           properties.priceNo,
-          properties.priceYes
+          properties.priceYes,
         );
       }
 
@@ -406,18 +384,15 @@ const ModalAddLiquidity = ({
           console.log('Error when trying to remove AMM liquidity: ', error?.message);
         });
     } else {
-      await doAddLiquidity(
-        properties.account,
+      await addLiquidityPool(
+        account,
         loginAccount?.library,
-        properties.marketId,
-        properties.cash,
+        amm,
+        cash,
         properties.fee,
-        properties.amount,
-        modalType === ADD
-          ? amm !== null && amm?.id !== undefined && amm?.liquidity !== '0'
-          : false,
+        amount,
         properties.priceNo,
-        properties.priceYes,
+        properties.priceYes
       )
         .then(response => {
           const { hash } = response;
