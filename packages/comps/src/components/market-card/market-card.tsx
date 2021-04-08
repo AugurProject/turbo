@@ -123,9 +123,9 @@ export const MarketCardView = ({
   return (
     <article
       className={classNames(Styles.MarketCard, {
-        [Styles.NoLiquidity]: !amm,
+        [Styles.NoLiquidity]: !amm?.id,
       })}
-      onClick={() => handleNoLiquidity(market)}
+      onClick={() => !amm?.id && handleNoLiquidity(market)}
     >
       <div>
         <article
@@ -142,7 +142,7 @@ export const MarketCardView = ({
             <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
           </div>
         </article>
-        {!amm ? (
+        {!amm?.id ? (
           <>
             <span>{description}</span>
             <div>
