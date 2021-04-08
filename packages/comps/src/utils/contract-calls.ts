@@ -676,8 +676,9 @@ export const getUserBalances = async (
       },
     ];
   }
-
-  const balanceCalls = [...contractLpBalanceCall, ...contractMarketShareBalanceCall, ...basicBalanceCalls];
+  // todo ...contractLpBalanceCall, ...contractMarketShareBalanceCall,
+  // need different calls to get lp tokens and market share balances
+  const balanceCalls = [...basicBalanceCalls];
 
   let balances: string[] = [];
   const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
