@@ -159,6 +159,7 @@ export function useFinalizeUserTransactions(refresh: any = null) {
   useEffect(() => {
     transactions
       .filter((t) => t.status === TX_STATUS.PENDING)
+      .filter((t) => t.hash)
       .forEach((t: TransactionDetails) => {
         loginAccount.library
           .getTransactionReceipt(t.hash)
