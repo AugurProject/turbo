@@ -20,11 +20,9 @@ import {
 } from '@augurproject/comps';
 const {
   checkConvertLiquidityProperties,
-  doAmmLiquidity,
-  doRemoveAmmLiquidity,
-  // eslint-disable-next-line
-  estimateAddLiquidity,
-  // eslint-disable-next-line
+  doAddLiquidity,
+  doRemoveLiquidity,
+  getAddLiquidity,
   getRemoveLiquidity,
 } = ContractCalls;
 const {
@@ -120,16 +118,12 @@ const ModalAddLiquidity = ({
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes } = useDataStore();
+  const { cashes, ammExchanges } = useDataStore();
   const history = useHistory();
 
-  let amm = market?.amm;
-  const mustSetPrices =
-    liquidityModalType === CREATE ||
-    !amm ||
-    amm?.liquidity === undefined ||
-    amm?.liquidity === '0';
-  const modalType = liquidityModalType;
+  let amm = ammExchanges[market.marketId];
+  const mustSetPrices = !!amm?.id
+  const modalType = Boolean(amm?.id) ? ADD : CREATE;
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(
     !mustSetPrices && modalType !== CREATE
@@ -292,33 +286,33 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      ''
     );
     if (!properties) {
       return setBreakdown(defaultAddLiquidityBreakdown);
     }
     async function getResults() {
       let results: LiquidityBreakdown;
-      // if (isRemove) {
-      //   results = await getRemoveLiquidity(
-      //     properties.marketId,
-      //     cash,
-      //     onChainFee,
-      //     amount
-      //   );
-      // } else {
-      //   results = await estimateAddLiquidity(
-      //     properties.account,
-      //     loginAccount?.library?.provider,
-      //     properties.amm,
-      //     properties.marketId,
-      //     properties.cash,
-      //     properties.fee,
-      //     properties.amount,
-      //     properties.priceNo,
-      //     properties.priceYes
-      //   );
-      // }
+      if (isRemove) {
+        results = await getRemoveLiquidity(
+          properties.marketId,
+          loginAccount?.library,
+          cash,
+          onChainFee,
+          amount
+        );
+      } else {
+        results = await getAddLiquidity(
+          account,
+          loginAccount?.library,
+          amm,
+          market.marketId,
+          cash,
+          properties.fee,
+          amount,
+          properties.priceNo,
+          properties.priceYes
+        );
+      }
 
       if (!results) {
         return setBreakdown(defaultAddLiquidityBreakdown);
@@ -389,13 +383,12 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      ''
     );
     if (!properties) {
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveAmmLiquidity(properties)
+      doRemoveLiquidity(amm, loginAccount?.library, amount)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -413,9 +406,9 @@ const ModalAddLiquidity = ({
           console.log('Error when trying to remove AMM liquidity: ', error?.message);
         });
     } else {
-      await doAmmLiquidity(
+      await doAddLiquidity(
         properties.account,
-        modalType === CREATE ? undefined : properties.amm,
+        loginAccount?.library,
         properties.marketId,
         properties.cash,
         properties.fee,
@@ -425,7 +418,6 @@ const ModalAddLiquidity = ({
           : false,
         properties.priceNo,
         properties.priceYes,
-        properties.symbolRoot
       )
         .then(response => {
           const { hash } = response;
@@ -555,7 +547,7 @@ const ModalAddLiquidity = ({
       setOdds: true,
       setOddsTitle: 'Set the price (between 0.0 to 1.0)',
       editableOutcomes: true,
-      setFees: true,
+      setFees: false, // set false for version 0
       receiveTitle: "You'll receive",
       actionButtonText: 'Add',
       confirmButtonText: 'confirm market liquidity',

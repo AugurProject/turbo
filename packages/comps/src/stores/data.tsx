@@ -35,8 +35,7 @@ export const DataProvider = ({ children }) => {
     let isMounted = true;
     const getMarkets = async () => {
       if (provider && account) {
-        const { markets, ammExchanges } = DataStore.get();
-        return await getMarketInfos(provider, markets, ammExchanges, account);
+        return await getMarketInfos(provider, DataStore.get().markets, account);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null };
     };

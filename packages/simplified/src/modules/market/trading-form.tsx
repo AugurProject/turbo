@@ -19,7 +19,7 @@ import {
 } from '@augurproject/comps';
 import { useTrackedEvents } from '../../utils/tracker';
 import { Slippage } from '../common/slippage';
-const { doTrade, estimateEnterTrade, estimateExitTrade } = ContractCalls;
+const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
 const {
   Icons: { CloseIcon },
   LabelComps: { generateTooltip },
@@ -241,8 +241,8 @@ const TradingForm = ({
         userBalances = marketShares?.outcomeSharesRaw;
       }
       const breakdown = isBuy
-        ? await estimateEnterTrade(amm, amount, outputYesShares)
-        : await estimateExitTrade(amm, amount, outputYesShares, userBalances);
+        ? await estimateBuyTrade(amm, loginAccount?.library, amount, outputYesShares)
+        : await estimateSellTrade(amm, loginAccount?.library, amount, outputYesShares, userBalances);
 
       tradingEstimateEvents(
         isBuy,
@@ -349,10 +349,11 @@ const TradingForm = ({
       outputYesShares,
       amm?.cash?.name,
       amount,
-      worstCaseOutput
+      worstCaseOutput,
     );
     doTrade(
       direction,
+      loginAccount?.library,
       amm,
       worstCaseOutput,
       amount,
