@@ -11,10 +11,9 @@ export function DataReducer(state, action) {
   switch (action.type) {
     case UPDATE_DATA_HEARTBEAT: {
       const { markets, cashes, ammExchanges, errors, blocknumber } = action;
-      console.log("reducer", ammExchanges);
       updatedState[MARKETS] = markets;
       updatedState[CASHES] = cashes;
-      updatedState[AMM_EXCHANGES] = Object.keys(ammExchanges).length > 0 ? ammExchanges : updatedState[AMM_EXCHANGES];
+      updatedState[AMM_EXCHANGES] = ammExchanges;
       updatedState[ERRORS] = errors || null;
       updatedState[BLOCKNUMBER] = blocknumber ? blocknumber : updatedState[BLOCKNUMBER];
       break;

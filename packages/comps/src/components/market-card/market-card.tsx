@@ -42,15 +42,6 @@ export const LoadingMarketCard = () => {
 export const MarketCard = ({ marketId, markets, ammExchanges, ...props }) => {
   const market = useMemo(() => markets[marketId], [marketId, markets]);
   const amm = useMemo(() => ammExchanges[marketId], [marketId, ammExchanges]);
-  // const [market, setMarket] = useState(markets[marketId]);
-  // const [amm, setAmm] = useState(ammExchanges[marketId]);
-  // useEffect(() => {
-  //     console.log("Triggered!", market, amm);
-  //     console.log("||!||", markets[marketId], ammExchanges[marketId]);
-  //     setMarket(markets[marketId]);
-  //     setAmm(ammExchanges[marketId]);
-  // }, [markets, ammExchanges]);
-  // console.log(marketId, markets, ammExchanges, props, market, amm);
   if (!market) return <LoadingMarketCard />;
   return <MarketCardView market={market as MarketInfo} amm={amm as AmmExchange} {...props} />;
 };

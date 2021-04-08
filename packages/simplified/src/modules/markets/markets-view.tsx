@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import Styles from './markets-view.styles.less';
-import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
-import classNames from 'classnames';
-import { useSimplifiedStore } from '../stores/simplified';
-import { MarketInfo } from '../types';
-import { TopBanner } from '../common/top-banner';
+import React, { useEffect, useState } from "react";
+import Styles from "./markets-view.styles.less";
+import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
+import classNames from "classnames";
+import { useSimplifiedStore } from "../stores/simplified";
+import { MarketInfo } from "../types";
+import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
   useDataStore,
@@ -13,8 +13,8 @@ import {
   SEO,
   Constants,
   Components,
-} from '@augurproject/comps';
-import { MARKETS_LIST_HEAD_TAGS } from '../seo-config';
+} from "@augurproject/comps";
+import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryButton },
@@ -52,15 +52,7 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
-  {
-    filter,
-    categories,
-    sortBy,
-    currency,
-    reportingState,
-    showLiquidMarkets,
-    showInvalidMarkets,
-  },
+  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
   handleGraphError
 ) => {
   // TODO: put this back in
@@ -168,7 +160,7 @@ const MarketsView = () => {
   const {
     marketsViewSettings,
     settings: { showLiquidMarkets, showInvalidMarkets },
-    actions: { setSidebar, updateMarketsViewSettings }
+    actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
     blocknumber,
@@ -181,7 +173,7 @@ const MarketsView = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
 
   useScrollToTopOnMount(page);
@@ -202,27 +194,14 @@ const MarketsView = () => {
         showLiquidMarkets,
         showInvalidMarkets,
       },
-      (err) =>
-      updateDataHeartbeat(
-          { ammExchanges, cashes, markets },
-          blocknumber,
-          err
-        )
+      (err) => updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, err)
     );
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [
-    sortBy,
-    filter,
-    categories,
-    reportingState,
-    currency,
-    showLiquidMarkets.valueOf(),
-    showInvalidMarkets,
-  ]);
+  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf(), showInvalidMarkets]);
 
   useEffect(() => {
     handleFilterSort();
@@ -231,8 +210,7 @@ const MarketsView = () => {
   let changedFilters = 0;
 
   Object.keys(DEFAULT_MARKET_VIEW_SETTINGS).forEach((setting) => {
-    if (marketsViewSettings[setting] !== DEFAULT_MARKET_VIEW_SETTINGS[setting])
-      changedFilters++;
+    if (marketsViewSettings[setting] !== DEFAULT_MARKET_VIEW_SETTINGS[setting]) changedFilters++;
   });
 
   const handleNoLiquidity = (market: MarketInfo) => {
@@ -246,7 +224,7 @@ const MarketsView = () => {
       });
     }
   };
-  // console.log("hello", markets, ammExchanges, filteredMarkets);
+
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -265,7 +243,7 @@ const MarketsView = () => {
           />
           <SearchButton
             action={() => {
-              setFilter('');
+              setFilter("");
               setShowFilter(!showFilter);
             }}
             selected={showFilter}
@@ -304,7 +282,7 @@ const MarketsView = () => {
         <SearchButton
           selected={showFilter}
           action={() => {
-            setFilter('');
+            setFilter("");
             setShowFilter(!showFilter);
           }}
           showFilter={showFilter}
@@ -314,10 +292,14 @@ const MarketsView = () => {
         value={filter}
         // @ts-ignore
         onChange={(e) => setFilter(e.target.value)}
-        clearValue={() => setFilter('')}
+        clearValue={() => setFilter("")}
         showFilter={showFilter}
       />
-      {loading ? (
+      {!isLogged ? (
+        <section>
+          <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
+        </section>
+      ) : loading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />
@@ -325,23 +307,19 @@ const MarketsView = () => {
         </section>
       ) : filteredMarkets.length > 0 ? (
         <section>
-          {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map(
-            (market, index) => (
-              <MarketCard
-                key={`${market.marketId}-${index}`}
-                marketId={market.marketId}
-                markets={markets}
-                ammExchanges={ammExchanges}
-                handleNoLiquidity={handleNoLiquidity}
-                noLiquidityDisabled={!isLogged}
-              />
-            )
-          )}
+          {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market, index) => (
+            <MarketCard
+              key={`${market.marketId}-${index}`}
+              marketId={market.marketId}
+              markets={markets}
+              ammExchanges={ammExchanges}
+              handleNoLiquidity={handleNoLiquidity}
+              noLiquidityDisabled={!isLogged}
+            />
+          ))}
         </section>
       ) : (
-        <span className={Styles.EmptyMarketsMessage}>
-          No markets to show. Try changing the filter options.
-        </span>
+        <span className={Styles.EmptyMarketsMessage}>No markets to show. Try changing the filter options.</span>
       )}
       {filteredMarkets.length > 0 && (
         <Pagination
@@ -359,4 +337,3 @@ const MarketsView = () => {
 };
 
 export default MarketsView;
-
