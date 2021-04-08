@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_REFRESH_TIME } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore } from "./user";
-import { getMarketInfos } from '../utils/contract-calls';
+import { getMarketInfos } from "../utils/contract-calls";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -31,29 +31,23 @@ export const DataProvider = ({ children }) => {
   const readableState = { ...state };
   delete readableState.actions;
   DataStore.get = () => readableState;
-
   useEffect(() => {
     let isMounted = true;
     const getMarkets = async () => {
       if (provider && account) {
-        const blocknumber = await provider.getBlock();
-        const marketInfos = await getMarketInfos(provider, DataStore.get().markets, account);
-        return {
-          ...marketInfos,
-          blocknumber: blocknumber?.number
-        };
+        return await getMarketInfos(provider, DataStore.get().markets, account);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null };
     };
-    
+
     getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
       isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
-    })
+    });
 
     const intervalId = setInterval(() => {
       getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
         isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
-      })
+      });
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
       isMounted = false;
@@ -72,7 +66,7 @@ const output = {
   DataStore,
 };
 
-// for now we jsut do this here... 
+// for now we jsut do this here...
 const getCashesInfo = (): any[] => {
   // @ts-ignore
   const { collateral } = PARA_CONFIG;
@@ -84,19 +78,19 @@ const getCashesInfo = (): any[] => {
       displayDecimals: 2,
       decimals: 18,
       address: collateral,
-      shareToken: '',
-      usdPrice: '1',
-      asset: '',
+      shareToken: "",
+      usdPrice: "1",
+      asset: "",
     },
     {
       name: "ETH",
       displayDecimals: 4,
       decimals: 18,
-      address: '0x7290c2b7D5Fc91a112d462fe06aBBB8948668f56',
-      shareToken: '',
-      usdPrice: '2000',
-      asset: 'ETH'
-    }
+      address: "0x7290c2b7D5Fc91a112d462fe06aBBB8948668f56",
+      shareToken: "",
+      usdPrice: "2000",
+      asset: "ETH",
+    },
   ];
   // const cashes = paraCashes[String(networkId)].Cashes;
 

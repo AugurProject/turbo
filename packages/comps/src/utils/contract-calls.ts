@@ -1327,7 +1327,7 @@ export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
   account: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const { hatchery, arbiter, ammFactory } = PARA_CONFIG;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
   const numMarkets = (await hatcheryContract.getTurboLength()).toNumber();
@@ -1337,8 +1337,14 @@ export const getMarketInfos = async (
     indexes.push(i);
   }
 
-  const { marketInfos, exchanges } = await retrieveMarkets(indexes, arbiter, hatchery, ammFactory, provider);
-  return { markets: marketInfos, ammExchanges: exchanges };
+  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+    indexes,
+    arbiter,
+    hatchery,
+    ammFactory,
+    provider
+  );
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
 const retrieveMarkets = async (
@@ -1454,11 +1460,13 @@ const retrieveMarkets = async (
     .filter((m) => m.categories.length > 1)
     .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
 
+  const blocknumber = marketsResult.blockNumber;
+
   if (Object.keys(exchanges).length > 0) {
     exchanges = await retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
   }
 
-  return { marketInfos, exchanges };
+  return { marketInfos, exchanges, blocknumber };
 };
 
 const retrieveExchangeInfos = async (

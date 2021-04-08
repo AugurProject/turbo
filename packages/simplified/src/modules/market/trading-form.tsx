@@ -15,7 +15,9 @@ import {
   ContractCalls,
   useAppStatusStore,
   useUserStore,
+  useDataStore,
   Components,
+  useApprovalStatus,
 } from '@augurproject/comps';
 import { useTrackedEvents } from '../../utils/tracker';
 import { Slippage } from '../common/slippage';
@@ -34,6 +36,7 @@ const {
   formatSimpleShares,
 } = Formatter;
 const {
+  USDC,
   ApprovalAction,
   ApprovalState,
   SHARES,
@@ -172,6 +175,7 @@ const TradingForm = ({
   amm,
 }: TradingFormProps) => {
   const { isLogged } = useAppStatusStore();
+  const { cashes } = useDataStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
@@ -190,17 +194,18 @@ const TradingForm = ({
   const [breakdown, setBreakdown] = useState<EstimateTradeResult | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [waitingToSign, setWaitingToSign] = useState(false);
-  const ammCash = amm?.cash;
+  // const ammCash = amm?.cash;
+  // TODO: just grab USDC for now since we got here and USDC is only cash
+  const ammCash = Object.entries(cashes).find(cash => cash[1].name === USDC)[1];
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
-  const approvalStatus = ApprovalState.APPROVED;
-  // const approvalStatus = useApprovalStatus({
-  //   cash: ammCash,
-  //   amm,
-  //   actionType: isBuy
-  //     ? ApprovalAction.ENTER_POSITION
-  //     : ApprovalAction.EXIT_POSITION,
-  // });
+  const approvalStatus = useApprovalStatus({
+    cash: ammCash,
+    amm,
+    actionType: isBuy
+      ? ApprovalAction.ENTER_POSITION
+      : ApprovalAction.EXIT_POSITION,
+  });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
   const hasLiquidity = amm.liquidity !== '0';
   const approvalAction = isBuy
