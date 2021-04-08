@@ -163,7 +163,7 @@ export const MarketCardView = ({
             <span>{description}</span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
-            {/* <OutcomesTable amm={amm} marketOutcomes={outcomes} reportingState={reportingState} /> */}
+            <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
           </MarketLink>
         )}
       </div>

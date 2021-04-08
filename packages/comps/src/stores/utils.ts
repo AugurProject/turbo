@@ -264,7 +264,18 @@ export function useApprovalStatus({
     return () => {
       isMounted = false;
     };
-  }, [account, isApproved, actionType, invalidPoolId, ammId, PARA_CONFIG, marketCashType, tokenAddress, shareToken, outcomeShareToken]);
+  }, [
+    account,
+    isApproved,
+    actionType,
+    invalidPoolId,
+    ammId,
+    PARA_CONFIG,
+    marketCashType,
+    tokenAddress,
+    shareToken,
+    outcomeShareToken,
+  ]);
 
   return isApproved;
 }

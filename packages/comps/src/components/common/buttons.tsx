@@ -9,7 +9,6 @@ import { PARA_CONFIG } from '../../stores/constants';
 import { useUserStore } from '../../stores/user';
 import {
   approveERC20Contract,
-  approveERC1155Contract,
 } from '../../stores/use-approval-callback';
 
 export interface ButtonProps {

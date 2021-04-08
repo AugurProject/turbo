@@ -663,9 +663,10 @@ export const formatUserTransactionActvity = (
       const cashName = exchange.cash?.name;
       const userTx: AmmTransaction[] = exchange?.transactions?.filter((t) => isSameAddress(t.sender, account)) || [];
 
-      const claims = markets[`${exchange?.marketId}-${exchange?.id}`]?.claimedProceeds?.filter(
-        (c) => isSameAddress(c.user, account) && c.cash.name === cashName
-      ) || [];
+      const claims =
+        markets[`${exchange?.marketId}-${exchange?.id}`]?.claimedProceeds?.filter(
+          (c) => isSameAddress(c.user, account) && c.cash.name === cashName
+        ) || [];
       if (userTx.length === 0 && claims.length === 0) return p;
 
       const userClaims = claims.map((c) => {
