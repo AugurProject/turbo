@@ -1341,8 +1341,6 @@ export const getMarketInfos = async (
   }
 
   const { marketInfos, exchanges } = await retrieveMarkets(indexes, arbiter, hatchery, ammFactory, provider);
-
-  console.log("exchanges", marketInfos, exchanges);
   return { markets: marketInfos, ammExchanges: exchanges };
 };
 
@@ -1432,9 +1430,9 @@ const retrieveMarkets = async (
         id,
         hatcheryAddress: hatcheryAddress,
         turboId: context.index,
-        feeDecimal: "0.02",
+        feeDecimal: "0",
         feeRaw: "0",
-        feeInPercent: "2.0",
+        feeInPercent: "0",
       };
     } else {
       const market = decodeMarket(data);
@@ -1637,12 +1635,7 @@ const toDisplayRatio = (onChainRatio: string = "0"): string => {
 };
 
 const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
-  // div 10 * 18
+  // todo: need to use cash to get decimals
   const MULTIPLIER = new BN(10).pow(18);
   return String(new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER));
-};
-
-const toOnChainAmount = (displayAmount: string = "0"): string => {
-  // todo: need to use cash to get decimals
-  return convertDisplayCashAmountToOnChainCashAmount(displayAmount, 18);
 };
