@@ -133,7 +133,7 @@ const processPriceTimeData = (formattedOutcomes, market, rangeSelection) => ({
   priceTimeArray: formattedOutcomes.map((outcome) => {
     const { startTime, tick, totalTicks } = calculateRangeSelection(rangeSelection, market);
     const newArray: any[] = [];
-    const sortedOutcomeTrades = market.amm.trades[outcome.id].sort((a, b) => a.timestamp - b.timestamp);
+    const sortedOutcomeTrades = market?.amm?.trades[outcome.id].sort((a, b) => a.timestamp - b.timestamp) || [];
     let newLastPrice = determineLastPrice(sortedOutcomeTrades, startTime);
     for (let i = 0; i < totalTicks; i++) {
       const curTick = startTime + tick * i;
@@ -239,6 +239,7 @@ export const SelectOutcomeButton = ({
 };
 
 export const SimpleChartSection = ({ market, cash }) => {
+  
   const formattedOutcomes = getFormattedOutcomes({ market });
   // eslint-disable-next-line
   const [selectedOutcomes, setSelectedOutcomes] = useState(

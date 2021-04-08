@@ -118,7 +118,7 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState, outcomes } = market;
+  const { categories, description, marketId, reportingState } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   return (
     <article
@@ -159,7 +159,7 @@ export const MarketCardView = ({
             </div>
           </>
         ) : (
-          <MarketLink id={marketId} dontGoToMarket={!amm} ammId={amm?.id}>
+          <MarketLink id={marketId} dontGoToMarket={false}>
             <span>{description}</span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
