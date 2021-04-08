@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useCallback } from 'react';
+import React, { ReactNode, useState, useCallback, useEffect } from 'react';
 import Styles from './buttons.styles.less';
 import classNames from 'classnames';
 import { Arrow, SearchIcon, ViewIcon } from './icons';
@@ -9,7 +9,6 @@ import { PARA_CONFIG } from '../../stores/constants';
 import { useUserStore } from '../../stores/user';
 import {
   approveERC20Contract,
-  approveERC1155Contract,
 } from '../../stores/use-approval-callback';
 
 export interface ButtonProps {
@@ -180,11 +179,13 @@ export const ApprovalButton = ({
   cash,
   actionType,
   isApproved,
+  shareToken = null
 }: {
   amm?: AmmExchange;
   cash: Cash;
   actionType: ApprovalAction;
   isApproved: boolean;
+  shareToken?: string;
 }) => {
   const [isPendingTx, setIsPendingTx] = useState(false);
   const {
@@ -193,12 +194,15 @@ export const ApprovalButton = ({
   } = useUserStore();
   const marketCashType = cash?.name;
   const marketDescription = amm?.market?.description;
-  const { shareToken } = cash;
   // @ts-ignore
   const { ammFactory } = PARA_CONFIG;
-  // const { addresses } = PARA_CONFIG;
-  // const { AMMFactory, WethWrapperForAMMExchange } = addresses;
-  // const isETH = marketCashType === ETH;
+  useEffect(() => {
+    // make sure to flip local state off if we are approved, logged, pending
+    if (isApproved && loginAccount && isPendingTx) {
+      setIsPendingTx(false);
+    }
+  }, [isApproved, loginAccount, isPendingTx]);
+
   const approve = useCallback(async () => {
     try {
       setIsPendingTx(true);
@@ -209,10 +213,8 @@ export const ApprovalButton = ({
       let text = `Liquidity (${marketCashType})`;
       switch (actionType) {
         case EXIT_POSITION: {
-          ApprovalAction = approveERC1155Contract;
           address = shareToken;
           text = `To Sell (${marketCashType})`;
-          // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
           break;
         }
         case ENTER_POSITION: {

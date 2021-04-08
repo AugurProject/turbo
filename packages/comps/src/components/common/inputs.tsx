@@ -14,7 +14,7 @@ import {
   USDC,
   ERROR_AMOUNT,
   SHARES,
-  OUTCOME_YES_NAME,
+  YES_OUTCOME_ID,
   YES_NO,
 } from '../../utils/constants';
 import { useAppStatusStore } from '../../stores/app-status';
@@ -234,7 +234,7 @@ const Outcome = ({
       className={classNames(Styles.Outcome, {
         [Styles.YesNo]: !outcome.isInvalid && marketType === YES_NO,
         [Styles.Selected]: selected,
-        [Styles.Yes]: outcome.name === OUTCOME_YES_NAME,
+        [Styles.Yes]: outcome.id === YES_OUTCOME_ID,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.Edited]: customVal !== '',

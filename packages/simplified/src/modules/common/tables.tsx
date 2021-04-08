@@ -24,6 +24,7 @@ import {
   ApprovalHooks,
   Components,
 } from '@augurproject/comps';
+import getUSDC from '../../utils/get-usdc';
 const {
   LabelComps: {
     InvalidFlagTipIcon,
@@ -34,7 +35,7 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
   SelectionComps: { SmallDropdown },
-  Links: { AddressLink, createMarketAmmId, MarketLink, ReceiptLink },
+  Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
 const { claimWinnings, getLPCurrentValue } = ContractCalls;
@@ -167,6 +168,7 @@ export const PositionFooter = ({
   market: { settlementFee, marketId, amm, description },
   showTradeButton,
 }: PositionFooterProps) => {
+  const { cashes } = useDataStore(); 
   const { isMobile } = useAppStatusStore();
   const {
     account,
@@ -174,11 +176,12 @@ export const PositionFooter = ({
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
+  const ammCash = getUSDC(cashes);
   const canClaimETH = useCanExitCashPosition({
-    name: amm?.cash?.name,
-    shareToken: claimableWinnings?.sharetoken,
+    name: ammCash?.name,
+    shareToken: ammCash?.sharetoken,
   });
-  const isETHClaim = amm?.cash?.name === ETH;
+  const isETHClaim = ammCash?.name === ETH;
   const {
     addresses: { WethWrapperForAMMExchange },
   } = PARA_CONFIG;
@@ -302,7 +305,7 @@ export const PositionTable = ({
     seenPositionWarnings,
     actions: { updateSeenPositionWarning },
   } = useUserStore();
-  const marketAmmId = createMarketAmmId(market.marketId, market?.amm?.id);
+  const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove =
@@ -530,9 +533,9 @@ export const PositionsLiquidityViewSwitcher = ({
   const {
     balances: { lpTokens, marketShares },
   } = useUserStore();
-  const { ammExchanges } = useDataStore();
+  const { ammExchanges, markets } = useDataStore();
 
-  const ammId = ammExchange?.id;
+  const ammId = markets[ammExchange?.id];
   let userPositions = [];
   let liquidity = null;
   let winnings = null;
@@ -543,7 +546,7 @@ export const PositionsLiquidityViewSwitcher = ({
       ? marketShares[ammId]?.claimableWinnings
       : null;
   }
-  const market = ammExchange?.market;
+  const market = ammExchange?.id;
 
   const positions = marketShares
     ? ((Object.values(marketShares) as unknown[]) as {

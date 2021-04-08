@@ -1540,15 +1540,13 @@ const retrieveExchangeInfos = async (
     const market = marketInfos[marketId];
     const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
-      id: i,
       priceRaw: exchange.id ? String(outcomePrices[i]) : "",
       price: exchange.id ? toDisplayPrice(String(outcomePrices[i])) : "",
       ratioRaw: exchange.id ? String(ratios[marketId][i]) : "",
       ratio: exchange.id ? toDisplayRatio(String(ratios[marketId][i])) : "",
       balanceRaw: exchange.id ? String(balances[marketId][i]) : "",
       balance: exchange.id ? toDisplayBalance(String(balances[marketId][i]), numTicks) : "",
-      isInvalid: o?.isInvalid,
-      name: o?.name,
+      ...o,
     }));
   });
 

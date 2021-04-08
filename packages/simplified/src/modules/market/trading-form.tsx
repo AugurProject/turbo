@@ -21,6 +21,7 @@ import {
 } from '@augurproject/comps';
 import { useTrackedEvents } from '../../utils/tracker';
 import { Slippage } from '../common/slippage';
+import getUSDC from '../../utils/get-usdc';
 const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
 const {
   Icons: { CloseIcon },
@@ -36,7 +37,6 @@ const {
   formatSimpleShares,
 } = Formatter;
 const {
-  USDC,
   ApprovalAction,
   ApprovalState,
   SHARES,
@@ -50,6 +50,7 @@ const {
   SELL,
   YES_NO,
 } = Constants;
+
 const AVG_PRICE_TIP =
   'The difference between the market price and estimated price due to trade size.';
 
@@ -196,21 +197,22 @@ const TradingForm = ({
   const [waitingToSign, setWaitingToSign] = useState(false);
   // const ammCash = amm?.cash;
   // TODO: just grab USDC for now since we got here and USDC is only cash
-  const ammCash = Object.entries(cashes).find(cash => cash[1].name === USDC)[1];
+  const ammCash = getUSDC(cashes);
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
-  const approvalStatus = useApprovalStatus({
-    cash: ammCash,
-    amm,
-    actionType: isBuy
-      ? ApprovalAction.ENTER_POSITION
-      : ApprovalAction.EXIT_POSITION,
-  });
-  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.liquidity !== '0';
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
+  const outcomeShareToken = selectedOutcome.shareToken;
+  const approvalStatus = useApprovalStatus({
+    cash: ammCash,
+    amm,
+    actionType: approvalAction,
+    outcomeShareToken
+  });
+  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
+  const hasLiquidity = amm.liquidity !== '0';
+  
   const selectedOutcomeId = selectedOutcome.id;
   const marketShares =
     balances?.marketShares && balances?.marketShares[amm?.id];
@@ -453,7 +455,7 @@ const TradingForm = ({
         <InfoNumbers infoNumbers={formatBreakdown(isBuy, breakdown, ammCash)} />
         {isLogged && !isApprovedTrade && (
           <ApprovalButton
-            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade }}
+            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade, shareToken: outcomeShareToken }}
           />
         )}
         <BuySellButton
