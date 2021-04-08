@@ -195,8 +195,7 @@ const MarketView = ({ defaultMarket = null }) => {
           noClick
         />
         <SimpleChartSection {...{ market, cash: amm?.cash }} />
-        <section>Positions/Liq Switcher</section>
-        {/* <PositionsLiquidityViewSwitcher ammExchange={amm} /> */}
+        <PositionsLiquidityViewSwitcher ammExchange={amm} />
         <article className={Styles.MobileLiquidSection}>
           <AddLiquidity market={market} />
           {/* {currentAMMs.length === 1 && (
