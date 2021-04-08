@@ -31,12 +31,12 @@ export const DataProvider = ({ children }) => {
   const readableState = { ...state };
   delete readableState.actions;
   DataStore.get = () => readableState;
-
   useEffect(() => {
     let isMounted = true;
     const getMarkets = async () => {
       if (provider && account) {
-        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, account);
+        const { markets, ammExchanges } = DataStore.get();
+        return await getMarketInfos(provider, markets, ammExchanges, account);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null };
     };

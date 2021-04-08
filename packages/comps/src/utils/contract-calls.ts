@@ -1484,8 +1484,7 @@ const retrieveMarkets = async (
 
   const numExchanges = Object.keys(exchanges).length;
   if (numExchanges > 0) {
-    console.log("retrieveExchangeInfos", exchanges);
-    exchanges = retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
+    exchanges = await retrieveExchangeInfos(exchanges, marketInfos, hatcheryAddress, ammFactoryAddress, provider);
   }
 
   if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);

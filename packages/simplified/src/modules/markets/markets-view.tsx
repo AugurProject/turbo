@@ -19,7 +19,7 @@ const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryButton },
   Icons: { FilterIcon },
-  MarketCardComps: { LoadingMarketCard, MarketCardView },
+  MarketCardComps: { LoadingMarketCard, MarketCard },
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
 } = Components;
@@ -246,7 +246,7 @@ const MarketsView = () => {
       });
     }
   };
-
+  // console.log("hello", markets, ammExchanges, filteredMarkets);
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -327,9 +327,11 @@ const MarketsView = () => {
         <section>
           {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map(
             (market, index) => (
-              <MarketCardView
+              <MarketCard
                 key={`${market.marketId}-${index}`}
-                market={market}
+                marketId={market.marketId}
+                markets={markets}
+                ammExchanges={ammExchanges}
                 handleNoLiquidity={handleNoLiquidity}
                 noLiquidityDisabled={!isLogged}
               />
