@@ -11,8 +11,8 @@ task("fetch-rundown-event", "Retrieve rundown event information")
       params: { include: "scores" },
       headers: {
         "x-rapidapi-key": args.key,
-        "x-rapidapi-host": "therundown-therundown-v1.p.rapidapi.com"
-      }
+        "x-rapidapi-host": "therundown-therundown-v1.p.rapidapi.com",
+      },
     });
 
     console.log(JSON.stringify(result.data, null, "  "));
