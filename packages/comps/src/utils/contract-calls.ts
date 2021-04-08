@@ -1617,6 +1617,7 @@ const decodeOutcomes = (outcomeNames: string[], outcomeSymbols: string[]) => {
       symbol,
       isInvalid: i === INVALID_OUTCOME_ID,
       isWinner: false, // need to get based on winning payout hash
+      isFinalNumerator: false, // need to translate final numerator payout hash to outcome
     };
   });
 };
