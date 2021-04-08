@@ -203,7 +203,7 @@ const TradingForm = ({
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
-  const outcomeShareToken = selectedOutcome?.shareToken;
+  const outcomeShareToken = selectedOutcome.shareToken;
   const approvalStatus = useApprovalStatus({
     cash: ammCash,
     amm,

@@ -195,7 +195,7 @@ export function useApprovalStatus({
   amm?: AmmExchange | null | undefined;
   cash: Cash;
   actionType: ApprovalAction;
-  outcomeShareToken?: string;
+  outcomeShareToken: string | null;
 }) {
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
@@ -248,12 +248,22 @@ export function useApprovalStatus({
         }
       }
 
+      console.log(
+        "in useEffect for approval",
+        address,
+        spender,
+        transactions,
+        ApprovalAction[actionType],
+        ApprovalState[isApproved],
+        outcomeShareToken
+      );
+
       if (address && spender && loginAccount && transactions) {
         // prevent this from calling if we don't have values for everything
         // effect is approvalCheck remains `UNKOWN` and will check again
         approvalCheck = await checkApprovalFunction(address, spender, loginAccount, transactions);
       }
-
+      console.log("after if", ApprovalState[approvalCheck]);
       (forceCheck.current || approvalCheck !== isApproved) && isMounted && setIsApproved(approvalCheck);
       if (forceCheck.current) forceCheck.current = false;
     };

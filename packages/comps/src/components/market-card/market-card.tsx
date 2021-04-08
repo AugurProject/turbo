@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
