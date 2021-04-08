@@ -190,12 +190,12 @@ export function useApprovalStatus({
   amm,
   cash,
   actionType,
-  optionalTokenArray = [],
+  outcomeShareToken = null,
 }: {
   amm?: AmmExchange | null | undefined;
   cash: Cash;
   actionType: ApprovalAction;
-  optionalTokenArray?: string[];
+  outcomeShareToken?: string;
 }) {
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
@@ -214,7 +214,7 @@ export function useApprovalStatus({
     return () => {
       isMounted = false;
     };
-  }, [marketCashType, tokenAddress, shareToken, ammId, invalidPoolId, actionType, account]);
+  }, [marketCashType, tokenAddress, shareToken, ammId, invalidPoolId, actionType, account, outcomeShareToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -225,10 +225,7 @@ export function useApprovalStatus({
       let checkApprovalFunction = checkAllowance;
       switch (actionType) {
         case EXIT_POSITION: {
-          // TODO: handle sell orders. need multicall approval check on optionalTokenArray in this case, one share token per outcome.
-          // checkApprovalFunction = isERC1155ContractApproved;
-          // address = shareToken;
-          // spender = isETH ? WethWrapperForAMMExchange : ammFactory;
+          address = outcomeShareToken;
           break;
         }
         case REMOVE_LIQUIDITY: {
@@ -251,7 +248,11 @@ export function useApprovalStatus({
         }
       }
 
-      approvalCheck = await checkApprovalFunction(address, spender, loginAccount, transactions);
+      if (address && spender && loginAccount && transactions) {
+        // prevent this from calling if we don't have values for everything
+        // effect is approvalCheck remains `UNKOWN` and will check again
+        approvalCheck = await checkApprovalFunction(address, spender, loginAccount, transactions);
+      }
 
       (forceCheck.current || approvalCheck !== isApproved) && isMounted && setIsApproved(approvalCheck);
       if (forceCheck.current) forceCheck.current = false;
@@ -263,7 +264,7 @@ export function useApprovalStatus({
     return () => {
       isMounted = false;
     };
-  }, [account, isApproved, actionType, invalidPoolId, ammId, PARA_CONFIG, marketCashType, tokenAddress, shareToken]);
+  }, [account, isApproved, actionType, invalidPoolId, ammId, PARA_CONFIG, marketCashType, tokenAddress, shareToken, outcomeShareToken]);
 
   return isApproved;
 }

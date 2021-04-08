@@ -200,18 +200,19 @@ const TradingForm = ({
   const ammCash = getUSDC(cashes);
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
-  const approvalStatus = useApprovalStatus({
-    cash: ammCash,
-    amm,
-    actionType: isBuy
-      ? ApprovalAction.ENTER_POSITION
-      : ApprovalAction.EXIT_POSITION,
-  });
-  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.liquidity !== '0';
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
+  const outcomeShareToken = selectedOutcome?.shareToken;
+  const approvalStatus = useApprovalStatus({
+    cash: ammCash,
+    amm,
+    actionType: approvalAction,
+    outcomeShareToken
+  });
+  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
+  const hasLiquidity = amm.liquidity !== '0';
+  
   const selectedOutcomeId = selectedOutcome.id;
   const marketShares =
     balances?.marketShares && balances?.marketShares[amm?.id];
@@ -454,7 +455,7 @@ const TradingForm = ({
         <InfoNumbers infoNumbers={formatBreakdown(isBuy, breakdown, ammCash)} />
         {isLogged && !isApprovedTrade && (
           <ApprovalButton
-            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade }}
+            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade, shareToken: outcomeShareToken }}
           />
         )}
         <BuySellButton
