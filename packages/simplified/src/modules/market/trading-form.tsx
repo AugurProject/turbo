@@ -241,8 +241,8 @@ const TradingForm = ({
         userBalances = marketShares?.outcomeSharesRaw;
       }
       const breakdown = isBuy
-        ? await estimateBuyTrade(amm, loginAccount?.library?.provider, amount, outputYesShares)
-        : await estimateSellTrade(amm, loginAccount?.library?.provider, amount, outputYesShares, userBalances);
+        ? await estimateBuyTrade(amm, loginAccount?.library, amount, outputYesShares)
+        : await estimateSellTrade(amm, loginAccount?.library, amount, outputYesShares, userBalances);
 
       tradingEstimateEvents(
         isBuy,
@@ -353,7 +353,7 @@ const TradingForm = ({
     );
     doTrade(
       direction,
-      loginAccount?.library?.provider,
+      loginAccount?.library,
       amm,
       worstCaseOutput,
       amount,

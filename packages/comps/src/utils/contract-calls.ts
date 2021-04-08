@@ -111,25 +111,22 @@ export async function getAddLiquidity(
   priceYes: string
 ): Promise<AddLiquidityBreakdown> {
   if (!provider) console.error("provider is null");
-  console.log("provider", provider);
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-
-  const hasLiquidity = amm !== null && amm?.id !== undefined && amm?.liquidity !== "0";
-  const sharetoken = cash?.shareToken;
   const ammAddress = amm?.id;
-  const { hatchery, turboId } = amm;
-  const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals);
+  const { hatcheryAddress, turboId } = amm;
+  const amount = String(convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals));
   console.log(
     "getAddAmmLiquidity",
     account,
-    "amm address",
-    ammAddress,
-    hasLiquidity,
+    "amm",
+    amm,
+    "hatchery",
+    hatcheryAddress,
     "marketId",
     marketId,
-    "sharetoken",
-    sharetoken,
-    fee,
+    "turboId",
+    turboId,
+    "amount",
     String(amount),
     "No",
     String(priceNo),
@@ -137,43 +134,42 @@ export async function getAddLiquidity(
     String(priceYes)
   );
 
-  // converting odds to pool percentage. odds is the opposit of pool percentage
-  // same when converting pool percentage to price
-  // const poolYesPercent = new BN(convertPriceToPercent(priceNo));
-  // const poolNoPercent = new BN(convertPriceToPercent(priceYes));
-
-  // const liqNo = amm?.liquidityNo
-  //   ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityNo || "0"), new BN(amm?.cash?.decimals))
-  //   : new BN(0);
-  // const liqYes = amm?.liquidityYes
-  //   ? convertDisplayShareAmountToOnChainShareAmount(new BN(amm?.liquidityYes || "0"), new BN(amm?.cash?.decimals))
-  //   : new BN(0);
-  /*
-  const addLiquidityResults: AddLiquidityRate = await amm.getAddLiquidity(
-    new BN(amm?.totalSupply || "0"),
-    liqNo,
-    liqYes,
-    new BN(amount),
-    poolYesPercent,
-    poolNoPercent
-  );
-*/
+  let addLiquidityResults = null;
   if (!ammAddress) {
-    ammFactoryContract.callStatic.createPool(hatchery, turboId);
+    const multiplier = new BN(10).pow(new BN(18));
+    // converting odds to pool percentage. odds is the opposit of pool percentage
+    // same when converting pool percentage to price
+    const poolYesPercent = new BN(convertPriceToPercent(priceNo)).minus(1);
+    const poolNoPercent = new BN(convertPriceToPercent(priceYes)).minus(1);
+    // defaulting weights until figured out a way to set prices to what user sets
+    const noContestWeight = new BN(2).times(multiplier);
+    const otherWeight = new BN(50).times(multiplier);
+    addLiquidityResults = await ammFactoryContract.callStatic.createPool(
+      hatcheryAddress,
+      turboId,
+      amount,
+      [noContestWeight, otherWeight, otherWeight],
+      account
+    );
   } else {
-    ammFactoryContract.callStatic.addLiquidity(hatchery, turboId);
+    // todo: get what the min lp token out is
+    addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
+      hatcheryAddress,
+      turboId,
+      amount,
+      0,
+      account
+    );
   }
 
+  console.log("addLiquidityResults", addLiquidityResults);
+
   if (addLiquidityResults) {
-    const lpTokens = trimDecimalValue(
-      convertOnChainSharesToDisplayShareAmount(String(addLiquidityResults.lpTokens), cash.decimals)
-    );
-    const noShares = trimDecimalValue(
-      convertOnChainSharesToDisplayShareAmount(String(addLiquidityResults.short), cash.decimals)
-    );
-    const yesShares = trimDecimalValue(
-      convertOnChainSharesToDisplayShareAmount(String(addLiquidityResults.long), cash.decimals)
-    );
+    // lp tokens are 18 decimal
+    const lpTokens = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String(addLiquidityResults), 18));
+    // adding liquidity doesn't return any shares at this time.
+    const noShares = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String("0"), cash.decimals));
+    const yesShares = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String("0"), cash.decimals));
 
     return {
       lpTokens,

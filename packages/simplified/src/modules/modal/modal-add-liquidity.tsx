@@ -295,20 +295,20 @@ const ModalAddLiquidity = ({
       if (isRemove) {
         results = await getRemoveLiquidity(
           properties.marketId,
-          loginAccount?.library?.provider,
+          loginAccount?.library,
           cash,
           onChainFee,
           amount
         );
       } else {
         results = await getAddLiquidity(
-          properties.account,
-          loginAccount?.library?.provider,
-          properties.amm,
-          properties.marketId,
-          properties.cash,
+          account,
+          loginAccount?.library,
+          amm,
+          market.marketId,
+          cash,
           properties.fee,
-          properties.amount,
+          amount,
           properties.priceNo,
           properties.priceYes
         );
@@ -388,7 +388,7 @@ const ModalAddLiquidity = ({
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveLiquidity(amm, loginAccount?.library?.provider, amount)
+      doRemoveLiquidity(amm, loginAccount?.library, amount)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -408,7 +408,7 @@ const ModalAddLiquidity = ({
     } else {
       await doAddLiquidity(
         properties.account,
-        loginAccount?.library?.provider,
+        loginAccount?.library,
         properties.marketId,
         properties.cash,
         properties.fee,

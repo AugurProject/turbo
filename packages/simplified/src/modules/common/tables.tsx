@@ -187,7 +187,7 @@ export const PositionFooter = ({
     if (amm && account) {
       if (canClaimETH || !isETHClaim) {
         setPendingClaim(true);
-        claimWinnings(account, loginAccount?.library?.provider, [marketId], amm?.cash)
+        claimWinnings(account, loginAccount?.library, [marketId], amm?.cash)
           .then(response => {
             // handle transaction response here
             setPendingClaim(false);
