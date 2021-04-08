@@ -1349,7 +1349,7 @@ export const getMarketInfos = async (
   markets: MarketInfos,
   ammExchanges: AmmExchanges,
   account: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const { hatchery, arbiter, ammFactory } = PARA_CONFIG;
   const currentNumMarkets = Object.keys(markets).length;
   const hatcheryContract = getContract(hatchery, TurboHatcheryABI, provider, account);
@@ -1360,8 +1360,14 @@ export const getMarketInfos = async (
     indexes.push(i);
   }
 
-  const { marketInfos, exchanges } = await retrieveMarkets(indexes, arbiter, hatchery, ammFactory, provider);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges };
+  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+    indexes,
+    arbiter,
+    hatchery,
+    ammFactory,
+    provider
+  );
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
 const retrieveMarkets = async (
@@ -1474,6 +1480,8 @@ const retrieveMarkets = async (
     .filter((m) => m.categories.length > 1)
     .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
 
+  const blocknumber = marketsResult.blockNumber;
+
   const numExchanges = Object.keys(exchanges).length;
   if (numExchanges > 0) {
     console.log("retrieveExchangeInfos", exchanges);
@@ -1482,7 +1490,7 @@ const retrieveMarkets = async (
 
   if (Object.keys(exchanges).length > 0) console.log("exchanges", exchanges);
 
-  return { marketInfos, exchanges };
+  return { marketInfos, exchanges, blocknumber };
 };
 
 const retrieveExchangeInfos = async (
