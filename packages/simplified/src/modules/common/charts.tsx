@@ -135,6 +135,7 @@ const processPriceTimeData = (formattedOutcomes, market, rangeSelection) => ({
     const newArray: any[] = [];
     const sortedOutcomeTrades = market?.amm?.trades[outcome.id].sort((a, b) => a.timestamp - b.timestamp) || [];
     let newLastPrice = determineLastPrice(sortedOutcomeTrades, startTime);
+    if (sortedOutcomeTrades.length === 0) return newArray;
     for (let i = 0; i < totalTicks; i++) {
       const curTick = startTime + tick * i;
       const nextTick = curTick + tick;
@@ -223,6 +224,7 @@ export const SelectOutcomeButton = ({
   toggleSelected,
   isSelected,
   cash,
+  disabled = false,
 }) => {
   return (
     <button
@@ -230,6 +232,7 @@ export const SelectOutcomeButton = ({
         [Styles[`isSelected_${outcomeIdx}`]]: isSelected,
       })}
       onClick={() => toggleSelected(outcomeIdx)}
+      disabled={disabled}
     >
       <span>{Checkbox}</span>
       {label}
@@ -277,7 +280,9 @@ export const SimpleChartSection = ({ market, cash }) => {
             cash={cash}
             outcome={outcome}
             toggleSelected={toggleOutcome}
-            isSelected={selectedOutcomes[outcome.outcomeIdx]}
+            isSelected={false}
+            // selectedOutcomes[outcome.outcomeIdx]
+            disabled
           />
         ))}
       </div>
@@ -345,7 +350,7 @@ const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostR
 
 const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(0), cash }) => ({
   lang: {
-    noData: "Select an outcome below",
+    noData: "No Chart Data",
   },
   title: {
     text: "",

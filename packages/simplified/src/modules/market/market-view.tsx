@@ -198,7 +198,7 @@ const MarketView = ({ defaultMarket = null }) => {
         <section>Positions/Liq Switcher</section>
         {/* <PositionsLiquidityViewSwitcher ammExchange={amm} /> */}
         <article className={Styles.MobileLiquidSection}>
-          {/* <AddLiquidity market={market} /> */}
+          <AddLiquidity market={market} />
           {/* {currentAMMs.length === 1 && (
             <AddCurrencyLiquidity
               market={market}
@@ -225,7 +225,7 @@ const MarketView = ({ defaultMarket = null }) => {
         </div>
         <div className={Styles.TransactionsTable}>
           <span>Transactions</span>
-          <section>TRANSACTIONS TABLE</section>
+          <section>Transactions are temporarily unavailable.</section>
           {/* <TransactionsTable transactions={amm?.transactions} /> */}
         </div>
         <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
@@ -236,7 +236,7 @@ const MarketView = ({ defaultMarket = null }) => {
         })}
       >
         <TradingForm initialSelectedOutcome={selectedOutcome} amm={amm} />
-        {/* <AddLiquidity market={market} /> */}
+        <AddLiquidity market={market} />
         {/* {currentAMMs.length === 1 && (
           <AddCurrencyLiquidity
             market={market}

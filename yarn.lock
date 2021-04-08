@@ -5492,6 +5492,10 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+"bcrypto@https://github.com/AugurProject/blackhole.git", "puppeteer@https://github.com/AugurProject/blackhole.git", "scrypt@https://github.com/AugurProject/blackhole.git":
+  version "1.0.0"
+  resolved "https://github.com/AugurProject/blackhole.git#f8230443bf4fc9d5921655e06ebe2755d84afbcd"
+
 bech32@1.1.4, bech32@^1.1.2:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/bech32/-/bech32-1.1.4.tgz#e38c9f37bf179b8eb16ae3a772b40c356d4832e9"
@@ -16856,7 +16860,7 @@ pull-window@^2.1.4:
   dependencies:
     looper "^2.0.0"
 
-pull-ws@hugomrdias/pull-ws#fix/bundle-size:
+"pull-ws@https://github.com/pull-stream/pull-ws.git", pull-ws@hugomrdias/pull-ws#fix/bundle-size:
   version "3.3.2"
   resolved "https://github.com/pull-stream/pull-ws.git#9c1a9cf612ff6d1a030b763cb64b02922ae3c824"
   dependencies:
