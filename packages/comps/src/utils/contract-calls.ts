@@ -167,10 +167,10 @@ export async function addLiquidityPool(
   const ammAddress = amm?.id;
   let tx = null;
   if (!ammAddress) {
-    tx = await ammFactoryContract.createPool(hatcheryAddress, turboId, amount, weights, account);
+    tx = ammFactoryContract.createPool(hatcheryAddress, turboId, amount, weights, account);
   } else {
     // todo: get what the min lp token out is
-    tx = await ammFactoryContract.addLiquidity(hatcheryAddress, turboId, amount, 0, account);
+    tx = ammFactoryContract.addLiquidity(hatcheryAddress, turboId, amount, 0, account);
   }
 
   return tx;
@@ -268,29 +268,31 @@ export const estimateBuyTrade = async (
   amm: AmmExchange,
   provider: Web3Provider,
   inputDisplayAmount: string,
-  outputYesShares: boolean = true
+  selectedOutcomeId: number,
+  account: string,
+  cash: Cash
 ): Promise<EstimateTradeResult | null> => {
-  const breakdownWithFeeRaw = await estimateTrade(
-    TradingDirection.ENTRY,
-    provider,
-    amm,
-    inputDisplayAmount,
-    outputYesShares
-  ).catch((e) => console.log(e));
+  if (!provider) {
+    console.error("doRemoveLiquidity: no provider");
+    return null;
+  }
+  const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const { hatcheryAddress, turboId } = amm;
 
-  if (!breakdownWithFeeRaw) return null;
+  const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+  const result = await ammFactoryContract.callStatic.buy(hatcheryAddress, turboId, selectedOutcomeId, amount, 0);
+  const estimatedShares = convertOnChainSharesToDisplayShareAmount(String(result), 18);
 
-  const estimatedShares = convertOnChainSharesToDisplayShareAmount(breakdownWithFeeRaw, amm.cash.decimals);
   const tradeFees = String(estimatedShares.times(new BN(amm.feeDecimal)));
 
   const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares)).toFixed(4);
   const maxProfit = String(new BN(estimatedShares).minus(new BN(inputDisplayAmount)));
-  const price = outputYesShares ? amm.priceYes : amm.priceNo;
+  const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
 
   return {
-    outputValue: String(estimatedShares),
+    outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
     averagePrice,
     maxProfit,
@@ -303,8 +305,10 @@ export const estimateSellTrade = async (
   amm: AmmExchange,
   provider: Web3Provider,
   inputDisplayAmount: string,
-  outputYesShares: boolean = true,
-  userBalances: string[] = []
+  selectedOutcomeId: number,
+  userBalances: string[],
+  account: string,
+  cash: Cash
 ): Promise<EstimateTradeResult | null> => {
   if (!provider) {
     console.error("estimateSellTrade: no provider");
@@ -314,14 +318,14 @@ export const estimateSellTrade = async (
   let longShares = new BN("0");
   let shortShares = new BN("0");
   let invalidShares = new BN(userBalances[0]);
-  if (!outputYesShares) {
+  if (!selectedOutcomeId) {
     let shortOnChainShares = convertDisplayShareAmountToOnChainShareAmount(
       new BN(inputDisplayAmount),
       new BN(amm?.cash?.decimals)
     );
     shortShares = BN.minimum(invalidShares, shortOnChainShares);
   } else {
-    longShares = convertDisplayShareAmountToOnChainShareAmount(new BN(inputDisplayAmount), new BN(amm?.cash?.decimals));
+    longShares = convertDisplayShareAmountToOnChainShareAmount(new BN(inputDisplayAmount), new BN(cash?.decimals));
   }
 
   const liqNo = convertDisplayShareAmountToOnChainShareAmount(
@@ -356,10 +360,10 @@ export const estimateSellTrade = async (
   const tradeFees = String(estimateCash.times(new BN(amm.feeDecimal)));
 
   const averagePrice = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(2);
-  const price = outputYesShares ? amm.priceYes : amm.priceNo;
-  const shares = outputYesShares
-    ? new BN(userBalances[YES_OUTCOME_ID] || "0")
-    : BigNumber.min(new BN(userBalances[0]), new BN(userBalances[NO_OUTCOME_ID]));
+  const price = amm.ammOutcomes[selectedOutcomeId].price;
+  const shares = !selectedOutcomeId
+    ? new BN(userBalances[selectedOutcomeId] || "0")
+    : BigNumber.min(new BN(userBalances[0]), new BN(userBalances[selectedOutcomeId]));
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(2);
   const ratePerCash = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(6);
   const displayShares = convertOnChainSharesToDisplayShareAmount(shares, amm.cash.decimals);
@@ -380,104 +384,33 @@ export const estimateSellTrade = async (
   };
 };
 
-const estimateTrade = async (
-  tradeDirection: TradingDirection,
-  provider: Web3Provider,
-  amm: AmmExchange,
-  inputDisplayAmount: string,
-  outputYesShares: boolean = true
-): Promise<string | null> => {
-  if (!provider) {
-    console.error("estimateTrade: no provider");
-    return null;
-  }
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
-  const includeFee = true;
-  let breakdown = null;
-  const { cash, marketId, feeRaw } = amm;
-
-  if (tradeDirection === TradingDirection.ENTRY) {
-    const inputOnChainCashAmount = convertDisplayCashAmountToOnChainCashAmount(
-      new BN(inputDisplayAmount || "0"),
-      new BN(cash?.decimals)
-    );
-    console.log(
-      "estimate enter position",
-      tradeDirection,
-      "marketId",
-      marketId,
-      "shareToken",
-      cash.shareToken,
-      "fee",
-      feeRaw,
-      "cash",
-      String(inputDisplayAmount),
-      "output yes:",
-      outputYesShares,
-      "includeFee:",
-      includeFee
-    );
-    if (tradeDirection === TradingDirection.ENTRY) {
-      breakdown = await ammFactoryContract.callStatic
-        .buy(amm.marketId, cash.shareToken, new BN(feeRaw), inputOnChainCashAmount, outputYesShares, includeFee)
-        .catch((e) => console.log("Error get enter position", e));
-    } else {
-      breakdown = await ammFactoryContract.callStatic
-        .sell(amm.marketId, cash.shareToken, new BN(feeRaw), inputOnChainCashAmount, outputYesShares, includeFee)
-        .catch((e) => console.log("Error get enter position", e));
-    }
-
-    return breakdown;
-  }
-
-  return null;
-};
-
 export async function doTrade(
   tradeDirection: TradingDirection,
   provider: Web3Provider,
   amm: AmmExchange,
   minAmount: string,
   inputDisplayAmount: string,
-  outputYesShares: boolean = true,
-  userBalances: string[] = ["0", "0", "0"]
+  selectedOutcomeId: number,
+  userBalances: string[] = ["0", "0", "0"],
+  account: string,
+  cash: Cash
 ) {
   if (!provider) return console.error("doTrade: no provider");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const { hatcheryAddress, turboId } = amm;
   if (tradeDirection === TradingDirection.ENTRY) {
-    console.log(
-      "doEnterPosition:",
-      amm.marketId,
-      amm.cash.shareToken,
-      amm.feeRaw,
-      String(inputDisplayAmount),
-      outputYesShares,
-      String(minAmount)
-    );
-
-    const inputOnChainCashAmount = convertDisplayCashAmountToOnChainCashAmount(
-      new BN(inputDisplayAmount || "0"),
-      new BN(amm.cash.decimals)
-    );
     const bareMinAmount = new BN(minAmount).lt(0) ? 0 : minAmount;
-    const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(
-      bareMinAmount,
-      amm.cash.decimals
-    ).decimalPlaces(0);
-    return ammFactoryContract.buy(
-      amm.marketId,
-      amm.cash.shareToken,
-      new BN(amm.feeRaw),
-      inputOnChainCashAmount,
-      outputYesShares,
-      new BN(onChainMinShares)
-    );
+    const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(bareMinAmount, cash.decimals)
+      .decimalPlaces(0)
+      .toFixed();
+    const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+    return ammFactoryContract.buy(hatcheryAddress, turboId, selectedOutcomeId, amount, onChainMinShares);
   }
 
   if (tradeDirection === TradingDirection.EXIT) {
     const inputOnChainSharesAmount = convertDisplayShareAmountToOnChainShareAmount(
       new BN(inputDisplayAmount || "0"),
-      new BN(amm.cash.decimals)
+      new BN(cash.decimals)
     );
     let longShares = new BN("0");
     let shortShares = new BN("0");
@@ -490,7 +423,7 @@ export async function doTrade(
     }
     let onChainMinAmount = convertDisplayCashAmountToOnChainCashAmount(
       new BN(minAmount),
-      new BN(amm.cash.decimals)
+      new BN(cash.decimals)
     ).decimalPlaces(0);
 
     if (onChainMinAmount.lt(0)) {
@@ -499,9 +432,7 @@ export async function doTrade(
 
     console.log(
       "doExitPosition:",
-      amm.marketId,
-      amm.cash.shareToken,
-      amm.feeRaw,
+      cash.shareToken,
       "invalidShares",
       String(invalidShares),
       "short",
@@ -514,7 +445,7 @@ export async function doTrade(
 
     return ammFactoryContract.sell(
       amm.marketId,
-      amm.cash.shareToken,
+      cash.shareToken,
       new BN(amm.feeRaw),
       shortShares,
       longShares,

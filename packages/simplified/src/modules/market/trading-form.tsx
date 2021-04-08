@@ -40,7 +40,6 @@ const {
   ApprovalAction,
   ApprovalState,
   SHARES,
-  YES_OUTCOME_ID,
   INSUFFICIENT_LIQUIDITY,
   ENTER_AMOUNT,
   SETTINGS_SLIPPAGE,
@@ -183,6 +182,7 @@ const TradingForm = ({
     settings: { slippage },
   } = useSimplifiedStore();
   const {
+    account,
     loginAccount,
     balances,
     actions: { addTransaction },
@@ -195,8 +195,6 @@ const TradingForm = ({
   const [breakdown, setBreakdown] = useState<EstimateTradeResult | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [waitingToSign, setWaitingToSign] = useState(false);
-  // const ammCash = amm?.cash;
-  // TODO: just grab USDC for now since we got here and USDC is only cash
   const ammCash = getUSDC(cashes);
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
@@ -242,19 +240,19 @@ const TradingForm = ({
     let isMounted = true;
 
     const getEstimate = async () => {
-      const outputYesShares = selectedOutcomeId === YES_OUTCOME_ID;
+      const outcomeName = outcomes[selectedOutcomeId]?.name;
       let userBalances: string[] = [];
       if (outcomeSharesRaw) {
         userBalances = marketShares?.outcomeSharesRaw;
       }
       const breakdown = isBuy
-        ? await estimateBuyTrade(amm, loginAccount?.library, amount, outputYesShares)
-        : await estimateSellTrade(amm, loginAccount?.library, amount, outputYesShares, userBalances);
+        ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, account, ammCash)
+        : await estimateSellTrade(amm, loginAccount?.library, amount, selectedOutcomeId, userBalances, account, ammCash);
 
       tradingEstimateEvents(
         isBuy,
-        outputYesShares,
-        amm?.cash?.name,
+        outcomeName,
+        ammCash?.name,
         amount,
         breakdown?.outputValue || ''
       );
@@ -283,13 +281,13 @@ const TradingForm = ({
   const userBalance = String(
     useMemo(() => {
       return isBuy
-        ? amm?.cash?.name
-          ? balances[amm?.cash?.name]?.balance
+        ? ammCash?.name
+          ? balances[ammCash?.name]?.balance
           : '0'
         : marketShares?.outcomeShares
         ? marketShares?.outcomeShares[selectedOutcomeId]
         : '0';
-    }, [orderType, amm?.cash?.name, amm?.id, selectedOutcomeId, balances])
+    }, [orderType, ammCash?.name, amm?.id, selectedOutcomeId, balances])
   );
 
   const canMakeTrade: CanTradeProps = useMemo(() => {
@@ -347,14 +345,14 @@ const TradingForm = ({
     const percentageOff = new BN(1).minus(new BN(slippage).div(100));
     const worstCaseOutput = String(new BN(minOutput).times(percentageOff));
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
-    const outputYesShares = selectedOutcomeId === YES_OUTCOME_ID;
+    const outcomeName = outcomes[selectedOutcomeId]?.name;
     const userBalances = marketShares?.outcomeSharesRaw || [];
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(
       isBuy,
-      outputYesShares,
-      amm?.cash?.name,
+      outcomeName,
+      ammCash?.name,
       amount,
       worstCaseOutput,
     );
@@ -364,8 +362,10 @@ const TradingForm = ({
       amm,
       worstCaseOutput,
       amount,
-      outputYesShares,
-      userBalances
+      selectedOutcomeId,
+      userBalances,
+      account,
+      ammCash,
     )
       .then(response => {
         if (response) {
@@ -442,7 +442,7 @@ const TradingForm = ({
           disabled={!hasLiquidity}
           rate={
             !isNaN(Number(breakdown?.ratePerCash))
-              ? `1 ${amm?.cash?.name} = ${
+              ? `1 ${ammCash?.name} = ${
                   formatSimpleShares(breakdown?.ratePerCash || 0, {
                     denomination: (v) => `${v} Shares`,
                   }).full
