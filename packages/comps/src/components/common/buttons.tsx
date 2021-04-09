@@ -194,7 +194,6 @@ export const ApprovalButton = ({
   } = useUserStore();
   const marketCashType = cash?.name;
   const marketDescription = amm?.market?.description;
-  // @ts-ignore
   const { ammFactory } = PARA_CONFIG;
   useEffect(() => {
     // make sure to flip local state off if we are approved, logged, pending

@@ -13,7 +13,6 @@ import {
   TransactionTypes,
 } from '../types';
 import {
-  PARA_CONFIG,
   useAppStatusStore,
   useDataStore,
   useUserStore,
@@ -21,7 +20,6 @@ import {
   Constants,
   Formatter,
   ContractCalls,
-  ApprovalHooks,
   Components,
 } from '@augurproject/comps';
 import getUSDC from '../../utils/get-usdc';
@@ -508,8 +506,8 @@ export const PositionsLiquidityViewSwitcher = ({
     balances: { lpTokens, marketShares },
   } = useUserStore();
   const { ammExchanges, markets } = useDataStore();
-
   const marketId = ammExchange?.marketId;
+
   let userPositions = [];
   let liquidity = null;
   let winnings = null;

@@ -588,7 +588,11 @@ export const getUserBalances = async (
         ).toFixed();
         // todo: re organize balances to be really simple (future)
         // can index using dataKey (shareToken)
+<<<<<<< HEAD
         //userBalances[collection][dataKey] = { balance: shareBalance, rawBalance, marketId };
+=======
+        //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
+>>>>>>> dev
 
         // todo: need historical trades to calculate positions initial value
         const trades = {
@@ -600,11 +604,20 @@ export const getUserBalances = async (
         const existingMarketShares = userBalances.marketShares[marketId];
         const exchange = ammExchanges[marketId];
         if (existingMarketShares) {
+<<<<<<< HEAD
           const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
         } else if (fixedShareBalance !== "0") {
+=======
+          const position = getPositionUsdValues(trades, rawBalance, fixedBalance, outcomeId, exchange, account);
+          if (position) userBalances.marketShares[marketId].positions.push(position);
+          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedBalance;
+        } else if (fixedBalance !== "0") {
+          const exchange = ammExchanges[marketId];
+>>>>>>> dev
           userBalances.marketShares[marketId] = {
             ammExchange: exchange,
             positions: [],
@@ -612,10 +625,17 @@ export const getUserBalances = async (
             outcomeShares: ["0", "0", "0"], // this needs to be dynamic
           };
           // calc user position here **
+<<<<<<< HEAD
           const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
+=======
+          const position = getPositionUsdValues(trades, rawBalance, fixedBalance, outcomeId, exchange, account);
+          if (position) userBalances.marketShares[marketId].positions.push(position);
+          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedBalance;
+>>>>>>> dev
         }
       }
     }
