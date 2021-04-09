@@ -242,16 +242,13 @@ export const SelectOutcomeButton = ({
 };
 
 export const SimpleChartSection = ({ market, cash }) => {
-  
   const formattedOutcomes = getFormattedOutcomes({ market });
-  // eslint-disable-next-line
   const [selectedOutcomes, setSelectedOutcomes] = useState(
     formattedOutcomes.map(({ outcomeIdx }) => Boolean(outcomeIdx === DEFAULT_SELECTED_ID))
   );
   const [rangeSelection, setRangeSelection] = useState(3);
 
   const toggleOutcome = (id) => {
-    // @ts-ignore
     const updates: boolean[] = [].concat(selectedOutcomes);
     updates[id] = !updates[id];
     setSelectedOutcomes(updates);
@@ -281,6 +278,7 @@ export const SimpleChartSection = ({ market, cash }) => {
             outcome={outcome}
             toggleSelected={toggleOutcome}
             isSelected={false}
+            // TODO: re-implement this when re-implementing chart data.
             // selectedOutcomes[outcome.outcomeIdx]
             disabled
           />
@@ -424,11 +422,11 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
   },
 });
 
-export const getFormattedOutcomes = ({ market: { amm, outcomes } }: { market: MarketInfo }) => {
-  return outcomes.map((outcome, outcomeIdx) => ({
+export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) => {
+  return amm.ammOutcomes.map((outcome, outcomeIdx) => ({
     ...outcome,
     outcomeIdx,
     label: (outcome?.name).toLowerCase(),
-    lastPrice: !amm ? "0.5" : outcomeIdx === 1 ? amm.priceNo : amm.priceYes,
+    lastPrice: !amm ? "0.5" : outcome.price,
   }));
 };

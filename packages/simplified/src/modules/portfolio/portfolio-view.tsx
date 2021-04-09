@@ -10,15 +10,12 @@ import {
   Constants,
   createBigNumber,
   Stores,
-  PARA_CONFIG,
-  ApprovalHooks,
   SEO,
   ButtonComps,
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 
 const { claimWinnings } = ContractCalls;
-const { approveERC1155Contract } = ApprovalHooks;
 const { formatCash } = Formatter;
 const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
 const {
