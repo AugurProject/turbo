@@ -83,7 +83,7 @@ const MarketTableHeader = ({
   ammExchange: AmmExchange;
 }) => (
   <div className={Styles.MarketTableHeader}>
-    <MarketLink id={market.marketId} ammId={market.amm?.id}>
+    <MarketLink id={market.marketId}>
       <span>{market.description}</span>
       <InvalidFlagTipIcon {...{ market }} />
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
