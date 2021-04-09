@@ -315,43 +315,21 @@ export const estimateSellTrade = async (
     return null;
   }
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-  let longShares = new BN("0");
-  let shortShares = new BN("0");
-  let invalidShares = new BN(userBalances[0]);
-  if (!selectedOutcomeId) {
-    let shortOnChainShares = convertDisplayShareAmountToOnChainShareAmount(
-      new BN(inputDisplayAmount),
-      new BN(amm?.cash?.decimals)
-    );
-    shortShares = BN.minimum(invalidShares, shortOnChainShares);
-  } else {
-    longShares = convertDisplayShareAmountToOnChainShareAmount(new BN(inputDisplayAmount), new BN(cash?.decimals));
-  }
-
-  const liqNo = convertDisplayShareAmountToOnChainShareAmount(
-    new BN(amm?.liquidityNo || "0"),
-    new BN(amm?.cash?.decimals)
+  const { hatcheryAddress, turboId } = amm;
+  const swaps = userBalances.map((b, i) => (i === selectedOutcomeId ? b : "0"));
+  console.log(
+    "estimate sell",
+    "hatchery",
+    hatcheryAddress,
+    "turboId",
+    turboId,
+    "outcome id",
+    selectedOutcomeId,
+    "swaps",
+    swaps
   );
-  const liqYes = convertDisplayShareAmountToOnChainShareAmount(
-    new BN(amm?.liquidityYes || "0"),
-    new BN(amm?.cash?.decimals)
-  );
-
-  // TODO get these from the graph or node. these values will be wrong most of the time
-  const marketCreatorFeeDivisor = new BN(100);
-  const reportingFee = new BN(10000);
   const breakdownWithFeeRaw = await ammFactoryContract.callStatic
-    .sell(
-      new BN(amm?.totalSupply || "0"),
-      liqNo,
-      liqYes,
-      new BN(amm?.feeRaw),
-      shortShares,
-      longShares,
-      true,
-      marketCreatorFeeDivisor,
-      reportingFee
-    )
+    .sell(hatcheryAddress, turboId, selectedOutcomeId, swaps, 0)
     .catch((e) => console.log(e));
 
   if (!breakdownWithFeeRaw) return null;
@@ -592,6 +570,7 @@ export const getUserBalances = async (
     const rawBalance = new BN(balanceValue._hex).toFixed();
     const { dataKey, collection, decimals, marketId, outcomeId } = context;
     const balance = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(decimals));
+    const fixedBalance = balance.toFixed();
 
     if (method === BALANCE_OF) {
       if (!collection) {
@@ -601,18 +580,26 @@ export const getUserBalances = async (
           usdValue: balance.toFixed(),
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
-        userBalances[collection][dataKey] = { balance: String(balance), rawBalance, marketId };
+        userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
       } else if (collection === MARKET_SHARE_COLLECTION) {
         // todo: re organize balances to be really simple (future)
         // can index using dataKey (shareToken)
-        //userBalances[collection][dataKey] = { balance: String(balance), rawBalance, marketId };
+        //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
+
+        // todo: need historical trades to calculate positions initial value
+        const trades = {
+          enters: [],
+          exits: [],
+        };
 
         // shape AmmMarketShares
         const existingMarketShares = userBalances.marketShares[marketId];
         if (existingMarketShares) {
+          const position = getPositionUsdValues(trades, rawBalance, fixedBalance, outcomeId, exchange, account);
+          if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
-          userBalances.marketShares[marketId].outcomeShares[outcomeId] = balance.toFixed();
-        } else if (balance.toFixed() !== "0") {
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedBalance;
+        } else if (fixedBalance !== "0") {
           const exchange = ammExchanges[marketId];
           userBalances.marketShares[marketId] = {
             ammExchange: exchange,
@@ -621,8 +608,10 @@ export const getUserBalances = async (
             outcomeShares: ["0", "0", "0"], // this needs to be dynamic
           };
           // calc user position here **
+          const position = getPositionUsdValues(trades, rawBalance, fixedBalance, outcomeId, exchange, account);
+          if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
-          userBalances.marketShares[marketId].outcomeShares[outcomeId] = balance.toFixed();
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedBalance;
         }
       }
     }
@@ -729,12 +718,12 @@ const populateClaimableWinnings = (
     const market = finalizedMarkets[amm.marketId];
     const winningOutcome = market.outcomes.find((o) => o.payoutNumerator !== "0");
     if (winningOutcome) {
-      const outcomeBalances = marketShares[amm.id];
+      const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
       if (userShares && new BN(userShares?.rawBalance).gt(0)) {
         const initValue = userShares.initCostCash; // get init CostCash
         const claimableBalance = new BN(userShares.balance).minus(new BN(initValue)).abs().toFixed(4);
-        marketShares[amm.id].claimableWinnings = {
+        marketShares[amm.marketId].claimableWinnings = {
           claimableBalance,
           sharetoken: amm.cash.shareToken,
           userBalances: outcomeBalances.outcomeSharesRaw,
@@ -808,8 +797,6 @@ const getPositionUsdValues = (
   amm: AmmExchange,
   account: string
 ): PositionBalance => {
-  const { priceNo, priceYes, past24hrPriceNo, past24hrPriceYes } = amm;
-  let currUsdValue = "0";
   let past24hrUsdValue = null;
   let change24hrPositionUsd = null;
   let avgPrice = "0";
@@ -818,40 +805,42 @@ const getPositionUsdValues = (
   let totalChangeUsd = "0";
   let quantity = trimDecimalValue(balance);
   const outcomeId = Number(outcome);
+  const price = amm.ammOutcomes[outcomeId].price;
+  const outcomeName = amm.ammOutcomes[outcomeId].name;
   let visible = false;
   let positionFromLiquidity = false;
   let positionFromRemoveLiquidity = false;
+
   // need to get this from outcome
-  const outcomeName = YES_NO_OUTCOMES_NAMES[Number(outcome)];
   const maxUsdValue = String(new BN(balance).times(new BN(amm.cash.usdPrice)));
-  if (balance !== "0" && outcome !== String(INVALID_OUTCOME_ID)) {
-    let result = null;
-    if (outcome === String(NO_OUTCOME_ID)) {
-      currUsdValue = String(new BN(balance).times(new BN(priceNo)).times(new BN(amm.cash.usdPrice)));
-      past24hrUsdValue = past24hrPriceNo ? String(new BN(balance).times(new BN(past24hrPriceNo))) : null;
-      change24hrPositionUsd = past24hrPriceNo ? String(new BN(currUsdValue).times(new BN(past24hrUsdValue))) : null;
-      result = getInitPositionValues(trades, amm, false, account);
-    } else if (outcome === String(YES_OUTCOME_ID)) {
-      currUsdValue = String(new BN(balance).times(new BN(priceYes)).times(new BN(amm.cash.usdPrice)));
-      past24hrUsdValue = past24hrPriceYes ? String(new BN(balance).times(new BN(past24hrPriceYes))) : null;
-      change24hrPositionUsd = past24hrPriceYes ? String(new BN(currUsdValue).times(new BN(past24hrUsdValue))) : null;
-      result = getInitPositionValues(trades, amm, true, account);
-    }
-    avgPrice = trimDecimalValue(result.avgPrice);
-    initCostUsd = new BN(result.avgPrice).times(new BN(quantity)).toFixed(4);
-    initCostCash = result.initCostCash;
-    let usdChangedValue = new BN(currUsdValue).minus(new BN(initCostUsd));
-    // ignore negative dust difference
-    if (usdChangedValue.lt(new BN("0")) && usdChangedValue.gt(new BN("-0.001"))) {
-      usdChangedValue = usdChangedValue.abs();
-    }
-    totalChangeUsd = trimDecimalValue(usdChangedValue);
-    visible = true;
-    positionFromLiquidity = !result.positionFromRemoveLiquidity && result.positionFromLiquidity;
-    positionFromRemoveLiquidity = result.positionFromRemoveLiquidity;
+
+  let result = {
+    avgPrice: "0",
+    initCostCash: "0",
+    positionFromRemoveLiquidity: false,
+    positionFromLiquidity: false,
+  };
+
+  const currUsdValue = String(new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)));
+  const postitionResult = getInitPositionValues(trades, amm, false, account);
+
+  if (postitionResult) {
+    avgPrice = trimDecimalValue(postitionResult.avgPrice);
+    initCostUsd = new BN(postitionResult.avgPrice).times(new BN(quantity)).toFixed(4);
+    initCostCash = postitionResult.initCostCash;
   }
 
-  if (new BN(avgPrice).eq(0) || new BN(balance).eq(0)) return null;
+  let usdChangedValue = new BN(currUsdValue).minus(new BN(initCostUsd));
+  // ignore negative dust difference
+  if (usdChangedValue.lt(new BN("0")) && usdChangedValue.gt(new BN("-0.001"))) {
+    usdChangedValue = usdChangedValue.abs();
+  }
+  totalChangeUsd = trimDecimalValue(usdChangedValue);
+  visible = true;
+  positionFromLiquidity = !result.positionFromRemoveLiquidity && result.positionFromLiquidity;
+  positionFromRemoveLiquidity = result.positionFromRemoveLiquidity;
+
+  if (balance === "0") return null;
 
   return {
     balance,
@@ -1486,6 +1475,7 @@ const decodeMarket = (marketData: any) => {
   const start = Math.floor(Date.now() / 1000);
   const outcomes = decodeOutcomes(marketData[4], marketData[5]);
   const reportingState = MARKET_STATUS.TRADING;
+
   const turboData = {
     endTimestamp: new BN(String(marketData["endTime"])).toNumber(),
     creationTimestamp: String(start),
@@ -1498,7 +1488,8 @@ const decodeMarket = (marketData: any) => {
     categories: json["categories"],
     reportingState,
     outcomes,
-    settlementFee: String("creatorFee") || "0", // todo: get creation fee
+    settlementFee: "0", // todo: get creation fee
+    claimedProceeds: [],
   };
   return turboData;
 };
