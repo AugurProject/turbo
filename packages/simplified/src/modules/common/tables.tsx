@@ -297,6 +297,7 @@ export const PositionTable = ({
   const seenMarketPositionWarningRemove =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
   const hasLiquidity = ammExchange.liquidity !== '0';
+
   return (
     <>
       <div className={Styles.PositionTable}>
@@ -508,7 +509,7 @@ export const PositionsLiquidityViewSwitcher = ({
   } = useUserStore();
   const { ammExchanges, markets } = useDataStore();
 
-  const marketId = markets[ammExchange?.marketId];
+  const marketId = ammExchange?.marketId;
   let userPositions = [];
   let liquidity = null;
   let winnings = null;
@@ -519,7 +520,7 @@ export const PositionsLiquidityViewSwitcher = ({
       ? marketShares[marketId]?.claimableWinnings
       : null;
   }
-  const market = ammExchange?.id;
+  const market = ammExchange?.market;
 
   const positions = marketShares
     ? ((Object.values(marketShares) as unknown[]) as {
