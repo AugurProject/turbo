@@ -38,7 +38,7 @@ const {
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getLPCurrentValue } = ContractCalls;
+const { claimWinnings } = ContractCalls;
 const {
   formatDai,
   formatCash,
@@ -59,7 +59,6 @@ const {
   ETH,
   TABLES,
 } = Constants;
-const { approveERC1155Contract } = ApprovalHooks;
 
 interface PositionsTableProps {
   market: MarketInfo;
@@ -365,25 +364,12 @@ const LiquidityRow = ({
   liquidity: LPTokenBalance;
   amm: AmmExchange;
 }) => {
-  const [currValue, setInitValue] = useState(null);
-  useEffect(() => {
-    let isMounted = true;
-    const getCurrentValue = async (balance: string, amm: AmmExchange) => {
-      const value = await getLPCurrentValue(balance, amm);
-      if (isMounted) {
-        setInitValue(value);
-      }
-    };
-    getCurrentValue(liquidity.balance, amm);
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+
   return (
     <ul className={Styles.LiquidityRow}>
       <li>{formatDai(liquidity.balance).formatted}</li>
       <li>{formatDai(liquidity.initCostUsd).full}</li>
-      <li>{currValue ? formatDai(currValue).full : '-'}</li>
+      <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>
   );
 };

@@ -220,8 +220,7 @@ export function useApprovalStatus({
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = pool;
-          // address = invalidPoolId;
+          address = amm?.id;
           break;
         }
         case TRANSFER_LIQUIDITY: {
