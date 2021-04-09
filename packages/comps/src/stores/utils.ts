@@ -180,18 +180,19 @@ export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
 export function useApprovalStatus({
   amm,
   cash,
+  refresh = 0,
   actionType,
-  outcomeShareToken = null,
+  outcomeShareToken= null
 }: {
   amm?: AmmExchange | null | undefined;
   cash: Cash;
-  actionType: ApprovalAction;
-  outcomeShareToken: string | null;
+  refresh: number | string;
+  actionType: ApprovalAction,
+  outcomeShareToken?: string | null;
 }) {
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
-  // @ts-ignore
   const { ammFactory, pool } = PARA_CONFIG;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
@@ -266,6 +267,8 @@ export function useApprovalStatus({
     tokenAddress,
     shareToken,
     outcomeShareToken,
+    transactions,
+    refresh
   ]);
 
   return isApproved;

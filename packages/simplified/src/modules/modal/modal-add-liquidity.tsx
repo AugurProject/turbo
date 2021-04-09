@@ -118,7 +118,7 @@ const ModalAddLiquidity = ({
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes, ammExchanges } = useDataStore();
+  const { cashes, ammExchanges, blocknumber } = useDataStore();
   const history = useHistory();
 
   let amm = ammExchanges[market.marketId];
@@ -151,6 +151,7 @@ const ModalAddLiquidity = ({
   const approvedMain = useApprovalStatus({
     cash,
     amm,
+    refresh: blocknumber,
     actionType: !isRemove
     ? ApprovalAction.ADD_LIQUIDITY
     : ApprovalAction.REMOVE_LIQUIDITY

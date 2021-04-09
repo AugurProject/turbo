@@ -175,7 +175,7 @@ const TradingForm = ({
   amm,
 }: TradingFormProps) => {
   const { isLogged } = useAppStatusStore();
-  const { cashes } = useDataStore();
+  const { cashes, blocknumber } = useDataStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
@@ -205,6 +205,7 @@ const TradingForm = ({
   const approvalStatus = useApprovalStatus({
     cash: ammCash,
     amm,
+    refresh: blocknumber,
     actionType: approvalAction,
     outcomeShareToken
   });
