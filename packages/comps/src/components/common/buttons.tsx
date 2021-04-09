@@ -221,7 +221,8 @@ export const ApprovalButton = ({
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = amm?.invalidPool?.id;
+          address = amm?.id;
+          spender = ammFactory;
           text = `Liquidity (${marketCashType})`;
           break;
         }

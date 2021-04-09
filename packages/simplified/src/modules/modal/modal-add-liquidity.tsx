@@ -123,7 +123,7 @@ const ModalAddLiquidity = ({
 
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
-  const modalType = Boolean(amm?.id) ? ADD : CREATE;
+  const modalType = liquidityModalType !== REMOVE ? Boolean(amm?.id) ? ADD : CREATE : REMOVE;
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(amm.ammOutcomes);
   const [showBackView, setShowBackView] = useState(false);
@@ -162,8 +162,8 @@ const ModalAddLiquidity = ({
   const shareBalance =
     balances &&
     balances.lpTokens &&
-    balances.lpTokens[amm?.id] &&
-    balances.lpTokens[amm?.id]?.balance;
+    balances.lpTokens[amm?.marketId] &&
+    balances.lpTokens[amm?.marketId]?.balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
 
   const [amount, updateAmount] = useState(
@@ -274,11 +274,12 @@ const ModalAddLiquidity = ({
       let results: LiquidityBreakdown;
       if (isRemove) {
         results = await getRemoveLiquidity(
-          market.marketId,
+          amm.id,
           loginAccount?.library,
           cash,
           onChainFee,
-          amount
+          amount,
+          account,
         );
       } else {
         results = await estimateLiquidityPool(
@@ -367,7 +368,7 @@ const ModalAddLiquidity = ({
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveLiquidity(amm, loginAccount?.library, amount)
+      doRemoveLiquidity(amm.id, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -393,7 +394,8 @@ const ModalAddLiquidity = ({
         properties.fee,
         amount,
         properties.priceNo,
-        properties.priceYes
+        properties.priceYes,
+        estimatedLpAmount
       )
         .then(response => {
           const { hash } = response;
@@ -687,13 +689,6 @@ const ModalAddLiquidity = ({
                       : ApprovalAction.REMOVE_LIQUIDITY
                   }
                 />
-                {isRemove &&
-                  <ApprovalButton
-                    amm={amm}
-                    cash={cash}
-                    actionType={ApprovalAction.TRANSFER_LIQUIDITY}
-                  />
-                }
               </>
             )}
 

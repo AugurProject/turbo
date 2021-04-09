@@ -1198,6 +1198,8 @@ export interface LiquidityBreakdown {
   noShares: string;
   lpTokens?: string;
   cashAmount?: string;
+  minAmountsRaw?: string[];
+  minAmounts?: string[];
 }
 export interface AddLiquidityBreakdown extends LiquidityBreakdown {
   lpTokens: string;
