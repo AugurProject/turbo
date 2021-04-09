@@ -213,7 +213,8 @@ const TradingForm = ({
   
   const selectedOutcomeId = selectedOutcome.id;
   const marketShares =
-    balances?.marketShares && balances?.marketShares[amm?.id];
+    balances?.marketShares && balances?.marketShares[amm?.marketId];
+  
   const outcomeSharesRaw = JSON.stringify(marketShares?.outcomeSharesRaw);
   const amountError =
     amount !== '' &&
@@ -306,7 +307,8 @@ const TradingForm = ({
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : 'Share'} Balance`;
       disabled = true;
-    } else if (breakdown === null) {
+    } else if (false /* breakdown === null */) {
+      // todo: need better way to determine if there is liquidity
       actionText = INSUFFICIENT_LIQUIDITY;
       disabled = true;
     } else if (
@@ -315,7 +317,7 @@ const TradingForm = ({
       )
     ) {
       subText = `(Adjust slippage tolerance to ${Math.ceil(
-        Number(breakdown.slippagePercent)
+        Number(breakdown?.slippagePercent)
       )}%)`;
       disabled = true;
     } else if (waitingToSign) {

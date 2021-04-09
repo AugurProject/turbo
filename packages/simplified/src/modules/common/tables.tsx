@@ -522,15 +522,15 @@ export const PositionsLiquidityViewSwitcher = ({
   } = useUserStore();
   const { ammExchanges, markets } = useDataStore();
 
-  const ammId = markets[ammExchange?.id];
+  const marketId = markets[ammExchange?.marketId];
   let userPositions = [];
   let liquidity = null;
   let winnings = null;
-  if (ammId && marketShares) {
-    userPositions = marketShares[ammId] ? marketShares[ammId].positions : [];
-    liquidity = lpTokens[ammId] ? lpTokens[ammId] : null;
-    winnings = marketShares[ammId]
-      ? marketShares[ammId]?.claimableWinnings
+  if (marketId && marketShares) {
+    userPositions = marketShares[marketId] ? marketShares[marketId].positions : [];
+    liquidity = lpTokens[marketId] ? lpTokens[marketId] : null;
+    winnings = marketShares[marketId]
+      ? marketShares[marketId]?.claimableWinnings
       : null;
   }
   const market = ammExchange?.id;
@@ -543,10 +543,10 @@ export const PositionsLiquidityViewSwitcher = ({
       }[])
     : [];
   const liquidities = lpTokens
-    ? Object.keys(lpTokens).map((ammId) => ({
-        ammExchange: ammExchanges[ammId],
-        market: markets[ammId],
-        lpTokens: lpTokens[ammId],
+    ? Object.keys(lpTokens).map((marketId) => ({
+        ammExchange: ammExchanges[marketId],
+        market: markets[marketId],
+        lpTokens: lpTokens[marketId],
       }))
     : [];
   return (
@@ -587,7 +587,7 @@ export const PositionsLiquidityViewSwitcher = ({
       </div>
       {tableView !== null && (
         <div>
-          {!ammId && (positions.length > 0 || liquidities.length > 0) && (
+          {!marketId && (positions.length > 0 || liquidities.length > 0) && (
             <>
               {tableView === POSITIONS && (
                 <AllPositionTable page={page} claimableFirst={claimableFirst} />
@@ -595,7 +595,7 @@ export const PositionsLiquidityViewSwitcher = ({
               {tableView === LIQUIDITY && <AllLiquidityTable page={page} />}
             </>
           )}
-          {!ammId &&
+          {!marketId &&
             ((positions.length > 0 && tableView === POSITIONS) ||
               (liquidities.length > 0 && tableView === LIQUIDITY)) && (
               <Pagination
@@ -610,7 +610,7 @@ export const PositionsLiquidityViewSwitcher = ({
                 updateLimit={() => null}
               />
             )}
-          {ammId && (
+          {marketId && (
             <>
               {tableView === POSITIONS && (
                 <PositionTable
@@ -633,10 +633,10 @@ export const PositionsLiquidityViewSwitcher = ({
           )}
         </div>
       )}
-      {positions?.length === 0 && !ammId && tableView === POSITIONS && (
+      {positions?.length === 0 && !marketId && tableView === POSITIONS && (
         <span>No positions to show</span>
       )}
-      {liquidities?.length === 0 && !ammId && tableView === LIQUIDITY && (
+      {liquidities?.length === 0 && !marketId && tableView === LIQUIDITY && (
         <span>No liquidity to show</span>
       )}
     </div>
