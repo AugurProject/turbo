@@ -206,27 +206,8 @@ const paraCashes = {
 };
 
 const getCashesInfo = (): Cash[] => {
-  const { networkId, paraDeploys } = PARA_CONFIG;
-  const paraValues = Object.values(paraDeploys);
-  const keysValues = paraValues.reduce((p, v) => ({ ...p, [v.name]: v }), {});
-  const cashes = paraCashes[String(networkId)].Cashes;
-  // fill in address and shareToken
-  cashes.forEach((c) => {
-    if (c.name === ETH) {
-      const ethPara = keysValues["WETH"];
-      if (!ethPara) throw new Error("WETH not found in para deploy configuration");
-      c.address = ethPara.addresses.Cash.toLowerCase();
-      c.shareToken = ethPara.addresses.ShareToken.toLowerCase();
-      c.decimals = ethPara.decimals;
-    } else {
-      // TODO: will need to be changed, in mainnet deploy this will prob be 'USDC'
-      const stablecoinPara = keysValues["USDT"];
-      if (!stablecoinPara) throw new Error("USDT/USDC not found in para deploy configuration");
-      c.address = stablecoinPara.addresses.Cash.toLowerCase();
-      c.shareToken = stablecoinPara.addresses.ShareToken.toLowerCase();
-      c.decimals = stablecoinPara.decimals;
-    }
-  });
+  // this prob wont be used
+  const { networkId } = PARA_CONFIG;
 
-  return cashes;
+  return [];
 };
