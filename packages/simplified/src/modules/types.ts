@@ -84,17 +84,14 @@ export interface CoreStats {
 
 export interface ParaDeploys {
   networkId: string;
-  addresses: {
-    [contract: string]: string;
-  };
-  paraDeploys: {
-    [cashAddress: string]: {
-      name: string;
-      addresses: {
-        [contract: string]: string;
-      };
-    };
-  };
+  collateral: string;
+  reputationToken: string;
+  balancerFactory: string;
+  hatcheryRegistry: string;
+  hatchery: string;
+  arbiter: string;
+  ammFactory: string;
+  pool: string;
 }
 export interface AmmTransaction {
   id: string;

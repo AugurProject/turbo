@@ -222,32 +222,22 @@ export const useApproveCallbackForTrade = (
   ammExchange: AmmExchange,
   isEnter: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const {
-    addresses: { AMMFactory, WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   const { cash } = ammExchange;
   const { shareToken } = cash;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
 
-  const [approveShareWrapperStatus, approveShareWrapper] = useApproveERC1155Callback(
-    shareToken,
-    approvingName,
-    WethWrapperForAMMExchange
-  );
   const [approveShareFactoryStatus, approveShareFactory] = useApproveERC1155Callback(
     shareToken,
     approvingName,
-    AMMFactory
+    ammFactory
   );
-  const [approveFactoryStatus, approveFactory] = useApproveCallback(cash?.address, approvingName, AMMFactory);
+  const [approveFactoryStatus, approveFactory] = useApproveCallback(cash?.address, approvingName, ammFactory);
 
   if (isEnter) {
     if (isETH) return [ApprovalState.APPROVED, () => null];
     return [approveShareFactoryStatus, approveShareFactory];
-  }
-  if (isETH) {
-    return [approveShareWrapperStatus, approveShareWrapper];
   }
   return [approveFactoryStatus, approveFactory];
 };
@@ -257,26 +247,16 @@ export const useApproveCallbackForLiquidity = (
   ammExchange: AmmExchange,
   isAdd: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const {
-    addresses: { AMMFactory, WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   const { cash } = ammExchange;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
 
-  const [approveCashFactoryStatus, approveCashFactory] = useApproveCallback(cash?.address, approvingName, AMMFactory);
-  const [approveAmmWrapperStatus, approveAmmWrapper] = useApproveCallback(
-    ammExchange.id,
-    approvingName,
-    WethWrapperForAMMExchange
-  );
+  const [approveCashFactoryStatus, approveCashFactory] = useApproveCallback(cash?.address, approvingName, ammFactory);
 
   if (isAdd) {
     if (isETH) return [ApprovalState.APPROVED, () => null];
     return [approveCashFactoryStatus, approveCashFactory];
-  }
-  if (isETH) {
-    return [approveAmmWrapperStatus, approveAmmWrapper];
   }
   return [ApprovalState.APPROVED, () => null];
 };

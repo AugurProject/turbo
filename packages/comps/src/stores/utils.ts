@@ -77,18 +77,11 @@ export function useCanExitCashPosition(cash: Cash, refresh: any = null) {
   const { account, loginAccount } = useUserStore();
   const approvedAccount = useRef(null);
   const [canExitPosition, setCanExitPosition] = useState(false);
-  const {
-    addresses: { WethWrapperForAMMExchange, AMMFactory },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   useEffect(() => {
     const checkApproval = async ({ name, shareToken }: Cash) => {
       if (!name || !shareToken || !account) return setCanExitPosition(false);
-      const isApproved = await checkIsERC1155Approved(
-        shareToken,
-        name === ETH ? WethWrapperForAMMExchange : AMMFactory,
-        account,
-        loginAccount?.library
-      );
+      const isApproved = await checkIsERC1155Approved(shareToken, ammFactory, account, loginAccount?.library);
       setCanExitPosition(isApproved);
       if (isApproved || canExitPosition) {
         approvedAccount.current = account;
@@ -107,14 +100,12 @@ export function useCanEnterCashPosition({ name, address }: Cash, refresh: any = 
   const { account, loginAccount } = useUserStore();
   const approvedAccount = useRef(null);
   const [canEnterPosition, setCanEnterPosition] = useState(name === ETH);
-  const {
-    addresses: { AMMFactory },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
 
   useEffect(() => {
     const checkApproval = async (address: string) => {
       if (!address || !account) return setCanEnterPosition(false);
-      const isApproved = await checkIsERC20Approved(address, AMMFactory, account, loginAccount?.library);
+      const isApproved = await checkIsERC20Approved(address, ammFactory, account, loginAccount?.library);
       setCanEnterPosition(isApproved);
       if (isApproved || canEnterPosition) {
         approvedAccount.current = account;

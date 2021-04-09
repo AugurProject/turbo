@@ -182,9 +182,6 @@ export const PositionFooter = ({
     shareToken: ammCash?.sharetoken,
   });
   const isETHClaim = ammCash?.name === ETH;
-  const {
-    addresses: { WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
 
   const claim = async () => {
     if (amm && account) {
@@ -212,17 +209,7 @@ export const PositionFooter = ({
             setPendingClaim(false);
             console.log('Error when trying to claim winnings: ', error?.message);
           });
-      } else {
-        // need to approve here
-        const tx = await approveERC1155Contract(
-          amm?.cash?.shareToken,
-          `To Claim Winnings`,
-          WethWrapperForAMMExchange,
-          loginAccount
-        );
-        tx.marketDescription = description;
-        addTransaction(tx);
-      }
+      } 
     }
   };
 
@@ -282,7 +269,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   ).map((position) => {
     return (
       <PositionTable
-        key={`${position.ammExchange.market.marketId}-PositionsTable`}
+        key={`${position.ammExchange.marketId}-PositionsTable`}
         market={position.ammExchange.market}
         ammExchange={position.ammExchange}
         positions={position.positions}
@@ -437,11 +424,11 @@ export const AllLiquidityTable = ({ page }) => {
   const {
     balances: { lpTokens },
   } = useUserStore();
-  const { ammExchanges } = useDataStore();
+  const { ammExchanges, markets } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
         ammExchange: ammExchanges[ammId],
-        market: ammExchanges[ammId].market,
+        market: markets[ammId],
         lpTokens: lpTokens[ammId],
       }))
     : [];
@@ -558,7 +545,7 @@ export const PositionsLiquidityViewSwitcher = ({
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
         ammExchange: ammExchanges[ammId],
-        market: ammExchanges[ammId].market,
+        market: markets[ammId],
         lpTokens: lpTokens[ammId],
       }))
     : [];

@@ -330,6 +330,7 @@ const shapeAmmExchange = (
   const priceYesFixed = priceYes.toFixed(4);
 
   // recreate outcomes specific for amm
+  // prob won't get used with new contracts
   const ammOutcomes = [
     {
       id: 0,
@@ -381,7 +382,7 @@ const shapeAmmExchange = (
     past24hrPriceYes: past24hrPriceYes ? past24hrPriceYes.toFixed(2) : null,
     totalSupply: amm.totalSupply,
     apy,
-    ammOutcomes,
+    ammOutcomes: [],
     isAmmMarketInvalid: false, // this will be calc by process
     invalidPool: amm?.invalidPool,
     symbols: amm.symbols,
