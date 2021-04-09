@@ -63,9 +63,6 @@ const handleClaimAll = (
 ) => {
   const from = loginAccount?.account;
   const chainId = loginAccount?.chainId;
-  const {
-    addresses: { WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
   if (from && canClaim) {
     setPendingClaim(true);
     claimWinnings(from, loginAccount?.library, marketIds, cash)
@@ -90,19 +87,7 @@ const handleClaimAll = (
         setPendingClaim(false);
         console.log('Error when trying to claim winnings: ', error?.message);
       });
-  } else if (from) {
-    const approveEth = async () => {
-      const tx = await approveERC1155Contract(
-        cash?.shareToken,
-        `To Claim Winnings`,
-        WethWrapperForAMMExchange,
-        loginAccount
-      );
-      addTransaction(tx);
-    };
-    // need to approve here
-    approveEth();
-  }
+  } 
 };
 
 export const ClaimWinningsSection = () => {

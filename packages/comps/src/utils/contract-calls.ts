@@ -504,67 +504,56 @@ export const getUserBalances = async (
   if (!account || !provider) return userBalances;
 
   const BALANCE_OF = "balanceOf";
-  const MARKET_SHARE_BALANCE = "balanceOfMarketOutcome";
+  const LP_TOKEN_COLLECTION = "lpTokens";
+  const MARKET_SHARE_COLLECTION = "marketShares";
   // finalized markets
   const finalizedMarkets = Object.values(markets).filter((m) => m.reportingState === MARKET_STATUS.FINALIZED);
   const finalizedMarketIds = finalizedMarkets.map((f) => f.marketId);
   const finalizedAmmExchanges = Object.values(ammExchanges).filter((a) => finalizedMarketIds.includes(a.marketId));
 
   // balance of
-  const ammAddresses: string[] = Object.keys(ammExchanges);
-  const exchanges = Object.values(ammExchanges);
-  // share tokens
-  const shareTokens: string[] = []; //Object.keys(cashes).map((id) => cashes[id].shareToken);
-  // markets
-  const marketIds: string[] = ammAddresses.reduce(
-    (p, a) => (p.includes(ammExchanges[a].marketId) ? p : [...p, ammExchanges[a].marketId]),
-    []
-  );
-
+  const exchanges = Object.values(ammExchanges).filter((e) => e.id);
   userBalances.ETH = await getEthBalance(provider, cashes, account);
-
   const multicall = new Multicall({ ethersProvider: provider });
-  const contractLpBalanceCall: ContractCallContext[] = exchanges.reduce(
-    (p, exchange) => [
-      ...p,
+  const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
+    reference: exchange.id,
+    contractAddress: exchange.id,
+    abi: ERC20ABI,
+    calls: [
       {
         reference: exchange.id,
-        contractAddress: exchange.id,
-        abi: ERC20ABI,
-        calls: [
-          {
-            reference: exchange.id,
-            methodName: BALANCE_OF,
-            methodParameters: [account],
-          },
-        ],
+        methodName: BALANCE_OF,
+        methodParameters: [account],
+        context: {
+          dataKey: exchange.marketId,
+          collection: LP_TOKEN_COLLECTION,
+          decimals: 18,
+          marketid: exchange.marketId,
+        },
       },
     ],
-    []
-  );
+  }));
 
-  const contractMarketShareBalanceCall: ContractCallContext[] = marketIds.reduce((p, marketId) => {
-    const shareTokenOutcomeShareBalances = shareTokens.reduce((k, shareToken) => {
-      // TODO: might need to change when scalars come in
-      const outcomeShareBalances = [0, 1, 2].map((outcome) => ({
-        reference: `${shareToken}-${marketId}-${outcome}`,
-        contractAddress: shareToken,
-        abi: ParaShareTokenABI,
-        calls: [
-          {
-            reference: `${shareToken}-${marketId}-${outcome}`,
-            methodName: MARKET_SHARE_BALANCE,
-            methodParameters: [marketId, outcome, account],
-            context: {
-              marketId,
-              outcome,
-              shareToken,
-            },
+  const contractMarketShareBalanceCall: ContractCallContext[] = exchanges.reduce((p, exchange) => {
+    const shareTokenOutcomeShareBalances = exchange.ammOutcomes.map((outcome) => ({
+      reference: `${outcome.shareToken}`,
+      contractAddress: outcome.shareToken,
+      abi: ERC20ABI,
+      calls: [
+        {
+          reference: `${outcome.shareToken}`,
+          methodName: BALANCE_OF,
+          methodParameters: [account],
+          context: {
+            dataKey: outcome.shareToken,
+            collection: MARKET_SHARE_COLLECTION,
+            decimals: 18,
+            marketId: exchange.marketId,
+            outcomeId: outcome.id,
           },
-        ],
-      }));
-      return [...k, ...outcomeShareBalances];
-    }, []);
+        },
+      ],
+    }));
     return [...p, ...shareTokenOutcomeShareBalances];
   }, []);
 
@@ -576,79 +565,64 @@ export const getUserBalances = async (
         reference: "usdc-balance",
         contractAddress: usdc.address,
         abi: ERC20ABI,
-        calls: [{ reference: "usdcBalance", methodName: BALANCE_OF, methodParameters: [account] }],
+        calls: [
+          {
+            reference: "usdcBalance",
+            methodName: BALANCE_OF,
+            methodParameters: [account],
+            context: {
+              dataKey: USDC,
+              collection: null,
+              decimals: usdc?.decimals,
+            },
+          },
+        ],
       },
     ];
   }
-  // todo ...contractLpBalanceCall, ...contractMarketShareBalanceCall,
   // need different calls to get lp tokens and market share balances
-  const balanceCalls = [...basicBalanceCalls];
+  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
 
-  let balances: string[] = [];
   const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
-    // const value = String(
-    //   new BN(JSON.parse(JSON.stringify(balanceResult.results[key].callsReturnContext[0].returnValues)).hex)
-    // );
-    const value = String(new BN(balanceResult.results[key].callsReturnContext[0].returnValues[0]._hex));
-    balances.push(value);
-
     const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
-    const contractAddress = String(balanceResult.results[key].originalContractCallContext.contractAddress);
-
     const balanceValue = balanceResult.results[key].callsReturnContext[0].returnValues[0] as ethers.utils.Result;
     const context = balanceResult.results[key].originalContractCallContext.calls[0].context;
     const rawBalance = new BN(balanceValue._hex).toFixed();
+    const { dataKey, collection, decimals, marketId, outcomeId } = context;
+    const balance = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(decimals));
+
     if (method === BALANCE_OF) {
-      if (usdc && contractAddress === usdc.address) {
-        const usdcValue = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(usdc.decimals));
-        userBalances.USDC = {
-          balance: String(usdcValue),
+      if (!collection) {
+        userBalances[dataKey] = {
+          balance: balance.toFixed(),
           rawBalance: rawBalance,
-          usdValue: String(usdcValue),
+          usdValue: balance.toFixed(),
         };
-      } else {
-        const cash = cashes[ammExchanges[contractAddress]?.cash?.address];
-        const balance = convertOnChainSharesToDisplayShareAmount(rawBalance, cash?.decimals);
-        if (balance.gt(0)) {
-          userBalances.lpTokens[contractAddress] = { balance: String(balance), rawBalance };
-        }
-      }
-    } else if (method === MARKET_SHARE_BALANCE) {
-      const cash = Object.values(cashes).find((c) => c.shareToken.toLowerCase() === contractAddress.toLowerCase());
-      const balance = String(convertOnChainSharesToDisplayShareAmount(rawBalance, cash?.decimals));
+      } else if (collection === LP_TOKEN_COLLECTION) {
+        userBalances[collection][dataKey] = { balance: String(balance), rawBalance, marketId };
+      } else if (collection === MARKET_SHARE_COLLECTION) {
+        // todo: re organize balances to be really simple (future)
+        // can index using dataKey (shareToken)
+        //userBalances[collection][dataKey] = { balance: String(balance), rawBalance, marketId };
 
-      const marketId = context.marketId;
-      const outcome = String(context.outcome);
-
-      const amm = exchanges.find(
-        (e) => e.sharetoken.toLowerCase() === contractAddress.toLowerCase() && e.marketId === marketId
-      );
-
-      if (amm) {
-        const existingMarketShares = userBalances.marketShares[amm.id];
-        const trades = getUserTrades(account, amm.transactions);
+        // shape AmmMarketShares
+        const existingMarketShares = userBalances.marketShares[marketId];
         if (existingMarketShares) {
-          const position = getPositionUsdValues(trades, rawBalance, balance, outcome, amm, account);
-          if (position) existingMarketShares.positions.push(position);
-          userBalances.marketShares[amm.id].outcomeSharesRaw[Number(outcome)] = rawBalance;
-          userBalances.marketShares[amm.id].outcomeShares[Number(outcome)] = String(
-            convertOnChainSharesToDisplayShareAmount(rawBalance, cash.decimals)
-          );
-        } else if (balance !== "0") {
-          userBalances.marketShares[amm.id] = {
-            ammExchange: amm,
+          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = balance.toFixed();
+        } else if (balance.toFixed() !== "0") {
+          const exchange = ammExchanges[marketId];
+          userBalances.marketShares[marketId] = {
+            ammExchange: exchange,
             positions: [],
-            outcomeSharesRaw: ["0", "0", "0"],
-            outcomeShares: ["0", "0", "0"],
+            outcomeSharesRaw: ["0", "0", "0"], // this needs to be dynamic
+            outcomeShares: ["0", "0", "0"], // this needs to be dynamic
           };
-          const position = getPositionUsdValues(trades, rawBalance, balance, outcome, amm, account);
-          if (position) userBalances.marketShares[amm.id].positions.push(position);
-          userBalances.marketShares[amm.id].outcomeSharesRaw[Number(outcome)] = rawBalance;
-          userBalances.marketShares[amm.id].outcomeShares[Number(outcome)] = String(
-            convertOnChainSharesToDisplayShareAmount(rawBalance, cash.decimals)
-          );
+          // calc user position here **
+          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances.marketShares[marketId].outcomeShares[outcomeId] = balance.toFixed();
         }
       }
     }
@@ -902,9 +876,10 @@ const getPositionUsdValues = (
 export const getLPCurrentValue = async (displayBalance: string, amm: AmmExchange): Promise<string> => {
   const usdPrice = amm.cash?.usdPrice ? amm.cash?.usdPrice : "0";
   const { marketId, cash, feeRaw, priceNo, priceYes } = amm;
-  const estimate = await getRemoveLiquidity(marketId, null, cash, feeRaw, displayBalance).catch((error) =>
-    console.error("estimation error", error)
-  );
+  // todo: need a way to determine value of LP tokens
+  const estimate = null; //await getRemoveLiquidity(marketId, null, cash, feeRaw, displayBalance).catch((error) =>
+  //console.error("estimation error", error)
+  //);
   if (estimate) {
     const displayNoValue = new BN(estimate.noShares).times(new BN(priceNo)).times(usdPrice);
     const displayYesValue = new BN(estimate.yesShares).times(new BN(priceYes)).times(usdPrice);
@@ -1234,6 +1209,7 @@ export const getERC1155ApprovedForAll = async (
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const { hatchery, arbiter, ammFactory } = PARA_CONFIG;
@@ -1250,6 +1226,7 @@ export const getMarketInfos = async (
     arbiter,
     hatchery,
     ammFactory,
+    cashes,
     provider
   );
   return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
@@ -1260,6 +1237,7 @@ const retrieveMarkets = async (
   arbiterAddress: string,
   hatcheryAddress: string,
   ammFactoryAddress: string,
+  cashes: Cashes,
   provider: Web3Provider
 ): Market[] => {
   const GET_TURBO = "getTurbo";
@@ -1323,6 +1301,7 @@ const retrieveMarkets = async (
   let markets = [];
   const shareTokens = {};
   let exchanges = {};
+  const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1344,6 +1323,9 @@ const retrieveMarkets = async (
         feeDecimal: "0",
         feeRaw: "0",
         feeInPercent: "0",
+        transactions: [], // to be filled in the future
+        trades: {}, // to be filled in the future
+        cash,
       };
     } else {
       const market = decodeMarket(data);
@@ -1479,6 +1461,9 @@ const retrieveExchangeInfos = async (
       balance: exchange.id ? toDisplayBalance(String(balances[marketId][i]), numTicks) : "",
       ...o,
     }));
+    // create cross reference
+    exchange.market = market;
+    market.amm = exchange;
   });
 
   return exchanges;
