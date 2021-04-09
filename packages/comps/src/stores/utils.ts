@@ -182,12 +182,12 @@ export function useApprovalStatus({
   cash,
   refresh = 0,
   actionType,
-  outcomeShareToken= null
+  outcomeShareToken = null,
 }: {
   amm?: AmmExchange | null | undefined;
   cash: Cash;
   refresh: number | string;
-  actionType: ApprovalAction,
+  actionType: ApprovalAction;
   outcomeShareToken?: string | null;
 }) {
   const { account, loginAccount, transactions } = useUserStore();
@@ -268,7 +268,7 @@ export function useApprovalStatus({
     shareToken,
     outcomeShareToken,
     transactions,
-    refresh
+    refresh,
   ]);
 
   return isApproved;
