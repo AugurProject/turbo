@@ -3,12 +3,8 @@ import {
   AMMFactory__factory,
   Cash,
   Cash__factory,
-  HatcheryRegistry,
-  HatcheryRegistry__factory,
-  TrustedArbiter__factory,
-  TurboHatchery,
-  TurboHatchery__factory,
-  TrustedArbiter,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
 } from "./typechain";
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";
@@ -19,10 +15,8 @@ export * from "./addresses";
 
 export interface ContractInterfaces {
   AMMFactory: AMMFactory;
-  Hatchery: TurboHatchery;
-  HatcheryRegistry: HatcheryRegistry;
+  MarketFactory: TrustedMarketFactory;
   ReputationToken: Cash;
-  TrustedArbiter: TrustedArbiter;
 }
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
@@ -31,9 +25,7 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
 
   return {
     AMMFactory: AMMFactory__factory.connect(contractAddresses.ammFactory, signerOrProvider),
-    Hatchery: TurboHatchery__factory.connect(contractAddresses.hatchery, signerOrProvider),
-    HatcheryRegistry: HatcheryRegistry__factory.connect(contractAddresses.hatcheryRegistry, signerOrProvider),
+    MarketFactory: TrustedMarketFactory__factory.connect(contractAddresses.marketFactory, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
-    TrustedArbiter: TrustedArbiter__factory.connect(contractAddresses.arbiter, signerOrProvider),
   };
 }

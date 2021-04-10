@@ -1,47 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
-import "./ICash.sol";
-import "./ITyped.sol";
-import "./VariableSupplyToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title Cash
  * @dev Test contract for collateral
  */
-contract Cash is VariableSupplyToken, ITyped, ICash {
-    using SafeMathUint256 for uint256;
-
-    string public name;
+contract Cash is ERC20 {
     uint8 private _decimals;
-    string public symbol;
 
     constructor(
-        string memory _name,
-        string memory _symbol,
+        string memory name_,
+        string memory symbol_,
         uint8 decimals_
-    ) {
-        name = _name;
-        symbol = _symbol;
+    ) ERC20(name_, symbol_) {
         _decimals = decimals_;
     }
 
-    function decimals() public view virtual override(ERC20, ICash) returns (uint8) {
+    function decimals() public view virtual override(ERC20) returns (uint8) {
         return _decimals;
     }
 
-    function faucet(uint256 _amount) public override returns (bool) {
-        mint(msg.sender, _amount);
+    function faucet(uint256 _amount) public returns (bool) {
+        _mint(msg.sender, _amount);
         return true;
     }
-
-    function getTypeName() public pure override returns (bytes32) {
-        return "Cash";
-    }
-
-    function onTokenTransfer(
-        address _from,
-        address _to,
-        uint256 _value
-    ) internal override {}
 }
