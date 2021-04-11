@@ -23,7 +23,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "typeRoots": ["node_modules/@types", "node_modules/hardhat/types"]
+    "typeRoots": ["node_modules/@types", "node_modules/hardhat/types"],
   },
   "references": [
     {

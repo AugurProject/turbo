@@ -13,8 +13,8 @@
     "contracts:verify": "hardhat verify",
     "ethereumNode": "hardhat node",
     "contracts:OVM": "TARGET=ovm npx hardhat compile",
-    "test:OVM": "TARGET=ovm npx hardhat --network optimisticKovan test",
-    "contracts:deploy:OVM": "TARGET=ovm npx hardhat --network optimisticKovan deploy"
+    "test:OVM": "TARGET=ovm npx hardhat --network optimism test",
+    "contracts:deploy:OVM": "TARGET=ovm npx hardhat --network optimism deploy"
   },
   "files": [
     "./contracts",
