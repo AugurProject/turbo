@@ -37,16 +37,16 @@ export const DataProvider = ({ children }) => {
       if (provider && account) {
         return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
       }
-      return { markets: {}, ammExchanges: {}, blocknumber: null };
+      return { markets: {}, ammExchanges: {}, blockNumber: null };
     };
 
-    getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+    getMarkets().then(({ markets, ammExchanges, blockNumber }) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blockNumber, null);
     });
 
     const intervalId = setInterval(() => {
-      getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+      getMarkets().then(({ markets, ammExchanges, blockNumber }) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blockNumber, null);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {

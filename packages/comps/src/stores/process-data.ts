@@ -9,6 +9,7 @@ import {
   MarketInfo,
   ActivityData,
   ProcessedData,
+  AmmOutcome, Markets, AmmExchanges
 } from "../utils/types";
 import { BigNumber as BN } from "bignumber.js";
 import { getDayFormat, getDayTimestamp, getTimeFormat } from "../utils/date-utils";
@@ -167,7 +168,7 @@ export const processGraphMarkets = async (graphData: GraphData, provider?: Web3P
 
   let markets = {};
   let ammExchanges = {};
-  Object.keys(keyedMarkets).forEach(async (marketId) => {
+  Object.keys(keyedMarkets).forEach((marketId) => {
     const market = keyedMarkets[marketId];
     const pastMarket = keyedPastMarkets[marketId];
     const amms = market.amms;
@@ -189,7 +190,7 @@ export const processGraphMarkets = async (graphData: GraphData, provider?: Web3P
         [marketId: string]: GraphAmmExchange;
       } = pastMarket.amms.reduce((group, a) => ({ ...group, [a.id]: a }), {});
 
-      Object.keys(marketAmms).forEach(async (ammId) => {
+      Object.keys(marketAmms).forEach((ammId) => {
         const amm = marketAmms[ammId];
         const pastAmm = pastMarketAmms[ammId];
         const newAmmExchange = shapeAmmExchange(amm, pastAmm, cashes, market);
@@ -213,7 +214,6 @@ export const processGraphMarkets = async (graphData: GraphData, provider?: Web3P
 };
 
 const shapeMarketInfo = (market: GraphMarket, ammExchange: AmmExchange, cashes: Cashes): MarketInfo => {
-  const extraInfo = JSON.parse(market?.extraInfoRaw);
   const feeAsPercent = convertAttoValueToDisplayValue(new BN(market.fee)).times(100);
   const reportingFeeAsPercent = new BN(1).dividedBy(new BN(market.universe.reportingFee)).times(100);
   const shareTokenCashes = Object.values(cashes).reduce((p, c) => ({ ...p, [c.shareToken.toLowerCase()]: c }), {});
@@ -247,13 +247,8 @@ const shapeMarketInfo = (market: GraphMarket, ammExchange: AmmExchange, cashes: 
 
   return {
     marketId: market.id,
-    numTicks: market.numTicks,
     description: market.description,
-    longDescription: extraInfo.longDescription,
-    categories: extraInfo?.categories || [],
     endTimestamp: Number(market.endTimestamp),
-    creationTimestamp: market.timestamp,
-    extraInfoRaw: market.extraInfoRaw,
     fee: String(feeAsPercent),
     reportingFee: String(reportingFeeAsPercent),
     settlementFee: String(feeAsPercent.plus(reportingFeeAsPercent)),
@@ -262,8 +257,10 @@ const shapeMarketInfo = (market: GraphMarket, ammExchange: AmmExchange, cashes: 
     reportingState,
     claimedProceeds,
     isInvalid: false,
-    hatcheryAddress: "",
-    turboId: "",
+    marketFactory: "",
+    creator: "",
+    shareTokens: [],
+    winner: "",
   };
 };
 
@@ -275,6 +272,7 @@ const shapeOutcomes = (reportingState: string, graphOutcomes: GraphMarketOutcome
     name: g.value,
     isInvalid: g.id.indexOf("-0") > -1,
     isWinner: Boolean(Number(g.payoutNumerator)),
+    shareToken: "",
   }));
 
 const shapeAmmExchange = (
@@ -331,24 +329,34 @@ const shapeAmmExchange = (
 
   // recreate outcomes specific for amm
   // prob won't get used with new contracts
-  const ammOutcomes = [
+  const ammOutcomes: AmmOutcome[] = [
     {
       id: 0,
       isInvalid: true,
       price: "0",
+      priceRaw: "0",
       name: OUTCOME_INVALID_NAME,
     },
     {
       id: 1,
       price: priceNoFixed,
+      priceRaw: priceNo.toFixed(),
       name: OUTCOME_NO_NAME,
     },
     {
       id: 2,
       price: priceYesFixed,
+      priceRaw: priceYes.toFixed(),
       name: OUTCOME_YES_NAME,
     },
-  ];
+  ].map<AmmOutcome>((outcome) => ({
+    ...outcome,
+    ratio: "0",
+    ratioRaw: "0",
+    balance: "0",
+    balanceRaw: "0",
+    shareToken: "",
+  }));
 
   return {
     id: amm.id,
@@ -382,10 +390,11 @@ const shapeAmmExchange = (
     past24hrPriceYes: past24hrPriceYes ? past24hrPriceYes.toFixed(2) : null,
     totalSupply: amm.totalSupply,
     apy,
-    ammOutcomes: [],
+    ammOutcomes,
     isAmmMarketInvalid: false, // this will be calc by process
     invalidPool: amm?.invalidPool,
     symbols: amm.symbols,
+    marketFactory: "", // TODO
   };
 };
 
@@ -608,9 +617,9 @@ const getActivityType = (
   subheader: string;
   value: string;
 } => {
-  let type = null;
+  let type;
   let subheader = null;
-  let value = null;
+  let value;
   switch (tx.tx_type) {
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
@@ -646,14 +655,14 @@ const getActivityType = (
 
 export const shapeUserActvity = (
   account: string,
-  markets: { [id: string]: MarketInfo },
+  markets: Markets,
   ammExchanges: { [id: string]: AmmExchange }
 ): ActivityData[] => formatUserTransactionActvity(account, markets, ammExchanges);
 
 export const formatUserTransactionActvity = (
   account: string,
-  markets: { [id: string]: MarketInfo },
-  ammExchanges: { [id: string]: AmmExchange }
+  markets: Markets,
+  ammExchanges: AmmExchanges
 ): ActivityData[] => {
   if (!ammExchanges || !account) return [];
   const exchanges = Object.values(ammExchanges);

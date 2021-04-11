@@ -226,7 +226,7 @@ export interface MarketOutcome {
 
 export interface AmmOutcome {
   id: number;
-  name: string;
+  name?: string;
   price: string;
   isInvalid?: boolean;
 }

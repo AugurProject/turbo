@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from 'react';
 import Styles from './tables.styles.less';
 import classNames from 'classnames';
@@ -174,10 +173,7 @@ export const PositionFooter = ({
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
   const ammCash = getUSDC(cashes);
-  const canClaimETH = useCanExitCashPosition({
-    name: ammCash?.name,
-    shareToken: ammCash?.sharetoken,
-  });
+  const canClaimETH = useCanExitCashPosition(ammCash);
   const isETHClaim = ammCash?.name === ETH;
 
   const claim = async () => {

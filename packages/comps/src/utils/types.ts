@@ -94,16 +94,13 @@ export interface CoreStats {
   realizedPL: ValueLabelPair;
 }
 
-export interface ParaDeploys {
+export interface TurboDeploy {
   networkId: string;
   collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  hatcheryRegistry: string;
-  hatchery: string;
-  arbiter: string;
+  marketFactory: string;
   ammFactory: string;
-  pool: string;
 }
 export interface AmmTransaction {
   id: string;
@@ -154,10 +151,17 @@ export interface InvalidPool {
   spotPrice: string[];
   swapFee: string;
 }
+export interface AmmExchanges {
+  [marketFactory: string]: {
+    [market: string]: AmmExchange;
+  };
+}
+
 export interface AmmExchange {
   id: string;
   marketId: string;
-  market: MarketInfo;
+  marketFactory: string;
+  market?: MarketInfo;
   liquidity: string;
   liquidityUSD: number;
   liquidity24hrUSD: string;
@@ -208,35 +212,16 @@ export interface ClaimedProceeds {
   timestamp: number;
   cash: Cash;
 }
-export interface MarketInfo {
-  marketId: string;
-  hatcheryAddress: string;
-  turboId: string;
-  description: string;
-  endTimestamp: number;
-  creationTimestamp: string;
-  extraInfoRaw: string;
-  longDescription: string;
-  fee: string;
-  reportingFee: string;
-  settlementFee: string;
-  categories: string[];
-  outcomes: MarketOutcome[];
-  amm: AmmExchange | null;
-  reportingState: string;
-  claimedProceeds: ClaimedProceeds[];
-  isInvalid: boolean;
-  numTicks: string;
-}
 
 export interface MarketOutcome {
   id: number;
   isFinalNumerator?: boolean;
   payoutNumerator?: string;
-  name: string;
+  name?: string;
   symbol?: string;
   isInvalid?: boolean;
   isWinner?: boolean;
+  shareToken: string;
 }
 
 export interface AmmOutcome extends MarketOutcome {
@@ -258,9 +243,31 @@ export interface Cash {
   usdPrice?: string;
   displayDecimals: number;
 }
-export interface AmmExchanges {
-  [id: string]: AmmExchange;
+
+export interface Markets {
+  [marketFactory: string]: {
+    [marketId: string]: MarketInfo;
+  };
 }
+
+export interface MarketInfo {
+  marketId: string;
+  marketFactory: string;
+  creator: string; // address that collects market creator fees
+  shareTokens: string[];
+  endTimestamp: number;
+  fee: string;
+  reportingFee: string;
+  settlementFee: string;
+  winner: string;
+  description: string;
+  outcomes: MarketOutcome[];
+  reportingState: string;
+  claimedProceeds: ClaimedProceeds[];
+  isInvalid: boolean;
+  amm?: AmmExchange;
+}
+
 export interface MarketInfos {
   [marketId: string]: MarketInfo;
 }
@@ -1153,17 +1160,13 @@ export interface AppStatusState {
 }
 
 export interface GraphDataState {
-  ammExchanges: {
-    [id: string]: AmmExchange;
-  };
+  ammExchanges: AmmExchanges;
   blocknumber: number;
   cashes: {
     [address: string]: Cash;
   };
   errors?: any;
-  markets: {
-    [marketIdKey: string]: MarketInfo;
-  };
+  markets: Markets;
 }
 
 export interface UserState {

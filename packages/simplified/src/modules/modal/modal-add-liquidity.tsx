@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from 'react';
 import Styles from './modal.styles.less';
 import { Header } from './common';
@@ -18,6 +17,7 @@ import {
   Constants,
   Components,
 } from '@augurproject/comps';
+import { flattenAmmExchanges } from "@augurproject/comps/build/utils/contract-calls";
 const {
   checkConvertLiquidityProperties,
   doRemoveLiquidity,
@@ -104,6 +104,18 @@ interface ModalAddLiquidityProps {
   currency?: string;
 }
 
+function convertAmmOutcomeTypes(outcome: AmmOutcome) {
+  return {
+    ...outcome,
+    priceRaw: "0",
+    ratio: "0",
+    ratioRaw: "0",
+    balance: "0",
+    balanceRaw: "0",
+    shareToken: "0"
+  };
+}
+
 const ModalAddLiquidity = ({
   market,
   liquidityModalType,
@@ -121,7 +133,7 @@ const ModalAddLiquidity = ({
   const { cashes, ammExchanges, blocknumber } = useDataStore();
   const history = useHistory();
 
-  let amm = ammExchanges[market.marketId];
+  let [amm] = flattenAmmExchanges(ammExchanges).filter(exchange => exchange.marketId === market.marketId); // TODO handle when there's multiple market factories
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? Boolean(amm?.id) ? ADD : CREATE : REMOVE;
 
@@ -263,7 +275,7 @@ const ModalAddLiquidity = ({
       market.marketId,
       amount,
       onChainFee,
-      outcomes,
+      outcomes.map(convertAmmOutcomeTypes),
       cash,
       amm,
     );
@@ -271,7 +283,7 @@ const ModalAddLiquidity = ({
       return setBreakdown(defaultAddLiquidityBreakdown);
     }
     async function getResults() {
-      let results: LiquidityBreakdown;
+      let results;
       if (isRemove) {
         results = await getRemoveLiquidity(
           amm.id,
@@ -360,7 +372,7 @@ const ModalAddLiquidity = ({
       market.marketId,
       amount,
       onChainFee,
-      outcomes,
+      outcomes.map(convertAmmOutcomeTypes),
       cash,
       amm,
     );
@@ -368,7 +380,8 @@ const ModalAddLiquidity = ({
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveLiquidity(amm.id, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
+      const minLPTokensReceived = outcomes.map(o => "0"); // TODO get from breakdown
+      doRemoveLiquidity(amm.id, loginAccount?.library, amount, minLPTokensReceived, account, cash)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -603,11 +616,11 @@ const ModalAddLiquidity = ({
           <main>
             {!LIQUIDITY_STRINGS[modalType].cantEditAmount && (
               <>
-                {LIQUIDITY_STRINGS[modalType].amountSubtitle && (
-                  <span className={Styles.SmallLabel}>
-                    {LIQUIDITY_STRINGS[modalType].amountSubtitle}
-                  </span>
-                )}
+                {/*{LIQUIDITY_STRINGS[modalType].amountSubtitle && (*/}
+                {/*  <span className={Styles.SmallLabel}>*/}
+                {/*    {LIQUIDITY_STRINGS[modalType].amountSubtitle}*/}
+                {/*  </span>*/}
+                {/*)}*/}
                 <AmountInput
                   ammCash={cash}
                   updateInitialAmount={(amount) => updateAmount(amount)}
@@ -643,7 +656,7 @@ const ModalAddLiquidity = ({
                   {LIQUIDITY_STRINGS[modalType].setOddsTitle}
                 </span>
                 <OutcomesGrid
-                  outcomes={outcomes}
+                  outcomes={outcomes.map(convertAmmOutcomeTypes)}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
                   marketType={YES_NO}
@@ -683,6 +696,7 @@ const ModalAddLiquidity = ({
                 <ApprovalButton
                   amm={amm}
                   cash={cash}
+                  isApproved={isApproved}
                   actionType={
                     !isRemove
                       ? ApprovalAction.ADD_LIQUIDITY

@@ -118,8 +118,9 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState } = market;
+  const { description, marketId, reportingState } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
+  const categories = []; // TODO populate. each market factory suggests a tleast one category
   return (
     <article
       className={classNames(Styles.MarketCard, {

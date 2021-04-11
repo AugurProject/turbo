@@ -50,7 +50,8 @@
     "resolveJsonModule": false
   },
   "include": [
-    "./src"
+    "./src",
+    "./src/modules/**/*.less",
   ],
   "exclude": [
     "./src/**/*.test.ts"
