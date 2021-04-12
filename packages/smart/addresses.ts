@@ -30,15 +30,6 @@ export const addresses: AddressMapping = {
     pool: "0xE451980132E65465d0a498c53f0b5227326Dd73F",
     theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
   },
-  42: {
-    collateral: "0xc5E8d51C8f5D51061bC43B1831912D4b9760c930",
-    reputationToken: "0x4b9EC1536c315AD87f085a51f69cF14E5680e710",
-    balancerFactory: "0x6B5242382Ad2EbC545FB971B09cD6A95C930023c",
-    marketFactory: "0xAac5DEF20f9Dd1CfcACf98BDDdEE3d15AD65BA8e",
-    ammFactory: "0x4383c9205AE472939cb84005C77be4d71ae2bB60",
-    pool: "0xddffBEF323AFf7d88403A32DaA282D078F228F95",
-    theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
-  },
   212984383488152: {
     collateral: "0xe5aa91537A66e884178B2A9faD97afFfe78b5EC5",
     reputationToken: "0xA50667Cf776fcb033001F1ff54fC313E90ABE508",
@@ -56,5 +47,14 @@ export const addresses: AddressMapping = {
     ammFactory: "0xf0591767C4F1d47c2746387463De4B91A89231c5",
     pool: "0x59B7b7c91E0C68D12a27098A09eeFbeEA3731cC0",
     theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
+  },
+  42: {
+    collateral: "0xc1A3673382Ffe4c76936c1A2d5648E36d96AdcB7",
+    reputationToken: "0xA3DF5cC9Fa2f8f02Ec76cea4B482bdf03B98256C",
+    balancerFactory: "0xa7b65cB63ffD8842Db61CF575B8A0D994E6EC903",
+    marketFactory: "0xcd0CbEb289df6ACac69489659db6B95E0eF1702c",
+    ammFactory: "0x5AC17995CF3fe9135500008D35d75a137E752f89",
+    pool: "0x1595Ae10Da1A51851c4ae98c29bD44A24369a2fE",
+    theRundownChainlink: "0x72d211dCE646eb2c7CEaC1e8E483Ff372437ed50",
   },
 };
