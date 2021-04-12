@@ -44,7 +44,7 @@ export const usePageView = () => {
 export const useTrackedEvents = () => {
   const tradingEstimateEvents = (
     isBuy: boolean,
-    outputYesShares: boolean,
+    outcomeName: string,
     cashType: string,
     input: string,
     output: string
@@ -53,17 +53,17 @@ export const useTrackedEvents = () => {
     if (tracker) {
       tracker.event({
         category: `Estimate Trade: ${isBuy ? "BUY" : "SELL"}`,
-        action: outputYesShares ? "Yes Shares" : "No Shares",
+        action: `${outcomeName} Shares`,
         label: `${cashType}: ${input}: ${output}`,
       });
     }
   };
-  const tradingEvents = (isBuy: boolean, outputYesShares: boolean, cashType: string, input: string, output: string) => {
+  const tradingEvents = (isBuy: boolean, outcomeName: string, cashType: string, input: string, output: string) => {
     const tracker = getTracker();
     if (tracker) {
       tracker.event({
         category: `Trade: ${isBuy ? "BUY" : "SELL"}`,
-        action: outputYesShares ? "Yes Shares" : "No Shares",
+        action: `${outcomeName} Shares`,
         label: `${cashType}: ${input}: ${output}`,
       });
     }

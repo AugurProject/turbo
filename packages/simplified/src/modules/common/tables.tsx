@@ -13,7 +13,6 @@ import {
   TransactionTypes,
 } from '../types';
 import {
-  PARA_CONFIG,
   useAppStatusStore,
   useDataStore,
   useUserStore,
@@ -21,9 +20,9 @@ import {
   Constants,
   Formatter,
   ContractCalls,
-  ApprovalHooks,
   Components,
 } from '@augurproject/comps';
+import getUSDC from '../../utils/get-usdc';
 const {
   LabelComps: {
     InvalidFlagTipIcon,
@@ -34,10 +33,10 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
   SelectionComps: { SmallDropdown },
-  Links: { AddressLink, createMarketAmmId, MarketLink, ReceiptLink },
+  Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getLPCurrentValue } = ContractCalls;
+const { claimWinnings } = ContractCalls;
 const {
   formatDai,
   formatCash,
@@ -58,7 +57,6 @@ const {
   ETH,
   TABLES,
 } = Constants;
-const { approveERC1155Contract } = ApprovalHooks;
 
 interface PositionsTableProps {
   market: MarketInfo;
@@ -83,7 +81,7 @@ const MarketTableHeader = ({
   ammExchange: AmmExchange;
 }) => (
   <div className={Styles.MarketTableHeader}>
-    <MarketLink id={market.marketId} ammId={market.amm?.id}>
+    <MarketLink id={market.marketId}>
       <span>{market.description}</span>
       <InvalidFlagTipIcon {...{ market }} />
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
@@ -167,6 +165,7 @@ export const PositionFooter = ({
   market: { settlementFee, marketId, amm, description },
   showTradeButton,
 }: PositionFooterProps) => {
+  const { cashes } = useDataStore(); 
   const { isMobile } = useAppStatusStore();
   const {
     account,
@@ -174,20 +173,18 @@ export const PositionFooter = ({
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
+  const ammCash = getUSDC(cashes);
   const canClaimETH = useCanExitCashPosition({
-    name: amm?.cash?.name,
-    shareToken: claimableWinnings?.sharetoken,
+    name: ammCash?.name,
+    shareToken: ammCash?.sharetoken,
   });
-  const isETHClaim = amm?.cash?.name === ETH;
-  const {
-    addresses: { WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
+  const isETHClaim = ammCash?.name === ETH;
 
   const claim = async () => {
     if (amm && account) {
       if (canClaimETH || !isETHClaim) {
         setPendingClaim(true);
-        claimWinnings(account, [marketId], amm?.cash)
+        claimWinnings(account, loginAccount?.library, [marketId], amm?.cash)
           .then(response => {
             // handle transaction response here
             setPendingClaim(false);
@@ -209,17 +206,7 @@ export const PositionFooter = ({
             setPendingClaim(false);
             console.log('Error when trying to claim winnings: ', error?.message);
           });
-      } else {
-        // need to approve here
-        const tx = await approveERC1155Contract(
-          amm?.cash?.shareToken,
-          `To Claim Winnings`,
-          WethWrapperForAMMExchange,
-          loginAccount
-        );
-        tx.marketDescription = description;
-        addTransaction(tx);
-      }
+      } 
     }
   };
 
@@ -279,7 +266,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   ).map((position) => {
     return (
       <PositionTable
-        key={`${position.ammExchange.market.marketId}-PositionsTable`}
+        key={`${position.ammExchange.marketId}-PositionsTable`}
         market={position.ammExchange.market}
         ammExchange={position.ammExchange}
         positions={position.positions}
@@ -302,12 +289,13 @@ export const PositionTable = ({
     seenPositionWarnings,
     actions: { updateSeenPositionWarning },
   } = useUserStore();
-  const marketAmmId = createMarketAmmId(market.marketId, market?.amm?.id);
+  const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
   const hasLiquidity = ammExchange.liquidity !== '0';
+
   return (
     <>
       <div className={Styles.PositionTable}>
@@ -375,25 +363,12 @@ const LiquidityRow = ({
   liquidity: LPTokenBalance;
   amm: AmmExchange;
 }) => {
-  const [currValue, setInitValue] = useState(null);
-  useEffect(() => {
-    let isMounted = true;
-    const getCurrentValue = async (balance: string, amm: AmmExchange) => {
-      const value = await getLPCurrentValue(balance, amm);
-      if (isMounted) {
-        setInitValue(value);
-      }
-    };
-    getCurrentValue(liquidity.balance, amm);
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+
   return (
     <ul className={Styles.LiquidityRow}>
       <li>{formatDai(liquidity.balance).formatted}</li>
       <li>{formatDai(liquidity.initCostUsd).full}</li>
-      <li>{currValue ? formatDai(currValue).full : '-'}</li>
+      <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>
   );
 };
@@ -434,11 +409,11 @@ export const AllLiquidityTable = ({ page }) => {
   const {
     balances: { lpTokens },
   } = useUserStore();
-  const { ammExchanges } = useDataStore();
+  const { ammExchanges, markets } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
         ammExchange: ammExchanges[ammId],
-        market: ammExchanges[ammId].market,
+        market: markets[ammId],
         lpTokens: lpTokens[ammId],
       }))
     : [];
@@ -530,17 +505,17 @@ export const PositionsLiquidityViewSwitcher = ({
   const {
     balances: { lpTokens, marketShares },
   } = useUserStore();
-  const { ammExchanges } = useDataStore();
+  const { ammExchanges, markets } = useDataStore();
+  const marketId = ammExchange?.marketId;
 
-  const ammId = ammExchange?.id;
   let userPositions = [];
   let liquidity = null;
   let winnings = null;
-  if (ammId && marketShares) {
-    userPositions = marketShares[ammId] ? marketShares[ammId].positions : [];
-    liquidity = lpTokens[ammId] ? lpTokens[ammId] : null;
-    winnings = marketShares[ammId]
-      ? marketShares[ammId]?.claimableWinnings
+  if (marketId && marketShares) {
+    userPositions = marketShares[marketId] ? marketShares[marketId].positions : [];
+    liquidity = lpTokens[marketId] ? lpTokens[marketId] : null;
+    winnings = marketShares[marketId]
+      ? marketShares[marketId]?.claimableWinnings
       : null;
   }
   const market = ammExchange?.market;
@@ -553,10 +528,10 @@ export const PositionsLiquidityViewSwitcher = ({
       }[])
     : [];
   const liquidities = lpTokens
-    ? Object.keys(lpTokens).map((ammId) => ({
-        ammExchange: ammExchanges[ammId],
-        market: ammExchanges[ammId].market,
-        lpTokens: lpTokens[ammId],
+    ? Object.keys(lpTokens).map((marketId) => ({
+        ammExchange: ammExchanges[marketId],
+        market: markets[marketId],
+        lpTokens: lpTokens[marketId],
       }))
     : [];
   return (
@@ -597,7 +572,7 @@ export const PositionsLiquidityViewSwitcher = ({
       </div>
       {tableView !== null && (
         <div>
-          {!ammId && (positions.length > 0 || liquidities.length > 0) && (
+          {!marketId && (positions.length > 0 || liquidities.length > 0) && (
             <>
               {tableView === POSITIONS && (
                 <AllPositionTable page={page} claimableFirst={claimableFirst} />
@@ -605,7 +580,7 @@ export const PositionsLiquidityViewSwitcher = ({
               {tableView === LIQUIDITY && <AllLiquidityTable page={page} />}
             </>
           )}
-          {!ammId &&
+          {!marketId &&
             ((positions.length > 0 && tableView === POSITIONS) ||
               (liquidities.length > 0 && tableView === LIQUIDITY)) && (
               <Pagination
@@ -620,7 +595,7 @@ export const PositionsLiquidityViewSwitcher = ({
                 updateLimit={() => null}
               />
             )}
-          {ammId && (
+          {marketId && (
             <>
               {tableView === POSITIONS && (
                 <PositionTable
@@ -643,10 +618,10 @@ export const PositionsLiquidityViewSwitcher = ({
           )}
         </div>
       )}
-      {positions?.length === 0 && !ammId && tableView === POSITIONS && (
+      {positions?.length === 0 && !marketId && tableView === POSITIONS && (
         <span>No positions to show</span>
       )}
-      {liquidities?.length === 0 && !ammId && tableView === LIQUIDITY && (
+      {liquidities?.length === 0 && !marketId && tableView === LIQUIDITY && (
         <span>No liquidity to show</span>
       )}
     </div>

@@ -15,11 +15,14 @@ import {
   ContractCalls,
   useAppStatusStore,
   useUserStore,
+  useDataStore,
   Components,
+  useApprovalStatus,
 } from '@augurproject/comps';
 import { useTrackedEvents } from '../../utils/tracker';
 import { Slippage } from '../common/slippage';
-const { doTrade, estimateEnterTrade, estimateExitTrade } = ContractCalls;
+import getUSDC from '../../utils/get-usdc';
+const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
 const {
   Icons: { CloseIcon },
   LabelComps: { generateTooltip },
@@ -37,7 +40,6 @@ const {
   ApprovalAction,
   ApprovalState,
   SHARES,
-  YES_OUTCOME_ID,
   INSUFFICIENT_LIQUIDITY,
   ENTER_AMOUNT,
   SETTINGS_SLIPPAGE,
@@ -47,6 +49,7 @@ const {
   SELL,
   YES_NO,
 } = Constants;
+
 const AVG_PRICE_TIP =
   'The difference between the market price and estimated price due to trade size.';
 
@@ -172,12 +175,14 @@ const TradingForm = ({
   amm,
 }: TradingFormProps) => {
   const { isLogged } = useAppStatusStore();
+  const { cashes, blocknumber } = useDataStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
     settings: { slippage },
   } = useSimplifiedStore();
   const {
+    account,
     loginAccount,
     balances,
     actions: { addTransaction },
@@ -190,25 +195,27 @@ const TradingForm = ({
   const [breakdown, setBreakdown] = useState<EstimateTradeResult | null>(null);
   const [amount, setAmount] = useState<string>('');
   const [waitingToSign, setWaitingToSign] = useState(false);
-  const ammCash = amm?.cash;
+  const ammCash = getUSDC(cashes);
   const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
-  const approvalStatus = ApprovalState.APPROVED;
-  // const approvalStatus = useApprovalStatus({
-  //   cash: ammCash,
-  //   amm,
-  //   actionType: isBuy
-  //     ? ApprovalAction.ENTER_POSITION
-  //     : ApprovalAction.EXIT_POSITION,
-  // });
-  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.liquidity !== '0';
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
+  const outcomeShareToken = selectedOutcome.shareToken;
+  const approvalStatus = useApprovalStatus({
+    cash: ammCash,
+    amm,
+    refresh: blocknumber,
+    actionType: approvalAction,
+    outcomeShareToken
+  });
+  const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
+  const hasLiquidity = amm.liquidity !== '0';
+  
   const selectedOutcomeId = selectedOutcome.id;
   const marketShares =
-    balances?.marketShares && balances?.marketShares[amm?.id];
+    balances?.marketShares && balances?.marketShares[amm?.marketId];
+  
   const outcomeSharesRaw = JSON.stringify(marketShares?.outcomeSharesRaw);
   const amountError =
     amount !== '' &&
@@ -235,19 +242,19 @@ const TradingForm = ({
     let isMounted = true;
 
     const getEstimate = async () => {
-      const outputYesShares = selectedOutcomeId === YES_OUTCOME_ID;
+      const outcomeName = outcomes[selectedOutcomeId]?.name;
       let userBalances: string[] = [];
       if (outcomeSharesRaw) {
         userBalances = marketShares?.outcomeSharesRaw;
       }
       const breakdown = isBuy
-        ? await estimateEnterTrade(amm, amount, outputYesShares)
-        : await estimateExitTrade(amm, amount, outputYesShares, userBalances);
+        ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, account, ammCash)
+        : await estimateSellTrade(amm, loginAccount?.library, amount, selectedOutcomeId, userBalances, account, ammCash);
 
       tradingEstimateEvents(
         isBuy,
-        outputYesShares,
-        amm?.cash?.name,
+        outcomeName,
+        ammCash?.name,
         amount,
         breakdown?.outputValue || ''
       );
@@ -276,13 +283,13 @@ const TradingForm = ({
   const userBalance = String(
     useMemo(() => {
       return isBuy
-        ? amm?.cash?.name
-          ? balances[amm?.cash?.name]?.balance
+        ? ammCash?.name
+          ? balances[ammCash?.name]?.balance
           : '0'
         : marketShares?.outcomeShares
         ? marketShares?.outcomeShares[selectedOutcomeId]
         : '0';
-    }, [orderType, amm?.cash?.name, amm?.id, selectedOutcomeId, balances])
+    }, [orderType, ammCash?.name, amm?.id, selectedOutcomeId, balances])
   );
 
   const canMakeTrade: CanTradeProps = useMemo(() => {
@@ -301,7 +308,8 @@ const TradingForm = ({
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : 'Share'} Balance`;
       disabled = true;
-    } else if (breakdown === null) {
+    } else if (false /* breakdown === null */) {
+      // todo: need better way to determine if there is liquidity
       actionText = INSUFFICIENT_LIQUIDITY;
       disabled = true;
     } else if (
@@ -310,7 +318,7 @@ const TradingForm = ({
       )
     ) {
       subText = `(Adjust slippage tolerance to ${Math.ceil(
-        Number(breakdown.slippagePercent)
+        Number(breakdown?.slippagePercent)
       )}%)`;
       disabled = true;
     } else if (waitingToSign) {
@@ -340,24 +348,27 @@ const TradingForm = ({
     const percentageOff = new BN(1).minus(new BN(slippage).div(100));
     const worstCaseOutput = String(new BN(minOutput).times(percentageOff));
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
-    const outputYesShares = selectedOutcomeId === YES_OUTCOME_ID;
+    const outcomeName = outcomes[selectedOutcomeId]?.name;
     const userBalances = marketShares?.outcomeSharesRaw || [];
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(
       isBuy,
-      outputYesShares,
-      amm?.cash?.name,
+      outcomeName,
+      ammCash?.name,
       amount,
-      worstCaseOutput
+      worstCaseOutput,
     );
     doTrade(
       direction,
+      loginAccount?.library,
       amm,
       worstCaseOutput,
       amount,
-      outputYesShares,
-      userBalances
+      selectedOutcomeId,
+      userBalances,
+      account,
+      ammCash,
     )
       .then(response => {
         if (response) {
@@ -434,7 +445,7 @@ const TradingForm = ({
           disabled={!hasLiquidity}
           rate={
             !isNaN(Number(breakdown?.ratePerCash))
-              ? `1 ${amm?.cash?.name} = ${
+              ? `1 ${ammCash?.name} = ${
                   formatSimpleShares(breakdown?.ratePerCash || 0, {
                     denomination: (v) => `${v} Shares`,
                   }).full
@@ -447,7 +458,7 @@ const TradingForm = ({
         <InfoNumbers infoNumbers={formatBreakdown(isBuy, breakdown, ammCash)} />
         {isLogged && !isApprovedTrade && (
           <ApprovalButton
-            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade }}
+            {...{ amm, cash: ammCash, actionType: approvalAction, isApproved: isApprovedTrade, shareToken: outcomeShareToken }}
           />
         )}
         <BuySellButton

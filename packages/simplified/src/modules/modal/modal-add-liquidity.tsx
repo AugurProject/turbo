@@ -13,15 +13,16 @@ import {
   useAppStatusStore,
   useDataStore,
   useUserStore,
+  useApprovalStatus,
   Formatter,
   Constants,
   Components,
 } from '@augurproject/comps';
 const {
   checkConvertLiquidityProperties,
-  doAmmLiquidity,
-  doRemoveAmmLiquidity,
-  estimateAddLiquidity,
+  doRemoveLiquidity,
+  addLiquidityPool,
+  estimateLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
 const {
@@ -39,7 +40,6 @@ const {
     AmountInput,
     isInvalidNumber,
     OutcomesGrid,
-    TextInput,
   },
   LabelComps: {
     generateTooltip
@@ -118,39 +118,14 @@ const ModalAddLiquidity = ({
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes } = useDataStore();
+  const { cashes, ammExchanges, blocknumber } = useDataStore();
   const history = useHistory();
 
-  let amm = market?.amm;
-  const mustSetPrices =
-    liquidityModalType === CREATE ||
-    !amm ||
-    amm?.liquidity === undefined ||
-    amm?.liquidity === '0';
-  const modalType = liquidityModalType;
+  let amm = ammExchanges[market.marketId];
+  const mustSetPrices = Boolean(!amm?.id);
+  const modalType = liquidityModalType !== REMOVE ? Boolean(amm?.id) ? ADD : CREATE : REMOVE;
 
-  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(
-    !mustSetPrices && modalType !== CREATE
-      ? amm.ammOutcomes
-      : [
-        {
-          id: 0,
-          name: 'Invalid',
-          price: '',
-          isInvalid: true,
-        },
-        {
-          id: 1,
-          name: 'No',
-          price: '',
-        },
-        {
-          id: 2,
-          name: 'Yes',
-          price: '',
-        },
-      ]
-  );
+  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(amm.ammOutcomes);
   const [showBackView, setShowBackView] = useState(false);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -172,31 +147,28 @@ const ModalAddLiquidity = ({
   //   actionType: ApprovalAction.TRANSFER_LIQUIDITY,
   // });
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
-  const isApprovedMain = ApprovalState.APPROVED;
-  // const isApprovedMain = useApprovalStatus({
-  //   cash,
-  //   amm,
-  //   actionType: !isRemove
-  //   ? ApprovalAction.ADD_LIQUIDITY
-  //   : ApprovalAction.REMOVE_LIQUIDITY
-  // });
+  // const isApprovedMain = ApprovalState.APPROVED;
+  const approvedMain = useApprovalStatus({
+    cash,
+    amm,
+    refresh: blocknumber,
+    actionType: !isRemove
+    ? ApprovalAction.ADD_LIQUIDITY
+    : ApprovalAction.REMOVE_LIQUIDITY
+  });
+  const isApprovedMain = approvedMain === ApprovalState.APPROVED;
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
-
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : '0';
   const shareBalance =
     balances &&
     balances.lpTokens &&
-    balances.lpTokens[amm?.id] &&
-    balances.lpTokens[amm?.id]?.balance;
+    balances.lpTokens[amm?.marketId] &&
+    balances.lpTokens[amm?.marketId]?.balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
 
   const [amount, updateAmount] = useState(
     isRemove ? userMaxAmount : ''
   );
-
-  const [customName, setCustomName] = useState('');
-  const customNameCapitlized =
-    customName.charAt(0).toUpperCase() + customName.slice(1);
 
   const feePercentFormatted = useMemo(() => {
     const feeOption = TRADING_FEE_OPTIONS.find(
@@ -294,7 +266,6 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      customName
     );
     if (!properties) {
       return setBreakdown(defaultAddLiquidityBreakdown);
@@ -303,21 +274,23 @@ const ModalAddLiquidity = ({
       let results: LiquidityBreakdown;
       if (isRemove) {
         results = await getRemoveLiquidity(
-          properties.marketId,
+          amm.id,
+          loginAccount?.library,
           cash,
           onChainFee,
-          amount
+          amount,
+          account,
         );
       } else {
-        results = await estimateAddLiquidity(
-          properties.account,
-          properties.amm,
-          properties.marketId,
-          properties.cash,
+        results = await estimateLiquidityPool(
+          account,
+          loginAccount?.library,
+          amm,
+          cash,
           properties.fee,
-          properties.amount,
+          amount,
           properties.priceNo,
-          properties.priceYes
+          properties.priceYes,
         );
       }
 
@@ -390,13 +363,12 @@ const ModalAddLiquidity = ({
       outcomes,
       cash,
       amm,
-      customName
     );
     if (!properties) {
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveAmmLiquidity(properties)
+      doRemoveLiquidity(amm.id, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -414,19 +386,16 @@ const ModalAddLiquidity = ({
           console.log('Error when trying to remove AMM liquidity: ', error?.message);
         });
     } else {
-      await doAmmLiquidity(
-        properties.account,
-        modalType === CREATE ? undefined : properties.amm,
-        properties.marketId,
-        properties.cash,
+      await addLiquidityPool(
+        account,
+        loginAccount?.library,
+        amm,
+        cash,
         properties.fee,
-        properties.amount,
-        modalType === ADD
-          ? amm !== null && amm?.id !== undefined && amm?.liquidity !== '0'
-          : false,
+        amount,
         properties.priceNo,
         properties.priceYes,
-        properties.symbolRoot
+        estimatedLpAmount
       )
         .then(response => {
           const { hash } = response;
@@ -556,29 +525,11 @@ const ModalAddLiquidity = ({
       setOdds: true,
       setOddsTitle: 'Set the price (between 0.0 to 1.0)',
       editableOutcomes: true,
-      setFees: true,
+      setFees: false, // set false for version 0
       receiveTitle: "You'll receive",
       actionButtonText: 'Add',
       confirmButtonText: 'confirm market liquidity',
       currencyName: `${chosenCash}`,
-      customToken: {
-        title: 'Give your outcome tokens a custom name',
-        confirmationTitle: 'Token names',
-        breakdown: [
-          {
-            label: 'Yes',
-            value: `y${customNameCapitlized}`,
-          },
-          {
-            label: 'No',
-            value: `n${customNameCapitlized}`,
-          },
-          {
-            label: 'Invalid',
-            value: `i${customNameCapitlized}`,
-          },
-        ],
-      },
       footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
       breakdown: addCreateBreakdown,
       approvalButtonText: `approve ${chosenCash}`,
@@ -705,27 +656,6 @@ const ModalAddLiquidity = ({
                 />
               </>
             )}
-            {LIQUIDITY_STRINGS[modalType].customToken && (
-              <div className={Styles.LineBreak}>
-                <span className={Styles.SmallLabel}>
-                  {LIQUIDITY_STRINGS[modalType].customToken.title}
-                  {generateTooltip(
-                    'Name your AMM outcome share tokens, so they can be distinguished on other trading platforms.',
-                    'customTokenTitle'
-                  )}
-                </span>
-                <TextInput
-                  placeholder="Enter a custom name"
-                  value={customName}
-                  onChange={(value) => setCustomName(value)}
-                />
-                <InfoNumbers
-                  infoNumbers={
-                    LIQUIDITY_STRINGS[modalType].customToken.breakdown
-                  }
-                />
-              </div>
-            )}
             {LIQUIDITY_STRINGS[modalType].liquidityDetails && (
               <div className={Styles.LineBreak}>
                 <span className={Styles.SmallLabel}>
@@ -754,18 +684,11 @@ const ModalAddLiquidity = ({
                   amm={amm}
                   cash={cash}
                   actionType={
-                    isRemove
+                    !isRemove
                       ? ApprovalAction.ADD_LIQUIDITY
                       : ApprovalAction.REMOVE_LIQUIDITY
                   }
                 />
-                {isRemove &&
-                  <ApprovalButton
-                    amm={amm}
-                    cash={cash}
-                    actionType={ApprovalAction.TRANSFER_LIQUIDITY}
-                  />
-                }
               </>
             )}
 
@@ -827,18 +750,6 @@ const ModalAddLiquidity = ({
                     infoNumbers={
                       LIQUIDITY_STRINGS[modalType].marketLiquidityDetails
                         .breakdown
-                    }
-                  />
-                </section>
-              )}
-              {LIQUIDITY_STRINGS[modalType].customToken && (
-                <section>
-                  <span className={Styles.SmallLabel}>
-                    {LIQUIDITY_STRINGS[modalType].customToken.confirmationTitle}
-                  </span>
-                  <InfoNumbers
-                    infoNumbers={
-                      LIQUIDITY_STRINGS[modalType].customToken.breakdown
                     }
                   />
                 </section>

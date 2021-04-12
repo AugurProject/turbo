@@ -96,17 +96,14 @@ export interface CoreStats {
 
 export interface ParaDeploys {
   networkId: string;
-  addresses: {
-    [contract: string]: string;
-  };
-  paraDeploys: {
-    [cashAddress: string]: {
-      name: string;
-      addresses: {
-        [contract: string]: string;
-      };
-    };
-  };
+  collateral: string;
+  reputationToken: string;
+  balancerFactory: string;
+  hatcheryRegistry: string;
+  hatchery: string;
+  arbiter: string;
+  ammFactory: string;
+  pool: string;
 }
 export interface AmmTransaction {
   id: string;
@@ -213,6 +210,8 @@ export interface ClaimedProceeds {
 }
 export interface MarketInfo {
   marketId: string;
+  hatcheryAddress: string;
+  turboId: string;
   description: string;
   endTimestamp: number;
   creationTimestamp: string;
@@ -235,15 +234,18 @@ export interface MarketOutcome {
   isFinalNumerator?: boolean;
   payoutNumerator?: string;
   name: string;
-  isInvalid: boolean;
-  isWinner: boolean;
+  symbol?: string;
+  isInvalid?: boolean;
+  isWinner?: boolean;
 }
 
-export interface AmmOutcome {
-  id: number;
-  name: string;
+export interface AmmOutcome extends MarketOutcome {
+  priceRaw: string;
   price: string;
-  isInvalid?: boolean;
+  ratioRaw: string;
+  ratio: string;
+  balanceRaw: string;
+  balance: string;
 }
 
 export interface Cash {
@@ -1044,7 +1046,7 @@ export interface LPTokenBalance extends SimpleBalance {
   usdValue?: string;
 }
 export interface LPTokens {
-  [ammId: string]: LPTokenBalance;
+  [marketId: string]: LPTokenBalance;
 }
 export interface CurrencyBalance extends SimpleBalance {
   usdValue: string;
@@ -1076,7 +1078,7 @@ export interface PositionBalance extends SimpleBalance {
 }
 
 export interface AmmMarketShares {
-  [ammId: string]: {
+  [marketId: string]: {
     ammExchange: AmmExchange;
     positions: PositionBalance[];
     claimableWinnings?: Winnings;
@@ -1196,6 +1198,8 @@ export interface LiquidityBreakdown {
   noShares: string;
   lpTokens?: string;
   cashAmount?: string;
+  minAmountsRaw?: string[];
+  minAmounts?: string[];
 }
 export interface AddLiquidityBreakdown extends LiquidityBreakdown {
   lpTokens: string;

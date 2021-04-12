@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../libraries/SafeMathUint256.sol";
-import "../libraries/VariableSupplyToken.sol";
-import "../libraries/IERC20.sol";
-import "./IFeePot.sol";
-import "../libraries/IERC20DynamicSymbol.sol";
+import "../libraries/IERC20Full.sol";
 
-contract FeePot is VariableSupplyToken, IFeePot {
+contract FeePot is ERC20 {
     using SafeMathUint256 for uint256;
 
     uint256 internal constant magnitude = 2**128;
 
-    IERC20 public override collateral;
-    IERC20DynamicSymbol public override reputationToken;
+    IERC20Full public collateral;
+    IERC20Full public reputationToken;
 
     uint256 public magnifiedFeesPerShare;
 
@@ -22,20 +20,21 @@ contract FeePot is VariableSupplyToken, IFeePot {
 
     uint256 public feeReserve;
 
-    constructor(IERC20 _collateral, IERC20DynamicSymbol _reputationToken) {
+    constructor(IERC20Full _collateral, IERC20Full _reputationToken)
+        ERC20(
+            string(abi.encodePacked("S_", _reputationToken.symbol())),
+            string(abi.encodePacked("S_", _reputationToken.symbol()))
+        )
+    {
         collateral = _collateral;
         reputationToken = _reputationToken;
 
-        require(_collateral != IERC20(0));
+        require(_collateral != IERC20Full(0));
     }
 
-    function symbol() public view returns (string memory) {
-        return string(abi.encodePacked("S_", reputationToken.symbol()));
-    }
-
-    function depositFees(uint256 _amount) public override returns (bool) {
+    function depositFees(uint256 _amount) public returns (bool) {
         collateral.transferFrom(msg.sender, address(this), _amount);
-        uint256 _totalSupply = _totalSupply; // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
+        uint256 _totalSupply = totalSupply(); // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
         if (_totalSupply == 0) {
             feeReserve = feeReserve.add(_amount);
             return true;
@@ -48,7 +47,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function withdrawableFeesOf(address _owner) public view override returns (uint256) {
+    function withdrawableFeesOf(address _owner) public view returns (uint256) {
         return earnedFeesOf(_owner).add(storedFees[_owner]);
     }
 
@@ -87,7 +86,7 @@ contract FeePot is VariableSupplyToken, IFeePot {
         return true;
     }
 
-    function redeem() public override returns (bool) {
+    function redeem() public returns (bool) {
         redeemInternal(msg.sender);
         magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare.mul(balanceOf(msg.sender));
         return true;
@@ -100,10 +99,4 @@ contract FeePot is VariableSupplyToken, IFeePot {
             collateral.transfer(_account, _withdrawableFees);
         }
     }
-
-    function onTokenTransfer(
-        address _from,
-        address _to,
-        uint256 _value
-    ) internal override {}
 }

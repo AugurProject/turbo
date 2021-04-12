@@ -7,19 +7,18 @@ import {
   BPool__factory,
   Cash,
   Cash__factory,
-  HatcheryRegistry,
-  HatcheryRegistry__factory,
-  TrustedArbiter,
-  TrustedArbiter__factory,
-  TurboHatchery,
-  TurboHatchery__factory,
+  FeePot,
+  FeePot__factory,
+  AbstractMarketFactory__factory,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
   TheRundownChainlink,
   TheRundownChainlink__factory,
 } from "../typechain";
-import { BigNumberish, Contract, Signer, BigNumber, utils } from "ethers";
-import { randomAddress } from "hardhat/internal/hardhat-network/provider/fork/random";
-import { MarketTypes } from "./utils/constants";
+import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
 import { mapOverObject, sleep } from "./utils/common-functions";
+
+const BASIS = BigNumber.from(10).pow(18);
 
 export class Deployer {
   constructor(readonly signer: Signer, public confirmations: number = 0) {}
@@ -27,42 +26,46 @@ export class Deployer {
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
     console.log("Deploying test contracts");
-    const collateral = await this.deployCollateral("USDC", "USDC", 18);
+    const collateral = await this.deployCollateral("USDC", "USDC", 6);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
     const theRundownChainlink = await this.deployTheRundownChainlink();
 
-    console.log("Deploying core Turbo system");
-    const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken.address);
-    const hatchery = await createHatchery(
-      hatcheryRegistry.signer,
-      hatcheryRegistry.address,
+    console.log("Deploying trusted market factory for REP");
+    const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
+    const stakerFee = BigNumber.from(10).pow(16);
+    const creatorFee = BigNumber.from(10).pow(16);
+    const marketFactory = await this.deployTrustedMarketFactory(
+      reputationToken.address,
       collateral.address,
-      this.confirmations
+      collateral.address,
+      feePot.address,
+      stakerFee,
+      creatorFee
     );
-    const arbiter = await this.deployTrustedArbiter(await this.signer.getAddress(), hatchery.address);
 
-    await sleep(10000); // matic needs a little time
-
-    console.log("Creating a turbo for testing");
-    const turboId = await createTurbo(
+    console.log("Creating a market for testing");
+    const duration = 60 * 60 * 24; // one day
+    const marketId = await createMarket(
       this.signer,
-      hatchery.address,
-      buildTrustedArbiterConfiguration({ arbiter: arbiter.address }),
+      marketFactory.address,
+      duration,
+      "market created with test deploy",
+      ["No Contest", "Everyone Dies", "Elves Win", "Orcs Win"],
       this.confirmations
     );
-    console.log(`Created turbo: ${turboId}`);
+    console.log(`Created market: ${marketId}`);
 
     console.log("Creating AMM for testing");
-    const basis = BigNumber.from(10).pow(18);
     const weights = [
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
-      basis.mul(2).div(2), // Invalid at 2%
-      basis.mul(49).div(2), // No at 49%
-      basis.mul(49).div(2), // Yes at 49%
+      BASIS.mul(2).div(2), // No Contest at 2%, the lowest possible weight
+      BASIS.mul(2).div(2), // Everyone Dies at 2%, the lowest possible weight
+      BASIS.mul(48).div(2), // Elves Win at 48%
+      BASIS.mul(48).div(2), // Orcs Win at 48%
     ];
     const ammFactory = await this.deployAMMFactory(balancerFactory.address);
-    const initialLiquidity = basis.mul(1000); // 1000 of the collateral
+    const initialLiquidity = BASIS.mul(1000); // 1000 of the collateral
     console.log("Fauceting collateral for AMM");
     await collateral.faucet(initialLiquidity).then((tx) => tx.wait(this.confirmations));
     console.log("Approving the AMM to spend some of the deployer's collateral");
@@ -72,8 +75,8 @@ export class Deployer {
     const pool = await createPool(
       this.signer,
       ammFactory.address,
-      hatchery.address,
-      turboId,
+      marketFactory.address,
+      marketId,
       initialLiquidity,
       weights,
       this.confirmations
@@ -86,9 +89,7 @@ export class Deployer {
         collateral,
         reputationToken,
         balancerFactory,
-        hatcheryRegistry,
-        hatchery,
-        arbiter,
+        marketFactory,
         ammFactory,
         pool,
         theRundownChainlink
@@ -97,38 +98,46 @@ export class Deployer {
     );
     return {
       addresses,
-      turboId: turboId,
+      marketId,
     };
   }
 
   async deployProduction(externalAddresses: ContractDeployExternalAddresses): Promise<Deploy> {
-    const { reputationToken } = externalAddresses;
+    throw Error("Production deploy not yet implemented");
+  }
 
-    console.log("Deploying core Turbo system");
-    const hatcheryRegistry = await this.deployHatcheryRegistry(await this.signer.getAddress(), reputationToken);
+  async createPriceMarket(balancerFactory: BFactory, collateral: Cash, reputationToken: Cash): Promise<BPool> {
+    const priceMarketPool = BPool__factory.connect(await balancerFactory.callStatic.newBPool(), this.signer);
+    await balancerFactory.newBPool(); // TODO be more certain since this isn't guaranteed to work w/ the callstatic
 
-    const addresses = mapOverObject(
-      {
-        hatcheryRegistry,
-      },
-      (name, contract) => [name, contract.address]
-    );
+    const amount = BASIS.mul(1000);
+    await collateral.faucet(amount);
+    await collateral.approve(priceMarketPool.address, amount);
+    await reputationToken.faucet(amount);
+    await reputationToken.approve(priceMarketPool.address, amount);
 
-    return { addresses };
+    await priceMarketPool.bind(collateral.address, amount, BASIS);
+    await priceMarketPool.bind(reputationToken.address, amount, BASIS);
+
+    return priceMarketPool;
   }
 
   async deployCollateral(name: string, symbol: string, decimals: BigNumberish): Promise<Cash> {
     return this.deploy(name, () => new Cash__factory(this.signer).deploy(name, symbol, decimals));
   }
 
-  async deployHatcheryRegistry(owner: string, reputationToken: string): Promise<HatcheryRegistry> {
-    return this.deploy("hatcheryRegistry", () =>
-      new HatcheryRegistry__factory(this.signer).deploy(owner, reputationToken)
+  async deployTrustedMarketFactory(
+    tokenIn: string,
+    tokenOut: string,
+    collateral: string,
+    feePot: string,
+    stakerFee: BigNumberish,
+    creatorFee: BigNumberish
+  ): Promise<TrustedMarketFactory> {
+    const owner = await this.signer.getAddress();
+    return this.deploy("priceMarketFactory", () =>
+      new TrustedMarketFactory__factory(this.signer).deploy(owner, collateral, feePot, stakerFee, creatorFee)
     );
-  }
-
-  async deployTrustedArbiter(owner: string, hatchery: string): Promise<TrustedArbiter> {
-    return this.deploy("trustedArbiter", () => new TrustedArbiter__factory(this.signer).deploy(owner, hatchery));
   }
 
   async deployTheRundownChainlink(): Promise<TheRundownChainlink> {
@@ -137,6 +146,10 @@ export class Deployer {
 
   async deployBalancerFactory(): Promise<BFactory> {
     return this.deploy("balancerFactory", () => new BFactory__factory(this.signer).deploy());
+  }
+
+  async deployFeePot(collateral: string, reputationToken: string): Promise<FeePot> {
+    return this.deploy("feePot", () => new FeePot__factory(this.signer).deploy(collateral, reputationToken));
   }
 
   async deployAMMFactory(balancerFactory: string): Promise<AMMFactory> {
@@ -163,115 +176,46 @@ export interface Deploy {
   [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
 }
 
-function buildTrustedArbiterConfiguration(
-  specified: Partial<TrustedArbiterConfiguration> & { arbiter: string }
-): TrustedArbiterConfiguration {
-  const extraInfoObj = {
-    description: "Initial Market Created",
-    details: "market details",
-    categories: ["test", "market", "category"],
-  };
-
-  return {
-    creatorFee: BigNumber.from(10).pow(16),
-    outcomeSymbols: ["NO", "YES"], // excludes invalid/no contest because it's implied; this will change with upcoming redesign
-    outcomeNames: ["NO", "YES"].map(utils.formatBytes32String),
-    numTicks: 1000,
-    startTime: BigNumber.from(Date.now()).div(1000).add(60),
-    duration: 60 * 60 * 24,
-    extraInfo: JSON.stringify(extraInfoObj),
-    prices: [],
-    marketType: MarketTypes.CATEGORICAL,
-    ...specified,
-  };
-}
-
-export async function createHatchery(
+export async function createMarket(
   signer: Signer,
-  hatcheryRegistry: string,
-  collateral: string,
-  confirmations: number
-): Promise<TurboHatchery> {
-  console.log("Creating a hatchery for testing");
-  const registry = HatcheryRegistry__factory.connect(hatcheryRegistry, signer);
-  await registry.createHatchery(collateral).then((tx) => tx.wait(confirmations));
-
-  const hatchery = await registry.callStatic.getHatchery(collateral);
-  console.log(`Created hatchery: ${hatchery}`);
-  return TurboHatchery__factory.connect(hatchery, signer);
-}
-
-async function createTurbo(
-  signer: Signer,
-  hatcheryAddress: string,
-  arbiterConfiguration: TrustedArbiterConfiguration,
+  marketFactoryAddress: string,
+  duration: BigNumberish,
+  description: string,
+  outcomes: string[],
   confirmations: number
 ): Promise<BigNumberish> {
-  const {
-    creatorFee,
-    outcomeSymbols,
-    outcomeNames,
-    numTicks,
-    arbiter: arbiterAddress,
-    startTime,
-    duration,
-    extraInfo,
-    prices,
-    marketType,
-  } = arbiterConfiguration;
+  const marketFactory = TrustedMarketFactory__factory.connect(marketFactoryAddress, signer);
+  const creator = await signer.getAddress();
 
-  const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
-  const arbiter = TrustedArbiter__factory.connect(arbiterAddress, signer);
+  const now = BigNumber.from(Date.now()).div(1000);
+  const endTime = now.add(duration);
 
-  const index = randomAddress(); // just a hexadecimal between 0 and 2**160
-  const arbiterConfig = await arbiter.callStatic.encodeConfiguration(
-    startTime,
-    duration,
-    extraInfo,
-    prices,
-    marketType
-  );
-  await hatchery
-    .createTurbo(index, creatorFee, outcomeSymbols, outcomeNames, numTicks, arbiterAddress, arbiterConfig)
+  const marketId = await marketFactory.callStatic.createMarket(creator, endTime, description, outcomes, outcomes);
+  await marketFactory
+    .createMarket(creator, endTime, description, outcomes, outcomes)
     .then((tx) => tx.wait(confirmations));
-  const turboLength = await hatchery.callStatic.getTurboLength();
-  return turboLength.sub(1);
+  return marketId;
 }
 
 export async function createPool(
   signer: Signer,
   ammFactoryAddress: string,
-  hatcheryAddress: string,
-  turboId: BigNumberish,
+  marketFactoryAddress: string,
+  marketId: BigNumberish,
   initialLiquidity: BigNumberish,
   weights: BigNumberish[],
   confirmations: number
 ): Promise<BPool> {
   const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
-  const hatchery = TurboHatchery__factory.connect(hatcheryAddress, signer);
+  const marketFactory = AbstractMarketFactory__factory.connect(marketFactoryAddress, signer);
   const lpTokenRecipient = await signer.getAddress();
 
   await ammFactory
-    .createPool(hatchery.address, turboId, initialLiquidity, weights, lpTokenRecipient, {})
+    .createPool(marketFactory.address, marketId, initialLiquidity, weights, lpTokenRecipient, {})
     .then((tx) => tx.wait(confirmations));
 
-  const pool = await ammFactory.callStatic.pools(hatcheryAddress, turboId);
+  const pool = await ammFactory.callStatic.pools(marketFactoryAddress, marketId);
   return BPool__factory.connect(pool, signer);
-}
-
-export interface TrustedArbiterConfiguration {
-  creatorFee: BigNumberish;
-  outcomeSymbols: string[];
-  outcomeNames: string[];
-  numTicks: BigNumberish;
-  arbiter: string;
-
-  // encoded in TrustedArbiter.TrustedConfiguration
-  startTime: BigNumberish;
-  duration: BigNumberish;
-  extraInfo: string;
-  prices: BigNumberish[];
-  marketType: MarketTypes;
 }
 
 export type DeployStrategy = "test" | "production";

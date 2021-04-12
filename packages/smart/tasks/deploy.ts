@@ -38,7 +38,7 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
 
   if (isContractDeployTestConfig(hre.config.contractDeploy)) {
     deploy = await deployer.deployTest();
-    deploy.turboId = deploy.turboId.toString();
+    deploy.marketId = deploy.marketId.toString();
   } else {
     const { externalAddresses } = hre.config.contractDeploy;
     deploy = await deployer.deployProduction(externalAddresses);

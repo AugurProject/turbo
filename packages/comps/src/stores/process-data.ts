@@ -262,6 +262,8 @@ const shapeMarketInfo = (market: GraphMarket, ammExchange: AmmExchange, cashes: 
     reportingState,
     claimedProceeds,
     isInvalid: false,
+    hatcheryAddress: "",
+    turboId: "",
   };
 };
 
@@ -328,6 +330,7 @@ const shapeAmmExchange = (
   const priceYesFixed = priceYes.toFixed(4);
 
   // recreate outcomes specific for amm
+  // prob won't get used with new contracts
   const ammOutcomes = [
     {
       id: 0,
@@ -379,7 +382,7 @@ const shapeAmmExchange = (
     past24hrPriceYes: past24hrPriceYes ? past24hrPriceYes.toFixed(2) : null,
     totalSupply: amm.totalSupply,
     apy,
-    ammOutcomes,
+    ammOutcomes: [],
     isAmmMarketInvalid: false, // this will be calc by process
     invalidPool: amm?.invalidPool,
     symbols: amm.symbols,
@@ -659,11 +662,12 @@ export const formatUserTransactionActvity = (
   const transactions = exchanges
     .reduce((p, exchange) => {
       const cashName = exchange.cash?.name;
-      const userTx: AmmTransaction[] = exchange.transactions.filter((t) => isSameAddress(t.sender, account));
+      const userTx: AmmTransaction[] = exchange?.transactions?.filter((t) => isSameAddress(t.sender, account)) || [];
 
-      const claims = markets[`${exchange.marketId}-${exchange.id}`].claimedProceeds.filter(
-        (c) => isSameAddress(c.user, account) && c.cash.name === cashName
-      );
+      const claims =
+        markets[`${exchange?.marketId}-${exchange?.id}`]?.claimedProceeds?.filter(
+          (c) => isSameAddress(c.user, account) && c.cash.name === cashName
+        ) || [];
       if (userTx.length === 0 && claims.length === 0) return p;
 
       const userClaims = claims.map((c) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
@@ -39,13 +39,11 @@ export const LoadingMarketCard = () => {
   );
 };
 
-export const MarketCard = ({ marketId, markets }) => {
-  const [market, setMarket] = useState(null);
-  useEffect(() => {
-      setMarket(markets[marketId]);
-  }, []);
+export const MarketCard = ({ marketId, markets, ammExchanges, ...props }) => {
+  const market = useMemo(() => markets[marketId], [marketId, markets]);
+  const amm = useMemo(() => ammExchanges[marketId], [marketId, ammExchanges]);
   if (!market) return <LoadingMarketCard />;
-  return <MarketCardView market={market as MarketInfo} />;
+  return <MarketCardView market={market as MarketInfo} amm={amm as AmmExchange} {...props} />;
 };
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
@@ -110,22 +108,24 @@ const OutcomesTable = ({
 );
 
 export const MarketCardView = ({
+  amm,
   market,
   handleNoLiquidity = (market: MarketInfo) => {},
   noLiquidityDisabled = false,
 }: {
+  amm: AmmExchange;
   market: MarketInfo;
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, amm, reportingState, outcomes } = market;
+  const { categories, description, marketId, reportingState } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   return (
     <article
       className={classNames(Styles.MarketCard, {
-        [Styles.NoLiquidity]: !amm,
+        [Styles.NoLiquidity]: !amm?.id,
       })}
-      onClick={() => handleNoLiquidity(market)}
+      onClick={() => !amm?.id && handleNoLiquidity(market)}
     >
       <div>
         <article
@@ -142,7 +142,7 @@ export const MarketCardView = ({
             <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
           </div>
         </article>
-        {!amm ? (
+        {!amm?.id ? (
           <>
             <span>{description}</span>
             <div>
@@ -159,11 +159,11 @@ export const MarketCardView = ({
             </div>
           </>
         ) : (
-          <MarketLink id={marketId} dontGoToMarket={!amm} ammId={amm?.id}>
+          <MarketLink id={marketId} dontGoToMarket={false}>
             <span>{description}</span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
-            <OutcomesTable amm={amm} marketOutcomes={outcomes} reportingState={reportingState} />
+            <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
           </MarketLink>
         )}
       </div>

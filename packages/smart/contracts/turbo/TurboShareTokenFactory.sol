@@ -1,34 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
-pragma experimental ABIEncoderV2;
+pragma abicoder v2;
 
-import "../libraries/Initializable.sol";
-import "./ITurboShareToken.sol";
-import "./TurboShareToken.sol";
-import "./ITurboHatchery.sol";
+import "./OwnedShareToken.sol";
 
-contract TurboShareTokenFactory is Initializable {
-    string public constant INVALID_SYMBOL = "INVALID";
-    bytes32 public constant INVALID_NAME = "INVALID SHARE";
+abstract contract TurboShareTokenFactory {
+    function createShareTokens(
+        string[] memory _names,
+        string[] memory _symbols,
+        address _owner
+    ) internal returns (OwnedERC20[] memory) {
+        uint256 _numOutcomes = _names.length;
+        OwnedERC20[] memory _tokens = new OwnedERC20[](_numOutcomes);
 
-    ITurboHatchery public hatchery;
-
-    function initialize(ITurboHatchery _hatchery) public beforeInitialized returns (bool) {
-        endInitialization();
-        hatchery = _hatchery;
-        return true;
-    }
-
-    function createShareTokens(bytes32[] calldata _names, string[] calldata _symbols)
-        external
-        returns (ITurboShareToken[] memory)
-    {
-        require(msg.sender == address(hatchery), "Only hatchery may create new share tokens");
-        uint256 _numOutcomes = _names.length + 1;
-        ITurboShareToken[] memory _tokens = new ITurboShareToken[](_numOutcomes);
-        _tokens[0] = new TurboShareToken(INVALID_SYMBOL, INVALID_NAME, hatchery);
-        for (uint256 _i = 1; _i < _numOutcomes; _i++) {
-            _tokens[_i] = new TurboShareToken(_symbols[_i - 1], _names[_i - 1], hatchery);
+        for (uint256 _i = 0; _i < _numOutcomes; _i++) {
+            _tokens[_i] = new OwnedERC20(_names[_i], _symbols[_i], _owner);
         }
         return _tokens;
     }

@@ -13,7 +13,7 @@ import { AmmExchange, LoginAccount, TransactionDetails } from "../utils/types";
 import { useUserStore } from "./user";
 import { PARA_CONFIG } from "./constants";
 
-const APPROVAL_AMOUNT = String(new BN(2 ** 255).minus(1));
+const APPROVAL_AMOUNT = String(new BN(2 ** 255).minus(1).toFixed());
 
 export const useIsTokenApproved = (tokenAddress: string): Promise<boolean> => {
   const { loginAccount } = useUserStore();
@@ -189,16 +189,32 @@ export function useApproveERC1155Callback(
 }
 
 /*
-# AMM Middleware: Approvals Needed for Methods
-method                  | USDx                  | ETH
-----------------------------------------------------------------
-doAddLiquidity          | cash: factory         | none
-doRemoveLiquidity (1)   | bal pool: factory     | bal pool: factory
-doRemoveLiquidity (2)   | amm: factory          | amm: factory
-doEnterPosition         | cash: factory         | none
-doExitPosition          | share: factory        | share: wrapper
-doSwap                  | share: factory        | share: factory
-claim winnings          | none                  | share: wrapper
+Approvals for Turbo
+|====================================================================|
+| contract   | method          | approvals                           |
+|------------+-----------------+-------------------------------------|
+| ammfactory | buy             | cash.approve(ammfactory)            |
+| ammfactory | sell            | shareToken.approve(ammfactory)      |
+| ammfactory | addLiquidity    | cash.approve(ammfactory)            |
+| ammfactory | removeLiquidity | pool.approve(ammfactory)            |
+| hatchery   | claimWinnings   | none (share tokens trust hatchery)  |
+| ammfactory | createPool      | cash.approve(ammfactory)            |
+| feepot     | redeem          | none                                |
+| feepot     | stake           | rep.approve(feepot)                 |
+| feepot     | exit            | none                                |
+|------------+-----------------+-------------------------------------|
+| contract   | method          | explanation                         |
+|------------+-----------------+-------------------------------------|
+| ammfactory | buy             | collateral -> shares                |
+| ammfactory | sell            | shares -> collateral                |
+| ammfactory | addLiquidity    | collateral -> LP tokens             |
+| ammfactory | removeLiquidity | LP tokens -> collateral             |
+| hatchery   | claimWinnings   | winning shares -> collateral        |
+| ammfactory | createPool      | collateral -> new AMM               |
+| feepot     | redeem          | collect fees in collateral          |
+| feepot     | stake           | stake REP so you can collect fees   |
+| feepot     | exit            | unstake REP to stop collecting fees |
+|====================================================================|
 */
 
 // wraps useApproveCallback in the context of a swap
@@ -206,32 +222,22 @@ export const useApproveCallbackForTrade = (
   ammExchange: AmmExchange,
   isEnter: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const {
-    addresses: { AMMFactory, WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   const { cash } = ammExchange;
   const { shareToken } = cash;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
 
-  const [approveShareWrapperStatus, approveShareWrapper] = useApproveERC1155Callback(
-    shareToken,
-    approvingName,
-    WethWrapperForAMMExchange
-  );
   const [approveShareFactoryStatus, approveShareFactory] = useApproveERC1155Callback(
     shareToken,
     approvingName,
-    AMMFactory
+    ammFactory
   );
-  const [approveFactoryStatus, approveFactory] = useApproveCallback(cash?.address, approvingName, AMMFactory);
+  const [approveFactoryStatus, approveFactory] = useApproveCallback(cash?.address, approvingName, ammFactory);
 
   if (isEnter) {
     if (isETH) return [ApprovalState.APPROVED, () => null];
     return [approveShareFactoryStatus, approveShareFactory];
-  }
-  if (isETH) {
-    return [approveShareWrapperStatus, approveShareWrapper];
   }
   return [approveFactoryStatus, approveFactory];
 };
@@ -241,26 +247,16 @@ export const useApproveCallbackForLiquidity = (
   ammExchange: AmmExchange,
   isAdd: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const {
-    addresses: { AMMFactory, WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   const { cash } = ammExchange;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
 
-  const [approveCashFactoryStatus, approveCashFactory] = useApproveCallback(cash?.address, approvingName, AMMFactory);
-  const [approveAmmWrapperStatus, approveAmmWrapper] = useApproveCallback(
-    ammExchange.id,
-    approvingName,
-    WethWrapperForAMMExchange
-  );
+  const [approveCashFactoryStatus, approveCashFactory] = useApproveCallback(cash?.address, approvingName, ammFactory);
 
   if (isAdd) {
     if (isETH) return [ApprovalState.APPROVED, () => null];
     return [approveCashFactoryStatus, approveCashFactory];
-  }
-  if (isETH) {
-    return [approveAmmWrapperStatus, approveAmmWrapper];
   }
   return [ApprovalState.APPROVED, () => null];
 };
@@ -335,13 +331,11 @@ export const approveERC20Contract = async (
     console.error("no spender");
     return null;
   }
-
   const tokenContract = getErc20Contract(tokenAddress, library, account);
-  const estimatedGas = await tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT).catch(() => {
+  const estimatedGas = await tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT).catch((e) => {
     // general fallback for tokens who restrict approval amounts
     return tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT);
   });
-
   try {
     const response: TransactionResponse = await tokenContract.approve(spender, APPROVAL_AMOUNT, {
       gasLimit: estimatedGas,

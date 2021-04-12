@@ -10,15 +10,12 @@ import {
   Constants,
   createBigNumber,
   Stores,
-  PARA_CONFIG,
-  ApprovalHooks,
   SEO,
   ButtonComps,
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 
 const { claimWinnings } = ContractCalls;
-const { approveERC1155Contract } = ApprovalHooks;
 const { formatCash } = Formatter;
 const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
 const {
@@ -63,12 +60,9 @@ const handleClaimAll = (
 ) => {
   const from = loginAccount?.account;
   const chainId = loginAccount?.chainId;
-  const {
-    addresses: { WethWrapperForAMMExchange },
-  } = PARA_CONFIG;
   if (from && canClaim) {
     setPendingClaim(true);
-    claimWinnings(from, marketIds, cash)
+    claimWinnings(from, loginAccount?.library, marketIds, cash)
       .then(response => {
         // handle transaction response here
         setPendingClaim(false);
@@ -90,19 +84,7 @@ const handleClaimAll = (
         setPendingClaim(false);
         console.log('Error when trying to claim winnings: ', error?.message);
       });
-  } else if (from) {
-    const approveEth = async () => {
-      const tx = await approveERC1155Contract(
-        cash?.shareToken,
-        `To Claim Winnings`,
-        WethWrapperForAMMExchange,
-        loginAccount
-      );
-      addTransaction(tx);
-    };
-    // need to approve here
-    approveEth();
-  }
+  } 
 };
 
 export const ClaimWinningsSection = () => {

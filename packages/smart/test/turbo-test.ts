@@ -12,16 +12,13 @@ import {
   Cash,
   Cash__factory,
   FeePot__factory,
-  TrustedArbiter,
-  TrustedArbiter__factory,
-  TurboHatchery,
-  TurboHatchery__factory,
-  TurboShareToken,
-  TurboShareToken__factory,
-  TurboShareTokenFactory__factory,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
+  OwnedERC20,
+  OwnedERC20__factory,
 } from "../typechain";
-import { BigNumber, BytesLike } from "ethers";
-import { DEAD_ADDRESS, MarketTypes } from "../src";
+import { BigNumber } from "ethers";
+import { DEAD_ADDRESS } from "../src";
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
@@ -30,91 +27,79 @@ describe("Turbo", () => {
     [signer] = await ethers.getSigners();
   });
 
-  const creatorFee = 1;
-  const outcomeSymbols = ["ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["All", "Many", "Few", "None"].map(ethers.utils.formatBytes32String) as BytesLike[];
-  const numTicks = 1000;
-  const startTime: number = Date.now() + 60;
-  const duration = 60 * 60;
-  const extraInfo = "";
-  const prices: number[] = [];
-  const marketType = MarketTypes.CATEGORICAL;
+  const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
+  const outcomeNames = ["No Contest", "All", "Many", "Few", "None"];
   const basis = BigNumber.from(10).pow(18);
 
   let collateral: Cash;
-  let turboHatchery: TurboHatchery;
-  let turboId: BigNumber;
-  let invalid: TurboShareToken;
-  let all: TurboShareToken;
-  let many: TurboShareToken;
-  let few: TurboShareToken;
-  let none: TurboShareToken;
-  let arbiter: TrustedArbiter;
+  let marketFactory: TrustedMarketFactory;
+  let marketId: BigNumber;
+  let noContest: OwnedERC20;
+  let all: OwnedERC20;
+  let many: OwnedERC20;
+  let few: OwnedERC20;
+  let none: OwnedERC20;
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
   let pool: BPool;
 
   it("is deployable", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const turboShareTokenFactory = await new TurboShareTokenFactory__factory(signer).deploy();
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    turboHatchery = await new TurboHatchery__factory(signer).deploy(turboShareTokenFactory.address, feePot.address);
+    const smallFee = BigNumber.from(10).pow(16);
+    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      feePot.address,
+      smallFee,
+      smallFee
+    );
 
-    await turboShareTokenFactory.initialize(turboHatchery.address);
-
-    expect(await turboHatchery.tokenFactory()).to.equal(turboShareTokenFactory.address);
-    expect(await turboHatchery.feePot()).to.equal(feePot.address);
-    expect(await turboHatchery.collateral()).to.equal(collateral.address);
+    expect(await marketFactory.getOwner()).to.equal(signer.address);
+    expect(await marketFactory.feePot()).to.equal(feePot.address);
+    expect(await marketFactory.collateral()).to.equal(collateral.address);
   });
 
   it("can create a market", async () => {
-    arbiter = await new TrustedArbiter__factory(signer).deploy(signer.address, turboHatchery.address);
-    const arbiterConfiguration = await arbiter.encodeConfiguration(startTime, duration, extraInfo, prices, marketType);
-    const index = 42; // arbitrary uint256 for easy log filtering
-    await turboHatchery.createTurbo(
-      index,
-      creatorFee,
-      outcomeSymbols,
-      outcomeNames,
-      numTicks,
-      arbiter.address,
-      arbiterConfiguration
-    );
-    const filter = turboHatchery.filters.TurboCreated(null, null, null, null, null, null, null, index);
-    const logs = await turboHatchery.queryFilter(filter);
+    const endTime = BigNumber.from(Date.now())
+      .div(1000)
+      .add(60 * 60 * 24); // one day
+    const description = "test market";
+    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols);
+
+    const filter = marketFactory.filters.MarketCreated(null, null, null, null, null);
+    const logs = await marketFactory.queryFilter(filter);
     expect(logs.length).to.equal(1);
     const [log] = logs;
-    [turboId] = log.args;
-    expect(turboId).to.equal(0);
+    [marketId] = log.args;
+    expect(marketId).to.equal(0);
 
-    const shareTokens = await turboHatchery.getShareTokens(turboId);
-    [invalid, all, many, few, none] = await Promise.all(
-      shareTokens.map((addr) => new TurboShareToken__factory(signer).attach(addr))
-    );
-    expect(await invalid.symbol()).to.equal("INVALID");
-    expect(await invalid.name()).to.equal(ethers.utils.formatBytes32String("INVALID SHARE"));
+    const market = await marketFactory.getMarket(marketId);
+    [noContest, all, many, few, none] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
+    expect(await noContest.symbol()).to.equal("NO CONTEST");
+    expect(await noContest.name()).to.equal("No Contest");
     expect(await all.symbol()).to.equal("ALL");
-    expect(await all.name()).to.equal(ethers.utils.formatBytes32String("All"));
+    expect(await all.name()).to.equal("All");
     expect(await many.symbol()).to.equal("MANY");
-    expect(await many.name()).to.equal(ethers.utils.formatBytes32String("Many"));
+    expect(await many.name()).to.equal("Many");
     expect(await few.symbol()).to.equal("FEW");
-    expect(await few.name()).to.equal(ethers.utils.formatBytes32String("Few"));
+    expect(await few.name()).to.equal("Few");
     expect(await none.symbol()).to.equal("NONE");
-    expect(await none.name()).to.equal(ethers.utils.formatBytes32String("None"));
+    expect(await none.name()).to.equal("None");
   });
 
   const setsToMint = 100;
-  const costToMint = setsToMint * numTicks;
+  const costToMint = setsToMint;
   const collateralIn = basis.mul(2);
 
   it("can mint sets", async () => {
     await collateral.faucet(costToMint);
-    await collateral.approve(turboHatchery.address, costToMint);
-    await turboHatchery.mintCompleteSets(turboId, setsToMint, signer.address);
+    await collateral.approve(marketFactory.address, costToMint);
+    await marketFactory.mintShares(marketId, setsToMint, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(0);
-    expect(await invalid.balanceOf(signer.address)).to.equal(setsToMint);
+    expect(await noContest.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await all.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await many.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await few.balanceOf(signer.address)).to.equal(setsToMint);
@@ -125,10 +110,10 @@ describe("Turbo", () => {
   const setsLeft = setsToMint - setsToBurn;
 
   it("can burn sets", async () => {
-    await turboHatchery.burnCompleteSets(turboId, setsToBurn, signer.address);
+    await marketFactory.burnShares(marketId, setsToBurn, signer.address);
 
-    expect(await collateral.balanceOf(signer.address)).to.equal(9 * numTicks);
-    expect(await invalid.balanceOf(signer.address)).to.equal(setsLeft);
+    expect(await collateral.balanceOf(signer.address)).to.equal(9);
+    expect(await noContest.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await all.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await many.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await few.balanceOf(signer.address)).to.equal(setsLeft);
@@ -149,8 +134,8 @@ describe("Turbo", () => {
     const initialLiquidity = basis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
-    await ammFactory.createPool(turboHatchery.address, turboId, initialLiquidity, weights, signer.address);
-    pool = BPool__factory.connect(await ammFactory.pools(turboHatchery.address, turboId), signer);
+    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
+    pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.div(10));
   });
 
@@ -159,8 +144,8 @@ describe("Turbo", () => {
     await collateral.faucet(additionalLiquidity);
     await collateral.approve(ammFactory.address, additionalLiquidity);
 
-    const pool = BPool__factory.connect(await ammFactory.pools(turboHatchery.address, turboId), signer);
-    await ammFactory.addLiquidity(turboHatchery.address, turboId, additionalLiquidity, 0, signer.address);
+    const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
+    await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
     expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("100099999924075385080")); // hardcoded from observation
   });
 
@@ -169,50 +154,50 @@ describe("Turbo", () => {
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
     expect(await all.balanceOf(signer.address)).to.equal(91); // minted 100 sets, burned 9
-    await ammFactory.buy(turboHatchery.address, turboId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal(8307054961011936); // hardcoded from observation
+    await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
+    expect(await all.balanceOf(signer.address)).to.equal("8307054961011845817"); // hardcoded from observation
   });
 
   it("can see the outcome prices in the AMM", async () => {
-    const prices = await ammFactory.prices(turboHatchery.address, turboId);
+    const prices = await ammFactory.prices(marketFactory.address, marketId);
 
     const expectedPrices = [
       "0x48811dc9f25e0a",
-      "0x036d51c056e026ca",
+      "0x036d51c056e026cb",
       "0x038a4e2fc19db6f1",
       "0x038a4e2fc19db6f1",
-      "0x03660d9e7c6e7230",
+      "0x03660d9e7c6e722f",
     ];
     prices.forEach((price, index) => {
       expect(price.toHexString()).to.equal(expectedPrices[index]);
     });
   });
 
-  it("can read turbo from arbiter", async () => {
-    const turbo = await arbiter.callStatic.getTurbo(turboId);
-    expect(turbo.outcomeNames.length).to.equal(4); // excludes invalid
+  it("can read market from factory", async () => {
+    const market = await marketFactory.callStatic.getMarket(marketId);
+    expect(market.shareTokens.length).to.equal(5);
   });
 
-  it("can read turbo balances", async () => {
-    const balances = await ammFactory.getPoolBalances(turboHatchery.address, turboId);
-    console.log(balances);
-    expect(balances.length).to.equal(5); // includes invalid
+  it("can read market balances", async () => {
+    const balances = await ammFactory.getPoolBalances(marketFactory.address, marketId);
+    expect(balances.length).to.equal(5);
   });
 
   it("can claim winnings", async () => {
-    await arbiter.setTurboResolution(turboId, [0, numTicks, 0, 0, 0]);
+    await marketFactory.trustedResolveMarket(marketId, 1);
     // can burn non-winning shares
-    await invalid.transfer(DEAD_ADDRESS, setsLeft);
+    await noContest.transfer(DEAD_ADDRESS, setsLeft);
     await many.transfer(DEAD_ADDRESS, setsLeft);
     await few.transfer(DEAD_ADDRESS, setsLeft);
     await none.transfer(DEAD_ADDRESS, setsLeft);
 
-    expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn * 1000);
-    await turboHatchery.claimWinnings(turboId);
+    expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn);
 
-    const expectedWinnings = BigNumber.from(setsToBurn).mul(1000).add(BigNumber.from("8307054961011936").mul(1000));
+    await marketFactory.claimWinnings(marketId, signer.address);
+
+    const expectedWinnings = BigNumber.from("8223984411401727368"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
-    expect(await invalid.balanceOf(signer.address)).to.equal(0);
+    expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
