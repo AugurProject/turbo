@@ -69,7 +69,7 @@ export class Deployer {
     await collateral.approve(ammFactory.address, initialLiquidity).then((tx) => tx.wait(this.confirmations));
     console.log("Creating pool");
     await sleep(10000); // matic needs a little time
-    const pool = await createPool(
+    await createPool(
       this.signer,
       ammFactory.address,
       marketFactory.address,
@@ -88,7 +88,6 @@ export class Deployer {
         balancerFactory,
         marketFactory,
         ammFactory,
-        pool,
       },
       (name, contract) => [name, contract.address]
     );
