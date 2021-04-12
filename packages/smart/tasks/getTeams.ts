@@ -18,7 +18,7 @@ task("getTeams", "Retrieve teams information")
   .setAction(async (args, hre) => {
     const promiseArray = [];
     let num = 0;
-    const sportsArray = args.sports.split(',');
+    const sportsArray = args.sports.split(",");
     while (num < sportsArray.length) {
       const sportId = sportsArray[num];
       promiseArray.push(
@@ -36,12 +36,12 @@ task("getTeams", "Retrieve teams information")
     }
     const result = await Promise.all(promiseArray).then((values) => {
       let output = {};
-      values.forEach((res, index) => {
+      values.forEach((res) => {
         const sportId = res?.config?.data;
         const teams = res?.data?.teams?.entries();
         const teamsObject: TeamsObjectType = {};
         for (const t of teams) {
-          teamsObject[t[1].team_id] = {...t[1], sport_id: sportId };
+          teamsObject[t[1].team_id] = { ...t[1], sport_id: sportId };
         }
         output = { ...output, ...teamsObject };
       });
