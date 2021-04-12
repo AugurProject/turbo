@@ -13,6 +13,8 @@ import { Provider } from "@ethersproject/providers";
 export * from "./typechain";
 export * from "./addresses";
 
+export { mapOverObject } from "./src/utils/common-functions"; // TODO this shouldn't live in this package
+
 export interface ContractInterfaces {
   AMMFactory: AMMFactory;
   MarketFactory: TrustedMarketFactory;

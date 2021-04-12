@@ -4,7 +4,7 @@ import axios from "axios";
 task("fetch-rundown-event", "Retrieve rundown event information")
   .addParam("event", "The API key for fetching from TheRunDown")
   .addParam("key", "The API key for fetching from TheRunDown")
-  .setAction(async (args, hre) => {
+  .setAction(async (args) => {
     const result = await axios({
       method: "GET",
       url: `https://therundown-therundown-v1.p.rapidapi.com/events/${args.event}`,
