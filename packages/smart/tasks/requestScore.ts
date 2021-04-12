@@ -20,17 +20,6 @@ task("requestScore", "Request and set score in TheRundownChainlink")
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { TheRundownChainlink } = contracts;
     
-    // add seperate hardhat task to fund link to rundown contract
-    // need this, or at least cnt use public
-
-    // await TheRundownChainlink.setChainlinkTokenAddress("0xa36085F69e2889c224210F603D836748e7dC0088");
-    // await sleep(10000);
-    // kovan.chain.link
-    // https://docs.chain.link/docs/acquire-link#config
-    // account needs link, call link.transferAndCall, need to add tokens to rundownchainlink
- 
-    //  need request to
-    //try putting job id in contract cause bytes 32 thing might be off
     await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043");
     await sleep(10000);
     const score = await TheRundownChainlink.score();
