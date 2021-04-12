@@ -7,13 +7,13 @@ interface TeamsObjectType {
     name: string;
     mascot: string;
     abbrevation: string;
-    record: string;
+    record?: string;
     sport_id: string;
   };
 }
 
 task("fetch-teams-event", "Retrieve teams information")
-  .addParam("sports", "The Sport ID array we want team data for, e.g.: 1,2,3")
+  .addParam("sports", "The Sport ID array to get team data for, e.g.: 1,2,3")
   .addParam("key", "The API key for fetching from TheRunDown")
   .setAction(async (args, hre) => {
     const promiseArray = [];

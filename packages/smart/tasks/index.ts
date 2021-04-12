@@ -7,4 +7,4 @@ export * from "./markets";
 export * from "./rundown";
 export * from "./setTrustedResolution";
 export * from "./verifyDeploy";
-export * from "./teams";
+export * from "./fetch-teams-event";
