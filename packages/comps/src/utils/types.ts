@@ -100,7 +100,7 @@ export interface ParaDeploys {
   reputationToken: string;
   balancerFactory: string;
   hatcheryRegistry: string;
-  hatchery: string;
+  marketFactory: string;
   arbiter: string;
   ammFactory: string;
   pool: string;
