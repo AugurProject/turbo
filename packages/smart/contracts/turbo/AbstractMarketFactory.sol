@@ -63,6 +63,10 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         }
     }
 
+    function marketCount() public view returns (uint256) {
+        return markets.length;
+    }
+
     // Returns factory-specific details about a market.
     // function getMarketDetails(uint256 _id) public view returns (MarketDetails memory);
 
@@ -115,6 +119,14 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
 
         emit WinningsClaimed(_id, _winnings, msg.sender);
         return _winnings;
+    }
+
+    function claimManyWinnings(uint256[] memory _ids, address _receiver) public returns (uint256) {
+        uint256 _totalWinnings = 0;
+        for (uint256 i = 0; i < _ids.length; i++) {
+            _totalWinnings = _totalWinnings.add(claimWinnings(_ids[i], _receiver));
+        }
+        return _totalWinnings;
     }
 
     function payout(
