@@ -12,7 +12,7 @@ interface TeamsObjectType {
   };
 }
 
-task("fetch-teams-event", "Retrieve teams information")
+task("getTeams", "Retrieve teams information")
   .addParam("sports", "The Sport ID array to get team data for, e.g.: 1,2,3")
   .addParam("key", "The API key for fetching from TheRunDown")
   .setAction(async (args, hre) => {
