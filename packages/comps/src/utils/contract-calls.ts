@@ -499,6 +499,8 @@ export const getUserBalances = async (
   userBalances.ETH = await getEthBalance(provider, cashes, account);
 
   const multicall = new Multicall({ ethersProvider: provider });
+
+  // todo: for some reason this call is failing
   const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
     reference: exchange.id,
     contractAddress: exchange.id,
@@ -517,8 +519,6 @@ export const getUserBalances = async (
       },
     ],
   }));
-
-  console.log('contractMarketShareBalanceCall', contractLpBalanceCall)
 
   const contractMarketShareBalanceCall: ContractCallContext[] = exchanges.reduce((p, exchange) => {
     const shareTokenOutcomeShareBalances = exchange.ammOutcomes.map((outcome) => ({
