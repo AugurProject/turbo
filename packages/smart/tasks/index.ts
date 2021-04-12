@@ -7,3 +7,4 @@ export * from "./markets";
 export * from "./verifyDeploy";
 export * from "./setTrustedResolution";
 export * from "./requestScore";
+export * from "./fundLink";

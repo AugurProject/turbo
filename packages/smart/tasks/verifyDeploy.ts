@@ -51,7 +51,6 @@ task("verifyDeploy", "Verify contract deploy")
       console.log("verify::theRundownChainlink", theRundownChainlink);
       await hre.run("verify:verify", {
         address: theRundownChainlink,
-        constructorArguments: [1800],
       });
     }
   });
