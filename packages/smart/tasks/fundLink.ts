@@ -2,7 +2,7 @@ import { task, types } from "hardhat/config";
 
 import "hardhat/types/config";
 import { makeSigner } from "./deploy";
-import { ERC20__factory } from "../typechain";
+import { LinkTokenInterface__factory } from "../typechain";
 
 task("fundLink", "Send 100 link to a contract on kovan")
   .addParam("contract", undefined, undefined, types.string)
@@ -13,9 +13,9 @@ task("fundLink", "Send 100 link to a contract on kovan")
 
     const linkTokenAddress = "0xa36085F69e2889c224210F603D836748e7dC0088";
     const amount = ethers.BigNumber.from(10).pow(18); 
-    const linkToken = ERC20__factory.connect(linkTokenAddress, signer);
+    const linkToken = LinkTokenInterface__factory.connect(linkTokenAddress, signer);
     
-    const transferTx = await linkToken.transfer(contractAddress, amount).then((tx: any) => {
+    await linkToken.transfer(contractAddress, amount).then((tx: any) => {
       tx.wait();
       console.log('Contract ', contractAddress, ' funded with LINK. Transaction Hash: ', tx.hash)
     });

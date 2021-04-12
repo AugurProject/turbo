@@ -70,3 +70,10 @@ use these you will need a rundown api key from rapidapi.
 ```
 yarn hardhat fetch-rundown-event --event [eventId] --key [rundownApiKey]
 ```
+
+## Fund link
+This task funds an address with 1 LINK.
+
+```
+yarn hardhat fundLink --contract [contractAddress]
+```
