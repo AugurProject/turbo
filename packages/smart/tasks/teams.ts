@@ -1,18 +1,51 @@
 import { task } from "hardhat/config";
 import axios from "axios";
 
+interface TeamsObjectType {
+  [id: string]: {
+    team_id: number;
+    name: string;
+    mascot: string;
+    abbrevation: string;
+    record: string;
+    sport_id: string;
+  };
+}
+
 task("fetch-teams-event", "Retrieve teams information")
+  .addParam("sports", "The Sport ID array we want team data for, e.g.: 1,2,3")
   .addParam("key", "The API key for fetching from TheRunDown")
   .setAction(async (args, hre) => {
-    const result = await axios({
-      method: "GET",
-      url: `https://therundown-therundown-v1.p.rapidapi.com/sports`,
-      // params: { include: "scores" },
-      headers: {
-        "x-rapidapi-key": args.key,
-        "x-rapidapi-host": "therundown-therundown-v1.p.rapidapi.com",
-      },
+    const promiseArray = [];
+    let num = 0;
+    const sportsArray = args.sports.split(',');
+    while (num < sportsArray.length) {
+      const sportId = sportsArray[num];
+      promiseArray.push(
+        axios({
+          method: "GET",
+          url: `https://therundown-therundown-v1.p.rapidapi.com/sports/${sportId}/teams`,
+          headers: {
+            "x-rapidapi-key": args.key,
+            "x-rapidapi-host": "therundown-therundown-v1.p.rapidapi.com",
+          },
+          data: sportId,
+        })
+      );
+      num++;
+    }
+    const result = await Promise.all(promiseArray).then((values) => {
+      let output = {};
+      values.forEach((res, index) => {
+        const sportId = res?.config?.data;
+        const teams = res?.data?.teams?.entries();
+        const teamsObject: TeamsObjectType = {};
+        for (const t of teams) {
+          teamsObject[t[1].team_id] = {...t[1], sport_id: sportId };
+        }
+        output = { ...output, ...teamsObject };
+      });
+      return output;
     });
-
-    console.log(JSON.stringify(result.data, null, "  "));
+    console.log(JSON.stringify(result, null, "  "));
   });
