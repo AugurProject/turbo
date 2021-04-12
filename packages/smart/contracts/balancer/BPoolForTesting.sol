@@ -2,18 +2,21 @@
 pragma solidity 0.7.6;
 
 import "./BFactory.sol";
-import "../libraries/ERC20.sol";
+import "../libraries/IERC20Full.sol";
 
 contract BPoolForTesting {
     BFactory public bFactory;
     uint256 private constant MAX_UINT = 2**256 - 1;
 
     function createBPoolForTesting(
-        ERC20[] calldata _tokens,
+        IERC20Full[] calldata _tokens,
         uint256[] calldata _initialLiquidity,
         uint256[] calldata _weights
     ) external returns (BPool) {
-        require(_tokens.length == _weights.length);
+        require(
+            _tokens.length == _weights.length && _tokens.length == _initialLiquidity.length,
+            "Tokens, weights and initial liquidity should all have the same length."
+        );
 
         BPool _pool = bFactory.newBPool();
 
