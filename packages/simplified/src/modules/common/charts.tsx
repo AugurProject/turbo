@@ -4,9 +4,10 @@ import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import Styles from "./charts.styles.less";
 import classNames from "classnames";
 import { MarketInfo } from "../types";
-import { createBigNumber, Formatter, Icons, SelectionComps } from "@augurproject/comps";
+import { createBigNumber, Formatter, Icons, SelectionComps, MarketCardComps } from "@augurproject/comps";
 
 const { MultiButtonSelection } = SelectionComps;
+const { orderOutcomesForDisplay } = MarketCardComps;
 const { formatCashPrice } = Formatter;
 const { Checkbox } = Icons;
 
@@ -422,11 +423,10 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
   },
 });
 
-export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) => {
-  return amm.ammOutcomes.map((outcome, outcomeIdx) => ({
+export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) =>
+  orderOutcomesForDisplay(amm.ammOutcomes).map((outcome, outcomeIdx) => ({
     ...outcome,
     outcomeIdx,
     label: (outcome?.name).toLowerCase(),
     lastPrice: !amm ? "0.5" : outcome.price,
   }));
-};
