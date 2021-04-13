@@ -1,4 +1,3 @@
-import { MarketTypeName } from "@augurproject/sdk-lite";
 import { createBigNumber, BigNumber } from "./create-big-number";
 import {
   CryptoIcon,
@@ -11,9 +10,10 @@ import {
 import { EthIcon, UsdIcon } from "../components/common/icons";
 
 // # Market Types
-export const YES_NO = MarketTypeName.YesNo;
-export const CATEGORICAL = MarketTypeName.Categorical;
-export const SCALAR = MarketTypeName.Scalar;
+// should not be used, will be refactored out.
+export const YES_NO = "YesNo";
+export const CATEGORICAL = "Categorical";
+export const SCALAR = "Scalar";
 
 // MAIN VIEWS
 export const MARKET: string = "market";

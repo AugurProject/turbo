@@ -1,11 +1,11 @@
-import { tickSizeToNumTickWithDisplayPrices } from "@augurproject/sdk";
+import { tickSizeToNumTickWithDisplayPrices } from "@augurproject/utils";
 import {
   convertDisplayAmountToOnChainAmount,
   convertOnChainAmountToDisplayAmount,
   encodeNumberAsBase10String,
   encodeNumberAsJSNumber,
   unfix,
-} from "@augurproject/sdk-lite";
+} from "@augurproject/utils";
 import {
   ETHER,
   GWEI_CONVERSION,
