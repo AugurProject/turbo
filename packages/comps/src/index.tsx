@@ -9,6 +9,7 @@ import getPrecision from './utils/get-number-precision';
 import logError from './utils/log-error';
 import * as _Types from './utils/types';
 import { windowRef } from './utils/window-ref';
+import * as _TeamHelpers from './utils/team-helpers';
 import * as _Icons from './components/common/icons';
 import * as _Inputs from './components/common/inputs';
 import * as _MarketCard from './components/market-card/market-card';
@@ -135,6 +136,7 @@ export const Utils = {
   logError,
   PathUtils,
   windowRef,
+  ..._TeamHelpers,
 };
 export const PaginationComps = _Pagination;
 export const Types = _Types;
@@ -151,6 +153,7 @@ export const Icons = {
 export const ApprovalHooks = _ApprovalHooks;
 export const ProcessData = _ProcessData;
 export const SEO = _SEO;
+export const TeamHelpers = _TeamHelpers;
 // export extremely commonly used functions as top level non-default exports:
 export {
   useAppStatusStore,
