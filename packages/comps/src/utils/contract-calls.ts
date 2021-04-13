@@ -113,7 +113,13 @@ export async function estimateLiquidityPool(
 ): Promise<AddLiquidityBreakdown> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, priceNo, priceYes);
+  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(
+    amm,
+    cash,
+    cashAmount,
+    priceNo,
+    priceYes
+  );
   const ammAddress = amm?.id;
 
   let addLiquidityResults = null;
@@ -168,7 +174,13 @@ export async function addLiquidityPool(
 ): Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, priceNo, priceYes);
+  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(
+    amm,
+    cash,
+    cashAmount,
+    priceNo,
+    priceYes
+  );
   const ammAddress = amm?.id;
   const minLptokenAmount = new BN(minAmount).times(0.99); // account for slippage
   const minLpTokenAllowed = convertDisplayCashAmountToOnChainCashAmount(minLptokenAmount, 18).toFixed();
@@ -1204,12 +1216,7 @@ export const getMarketInfos = async (
     indexes.push(i);
   }
 
-  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
-    indexes,
-    cashes,
-    provider,
-    account
-  );
+  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(indexes, cashes, provider, account);
   return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
@@ -1217,7 +1224,7 @@ const retrieveMarkets = async (
   indexes: number[],
   cashes: Cashes,
   provider: Web3Provider,
-  account: string,
+  account: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
@@ -1263,7 +1270,7 @@ const retrieveMarkets = async (
             },
           },
         ],
-      },      
+      },
       {
         reference: `${ammFactoryAddress}-${index}-pools`,
         contractAddress: ammFactoryAddress,
@@ -1322,10 +1329,10 @@ const retrieveMarkets = async (
 
   // populate outcomes share token addresses
   if (Object.keys(details).length > 0) {
-    Object.keys(details).forEach(marketId => {
+    Object.keys(details).forEach((marketId) => {
       const m = markets[marketId];
       m.longDescription = details[m.turboId];
-    })
+    });
   }
 
   const marketInfos = markets
@@ -1490,7 +1497,7 @@ const decodeOutcomes = (marketData: any) => {
       isInvalid: i === INVALID_OUTCOME_ID,
       isWinner: false, // need to get based on winning payout hash
       isFinalNumerator: false, // need to translate final numerator payout hash to outcome
-      shareToken
+      shareToken,
     };
   });
 };
@@ -1498,7 +1505,7 @@ const decodeOutcomes = (marketData: any) => {
 const getOutcomeName = (index: number) => {
   if (index === INVALID_OUTCOME_ID) return "No Contest";
   return `Outcome ${index}`;
-}
+};
 
 const toDisplayPrice = (onChainPrice: string = "0"): string => {
   // todo: need to use cash to get decimals
@@ -1516,14 +1523,14 @@ const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"
   return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
 };
 
-let ABIs = {}
+let ABIs = {};
 function extractABI(contract: ethers.Contract): any[] {
   if (!contract) {
     console.error("contract is null");
     return null;
   }
   const { address } = contract;
-  const abi = ABIs[address]
+  const abi = ABIs[address];
   if (abi) return abi;
 
   // Interface.format returns a JSON-encoded string of the ABI when using FormatTypes.json.
