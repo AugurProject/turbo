@@ -100,7 +100,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         uint256 _id,
         uint256 _sharesToBurn,
         address _receiver
-    ) public returns(uint256) {
+    ) public returns (uint256) {
         Market memory _market = markets[_id];
         require(_market.endTime > 0, "No such market");
 
@@ -122,7 +122,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         }
 
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
-        _winningShares = _winningShares / shareFactor * shareFactor; // remove unusable dust
+        _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
         emit WinningsClaimed(_id, _winningShares, msg.sender);
         return payout(_id, _winningShares, _receiver);
@@ -155,7 +155,10 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     }
 
     function calcCost(uint256 _shares) public view returns (uint256) {
-        require(_shares >= shareFactor && _shares % shareFactor == 0, "Shares must be both greater than (or equal to) and divisible by shareFactor");
+        require(
+            _shares >= shareFactor && _shares % shareFactor == 0,
+            "Shares must be both greater than (or equal to) and divisible by shareFactor"
+        );
         return _shares / shareFactor;
     }
 

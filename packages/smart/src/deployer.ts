@@ -137,7 +137,14 @@ export class Deployer {
     const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
     const shareFactor = calcShareFactor(decimals);
     return this.deploy("priceMarketFactory", () =>
-      new TrustedMarketFactory__factory(this.signer).deploy(owner, collateral, shareFactor, feePot, stakerFee, creatorFee)
+      new TrustedMarketFactory__factory(this.signer).deploy(
+        owner,
+        collateral,
+        shareFactor,
+        feePot,
+        stakerFee,
+        creatorFee
+      )
     );
   }
 
