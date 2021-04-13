@@ -12,6 +12,8 @@ import {
   AbstractMarketFactory__factory,
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
+  TheRundownChainlink,
+  TheRundownChainlink__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
 import { mapOverObject, sleep } from "./utils/common-functions";
@@ -27,6 +29,7 @@ export class Deployer {
     const collateral = await this.deployCollateral("USDC", "USDC", 6);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
+    const theRundownChainlink = await this.deployTheRundownChainlink();
 
     console.log("Deploying trusted market factory for REP");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
@@ -88,6 +91,7 @@ export class Deployer {
         balancerFactory,
         marketFactory,
         ammFactory,
+        theRundownChainlink,
       },
       (name, contract) => [name, contract.address]
     );
@@ -133,6 +137,10 @@ export class Deployer {
     return this.deploy("priceMarketFactory", () =>
       new TrustedMarketFactory__factory(this.signer).deploy(owner, collateral, feePot, stakerFee, creatorFee)
     );
+  }
+
+  async deployTheRundownChainlink(): Promise<TheRundownChainlink> {
+    return this.deploy("theRundownChainlink", () => new TheRundownChainlink__factory(this.signer).deploy());
   }
 
   async deployBalancerFactory(): Promise<BFactory> {

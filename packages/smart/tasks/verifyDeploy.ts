@@ -1,10 +1,18 @@
 import { task } from "hardhat/config";
+
 task("verifyDeploy", "Verify contract deploy")
   .addParam("addresses", "Deployed addresses")
   .addParam("account", "The account's address")
   .setAction(async (args, hre) => {
     const deployedAddresses = JSON.parse(args.addresses);
-    const { collateral, reputationToken, balancerFactory, hatcheryRegistry, ammFactory } = deployedAddresses;
+    const {
+      collateral,
+      reputationToken,
+      balancerFactory,
+      hatcheryRegistry,
+      ammFactory,
+      theRundownChainlink,
+    } = deployedAddresses;
     const account = args.account;
 
     if (collateral) {
@@ -43,6 +51,13 @@ task("verifyDeploy", "Verify contract deploy")
       await hre.run("verify:verify", {
         address: ammFactory,
         constructorArguments: [balancerFactory],
+      });
+    }
+
+    if (theRundownChainlink) {
+      console.log("verify::theRundownChainlink", theRundownChainlink);
+      await hre.run("verify:verify", {
+        address: theRundownChainlink,
       });
     }
   });

@@ -5,6 +5,8 @@ import {
   Cash__factory,
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
+  TheRundownChainlink,
+  TheRundownChainlink__factory,
 } from "./typechain";
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";
@@ -19,6 +21,7 @@ export interface ContractInterfaces {
   AMMFactory: AMMFactory;
   MarketFactory: TrustedMarketFactory;
   ReputationToken: Cash;
+  TheRundownChainlink: TheRundownChainlink;
 }
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
@@ -29,5 +32,6 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
     AMMFactory: AMMFactory__factory.connect(contractAddresses.ammFactory, signerOrProvider),
     MarketFactory: TrustedMarketFactory__factory.connect(contractAddresses.marketFactory, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
+    TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
   };
 }
