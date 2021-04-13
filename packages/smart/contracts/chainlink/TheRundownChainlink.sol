@@ -3,6 +3,8 @@ pragma solidity 0.7.6;
 import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
 
 contract TheRundownChainlink is ChainlinkClient {
+    using Chainlink for Chainlink.Request;
+
     uint256 public score;
     address private oracle;
     bytes32 private jobId;

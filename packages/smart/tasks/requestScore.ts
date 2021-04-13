@@ -18,11 +18,11 @@ task("requestScore", "Request and set score in TheRundownChainlink").setAction(a
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TheRundownChainlink } = contracts;
   await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043");
-  let score = 0; 
+  let score; 
   for (let i = 0; i < 60; i++) { 
     score = await TheRundownChainlink.score(); 
     await sleep(5000); 
-    if (score > 0) break; 
+    if (score.toNumber() > 0) break; 
   }
   console.log("score", score);
 });
