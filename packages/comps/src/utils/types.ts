@@ -202,6 +202,7 @@ export interface MarketInfo {
   turboId: string;
   description: string;
   endTimestamp: number;
+  startTimestamp?: number;
   creationTimestamp: string;
   extraInfoRaw: string;
   longDescription: string;
