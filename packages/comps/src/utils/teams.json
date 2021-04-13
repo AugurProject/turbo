@@ -1,0 +1,647 @@
+{
+  "1": {
+    "team_id": 1,
+    "name": "Boston",
+    "mascot": "Celtics",
+    "abbreviation": "BOS",
+    "record": "28-26",
+    "sport_id": "4"
+  },
+  "2": {
+    "team_id": 2,
+    "name": "Brooklyn",
+    "mascot": "Nets",
+    "abbreviation": "BKN",
+    "record": "36-17",
+    "sport_id": "4"
+  },
+  "3": {
+    "team_id": 3,
+    "name": "New York",
+    "mascot": "Knicks",
+    "abbreviation": "NYK",
+    "record": "28-27",
+    "sport_id": "4"
+  },
+  "4": {
+    "team_id": 4,
+    "name": "Philadelphia",
+    "mascot": "76ers",
+    "abbreviation": "PHI",
+    "record": "37-17",
+    "sport_id": "4"
+  },
+  "5": {
+    "team_id": 5,
+    "name": "Toronto",
+    "mascot": "Raptors",
+    "abbreviation": "TOR",
+    "record": "21-33",
+    "sport_id": "4"
+  },
+  "6": {
+    "team_id": 6,
+    "name": "Chicago",
+    "mascot": "Bulls",
+    "abbreviation": "CHI",
+    "record": "22-31",
+    "sport_id": "4"
+  },
+  "7": {
+    "team_id": 7,
+    "name": "Cleveland",
+    "mascot": "Cavaliers",
+    "abbreviation": "CLE",
+    "record": "19-34",
+    "sport_id": "4"
+  },
+  "8": {
+    "team_id": 8,
+    "name": "Detroit",
+    "mascot": "Pistons",
+    "abbreviation": "DET",
+    "record": "16-38",
+    "sport_id": "4"
+  },
+  "9": {
+    "team_id": 9,
+    "name": "Indiana",
+    "mascot": "Pacers",
+    "abbreviation": "IND",
+    "record": "25-27",
+    "sport_id": "4"
+  },
+  "10": {
+    "team_id": 10,
+    "name": "Milwaukee",
+    "mascot": "Bucks",
+    "abbreviation": "MIL",
+    "record": "33-20",
+    "sport_id": "4"
+  },
+  "11": {
+    "team_id": 11,
+    "name": "Atlanta",
+    "mascot": "Hawks",
+    "abbreviation": "ATL",
+    "record": "29-25",
+    "sport_id": "4"
+  },
+  "12": {
+    "team_id": 12,
+    "name": "Charlotte",
+    "mascot": "Hornets",
+    "abbreviation": "CHA",
+    "record": "27-25",
+    "sport_id": "4"
+  },
+  "13": {
+    "team_id": 13,
+    "name": "Miami",
+    "mascot": "Heat",
+    "abbreviation": "MIA",
+    "record": "28-25",
+    "sport_id": "4"
+  },
+  "14": {
+    "team_id": 14,
+    "name": "Orlando",
+    "mascot": "Magic",
+    "abbreviation": "ORL",
+    "record": "17-37",
+    "sport_id": "4"
+  },
+  "15": {
+    "team_id": 15,
+    "name": "Washington",
+    "mascot": "Wizards",
+    "abbreviation": "WSH",
+    "record": "20-33",
+    "sport_id": "4"
+  },
+  "16": {
+    "team_id": 16,
+    "name": "Denver",
+    "mascot": "Nuggets",
+    "abbreviation": "DEN",
+    "record": "34-20",
+    "sport_id": "4"
+  },
+  "17": {
+    "team_id": 17,
+    "name": "Minnesota",
+    "mascot": "Timberwolves",
+    "abbreviation": "MIN",
+    "record": "14-40",
+    "sport_id": "4"
+  },
+  "18": {
+    "team_id": 18,
+    "name": "Oklahoma City",
+    "mascot": "Thunder",
+    "abbreviation": "OKC",
+    "record": "20-33",
+    "sport_id": "4"
+  },
+  "19": {
+    "team_id": 19,
+    "name": "Portland",
+    "mascot": "Trailblazers",
+    "abbreviation": "POR",
+    "record": "31-22",
+    "sport_id": "4"
+  },
+  "20": {
+    "team_id": 20,
+    "name": "Utah",
+    "mascot": "Jazz",
+    "abbreviation": "UTAH",
+    "record": "40-14",
+    "sport_id": "4"
+  },
+  "21": {
+    "team_id": 21,
+    "name": "Golden State",
+    "mascot": "Warriors",
+    "abbreviation": "GS",
+    "record": "26-28",
+    "sport_id": "4"
+  },
+  "22": {
+    "team_id": 22,
+    "name": "LA",
+    "mascot": "Clippers",
+    "abbreviation": "LAC",
+    "record": "37-18",
+    "sport_id": "4"
+  },
+  "23": {
+    "team_id": 23,
+    "name": "Los Angeles",
+    "mascot": "Lakers",
+    "abbreviation": "LAL",
+    "record": "33-21",
+    "sport_id": "4"
+  },
+  "24": {
+    "team_id": 24,
+    "name": "Phoenix",
+    "mascot": "Suns",
+    "abbreviation": "PHX",
+    "record": "38-15",
+    "sport_id": "4"
+  },
+  "25": {
+    "team_id": 25,
+    "name": "Sacramento",
+    "mascot": "Kings",
+    "abbreviation": "SAC",
+    "record": "22-32",
+    "sport_id": "4"
+  },
+  "26": {
+    "team_id": 26,
+    "name": "Dallas",
+    "mascot": "Mavericks",
+    "abbreviation": "DAL",
+    "record": "29-24",
+    "sport_id": "4"
+  },
+  "27": {
+    "team_id": 27,
+    "name": "Houston",
+    "mascot": "Rockets",
+    "abbreviation": "HOU",
+    "record": "14-40",
+    "sport_id": "4"
+  },
+  "28": {
+    "team_id": 28,
+    "name": "Memphis",
+    "mascot": "Grizzlies",
+    "abbreviation": "MEM",
+    "record": "27-25",
+    "sport_id": "4"
+  },
+  "29": {
+    "team_id": 29,
+    "name": "New Orleans",
+    "mascot": "Pelicans",
+    "abbreviation": "NO",
+    "record": "25-29",
+    "sport_id": "4"
+  },
+  "30": {
+    "team_id": 30,
+    "name": "San Antonio",
+    "mascot": "Spurs",
+    "abbreviation": "SA",
+    "record": "26-26",
+    "sport_id": "4"
+  },
+  "61": {
+    "team_id": 61,
+    "name": "Buffalo",
+    "mascot": "Bills",
+    "abbreviation": "BUF",
+    "record": "4-0",
+    "sport_id": "2"
+  },
+  "62": {
+    "team_id": 62,
+    "name": "Miami",
+    "mascot": "Dolphins",
+    "abbreviation": "MIA",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "63": {
+    "team_id": 63,
+    "name": "New England",
+    "mascot": "Patriots",
+    "abbreviation": "NE",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "64": {
+    "team_id": 64,
+    "name": "New York",
+    "mascot": "Jets",
+    "abbreviation": "NYJ",
+    "record": "0-4",
+    "sport_id": "2"
+  },
+  "65": {
+    "team_id": 65,
+    "name": "Baltimore",
+    "mascot": "Ravens",
+    "abbreviation": "BAL",
+    "record": "3-1",
+    "sport_id": "2"
+  },
+  "66": {
+    "team_id": 66,
+    "name": "Cincinnati",
+    "mascot": "Bengals",
+    "abbreviation": "CIN",
+    "record": "1-2-1",
+    "sport_id": "2"
+  },
+  "67": {
+    "team_id": 67,
+    "name": "Cleveland",
+    "mascot": "Browns",
+    "abbreviation": "CLE",
+    "record": "3-1",
+    "sport_id": "2"
+  },
+  "68": {
+    "team_id": 68,
+    "name": "Pittsburgh",
+    "mascot": "Steelers",
+    "abbreviation": "PIT",
+    "record": "12-4",
+    "sport_id": "2"
+  },
+  "69": {
+    "team_id": 69,
+    "name": "Houston",
+    "mascot": "Texans",
+    "abbreviation": "HOU",
+    "record": "0-4",
+    "sport_id": "2"
+  },
+  "70": {
+    "team_id": 70,
+    "name": "Indianapolis",
+    "mascot": "Colts",
+    "abbreviation": "IND",
+    "record": "3-1",
+    "sport_id": "2"
+  },
+  "71": {
+    "team_id": 71,
+    "name": "Jacksonville",
+    "mascot": "Jaguars",
+    "abbreviation": "JAX",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "72": {
+    "team_id": 72,
+    "name": "Tennessee",
+    "mascot": "Titans",
+    "abbreviation": "TEN",
+    "record": "11-5",
+    "sport_id": "2"
+  },
+  "73": {
+    "team_id": 73,
+    "name": "Denver",
+    "mascot": "Broncos",
+    "abbreviation": "DEN",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "74": {
+    "team_id": 74,
+    "name": "Kansas City",
+    "mascot": "Chiefs",
+    "abbreviation": "KC",
+    "record": "14-2",
+    "sport_id": "2"
+  },
+  "75": {
+    "team_id": 75,
+    "name": "Las Vegas",
+    "mascot": "Raiders",
+    "abbreviation": "LAS",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "76": {
+    "team_id": 76,
+    "name": "Los Angeles",
+    "mascot": "Chargers",
+    "abbreviation": "LAC",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "77": {
+    "team_id": 77,
+    "name": "Dallas",
+    "mascot": "Cowboys",
+    "abbreviation": "DAL",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "78": {
+    "team_id": 78,
+    "name": "New York",
+    "mascot": "Giants",
+    "abbreviation": "NYG",
+    "record": "0-4",
+    "sport_id": "2"
+  },
+  "79": {
+    "team_id": 79,
+    "name": "Philadelphia",
+    "mascot": "Eagles",
+    "abbreviation": "PHI",
+    "record": "1-2-1",
+    "sport_id": "2"
+  },
+  "80": {
+    "team_id": 80,
+    "name": "Washington",
+    "mascot": "Football Team",
+    "abbreviation": "WSH",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "81": {
+    "team_id": 81,
+    "name": "Chicago",
+    "mascot": "Bears",
+    "abbreviation": "CHI",
+    "record": "3-1",
+    "sport_id": "2"
+  },
+  "82": {
+    "team_id": 82,
+    "name": "Detroit",
+    "mascot": "Lions",
+    "abbreviation": "DET",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "83": {
+    "team_id": 83,
+    "name": "Green Bay",
+    "mascot": "Packers",
+    "abbreviation": "GB",
+    "record": "4-0",
+    "sport_id": "2"
+  },
+  "84": {
+    "team_id": 84,
+    "name": "Minnesota",
+    "mascot": "Vikings",
+    "abbreviation": "MIN",
+    "record": "1-3",
+    "sport_id": "2"
+  },
+  "85": {
+    "team_id": 85,
+    "name": "Atlanta",
+    "mascot": "Falcons",
+    "abbreviation": "ATL",
+    "record": "0-4",
+    "sport_id": "2"
+  },
+  "86": {
+    "team_id": 86,
+    "name": "Carolina",
+    "mascot": "Panthers",
+    "abbreviation": "CAR",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "87": {
+    "team_id": 87,
+    "name": "New Orleans",
+    "mascot": "Saints",
+    "abbreviation": "NO",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "88": {
+    "team_id": 88,
+    "name": "Tampa Bay",
+    "mascot": "Buccaneers",
+    "abbreviation": "TB",
+    "record": "11-5",
+    "sport_id": "2"
+  },
+  "89": {
+    "team_id": 89,
+    "name": "Arizona",
+    "mascot": "Cardinals",
+    "abbreviation": "ARI",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "90": {
+    "team_id": 90,
+    "name": "Los Angeles",
+    "mascot": "Rams",
+    "abbreviation": "LAR",
+    "record": "3-1",
+    "sport_id": "2"
+  },
+  "91": {
+    "team_id": 91,
+    "name": "San Francisco",
+    "mascot": "49ers",
+    "abbreviation": "SF",
+    "record": "2-2",
+    "sport_id": "2"
+  },
+  "92": {
+    "team_id": 92,
+    "name": "Seattle",
+    "mascot": "Seahawks",
+    "abbreviation": "SEA",
+    "record": "4-0",
+    "sport_id": "2"
+  },
+  "1766": {
+    "team_id": 1766,
+    "name": "NFC",
+    "mascot": "NFC",
+    "abbreviation": "NFC",
+    "sport_id": "2"
+  },
+  "1767": {
+    "team_id": 1767,
+    "name": "AFC",
+    "mascot": "AFC",
+    "abbreviation": "AFC",
+    "sport_id": "2"
+  },
+  "1772": {
+    "team_id": 1772,
+    "name": "Team World",
+    "mascot": "World",
+    "abbreviation": "WORLD",
+    "sport_id": "4"
+  },
+  "1773": {
+    "team_id": 1773,
+    "name": "Team USA",
+    "mascot": "USA",
+    "abbreviation": "USA",
+    "sport_id": "4"
+  },
+  "1774": {
+    "team_id": 1774,
+    "name": "Team LeBron",
+    "mascot": "Team LeBron",
+    "abbreviation": "LEBRON",
+    "sport_id": "4"
+  },
+  "1775": {
+    "team_id": 1775,
+    "name": "Team Giannis",
+    "mascot": "Giannis",
+    "abbreviation": "GIANNIS",
+    "sport_id": "4"
+  },
+  "1803": {
+    "team_id": 1803,
+    "name": "China",
+    "mascot": "",
+    "abbreviation": "CHINA",
+    "record": "1-4",
+    "sport_id": "4"
+  },
+  "1805": {
+    "team_id": 1805,
+    "name": "Croatia",
+    "mascot": "",
+    "abbreviation": "CROATIA",
+    "sport_id": "4"
+  },
+  "2754": {
+    "team_id": 2754,
+    "name": "TBD",
+    "mascot": "TBD",
+    "abbreviation": "TBD",
+    "sport_id": "2"
+  },
+  "2756": {
+    "team_id": 2756,
+    "name": "TBD",
+    "mascot": "TBD",
+    "abbreviation": "TBD",
+    "sport_id": "4"
+  },
+  "2773": {
+    "team_id": 2773,
+    "name": "Franca",
+    "mascot": "Franca",
+    "abbreviation": "FBC",
+    "sport_id": "4"
+  },
+  "2774": {
+    "team_id": 2774,
+    "name": "Haifa",
+    "mascot": "Maccabi Haifa",
+    "abbreviation": "MCH",
+    "sport_id": "4"
+  },
+  "2775": {
+    "team_id": 2775,
+    "name": "San Lorenzo",
+    "mascot": "San Lorenzo",
+    "abbreviation": "SAN",
+    "sport_id": "4"
+  },
+  "2776": {
+    "team_id": 2776,
+    "name": "Adelaide",
+    "mascot": "Adelaide 36ers",
+    "abbreviation": "ADE",
+    "sport_id": "4"
+  },
+  "2777": {
+    "team_id": 2777,
+    "name": "Shanghai",
+    "mascot": "Sharks",
+    "abbreviation": "SHA",
+    "sport_id": "4"
+  },
+  "2778": {
+    "team_id": 2778,
+    "name": "Guangzhou",
+    "mascot": "Guangzhou Long-Lions",
+    "abbreviation": "GUA",
+    "sport_id": "4"
+  },
+  "2779": {
+    "team_id": 2779,
+    "name": "Newzealand",
+    "mascot": "New Zealand Breakers",
+    "abbreviation": "NZL",
+    "record": "10-1-0",
+    "sport_id": "4"
+  },
+  "2780": {
+    "team_id": 2780,
+    "name": "Newzealand",
+    "mascot": "New Zealand Breakers",
+    "abbreviation": "NZL",
+    "sport_id": "4"
+  },
+  "2781": {
+    "team_id": 2781,
+    "name": "Melbourne",
+    "mascot": "Melbourne United",
+    "abbreviation": "MEL",
+    "sport_id": "4"
+  },
+  "3338": {
+    "team_id": 3338,
+    "name": "DUR",
+    "mascot": "Dur",
+    "abbreviation": "DUR",
+    "sport_id": "4"
+  },
+  "3339": {
+    "team_id": 3339,
+    "name": "Team Durant",
+    "mascot": "Team Durant",
+    "abbreviation": "DURANT",
+    "sport_id": "4"
+  }
+}

@@ -1,5 +1,6 @@
 import { task } from "hardhat/config";
 import axios from "axios";
+import fs from "fs";
 
 interface TeamsObjectType {
   [id: string]: {
@@ -47,5 +48,18 @@ task("getTeams", "Retrieve teams information")
       });
       return output;
     });
-    console.log(JSON.stringify(result, null, "  "));
+    const teamsJson = JSON.stringify(result, null, "  ");
+    const path = "../comps/src/utils/teams.json";
+    try {
+      fs.unlinkSync(path);
+    } catch (e) {
+      console.log("There was an error deleting the old version of teams.json: ", e);
+    }
+    try {
+      fs.writeFileSync(path, teamsJson);
+    } catch (e) {
+      console.log("There was an error writing to teams.json: ", e);
+    }
+
+    console.log("getTeams task complete.");
   });
