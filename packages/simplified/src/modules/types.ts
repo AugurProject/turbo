@@ -320,7 +320,6 @@ export type ButtonActionType = (event: MouseEvent<HTMLButtonElement | HTMLAnchor
 
 export type DataCallback = (result?: any) => void;
 
-
 export enum TradingDirection {
   ENTRY = "ENTRY",
   EXIT = "EXIT",
