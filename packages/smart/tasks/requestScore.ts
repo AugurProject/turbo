@@ -1,5 +1,4 @@
-import { task, types } from "hardhat/config";
-import { ContractTransaction, BytesLike } from "ethers";
+import { task } from "hardhat/config";
 
 import "hardhat/types/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
@@ -11,8 +10,7 @@ import { sleep } from "../src/utils/common-functions";
 // Oracle Address: 0x56dd6586DB0D08c6Ce7B2f2805af28616E082455
 // JobID: dbb65efc02d34cddb920eca1bec22ade / 0x6462623635656663303264333463646462393230656361316265633232616465
 
-task("requestScore", "Request and set score in TheRundownChainlink")
-  .setAction(async ({}, hre) => {
+task("requestScore", "Request and set score in TheRundownChainlink").setAction(async (args, hre) => {
     const { ethers } = hre;
 
     const signer = await makeSigner(hre);
