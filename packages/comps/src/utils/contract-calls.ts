@@ -1,6 +1,5 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
-import { marketInvalidityCheck, getGasStation, NetworkId } from "@augurproject/sdk-lite";
 import {
   TradingDirection,
   AmmExchange,
@@ -297,6 +296,7 @@ export const estimateBuyTrade = async (
   const { marketFactoryAddress, turboId } = amm;
 
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+  console.log("estimate buy", "address", marketFactoryAddress, "turboId", turboId, "outcome", selectedOutcomeId, "amount", amount, 0)
   const result = await ammFactoryContract.callStatic.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, 0);
   const estimatedShares = convertOnChainSharesToDisplayShareAmount(String(result), 18);
 
@@ -308,6 +308,7 @@ export const estimateBuyTrade = async (
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
 
+  console.log('buy estimate', result.toFixed());
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
@@ -394,11 +395,14 @@ export async function doTrade(
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
   if (tradeDirection === TradingDirection.ENTRY) {
+    console.log('minAmount', minAmount)
     const bareMinAmount = new BN(minAmount).lt(0) ? 0 : minAmount;
+    console.log('bareMinAmount', bareMinAmount)
     const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(bareMinAmount, cash.decimals)
       .decimalPlaces(0)
       .toFixed();
     const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+    console.log("address", marketFactoryAddress, "turboId", turboId, "outcome", selectedOutcomeId, "amount", amount, "min", onChainMinShares)
     return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares);
   }
 
@@ -457,7 +461,7 @@ export const claimWinnings = (
   marketIds: string[],
   cash: Cash
 ): Promise<TransactionResponse | null> => {
-  if (!provider) return console.error("doTrade: no provider");
+  if (!provider) return console.error("claimWinnings: no provider");
   const hatcheryContract = getMarketFactoryContract(provider, account);
   const shareTokens = marketIds.map((m) => cash?.shareToken);
   return hatcheryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));

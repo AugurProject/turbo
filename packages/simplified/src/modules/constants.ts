@@ -1,10 +1,10 @@
-import { MarketTypeName } from "@augurproject/sdk-lite";
 import { createBigNumber } from "@augurproject/comps";
 
 // # Market Types
-export const YES_NO = MarketTypeName.YesNo;
-export const CATEGORICAL = MarketTypeName.Categorical;
-export const SCALAR = MarketTypeName.Scalar;
+// should not be used, will be refactored out.
+export const YES_NO = "YesNo";
+export const CATEGORICAL = "Categorical";
+export const SCALAR = "Scalar";
 
 // MAIN VIEWS
 export const MARKET = "market";
