@@ -27,7 +27,6 @@ export const addresses: AddressMapping = {
     balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     marketFactory: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
     ammFactory: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-    theRundownChainlink: "0xcF5D88AFa02bc6D6e27011A4d0e6c7747aEAb3c6",
   },
   212984383488152: {
     theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
@@ -36,8 +35,6 @@ export const addresses: AddressMapping = {
     balancerFactory: "0x60d10F04E830B5E5430C4e850d43127e893Ac396",
     marketFactory: "0x1a6B0282AfD831aC7872cf61BcF82843B1FB9E2f",
     ammFactory: "0x6662b8850cE9455f1E1dd9A5f65103C0685A0FeE",
-    theRundownChainlink: "0xcF5D88AFa02bc6D6e27011A4d0e6c7747aEAb3c6",
-
   },
   80001: {
     theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
@@ -46,14 +43,13 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xd62e60a61F033658fc2D16cb82861e5776d1BFDf",
     marketFactory: "0x9a7c7af945bB7684909732a929F3047Dd984380F",
     ammFactory: "0xf0591767C4F1d47c2746387463De4B91A89231c5",
-    theRundownChainlink: "0xcF5D88AFa02bc6D6e27011A4d0e6c7747aEAb3c6",
   },
   42: {
-    collateral: "0x7b96024A6E2F114FEE767233AEF9dE838D7B16ac",
-    reputationToken: "0x06fA4AFFa9b4250f7FC82E3052eF214FB9b6784b",
-    balancerFactory: "0x297AE669e7Ef4CD38fd0DB878B369F8091B295D3",
-    marketFactory: "0x3215A2E176e0f7C26CC09f562dc11f73F154458e",
-    ammFactory: "0x4099f197e9827D52b2F7E1BEF956f07fAcbaeeAD",
-    theRundownChainlink: "0xcF5D88AFa02bc6D6e27011A4d0e6c7747aEAb3c6",
+    collateral: "0x917DBD21aA976FAdC31593156b70b876096d0b74",
+    reputationToken: "0xA5140a2c3b58ECA8c3A0D8168A59aA920605D0B5",
+    balancerFactory: "0x3f96cD4CD1C1bBCeafbCaf9D8ddeb447Fc7D9BBe",
+    marketFactory: "0x610A55953242263FA5045e18ACa9e5EF4eAd124e",
+    ammFactory: "0xc87B768Fea95f37aAdF905EfE6dF1140A52BCfa2",
+    theRundownChainlink: "0x413c101b0Fb0D3E380c189Ee590707040C9AC923",
   },
 };
