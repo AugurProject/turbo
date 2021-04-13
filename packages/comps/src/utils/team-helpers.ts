@@ -1,5 +1,5 @@
 import Teams from "./teams.json";
-import Sports from './sports.json';
+import Sports from "./sports.json";
 
 export interface SportType {
   sport_id: string;
@@ -7,14 +7,13 @@ export interface SportType {
 }
 
 export interface TeamType {
-    team_id: number;
-    name: string;
-    mascot: string;
-    abbrevation: string;
-    record?: string;
-    sport_id: string;
-  };
-
+  team_id: number;
+  name: string;
+  mascot: string;
+  abbrevation: string;
+  record?: string;
+  sport_id: string;
+}
 
 export const getTeam = (teamId: string): TeamType => Teams[teamId];
 export const getTeamName = (teamId: string): string => getTeam(teamId)?.name;
