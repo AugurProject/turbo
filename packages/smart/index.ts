@@ -6,7 +6,7 @@ import {
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
   TheRundownChainlink,
-  TheRundownChainlink__factory
+  TheRundownChainlink__factory,
 } from "./typechain";
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";

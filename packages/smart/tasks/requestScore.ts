@@ -11,15 +11,15 @@ import { sleep } from "../src/utils/common-functions";
 // JobID: dbb65efc02d34cddb920eca1bec22ade / 0x6462623635656663303264333463646462393230656361316265633232616465
 
 task("requestScore", "Request and set score in TheRundownChainlink").setAction(async (args, hre) => {
-    const { ethers } = hre;
+  const { ethers } = hre;
 
-    const signer = await makeSigner(hre);
-    const network = await ethers.provider.getNetwork();
-    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
-    const { TheRundownChainlink } = contracts;
-    
-    await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043");
-    await sleep(10000);
-    const score = await TheRundownChainlink.score();
-    console.log("score", score);
-  });
+  const signer = await makeSigner(hre);
+  const network = await ethers.provider.getNetwork();
+  const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+  const { TheRundownChainlink } = contracts;
+
+  await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043");
+  await sleep(10000);
+  const score = await TheRundownChainlink.score();
+  console.log("score", score);
+});

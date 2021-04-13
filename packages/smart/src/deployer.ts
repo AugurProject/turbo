@@ -91,7 +91,7 @@ export class Deployer {
         balancerFactory,
         marketFactory,
         ammFactory,
-        theRundownChainlink
+        theRundownChainlink,
       },
       (name, contract) => [name, contract.address]
     );

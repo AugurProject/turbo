@@ -5,7 +5,14 @@ task("verifyDeploy", "Verify contract deploy")
   .addParam("account", "The account's address")
   .setAction(async (args, hre) => {
     const deployedAddresses = JSON.parse(args.addresses);
-    const { collateral, reputationToken, balancerFactory, hatcheryRegistry, ammFactory, theRundownChainlink } = deployedAddresses;
+    const {
+      collateral,
+      reputationToken,
+      balancerFactory,
+      hatcheryRegistry,
+      ammFactory,
+      theRundownChainlink,
+    } = deployedAddresses;
     const account = args.account;
 
     if (collateral) {
