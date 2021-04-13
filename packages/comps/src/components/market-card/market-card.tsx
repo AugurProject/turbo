@@ -69,6 +69,8 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
   return newOrder;
 };
 
+export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]) => ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1));
+
 const OutcomesTable = ({
   amm,
   marketOutcomes,
@@ -83,7 +85,7 @@ const OutcomesTable = ({
       [Styles.hasWinner]: marketOutcomes[0].isFinalNumerator,
     })}
   >
-    {outcomesToDisplay(amm.ammOutcomes, marketOutcomes).map((outcome) => {
+    {orderOutcomesForDisplay(amm.ammOutcomes).map((outcome) => {
       const isWinner =
         outcome.isFinalNumerator && outcome.payoutNumerator !== "0" && reportingState === MARKET_STATUS.FINALIZED;
       return (
