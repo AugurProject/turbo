@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import axios from "axios";
 
-task("fetch-rundown-event", "Retrieve rundown event information")
+task("rundown", "Retrieve rundown event information")
   .addParam("event", "The API key for fetching from TheRunDown")
   .addParam("key", "The API key for fetching from TheRunDown")
   .setAction(async (args) => {

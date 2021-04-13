@@ -12,7 +12,7 @@ task("verifyDeploy", "Verify contract deploy")
       console.log("verify::collateral", collateral);
       await hre.run("verify:verify", {
         address: collateral,
-        constructorArguments: ["USDC", "USDC", 18],
+        constructorArguments: ["USDC", "USDC", 6],
       });
     }
 
