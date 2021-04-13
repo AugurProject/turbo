@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
-import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
+pragma solidity 0.7.6;
+import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
 
 contract TheRundownChainlink is ChainlinkClient {
     uint256 public score;
@@ -8,11 +8,11 @@ contract TheRundownChainlink is ChainlinkClient {
     bytes32 private jobId;
     uint256 private fee;
 
-    constructor() public {
+    constructor() {
         setPublicChainlinkToken();
         oracle = 0x56dd6586DB0D08c6Ce7B2f2805af28616E082455;
         jobId = "dbb65efc02d34cddb920eca1bec22ade";
-        fee = 0.1 * 10**18; // 0.1 LINK
+        fee = 10**17;
     }
 
     function requestScore(string memory _matchId) public {

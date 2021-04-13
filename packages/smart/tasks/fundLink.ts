@@ -4,7 +4,7 @@ import "hardhat/types/config";
 import { makeSigner } from "./deploy";
 import { LinkTokenInterface__factory } from "../typechain";
 
-task("fundLink", "Send 100 link to a contract on kovan")
+task("fundLink", "Send 1 link to a contract on kovan")
   .addParam("contract", undefined, undefined, types.string)
   .setAction(async ({ contract: contractAddress }, hre) => {
     if (typeof contractAddress !== "string") return;
