@@ -134,8 +134,10 @@ export class Deployer {
     creatorFee: BigNumberish
   ): Promise<TrustedMarketFactory> {
     const owner = await this.signer.getAddress();
+    const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
+    const shareFactor = calcShareFactor(decimals);
     return this.deploy("priceMarketFactory", () =>
-      new TrustedMarketFactory__factory(this.signer).deploy(owner, collateral, feePot, stakerFee, creatorFee)
+      new TrustedMarketFactory__factory(this.signer).deploy(owner, collateral, shareFactor, feePot, stakerFee, creatorFee)
     );
   }
 
@@ -252,4 +254,11 @@ export function isContractDeployProductionConfig(
   thing?: ContractDeployConfig
 ): thing is ContractDeployProductionConfig {
   return thing?.strategy === "production";
+}
+
+// Decimals is the decimals of the collateral. Usually 18; is 6 for USDC.
+export function calcShareFactor(decimals: BigNumberish): BigNumber {
+  decimals = BigNumber.from(decimals);
+  const power = decimals.gte(18) ? 0 : BigNumber.from(18).sub(decimals);
+  return BigNumber.from(10).pow(power);
 }

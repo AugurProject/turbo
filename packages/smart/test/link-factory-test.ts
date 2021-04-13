@@ -11,6 +11,7 @@ import {
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
+import { calcShareFactor } from "../src";
 
 describe("LinkFactory", () => {
   let signer: SignerWithAddress;
@@ -40,9 +41,11 @@ describe("LinkFactory", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
+    const shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
+      shareFactor,
       feePot.address,
       smallFee,
       smallFee

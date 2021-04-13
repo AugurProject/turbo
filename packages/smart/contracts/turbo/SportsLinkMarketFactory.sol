@@ -28,10 +28,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     constructor(
         address _owner,
         IERC20Full _collateral,
+        uint256 _shareFactor,
         FeePot _feePot,
         uint256 _stakerFee,
         uint256 _creatorFee
-    ) AbstractMarketFactory(_collateral, _feePot, _stakerFee, _creatorFee) {
+    ) AbstractMarketFactory(_collateral, _shareFactor, _feePot, _stakerFee, _creatorFee) {
         owner = _owner;
     }
 

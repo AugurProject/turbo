@@ -18,7 +18,7 @@ import {
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
-import { DEAD_ADDRESS } from "../src";
+import { calcShareFactor, DEAD_ADDRESS } from "../src";
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
@@ -30,8 +30,10 @@ describe("Turbo", () => {
   const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
   const outcomeNames = ["No Contest", "All", "Many", "Few", "None"];
   const basis = BigNumber.from(10).pow(18);
+  const usdcBasis = BigNumber.from(10).pow(6);
 
   let collateral: Cash;
+  let sharesFactor: BigNumber;
   let marketFactory: TrustedMarketFactory;
   let marketId: BigNumber;
   let noContest: OwnedERC20;
@@ -48,13 +50,16 @@ describe("Turbo", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
+    const shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
+      shareFactor,
       feePot.address,
       smallFee,
       smallFee
     );
+    sharesFactor = await marketFactory.shareFactor();
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
     expect(await marketFactory.feePot()).to.equal(feePot.address);
@@ -89,11 +94,10 @@ describe("Turbo", () => {
     expect(await none.name()).to.equal("None");
   });
 
-  const setsToMint = 100;
-  const costToMint = setsToMint;
-  const collateralIn = basis.mul(2);
-
   it("can mint sets", async () => {
+    const setsToMint = sharesFactor.mul(100);
+    const costToMint = setsToMint.div(sharesFactor);
+
     await collateral.faucet(costToMint);
     await collateral.approve(marketFactory.address, costToMint);
     await marketFactory.mintShares(marketId, setsToMint, signer.address);
@@ -106,10 +110,10 @@ describe("Turbo", () => {
     expect(await none.balanceOf(signer.address)).to.equal(setsToMint);
   });
 
-  const setsToBurn = 9;
-  const setsLeft = setsToMint - setsToBurn;
-
   it("can burn sets", async () => {
+    const setsToBurn = sharesFactor.mul(9);
+    const setsLeft = sharesFactor.mul(91);
+
     await marketFactory.burnShares(marketId, setsToBurn, signer.address);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(9);
@@ -131,45 +135,48 @@ describe("Turbo", () => {
       basis.mul(25).div(2), // Few at 25%
       basis.mul(24).div(2), // None at 24%
     ];
-    const initialLiquidity = basis.mul(1000); // 1000 of the collateral
+    const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
     pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
-    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.div(10));
+    // Don't know why user gets this many LP tokens but it shouldn't matter.
+    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.mul(sharesFactor).div(10));
   });
 
   it("can add more liquidity to the AMM", async () => {
-    const additionalLiquidity = basis;
+    const additionalLiquidity = usdcBasis.mul(10); // 10 USDC. Not very much
     await collateral.faucet(additionalLiquidity);
     await collateral.approve(ammFactory.address, additionalLiquidity);
 
     const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("100099999924075385080")); // hardcoded from observation
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a8143038ecaf6c")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
     const outcome = 1; // outcome "All"
+    const collateralIn = usdcBasis; // 1 USDC
+
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
-    expect(await all.balanceOf(signer.address)).to.equal(91); // minted 100 sets, burned 9
+    expect(await all.balanceOf(signer.address)).to.equal(sharesFactor.mul(91)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal("8307054961011845817"); // hardcoded from observation
+    expect(await all.balanceOf(signer.address)).to.equal("4160233730836129960"); // hardcoded from observation
   });
 
-  it("can see the outcome prices in the AMM", async () => {
-    const prices = await ammFactory.prices(marketFactory.address, marketId);
+  it("can see the outcome ratios in the AMM", async () => {
+    const ratios = await ammFactory.tokenRatios(marketFactory.address, marketId);
 
-    const expectedPrices = [
-      "0x48811dc9f25e0a",
-      "0x036d51c056e026cb",
-      "0x038a4e2fc19db6f1",
-      "0x038a4e2fc19db6f1",
-      "0x03660d9e7c6e722f",
-    ];
-    prices.forEach((price, index) => {
-      expect(price.toHexString()).to.equal(expectedPrices[index]);
+    const expectedRatios = [
+      BigNumber.from(10).pow(18).toString(), // first is always 10^18
+      "0xa738c278386e76fb",
+      "0xad78f7240f30042d",
+      "0xad78f7240f30042d",
+      "0xa6889b55d123db0c",
+    ].map(BigNumber.from);
+    ratios.forEach((price, index) => {
+      expect(price.toHexString()).to.equal(expectedRatios[index].toHexString());
     });
   });
 
@@ -186,16 +193,17 @@ describe("Turbo", () => {
   it("can claim winnings", async () => {
     await marketFactory.trustedResolveMarket(marketId, 1);
     // can burn non-winning shares
+    const setsLeft = await noContest.balanceOf(signer.address);
     await noContest.transfer(DEAD_ADDRESS, setsLeft);
     await many.transfer(DEAD_ADDRESS, setsLeft);
     await few.transfer(DEAD_ADDRESS, setsLeft);
     await none.transfer(DEAD_ADDRESS, setsLeft);
 
-    expect(await collateral.balanceOf(signer.address)).to.equal(setsToBurn);
+    expect(await collateral.balanceOf(signer.address)).to.equal(9); // previously burnt sets
 
     await marketFactory.claimWinnings(marketId, signer.address);
 
-    const expectedWinnings = BigNumber.from("8223984411401727368"); // hardcoded from observation
+    const expectedWinnings = BigNumber.from("4118640"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

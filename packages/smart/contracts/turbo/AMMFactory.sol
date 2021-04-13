@@ -42,7 +42,7 @@ contract AMMFactory {
         );
         _collateral.transferFrom(msg.sender, address(this), _initialLiquidity);
         _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets = _initialLiquidity;
+        uint256 _sets = _marketFactory.calcShares(_initialLiquidity);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Setup pool
@@ -81,7 +81,7 @@ contract AMMFactory {
         IERC20Full _collateral = _marketFactory.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
         _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets = _collateralIn;
+        uint256 _sets = _marketFactory.calcShares(_collateralIn);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Add liquidity to pool
@@ -118,9 +118,9 @@ contract AMMFactory {
             uint256 _acquiredToken = _pool.exitswapPoolAmountIn(address(_token), _lpTokens, _minSetsToSell);
             if (_acquiredToken < _setsToSell) _setsToSell = _acquiredToken; // sell as many complete sets as you can
         }
-        _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
 
-        return _setsToSell;
+        // returns actual collateral out
+        return _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
     }
 
     function buy(
@@ -137,7 +137,7 @@ contract AMMFactory {
 
         IERC20Full _collateral = _marketFactory.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
-        uint256 _sets = _collateralIn;
+        uint256 _sets = _marketFactory.calcShares(_collateralIn);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         OwnedERC20 _desiredToken = _market.shareTokens[_outcome];
@@ -168,7 +168,7 @@ contract AMMFactory {
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        uint256 _minSetsToSell = _minCollateralOut;
+        uint256 _minSetsToSell = _marketFactory.calcShares(_minCollateralOut);
         uint256 _setsToSell = MAX_UINT;
         OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
@@ -184,28 +184,9 @@ contract AMMFactory {
         return _setsToSell;
     }
 
-    // Returns an array of prices (in collateral) matching each outcome.
-    // The prices are out of 10**18, with some imprecision due to rounding.
-    // DO NOT USE FOR PRECISE VALUES. This is purely for imprecise usecases like UIs.
-    function prices(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256[] memory) {
-        BPool _pool = pools[address(_marketFactory)][_marketId];
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
-        address _basisToken = address(_market.shareTokens[0]);
-        uint256 _total = 0;
-        uint256[] memory _prices = new uint256[](_market.shareTokens.length);
-        _prices[0] = 10**18;
-        for (uint256 i = 1; i < _market.shareTokens.length; i++) {
-            uint256 _price = _pool.getSpotPrice(_basisToken, address(_market.shareTokens[i]));
-            _prices[i] = _price;
-            _total += _price;
-        }
-        _total /= 10**18;
-        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            _prices[i] = _prices[i] / _total;
-        }
-        return _prices;
-    }
-
+    // Returns an array of token values for the outcomes of the market, relative to the first outcome.
+    // So the first outcome is 10**18 and all others are higher or lower.
+    // Prices can be derived due to the fact that the total of all outcome shares equals one collateral, possibly with a scaling factor,
     function tokenRatios(AbstractMarketFactory _marketFactory, uint256 _marketId)
         external
         view
@@ -214,13 +195,13 @@ contract AMMFactory {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
         address _basisToken = address(_market.shareTokens[0]);
-        uint256[] memory _prices = new uint256[](_market.shareTokens.length);
-        _prices[0] = 10**18;
+        uint256[] memory _ratios = new uint256[](_market.shareTokens.length);
+        _ratios[0] = 10**18;
         for (uint256 i = 1; i < _market.shareTokens.length; i++) {
             uint256 _price = _pool.getSpotPrice(_basisToken, address(_market.shareTokens[i]));
-            _prices[i] = _price;
+            _ratios[i] = _price;
         }
-        return _prices;
+        return _ratios;
     }
 
     function getPoolBalances(AbstractMarketFactory _marketFactory, uint256 _marketId)
