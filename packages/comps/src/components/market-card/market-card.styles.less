@@ -1,4 +1,4 @@
-@import (reference) '../../assets/styles/shared.less';
+@import (reference) "../../assets/styles/shared.less";
 
 .MarketCard {
   .HoverDropShadow;
@@ -34,21 +34,21 @@
         grid-gap: 0;
       }
 
-      > div[class*='InSettlement'],
-      > div[class*='Resolved'] {
+      > div[class*="InSettlement"],
+      > div[class*="Resolved"] {
         display: none;
         grid-row: 1;
         grid-column: 1 / span 3;
       }
 
-      > div[class*='CategoryIcon'] {
+      > div[class*="CategoryIcon"] {
         display: flex;
         margin-right: @size-8;
         grid-column: 1;
         grid-row: 1;
       }
 
-      > div[class*='CategoryLabel'] {
+      > div[class*="CategoryLabel"] {
         grid-column: 2 / span 2;
         grid-row: 1;
         width: fit-content;
@@ -131,6 +131,19 @@
         grid-column: 3;
         grid-row: 2 / span 2;
       }
+
+      > span.ExtraOutcomes {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        position: relative;
+        top: 221%;
+        height: 0;
+        overflow: visible;
+        text-transform: uppercase;
+        margin: 0;
+        text-align: right;
+      }
     }
   }
 
@@ -154,6 +167,18 @@
   }
 }
 
+span.ExtraOutcomes {
+  .text-10-semi-bold;
+
+  color: var(--simple-secondary-text);
+  position: relative;
+  top: 221%;
+  height: 0;
+  overflow: visible;
+  text-transform: uppercase;
+  margin: 0;
+  text-align: right;
+}
 
 .OutcomesTable {
   border-radius: @size-8;
@@ -161,6 +186,10 @@
   flex-direction: column;
 
   > div {
+    .SimpleBorder;
+
+    border-radius: unset;
+    border-top: 0;
     padding: @size-10 @size-16;
     display: flex;
 
@@ -227,7 +256,6 @@
 &.WinningOutcome {
   background: var(--color-brand-20);
 }
-
 
 .LoadingMarketCard {
   .SimpleBorder;
@@ -309,8 +337,8 @@
         }
 
         &:not(.Trading) {
-          > div[class*='InSettlement'],
-          > div[class*='Resolved'] {
+          > div[class*="InSettlement"],
+          > div[class*="Resolved"] {
             display: flex;
             grid-row: 1;
             grid-column: 1 / span 3;
@@ -318,13 +346,13 @@
             margin-bottom: @size-16;
           }
 
-          > div[class*='CategoryIcon'],
-          > div[class*='CategoryLabel'],
+          > div[class*="CategoryIcon"],
+          > div[class*="CategoryLabel"],
           > div:last-of-type {
             grid-row: 2;
 
-            > div[class*='InSettlement'],
-            > div[class*='Resolved'] {
+            > div[class*="InSettlement"],
+            > div[class*="Resolved"] {
               display: none;
             }
           }
