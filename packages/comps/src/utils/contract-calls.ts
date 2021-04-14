@@ -164,6 +164,7 @@ export async function addLiquidityPool(
   account: string,
   provider: Web3Provider,
   amm: AmmExchange,
+  cash: Cash,
   fee: string,
   cashAmount: string,
   priceNo: string,
