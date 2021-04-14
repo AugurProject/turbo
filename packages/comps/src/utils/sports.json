@@ -1,22 +1,27 @@
 {
   "2": {
     "sport_id": "2",
-    "name": "NFL"
+    "name": "NFL",
+    "categories": ["Sports", "NFL"]
   },
   "3": {
     "sport_id": "3",
-    "name": "MLB"
+    "name": "MLB",
+    "categories": ["Sports", "MLB"]
   },
   "4": {
     "sport_id": "4",
-    "name": "NBA"
+    "name": "NBA",
+    "categories": ["Sports", "NBA"]
   },
   "6": {
     "sport_id": "6",
-    "name": "NHL"
+    "name": "NHL",
+    "categories": ["Sports", "NHL"]
   },
   "7": {
     "sport_id": "7",
-    "name": "UFC/MMA"
+    "name": "UFC/MMA",
+    "categories": ["Sports", "MMA"]
   }
 }

@@ -202,6 +202,7 @@ export interface MarketInfo {
   turboId: string;
   description: string;
   endTimestamp: number;
+  startTimestamp?: number;
   creationTimestamp: string;
   extraInfoRaw: string;
   longDescription: string;
@@ -228,7 +229,6 @@ export interface MarketOutcome {
 }
 
 export interface AmmOutcome extends MarketOutcome {
-  priceRaw: string;
   price: string;
   ratioRaw: string;
   ratio: string;
