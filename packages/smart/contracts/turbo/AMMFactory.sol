@@ -156,32 +156,36 @@ contract AMMFactory {
         return _totalDesiredOutcome;
     }
 
-    function sell(
+    function sellForCollateral(
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
         uint256 _outcome,
-        uint256[] calldata _swaps,
-        uint256 _minCollateralOut
+        uint256 _shareTokensIn,
+        uint256 _minSetsOut
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        uint256 _minSetsToSell = _marketFactory.calcShares(_minCollateralOut);
-        uint256 _setsToSell = MAX_UINT;
         OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
+        _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
+
+        uint256 _undesiredTokenOut = 0;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             if (i == _outcome) continue;
             OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _swap = _swaps[i];
-            (uint256 _acquiredToken, ) =
-                _pool.swapExactAmountIn(address(_undesiredToken), _swap, address(_token), _minSetsToSell, MAX_UINT);
-            if (_acquiredToken < _setsToSell) _setsToSell = _acquiredToken; // sell as many complete sets as you can
+            (uint256 tokenAmountIn, ) =
+                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _minSetsOut, MAX_UINT);
+            _undesiredTokenOut += tokenAmountIn;
         }
-        _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
 
-        return _setsToSell;
+        // Transfer undesired token balance back.
+        _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
+
+        _marketFactory.burnShares(_marketId, _minSetsOut, msg.sender);
+
+        return _minSetsOut;
     }
 
     // Returns an array of token values for the outcomes of the market, relative to the first outcome.
@@ -216,5 +220,24 @@ contract AMMFactory {
             _balances[i] = _pool.getBalance(_tokens[i]);
         }
         return _balances;
+    }
+
+    function getPoolWeights(AbstractMarketFactory _marketFactory, uint256 _marketId)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        BPool _pool = pools[address(_marketFactory)][_marketId];
+        address[] memory _tokens = _pool.getCurrentTokens();
+        uint256[] memory _weights = new uint256[](_tokens.length);
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            _weights[i] = _pool.getBalance(_tokens[i]);
+        }
+        return _weights;
+    }
+
+    function getSwapFee(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256) {
+        BPool _pool = pools[address(_marketFactory)][_marketId];
+        return _pool.getSwapFee();
     }
 }
