@@ -931,7 +931,7 @@ export const getLPCurrentValue = async (
     const totalValueRaw = ammOutcomes.reduce(
       (p, v, i) =>
         p.plus(
-          convertOnChainSharesToDisplayShareAmount(estimate.minAmountsRaw[i], amm.cash.decimals).times(v.priceRaw)
+          convertOnChainSharesToDisplayShareAmount(estimate.minAmountsRaw[i], amm.cash.decimals).times(v.price)
         ),
       new BN(0)
     );
@@ -1384,7 +1384,6 @@ const retrieveExchangeInfos = async (
   ammFactory: AMMFactory,
   provider: Web3Provider
 ): Market[] => {
-  const GET_PRICES = "prices";
   const GET_RATIOS = "tokenRatios";
   const GET_BALANCES = "getPoolBalances";
   const ammFactoryAddress = ammFactory.address;
@@ -1396,22 +1395,6 @@ const retrieveExchangeInfos = async (
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
-      {
-        reference: `${ammFactoryAddress}-${index}-prices`,
-        contractAddress: ammFactoryAddress,
-        abi: ammFactoryAbi,
-        calls: [
-          {
-            reference: `${ammFactoryAddress}-${index}-prices`,
-            methodName: GET_PRICES,
-            methodParameters: [marketFactoryAddress, index],
-            context: {
-              index,
-              marketFactoryAddress,
-            },
-          },
-        ],
-      },
       {
         reference: `${ammFactoryAddress}-${index}-ratios`,
         contractAddress: ammFactoryAddress,
@@ -1447,7 +1430,6 @@ const retrieveExchangeInfos = async (
     ],
     []
   );
-  const prices = {};
   const ratios = {};
   const balances = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
@@ -1458,9 +1440,7 @@ const retrieveExchangeInfos = async (
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
     const marketId = `${context.marketFactoryAddress}-${context.index}`;
 
-    if (method === GET_PRICES) {
-      prices[marketId] = data;
-    } else if (method === GET_RATIOS) {
+    if (method === GET_RATIOS) {
       ratios[marketId] = data;
     } else if (method === GET_BALANCES) {
       balances[marketId] = data;
@@ -1469,12 +1449,11 @@ const retrieveExchangeInfos = async (
 
   Object.keys(exchanges).forEach((marketId) => {
     const exchange = exchanges[marketId];
-    const outcomePrices = prices[marketId];
+    const outcomePrices = calculatePrices(ratios[marketId])
     const market = marketInfos[marketId];
     const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
-      priceRaw: exchange.id ? String(outcomePrices[i]) : "",
-      price: exchange.id ? toDisplayPrice(String(outcomePrices[i])) : "",
+      price: exchange.id ? String(outcomePrices[i]) : "",
       ratioRaw: exchange.id ? String(ratios[marketId][i]) : "",
       ratio: exchange.id ? toDisplayRatio(String(ratios[marketId][i])) : "",
       balanceRaw: exchange.id ? String(balances[marketId][i]) : "",
@@ -1488,6 +1467,13 @@ const retrieveExchangeInfos = async (
 
   return exchanges;
 };
+
+const calculatePrices = (ratios: string[]) => {
+  //price[0] = ratio[0] / sum(ratio)
+  const sum = ratios.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
+  const outcomePrices = ratios.map(r => new BN(String(r)).div(sum).toFixed());
+  return outcomePrices;
+}
 
 const decodeMarket = (marketData: any) => {
   // todo: need to get market creation time

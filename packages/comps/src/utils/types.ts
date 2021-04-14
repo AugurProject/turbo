@@ -229,7 +229,6 @@ export interface MarketOutcome {
 }
 
 export interface AmmOutcome extends MarketOutcome {
-  priceRaw: string;
   price: string;
   ratioRaw: string;
   ratio: string;
