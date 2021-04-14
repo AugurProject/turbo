@@ -1,22 +1,12 @@
-import React from 'react';
-import Styles from './labels.styles.less';
-import classNames from 'classnames';
-import { CATEGORIES_ICON_MAP } from './category-icons-map';
-import ReactTooltip from 'react-tooltip';
-import TooltipStyles from './tooltip.styles.less';
-import {
-  HelpIcon,
-  AugurBlankIcon,
-  EthIcon,
-  UsdIcon,
-  WarningIcon,
-  XIcon,
-  InvalidFlagIcon,
-} from './icons';
-import {
-  MARKET_STATUS
-} from '../../utils/constants';
-import { FormattedNumber } from '../../utils/types';
+import React from "react";
+import Styles from "./labels.styles.less";
+import classNames from "classnames";
+import { CATEGORIES_ICON_MAP } from "./category-icons-map";
+import ReactTooltip from "react-tooltip";
+import TooltipStyles from "./tooltip.styles.less";
+import { HelpIcon, AugurBlankIcon, EthIcon, UsdIcon, WarningIcon, XIcon, InvalidFlagIcon } from "./icons";
+import { MARKET_STATUS } from "../../utils/constants";
+import { FormattedNumber } from "../../utils/types";
 
 export interface ValueLabelProps {
   large?: boolean;
@@ -27,21 +17,14 @@ export interface ValueLabelProps {
   small?: boolean;
 }
 
-export const ValueLabel = ({
-  large,
-  label,
-  sublabel,
-  value,
-  light,
-  small
-}: ValueLabelProps) => {
+export const ValueLabel = ({ large, label, sublabel, value, light, small }: ValueLabelProps) => {
   return (
     <div
       className={classNames(Styles.ValueLabel, {
         [Styles.large]: large,
         [Styles.Sublabel]: sublabel,
         [Styles.light]: light,
-        [Styles.small]: small
+        [Styles.small]: small,
       })}
     >
       <span>{label}</span>
@@ -60,7 +43,7 @@ export interface IconLabelProps {
 
 export const IconLabel = ({ icon, value, label, small }: IconLabelProps) => {
   return (
-    <div className={classNames(Styles.IconLabel, {[Styles.small]: small})}>
+    <div className={classNames(Styles.IconLabel, { [Styles.small]: small })}>
       <span>{label}</span>
       <span>{icon}</span>
       <span>{value}</span>
@@ -75,7 +58,7 @@ interface CategoriesProps {
 
 export const CategoryLabel = ({ categories, big = false }: CategoriesProps) => (
   <div data-big={big} className={Styles.CategoryLabel}>
-    {!!categories[1] ? categories[1] : categories[0]}
+    {!!categories[2] ? categories[2] : !!categories[1] ? categories[1] : categories[0]}
   </div>
 );
 
@@ -84,13 +67,7 @@ export const CategoryIcon = ({ categories, big = false }: CategoriesProps) => {
   const secondary = prime?.subOptions[categories[1]?.toLowerCase()];
   const icon = secondary?.icon ? secondary.icon : prime?.icon;
   return (
-    <div
-      data-big={big}
-      className={classNames(
-        Styles.CategoryIcon,
-        Styles[`${categories[0]?.toLowerCase()}`]
-      )}
-    >
+    <div data-big={big} className={classNames(Styles.CategoryIcon, Styles[`${categories[0]?.toLowerCase()}`])}>
       {!!icon ? icon : AugurBlankIcon}
     </div>
   );
@@ -99,23 +76,20 @@ export const CategoryIcon = ({ categories, big = false }: CategoriesProps) => {
 const AMM_MAP = {
   ETH: {
     icon: EthIcon,
-    label: 'ETH Market',
+    label: "ETH Market",
   },
   USDC: {
     icon: UsdIcon,
-    label: 'USDC Market',
+    label: "USDC Market",
   },
 };
 
-const getInfo = (name) =>
-  AMM_MAP[name] ? AMM_MAP[name] : { label: 'Add Liquidity', icon: null };
+const getInfo = (name) => (AMM_MAP[name] ? AMM_MAP[name] : { label: "Add Liquidity", icon: null });
 
 export const CurrencyTipIcon = ({ name, marketId }) => {
   const { label, icon } = getInfo(name);
   return (
-    <span
-      className={classNames(Styles.CurrencyTipIcon, TooltipStyles.Container)}
-    >
+    <span className={classNames(Styles.CurrencyTipIcon, TooltipStyles.Container)}>
       <label
         className={classNames(TooltipStyles.TooltipHint)}
         data-tip
@@ -181,33 +155,31 @@ export const ReportingStateLabel = ({ reportingState, big = false }) => {
 
 export const InvalidFlagTipIcon = ({ market, big = false }) => {
   let content;
-  if (market.isInvalid) content = (
-    <span
-      data-big={big}
-      className={classNames(Styles.InvalidFlagTipIcon, TooltipStyles.Container)}
-    >
-      <label
-        className={classNames(TooltipStyles.TooltipHint)}
-        data-tip
-        data-for={`invalidFlag-${market.marketId}`}
-        data-iscapture={true}
-      >
-        {InvalidFlagIcon}
-      </label>
-      <ReactTooltip
-        id={`invalidFlag-${market.marketId}`}
-        className={TooltipStyles.Tooltip}
-        effect="solid"
-        place="top"
-        type="light"
-        event="mouseover mouseenter"
-        eventOff="mouseleave mouseout scroll mousewheel blur"
-      >
-        <p>High probabilty of resolving Invalid</p>
-      </ReactTooltip>
-    </span>
-  );
-  return (<>{content}</>);
+  if (market.isInvalid)
+    content = (
+      <span data-big={big} className={classNames(Styles.InvalidFlagTipIcon, TooltipStyles.Container)}>
+        <label
+          className={classNames(TooltipStyles.TooltipHint)}
+          data-tip
+          data-for={`invalidFlag-${market.marketId}`}
+          data-iscapture={true}
+        >
+          {InvalidFlagIcon}
+        </label>
+        <ReactTooltip
+          id={`invalidFlag-${market.marketId}`}
+          className={TooltipStyles.Tooltip}
+          effect="solid"
+          place="top"
+          type="light"
+          event="mouseover mouseenter"
+          eventOff="mouseleave mouseout scroll mousewheel blur"
+        >
+          <p>High probabilty of resolving Invalid</p>
+        </ReactTooltip>
+      </span>
+    );
+  return <>{content}</>;
 };
 
 export const ErrorBlock = ({ text }) => {
@@ -217,12 +189,7 @@ export const ErrorBlock = ({ text }) => {
 export const generateTooltip = (tipText: string, key: string) => {
   return (
     <span className={TooltipStyles.Container}>
-      <label
-        className={classNames(TooltipStyles.TooltipHint)}
-        data-tip
-        data-for={key}
-        data-iscapture={true}
-      >
+      <label className={classNames(TooltipStyles.TooltipHint)} data-tip data-for={key} data-iscapture={true}>
         {HelpIcon}
       </label>
       <ReactTooltip
@@ -247,12 +214,7 @@ export interface WarningBannerProps {
   onClose: Function;
 }
 
-export const WarningBanner = ({
-  title,
-  subtitle,
-  className,
-  onClose,
-}: WarningBannerProps) => {
+export const WarningBanner = ({ title, subtitle, className, onClose }: WarningBannerProps) => {
   return (
     <section className={classNames(Styles.WarningBanner, className)}>
       {WarningIcon}
@@ -280,7 +242,7 @@ export const MovementLabel = ({ value, numberValue }: MovementLabelProps) => {
 
   const handlePlusMinus: Function = (label: string): string => {
     if (numberValue >= 0.01) {
-      return '+'.concat(label);
+      return "+".concat(label);
     }
     return label;
   };
