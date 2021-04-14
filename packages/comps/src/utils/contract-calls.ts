@@ -1491,7 +1491,7 @@ const decodeMarket = (marketData: any) => {
   const awayTeam = getFullTeamName(awayTeamId);
 
   const outcomes = decodeOutcomes(shareTokens, homeTeam, awayTeam, sportsMarketType, line);
-  const description = getMarketTitle(homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
+  const { title, description } = getMarketTitle(homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
     creationTimestamp: String(start),
@@ -1500,6 +1500,7 @@ const decodeMarket = (marketData: any) => {
     totalStake: "0", //String(marketData["totalStake"]),
     winner,
     hasWinner: winner !== NULL_ADDRESS,
+    title,
     description,
     categories,
     reportingState,
@@ -1558,17 +1559,19 @@ const getOutcomeName = (index: number, homeTeam: string, awayTeam: string, sport
   return `Outcome ${index}`;
 };
 
+// todo: move this to own file when new market factory is available
 const getMarketTitle = (
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
   line: string,
-  startTimestamp: number
 ): string => {
-  const datetime = getMarketEndtimeFull(startTimestamp);
+  let title = '';
+  let description = '';
   if (sportsMarketType === 0) {
     // head to head (money line)
-    return `Which team will win? ${awayTeam} @ ${homeTeam} Game ${datetime}`;
+    title = `Which team will win?`;
+    description = `${awayTeam} @ ${homeTeam}?`;
   }
 
   if (sportsMarketType === 1) {
@@ -1580,13 +1583,15 @@ const getMarketTitle = (
       underdog = homeTeam;
       fav = awayTeam;
     }
-    return `Will the ${fav} beat the ${underdog} by more than [${line}.5] points? Game ${datetime}`;
+    title = `Will the ${fav} beat the ${underdog} by more than [${line}.5] points?`;
   }
 
   if (sportsMarketType === 2) {
     // over/under
-    return `Will there be over [${line}.5] total points scored between ${awayTeam} & ${homeTeam}? Game ${datetime}`;
+    title = `Will there be over [${line}.5] total points scored?`;
+    descirption = `${awayTeam} vs ${homeTeam}`;
   }
+  return { title, description };
 };
 
 const toDisplayPrice = (onChainPrice: string = "0"): string => {

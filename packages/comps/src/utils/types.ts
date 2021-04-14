@@ -200,7 +200,8 @@ export interface MarketInfo {
   marketId: string;
   hatcheryAddress: string;
   turboId: string;
-  description: string;
+  title: string;
+  description?: string;
   endTimestamp: number;
   startTimestamp?: number;
   creationTimestamp: string;
