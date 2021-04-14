@@ -165,24 +165,6 @@
   --crypto-color: #218380; // outcome 4
   --sports-color: #D81159; // outcome 6
 
-  --outcome-1: --simple-yes;
-  --outcome-2: --finance-color; 
-  --outcome-3: --medical-color; 
-  --outcome-4: --crypto-color;
-  --outcome-5: --entertainment-color; 
-  --outcome-6: --crypto-color; 
-  --outcome-7: --politics-color; 
-  --outcome-8: --simple-invalid;
-
-  @color-outcome-simplified: --outcome-1 --outcome-2 --outcome-3 --outcome-4 --outcome-5 --outcome-6 --outcome-7 --outcome-8;
-
-  .generate-simplified-indexed-color-outcome-classes(@rules) {
-    each(@color-outcome-simplified, {
-      @newIndex: @index;
-      @rules();
-    });
-  }
-
   --simple-yes: #05B169; // outcome 1 (tech 2 in code, 1 in mocks)
   --simple-yes-15: fade(#05B169, 15%);
   --simple-yes-30: fade(#05B169, 30%);
@@ -381,15 +363,6 @@
 @color-outcome-five: #FD6266;
 @color-outcome-six: #FFF966;
 @color-outcome-seven: #FFFFFF;
-//  Chart / Outcome color helpers
-@color-outcome-list: @color-outcome-invalid @color-outcome-one @color-outcome-two @color-outcome-three @color-outcome-four @color-outcome-five @color-outcome-six @color-outcome-seven;
-
-.generate-trading-indexed-color-outcome-classes(@rules) {
-  each(@color-outcome-list, {
-    @newIndex: @index;
-    @rules();
-  });
-}
 
 @color-outcome-invalid-betting: #FF7E9D;
 @color-outcome-one-betting: #FCBD43;
@@ -399,11 +372,22 @@
 @color-outcome-five-betting: #1B91FF;
 @color-outcome-six-betting: #09CFE1;
 @color-outcome-seven-betting: #2AE7A8;
-//  Chart / Outcome color helpers
-@color-outcome-list-betting: @color-outcome-invalid-betting @color-outcome-one-betting @color-outcome-two-betting @color-outcome-three-betting @color-outcome-four-betting @color-outcome-five-betting @color-outcome-six-betting @color-outcome-seven-betting;
 
-.generate-betting-indexed-color-outcome-classes(@rules) {
-  each(@color-outcome-list-betting, {
+// simplified outcome colors
+
+@outcome-1: --simple-yes;
+@outcome-2: --finance-color; 
+@outcome-3: --medical-color; 
+@outcome-4: --crypto-color;
+@outcome-5: --entertainment-color; 
+@outcome-6: --crypto-color; 
+@outcome-7: --politics-color; 
+@outcome-8: --simple-invalid;
+
+@color-outcome-list: @outcome-8 @outcome-1 @outcome-2 @outcome-3 @outcome-4 @outcome-5 @outcome-6 @outcome-7;
+
+.generate-trading-indexed-color-outcome-classes(@rules) {
+  each(@color-outcome-list, {
     @newIndex: @index;
     @rules();
   });

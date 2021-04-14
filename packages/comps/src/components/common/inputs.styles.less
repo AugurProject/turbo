@@ -271,6 +271,19 @@
   text-transform: capitalize;
   justify-content: space-between;
 
+  .generate-trading-indexed-color-outcome-classes({
+    &.color-@{newIndex} {
+      &:hover {
+        border: @size-1 solid @value;
+      };
+
+      &.Selected {    
+        border: @size-1 solid @value;
+        background: fade(@value, 15%);
+      }
+    }
+  });
+
   > span {
     &:first-of-type {
       .text-14-semi-bold;
@@ -281,12 +294,6 @@
       justify-content: flex-end;
       display: flex;
     }
-  }
-
-  &.Selected {
-    .SelectedBorders;
-
-    background: var(--simple-no-15);
   }
 
   &.nonSelectable {

@@ -230,7 +230,7 @@ const Outcome = ({
   return (
     <div
       onClick={() => (outcome.isInvalid ? null : onClick())}
-      className={classNames(Styles.Outcome, `Styles.color-${index}`, {
+      className={classNames(Styles.Outcome, `${Styles[`color-${index + 1}`]}`, {
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
