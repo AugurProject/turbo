@@ -1560,14 +1560,9 @@ const getOutcomeName = (index: number, homeTeam: string, awayTeam: string, sport
 };
 
 // todo: move this to own file when new market factory is available
-const getMarketTitle = (
-  homeTeam: string,
-  awayTeam: string,
-  sportsMarketType: number,
-  line: string,
-): string => {
-  let title = '';
-  let description = '';
+const getMarketTitle = (homeTeam: string, awayTeam: string, sportsMarketType: number, line: string): string => {
+  let title = "";
+  let description = "";
   if (sportsMarketType === 0) {
     // head to head (money line)
     title = `Which team will win?`;
