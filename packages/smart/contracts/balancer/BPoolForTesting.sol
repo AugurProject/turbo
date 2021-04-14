@@ -3,13 +3,19 @@ pragma solidity 0.7.6;
 
 import "./BFactory.sol";
 import "../libraries/IERC20Full.sol";
+import "../libraries/Cash.sol";
 
 contract BPoolForTesting {
-    BFactory public bFactory;
+    BFactory private bFactory;
+    BPool private bPool;
     uint256 private constant MAX_UINT = 2**256 - 1;
 
+    constructor(BFactory _bFactory) {
+        bFactory = _bFactory;
+    }
+
     function createBPoolForTesting(
-        IERC20Full[] calldata _tokens,
+        Cash[] calldata _tokens,
         uint256[] calldata _initialLiquidity,
         uint256[] calldata _weights
     ) external returns (BPool) {
@@ -18,15 +24,19 @@ contract BPoolForTesting {
             "Tokens, weights and initial liquidity should all have the same length."
         );
 
-        BPool _pool = bFactory.newBPool();
+        bPool = bFactory.newBPool();
 
         for (uint256 i = 0; i < _tokens.length; i++) {
-            _tokens[i].approve(address(_pool), MAX_UINT);
-            _pool.bind(address(_tokens[i]), _initialLiquidity[i], _weights[i]);
+            _tokens[i].approve(address(bPool), MAX_UINT);
+            bPool.bind(address(_tokens[i]), _initialLiquidity[i], _weights[i]);
         }
 
-        _pool.finalize();
+        bPool.finalize();
 
-        return _pool;
+        return bPool;
+    }
+
+    function getBPool() external view returns(BPool) {
+        return bPool;
     }
 }
