@@ -28,10 +28,11 @@ contract PriceMarketFactory is AbstractMarketFactory {
         IERC20Full _tokenIn,
         IERC20Full _tokenOut,
         IERC20Full _collateral,
+        uint256 _shareFactor,
         FeePot _feePot,
         uint256 _stakerFee,
         uint256 _creatorFee
-    ) AbstractMarketFactory(_collateral, _feePot, _stakerFee, _creatorFee) {
+    ) AbstractMarketFactory(_collateral, _shareFactor, _feePot, _stakerFee, _creatorFee) {
         pool = _pool;
         tokenIn = _tokenIn;
         tokenOut = _tokenOut;
