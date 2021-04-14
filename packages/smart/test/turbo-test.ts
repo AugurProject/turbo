@@ -33,7 +33,7 @@ describe("Turbo", () => {
   const usdcBasis = BigNumber.from(10).pow(6);
 
   let collateral: Cash;
-  let sharesFactor: BigNumber;
+  let shareFactor: BigNumber;
   let marketFactory: TrustedMarketFactory;
   let marketId: BigNumber;
   let noContest: OwnedERC20;
@@ -50,7 +50,7 @@ describe("Turbo", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
-    const shareFactor = calcShareFactor(await collateral.decimals());
+    shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
@@ -59,7 +59,6 @@ describe("Turbo", () => {
       smallFee,
       smallFee
     );
-    sharesFactor = await marketFactory.shareFactor();
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
     expect(await marketFactory.feePot()).to.equal(feePot.address);
@@ -95,8 +94,8 @@ describe("Turbo", () => {
   });
 
   it("can mint sets", async () => {
-    const setsToMint = sharesFactor.mul(100);
-    const costToMint = setsToMint.div(sharesFactor);
+    const setsToMint = shareFactor.mul(100);
+    const costToMint = setsToMint.div(shareFactor);
 
     await collateral.faucet(costToMint);
     await collateral.approve(marketFactory.address, costToMint);
@@ -111,8 +110,8 @@ describe("Turbo", () => {
   });
 
   it("can burn sets", async () => {
-    const setsToBurn = sharesFactor.mul(9);
-    const setsLeft = sharesFactor.mul(91);
+    const setsToBurn = shareFactor.mul(9);
+    const setsLeft = shareFactor.mul(91);
 
     await marketFactory.burnShares(marketId, setsToBurn, signer.address);
 
@@ -141,7 +140,7 @@ describe("Turbo", () => {
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
     pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     // Don't know why user gets this many LP tokens but it shouldn't matter.
-    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.mul(sharesFactor).div(10));
+    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.mul(shareFactor).div(10));
   });
 
   it("can add more liquidity to the AMM", async () => {
@@ -160,14 +159,14 @@ describe("Turbo", () => {
 
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
-    expect(await all.balanceOf(signer.address)).to.equal(sharesFactor.mul(91)); // minted 100 sets, burned 9
+    expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
     expect(await all.balanceOf(signer.address)).to.equal("4160233730836129960"); // hardcoded from observation
   });
 
   it("can see the outcome ratios in the AMM", async () => {
     const ratios = await ammFactory.tokenRatios(marketFactory.address, marketId);
-
+    
     const expectedRatios = [
       BigNumber.from(10).pow(18).toString(), // first is always 10^18
       "0xa738c278386e76fb",
