@@ -240,24 +240,6 @@
     }
   }
 
-  &.YesNo {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    > div {
-      &:not(:first-of-type) {
-        margin-top: 0;
-      }
-
-      &:nth-of-type(3) {
-        margin-top: @size-8;
-        height: unset;
-        min-height: unset;
-        justify-content: space-between;
-        align-items: center;
-      }
-    }
-  }
 
   &.showAsButtons {
     > div:first-of-type {
@@ -276,11 +258,6 @@
       border-left-width: @size-1;
     }
   }
-
-  &.Yes {
-    background: var(--simple-yes-15);
-    border: @size-1 solid var(--simple-yes);
-  }
 }
 
 .Outcome {
@@ -289,13 +266,10 @@
   display: flex;
   color: var(--simple-primary-text);
   cursor: pointer;
-  padding: @size-10 @size-24;
+  padding: @size-10 @size-16;
   flex: 1;
   text-transform: capitalize;
-  min-height: @size-106;
-  height: @size-106;
-  max-height: @size-106;
-  justify-content: center;
+  justify-content: space-between;
 
   > span {
     &:first-of-type {
@@ -309,125 +283,15 @@
     }
   }
 
-  &.Selected,
-  &:not(.Selected):hover:not(.Invalid) {
+  &.Selected {
     .SelectedBorders;
 
     background: var(--simple-no-15);
   }
 
-  &.Selected {
-    &.Invalid:not(.loggedOut) {
-      background: var(--simple-invalid-15);
-      color: var(--simple-primary-text);
-      border: @size-1 solid var(--simple-invalid);
-    }
-  }
-
-  &:not(.Selected):hover {
-    &.Invalid:not(.loggedOut) {
-      background: transparent;
-      color: var(--simple-primary-text);
-      border: @size-1 solid var(--simple-invalid);
-
-      > svg {
-        > path {
-          fill: var(--simple-primary-text);
-        }
-      }
-    }
-  }
-
-  &.YesNo {
-    color: var(--simple-secondary-text);
-    display: flex;
-    flex-direction: column;
-
-    &:first-of-type {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      border-right-color: transparent;
-    }
-
-    &:nth-of-type(2) {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      border-left-color: transparent;
-    }
-
-    > span {
-      &:first-of-type {
-        .text-16-bold;
-      }
-
-      &:last-of-type {
-        .text-30-bold;
-
-        justify-content: flex-start;
-        display: flex;
-        margin-top: @size-8;
-      }
-    }
-
-    > div {
-      .text-30-bold;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: @size-8;
-      justify-content: flex-start;
-      display: flex;
-      margin-top: @size-8;
-      > span {
-        color: var(--simple-secondary-text-50);
-      }
-
-      > input {
-        .text-30-bold;
-
-        justify-content: flex-start;
-        display: flex;
-        background: transparent;
-        outline: 0;
-        padding: 0;
-        border: 0;
-        color: var(--simple-primary-text);
-        margin-left: @size-1;
-
-        &:active,
-        &:focus {
-          outline: 0;
-          border: 0;
-        }
-
-        &::placeholder {
-          color: var(--color-secondary-text-50);
-        }
-      }
-    }
-
-    &.Selected,
-    &:not(.Selected):hover {
-      .SelectedBorders;
-
-      color: var(--simple-primary-text);
-    }
-
-    &.InvalidSelected {
-      &:first-of-type {
-        border-right: @size-1 solid var(--simple-border);
-      }
-    }
-  }
-
   &.nonSelectable {
     height: @size-80;
     min-height: @size-80;
-
-    &.Yes {
-      border-right-color: var(--simple-border);
-    }
 
     > span:nth-of-type(2) {
       margin-top: @size-8;
@@ -453,15 +317,7 @@
       color: var(--simple-secondary-text);
       border-left: @size-1 solid transparent;
       cursor: auto;
-
-      &.Yes {
-        .SimpleBorder;
-
-        background: transparent;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-      }
-
+      
       > span:first-of-type {
         color: var(--simple-secondary-text);
       }
@@ -486,15 +342,6 @@
     }
   }
 
-  &.Invalid {
-    color: var(--simple-secondary-text);
-    grid-column: 1 / span 2;
-
-    > span:first-of-type {
-      .text-16;
-    }
-  }
-
   &.disabled {
     pointer-events: none;
   }
@@ -502,20 +349,9 @@
   &.Error {
     border: @size-1 solid var(--simple-failed);
 
-    &.Yes {
-      border-right-color: var(--simple-failed);
-    }
     &:hover,
     &:not(.Selected):hover {
       border: @size-1 solid var(--simple-failed);
-
-      &.Yes {
-        border: @size-1 solid var(--simple-failed);
-      }
-
-      &:not(.Yes) {
-        border-left-color: transparent;
-      }
     }
   }
 
@@ -523,12 +359,6 @@
     pointer-events: none;
     border: 0;
     padding-left: @size-32;
-
-    &.Selected {
-      &.Yes {
-        border: 0;
-      }
-    }
 
     &.ShowAllHighlighted {
       border: 0;

@@ -165,6 +165,24 @@
   --crypto-color: #218380; // outcome 4
   --sports-color: #D81159; // outcome 6
 
+  --outcome-1: --simple-yes;
+  --outcome-2: --finance-color; 
+  --outcome-3: --medical-color; 
+  --outcome-4: --crypto-color;
+  --outcome-5: --entertainment-color; 
+  --outcome-6: --crypto-color; 
+  --outcome-7: --politics-color; 
+  --outcome-8: --simple-invalid;
+
+  @color-outcome-simplified: --outcome-1 --outcome-2 --outcome-3 --outcome-4 --outcome-5 --outcome-6 --outcome-7 --outcome-8;
+
+  .generate-simplified-indexed-color-outcome-classes(@rules) {
+    each(@color-outcome-simplified, {
+      @newIndex: @index;
+      @rules();
+    });
+  }
+
   --simple-yes: #05B169; // outcome 1 (tech 2 in code, 1 in mocks)
   --simple-yes-15: fade(#05B169, 15%);
   --simple-yes-30: fade(#05B169, 30%);
