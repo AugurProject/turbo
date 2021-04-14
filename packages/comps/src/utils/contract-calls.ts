@@ -1478,12 +1478,11 @@ const decodeMarket = (marketData: any) => {
   const start = Math.floor(Date.now() / 1000);
   const reportingState = MARKET_STATUS.TRADING;
   const { shareTokens, endTime, winner } = marketData;
-
   // translate market data
   const eventId = "blahblahblah"; // could be used to group events
   const homeTeamId = "1"; // home team identifier
   const awayTeamId = "2"; // visiting team identifier
-  const startTimestamp = new Date().getTime() / 1000 + 60 * 60 * 24; // estiamted event start time
+  const startTimestamp = Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24); // estiamted event start time
   const categories = getSportCategories(homeTeamId);
   const line = "3.5";
   const sportsMarketType = 0; // spread, todo: use constant when new sports market factory is ready.

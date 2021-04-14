@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
 import { formatCashPrice, formatDai, formatPercent } from "../../utils/format-number";
+import { getMarketEndtimeFull } from '../../utils/date-utils';
 import {
   CategoryIcon,
   CategoryLabel,
@@ -69,7 +70,8 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
   return newOrder;
 };
 
-export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] => ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1));
+export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
+  ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1));
 
 const OutcomesTable = ({
   amm,
@@ -85,27 +87,29 @@ const OutcomesTable = ({
       [Styles.hasWinner]: marketOutcomes[0].isFinalNumerator,
     })}
   >
-    {orderOutcomesForDisplay(amm.ammOutcomes).map((outcome) => {
-      const isWinner =
-        outcome.isFinalNumerator && outcome.payoutNumerator !== "0" && reportingState === MARKET_STATUS.FINALIZED;
-      return (
-        <div
-          key={`${outcome.name}-${amm?.marketId}-${outcome.id}`}
-          className={classNames({ [Styles.WinningOutcome]: isWinner })}
-        >
-          <span>{outcome.name.toLowerCase()}</span>
-          <span>
-            {isWinner
-              ? ConfirmedCheck
-              : outcome.isFinalNumerator
-              ? ""
-              : amm?.liquidity !== "0"
-              ? formatCashPrice(outcome.price, amm?.cash?.name).full
-              : "-"}
-          </span>
-        </div>
-      );
-    })}
+    {orderOutcomesForDisplay(amm.ammOutcomes)
+      .slice(0, 3)
+      .map((outcome) => {
+        const isWinner =
+          outcome.isFinalNumerator && outcome.payoutNumerator !== "0" && reportingState === MARKET_STATUS.FINALIZED;
+        return (
+          <div
+            key={`${outcome.name}-${amm?.marketId}-${outcome.id}`}
+            className={classNames({ [Styles.WinningOutcome]: isWinner })}
+          >
+            <span>{outcome.name.toLowerCase()}</span>
+            <span>
+              {isWinner
+                ? ConfirmedCheck
+                : outcome.isFinalNumerator
+                ? ""
+                : amm?.liquidity !== "0"
+                ? formatCashPrice(outcome.price, amm?.cash?.name).full
+                : "-"}
+            </span>
+          </div>
+        );
+      })}
   </div>
 );
 
@@ -120,8 +124,9 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState } = market;
+  const { categories, description, marketId, reportingState, title, startTimestamp } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
+  const extraOutcomes = amm?.ammOutcomes?.length - 3;
   return (
     <article
       className={classNames(Styles.MarketCard, {
@@ -162,10 +167,17 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <span>{description}</span>
+            <span>
+              <span>
+                {!!title && <span>{title}</span>}
+                {!!description && <span>{description}</span>}
+              </span>
+              <span>{getMarketEndtimeFull(startTimestamp)}</span>
+            </span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
             <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
+            {extraOutcomes > 0 && <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>}
           </MarketLink>
         )}
       </div>

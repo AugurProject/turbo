@@ -251,8 +251,13 @@
   display: flex;
   flex-flow: column nowrap;
 
-  > * {
+  > div,
+  > ul {
     margin-bottom: @size-16;
+  }
+
+  > section {
+    margin-bottom: @size-8;
   }
 
   > div {
@@ -261,7 +266,7 @@
     margin-bottom: 0;
 
     > button {
-      margin: 0 @size-8 0 0;
+      margin: @size-8 @size-8 0 0;
     }
   }
 

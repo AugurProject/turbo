@@ -1,4 +1,4 @@
-@import (reference) '../../assets/styles/shared.less';
+@import (reference) "../../assets/styles/shared.less";
 
 .MarketCard {
   .HoverDropShadow;
@@ -34,21 +34,21 @@
         grid-gap: 0;
       }
 
-      > div[class*='InSettlement'],
-      > div[class*='Resolved'] {
+      > div[class*="InSettlement"],
+      > div[class*="Resolved"] {
         display: none;
         grid-row: 1;
         grid-column: 1 / span 3;
       }
 
-      > div[class*='CategoryIcon'] {
+      > div[class*="CategoryIcon"] {
         display: flex;
         margin-right: @size-8;
         grid-column: 1;
         grid-row: 1;
       }
 
-      > div[class*='CategoryLabel'] {
+      > div[class*="CategoryLabel"] {
         grid-column: 2 / span 2;
         grid-row: 1;
         width: fit-content;
@@ -68,12 +68,12 @@
     }
 
     > span {
-      .text-16-semi-bold;
-      .limit-lines(4);
+      .text-14-semi-bold;
+      .limit-lines(3);
 
       color: var(--simple-primary-text);
       grid-column: 1 / span 3;
-      margin: @size-16 0;
+      margin: @size-16 0 @size-4;
       text-align: left;
       height: @size-80;
     }
@@ -83,34 +83,66 @@
       width: 100%;
       min-height: @size-180;
       display: grid;
-      grid-template-columns: @size-46 @size-60 1fr;
+      grid-template-columns: @size-80 @size-9 1fr;
       grid-template-rows: auto;
       margin-bottom: 0;
       grid-gap: @size-8;
 
       > span {
-        .text-16-semi-bold;
-        .text-16-semi-bold;
-        .limit-lines(4);
+        > span:first-of-type {
+          .text-14-semi-bold;
 
-        color: var(--simple-primary-text);
+          color: var(--simple-primary-text);
+          line-height: 140%;
+
+          > span:first-of-type {
+            .limit-lines(1);
+          }
+
+          > span:last-of-type {
+            .limit-lines(2);
+          }
+
+          > span:first-of-type:last-of-type {
+            .limit-lines(3);
+          }
+        }
+
+        > span:last-of-type {
+          .text-10-semi-bold;
+
+          color: var(--simple-secondary-text);
+          white-space: nowrap;
+          word-break: none;
+          display: inline-block;
+          text-transform: uppercase;
+        }
+        
         grid-column: 1 / span 3;
         grid-row: 1;
-        margin: @size-16 0;
-        text-align: left;
-        height: @size-80;
+
+        &:first-of-type {
+          display: grid;
+          grid-gap: @size-4;
+          grid-template-columns: 1fr;
+          grid-template-rows: auto 1fr;
+          margin: @size-16 0 @size-4;
+          text-align: left;
+          height: @size-78;
+        }
       }
 
       > div:first-of-type {
         grid-column: 1 / span 2;
         grid-row: 2;
+        align-items: flex-end;
       }
 
       > div:nth-of-type(2) {
+        align-items: flex-end;
         grid-column: 1 / span 2;
         grid-row: 3;
         display: flex;
-        align-items: flex-end;
         height: 100%;
 
         > span {
@@ -130,6 +162,19 @@
       > div.OutcomesTable {
         grid-column: 3;
         grid-row: 2 / span 2;
+      }
+
+      > span.ExtraOutcomes {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        position: relative;
+        top: 210%;
+        height: 0;
+        overflow: visible;
+        text-transform: uppercase;
+        margin: 0;
+        text-align: right;
       }
     }
   }
@@ -154,6 +199,18 @@
   }
 }
 
+span.ExtraOutcomes {
+  .text-10-semi-bold;
+
+  color: var(--simple-secondary-text);
+  position: relative;
+  top: 210%;
+  height: 0;
+  overflow: visible;
+  text-transform: uppercase;
+  margin: 0;
+  text-align: right;
+}
 
 .OutcomesTable {
   border-radius: @size-8;
@@ -161,7 +218,14 @@
   flex-direction: column;
 
   > div {
-    padding: @size-10 @size-16;
+    .SimpleBorder;
+
+    border-radius: unset;
+    border-top: 0;
+    min-height: @size-32;
+    height: @size-32;
+    max-height: @size-32;
+    padding: 0 @size-16;
     display: flex;
 
     &:first-of-type {
@@ -195,7 +259,7 @@
       align-items: center;
 
       &:first-of-type {
-        .text-14;
+        .text-12;
 
         flex: 1;
         color: var(--simple-primary-text);
@@ -203,7 +267,7 @@
       }
 
       &:last-of-type {
-        .text-16-bold;
+        .text-14-bold;
 
         color: var(--simple-primary-text);
       }
@@ -227,7 +291,6 @@
 &.WinningOutcome {
   background: var(--color-brand-20);
 }
-
 
 .LoadingMarketCard {
   .SimpleBorder;
@@ -309,8 +372,8 @@
         }
 
         &:not(.Trading) {
-          > div[class*='InSettlement'],
-          > div[class*='Resolved'] {
+          > div[class*="InSettlement"],
+          > div[class*="Resolved"] {
             display: flex;
             grid-row: 1;
             grid-column: 1 / span 3;
@@ -318,13 +381,13 @@
             margin-bottom: @size-16;
           }
 
-          > div[class*='CategoryIcon'],
-          > div[class*='CategoryLabel'],
+          > div[class*="CategoryIcon"],
+          > div[class*="CategoryLabel"],
           > div:last-of-type {
             grid-row: 2;
 
-            > div[class*='InSettlement'],
-            > div[class*='Resolved'] {
+            > div[class*="InSettlement"],
+            > div[class*="Resolved"] {
               display: none;
             }
           }
