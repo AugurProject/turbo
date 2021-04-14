@@ -68,12 +68,12 @@
     }
 
     > span {
-      .text-16-semi-bold;
-      .limit-lines(4);
+      .text-14-semi-bold;
+      .limit-lines(3);
 
       color: var(--simple-primary-text);
       grid-column: 1 / span 3;
-      margin: @size-16 0;
+      margin: @size-16 0 @size-4;
       text-align: left;
       height: @size-80;
     }
@@ -89,16 +89,15 @@
       grid-gap: @size-8;
 
       > span {
-        .text-16-semi-bold;
-        .text-16-semi-bold;
-        .limit-lines(4);
+        .text-14-semi-bold;
+        .limit-lines(3);
 
         color: var(--simple-primary-text);
         grid-column: 1 / span 3;
         grid-row: 1;
-        margin: @size-16 0;
+        margin: @size-16 0 @size-4;
         text-align: left;
-        height: @size-80;
+        height: @size-52;
       }
 
       > div:first-of-type {
@@ -137,7 +136,7 @@
 
         color: var(--simple-secondary-text);
         position: relative;
-        top: 221%;
+        top: 250%;
         height: 0;
         overflow: visible;
         text-transform: uppercase;
@@ -172,7 +171,7 @@ span.ExtraOutcomes {
 
   color: var(--simple-secondary-text);
   position: relative;
-  top: 221%;
+  top: 250%;
   height: 0;
   overflow: visible;
   text-transform: uppercase;
@@ -190,7 +189,10 @@ span.ExtraOutcomes {
 
     border-radius: unset;
     border-top: 0;
-    padding: @size-10 @size-16;
+    min-height: @size-32;
+    height: @size-32;
+    max-height: @size-32;
+    padding: 0 @size-16;
     display: flex;
 
     &:first-of-type {

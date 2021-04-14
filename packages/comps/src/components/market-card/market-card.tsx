@@ -125,7 +125,7 @@ export const MarketCardView = ({
 }) => {
   const { categories, description, marketId, reportingState } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
-  const extraOutcomes = amm?.ammOutcomes?.length - 3; 
+  const extraOutcomes = amm?.ammOutcomes?.length - 3;
   return (
     <article
       className={classNames(Styles.MarketCard, {
