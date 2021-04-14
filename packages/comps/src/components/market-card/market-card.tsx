@@ -124,7 +124,7 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState } = market;
+  const { categories, description, marketId, reportingState, title, startTimestamp } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
   return (
@@ -168,8 +168,11 @@ export const MarketCardView = ({
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
             <span>
-              <span>{description}</span>
-              <span>{getMarketEndtimeFull(market?.startTimestamp)}</span>
+              <span>
+                {!!title && <span>{title}</span>}
+                {!!description && <span>{description}</span>}
+              </span>
+              <span>{getMarketEndtimeFull(startTimestamp)}</span>
             </span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
