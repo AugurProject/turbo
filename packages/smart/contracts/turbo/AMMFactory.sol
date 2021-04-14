@@ -175,7 +175,8 @@ contract AMMFactory {
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             if (i == _outcome) continue;
             OwnedERC20 _token = _market.shareTokens[i];
-            (uint256 tokenAmountIn,) = _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _minSetsOut, MAX_UINT);
+            (uint256 tokenAmountIn, ) =
+                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _minSetsOut, MAX_UINT);
             _undesiredTokenOut += tokenAmountIn;
         }
 
@@ -221,7 +222,11 @@ contract AMMFactory {
         return _balances;
     }
 
-    function getPoolWeights(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256[] memory) {
+    function getPoolWeights(AbstractMarketFactory _marketFactory, uint256 _marketId)
+        external
+        view
+        returns (uint256[] memory)
+    {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _weights = new uint256[](_tokens.length);
