@@ -203,7 +203,6 @@ export const isInvalidNumber = (number) => {
 
 const Outcome = ({
   outcome,
-  marketType,
   selected,
   onClick,
   showAllHighlighted,
@@ -212,9 +211,9 @@ const Outcome = ({
   setEditableValue,
   ammCash,
   showAsButton,
-  invalidSelected,
   error,
   noClick,
+  index
 }) => {
   const [customVal, setCustomVal] = useState('');
   const input = useRef(null);
@@ -231,16 +230,12 @@ const Outcome = ({
   return (
     <div
       onClick={() => (outcome.isInvalid ? null : onClick())}
-      className={classNames(Styles.Outcome, {
-        [Styles.YesNo]: !outcome.isInvalid && marketType === YES_NO,
+      className={classNames(Styles.Outcome, `${Styles[`color-${index + 1}`]}`, {
         [Styles.Selected]: selected,
-        [Styles.Yes]: outcome.id === YES_OUTCOME_ID,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.Edited]: customVal !== '',
         [Styles.showAsButton]: showAsButton,
-        [Styles.Invalid]: outcome.isInvalid,
-        [Styles.InvalidSelected]: invalidSelected,
         [Styles.loggedOut]: !isLogged,
         [Styles.disabled]: !isLogged && outcome.isInvalid,
         [Styles.Error]: error,
@@ -318,7 +313,6 @@ export const OutcomesGrid = ({
   return (
     <div
       className={classNames(Styles.Outcomes, {
-        [Styles.YesNo]: marketType === YES_NO,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.showAsButtons]: showAsButtons,
       })}
@@ -334,16 +328,15 @@ export const OutcomesGrid = ({
               (outcome.id === selectedOutcome.id ||
                 (showAllHighlighted && !outcome.isInvalid))
             }
+            index={index}
             nonSelectable={nonSelectable}
             showAllHighlighted={showAllHighlighted}
             outcome={outcome}
             onClick={() => setSelectedOutcome(outcome)}
-            marketType={marketType}
             editable={editable}
             setEditableValue={(price) => setEditableValue(price, outcome.id)}
             ammCash={ammCash}
             showAsButton={showAsButtons}
-            invalidSelected={selectedOutcome?.isInvalid}
             error={error}
             noClick={noClick}
           />
