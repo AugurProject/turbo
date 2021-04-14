@@ -271,6 +271,14 @@
   text-transform: capitalize;
   justify-content: space-between;
 
+  @media @breakpoint-mobile-tablet {
+    min-height: @size-58;
+
+    > span {
+      margin: auto 0;
+    }
+  }
+
   .generate-trading-indexed-color-outcome-classes({
     &.color-@{newIndex} {
       &:hover {
