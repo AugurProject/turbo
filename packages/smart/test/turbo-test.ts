@@ -16,8 +16,7 @@ import {
   TrustedMarketFactory__factory,
   OwnedERC20,
   OwnedERC20__factory,
-  BPoolForTesting,
-  BPoolForTesting__factory, IERC20Full__factory
+  BPoolForTesting__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, DEAD_ADDRESS } from "../src";
@@ -46,7 +45,6 @@ describe("Turbo", () => {
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
   let pool: BPool;
-  let bPoolForTesting: BPoolForTesting;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -241,10 +239,7 @@ describe("Turbo", () => {
       basis.mul(60).div(2),
     ];
 
-    const initialLiquidity = [
-      usdcAmount,
-      wethAmount,
-    ]
+    const initialLiquidity = [usdcAmount, wethAmount];
 
     await poolContract.createBPoolForTesting(tokens, initialLiquidity, weights);
     const bPool = await poolContract.getBPool();
