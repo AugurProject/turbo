@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
 import { formatCashPrice, formatDai, formatPercent } from "../../utils/format-number";
+import { getMarketEndtimeFull } from '../../utils/date-utils';
 import {
   CategoryIcon,
   CategoryLabel,
@@ -166,12 +167,14 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <span>{description}</span>
+            <span>
+              <span>{description}</span>
+              <span>{getMarketEndtimeFull(market?.startTimestamp)}</span>
+            </span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy} />
             <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
-            {extraOutcomes > 0 && <span className={Styles.ExtraOutcomes}>
-              {`+ ${extraOutcomes} more Outcomes`}</span>}
+            {extraOutcomes > 0 && <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>}
           </MarketLink>
         )}
       </div>
