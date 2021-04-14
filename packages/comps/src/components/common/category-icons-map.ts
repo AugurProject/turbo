@@ -1,39 +1,3 @@
-import {
-  SPORTS,
-  POLITICS,
-  ECONOMICS,
-  ENTERTAINMENT,
-  CRYPTO,
-  MEDICAL,
-  SOCCER,
-  AMERICAN_FOOTBALL,
-  OLYMPICS,
-  BASEBALL,
-  GOLF,
-  BASKETBALL,
-  TENNIS,
-  HOCKEY,
-  HORSE_RACING,
-  US_POLITICS,
-  WORLD,
-  BOXING,
-  MMA,
-  CAR_RACING,
-  AWARDS,
-  TV_MOVIES,
-  SOCIAL_MEDIA,
-  BITCOIN,
-  ETHEREUM,
-  COMPOUND,
-  BALANCER,
-  AUGUR,
-  MAKER,
-  AMPLE,
-  ZEROX,
-  CHAINLINK,
-  LITECOIN,
-  ADDITIONAL_TOKENS,
-} from "@augurproject/sdk-lite";
 import { FINANCE } from "../../utils/constants";
 import {
   MedicalIcon,
@@ -105,7 +69,40 @@ const XLM: string = "XLM";
 const XRP: string = "XRP";
 const XTZ: string = "XTZ";
 const USDT: string = "USDT";
-
+const SPORTS = "Sports";
+const POLITICS = "Politics";
+const ECONOMICS = "Economics";
+const ENTERTAINMENT = "Entertainment";
+const CRYPTO = "Crypto";
+const MEDICAL = "Medical";
+const SOCCER = "Football (Soccer)";
+const AMERICAN_FOOTBALL = "American Football";
+const OLYMPICS = "Olympics";
+const BASEBALL = "Baseball";
+const GOLF = "Golf";
+const MMA = "MMA";
+const BOXING = "Boxing";
+const CAR_RACING = "Car Racing";
+const BASKETBALL = "Basketball";
+const TENNIS = "Tennis";
+const HOCKEY = "Hockey";
+const HORSE_RACING = "Horse Racing";
+const US_POLITICS = "US Politics";
+const WORLD = "World";
+const BITCOIN = "Bitcoin";
+const ETHEREUM = "Ethereum";
+const LITECOIN = "Litecoin";
+const AUGUR = "Augur";
+const MAKER = "Maker";
+const AMPLE = "Ample";
+const COMPOUND = "Compound";
+const BALANCER = "Balancer";
+const ZEROX = "0x";
+const CHAINLINK = "Chainlink";
+const ADDITIONAL_TOKENS = "Additional Tokens";
+const AWARDS = "Awards";
+const TV_MOVIES = "TV & Movies";
+const SOCIAL_MEDIA = "Social Media";
 export const CATEGORIES_ICON_MAP = {
   [MEDICAL.toLowerCase()]: {
     icon: MedicalIcon,

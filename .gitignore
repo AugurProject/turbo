@@ -119,3 +119,6 @@ dist
 .idea/
 node_modules
 .vscode
+
+# DS store
+**/.DS_Store

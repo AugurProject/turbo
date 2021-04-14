@@ -38,7 +38,9 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@chainlink/contracts": "^0.1.6"
+  },
   "resolutions": {
     "**/puppeteer": "https://github.com/AugurProject/blackhole.git",
     "**/scrypt": "https://github.com/AugurProject/blackhole.git",

@@ -1,12 +1,16 @@
 export function mapOverObject<V1, V2>(
   o: { [k: string]: V1 },
-  fn: (k: string, v: V1) => [string, V2]
+  fn: (k: string, v: V1) => [string, V2] | void
 ): { [k: string]: V2 } {
   const o2: { [k: string]: V2 } = {};
   for (const key in o) {
     const value = o[key];
-    const [k, v] = fn(key, value);
-    o2[k] = v;
+    const kv = fn(key, value);
+    if (kv === undefined) continue;
+    const [k, v] = kv;
+    if (k !== undefined) {
+      o2[k] = v;
+    }
   }
   return o2;
 }

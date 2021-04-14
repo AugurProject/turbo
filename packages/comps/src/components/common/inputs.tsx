@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { EthIcon, LinkIcon, UsdIcon, XIcon } from './icons';
 import Styles from './inputs.styles.less';
-import { ETH } from '@augurproject/sdk-lite/build';
 import {
   getCashFormat,
   formatCash,
@@ -16,6 +15,7 @@ import {
   SHARES,
   YES_OUTCOME_ID,
   YES_NO,
+  ETH,
 } from '../../utils/constants';
 import { useAppStatusStore } from '../../stores/app-status';
 import { TinyButton } from './buttons';

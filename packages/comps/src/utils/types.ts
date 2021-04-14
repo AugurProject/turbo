@@ -1,18 +1,6 @@
-import { ReactNode, MouseEvent } from "react";
-import { Getters } from "@augurproject/sdk";
-import type {
-  Address,
-  PayoutNumeratorValue,
-  MarketInfoOutcome,
-  MarketOrderBookOrder,
-  OutcomeOrderBook,
-  MarketOrderBook,
-  MarketTradingHistory,
-  Orders,
-} from "@augurproject/sdk-lite";
-import type { TransactionMetadataParams, EthersSigner } from "@augurproject/contract-dependencies-ethers";
+import { MouseEvent } from "react";
+import type { EthersSigner } from "@augurproject/contract-dependencies-ethers";
 import type { BigNumber } from "../utils/create-big-number";
-import type { Template } from "@augurproject/templates";
 import { ethers } from "ethers";
 
 export enum SizeTypes {
@@ -100,7 +88,7 @@ export interface ParaDeploys {
   reputationToken: string;
   balancerFactory: string;
   hatcheryRegistry: string;
-  hatchery: string;
+  marketFactory: string;
   arbiter: string;
   ammFactory: string;
   pool: string;
@@ -212,8 +200,10 @@ export interface MarketInfo {
   marketId: string;
   hatcheryAddress: string;
   turboId: string;
-  description: string;
+  title: string;
+  description?: string;
   endTimestamp: number;
+  startTimestamp?: number;
   creationTimestamp: string;
   extraInfoRaw: string;
   longDescription: string;
@@ -240,7 +230,6 @@ export interface MarketOutcome {
 }
 
 export interface AmmOutcome extends MarketOutcome {
-  priceRaw: string;
   price: string;
   ratioRaw: string;
   ratio: string;
@@ -264,59 +253,7 @@ export interface AmmExchanges {
 export interface MarketInfos {
   [marketId: string]: MarketInfo;
 }
-export interface Outcomes extends MarketInfoOutcome {
-  name?: string;
-}
-export interface ConsensusFormatted extends PayoutNumeratorValue {
-  winningOutcome: string | null;
-  outcomeName: string | null;
-}
 
-export interface OutcomeFormatted extends MarketInfoOutcome {
-  marketId: string;
-  description: string;
-  lastPricePercent: FormattedNumber | null;
-  lastPrice: FormattedNumber | null;
-  volumeFormatted: FormattedNumber;
-  isTradeable: boolean;
-}
-
-export interface ForkingInfo {
-  forkEndTime: number;
-  forkAttoReputationGoal: BigNumber;
-  forkingMarket: string;
-  forkAttoThreshold: BigNumber;
-  isForkingMarketFinalized: boolean;
-  winningChildUniverseId?: string;
-}
-export interface Universe extends Getters.Universe.UniverseDetails {
-  outcomeName: string;
-  creationTimestamp: number;
-  usersRep: string;
-  totalRepSupply: string;
-  totalOpenInterest: string;
-  numberOfMarkets: number;
-  warpSyncHash: string;
-  children: Array<Getters.Universe.UniverseDetails>;
-  parentUniverseId: null | string;
-  disputeWindow: {
-    address: Address;
-    startTime: number;
-    endTime: number;
-    purchased: string;
-    fees: string;
-  };
-  forkingInfo?: ForkingInfo;
-  forkEndTime?: string;
-  timeframeData?: Getters.Platform.PlatformActivityStatsResult;
-  maxMarketEndTime?: number;
-}
-
-export interface UserReports {
-  markets?: {
-    [universeId: string]: string;
-  };
-}
 export interface FormattedNumber {
   fullPrecision: number | string;
   roundedValue: number | string;
@@ -346,383 +283,6 @@ export interface FormattedNumberOptions {
   precisionFullLabel?: boolean;
 }
 
-export interface CreateMarketData {
-  id?: string;
-  txParams: TransactionMetadataParams;
-  endTime: DateFormattedObject;
-  description: string;
-  hash: string;
-  pending: boolean;
-  recentlyTraded: DateFormattedObject;
-  creationTime: DateFormattedObject;
-  marketType: string;
-  pendingId: string;
-  orderBook?: OutcomeOrderBook;
-}
-
-export interface PendingQueue {
-  [queueName: string]: {
-    [pendingId: string]: {
-      status: string;
-      blockNumber: number;
-      hash: string;
-      parameters?: UIOrder | NewMarket;
-      data: CreateMarketData;
-    };
-  };
-}
-export interface PendingOrdersType {
-  [marketId: string]: UIOrder[];
-}
-
-export interface QuantityOrderBookOrder extends MarketOrderBookOrder {
-  quantityScale: number;
-  percent: number;
-  mySize: string;
-  price: string;
-  cumulativeShares: string;
-}
-export interface QuantityOutcomeOrderBook {
-  spread: string | BigNumber | null;
-  bids: QuantityOrderBookOrder[];
-  asks: QuantityOrderBookOrder[];
-}
-
-export interface OutcomeTestTradingOrder {
-  [outcomeId: number]: TestTradingOrder[];
-}
-export interface TestTradingOrder {
-  disappear: boolean;
-  avgPrice: FormattedNumber;
-  cumulativeShares: string;
-  id: string;
-  mySize: string;
-  orderEstimate: BigNumber;
-  outcomeId: string;
-  outcomeName: string;
-  price: string;
-  quantity: string;
-  shares: string;
-  sharesEscrowed: FormattedNumber;
-  tokensEscrowed: FormattedNumber;
-  type: string;
-  unmatchedShares: FormattedNumber;
-}
-export interface OrderBooks {
-  [marketId: string]: MarketOrderBook;
-}
-export interface IndividualOutcomeOrderBook {
-  spread: string | BigNumber | null;
-  bids: MarketOrderBookOrder[];
-  asks: MarketOrderBookOrder[];
-}
-export interface MyPositionsSummary {
-  currentValue: FormattedNumber;
-  totalPercent: FormattedNumber;
-  totalReturns: FormattedNumber;
-  valueChange: FormattedNumber;
-  valueChange24Hr: FormattedNumber;
-}
-
-export interface Notification {
-  id: string;
-  type: string;
-  isImportant: boolean;
-  redIcon?: boolean;
-  isNew: boolean;
-  isRead: boolean;
-  lastUpdated?: number | null;
-  title: string;
-  buttonLabel: string;
-  buttonAction: ButtonActionType;
-  Template: ReactNode;
-  market: MarketInfo;
-  markets: string[];
-  claimReportingFees?: object;
-  totalProceeds?: number;
-  queueName?: string;
-  queueId?: string;
-  hideCheckbox?: boolean;
-  hideNotification?: boolean;
-  dontShowNotificationButton?: boolean;
-}
-
-export interface OrderStatus {
-  orderId: string;
-  status: string;
-  marketId: string;
-  outcome: any;
-  orderTypeLabel: string;
-}
-
-export interface OrderCancellations {
-  [orderId: string]: { status: string };
-}
-
-export interface UIOrder {
-  id: string;
-  outcomeName: string;
-  outcomeId: number;
-  marketId: string;
-  amount: string;
-  price: string;
-  fullPrecisionAmount: string;
-  fullPrecisionPrice: string;
-  type: string;
-  orderEstimate?: string;
-  cumulativeShares?: number;
-  status?: string;
-  hash?: string;
-  numTicks: number;
-  minPrice: string;
-  creationTime?: DateFormattedObject;
-  blockNumber?: number;
-}
-
-export interface CreateLiquidityOrders {
-  marketId: string;
-  chunkOrders: boolean;
-}
-export interface LiquidityOrders {
-  [txParamHash: string]: {
-    [outcome: number]: LiquidityOrder[];
-  };
-}
-
-export interface LiquidityOrder {
-  id?: string;
-  outcome?: string; // TODO: need to be consistent with outcome naming and type
-  index?: number;
-  quantity: BigNumber;
-  price: BigNumber;
-  type: string;
-  orderEstimate: BigNumber;
-  outcomeName: string;
-  outcomeId: number;
-  status?: string;
-  hash?: string;
-  mySize?: string;
-  cumulativeShares?: string;
-  shares: string;
-}
-export interface NewMarketPropertiesValidations {
-  description?: string;
-  categories?: string[];
-  type?: string;
-  designatedReporterType?: string;
-  designatedReporterAddress?: string;
-  setEndTime?: string;
-  hour?: string;
-  minute?: string;
-  meridiem?: string;
-  outcomes?: string | string[];
-  settlementFee?: string;
-  affiliateFee?: string;
-  inputs?: NewMarketPropertiesValidations[];
-}
-
-export interface NewMarketPropertyValidations {
-  description?: string;
-  settlementFee?: string;
-  scalarDenomination?: string;
-  affiliateFee?: string;
-  inputs?: NewMarketPropertiesValidations[];
-  outcomes?: string | string[];
-}
-
-export interface DateTimeComponents {
-  endTime: number;
-  endTimeFormatted: DateFormattedObject;
-  setEndTime: number;
-  hour: string;
-  minute: string;
-  meridiem: string;
-  offsetName: string;
-  offset: number;
-  timezone: string;
-}
-export interface NewMarket {
-  uniqueId: string;
-  isValid: boolean;
-  validations: NewMarketPropertiesValidations | NewMarketPropertyValidations;
-  currentStep: number;
-  type: string;
-  outcomes: string[];
-  outcomesFormatted: OutcomeFormatted[];
-  scalarBigNum: string;
-  scalarDenomination: string;
-  description: string;
-  designatedReporterType: string;
-  designatedReporterAddress: string;
-  minPrice: string;
-  maxPrice: string;
-  endTime: number;
-  endTimeFormatted: DateFormattedObject;
-  setEndTime: number;
-  tickSize: number;
-  numTicks: number;
-  hour: string;
-  minute: string;
-  meridiem: string;
-  marketType: string;
-  detailsText: string;
-  navCategories: string[];
-  categories: string[];
-  settlementFee: number;
-  settlementFeePercent: FormattedNumber;
-  affiliateFee: number;
-  orderBook: { [outcome: number]: LiquidityOrder[] };
-  orderBookSorted: { [outcome: number]: LiquidityOrder[] };
-  minPriceBigNumber: BigNumber;
-  maxPriceBigNumber: BigNumber;
-  initialLiquidityDai: BigNumber;
-  initialLiquidityGas: BigNumber;
-  creationError: string;
-  offsetName: string;
-  offset: number;
-  timezone: string;
-  template: Template;
-}
-
-export interface LinkContent {
-  content: string;
-  link?: string;
-}
-
-export interface Draft {
-  uniqueId: string;
-  created: number;
-  updated: number;
-  isValid: boolean;
-  validations: NewMarketPropertiesValidations[] | NewMarketPropertyValidations[];
-  currentStep: number;
-  type: string;
-  outcomes: string[];
-  scalarBigNum: string;
-  scalarDenomination: string;
-  description: string;
-  designatedReporterType: string;
-  designatedReporterAddress: string;
-  minPrice: string;
-  maxPrice: string;
-  endTime: number;
-  tickSize: string;
-  hour: string;
-  minute: string;
-  meridiem: string;
-  marketType: string;
-  detailsText: string;
-  categories: string[];
-  settlementFee: number;
-  affiliateFee: number;
-  orderBook: { [outcome: number]: LiquidityOrder[] };
-  orderBookSorted: { [outcome: number]: LiquidityOrder[] };
-  initialLiquidityDai: any; // TODO: big number type
-  initialLiquidityGas: any; // TODO: big number type
-  creationError: string;
-  template: Template;
-}
-
-export interface Drafts {
-  [uniqueId: string]: Draft;
-}
-
-export interface Analytics {
-  [id: string]: Analytic;
-}
-
-export interface Analytic {
-  type: string;
-  eventName: string;
-  payload: AnalyticPayload;
-}
-
-export interface AnalyticPayload {
-  addedTimestamp: number;
-  userAgent: string;
-}
-
-export interface MarketsList {
-  isSearching: boolean;
-  meta: {
-    filteredOutCount: number;
-    marketCount: number;
-    categories: object;
-  };
-  allCategoriesMeta: {
-    filteredOutCount: number;
-    marketCount: number;
-    categories: object;
-  };
-  selectedCategories: string[];
-  selectedCategory: string;
-  marketCardFormat: string;
-  isSearchInPlace: boolean;
-  sportsGroupTypeFilter: string;
-  numFutures: number;
-  numDailies: number;
-}
-
-export interface DefaultOrderProperties {
-  orderPrice: string;
-  orderQuantity: string;
-  selectedNav: string;
-}
-
-export interface LoadReportingMarketsOptions {
-  limit: number;
-  offset: number;
-  userPortfolioAddress?: string;
-  sortByRepAmount?: boolean;
-  sortByDisputeRounds?: boolean;
-  search?: string;
-  reportingStates?: string[];
-}
-
-export interface ReportingListState {
-  [reportingState: string]: {
-    marketIds: string[];
-    params: Partial<LoadReportingMarketsOptions>;
-    isLoading: boolean;
-  };
-}
-export interface FilledOrders {
-  [account: string]: MarketTradingHistory;
-}
-
-export interface OpenOrders {
-  [account: string]: Orders;
-}
-
-export interface GasPriceInfo {
-  average: number;
-  fast: number;
-  safeLow: number;
-  userDefinedGasPrice: number;
-}
-
-export enum INVALID_OPTIONS {
-  Show = "show",
-  Hide = "hide",
-}
-
-export interface FilterSortOptions {
-  marketFilter: string;
-  sortBy: string;
-  maxFee: string;
-  maxLiquiditySpread: string;
-  includeInvalidMarkets: INVALID_OPTIONS;
-  transactionPeriod: string;
-  templateFilter: string;
-  marketTypeFilter: string;
-  limit: number;
-  offset: number;
-}
-
-export interface Favorite {
-  [marketId: string]: number;
-}
-
 export interface Endpoints {
   ethereumNodeHTTP: string;
   ethereumNodeWS: string;
@@ -749,20 +309,6 @@ export interface AppStatus {
   repToDaiRate: FormattedNumber;
   usdcToDaiRate: FormattedNumber;
   usdtToDaiRate: FormattedNumber;
-}
-
-export interface AccountPositionAction {
-  marketId: string;
-  positionData: AccountPosition;
-}
-
-export interface AccountPosition {
-  [market: string]: {
-    tradingPositionsPerMarket?: Getters.Users.MarketTradingPosition;
-    tradingPositions: {
-      [outcomeId: number]: Getters.Users.TradingPosition;
-    };
-  };
 }
 
 export interface UnrealizedRevenue {
@@ -795,7 +341,6 @@ export interface LoginAccountSettings {
   showInvalidMarketsBannerHideOrShow?: boolean;
   templateFilter?: string;
   maxFee?: string;
-  maxLiquiditySpread?: INVALID_OPTIONS;
   includeInvalidMarkets?: string;
   spread?: boolean;
   marketTypeFilter?: boolean;
@@ -878,20 +423,6 @@ export interface EthereumWallet {
   keys: { ethereumAddress: string };
 }
 
-export interface EdgeUiAccount {
-  signEthereumTransaction: Function;
-  getFirstWalletInfo: Function;
-  createCurrencyWallet: Function;
-  username: string;
-}
-
-export interface WalletObject {
-  address: string;
-  balance: string;
-  derivationPath: Array<number>;
-  serializedPath: string;
-}
-
 export enum TradingDirection {
   ENTRY = "ENTRY",
   EXIT = "EXIT",
@@ -942,80 +473,6 @@ export interface MarketClaimablePositions {
       fee: string;
     };
   };
-}
-
-export interface ClaimReportingOptions {
-  reportingParticipants: string[];
-  disputeWindows: string[];
-  estimateGas?: boolean;
-  disavowed?: boolean;
-  isForkingMarket?: boolean;
-}
-
-export interface MarketReportContracts {
-  marketId: string;
-  contracts: string[];
-  totalAmount: BigNumber;
-  marketObject: MarketInfo;
-}
-
-export interface marketsReportingCollection {
-  unclaimedRep: BigNumber;
-  marketContracts: MarketReportContracts[];
-}
-
-export interface MarketReportClaimableContracts {
-  claimableMarkets: marketsReportingCollection;
-  participationContracts: {
-    contracts: string[];
-    unclaimedDai: BigNumber;
-    unclaimedRep: BigNumber;
-  };
-  totalUnclaimedDai: BigNumber;
-  totalUnclaimedRep: BigNumber;
-  totalUnclaimedDaiFormatted: FormattedNumber;
-  totalUnclaimedRepFormatted: FormattedNumber;
-}
-
-export interface DisputeInputtedValues {
-  inputStakeValue: string;
-  inputToAttoRep: string;
-}
-
-export interface NavMenuItem {
-  route: string;
-  title: string;
-  requireLogin?: boolean;
-  disabled?: boolean;
-  showAlert?: boolean;
-  button?: boolean;
-  alternateStyle?: boolean;
-}
-
-export interface SortedGroup {
-  value: string;
-  label: string;
-  subGroup?: Array<SortedGroup>;
-  autoCompleteList?: Array<SortedGroup>;
-}
-
-export interface CategoryList {
-  [category: string]: [
-    {
-      [category: string]: [
-        {
-          [index: number]: string;
-        }
-      ];
-    }
-  ];
-}
-
-export interface Initialized3box {
-  address?: string;
-  box?: any;
-  profile?: object;
-  openComments?: boolean;
 }
 
 export interface ActivityData {
@@ -1115,21 +572,6 @@ export interface ProcessedData {
   errors?: any;
 }
 
-export interface GraphData {
-  markets: {
-    [marketIdKey: string]: MarketInfo;
-  };
-  past: {
-    [marketIdKey: string]: MarketInfo;
-  };
-  paraShareTokens: {
-    [tokenIdkey: string]: {
-      cash: Cash;
-      id: string;
-    };
-  };
-}
-
 export interface Modal {
   type?: string;
   cb?: Function;
@@ -1198,6 +640,8 @@ export interface LiquidityBreakdown {
   noShares: string;
   lpTokens?: string;
   cashAmount?: string;
+  minAmountsRaw?: string[];
+  minAmounts?: string[];
 }
 export interface AddLiquidityBreakdown extends LiquidityBreakdown {
   lpTokens: string;

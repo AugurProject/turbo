@@ -70,3 +70,17 @@ use these you will need a rundown api key from rapidapi.
 ```
 yarn hardhat fetch-rundown-event --event [eventId] --key [rundownApiKey]
 ```
+
+## Fund link
+This task funds an address with 1 LINK. Call this task with a private key and network. Make sure that private key account has LINK. 
+
+```
+yarn hardhat fundLink --contract [contractAddress]
+```
+
+## Request score
+This request the score for a match. Call this task with a private key and network. Fund TheRundownChainlink contract with LINK first. You can use the fundLink task for this. 
+
+```
+yarn hardhat requestScore
+```

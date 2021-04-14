@@ -36,7 +36,7 @@ const {
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getLPCurrentValue } = ContractCalls;
+const { claimWinnings } = ContractCalls;
 const {
   formatDai,
   formatCash,
@@ -81,7 +81,7 @@ const MarketTableHeader = ({
   ammExchange: AmmExchange;
 }) => (
   <div className={Styles.MarketTableHeader}>
-    <MarketLink id={market.marketId} ammId={market.amm?.id}>
+    <MarketLink id={market.marketId}>
       <span>{market.description}</span>
       <InvalidFlagTipIcon {...{ market }} />
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
@@ -295,6 +295,7 @@ export const PositionTable = ({
   const seenMarketPositionWarningRemove =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
   const hasLiquidity = ammExchange.liquidity !== '0';
+
   return (
     <>
       <div className={Styles.PositionTable}>
@@ -362,25 +363,12 @@ const LiquidityRow = ({
   liquidity: LPTokenBalance;
   amm: AmmExchange;
 }) => {
-  const [currValue, setInitValue] = useState(null);
-  useEffect(() => {
-    let isMounted = true;
-    const getCurrentValue = async (balance: string, amm: AmmExchange) => {
-      const value = await getLPCurrentValue(balance, amm);
-      if (isMounted) {
-        setInitValue(value);
-      }
-    };
-    getCurrentValue(liquidity.balance, amm);
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+
   return (
     <ul className={Styles.LiquidityRow}>
       <li>{formatDai(liquidity.balance).formatted}</li>
       <li>{formatDai(liquidity.initCostUsd).full}</li>
-      <li>{currValue ? formatDai(currValue).full : '-'}</li>
+      <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>
   );
 };
@@ -518,8 +506,8 @@ export const PositionsLiquidityViewSwitcher = ({
     balances: { lpTokens, marketShares },
   } = useUserStore();
   const { ammExchanges, markets } = useDataStore();
+  const marketId = ammExchange?.marketId;
 
-  const marketId = markets[ammExchange?.marketId];
   let userPositions = [];
   let liquidity = null;
   let winnings = null;
@@ -530,7 +518,7 @@ export const PositionsLiquidityViewSwitcher = ({
       ? marketShares[marketId]?.claimableWinnings
       : null;
   }
-  const market = ammExchange?.id;
+  const market = ammExchange?.market;
 
   const positions = marketShares
     ? ((Object.values(marketShares) as unknown[]) as {
