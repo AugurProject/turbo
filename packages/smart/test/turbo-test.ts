@@ -166,7 +166,7 @@ describe("Turbo", () => {
 
   it("can see the outcome ratios in the AMM", async () => {
     const ratios = await ammFactory.tokenRatios(marketFactory.address, marketId);
-    
+
     const expectedRatios = [
       BigNumber.from(10).pow(18).toString(), // first is always 10^18
       "0xa738c278386e76fb",
