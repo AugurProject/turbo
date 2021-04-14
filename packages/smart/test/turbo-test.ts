@@ -16,6 +16,8 @@ import {
   TrustedMarketFactory__factory,
   OwnedERC20,
   OwnedERC20__factory,
+  BPoolForTesting,
+  BPoolForTesting__factory, IERC20Full__factory
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, DEAD_ADDRESS } from "../src";
@@ -44,6 +46,7 @@ describe("Turbo", () => {
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
   let pool: BPool;
+  let bPoolForTesting: BPoolForTesting;
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -209,5 +212,44 @@ describe("Turbo", () => {
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
     expect(await none.balanceOf(signer.address)).to.equal(0);
+  });
+
+  it("can create a test balancer pool", async () => {
+    bFactory = await new BFactory__factory(signer).deploy();
+    const poolContract = await new BPoolForTesting__factory(signer).deploy(bFactory.address);
+    const usdc = await new Cash__factory(signer).deploy("USDC", "USDC", 6);
+    const weth = await new Cash__factory(signer).deploy("wETH", "wETH", 18);
+
+    const usdcAmount = basis.mul(132);
+    const wethAmount = basis.mul(176);
+
+    await usdc.faucet(usdcAmount);
+    await usdc.approve(signer.address, usdcAmount);
+    await usdc.transferFrom(signer.address, poolContract.address, usdcAmount);
+    await usdc.approve(signer.address, usdcAmount);
+
+    await weth.faucet(wethAmount);
+    await weth.approve(signer.address, wethAmount);
+    await weth.transferFrom(signer.address, poolContract.address, wethAmount);
+    await weth.approve(signer.address, wethAmount);
+
+    const tokens = [usdc.address, weth.address];
+
+    const weights = [
+      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
+      basis.mul(40).div(2),
+      basis.mul(60).div(2),
+    ];
+
+    const initialLiquidity = [
+      usdcAmount,
+      wethAmount,
+    ]
+
+    await poolContract.createBPoolForTesting(tokens, initialLiquidity, weights);
+    const bPool = await poolContract.getBPool();
+
+    expect(await weth.balanceOf(bPool)).to.equal(wethAmount);
+    expect(await usdc.balanceOf(bPool)).to.equal(usdcAmount);
   });
 });
