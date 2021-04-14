@@ -36,7 +36,7 @@ contract BPoolForTesting {
         return bPool;
     }
 
-    function getBPool() external view returns(BPool) {
+    function getBPool() external view returns (BPool) {
         return bPool;
     }
 }
