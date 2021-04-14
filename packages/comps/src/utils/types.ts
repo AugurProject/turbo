@@ -636,8 +636,6 @@ export interface TransactionDetails {
 }
 
 export interface LiquidityBreakdown {
-  yesShares: string;
-  noShares: string;
   lpTokens?: string;
   cashAmount?: string;
   minAmountsRaw?: string[];

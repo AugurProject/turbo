@@ -22,11 +22,11 @@ const {
   checkConvertLiquidityProperties,
   doRemoveLiquidity,
   addLiquidityPool,
-  estimateLiquidityPool,
+  estimateAddLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
 const {
-  convertDisplayShareAmountToOnChainShareAmount,
+  convertDisplayCashAmountToOnChainCashAmount,
   formatPercent,
   convertOnChainSharesToDisplayShareAmount,
   formatSimpleShares,
@@ -92,10 +92,9 @@ const TRADING_FEE_OPTIONS = [
 ];
 
 const defaultAddLiquidityBreakdown: LiquidityBreakdown = {
-  yesShares: '0',
-  noShares: '0',
   lpTokens: '0',
   cashAmount: '0',
+  minAmounts: [],
 };
 
 interface ModalAddLiquidityProps {
@@ -208,7 +207,7 @@ const ModalAddLiquidity = ({
         const userBalanceLpTokens =
           balances && balances.lpTokens && balances.lpTokens[amm?.id];
         const userAmount = userBalanceLpTokens?.rawBalance || '0';
-        const estUserAmount = convertDisplayShareAmountToOnChainShareAmount(
+        const estUserAmount = convertDisplayCashAmountToOnChainCashAmount(
           amount,
           cash?.decimals
         );
@@ -235,7 +234,7 @@ const ModalAddLiquidity = ({
   const priceErrors = outcomes.filter((outcome) => {
     return (
       parseFloat(outcome.price) >= 1 ||
-      (!outcome.isInvalid && isInvalidNumber(outcome.price))
+      isInvalidNumber(outcome.price)
     );
   });
   const hasPriceErrors = priceErrors.length > 0;
@@ -249,9 +248,7 @@ const ModalAddLiquidity = ({
   useEffect(() => {
     const priceErrorsWithEmptyString = outcomes.filter(
       (outcome) =>
-        !outcome.isInvalid &&
         (parseFloat(outcome.price) >= 1 ||
-          isInvalidNumber(outcome.price) ||
           outcome.price === '')
     );
     if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
@@ -277,12 +274,12 @@ const ModalAddLiquidity = ({
           amm.id,
           loginAccount?.library,
           cash,
-          onChainFee,
           amount,
           account,
+          outcomes,
         );
       } else {
-        results = await estimateLiquidityPool(
+        results = await estimateAddLiquidityPool(
           account,
           loginAccount?.library,
           amm,
@@ -332,20 +329,21 @@ const ModalAddLiquidity = ({
     }
   }
 
-  const addCreateBreakdown = [
-    {
-      label: 'yes shares',
-      value: `${formatSimpleShares(breakdown.yesShares).formatted}`,
-    },
-    {
-      label: 'no shares',
-      value: `${formatSimpleShares(breakdown.noShares).formatted}`,
-    },
-    {
-      label: 'LP tokens',
-      value: `${formatSimpleShares(breakdown.lpTokens).formatted}`,
-    },
-  ];
+  const getCreateBreakdown = () => {
+    const fullBreakdown = breakdown.minAmounts.length > 0 ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
+      {
+        label: `${outcomes[i]?.name} Shares`,
+        value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
+      })) : [];
+      
+      fullBreakdown.push(
+      {
+        label: 'LP tokens',
+        value: `${formatSimpleShares(breakdown.lpTokens).formatted}`,
+      });
+
+      return fullBreakdown;
+  }
 
   const invalidCashAmount = formatCash(
     createBigNumber(amount === '' ? '0' : amount).times(
@@ -432,16 +430,11 @@ const ModalAddLiquidity = ({
       confirmButtonText: 'confirm remove',
       currencyName: SHARES,
       footerText: `Removing liquidity returns shares; these shares may be sold for ${chosenCash}.`,
-      breakdown: [
+      breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
         {
-          label: 'yes shares',
-          value: `${formatSimpleShares(breakdown.yesShares).formatted}`,
-        },
-        {
-          label: 'no shares',
-          value: `${formatSimpleShares(breakdown.noShares).formatted}`,
-        },
-      ],
+          label: `${outcomes[i]?.name} Shares`,
+          value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
+        })),
       liquidityDetails: {
         title: 'Market Liquidity Details',
         breakdown: [
@@ -466,16 +459,11 @@ const ModalAddLiquidity = ({
       },
       confirmReceiveOverview: {
         title: 'What you will recieve',
-        breakdown: [
+        breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
           {
-            label: 'yes shares',
-            value: `${formatSimpleShares(breakdown.yesShares).formatted}`,
-          },
-          {
-            label: 'no shares',
-            value: `${formatSimpleShares(breakdown.noShares).formatted}`,
-          },
-        ],
+            label: `${outcomes[i]?.name} Shares`,
+            value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
+          }))
       },
     },
     [ADD]: {
@@ -489,7 +477,7 @@ const ModalAddLiquidity = ({
       actionButtonText: 'Add',
       confirmButtonText: 'confirm add',
       footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
-      breakdown: addCreateBreakdown,
+      breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
         title: 'What you are depositing',
@@ -502,7 +490,7 @@ const ModalAddLiquidity = ({
       },
       confirmReceiveOverview: {
         title: 'What you will receive',
-        breakdown: addCreateBreakdown,
+        breakdown: getCreateBreakdown(),
       },
       marketLiquidityDetails: {
         title: 'Market liquidity details',
@@ -531,7 +519,7 @@ const ModalAddLiquidity = ({
       confirmButtonText: 'confirm market liquidity',
       currencyName: `${chosenCash}`,
       footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
-      breakdown: addCreateBreakdown,
+      breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
         title: 'What you are depositing',
@@ -545,7 +533,7 @@ const ModalAddLiquidity = ({
       confirmReceiveOverview: {
         title: 'What you will receive',
 
-        breakdown: addCreateBreakdown,
+        breakdown: getCreateBreakdown(),
       },
       marketLiquidityDetails: {
         title: 'Market liquidity details',

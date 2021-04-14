@@ -530,4 +530,5 @@ export interface LiquidityBreakdown {
   noShares: string;
   lpTokens?: string;
   cashAmount?: string;
+  minAmounts: string[];
 }

@@ -38,6 +38,7 @@ const {
 } = Components;
 const { claimWinnings } = ContractCalls;
 const {
+  formatLpTokens,
   formatDai,
   formatCash,
   formatSimplePrice,
@@ -366,7 +367,7 @@ const LiquidityRow = ({
 
   return (
     <ul className={Styles.LiquidityRow}>
-      <li>{formatDai(liquidity.balance).formatted}</li>
+      <li>{formatLpTokens(liquidity.balance).formatted}</li>
       <li>{formatDai(liquidity.initCostUsd).full}</li>
       <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>
