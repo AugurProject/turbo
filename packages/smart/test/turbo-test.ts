@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 
+
 import {
   AMMFactory,
   AMMFactory__factory,
@@ -52,7 +53,7 @@ describe("Turbo", () => {
   let arbiter: TrustedArbiter;
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
-  let pool: BPool;
+  let pool: BPool; 
 
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 18);
@@ -60,9 +61,7 @@ describe("Turbo", () => {
     const turboShareTokenFactory = await new TurboShareTokenFactory__factory(signer).deploy();
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     turboHatchery = await new TurboHatchery__factory(signer).deploy(turboShareTokenFactory.address, feePot.address);
-
     await turboShareTokenFactory.initialize(turboHatchery.address);
-
     expect(await turboHatchery.tokenFactory()).to.equal(turboShareTokenFactory.address);
     expect(await turboHatchery.feePot()).to.equal(feePot.address);
     expect(await turboHatchery.collateral()).to.equal(collateral.address);

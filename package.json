@@ -38,7 +38,9 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@eth-optimism/plugins": "^1.0.0-alpha.3"
+  },
   "resolutions": {
     "**/puppeteer": "https://github.com/AugurProject/blackhole.git",
     "**/scrypt": "https://github.com/AugurProject/blackhole.git",

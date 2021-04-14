@@ -5,8 +5,11 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 import "@nomiclabs/hardhat-ethers";
 import "@eth-optimism/plugins/hardhat/compiler";
+import "@eth-optimism/plugins/hardhat/"; 
+import '@eth-optimism/hardhat-ovm'
+import '@typechain/hardhat'
 
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/types";
 import "./tasks";
 import { mapOverObject } from "./src";
 import { NetworkUserConfig } from "hardhat/types";
@@ -56,12 +59,12 @@ const config: HardhatUserConfig = {
     },
     optimism: {
       url: "http://127.0.0.1:8545", //"https://kovan.optimism.io",
-      //chainId: 420,
-      //gas: 9000000,
-      //gasPrice: 9000000,
+      chainId: 420,
       accounts: {
-        mnemonic: "test test test test test test test test test test test junk",
+        mnemonic: 'test test test test test test test test test test test junk'
       },
+      ovm: true, 
+      gasPrice: 0,
     },
   },
   contractDeploy: {
