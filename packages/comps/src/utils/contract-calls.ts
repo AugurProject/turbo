@@ -930,9 +930,7 @@ export const getLPCurrentValue = async (
   if (estimate && estimate.minAmountsRaw) {
     const totalValueRaw = ammOutcomes.reduce(
       (p, v, i) =>
-        p.plus(
-          convertOnChainSharesToDisplayShareAmount(estimate.minAmountsRaw[i], amm.cash.decimals).times(v.price)
-        ),
+        p.plus(convertOnChainSharesToDisplayShareAmount(estimate.minAmountsRaw[i], amm.cash.decimals).times(v.price)),
       new BN(0)
     );
     // assuming cash is 1 usd value
@@ -1449,7 +1447,7 @@ const retrieveExchangeInfos = async (
 
   Object.keys(exchanges).forEach((marketId) => {
     const exchange = exchanges[marketId];
-    const outcomePrices = calculatePrices(ratios[marketId])
+    const outcomePrices = calculatePrices(ratios[marketId]);
     const market = marketInfos[marketId];
     const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
@@ -1471,9 +1469,9 @@ const retrieveExchangeInfos = async (
 const calculatePrices = (ratios: string[]) => {
   //price[0] = ratio[0] / sum(ratio)
   const sum = ratios.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
-  const outcomePrices = ratios.map(r => new BN(String(r)).div(sum).toFixed());
+  const outcomePrices = ratios.map((r) => new BN(String(r)).div(sum).toFixed());
   return outcomePrices;
-}
+};
 
 const decodeMarket = (marketData: any) => {
   // todo: need to get market creation time
