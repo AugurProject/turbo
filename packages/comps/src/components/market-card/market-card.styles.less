@@ -67,15 +67,50 @@
       }
     }
 
+    > a > span,
     > span {
-      .text-14-semi-bold;
-      .limit-lines(3);
+      > span:first-of-type {
+        .text-14-semi-bold;
 
-      color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+        line-height: 140%;
+
+        > span:first-of-type {
+          .limit-lines(1);
+        }
+
+        > span:last-of-type {
+          .limit-lines(2);
+        }
+
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
+        }
+      }
+
+      > span:last-of-type {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: uppercase;
+      }
+
+      &:first-of-type {
+        display: grid;
+        grid-gap: @size-4;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        margin: @size-16 0 @size-4;
+        text-align: left;
+        height: @size-78;
+      }
+    }
+
+    > span {
       grid-column: 1 / span 3;
-      margin: @size-16 0 @size-4;
-      text-align: left;
-      height: @size-80;
     }
 
     > a {
@@ -89,47 +124,8 @@
       grid-gap: @size-8;
 
       > span {
-        > span:first-of-type {
-          .text-14-semi-bold;
-
-          color: var(--simple-primary-text);
-          line-height: 140%;
-
-          > span:first-of-type {
-            .limit-lines(1);
-          }
-
-          > span:last-of-type {
-            .limit-lines(2);
-          }
-
-          > span:first-of-type:last-of-type {
-            .limit-lines(3);
-          }
-        }
-
-        > span:last-of-type {
-          .text-10-semi-bold;
-
-          color: var(--simple-secondary-text);
-          white-space: nowrap;
-          word-break: none;
-          display: inline-block;
-          text-transform: uppercase;
-        }
-        
         grid-column: 1 / span 3;
         grid-row: 1;
-
-        &:first-of-type {
-          display: grid;
-          grid-gap: @size-4;
-          grid-template-columns: 1fr;
-          grid-template-rows: auto 1fr;
-          margin: @size-16 0 @size-4;
-          text-align: left;
-          height: @size-78;
-        }
       }
 
       > div:first-of-type {

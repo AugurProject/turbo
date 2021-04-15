@@ -113,6 +113,16 @@ const OutcomesTable = ({
   </div>
 );
 
+const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
+  <span>
+    <span>
+      {!!title && <span>{title}</span>}
+      {!!description && <span>{description}</span>}
+    </span>
+    <span>{getMarketEndtimeFull(startTimestamp)}</span>
+  </span>
+);
+
 export const MarketCardView = ({
   amm,
   market,
@@ -124,7 +134,7 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState, title, startTimestamp } = market;
+  const { categories, marketId, reportingState } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
   return (
@@ -151,7 +161,7 @@ export const MarketCardView = ({
         </article>
         {!amm?.id ? (
           <>
-            <span>{description}</span>
+            <MarketTitleArea {...{ ...market }} />
             <div>
               <span>Market requires Initial liquidity</span>
               <PrimaryButton
@@ -167,13 +177,7 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <span>
-              <span>
-                {!!title && <span>{title}</span>}
-                {!!description && <span>{description}</span>}
-              </span>
-              <span>{getMarketEndtimeFull(startTimestamp)}</span>
-            </span>
+            <MarketTitleArea {...{ ...market }} />
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
