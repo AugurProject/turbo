@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
 import { formatCashPrice, formatDai, formatPercent } from "../../utils/format-number";
-import { getMarketEndtimeFull } from '../../utils/date-utils';
+import { getMarketEndtimeFull } from "../../utils/date-utils";
 import {
   CategoryIcon,
   CategoryLabel,
@@ -81,13 +81,16 @@ const OutcomesTable = ({
   amm: AmmExchange;
   marketOutcomes: MarketOutcome[];
   reportingState: string;
-}) => (
-  <div
-    className={classNames(Styles.OutcomesTable, {
-      [Styles.hasWinner]: marketOutcomes[0].isFinalNumerator,
-    })}
-  >
-    {orderOutcomesForDisplay(amm.ammOutcomes)
+}) => {
+  const { market: { hasWinner } } = amm;
+  const content = hasWinner ? (
+    <div className={Styles.WinningOutcome}>
+      <span>Winning Outcome</span>
+      <span>Detroit Pistons</span>
+      {ConfirmedCheck}
+    </div>
+  ) : (
+    orderOutcomesForDisplay(amm.ammOutcomes)
       .slice(0, 3)
       .map((outcome) => {
         const isWinner =
@@ -109,8 +112,27 @@ const OutcomesTable = ({
             </span>
           </div>
         );
+      })
+  );
+  return (
+    <div
+      className={classNames(Styles.OutcomesTable, {
+        [Styles.hasWinner]: hasWinner,
       })}
-  </div>
+    >
+      {content}
+    </div>
+  );
+};
+
+const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
+  <span>
+    <span>
+      {!!title && <span>{title}</span>}
+      {!!description && <span>{description}</span>}
+    </span>
+    <span>{getMarketEndtimeFull(startTimestamp)}</span>
+  </span>
 );
 
 export const MarketCardView = ({
@@ -124,7 +146,7 @@ export const MarketCardView = ({
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
 }) => {
-  const { categories, description, marketId, reportingState, title, startTimestamp } = market;
+  const { categories, marketId, reportingState, hasWinner } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
   return (
@@ -151,7 +173,7 @@ export const MarketCardView = ({
         </article>
         {!amm?.id ? (
           <>
-            <span>{description}</span>
+            <MarketTitleArea {...{ ...market }} />
             <div>
               <span>Market requires Initial liquidity</span>
               <PrimaryButton
@@ -167,17 +189,13 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <span>
-              <span>
-                {!!title && <span>{title}</span>}
-                {!!description && <span>{description}</span>}
-              </span>
-              <span>{getMarketEndtimeFull(startTimestamp)}</span>
-            </span>
+            <MarketTitleArea {...{ ...market }} />
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
-            <ValueLabel label="APY" value={formattedApy} />
+            <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
-            {extraOutcomes > 0 && <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>}
+            {!hasWinner && extraOutcomes > 0 && (
+              <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
+            )}
           </MarketLink>
         )}
       </div>

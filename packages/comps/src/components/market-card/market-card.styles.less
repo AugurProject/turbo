@@ -67,15 +67,50 @@
       }
     }
 
+    > a > span,
     > span {
-      .text-14-semi-bold;
-      .limit-lines(3);
+      > span:first-of-type {
+        .text-14-semi-bold;
 
-      color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+        line-height: 140%;
+
+        > span:first-of-type {
+          .limit-lines(1);
+        }
+
+        > span:last-of-type {
+          .limit-lines(2);
+        }
+
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
+        }
+      }
+
+      > span:last-of-type {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: uppercase;
+      }
+
+      &:first-of-type {
+        display: grid;
+        grid-gap: @size-4;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        margin: @size-16 0 @size-4;
+        text-align: left;
+        height: @size-78;
+      }
+    }
+
+    > span {
       grid-column: 1 / span 3;
-      margin: @size-16 0 @size-4;
-      text-align: left;
-      height: @size-80;
     }
 
     > a {
@@ -89,47 +124,8 @@
       grid-gap: @size-8;
 
       > span {
-        > span:first-of-type {
-          .text-14-semi-bold;
-
-          color: var(--simple-primary-text);
-          line-height: 140%;
-
-          > span:first-of-type {
-            .limit-lines(1);
-          }
-
-          > span:last-of-type {
-            .limit-lines(2);
-          }
-
-          > span:first-of-type:last-of-type {
-            .limit-lines(3);
-          }
-        }
-
-        > span:last-of-type {
-          .text-10-semi-bold;
-
-          color: var(--simple-secondary-text);
-          white-space: nowrap;
-          word-break: none;
-          display: inline-block;
-          text-transform: uppercase;
-        }
-        
         grid-column: 1 / span 3;
         grid-row: 1;
-
-        &:first-of-type {
-          display: grid;
-          grid-gap: @size-4;
-          grid-template-columns: 1fr;
-          grid-template-rows: auto 1fr;
-          margin: @size-16 0 @size-4;
-          text-align: left;
-          height: @size-78;
-        }
       }
 
       > div:first-of-type {
@@ -235,10 +231,6 @@ span.ExtraOutcomes {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
-
-      &.WinningOutcome {
-        border: @size-1 solid var(--color-brand);
-      }
     }
 
     &:last-of-type {
@@ -247,10 +239,6 @@ span.ExtraOutcomes {
       &:not(:first-of-type) {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
-      }
-
-      &.WinningOutcome {
-        border: @size-1 solid var(--color-brand);
       }
     }
 
@@ -282,14 +270,51 @@ span.ExtraOutcomes {
   }
 
   &.hasWinner {
-    > div:nth-last-child(2):not(.WinningOutcome) {
-      border-bottom: 0;
+    > div.WinningOutcome {
+      border: 0;
+      border-radius: 0;
+      align-items: center;
+      flex: 1 100%;
+      min-height: @size-40;
+      white-space: nowrap;
+      display: grid;
+      grid-gap: @size-4 @size-10;
+      grid-template-columns: 0fr 0fr;
+      grid-template-rows: auto auto;
+      margin-top: auto;
+      justify-items: flex-end;
+      align-self: flex-end;
+      padding: 0;
+
+      > span:first-of-type {
+        .text-12;
+
+        color: var(--simple-secondary-text);
+        text-transform: capitalize;
+        line-height: 140%;
+        min-height: @size-14;
+        max-height: @size-14;
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      > span:last-of-type {
+        .text-16-semi-bold;
+
+        color: var(--simple-primary-text);
+        line-height: 140%;
+        min-height: @size-22;
+        max-height: @size-22;
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+     > svg {
+       grid-column: 2;
+       grid-row: 2;
+     }
     }
   }
-}
-
-&.WinningOutcome {
-  background: var(--color-brand-20);
 }
 
 .LoadingMarketCard {
@@ -405,19 +430,27 @@ span.ExtraOutcomes {
         justify-content: space-between;
         grid-gap: 0;
 
-        > span {
+        > span:first-of-type {
           flex: 1 100%;
           order: 0;
+        }
+
+        > span:last-of-type:not(:first-of-type) {
+          flex: 1 100%;
+          order: 2;
+          height: @size-14;
+          margin-bottom: @size-4;
         }
 
         > div:first-of-type {
           align-items: center;
           justify-content: center;
           flex: 0;
-          order: 2;
+          order: 3;
           display: flex;
           flex-flow: row nowrap;
           grid-gap: 0;
+          margin-top: @size-8;
 
           > span:last-of-type {
             .text-14-semi-bold;
@@ -430,13 +463,18 @@ span.ExtraOutcomes {
           align-items: center;
           justify-content: center;
           flex: 0;
-          order: 3;
+          order: 4;
+          margin-top: @size-8;
         }
 
         > div.OutcomesTable {
           flex: 1 100%;
           order: 1;
-          margin-bottom: @size-16;
+          margin-bottom: @size-8;
+        }
+
+        > div[class*="ValueLabel"] > span:last-of-type {
+          white-space: nowrap;
         }
       }
     }
