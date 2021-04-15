@@ -217,6 +217,8 @@ export interface MarketInfo {
   claimedProceeds: ClaimedProceeds[];
   isInvalid: boolean;
   numTicks: string;
+  hasWinner: boolean;
+  winner?: string;
 }
 
 export interface MarketOutcome {
