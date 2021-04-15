@@ -39,26 +39,21 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     enum MarketType {HeadToHead, Spread, OverUnder}
 
     struct MarketDetails {
+        uint256 eventId;
         uint256 homeTeamId;
         uint256 awayTeamId;
         uint256 estimatedStartTime;
-        HeadToHeadMarketDetails headToHead;
-        SpreadMarketDetails spread;
-        OverUnderMarketDetails overUnder;
+        MarketType marketType;
+        // This value depends on the marketType.
+        // HeadToHead: ignored
+        // Spread: the home team spread
+        // OverUnder: total score in game
+        int256 value0;
     }
-    struct HeadToHeadMarketDetails {
-        uint256 marketId;
-    }
-    struct SpreadMarketDetails {
-        uint256 marketId;
-        int256 homeSpread;
-    }
-    struct OverUnderMarketDetails {
-        uint256 marketId;
-        int256 overUnderTotal;
-    }
-    // EventId => MarketDetails
+    // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
+    // EventId => [MarketId]
+    mapping(uint256 => uint256[3]) internal events;
 
     function createMarket(
         address _creator,
@@ -70,7 +65,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         int256 _overUnderTotal,
         uint256 _estimatedStartTime // signal to AMMs to stop trading and prevent the adding of new liquidity
     ) public onlyOwner returns (uint256[3] memory _ids) {
-        require(marketDetails[_eventId].estimatedStartTime == 0, "Markets already created");
+        // The first market id could be zero, so use another one that can't.
+        require(events[_eventId][2] == 0, "Markets already created");
 
         _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _estimatedStartTime);
         _ids[1] = createSpreadMarket(
@@ -92,14 +88,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _overUnderTotal
         );
 
-        marketDetails[_eventId] = MarketDetails(
-            _homeTeamId,
-            _awayTeamId,
-            _estimatedStartTime,
-            HeadToHeadMarketDetails(_ids[0]),
-            SpreadMarketDetails(_ids[1], _homeSpread),
-            OverUnderMarketDetails(_ids[2], _overUnderTotal)
-        );
+        events[_eventId] = _ids;
     }
 
     function createHeadToHeadMarket(
@@ -117,6 +106,14 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
         uint256 _id = markets.length;
         markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        marketDetails[_id] = MarketDetails(
+            _eventId,
+            _homeTeamId,
+            _awayTeamId,
+            _estimatedStartTime,
+            MarketType.HeadToHead,
+            0
+        );
         emit MarketCreated(
             _id,
             _creator,
@@ -147,6 +144,14 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
         uint256 _id = markets.length;
         markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        marketDetails[_id] = MarketDetails(
+            _eventId,
+            _homeTeamId,
+            _awayTeamId,
+            _estimatedStartTime,
+            MarketType.Spread,
+            _homeSpread
+        );
         emit MarketCreated(
             _id,
             _creator,
@@ -177,6 +182,14 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
         uint256 _id = markets.length;
         markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        marketDetails[_id] = MarketDetails(
+            _eventId,
+            _homeTeamId,
+            _awayTeamId,
+            _estimatedStartTime,
+            MarketType.OverUnder,
+            _overUnderTotal
+        );
         emit MarketCreated(
             _id,
             _creator,
@@ -200,19 +213,17 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         int256 _homeScore,
         int256 _awayScore
     ) public onlyOwner {
-        MarketDetails memory _details = marketDetails[_eventId];
-        resolveHeadToHeadMarket(_homeScore, _awayScore, _details);
-        resolveSpreadMarket(_homeScore, _awayScore, _details);
-        resolveOverUnderMarket(_homeScore, _awayScore, _details);
+        uint256[3] memory _ids = events[_eventId];
+        resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
+        resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
+        resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
     }
 
     function resolveHeadToHeadMarket(
+        uint256 _id,
         int256 _homeScore,
-        int256 _awayScore,
-        MarketDetails memory _details
+        int256 _awayScore
     ) internal {
-        uint256 _id = _details.headToHead.marketId;
-
         OwnedERC20 _winner;
         if (_homeScore > _awayScore) {
             _winner = markets[_id].shareTokens[2];
@@ -227,12 +238,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     }
 
     function resolveSpreadMarket(
+        uint256 _id,
         int256 _homeScore,
-        int256 _awayScore,
-        MarketDetails memory _details
+        int256 _awayScore
     ) internal {
-        uint256 _id = _details.spread.marketId;
-        int256 _targetSpread = _details.spread.homeSpread;
+        MarketDetails memory _details = marketDetails[_id];
+        int256 _targetSpread = _details.value0;
+
         int256 _actualSpread = _homeScore.sub(_awayScore);
 
         OwnedERC20 _winner;
@@ -249,12 +261,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     }
 
     function resolveOverUnderMarket(
+        uint256 _id,
         int256 _homeScore,
-        int256 _awayScore,
-        MarketDetails memory _details
+        int256 _awayScore
     ) internal {
-        uint256 _id = _details.overUnder.marketId;
-        int256 _targetTotal = _details.overUnder.overUnderTotal;
+        MarketDetails memory _details = marketDetails[_id];
+        int256 _targetTotal = _details.value0;
+
         int256 _actualTotal = _homeScore.add(_awayScore);
 
         OwnedERC20 _winner;
@@ -270,9 +283,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         emit MarketResolved(_id, address(_winner));
     }
 
-    // Markets in this factory are bundled together by EventId.
-    function getMarketDetails(uint256 _eventId) public view returns (MarketDetails memory) {
-        return marketDetails[_eventId];
+    function getMarketDetails(uint256 _marketId) public view returns (MarketDetails memory) {
+        return marketDetails[_marketId];
     }
 
     function onTransferOwnership(address, address) internal override {}

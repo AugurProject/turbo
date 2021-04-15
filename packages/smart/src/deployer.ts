@@ -18,14 +18,13 @@ import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
 import { mapOverObject } from "./utils/common-functions";
 
 const BASIS = BigNumber.from(10).pow(18);
+export const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
 
 export class Deployer {
   constructor(readonly signer: Signer, public confirmations: number = 0) {}
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
-    const chainId = await this.signer.getChainId();
-
     console.log("Deploying test contracts");
     const collateral = await this.deployCollateral("USDC", "USDC", 6);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
@@ -46,7 +45,7 @@ export class Deployer {
     );
 
     console.log("Deploying AMMFactory, which works for all market factories");
-    const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
+
     const ammFactory = await this.deployAMMFactory(balancerFactory.address, swapFee);
 
     console.log("Done deploying!");
