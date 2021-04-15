@@ -434,6 +434,7 @@ const TradingForm = ({
           marketType={marketType}
           orderType={orderType}
           ammCash={ammCash}
+          dontFilterInvalid
         />
         <AmountInput
           chosenCash={isBuy ? ammCash?.name : SHARES}

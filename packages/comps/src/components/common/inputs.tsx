@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { EthIcon, LinkIcon, UsdIcon, XIcon } from './icons';
+import { EthIcon, UsdIcon, XIcon } from './icons';
 import Styles from './inputs.styles.less';
 import {
   getCashFormat,
@@ -13,8 +13,6 @@ import {
   USDC,
   ERROR_AMOUNT,
   SHARES,
-  YES_OUTCOME_ID,
-  YES_NO,
   ETH,
 } from '../../utils/constants';
 import { useAppStatusStore } from '../../stores/app-status';
@@ -229,15 +227,15 @@ const Outcome = ({
   const formattedPrice = formatDai(outcome.price);
   return (
     <div
-      onClick={() => (outcome.isInvalid ? null : onClick())}
-      className={classNames(Styles.Outcome, `${Styles[`color-${index + 1}`]}`, {
+      onClick={onClick}
+      className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.Edited]: customVal !== '',
         [Styles.showAsButton]: showAsButton,
         [Styles.loggedOut]: !isLogged,
-        [Styles.disabled]: !isLogged && outcome.isInvalid,
+        [Styles.disabled]: !isLogged,
         [Styles.Error]: error,
         [Styles.noClick]: noClick,
       })}
@@ -263,17 +261,12 @@ const Outcome = ({
           />
         </div>
       ) : (
-        <>
-          {!outcome.isInvalid && (
             <span>
               {
                 formatCashPrice(formattedPrice.fullPrecision, ammCash?.name)
                   .full
               }
             </span>
-          )}
-          {outcome.isInvalid && LinkIcon}
-        </>
       )}
     </div>
   );
@@ -326,7 +319,7 @@ export const OutcomesGrid = ({
             selected={
               selectedOutcome &&
               (outcome.id === selectedOutcome.id ||
-                (showAllHighlighted && !outcome.isInvalid))
+                showAllHighlighted)
             }
             index={index}
             nonSelectable={nonSelectable}
