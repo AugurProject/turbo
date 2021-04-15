@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn smart build && yarn comps transpile && tsc -b",
+    "build:clean": "tsc -b --clean",
     "clean": "git clean -e .idea -xdf",
     "rebuild": "yarn clean && yarn && yarn build",
     "test": "yarn smart test",
