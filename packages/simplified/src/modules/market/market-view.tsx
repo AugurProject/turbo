@@ -192,6 +192,7 @@ const MarketView = ({ defaultMarket = null }) => {
           marketType={YES_NO}
           orderType={BUY}
           ammCash={amm?.cash}
+          dontFilterInvalid
           noClick
         />
         <SimpleChartSection {...{ market, cash: amm?.cash }} />

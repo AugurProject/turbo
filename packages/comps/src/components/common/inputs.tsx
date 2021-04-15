@@ -229,7 +229,7 @@ const Outcome = ({
   const formattedPrice = formatDai(outcome.price);
   return (
     <div
-      onClick={() => (outcome.isInvalid ? null : onClick())}
+      onClick={onClick}
       className={classNames(Styles.Outcome, `${Styles[`color-${index + 1}`]}`, {
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
@@ -263,17 +263,12 @@ const Outcome = ({
           />
         </div>
       ) : (
-        <>
-          {!outcome.isInvalid && (
             <span>
               {
                 formatCashPrice(formattedPrice.fullPrecision, ammCash?.name)
                   .full
               }
             </span>
-          )}
-          {outcome.isInvalid && LinkIcon}
-        </>
       )}
     </div>
   );
@@ -326,7 +321,7 @@ export const OutcomesGrid = ({
             selected={
               selectedOutcome &&
               (outcome.id === selectedOutcome.id ||
-                (showAllHighlighted && !outcome.isInvalid))
+                showAllHighlighted)
             }
             index={index}
             nonSelectable={nonSelectable}
