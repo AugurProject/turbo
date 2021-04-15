@@ -142,27 +142,24 @@ const MarketView = ({ defaultMarket = null }) => {
   // @ts-ignore
   // const currentAMMs = getCurrentAmms(market, markets);
 
-  const { reportingState, outcomes } = market;
+  const { reportingState, outcomes, title, description, startTimestamp, categories } = market;
   const winningOutcomes = getWinningOutcome(amm?.ammOutcomes, outcomes);
   return (
     <div className={Styles.MarketView}>
-      <SEO
-        {...MARKETS_LIST_HEAD_TAGS}
-        title={market.description}
-        ogTitle={market.description}
-        twitterTitle={market.description}
-      />
+      <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
       <section>
         <NetworkMismatchBanner />
         {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
-          <CategoryIcon big categories={market.categories} />
-          <CategoryLabel big categories={market.categories} />
+          <CategoryIcon big categories={categories} />
+          <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
           <InvalidFlagTipIcon {...{ market, big: true }} />
           <CurrencyLabel name={amm?.cash?.name} />
         </div>
-        <h1>{market.description}</h1>
+        {!!title && <h1>{title}</h1>}
+        {!!description && <h2>{description}</h2>}
+        {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp)}</span>}
         {reportingState === MARKET_STATUS.FINALIZED && winningOutcomes.length > 0 && (
           <WinningOutcomeLabel winningOutcome={winningOutcomes[0]} />
         )}

@@ -14,7 +14,8 @@
         display: none;
       }
 
-      > h1 {
+      > h1,
+      > h2 {
         .text-30-bold;
 
         color: var(--simple-primary-text);
@@ -23,7 +24,15 @@
         overflow-wrap: break-word;
         word-wrap: break-word;
         word-break: break-word;
-        hyphens: auto;
+        hyphens: none;
+      }
+
+      > span:first-of-type {
+        .text-16-semi-bold;
+
+        color: var(--simple-secondary-text);
+        margin-top: @size-12;
+        text-transform: uppercase;
       }
 
       > div[class*='Outcomes'] {
@@ -31,7 +40,6 @@
       }
 
       > div,
-      > h1,
       > ul,
       > span,
       > article,
@@ -401,8 +409,11 @@
       max-width: unset;
       grid-gap: unset;
 
+      > span:first-of-type {
+        .text-14-semi-bold;
+      }
+
       > div,
-      > h1,
       > ul,
       > span,
       > article,
