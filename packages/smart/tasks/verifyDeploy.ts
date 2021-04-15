@@ -1,4 +1,5 @@
 import { task } from "hardhat/config";
+import { swapFee } from "../src";
 
 task("verifyDeploy", "Verify contract deploy")
   .addParam("addresses", "Deployed addresses")
@@ -50,7 +51,7 @@ task("verifyDeploy", "Verify contract deploy")
       console.log("verify::ammFactory", ammFactory);
       await hre.run("verify:verify", {
         address: ammFactory,
-        constructorArguments: [balancerFactory],
+        constructorArguments: [balancerFactory, swapFee],
       });
     }
 
