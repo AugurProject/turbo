@@ -1,18 +1,7 @@
 import { extendConfig, HardhatUserConfig, task } from "hardhat/config";
 import { ethers } from "ethers";
 
-import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import path from "path";
-import "@nomiclabs/hardhat-etherscan";
-
-import {
-  ContractDeployConfig,
-  Deploy,
-  Deployer,
-  EthersFastSubmitWallet,
-  isContractDeployTestConfig,
-  mapOverObject,
-} from "../src";
+import { EthersFastSubmitWallet, mapOverObject } from "../src";
 import "hardhat/types/config";
 import {
   HardhatConfig,
@@ -26,39 +15,40 @@ import {
   NetworkConfig,
 } from "hardhat/types";
 
-task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
+task("deploy", "Deploy Turbo").setAction(async (args, hre, runSuper) => {
   if (!hre.config.contractDeploy) throw Error(`When deploying you must specify deployConfig in the hardhat config`);
 
-  const signer = await makeSigner(hre);
-  const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
-  const deployer = new Deployer(signer, confirmations);
-
-  let deploy: Deploy;
-  const network = await hre.ethers.provider.getNetwork();
-
-  if (isContractDeployTestConfig(hre.config.contractDeploy)) {
-    deploy = await deployer.deployTest();
-  } else {
-    const { externalAddresses } = hre.config.contractDeploy;
-    deploy = await deployer.deployProduction(externalAddresses);
-  }
-
-  console.log(JSON.stringify(deploy, null, 2));
-
-  const addressFilePath = path.resolve(__dirname, "../addresses.ts");
-  updateAddressConfig(addressFilePath, network.chainId, deploy.addresses);
+  await runSuper(args);
 
   // Verify deploy
-  if (hre.config.etherscan?.apiKey && deploy?.addresses && ["kovan", "mainnet"].includes(hre.network.name)) {
+  if (["kovan", "mainnet"].includes(hre.network.name)) {
     console.log("Verifying deployment");
-    await hre.run("verifyDeploy", {
-      account: await signer.getAddress(),
-      addresses: JSON.stringify(deploy.addresses),
-    });
+    await hre.run("etherscan-verify", hre.config.etherscan);
   } else {
     console.log("Skipping verification of deployment");
   }
 });
+
+export type DeployStrategy = "test" | "production";
+
+export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;
+
+export interface ContractDeployCommonConfig {
+  strategy: DeployStrategy;
+}
+
+export interface ContractDeployTestConfig extends ContractDeployCommonConfig {
+  strategy: "test";
+}
+
+export interface ContractDeployProductionConfig extends ContractDeployCommonConfig {
+  strategy: "production";
+  externalAddresses: ContractDeployExternalAddresses;
+}
+
+export interface ContractDeployExternalAddresses {
+  reputationToken: string;
+}
 
 declare module "hardhat/types/config" {
   export interface HardhatUserConfig {
@@ -89,6 +79,16 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
     return [name, networkConfig];
   });
 });
+
+export function isContractDeployTestConfig(thing?: ContractDeployConfig): thing is ContractDeployTestConfig {
+  return thing?.strategy === "test";
+}
+
+export function isContractDeployProductionConfig(
+  thing?: ContractDeployConfig
+): thing is ContractDeployProductionConfig {
+  return thing?.strategy === "production";
+}
 
 export function isHttpNetworkConfig(networkConfig?: NetworkConfig): networkConfig is HttpNetworkConfig {
   return (networkConfig as HttpNetworkConfig)?.url !== undefined;
