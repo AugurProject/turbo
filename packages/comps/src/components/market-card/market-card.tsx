@@ -175,7 +175,7 @@ export const MarketCardView = ({
               <span>{getMarketEndtimeFull(startTimestamp)}</span>
             </span>
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
-            <ValueLabel label="APY" value={formattedApy} />
+            <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable amm={amm} marketOutcomes={amm?.ammOutcomes} reportingState={reportingState} />
             {extraOutcomes > 0 && <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>}
           </MarketLink>
