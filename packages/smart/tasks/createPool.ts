@@ -1,10 +1,16 @@
 import { task, types } from "hardhat/config";
 
-import { createPool } from "../src";
 import "hardhat/types/config";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
-import { ethers } from "ethers";
-import { Cash__factory, PriceMarketFactory__factory } from "../typechain";
+import { ethers, Signer } from "ethers";
+import {
+  AbstractMarketFactory__factory,
+  AMMFactory__factory,
+  BPool,
+  BPool__factory,
+  Cash__factory,
+  PriceMarketFactory__factory,
+} from "../typechain";
 import { BigNumberish } from "ethers/lib/ethers";
 
 task("createPool", "Create a balancer pool for an AMM")
@@ -51,3 +57,24 @@ task("createPool", "Create a balancer pool for an AMM")
     );
     console.log(`Pool: ${pool.address}`);
   });
+
+export async function createPool(
+  signer: Signer,
+  ammFactoryAddress: string,
+  marketFactoryAddress: string,
+  marketId: BigNumberish,
+  initialLiquidity: BigNumberish,
+  weights: BigNumberish[],
+  confirmations: number
+): Promise<BPool> {
+  const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
+  const marketFactory = AbstractMarketFactory__factory.connect(marketFactoryAddress, signer);
+  const lpTokenRecipient = await signer.getAddress();
+
+  await ammFactory
+    .createPool(marketFactory.address, marketId, initialLiquidity, weights, lpTokenRecipient, {})
+    .then((tx) => tx.wait(confirmations));
+
+  const pool = await ammFactory.callStatic.pools(marketFactoryAddress, marketId);
+  return BPool__factory.connect(pool, signer);
+}

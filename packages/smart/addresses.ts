@@ -5,7 +5,7 @@ export interface Addresses {
   balancerFactory: string;
   marketFactory: string;
   ammFactory: string;
-  theRundownChainlink: string;
+  theRundownChainlink?: string;
 }
 export enum ChainId {
   Mainnet = 1,
@@ -20,16 +20,7 @@ type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
 export const addresses: AddressMapping = {
-  31337: {
-    theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
-    collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    marketFactory: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-    ammFactory: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-  },
   212984383488152: {
-    theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
     collateral: "0xe5aa91537A66e884178B2A9faD97afFfe78b5EC5",
     reputationToken: "0xA50667Cf776fcb033001F1ff54fC313E90ABE508",
     balancerFactory: "0x60d10F04E830B5E5430C4e850d43127e893Ac396",
@@ -37,19 +28,24 @@ export const addresses: AddressMapping = {
     ammFactory: "0x6662b8850cE9455f1E1dd9A5f65103C0685A0FeE",
   },
   80001: {
-    theRundownChainlink: "0xC6420cCdaf6673216C39f83CfC2f498876CA1d39",
     collateral: "0x0aE2e61C5f0C5d40a93c44A855E649071F6Eb4C6",
     reputationToken: "0xaB6A64C82C32Cc079B626C1cac5Dce8aa2E3e3EF",
     balancerFactory: "0xd62e60a61F033658fc2D16cb82861e5776d1BFDf",
     marketFactory: "0x9a7c7af945bB7684909732a929F3047Dd984380F",
     ammFactory: "0xf0591767C4F1d47c2746387463De4B91A89231c5",
   },
+  31337: {
+    collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    marketFactory: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    ammFactory: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+  },
   42: {
-    collateral: "0x1F18eb6A026249332Dc503D48d3A35dC9Be1aDC2",
-    reputationToken: "0xac7A384d22d47280B5d57B703148Ac863ED4F11D",
-    balancerFactory: "0xE12642152109ff616805764aFA0C1BeF6AfFf200",
-    marketFactory: "0xeea418729d817d4d19f1BefB297D77A4F6dF33CC",
-    ammFactory: "0x2c0753C40164C0Bfefe728147E5Bf6e2a796f23C",
-    theRundownChainlink: "0xFc689887938AD96f65592A0776e8aD02850Ba655",
+    collateral: "0x1911Da9BE8a1E3B3499E2d45B3D0984b628e5314",
+    reputationToken: "0x0b4a774a6Bf746649BeDd31E4d5b36cD2E9852c3",
+    balancerFactory: "0x8D7b5b70fD45AD5764B17732171b1578ef7496c7",
+    marketFactory: "0x9d39fA5AF2BFEb3E9Bd6f555985acCd7cbCaB50c",
+    ammFactory: "0x80266c4922897D6E4dFbc21B715665BF315C7c54",
   },
 };
