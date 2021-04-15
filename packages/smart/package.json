@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn contracts:build && tsc -b",
+    "prebuild:watch": "yarn contracts:build",
     "build:watch": "tsc -b -w",
     "build:typescript": "tsc -b",
     "test": "hardhat test",

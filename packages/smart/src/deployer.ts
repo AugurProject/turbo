@@ -9,14 +9,13 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
-  AbstractMarketFactory__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  SportsLinkMarketFactory,
+  SportsLinkMarketFactory__factory,
   TheRundownChainlink,
   TheRundownChainlink__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
-import { mapOverObject, sleep } from "./utils/common-functions";
+import { mapOverObject } from "./utils/common-functions";
 
 const BASIS = BigNumber.from(10).pow(18);
 
@@ -25,17 +24,22 @@ export class Deployer {
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
+    const chainId = await this.signer.getChainId();
+
     console.log("Deploying test contracts");
     const collateral = await this.deployCollateral("USDC", "USDC", 6);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
-    const theRundownChainlink = await this.deployTheRundownChainlink();
+
+    // TODO this needs to accept external addrs for linkToken and linkOracle, so deploy will work outside of kovan
+    //      https://github.com/AugurProject/turbo/issues/158
+    // const theRundownChainlink = await this.deployTheRundownChainlink();
 
     console.log("Deploying trusted market factory for REP");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
     const stakerFee = 0;
     const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
-    const marketFactory = await this.deployTrustedMarketFactory(
+    const marketFactory = await this.deploySportsLinkMarketFactory(
       reputationToken.address,
       collateral.address,
       collateral.address,
@@ -44,44 +48,9 @@ export class Deployer {
       creatorFee
     );
 
-    console.log("Creating a market for testing");
-    const duration = 60 * 60 * 24; // one day
-    const marketId = await createMarket(
-      this.signer,
-      marketFactory.address,
-      duration,
-      "market created with test deploy",
-      ["No Contest", "Everyone Dies", "Elves Win", "Orcs Win"],
-      this.confirmations
-    );
-    console.log(`Created market: ${marketId}`);
-
-    console.log("Creating AMM for testing");
+    console.log("Deploying AMMFactory, which works for all market factories");
     const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
-    const weights = [
-      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
-      BASIS.mul(2).div(2), // No Contest at 2%, the lowest possible weight
-      BASIS.mul(2).div(2), // Everyone Dies at 2%, the lowest possible weight
-      BASIS.mul(48).div(2), // Elves Win at 48%
-      BASIS.mul(48).div(2), // Orcs Win at 48%
-    ];
     const ammFactory = await this.deployAMMFactory(balancerFactory.address, swapFee);
-    const initialLiquidity = BASIS.mul(1000); // 1000 of the collateral
-    console.log("Fauceting collateral for AMM");
-    await collateral.faucet(initialLiquidity).then((tx) => tx.wait(this.confirmations));
-    console.log("Approving the AMM to spend some of the deployer's collateral");
-    await collateral.approve(ammFactory.address, initialLiquidity).then((tx) => tx.wait(this.confirmations));
-    console.log("Creating pool");
-    await sleep(10000); // matic needs a little time
-    await createPool(
-      this.signer,
-      ammFactory.address,
-      marketFactory.address,
-      marketId,
-      initialLiquidity,
-      weights,
-      this.confirmations
-    );
 
     console.log("Done deploying!");
 
@@ -92,13 +61,11 @@ export class Deployer {
         balancerFactory,
         marketFactory,
         ammFactory,
-        theRundownChainlink,
       },
       (name, contract) => [name, contract.address]
     );
     return {
       addresses,
-      marketId,
     };
   }
 
@@ -126,19 +93,19 @@ export class Deployer {
     return this.deploy(name, () => new Cash__factory(this.signer).deploy(name, symbol, decimals));
   }
 
-  async deployTrustedMarketFactory(
+  async deploySportsLinkMarketFactory(
     tokenIn: string,
     tokenOut: string,
     collateral: string,
     feePot: string,
     stakerFee: BigNumberish,
     creatorFee: BigNumberish
-  ): Promise<TrustedMarketFactory> {
+  ): Promise<SportsLinkMarketFactory> {
     const owner = await this.signer.getAddress();
     const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
     const shareFactor = calcShareFactor(decimals);
-    return this.deploy("priceMarketFactory", () =>
-      new TrustedMarketFactory__factory(this.signer).deploy(
+    return this.deploy("sportsLinkMarketFactory", () =>
+      new SportsLinkMarketFactory__factory(this.signer).deploy(
         owner,
         collateral,
         shareFactor,
@@ -183,48 +150,6 @@ export interface Deploy {
   addresses: { [name: string]: string };
 
   [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
-}
-
-export async function createMarket(
-  signer: Signer,
-  marketFactoryAddress: string,
-  duration: BigNumberish,
-  description: string,
-  outcomes: string[],
-  confirmations: number
-): Promise<BigNumberish> {
-  const marketFactory = TrustedMarketFactory__factory.connect(marketFactoryAddress, signer);
-  const creator = await signer.getAddress();
-
-  const now = BigNumber.from(Date.now()).div(1000);
-  const endTime = now.add(duration);
-
-  const marketId = await marketFactory.callStatic.createMarket(creator, endTime, description, outcomes, outcomes);
-  await marketFactory
-    .createMarket(creator, endTime, description, outcomes, outcomes)
-    .then((tx) => tx.wait(confirmations));
-  return marketId;
-}
-
-export async function createPool(
-  signer: Signer,
-  ammFactoryAddress: string,
-  marketFactoryAddress: string,
-  marketId: BigNumberish,
-  initialLiquidity: BigNumberish,
-  weights: BigNumberish[],
-  confirmations: number
-): Promise<BPool> {
-  const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
-  const marketFactory = AbstractMarketFactory__factory.connect(marketFactoryAddress, signer);
-  const lpTokenRecipient = await signer.getAddress();
-
-  await ammFactory
-    .createPool(marketFactory.address, marketId, initialLiquidity, weights, lpTokenRecipient, {})
-    .then((tx) => tx.wait(confirmations));
-
-  const pool = await ammFactory.callStatic.pools(marketFactoryAddress, marketId);
-  return BPool__factory.connect(pool, signer);
 }
 
 export type DeployStrategy = "test" | "production";

@@ -47,7 +47,7 @@ const config: HardhatUserConfig = {
     hardhat: {},
     kovan: {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
-      gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
+      gas: 9000000, // to fit createPool calls, which fails to estimate gas correctly
       confirmations: 1,
     },
     arbitrumKovan4: {
