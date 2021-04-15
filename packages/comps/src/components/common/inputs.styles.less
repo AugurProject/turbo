@@ -246,6 +246,17 @@
       margin-right: @size-8;
     }
   }
+  
+  &.noClick {
+    border: @size-1 solid var(--simple-border);
+    border-radius: @size-8;
+
+    > div {
+      &:not(:first-of-type) {
+        margin-top: 0
+      }
+    }
+  }
 }
 
 .SelectedBorders {
@@ -304,46 +315,43 @@
     }
   }
 
-  &.nonSelectable {
-    height: @size-80;
-    min-height: @size-80;
+  // &.nonSelectable {
+  //   > span:nth-of-type(2) {
+  //     margin-top: @size-8;
+  //   }
 
-    > span:nth-of-type(2) {
-      margin-top: @size-8;
-    }
+  //   > span:last-of-type,
+  //   > div > span,
+  //   > div > input {
+  //     .text-20-bold;
+  //   }
 
-    > span:last-of-type,
-    > div > span,
-    > div > input {
-      .text-20-bold;
-    }
+  //   > span:first-of-type {
+  //     margin-top: 0;
+  //   }
 
-    > span:first-of-type {
-      margin-top: 0;
-    }
+  //   &.Selected,
+  //   &:not(.Selected):hover {
+  //     .SimpleBorder;
 
-    &.Selected,
-    &:not(.Selected):hover {
-      .SimpleBorder;
-
-      background: transparent;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      color: var(--simple-secondary-text);
-      border-left: @size-1 solid transparent;
-      cursor: auto;
+  //     background: transparent;
+  //     border-top-left-radius: 0;
+  //     border-bottom-left-radius: 0;
+  //     color: var(--simple-secondary-text);
+  //     border-left: @size-1 solid transparent;
+  //     cursor: auto;
       
-      > span:first-of-type {
-        color: var(--simple-secondary-text);
-      }
-    }
+  //     > span:first-of-type {
+  //       color: var(--simple-secondary-text);
+  //     }
+  //   }
 
-    &.Edited {
-      > div > span {
-        color: var(--simple-primary-text);
-      }
-    }
-  }
+  //   &.Edited {
+  //     > div > span {
+  //       color: var(--simple-primary-text);
+  //     }
+  //   }
+  // }
 
   &.showAsButton {
     justify-content: center;
@@ -372,11 +380,13 @@
 
   &.noClick {
     pointer-events: none;
+    background-color: var(--simple-ultra-light-gray);
     border: 0;
-    padding-left: @size-32;
 
-    &.ShowAllHighlighted {
-      border: 0;
+    &:not(:last-of-type) {
+      border-bottom: @size-1 solid var(--simple-border);
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
     }
   }
 }
