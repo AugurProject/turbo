@@ -55,8 +55,8 @@ import {
   AMMFactory__factory,
   BPool,
   BPool__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  SportsLinkMarketFactory,
+  SportsLinkMarketFactory__factory,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle } from "./derived-market-data";
@@ -1190,9 +1190,9 @@ const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFact
   return AMMFactory__factory.connect(ammFactory, getProviderOrSigner(library, account));
 };
 
-const getMarketFactoryContract = (library: Web3Provider, account?: string): TrustedMarketFactory => {
+const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
   const { marketFactory } = PARA_CONFIG;
-  return TrustedMarketFactory__factory.connect(marketFactory, getProviderOrSigner(library, account));
+  return SportsLinkMarketFactory__factory.connect(marketFactory, getProviderOrSigner(library, account));
 };
 
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {
