@@ -65,7 +65,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         int256 _overUnderTotal,
         uint256 _estimatedStartTime // signal to AMMs to stop trading and prevent the adding of new liquidity
     ) public onlyOwner returns (uint256[3] memory _ids) {
-        require(marketDetails[_eventId].estimatedStartTime == 0, "Markets already created");
+        // The first market id could be zero, so use another one that can't.
+        require(events[_eventId][2] == 0, "Markets already created");
 
         _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _estimatedStartTime);
         _ids[1] = createSpreadMarket(
@@ -282,9 +283,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         emit MarketResolved(_id, address(_winner));
     }
 
-    // Markets in this factory are bundled together by EventId.
-    function getMarketDetails(uint256 _eventId) public view returns (MarketDetails memory) {
-        return marketDetails[_eventId];
+    function getMarketDetails(uint256 _marketId) public view returns (MarketDetails memory) {
+        return marketDetails[_marketId];
     }
 
     function onTransferOwnership(address, address) internal override {}
