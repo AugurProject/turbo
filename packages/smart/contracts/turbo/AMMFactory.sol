@@ -110,7 +110,7 @@ contract AMMFactory {
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        uint256 _minSetsToSell = _minCollateralOut;
+        uint256 _minSetsToSell = _marketFactory.calcShares(_minCollateralOut);
         uint256 _setsToSell = MAX_UINT;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
