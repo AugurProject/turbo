@@ -357,7 +357,7 @@ export const estimateSellTrade = async (
   }
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
-  const swaps = userBalances.map((b, i) => (i === selectedOutcomeId ? b : "0"));
+  const shareTokenBalance = userBalances[selectedOutcomeId];
   console.log(
     "estimate sell",
     "hatchery",
@@ -370,7 +370,7 @@ export const estimateSellTrade = async (
     swaps
   );
   const breakdownWithFeeRaw = await ammFactoryContract.callStatic
-    .sell(marketFactoryAddress, turboId, selectedOutcomeId, swaps, 0)
+    .sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, shareTokenBalance, 0)
     .catch((e) => console.log(e));
 
   if (!breakdownWithFeeRaw) return null;
@@ -417,6 +417,7 @@ export async function doTrade(
   if (!provider) return console.error("doTrade: no provider");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
+  const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
   if (tradeDirection === TradingDirection.ENTRY) {
     console.log("minAmount", minAmount);
     const bareMinAmount = new BN(minAmount).lt(0) ? 0 : minAmount;
@@ -424,7 +425,6 @@ export async function doTrade(
     const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(bareMinAmount, cash.decimals)
       .decimalPlaces(0)
       .toFixed();
-    const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
     console.log(
       "address",
       marketFactoryAddress,
@@ -476,12 +476,11 @@ export async function doTrade(
       String(onChainMinAmount)
     );
 
-    return ammFactoryContract.sell(
-      amm.marketId,
-      cash.shareToken,
-      new BN(amm.feeRaw),
-      shortShares,
-      longShares,
+    return ammFactoryContract.sellForCollateral(
+      marketFactoryAddress,
+      turboId,
+      selectedOutcomeId,
+      inputOnChainSharesAmount,
       onChainMinAmount
     );
   }
