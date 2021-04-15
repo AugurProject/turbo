@@ -231,10 +231,6 @@ span.ExtraOutcomes {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
-
-      &.WinningOutcome {
-        border: @size-1 solid var(--color-brand);
-      }
     }
 
     &:last-of-type {
@@ -243,10 +239,6 @@ span.ExtraOutcomes {
       &:not(:first-of-type) {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
-      }
-
-      &.WinningOutcome {
-        border: @size-1 solid var(--color-brand);
       }
     }
 
@@ -278,14 +270,51 @@ span.ExtraOutcomes {
   }
 
   &.hasWinner {
-    > div:nth-last-child(2):not(.WinningOutcome) {
-      border-bottom: 0;
+    > div.WinningOutcome {
+      border: 0;
+      border-radius: 0;
+      align-items: center;
+      flex: 1 100%;
+      min-height: @size-40;
+      white-space: nowrap;
+      display: grid;
+      grid-gap: @size-4 @size-10;
+      grid-template-columns: 0fr 0fr;
+      grid-template-rows: auto auto;
+      margin-top: auto;
+      justify-items: flex-end;
+      align-self: flex-end;
+      padding: 0;
+
+      > span:first-of-type {
+        .text-12;
+
+        color: var(--simple-secondary-text);
+        text-transform: capitalize;
+        line-height: 140%;
+        min-height: @size-14;
+        max-height: @size-14;
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      > span:last-of-type {
+        .text-16-semi-bold;
+
+        color: var(--simple-primary-text);
+        line-height: 140%;
+        min-height: @size-22;
+        max-height: @size-22;
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+     > svg {
+       grid-column: 2;
+       grid-row: 2;
+     }
     }
   }
-}
-
-&.WinningOutcome {
-  background: var(--color-brand-20);
 }
 
 .LoadingMarketCard {
