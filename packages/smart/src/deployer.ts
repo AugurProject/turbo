@@ -30,10 +30,7 @@ export class Deployer {
     const collateral = await this.deployCollateral("USDC", "USDC", 6);
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
-
-    // TODO this needs to accept external addrs for linkToken and linkOracle, so deploy will work outside of kovan
-    //      https://github.com/AugurProject/turbo/issues/158
-    // const theRundownChainlink = await this.deployTheRundownChainlink();
+    const theRundownChainlink = await this.deployTheRundownChainlink();
 
     console.log("Deploying trusted market factory for REP");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
@@ -61,6 +58,7 @@ export class Deployer {
         balancerFactory,
         marketFactory,
         ammFactory,
+        theRundownChainlink
       },
       (name, contract) => [name, contract.address]
     );

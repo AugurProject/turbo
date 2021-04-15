@@ -22,7 +22,7 @@ export interface ContractInterfaces {
   AMMFactory: AMMFactory;
   MarketFactory: SportsLinkMarketFactory;
   ReputationToken: Cash;
-  // TheRundownChainlink: TheRundownChainlink;
+  TheRundownChainlink: TheRundownChainlink;
 }
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
@@ -33,6 +33,6 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
     AMMFactory: AMMFactory__factory.connect(contractAddresses.ammFactory, signerOrProvider),
     MarketFactory: SportsLinkMarketFactory__factory.connect(contractAddresses.marketFactory, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
-    // TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
+    TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
   };
 }
