@@ -29,6 +29,9 @@ import {
   convertOnChainCashAmountToDisplayCashAmount,
   convertOnChainSharesToDisplayShareAmount,
   isSameAddress,
+  lpTokensOnChainToDisplay,
+  lpTokensDisplayToOnChain,
+  sharesOnChaintoDisplay,
 } from "./format-number";
 import {
   ETH,
@@ -55,7 +58,6 @@ import {
   TrustedMarketFactory__factory,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories } from "./team-helpers";
-import { getMarketEndtimeFull } from "./date-utils";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -102,7 +104,7 @@ export const checkConvertLiquidityProperties = (
   };
 };
 
-export async function estimateLiquidityPool(
+export async function estimateAddLiquidityPool(
   account: string,
   provider: Web3Provider,
   amm: AmmExchange,
@@ -124,6 +126,7 @@ export async function estimateLiquidityPool(
   const ammAddress = amm?.id;
 
   let addLiquidityResults = null;
+
   if (!ammAddress) {
     addLiquidityResults = await ammFactoryContract.callStatic.createPool(
       marketFactoryAddress,
@@ -143,19 +146,14 @@ export async function estimateLiquidityPool(
     );
   }
 
-  console.log("addLiquidityResults", addLiquidityResults);
-
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
-    const lpTokens = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String(addLiquidityResults), 18));
-    // adding liquidity doesn't return any shares at this time.
-    const noShares = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String("0"), cash.decimals));
-    const yesShares = trimDecimalValue(convertOnChainSharesToDisplayShareAmount(String("0"), cash.decimals));
+    const lpTokens = trimDecimalValue(lpTokensOnChainToDisplay(String(addLiquidityResults)));
+    const minAmounts = ["0", "0", "0", "0"]; // get from estimate
 
     return {
       lpTokens,
-      yesShares,
-      noShares,
+      minAmounts,
     };
   }
 
@@ -183,9 +181,20 @@ export async function addLiquidityPool(
     priceYes
   );
   const ammAddress = amm?.id;
-  const minLptokenAmount = new BN(minAmount).times(0.99); // account for slippage
-  const minLpTokenAllowed = convertDisplayCashAmountToOnChainCashAmount(minLptokenAmount, 18).toFixed();
+  const minLptokenAmount = new BN(minAmount).times(0.99).decimalPlaces(0); // account for slippage
+  const minLpTokenAllowed = lpTokensDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
+  console.log(
+    "est add liq:",
+    marketFactoryAddress,
+    turboId,
+    "amount",
+    amount,
+    "weights",
+    weights,
+    "min",
+    minLpTokenAllowed
+  );
   if (!ammAddress) {
     tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account);
   } else {
@@ -232,33 +241,32 @@ export async function getRemoveLiquidity(
   balancerPoolId: string,
   provider: Web3Provider,
   cash: Cash,
-  fee: string,
   lpTokenBalance: string,
-  account: string
+  account: string,
+  outcomes: AmmOutcome[] = []
 ): Promise<LiquidityBreakdown | null> {
   if (!provider || !balancerPoolId) {
     console.error("getRemoveLiquidity: no provider or no balancer pool id");
     return null;
   }
   const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
-  const lpBalance = convertDisplayShareAmountToOnChainShareAmount(lpTokenBalance, cash?.decimals).toFixed();
+  // balancer lp tokens are 18 decimal places
+  const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
   const results = await balancerPool
-    .calcExitPool(lpBalance, ["0", "0", "0"]) // uint256[] calldata minAmountsOut values be?
+    .calcExitPool(
+      lpBalance,
+      outcomes.map((o) => "0")
+    ) // uint256[] calldata minAmountsOut values be?
     .catch((e) => console.log(e));
 
   if (!results) return null;
-
-  const shortShares = convertOnChainSharesToDisplayShareAmount(results[1], cash?.decimals).toFixed();
-  const longShares = convertOnChainSharesToDisplayShareAmount(results[2], cash?.decimals).toFixed();
   const minAmounts: string[] = results.map((v) =>
     convertOnChainSharesToDisplayShareAmount(String(v), cash?.decimals).toFixed()
   );
   const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
 
   return {
-    noShares: shortShares,
-    yesShares: longShares,
     minAmountsRaw,
     minAmounts,
   };
@@ -277,7 +285,7 @@ export function doRemoveLiquidity(
     return null;
   }
   const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
-  const lpBalance = convertDisplayShareAmountToOnChainShareAmount(lpTokenBalance, cash?.decimals).toFixed();
+  const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
   return balancerPool.exitPool(lpBalance, amountsRaw);
 }
@@ -573,7 +581,7 @@ export const getUserBalances = async (
           context: {
             dataKey: outcome.shareToken,
             collection: MARKET_SHARE_COLLECTION,
-            decimals: 18,
+            decimals: exchange?.cash?.decimals,
             marketId: exchange.marketId,
             outcomeId: outcome.id,
           },
@@ -608,7 +616,7 @@ export const getUserBalances = async (
     ];
   }
   // need different calls to get lp tokens and market share balances
-  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall]; //, ...contractLpBalanceCall];
+  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
 
   const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
@@ -619,7 +627,6 @@ export const getUserBalances = async (
     const rawBalance = new BN(balanceValue._hex).toFixed();
     const { dataKey, collection, decimals, marketId, outcomeId } = context;
     const balance = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(decimals));
-    const fixedBalance = balance.toFixed();
 
     if (method === BALANCE_OF) {
       if (!collection) {
@@ -629,9 +636,9 @@ export const getUserBalances = async (
           usdValue: balance.toFixed(),
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
-        userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
+        userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance), rawBalance, marketId };
       } else if (collection === MARKET_SHARE_COLLECTION) {
-        const fixedShareBalance = convertOnChainSharesToDisplayShareAmount(
+        const fixedShareBalance = convertOnChainCashAmountToDisplayCashAmount(
           new BN(rawBalance),
           new BN(decimals)
         ).toFixed();
@@ -657,8 +664,8 @@ export const getUserBalances = async (
           userBalances.marketShares[marketId] = {
             ammExchange: exchange,
             positions: [],
-            outcomeSharesRaw: ["0", "0", "0"], // this needs to be dynamic
-            outcomeShares: ["0", "0", "0"], // this needs to be dynamic
+            outcomeSharesRaw: [],
+            outcomeShares: [],
           };
           // calc user position here **
           const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
@@ -865,7 +872,7 @@ const getPositionUsdValues = (
   let positionFromRemoveLiquidity = false;
 
   // need to get this from outcome
-  const maxUsdValue = String(new BN(balance).times(new BN(amm.cash.usdPrice)));
+  const maxUsdValue = new BN(balance).times(new BN(amm.cash.usdPrice)).toFixed();
 
   let result = {
     avgPrice: "0",
@@ -874,7 +881,7 @@ const getPositionUsdValues = (
     positionFromLiquidity: false,
   };
 
-  const currUsdValue = String(new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)));
+  const currUsdValue = new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)).toFixed();
   const postitionResult = getInitPositionValues(trades, amm, false, account);
 
   if (postitionResult) {
@@ -921,20 +928,26 @@ export const getLPCurrentValue = async (
   amm: AmmExchange,
   account: string
 ): Promise<string> => {
-  const { cash, feeRaw, ammOutcomes } = amm;
-  if (!ammOutcomes || ammOutcomes.length === 0) return null;
+  const { cash, ammOutcomes } = amm;
+  if (!ammOutcomes || ammOutcomes.length === 0 || displayBalance === "0") return null;
   // todo: need a way to determine value of LP tokens
-  const estimate = await getRemoveLiquidity(amm.id, provider, cash, feeRaw, displayBalance, account).catch((error) =>
-    console.error("estimation error", error)
-  );
+  const estimate = await getRemoveLiquidity(
+    amm.id,
+    provider,
+    cash,
+    displayBalance,
+    account,
+    amm.ammOutcomes
+  ).catch((error) => console.error("getLPCurrentValue estimation error", error));
   if (estimate && estimate.minAmountsRaw) {
     const totalValueRaw = ammOutcomes.reduce(
-      (p, v, i) =>
-        p.plus(convertOnChainSharesToDisplayShareAmount(estimate.minAmountsRaw[i], amm.cash.decimals).times(v.price)),
+      (p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)),
       new BN(0)
     );
+
     // assuming cash is 1 usd value
-    return convertOnChainCashAmountToDisplayCashAmount(totalValueRaw, cash?.decimals).toFixed();
+    const value = sharesOnChaintoDisplay(totalValueRaw);
+    return value.times(amm?.cash?.usdPrice).toFixed();
   }
   return null;
 };

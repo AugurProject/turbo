@@ -27,7 +27,7 @@ type NumStrBigNumber = number | BigNumber | string;
 
 export const ETHER_NUMBER_OF_DECIMALS = 4;
 export const SHARES_SCALAR_NUMBER_OF_DECIMALS = 4;
-export const SHARES_NUMBER_OF_DECIMALS = 0;
+export const SHARES_NUMBER_OF_DECIMALS = 6;
 
 const SMALLEST_NUMBER_DECIMAL_PLACES = 8;
 const USUAL_NUMBER_DECIMAL_PLACES = 4;
@@ -143,7 +143,7 @@ export function formatFractional(num: NumStrBigNumber, opts: FormattedNumberOpti
   });
 }
 
-export function formatShares(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+export function formatLpTokens(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
   const formattedShares = formatNumber(num, {
     decimals: SHARES_NUMBER_OF_DECIMALS,
     decimalsRounded: SHARES_NUMBER_OF_DECIMALS,
@@ -628,6 +628,34 @@ export function convertOnChainCashAmountToDisplayCashAmount(
   onChainAmount: NumStrBigNumber,
   precision: NumStrBigNumber
 ) {
+  return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
+}
+
+export function sharesOnChaintoDisplay(
+  onChainAmount: NumStrBigNumber,
+  precision: NumStrBigNumber = 6,
+  numTicks: NumStrBigNumber = 3
+) {
+  return createBigNumber(onChainAmount).dividedBy(
+    createBigNumber(10).pow(createBigNumber(precision).plus(createBigNumber(numTicks)))
+  );
+}
+
+export function sharesDisplayToOnChainto(
+  onChainAmount: NumStrBigNumber,
+  precision: NumStrBigNumber = 6,
+  numTicks: NumStrBigNumber = 3
+) {
+  return createBigNumber(onChainAmount).multipliedBy(
+    createBigNumber(10).pow(createBigNumber(precision).plus(createBigNumber(numTicks)))
+  );
+}
+
+export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
+  return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
+}
+
+export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
