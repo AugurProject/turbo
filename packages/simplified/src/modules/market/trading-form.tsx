@@ -28,6 +28,7 @@ const {
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
   ButtonComps: { ApprovalButton, BuySellButton },
+  MarketCardComps: { orderOutcomesForDisplay },
   BuySellToggleSwitch,
 } = Components;
 const {
@@ -196,7 +197,7 @@ const TradingForm = ({
   const [amount, setAmount] = useState<string>('');
   const [waitingToSign, setWaitingToSign] = useState(false);
   const ammCash = getUSDC(cashes);
-  const outcomes = amm?.ammOutcomes || [];
+  const outcomes = orderOutcomesForDisplay(amm?.ammOutcomes || []);
   const isBuy = orderType === BUY;
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION

@@ -269,7 +269,6 @@ export const OutcomesGrid = ({
     >
       {outcomes
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
-        .reverse()
         .map((outcome, index) => (
           <Outcome
             key={outcome.id}
