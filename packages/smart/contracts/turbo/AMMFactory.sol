@@ -6,6 +6,7 @@ import "../balancer/BFactory.sol";
 import "../libraries/SafeMathUint256.sol";
 import "./AbstractMarketFactory.sol";
 
+
 contract AMMFactory {
     using SafeMathUint256 for uint256;
 
@@ -14,11 +15,13 @@ contract AMMFactory {
     BFactory public bFactory;
     // MarketFactory => Market => BPool
     mapping(address => mapping(uint256 => BPool)) public pools;
+    uint256 fee;
 
     event PoolCreated(address pool, address indexed marketFactory, uint256 indexed marketId, address indexed creator);
 
-    constructor(BFactory _bFactory) {
+    constructor(BFactory _bFactory, uint256 _fee) {
         bFactory = _bFactory;
+        fee = _fee;
     }
 
     function createPool(
@@ -45,13 +48,20 @@ contract AMMFactory {
         uint256 _sets = _marketFactory.calcShares(_initialLiquidity);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
-        // Setup pool
+        // Create pool
         BPool _pool = bFactory.newBPool();
+
+        // Add each outcome to the pool. Collateral is NOT added.
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
             _token.approve(address(_pool), MAX_UINT);
             _pool.bind(address(_token), _sets, _weights[i]);
         }
+
+        // Set the swap fee.
+        _pool.setSwapFee(fee);
+
+        // Finalize pool setup
         _pool.finalize();
 
         pools[address(_marketFactory)][_marketId] = _pool;

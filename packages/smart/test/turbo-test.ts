@@ -32,6 +32,9 @@ describe("Turbo", () => {
   const outcomeNames = ["No Contest", "All", "Many", "Few", "None"];
   const basis = BigNumber.from(10).pow(18);
   const usdcBasis = BigNumber.from(10).pow(6);
+  const stakerFee = 0;
+  const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
+  const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
 
   let collateral: Cash;
   let shareFactor: BigNumber;
@@ -50,15 +53,14 @@ describe("Turbo", () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    const smallFee = BigNumber.from(10).pow(16);
     shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
       feePot.address,
-      smallFee,
-      smallFee
+      stakerFee,
+      creatorFee
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -126,7 +128,7 @@ describe("Turbo", () => {
 
   it("can make an AMM", async () => {
     bFactory = await new BFactory__factory(signer).deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
     const weights = [
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
       basis.mul(2).div(2), // Invalid at 2%
@@ -151,7 +153,7 @@ describe("Turbo", () => {
 
     const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a8143038ecaf6c")); // hardcoded from observation
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x05797f9cd2e89cc26d")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
@@ -162,7 +164,7 @@ describe("Turbo", () => {
     await collateral.approve(ammFactory.address, collateralIn);
     expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal("4160233730836129960"); // hardcoded from observation
+    expect(await all.balanceOf(signer.address)).to.equal("4112930879157688824"); // hardcoded from observation
   });
 
   it("can see the outcome ratios in the AMM", async () => {
@@ -170,10 +172,10 @@ describe("Turbo", () => {
 
     const expectedRatios = [
       BigNumber.from(10).pow(18).toString(), // first is always 10^18
-      "0xa738c278386e76fb",
-      "0xad78f7240f30042d",
-      "0xad78f7240f30042d",
-      "0xa6889b55d123db0c",
+      "0xa9c295a09ba67ffb",
+      "0xb01d32efab1c052f",
+      "0xb01d32efab1c052f",
+      "0xa911ca7fae814ca8",
     ].map(BigNumber.from);
     ratios.forEach((price, index) => {
       expect(price.toHexString()).to.equal(expectedRatios[index].toHexString());
@@ -203,7 +205,7 @@ describe("Turbo", () => {
 
     await marketFactory.claimWinnings(marketId, signer.address);
 
-    const expectedWinnings = BigNumber.from("4118640"); // hardcoded from observation
+    const expectedWinnings = BigNumber.from("0x3ec22b"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);
