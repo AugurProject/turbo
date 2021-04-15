@@ -228,7 +228,7 @@ const Outcome = ({
   return (
     <div
       onClick={onClick}
-      className={classNames(Styles.Outcome, `${Styles[`color-${index + 1}`]}`, {
+      className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,

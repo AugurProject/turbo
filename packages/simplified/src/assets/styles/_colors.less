@@ -186,6 +186,7 @@
   --simple-brand: #2AE7A8;
 }
 
+@outcome-simp-0: #58586B; //--simple-invalid;
 @outcome-simp-1: #05B169; //--simple-yes;
 @outcome-simp-2: #FF7D5E; //--finance-color; 
 @outcome-simp-3:  #73D2DE; //--medical-color; 
@@ -195,7 +196,7 @@
 @outcome-simp-7: #1F71B5; //--politics-color; 
 @outcome-simp-8: #58586B; //--simple-invalid;
 
-@color-outcome-list: @outcome-simp-1 @outcome-simp-2 @outcome-simp-3 @outcome-simp-4 @outcome-simp-5 @outcome-simp-6 @outcome-simp-7 @outcome-simp-8;
+@color-outcome-list: @outcome-simp-0 @outcome-simp-1 @outcome-simp-2 @outcome-simp-3 @outcome-simp-4 @outcome-simp-5 @outcome-simp-6 @outcome-simp-7 @outcome-simp-8;
 
 .generate-trading-indexed-color-outcome-classes(@rules) {
   each(@color-outcome-list, {
