@@ -3,6 +3,7 @@ import { task, types } from "hardhat/config";
 import "hardhat/types/config";
 import { makeSigner } from "./deploy";
 import { LinkTokenInterface__factory } from "../typechain";
+import { HttpNetworkUserConfig } from "hardhat/types/config";
 
 task("fundLink", "Send 1 link to a contract on kovan")
   .addParam("contract", undefined, undefined, types.string)
@@ -10,10 +11,10 @@ task("fundLink", "Send 1 link to a contract on kovan")
     if (typeof contractAddress !== "string") return;
     const { ethers } = hre;
     const signer = await makeSigner(hre);
-
-    const linkTokenAddress = "0xa36085F69e2889c224210F603D836748e7dC0088";
+    
+    const { linkAddress } = hre.network.config as HttpNetworkUserConfig;
     const amount = ethers.BigNumber.from(10).pow(18);
-    const linkToken = LinkTokenInterface__factory.connect(linkTokenAddress, signer);
+    const linkToken = LinkTokenInterface__factory.connect(linkAddress, signer);
 
     await linkToken.transfer(contractAddress, amount).then((tx: any) => {
       tx.wait();

@@ -49,6 +49,9 @@ const config: HardhatUserConfig = {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
       gas: 9000000, // to fit createPool calls, which fails to estimate gas correctly
       confirmations: 1,
+      linkAddress: "0xa36085F69e2889c224210F603D836748e7dC0088",
+      oracleAddress: "0x56dd6586DB0D08c6Ce7B2f2805af28616E082455",
+      jobID: "dbb65efc02d34cddb920eca1bec22ade",
     },
     arbitrumKovan4: {
       url: "https://kovan4.arbitrum.io/rpc",

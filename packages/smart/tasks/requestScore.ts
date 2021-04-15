@@ -4,20 +4,17 @@ import "hardhat/types/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
 import { makeSigner } from "./deploy";
 import { sleep } from "../src/utils/common-functions";
-
-// Payment Amount: 0.1 LINK
-// LINK Token Address: 0xa36085F69e2889c224210F603D836748e7dC0088
-// Oracle Address: 0x56dd6586DB0D08c6Ce7B2f2805af28616E082455
-// JobID: dbb65efc02d34cddb920eca1bec22ade / 0x6462623635656663303264333463646462393230656361316265633232616465
+import { HttpNetworkUserConfig } from "hardhat/types/config";
 
 task("requestScore", "Request and set score in TheRundownChainlink").setAction(async (args, hre) => {
   const { ethers } = hre;
+  const { oracleAddress, jobID } = hre.network.config as HttpNetworkUserConfig;
 
   const signer = await makeSigner(hre);
   const network = await ethers.provider.getNetwork();
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TheRundownChainlink } = contracts;
-  await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043", "0x56dd6586DB0D08c6Ce7B2f2805af28616E082455", "dbb65efc02d34cddb920eca1bec22ade");
+  await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043", oracleAddress, jobID);
   let score;
   for (let i = 0; i < 60; i++) {
     score = await TheRundownChainlink.score();

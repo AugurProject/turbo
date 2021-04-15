@@ -71,6 +71,9 @@ declare module "hardhat/types/config" {
 
   export interface HttpNetworkUserConfig {
     confirmations?: number; // how many confirmations to wait after issuing a transaction
+    jobID: string;
+    oracleAddress: string;
+    linkAddress: string;
   }
 
   export interface HttpNetworkConfig {
