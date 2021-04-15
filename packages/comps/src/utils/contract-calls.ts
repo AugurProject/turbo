@@ -42,6 +42,7 @@ import {
   INVALID_OUTCOME_ID,
   MARKET_STATUS,
   PORTION_OF_INVALID_POOL_SELL,
+  NUM_TICKS_STANDARD,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -57,7 +58,8 @@ import {
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
 } from "@augurproject/smart";
-import { getFullTeamName, getSportCategories } from "./team-helpers";
+import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
+import { getOutcomeName, getMarketTitle } from "./derived-market-data";
 
 const isValidPrice = (price: string): boolean => {
   return price !== null && price !== undefined && price !== "0" && price !== "0.00";
@@ -1501,16 +1503,19 @@ const decodeMarket = (marketData: any) => {
   const sportsMarketType = 0; // spread, todo: use constant when new sports market factory is ready.
   const homeTeam = getFullTeamName(homeTeamId);
   const awayTeam = getFullTeamName(awayTeamId);
+  const sportId = getSportId(homeTeamId);
 
-  const outcomes = decodeOutcomes(shareTokens, homeTeam, awayTeam, sportsMarketType, line);
-  const { title, description } = getMarketTitle(homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
+  const outcomes = decodeOutcomes(shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
+  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
+  const winningOutcomeId: string = shareTokens.indexOf(winner);
+
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
     creationTimestamp: String(start),
     marketType: "Categorical", // categorical markets
-    numTicks: "1000", // all markets have same num tickes
+    numTicks: NUM_TICKS_STANDARD,
     totalStake: "0", //String(marketData["totalStake"]),
-    winner,
+    winner: winningOutcomeId === -1 ? null : winningOutcomeId,
     hasWinner: winner !== NULL_ADDRESS,
     title,
     description,
@@ -1528,6 +1533,7 @@ const decodeMarket = (marketData: any) => {
 
 const decodeOutcomes = (
   shareTokens: string[],
+  sportId: string,
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
@@ -1536,7 +1542,7 @@ const decodeOutcomes = (
   return shareTokens.map((shareToken, i) => {
     return {
       id: i,
-      name: getOutcomeName(i, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
+      name: getOutcomeName(i, sportId, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
       symbol: shareToken,
       isInvalid: i === INVALID_OUTCOME_ID,
       isWinner: false, // need to get based on winning payout hash
@@ -1544,66 +1550,6 @@ const decodeOutcomes = (
       shareToken,
     };
   });
-};
-
-const getOutcomeName = (index: number, homeTeam: string, awayTeam: string, sportsMarketType: number, line: string) => {
-  // create outcome name using market type and line
-  if (index === INVALID_OUTCOME_ID) return "No Contest";
-
-  if (sportsMarketType === 0) {
-    // head to head (money line)
-    if (index === 1) return homeTeam;
-    if (index === 2) return awayTeam;
-  }
-
-  if (sportsMarketType === 1) {
-    // spread
-    if (index === 1) return `${homeTeam} ${line}`;
-    if (index === 2) return `${awayTeam} ${line}`;
-  }
-
-  if (sportsMarketType === 2) {
-    // over/under
-    if (index === 1) return `Over ${line}`;
-    if (index === 2) return `Under ${line}`;
-  }
-
-  return `Outcome ${index}`;
-};
-
-// todo: move this to own file when new market factory is available
-const getMarketTitle = (homeTeam: string, awayTeam: string, sportsMarketType: number, line: string): string => {
-  let title = "";
-  let description = "";
-  if (sportsMarketType === 0) {
-    // head to head (money line)
-    title = `Which team will win?`;
-    description = `${awayTeam} @ ${homeTeam}?`;
-  }
-
-  if (sportsMarketType === 1) {
-    // spread
-    let fav = homeTeam;
-    let underdog = awayTeam;
-    // todo: figure out which team is fav and underdog
-    if (Number(line) < 0) {
-      underdog = homeTeam;
-      fav = awayTeam;
-    }
-    title = `Will the ${fav} beat the ${underdog} by more than [${line}.5] points?`;
-  }
-
-  if (sportsMarketType === 2) {
-    // over/under
-    title = `Will there be over [${line}.5] total points scored?`;
-    descirption = `${awayTeam} vs ${homeTeam}`;
-  }
-  return { title, description };
-};
-
-const toDisplayPrice = (onChainPrice: string = "0"): string => {
-  // todo: need to use cash to get decimals
-  return convertOnChainCashAmountToDisplayCashAmount(onChainPrice, 18).toFixed();
 };
 
 const toDisplayRatio = (onChainRatio: string = "0"): string => {

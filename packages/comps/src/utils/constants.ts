@@ -117,6 +117,7 @@ export const REMOVE: string = "remove";
 export const INVALID_OUTCOME_ID: number = 0;
 export const NO_OUTCOME_ID: number = 1;
 export const YES_OUTCOME_ID: number = 2;
+export const NUM_TICKS_STANDARD = "1000";
 
 export const OPEN: string = "Open";
 export const IN_SETTLEMENT: string = "In settlement";
