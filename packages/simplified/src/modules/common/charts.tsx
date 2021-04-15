@@ -51,19 +51,19 @@ const RANGE_OPTIONS = [
   },
 ];
 
-const SERIES_COLORS = ["#58586B", "#FF7D5E", "#05B169", "#73D2DE", "#218380", "#FFBC42", "#D81159", "#1F71B5"];
+const SERIES_COLORS = ["#58586B", "#05B169", "#FF7D5E", "#73D2DE", "#218380", "#FFBC42", "#D81159", "#1F71B5"];
 const SERIES_GRADIENTS = [
   [
     [0, "rgba(88, 88, 107, .15)"],
     [1, "rgba(88, 88, 107, 0)"],
   ],
   [
-    [0, "rgba(255, 125, 94, .15)"],
-    [1, "rgba(255, 125, 94, 0)"],
-  ],
-  [
     [0, "rgba(5, 177, 105, .15)"],
     [1, "rgba(5, 177, 105, 0)"],
+  ],
+  [
+    [0, "rgba(255, 125, 94, .15)"],
+    [1, "rgba(255, 125, 94, 0)"],
   ],
   [
     [0, "rgba(​115, ​210, ​222, 0.15)"],
@@ -221,7 +221,7 @@ export const PriceHistoryChart = ({ formattedOutcomes, market, selectedOutcomes,
 };
 
 export const SelectOutcomeButton = ({
-  outcome: { outcomeIdx, label, lastPrice },
+  outcome: { id, outcomeIdx, label, lastPrice },
   toggleSelected,
   isSelected,
   cash,
@@ -230,7 +230,7 @@ export const SelectOutcomeButton = ({
   return (
     <button
       className={classNames(Styles.SelectOutcomeButton, {
-        [Styles[`isSelected_${outcomeIdx}`]]: isSelected,
+        [Styles[`isSelected_${id}`]]: isSelected,
       })}
       onClick={() => toggleSelected(outcomeIdx)}
       disabled={disabled}
@@ -245,7 +245,7 @@ export const SelectOutcomeButton = ({
 export const SimpleChartSection = ({ market, cash }) => {
   const formattedOutcomes = getFormattedOutcomes({ market });
   const [selectedOutcomes, setSelectedOutcomes] = useState(
-    formattedOutcomes.map(({ outcomeIdx }) => Boolean(outcomeIdx === DEFAULT_SELECTED_ID))
+    formattedOutcomes.map(({ outcomeIdx }) => true)
   );
   const [rangeSelection, setRangeSelection] = useState(3);
 
@@ -278,9 +278,7 @@ export const SimpleChartSection = ({ market, cash }) => {
             cash={cash}
             outcome={outcome}
             toggleSelected={toggleOutcome}
-            isSelected={false}
-            // TODO: re-implement this when re-implementing chart data.
-            // selectedOutcomes[outcome.outcomeIdx]
+            isSelected={selectedOutcomes[outcome.outcomeIdx]}
             disabled
           />
         ))}
