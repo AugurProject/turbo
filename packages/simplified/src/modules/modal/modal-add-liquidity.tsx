@@ -641,6 +641,7 @@ const ModalAddLiquidity = ({
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   error={hasPriceErrors}
+                  dontFilterInvalid
                 />
               </>
             )}
