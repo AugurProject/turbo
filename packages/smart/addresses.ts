@@ -45,11 +45,11 @@ export const addresses: AddressMapping = {
     ammFactory: "0xf0591767C4F1d47c2746387463De4B91A89231c5",
   },
   42: {
-    collateral: "0x1F18eb6A026249332Dc503D48d3A35dC9Be1aDC2",
-    reputationToken: "0xac7A384d22d47280B5d57B703148Ac863ED4F11D",
-    balancerFactory: "0xE12642152109ff616805764aFA0C1BeF6AfFf200",
-    marketFactory: "0xeea418729d817d4d19f1BefB297D77A4F6dF33CC",
-    ammFactory: "0x2c0753C40164C0Bfefe728147E5Bf6e2a796f23C",
-    theRundownChainlink: "0xFc689887938AD96f65592A0776e8aD02850Ba655",
+    collateral: "0x8A06b936aF91E3e02A8dA82a64c8C8501C887DB6",
+    reputationToken: "0xb4Be53b498e286e927F6Ca72DaA30F55418aA613",
+    balancerFactory: "0x96f39403e17aD9254891f68fE0CFC694f8646191",
+    marketFactory: "0x07883C8a32BCC9508347DB8CF6b64FbB570DC696",
+    ammFactory: "0x953b4922b50b85626b1c5A5dDdE192bb270BC0Ed",
+    theRundownChainlink: "0x30b3533CcfD1637fD0065B359E1289F13246203c",
   },
 };
