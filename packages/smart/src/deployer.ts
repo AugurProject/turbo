@@ -33,8 +33,8 @@ export class Deployer {
 
     console.log("Deploying trusted market factory for REP");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
-    const stakerFee = BigNumber.from(10).pow(16);
-    const creatorFee = BigNumber.from(10).pow(16);
+    const stakerFee = 0;
+    const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
     const marketFactory = await this.deployTrustedMarketFactory(
       reputationToken.address,
       collateral.address,
@@ -57,6 +57,7 @@ export class Deployer {
     console.log(`Created market: ${marketId}`);
 
     console.log("Creating AMM for testing");
+    const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
     const weights = [
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
       BASIS.mul(2).div(2), // No Contest at 2%, the lowest possible weight
@@ -64,7 +65,7 @@ export class Deployer {
       BASIS.mul(48).div(2), // Elves Win at 48%
       BASIS.mul(48).div(2), // Orcs Win at 48%
     ];
-    const ammFactory = await this.deployAMMFactory(balancerFactory.address);
+    const ammFactory = await this.deployAMMFactory(balancerFactory.address, swapFee);
     const initialLiquidity = BASIS.mul(1000); // 1000 of the collateral
     console.log("Fauceting collateral for AMM");
     await collateral.faucet(initialLiquidity).then((tx) => tx.wait(this.confirmations));
@@ -160,8 +161,8 @@ export class Deployer {
     return this.deploy("feePot", () => new FeePot__factory(this.signer).deploy(collateral, reputationToken));
   }
 
-  async deployAMMFactory(balancerFactory: string): Promise<AMMFactory> {
-    return this.deploy("ammFactory", () => new AMMFactory__factory(this.signer).deploy(balancerFactory));
+  async deployAMMFactory(balancerFactory: string, fee: BigNumberish): Promise<AMMFactory> {
+    return this.deploy("ammFactory", () => new AMMFactory__factory(this.signer).deploy(balancerFactory, fee));
   }
 
   async deploy<T extends Contract>(name: string, deployFn: (this: Deployer) => Promise<T>): Promise<T> {
