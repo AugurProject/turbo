@@ -205,15 +205,12 @@ Approvals for Turbo
 |------------+-----------------+-------------------------------------|
 | contract   | method          | explanation                         |
 |------------+-----------------+-------------------------------------|
-| ammfactory | buy             | collateral -> shares                |
-| ammfactory | sell            | shares -> collateral                |
-| ammfactory | addLiquidity    | collateral -> LP tokens             |
-| ammfactory | removeLiquidity | LP tokens -> collateral             |
-| hatchery   | claimWinnings   | winning shares -> collateral        |
-| ammfactory | createPool      | collateral -> new AMM               |
-| feepot     | redeem          | collect fees in collateral          |
-| feepot     | stake           | stake REP so you can collect fees   |
-| feepot     | exit            | unstake REP to stop collecting fees |
+| ammfactory | buy             | collateral -> ammfactory            |
+| ammfactory | sell            | shares -> ammfactory                |
+| ammfactory | addLiquidity    | collateral -> ammfactory            |
+| ammfactory | removeLiquidity | pool -> ammfactory                  |
+| ammfactory | createPool      | collateral -> ammfactory            |
+| feepot     | stake           | rep -> feepot                       |
 |====================================================================|
 */
 

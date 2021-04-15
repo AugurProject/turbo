@@ -1,24 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
-import { EthIcon, UsdIcon, XIcon } from './icons';
-import Styles from './inputs.styles.less';
-import {
-  getCashFormat,
-  formatCash,
-  formatSimpleShares,
-  formatCashPrice,
-  formatDai,
-} from '../../utils/format-number';
-import {
-  USDC,
-  ERROR_AMOUNT,
-  SHARES,
-  ETH,
-} from '../../utils/constants';
-import { useAppStatusStore } from '../../stores/app-status';
-import { TinyButton } from './buttons';
-import { CurrencyDropdown } from './selection';
-import { AmmOutcome, Cash } from '../../utils/types';
+import React, { useEffect, useRef, useState } from "react";
+import classNames from "classnames";
+import { EthIcon, UsdIcon, XIcon } from "./icons";
+import Styles from "./inputs.styles.less";
+import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice, formatDai } from "../../utils/format-number";
+import { USDC, ERROR_AMOUNT, SHARES, ETH } from "../../utils/constants";
+import { useAppStatusStore } from "../../stores/app-status";
+import { TinyButton } from "./buttons";
+import { CurrencyDropdown } from "./selection";
+import { AmmOutcome, Cash } from "../../utils/types";
 
 const ENTER_CHAR_CODE = 13;
 
@@ -29,12 +18,7 @@ export interface SearchInputProps {
   showFilter: boolean;
 }
 
-export const SearchInput = ({
-  value,
-  onChange,
-  clearValue,
-  showFilter,
-}: SearchInputProps) => {
+export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchInputProps) => {
   const input = useRef(null);
 
   useEffect(() => {
@@ -56,10 +40,7 @@ export const SearchInput = ({
         onChange={onChange}
         onKeyPress={(event) => keypressHandler(event)}
       />
-      <div
-        className={classNames({ [Styles.faded]: !value })}
-        onClick={clearValue}
-      >
+      <div className={classNames({ [Styles.faded]: !value })} onClick={clearValue}>
         {XIcon}
       </div>
     </div>
@@ -117,11 +98,8 @@ export const AmountInput = ({
     updateInitialAmount(maxValue);
   };
   const errorCheck = (value) => {
-    let returnError = '';
-    if (
-      value !== '' &&
-      (isNaN(value) || Number(value) === 0 || Number(value) < 0)
-    ) {
+    let returnError = "";
+    if (value !== "" && (isNaN(value) || Number(value) === 0 || Number(value) < 0)) {
       returnError = ERROR_AMOUNT;
     }
     updateAmountError(returnError);
@@ -138,16 +116,14 @@ export const AmountInput = ({
       <span onClick={setMax}>
         {isLogged && (
           <>
-            <span>balance:</span>{' '}
-            {isBuy
-              ? formatCash(maxValue, ammCash?.name).full
-              : formatSimpleShares(maxValue).formatted}
+            <span>balance:</span>{" "}
+            {isBuy ? formatCash(maxValue, ammCash?.name).full : formatSimpleShares(maxValue).formatted}
           </>
         )}
       </span>
       <div
         className={classNames(Styles.AmountInputField, {
-          [Styles.Edited]: amount !== '',
+          [Styles.Edited]: amount !== "",
           [Styles.showCurrencyDropdown]: showCurrencyDropdown,
           [Styles.Error]: error,
         })}
@@ -160,7 +136,7 @@ export const AmountInput = ({
             updateInitialAmount(e.target.value);
             errorCheck(e.target.value);
           }}
-          title={disabled ? 'Liquidity Depleted' : 'enter amount'}
+          title={disabled ? "Liquidity Depleted" : "enter amount"}
           value={amount}
           placeholder="0"
           disabled={disabled}
@@ -172,15 +148,8 @@ export const AmountInput = ({
             {icon} {label}
           </span>
         )}
-        {chosenCash === SHARES && !showCurrencyDropdown && (
-          <span className={Styles.SharesLabel}>Shares</span>
-        )}
-        {showCurrencyDropdown && (
-          <CurrencyDropdown
-            defaultValue={chosenCash}
-            onChange={(cash) => updateCash(cash)}
-          />
-        )}
+        {chosenCash === SHARES && !showCurrencyDropdown && <span className={Styles.SharesLabel}>Shares</span>}
+        {showCurrencyDropdown && <CurrencyDropdown defaultValue={chosenCash} onChange={(cash) => updateCash(cash)} />}
       </div>
       <span className={Styles.RateLabel}>
         <span>Rate:</span>
@@ -190,13 +159,10 @@ export const AmountInput = ({
   );
 };
 
-const PLACEHOLDER = '0';
+const PLACEHOLDER = "0";
 
 export const isInvalidNumber = (number) => {
-  return (
-    number !== '' &&
-    (isNaN(number) || Number(number) < 0 || Number(number) === 0)
-  );
+  return number !== "" && (isNaN(number) || Number(number) < 0 || Number(number) === 0);
 };
 
 const Outcome = ({
@@ -211,17 +177,17 @@ const Outcome = ({
   showAsButton,
   error,
   noClick,
-  index
+  index,
 }) => {
-  const [customVal, setCustomVal] = useState('');
+  const [customVal, setCustomVal] = useState("");
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
   const { prepend, symbol } = getCashFormat(ammCash?.name);
   useEffect(() => {
-    if (outcome.price !== '0' && outcome.price && outcome.price !== '') {
-      let numInput = outcome.price.split('.');
+    if (outcome.price !== "0" && outcome.price && outcome.price !== "") {
+      let numInput = outcome.price.split(".");
       numInput.shift();
-      setCustomVal(numInput.join('.'));
+      setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
   const formattedPrice = formatDai(outcome.price);
@@ -232,7 +198,7 @@ const Outcome = ({
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
-        [Styles.Edited]: customVal !== '',
+        [Styles.Edited]: customVal !== "",
         [Styles.showAsButton]: showAsButton,
         [Styles.loggedOut]: !isLogged,
         [Styles.disabled]: !isLogged,
@@ -248,11 +214,7 @@ const Outcome = ({
             value={customVal}
             onChange={(v) => {
               setCustomVal(`${v.target.value}`);
-              setEditableValue(
-                v.target.value && v.target.value !== '0'
-                  ? `.${v.target.value}`
-                  : `${v.target.value}`
-              );
+              setEditableValue(v.target.value && v.target.value !== "0" ? `.${v.target.value}` : `${v.target.value}`);
             }}
             type="text"
             placeholder={PLACEHOLDER}
@@ -261,12 +223,7 @@ const Outcome = ({
           />
         </div>
       ) : (
-            <span>
-              {
-                formatCashPrice(formattedPrice.fullPrecision, ammCash?.name)
-                  .full
-              }
-            </span>
+        <span>{formatCashPrice(formattedPrice.fullPrecision, ammCash?.name).full}</span>
       )}
     </div>
   );
@@ -292,7 +249,6 @@ export const OutcomesGrid = ({
   outcomes,
   selectedOutcome,
   setSelectedOutcome,
-  marketType,
   showAllHighlighted,
   nonSelectable,
   editable,
@@ -308,6 +264,7 @@ export const OutcomesGrid = ({
       className={classNames(Styles.Outcomes, {
         [Styles.nonSelectable]: nonSelectable,
         [Styles.showAsButtons]: showAsButtons,
+        [Styles.noClick]: noClick,
       })}
     >
       {outcomes
@@ -316,11 +273,7 @@ export const OutcomesGrid = ({
         .map((outcome, index) => (
           <Outcome
             key={outcome.id}
-            selected={
-              selectedOutcome &&
-              (outcome.id === selectedOutcome.id ||
-                showAllHighlighted)
-            }
+            selected={selectedOutcome && outcome.id === selectedOutcome.id && !showAllHighlighted}
             index={index}
             nonSelectable={nonSelectable}
             showAllHighlighted={showAllHighlighted}
