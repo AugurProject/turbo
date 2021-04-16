@@ -42,10 +42,10 @@ export const addresses: AddressMapping = {
     ammFactory: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
   },
   42: {
-    collateral: "0x71632bdA3A80435F121B0B69FEf196128dd0B9Bb",
-    reputationToken: "0xbe81531E3FE48A74F33f9CAE9c40169320669666",
-    balancerFactory: "0x1C63F6b02f044Cf393E0c97134bBa2049693a25f",
-    marketFactory: "0x3B0F8f024Ef4180152a573c15D587dD064D20374",
-    ammFactory: "0x597cA3296d27a0999f2082242b4d0D04651a086C",
+    collateral: "0x4c961623955966a6Ff0DBECcA48c05FdC87c17AD",
+    reputationToken: "0xef7aacc17a67A2960e2eC10b4C6E05727757B728",
+    balancerFactory: "0xBd9de195bb383aBFF46B20e22a1FDA56c533A7fe",
+    marketFactory: "0x6075Eff6792AdDAe75f9FcBcdF0BdcA78e07fa33",
+    ammFactory: "0xF631949514A2dd6C4e118EA83345Bcc00747d354",
   },
 };
