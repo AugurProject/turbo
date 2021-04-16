@@ -9,7 +9,6 @@ import {
   useAppStatusStore,
   useDataStore,
   useScrollToTopOnMount,
-  // GraphClient,
   SEO,
   Constants,
   Components,
@@ -23,7 +22,6 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
 } = Components;
-// const { searchMarkets } = GraphClient;
 const {
   SIDEBAR_TYPES,
   // ALL_CURRENCIES,
@@ -215,7 +213,7 @@ const MarketsView = () => {
 
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
-    if (!amm && isLogged) {
+    if (!amm.id && isLogged) {
       setModal({
         type: MODAL_ADD_LIQUIDITY,
         market,

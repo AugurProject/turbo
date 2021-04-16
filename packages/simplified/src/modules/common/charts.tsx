@@ -13,7 +13,7 @@ const { Checkbox } = Icons;
 
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
-const DEFAULT_SELECTED_ID = 2;
+// const DEFAULT_SELECTED_ID = 2;
 const ONE_MIN_MS = 60000;
 const FIFTEEN_MIN_MS = 900000;
 const ONE_HOUR_MS = 3600 * 1000;

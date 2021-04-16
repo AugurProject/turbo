@@ -1481,7 +1481,7 @@ const retrieveExchangeInfos = async (
   return exchanges;
 };
 
-const calculatePrices = (ratios: string[]) => {
+const calculatePrices = (ratios: string[] = []) => {
   //price[0] = ratio[0] / sum(ratio)
   const sum = ratios.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
   const outcomePrices = ratios.map((r) => new BN(String(r)).div(sum).toFixed());

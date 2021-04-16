@@ -149,12 +149,15 @@ export const MarketCardView = ({
   const { categories, marketId, reportingState, hasWinner } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
+
   return (
     <article
       className={classNames(Styles.MarketCard, {
         [Styles.NoLiquidity]: !amm?.id,
       })}
-      onClick={() => !amm?.id && handleNoLiquidity(market)}
+      onClick={() => {
+        !amm?.id && handleNoLiquidity(market)
+      }}
     >
       <div>
         <article
