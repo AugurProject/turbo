@@ -1,5 +1,10 @@
 import { task } from "hardhat/config";
-import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory, SportsLinkMarketFactory__factory } from "..";
+import {
+  buildContractInterfaces,
+  ContractInterfaces,
+  SportsLinkMarketFactory,
+  SportsLinkMarketFactory__factory,
+} from "..";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
 
@@ -27,18 +32,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
       .add(60 * 5); // 5 minutes from now
     const duration = 60 * 60; // one hour
     const endTime = startTime.add(duration);
-    await createMarket(
-      signer,
-      MarketFactory,
-      startTime,
-      endTime,
-      eventId,
-      homeId,
-      awayId,
-      -5,
-      200,
-      confirmations
-    );
+    await createMarket(signer, MarketFactory, startTime, endTime, eventId, homeId, awayId, -5, 200, confirmations);
     console.log(`Created head-to-head market`);
     console.log(`Created spread market`);
     console.log(`Created over-under market`);
@@ -62,7 +56,7 @@ export async function createMarket(
   const result = await marketFactory
     .createMarket(creator, endTime, eventId, homeId, awayId, homeSpreadTarget, overUnderTarget, startTime)
     .then((tx: ContractTransaction) => tx.wait(confirmations));
-    console.log('result', result);
+  console.log("result", result);
 
   return;
 }

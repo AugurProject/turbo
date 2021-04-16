@@ -12,8 +12,7 @@ task("markets", "retreive markets").setAction(async (args, hre) => {
   const { MarketFactory } = contracts;
 
   const length = await MarketFactory.marketCount();
-  console.log('length', String(length));
-
+  console.log("length", String(length));
 
   for (let marketId = 0; marketId < length; marketId++) {
     const market = await MarketFactory.getMarket(marketId);
