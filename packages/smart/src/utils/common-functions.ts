@@ -26,3 +26,14 @@ export type RecursivePartial<T> = {
 export async function sleep(milliseconds: number): Promise<void> {
   return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
+
+export function packJobId(jobId: string) {
+  const length = jobId.length;
+
+  let zeroes = '';
+  for (let i = 0; i < 64 - 2 - length; i++) {
+    zeroes += '0';
+  }
+
+  return `0x${length.toString(16)}${jobId}${zeroes}`
+}
