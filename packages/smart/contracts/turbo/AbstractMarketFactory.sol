@@ -36,6 +36,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         OwnedERC20[] shareTokens;
         uint256 endTime;
         OwnedERC20 winner;
+        uint256 creatorFee;
     }
     Market[] internal markets;
 
@@ -65,7 +66,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     // As a check of market existence, use `endTime != 0` on the returned struct
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id > markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0));
+            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0);
         } else {
             return markets[_id];
         }
@@ -144,7 +145,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         uint256 _payout = calcCost(_shares);
         Market memory _market = markets[_id];
 
-        uint256 _creatorFee = creatorFee.mul(_payout) / 10**18;
+        uint256 _creatorFee = _market.creatorFee.mul(_payout) / 10**18;
         uint256 _stakerFee = stakerFee.mul(_payout) / 10**18;
 
         collateral.transfer(_market.creator, _creatorFee);
