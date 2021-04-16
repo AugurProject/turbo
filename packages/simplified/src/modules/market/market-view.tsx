@@ -28,7 +28,7 @@ const {
   InputComps: { OutcomesGrid },
 } = Components;
 // eslint-disable-next-line
-const { MARKET_STATUS, USDC, YES_NO, BUY, MARKET_ID_PARAM_NAME, ETH, DefaultMarketOutcomes } = Constants;
+const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
   DateUtils: { getMarketEndtimeDate, getMarketEndtimeFull },
   Formatter: { formatDai },
@@ -196,12 +196,6 @@ const MarketView = ({ defaultMarket = null }) => {
         <PositionsLiquidityViewSwitcher ammExchange={amm} />
         <article className={Styles.MobileLiquidSection}>
           <AddLiquidity market={market} />
-          {/* {currentAMMs.length === 1 && (
-            <AddCurrencyLiquidity
-              market={market}
-              currency={currentAMMs[0] === USDC ? ETH : USDC}
-            />
-          )} */}
         </article>
         <div
           className={classNames(Styles.Details, {
@@ -234,12 +228,6 @@ const MarketView = ({ defaultMarket = null }) => {
       >
         <TradingForm initialSelectedOutcome={selectedOutcome} amm={amm} />
         <AddLiquidity market={market} />
-        {/* {currentAMMs.length === 1 && (
-          <AddCurrencyLiquidity
-            market={market}
-            currency={currentAMMs[0] === USDC ? ETH : USDC}
-          />
-        )} */}
       </section>
     </div>
   );
