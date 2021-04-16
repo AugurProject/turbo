@@ -13,7 +13,8 @@ task("requestScore", "Request and set score in TheRundownChainlink").setAction(a
   const network = await ethers.provider.getNetwork();
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
   const { TheRundownChainlink } = contracts;
-  await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043", linkOracleAddress, packJobId(linkJobID));
+  const result = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(linkJobID));
+  await TheRundownChainlink.requestScore("2fc5fdbdea181a1b38eee8dc49072043", linkOracleAddress, result);
   let score;
   for (let i = 0; i < 60; i++) {
     score = await TheRundownChainlink.score();
