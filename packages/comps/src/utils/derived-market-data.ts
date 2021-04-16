@@ -1,3 +1,4 @@
+import { BigNumber as BN } from "bignumber.js";
 import { INVALID_OUTCOME_ID } from "./constants";
 
 export const getOutcomeName = (
@@ -57,12 +58,16 @@ export const getMarketTitle = (
       underdog = homeTeam;
       fav = awayTeam;
     }
-    title = `Will the ${fav} beat the ${underdog} by more than [${line}.5] points?`;
+    let spread = new BN(line).abs().toNumber();
+    if (!Number.isInteger(spread)) {
+      spread = Math.trunc(spread);
+    }
+    title = `Will the ${fav} beat the ${underdog} by more than ${spread}.5 points?`;
   }
 
   if (sportsMarketType === 2) {
     // over/under
-    title = `Will there be over [${line}.5] total points scored?`;
+    title = `Will there be over ${line}.5 total points scored?`;
     description = `${awayTeam} vs ${homeTeam}`;
   }
   return { title, description };
