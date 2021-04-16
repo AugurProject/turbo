@@ -53,7 +53,9 @@ contract PriceMarketFactory is AbstractMarketFactory {
         _symbols[1] = string("HIGH");
 
         uint256 _id = markets.length;
-        markets.push(Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0)));
+        markets.push(
+            Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0), creatorFee)
+        );
         marketDetails.push(MarketDetails(_spotPrice, 0));
 
         emit MarketCreated(_id, _creator, _endTime, _spotPrice);

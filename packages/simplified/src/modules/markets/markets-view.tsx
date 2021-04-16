@@ -9,7 +9,6 @@ import {
   useAppStatusStore,
   useDataStore,
   useScrollToTopOnMount,
-  // GraphClient,
   SEO,
   Constants,
   Components,
@@ -23,26 +22,25 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
 } = Components;
-// const { searchMarkets } = GraphClient;
 const {
   SIDEBAR_TYPES,
-  // ALL_CURRENCIES,
-  // ALL_MARKETS,
+  ALL_CURRENCIES,
+  ALL_MARKETS,
   categoryItems,
   currencyItems,
   marketStatusItems,
-  // OPEN,
-  // OTHER,
-  // POPULAR_CATEGORIES_ICONS,
+  OPEN,
+  OTHER,
+  POPULAR_CATEGORIES_ICONS,
   sortByItems,
-  // TOTAL_VOLUME,
+  TOTAL_VOLUME,
   DEFAULT_MARKET_VIEW_SETTINGS,
-  // ENDING_SOON,
-  // RESOLVED,
-  // IN_SETTLEMENT,
-  // LIQUIDITY,
-  // MARKET_STATUS,
-  // TWENTY_FOUR_HOUR_VOLUME,
+  ENDING_SOON,
+  RESOLVED,
+  IN_SETTLEMENT,
+  LIQUIDITY,
+  MARKET_STATUS,
+  TWENTY_FOUR_HOUR_VOLUME,
   CREATE,
   MODAL_ADD_LIQUIDITY,
 } = Constants;
@@ -55,100 +53,79 @@ const applyFiltersAndSort = (
   { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
   handleGraphError
 ) => {
-  // TODO: put this back in
-  setFilteredMarkets(passedInMarkets);
-  // searchMarkets(filter, (err, searchedMarkets) => {
-  //   if (err) handleGraphError(err);
-  //   let updatedFilteredMarkets = passedInMarkets;
+  let updatedFilteredMarkets = passedInMarkets;
 
-  //   if (filter !== '') {
-  //     updatedFilteredMarkets = updatedFilteredMarkets.filter(
-  //       (market) => searchedMarkets.indexOf(market.marketId) !== -1
-  //     );
-  //   }
+  if (filter !== "") {
+    updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
+      const { title, description, categories, outcomes } = market;
+      const searchRegex = new RegExp(filter, "i");
+      const matchTitle = searchRegex.test(title);
+      const matchDescription = searchRegex.test(description);
+      const matchCategories = searchRegex.test(JSON.stringify(categories));
+      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map(outcome => outcome.name)));
+      if (matchTitle || matchDescription || matchCategories || matchOutcomes) {
+        return true;
+      }
+      return false;
+    });
+  }
 
-  //   updatedFilteredMarkets = updatedFilteredMarkets.filter(
-  //     (market: MarketInfo) => {
-  //       if (
-  //         showLiquidMarkets &&
-  //         (!market.amm ||
-  //           isNaN(market?.amm?.liquidityUSD) ||
-  //           !market?.amm?.liquidityUSD)
-  //       ) {
-  //         return false;
-  //       }
-  //       if (!showInvalidMarkets && market.isInvalid) {
-  //         return false;
-  //       }
-  //       if (
-  //         categories !== ALL_MARKETS &&
-  //         categories !== OTHER &&
-  //         market.categories[0].toLowerCase() !== categories.toLowerCase()
-  //       ) {
-  //         return false;
-  //       }
-  //       if (
-  //         categories === OTHER &&
-  //         POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]
-  //       ) {
-  //         return false;
-  //       }
-  //       if (currency !== ALL_CURRENCIES) {
-  //         if (!market.amm) {
-  //           return false;
-  //         } else if (market?.amm?.cash?.name !== currency) {
-  //           return false;
-  //         }
-  //       }
-  //       if (reportingState === OPEN) {
-  //         if (market.reportingState !== MARKET_STATUS.TRADING) {
-  //           return false;
-  //         }
-  //       } else if (reportingState === IN_SETTLEMENT) {
-  //         if (
-  //           market.reportingState !== MARKET_STATUS.REPORTING &&
-  //           market.reportingState !== MARKET_STATUS.DISPUTING
-  //         )
-  //           return false;
-  //       } else if (reportingState === RESOLVED) {
-  //         if (
-  //           market.reportingState !== MARKET_STATUS.FINALIZED &&
-  //           market.reportingState !== MARKET_STATUS.SETTLED
-  //         )
-  //           return false;
-  //       }
-  //       return true;
-  //     }
-  //   );
+  updatedFilteredMarkets = updatedFilteredMarkets.filter((market: MarketInfo) => {
+    if (showLiquidMarkets && (!market.amm || isNaN(market?.amm?.liquidityUSD) || !market?.amm?.liquidityUSD)) {
+      return false;
+    }
+    if (!showInvalidMarkets && market.isInvalid) {
+      return false;
+    }
+    if (
+      categories !== ALL_MARKETS &&
+      categories !== OTHER &&
+      market.categories[0].toLowerCase() !== categories.toLowerCase()
+    ) {
+      return false;
+    }
+    if (categories === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
+      return false;
+    }
+    if (currency !== ALL_CURRENCIES) {
+      if (!market.amm) {
+        return false;
+      } else if (market?.amm?.cash?.name !== currency) {
+        return false;
+      }
+    }
+    if (reportingState === OPEN) {
+      if (market.reportingState !== MARKET_STATUS.TRADING) {
+        return false;
+      }
+    } else if (reportingState === IN_SETTLEMENT) {
+      if (market.reportingState !== MARKET_STATUS.REPORTING && market.reportingState !== MARKET_STATUS.DISPUTING)
+        return false;
+    } else if (reportingState === RESOLVED) {
+      if (market.reportingState !== MARKET_STATUS.FINALIZED && market.reportingState !== MARKET_STATUS.SETTLED)
+        return false;
+    }
+    return true;
+  });
 
-  //   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
-  //     if (sortBy === TOTAL_VOLUME) {
-  //       return (marketB?.amm?.volumeTotalUSD || 0) >
-  //         (marketA?.amm?.volumeTotalUSD || 0)
-  //         ? 1
-  //         : -1;
-  //     } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
-  //       return (marketB?.amm?.volume24hrTotalUSD || 0) >
-  //         (marketA?.amm?.volume24hrTotalUSD || 0)
-  //         ? 1
-  //         : -1;
-  //     } else if (sortBy === LIQUIDITY) {
-  //       return (marketB?.amm?.liquidityUSD || 0) >
-  //         (marketA?.amm?.liquidityUSD || 0)
-  //         ? 1
-  //         : -1;
-  //     } else if (sortBy === ENDING_SOON) {
-  //       return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
-  //     }
-  //     return true;
-  //   });
-  //   if (sortBy !== ENDING_SOON) {
-  //     updatedFilteredMarkets = updatedFilteredMarkets
-  //       .filter((m) => m.amm !== null)
-  //       .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
-  //   }
-  //   setFilteredMarkets(updatedFilteredMarkets);
-  // });
+  updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+    if (sortBy === TOTAL_VOLUME) {
+      return (marketB?.amm?.volumeTotalUSD || 0) > (marketA?.amm?.volumeTotalUSD || 0) ? 1 : -1;
+    } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
+      return (marketB?.amm?.volume24hrTotalUSD || 0) > (marketA?.amm?.volume24hrTotalUSD || 0) ? 1 : -1;
+    } else if (sortBy === LIQUIDITY) {
+      return (marketB?.amm?.liquidityUSD || 0) > (marketA?.amm?.liquidityUSD || 0) ? 1 : -1;
+    } else if (sortBy === ENDING_SOON) {
+      return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
+    }
+    return true;
+  });
+  if (sortBy !== ENDING_SOON) {
+    updatedFilteredMarkets = updatedFilteredMarkets
+      .filter((m) => m.amm !== null)
+      .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
+  }
+  setFilteredMarkets(updatedFilteredMarkets);
 };
 
 const MarketsView = () => {
@@ -215,7 +192,7 @@ const MarketsView = () => {
 
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
-    if (!amm && isLogged) {
+    if (!amm.id && isLogged) {
       setModal({
         type: MODAL_ADD_LIQUIDITY,
         market,
