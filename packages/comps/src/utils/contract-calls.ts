@@ -1484,10 +1484,11 @@ const calculatePrices = (ratios: string[] = []) => {
 };
 
 const decodeMarket = (marketData: any) => {
-  const { shareTokens, endTime, winner, creator, creatorFee } = marketData;
+  const { shareTokens, endTime, winner, creator, creatorFee: onChainFee } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
+  const creatorFee = new BN(String(onChainFee)).div(new BN(10).pow(new BN(18))).times(100).toFixed();
 
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
@@ -1497,8 +1498,8 @@ const decodeMarket = (marketData: any) => {
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
     hasWinner,
     reportingState,
-    creatorFee: String(creatorFee), // process creator fee
-    settlementFee: "0", // todo: get creation fee
+    creatorFeeRaw: String(onChainFee),
+    settlementFee: creatorFee,
     claimedProceeds: [],
     shareTokens,
     creator,
