@@ -1487,7 +1487,7 @@ const calculatePrices = (ratios: string[] = []) => {
 const decodeMarket = (marketData: any) => {
   const { shareTokens, endTime, winner, creator, creatorFee } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
-  const hasWinner = winner !== NULL_ADDRESS
+  const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
 
   return {
@@ -1509,7 +1509,14 @@ const decodeMarket = (marketData: any) => {
 const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
   // todo: need to get market creation time
   const start = Math.floor(Date.now() / 1000);
-  const { awayTeamId: coAwayTeamId, eventId: coEventId, homeTeamId: coHomeTeamId, estimatedStartTime, value0, marketType} = marketData;
+  const {
+    awayTeamId: coAwayTeamId,
+    eventId: coEventId,
+    homeTeamId: coHomeTeamId,
+    estimatedStartTime,
+    value0,
+    marketType,
+  } = marketData;
   // translate market data
   const eventId = String(coEventId); // could be used to group events
   const homeTeamId = String(coHomeTeamId); // home team identifier
