@@ -2,10 +2,12 @@ import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
 import prettier from "prettier";
+import { Addresses, MarketFactories, MarketFactory } from "../addresses";
+import { mapOverObject } from "./utils/common-functions";
 
 const printer = ts.createPrinter();
 
-export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Record<string, string>): void {
+export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Addresses): void {
   const sourceFile = ts.createSourceFile(
     "addresses.ts",
     fs.readFileSync(addressFilePath, "utf8"),
@@ -29,8 +31,33 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
               context.factory.createPropertyAssignment(
                 `${chainId}`,
                 ts.factory.createObjectLiteralExpression(
-                  Object.entries(addresses).map(([key, addy]) => {
-                    return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(addy));
+                  Object.entries(addresses).map(([key, val]) => {
+                    if (key === "marketFactories") {
+                      return context.factory.createPropertyAssignment(
+                        `${key}`,
+                        ts.factory.createObjectLiteralExpression(
+                          Object.entries(val as MarketFactories).map(
+                            ([name, marketFactory]: [name: string, marketFactory: MarketFactory]) => {
+                              return context.factory.createPropertyAssignment(
+                                name,
+                                ts.factory.createObjectLiteralExpression([
+                                  context.factory.createPropertyAssignment(
+                                    "type",
+                                    ts.factory.createStringLiteral(marketFactory.type)
+                                  ),
+                                  context.factory.createPropertyAssignment(
+                                    "address",
+                                    ts.factory.createStringLiteral(marketFactory.address)
+                                  ),
+                                ])
+                              );
+                            }
+                          )
+                        )
+                      );
+                    } else {
+                      return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(val));
+                    }
                   })
                 )
               ),

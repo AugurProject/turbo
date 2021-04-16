@@ -9,13 +9,16 @@ task("markets", "retreive markets").setAction(async (args, hre) => {
   const network = await ethers.provider.getNetwork();
 
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
-  const { MarketFactory } = contracts;
+  const { MarketFactories } = contracts;
 
-  const length = await MarketFactory.marketCount();
-  console.log("length", String(length));
+  const deferredPromises = Object.entries(MarketFactories).map(([name, marketFactory]) => async () => {
+    const length = await marketFactory.marketCount();
+    console.log(`MarketFactory "${name}" has ${length} marktets. They are:`);
+    for (let marketId = 0; marketId < Number(length); marketId++) {
+      const market = await marketFactory.getMarket(marketId);
+      console.log(market);
+    }
+  });
 
-  for (let marketId = 0; marketId < Number(length); marketId++) {
-    const market = await MarketFactory.getMarket(marketId);
-    console.log(market);
-  }
+  for (let i = 0; i < deferredPromises.length; i++) await deferredPromises[i]();
 });

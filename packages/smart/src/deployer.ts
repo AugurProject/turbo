@@ -1,4 +1,5 @@
 import {
+  AbstractMarketFactory,
   AMMFactory,
   AMMFactory__factory,
   BFactory,
@@ -13,9 +14,11 @@ import {
   SportsLinkMarketFactory__factory,
   TheRundownChainlink,
   TheRundownChainlink__factory,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
-import { mapOverObject } from "./utils/common-functions";
+import { Addresses, MarketFactories } from "../addresses";
 
 const BASIS = BigNumber.from(10).pow(18);
 export const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
@@ -34,37 +37,40 @@ export class Deployer {
     //      https://github.com/AugurProject/turbo/issues/158
     // const theRundownChainlink = await this.deployTheRundownChainlink();
 
-    console.log("Deploying trusted market factory for REP");
+    console.log("Deploying AMMFactory, which works for all market factories");
+    const ammFactory = await this.deployAMMFactory(balancerFactory.address, swapFee);
+
+    console.log("Deploying feepot for test collateral");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
     const stakerFee = 0;
     const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
-    const marketFactory = await this.deploySportsLinkMarketFactory(
-      reputationToken.address,
-      collateral.address,
+
+    const marketFactories: MarketFactories = {};
+
+    console.log("Deploying market factories");
+    marketFactories["sportsball"] = await this.deploySportsLinkMarketFactory(
       collateral.address,
       feePot.address,
       stakerFee,
       creatorFee
-    );
-
-    console.log("Deploying AMMFactory, which works for all market factories");
-
-    const ammFactory = await this.deployAMMFactory(balancerFactory.address, swapFee);
+    ).then((contract) => ({ type: "SportsLink", address: contract.address }));
+    marketFactories["trustme"] = await this.deployTrustedMarketFactory(
+      collateral.address,
+      feePot.address,
+      stakerFee,
+      creatorFee
+    ).then((contract) => ({ type: "Trusted", address: contract.address }));
 
     console.log("Done deploying!");
 
-    const addresses = mapOverObject(
-      {
-        collateral,
-        reputationToken,
-        balancerFactory,
-        marketFactory,
-        ammFactory,
-      },
-      (name, contract) => [name, contract.address]
-    );
     return {
-      addresses,
+      addresses: {
+        collateral: collateral.address,
+        reputationToken: reputationToken.address,
+        balancerFactory: balancerFactory.address,
+        ammFactory: ammFactory.address,
+        marketFactories,
+      },
     };
   }
 
@@ -93,8 +99,6 @@ export class Deployer {
   }
 
   async deploySportsLinkMarketFactory(
-    tokenIn: string,
-    tokenOut: string,
     collateral: string,
     feePot: string,
     stakerFee: BigNumberish,
@@ -105,6 +109,27 @@ export class Deployer {
     const shareFactor = calcShareFactor(decimals);
     return this.deploy("sportsLinkMarketFactory", () =>
       new SportsLinkMarketFactory__factory(this.signer).deploy(
+        owner,
+        collateral,
+        shareFactor,
+        feePot,
+        stakerFee,
+        creatorFee
+      )
+    );
+  }
+
+  async deployTrustedMarketFactory(
+    collateral: string,
+    feePot: string,
+    stakerFee: BigNumberish,
+    creatorFee: BigNumberish
+  ): Promise<TrustedMarketFactory> {
+    const owner = await this.signer.getAddress();
+    const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
+    const shareFactor = calcShareFactor(decimals);
+    return this.deploy("trustedMarketFactory", () =>
+      new TrustedMarketFactory__factory(this.signer).deploy(
         owner,
         collateral,
         shareFactor,
@@ -146,9 +171,7 @@ export class Deployer {
 }
 
 export interface Deploy {
-  addresses: { [name: string]: string };
-
-  [name: string]: any; // eslint-disable-line  @typescript-eslint/no-explicit-any
+  addresses: Addresses;
 }
 
 export type DeployStrategy = "test" | "production";
