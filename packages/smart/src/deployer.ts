@@ -53,19 +53,18 @@ export class Deployer {
       feePot.address,
       stakerFee,
       creatorFee
-    ).then((contract) => ({ type: "SportsLink", address: contract.address }));
+    ).then((contract) => ({ type: "SportsLink", address: contract.address, collateral: collateral.address }));
     marketFactories["trustme"] = await this.deployTrustedMarketFactory(
       collateral.address,
       feePot.address,
       stakerFee,
       creatorFee
-    ).then((contract) => ({ type: "Trusted", address: contract.address }));
+    ).then((contract) => ({ type: "Trusted", address: contract.address, collateral: collateral.address }));
 
     console.log("Done deploying!");
 
     return {
       addresses: {
-        collateral: collateral.address,
         reputationToken: reputationToken.address,
         balancerFactory: balancerFactory.address,
         ammFactory: ammFactory.address,
