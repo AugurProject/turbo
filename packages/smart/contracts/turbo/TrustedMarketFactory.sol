@@ -37,7 +37,9 @@ contract TrustedMarketFactory is AbstractMarketFactory, Ownable {
         string[] calldata _symbols
     ) public onlyOwner returns (uint256) {
         uint256 _id = markets.length;
-        markets.push(Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0)));
+        markets.push(
+            Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0), creatorFee)
+        );
         marketDetails.push(MarketDetails(_description));
 
         emit MarketCreated(_id, _creator, _endTime, _description, _symbols);

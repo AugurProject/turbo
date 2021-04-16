@@ -105,7 +105,15 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Home";
 
         uint256 _id = markets.length;
-        markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        markets.push(
+            Market(
+                _creator,
+                createShareTokens(_outcomes, _outcomes, address(this)),
+                _endTime,
+                OwnedERC20(0),
+                creatorFee
+            )
+        );
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -143,7 +151,15 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Favorite";
 
         uint256 _id = markets.length;
-        markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        markets.push(
+            Market(
+                _creator,
+                createShareTokens(_outcomes, _outcomes, address(this)),
+                _endTime,
+                OwnedERC20(0),
+                creatorFee
+            )
+        );
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -181,7 +197,15 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Over";
 
         uint256 _id = markets.length;
-        markets.push(Market(_creator, createShareTokens(_outcomes, _outcomes, address(this)), _endTime, OwnedERC20(0)));
+        markets.push(
+            Market(
+                _creator,
+                createShareTokens(_outcomes, _outcomes, address(this)),
+                _endTime,
+                OwnedERC20(0),
+                creatorFee
+            )
+        );
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
