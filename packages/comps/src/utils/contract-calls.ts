@@ -1344,7 +1344,7 @@ const retrieveMarkets = async (
     const marketId = `${context.marketFactoryAddress}-${context.index}`;
 
     if (method === GET_MARKET_DETAILS) {
-      details[context.index] = data;
+      details[marketId] = data;
     } else if (method === POOLS) {
       const id = data === NULL_ADDRESS ? null : data;
       exchanges[marketId] = {
@@ -1368,18 +1368,14 @@ const retrieveMarkets = async (
     }
   }
 
+  const marketInfos = {};
   // populate outcomes share token addresses
-  if (Object.keys(details).length > 0) {
-    Object.keys(details).forEach((marketId) => {
-      const m = markets[marketId];
-      m.longDescription = details[m.turboId];
+  if (markets.length > 0) {
+    markets.forEach((m) => {
+      const marketDetails = details[m.marketId];
+      marketInfos[m.marketId] = decodeMarketDetails(m, marketDetails);
     });
   }
-
-  const marketInfos = markets
-    .filter((m) => m.description)
-    .filter((m) => m.categories.length > 1)
-    .reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
 
   const blocknumber = marketsResult.blockNumber;
 
@@ -1489,41 +1485,61 @@ const calculatePrices = (ratios: string[] = []) => {
 };
 
 const decodeMarket = (marketData: any) => {
-  // todo: need to get market creation time
-  const start = Math.floor(Date.now() / 1000);
-  const reportingState = MARKET_STATUS.TRADING;
-  const { shareTokens, endTime, winner } = marketData;
-  // translate market data
-  const eventId = "blahblahblah"; // could be used to group events
-  const homeTeamId = "1"; // home team identifier
-  const awayTeamId = "2"; // visiting team identifier
-  const startTimestamp = Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24); // estiamted event start time
-  const categories = getSportCategories(homeTeamId);
-  const line = "3.5";
-  const sportsMarketType = 0; // spread, todo: use constant when new sports market factory is ready.
-  const homeTeam = getFullTeamName(homeTeamId);
-  const awayTeam = getFullTeamName(awayTeamId);
-  const sportId = getSportId(homeTeamId);
-
-  const outcomes = decodeOutcomes(shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
-  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
+  const { shareTokens, endTime, winner, creator, creatorFee } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
+  const hasWinner = winner !== NULL_ADDRESS;
+  const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
 
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
-    creationTimestamp: String(start),
     marketType: "Categorical", // categorical markets
     numTicks: NUM_TICKS_STANDARD,
     totalStake: "0", //String(marketData["totalStake"]),
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
-    hasWinner: winner !== NULL_ADDRESS,
+    hasWinner,
+    reportingState,
+    creatorFee: String(creatorFee), // process creator fee
+    settlementFee: "0", // todo: get creation fee
+    claimedProceeds: [],
+    shareTokens,
+    creator,
+  };
+};
+
+const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
+  // todo: need to get market creation time
+  const start = Math.floor(Date.now() / 1000);
+  const {
+    awayTeamId: coAwayTeamId,
+    eventId: coEventId,
+    homeTeamId: coHomeTeamId,
+    estimatedStartTime,
+    value0,
+    marketType,
+  } = marketData;
+  // translate market data
+  const eventId = String(coEventId); // could be used to group events
+  const homeTeamId = String(coHomeTeamId); // home team identifier
+  const awayTeamId = String(coAwayTeamId); // visiting team identifier
+  const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
+  const categories = getSportCategories(homeTeamId);
+  const line = new BN(String(value0)).toNumber();
+  const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
+  const homeTeam = getFullTeamName(homeTeamId);
+  const awayTeam = getFullTeamName(awayTeamId);
+  const sportId = getSportId(homeTeamId);
+
+  const { shareTokens } = market;
+  const outcomes = decodeOutcomes(shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
+  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
+
+  return {
+    ...market,
+    creationTimestamp: String(start),
     title,
     description,
     categories,
-    reportingState,
     outcomes,
-    settlementFee: "0", // todo: get creation fee
-    claimedProceeds: [],
     eventId,
     homeTeamId,
     awayTeamId,
