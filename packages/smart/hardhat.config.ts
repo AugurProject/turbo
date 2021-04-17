@@ -1,4 +1,5 @@
 import "@nomiclabs/hardhat-waffle";
+import "@eth-optimism/hardhat-ovm";
 import "hardhat-deploy";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
@@ -63,6 +64,11 @@ const config: HardhatUserConfig = {
       gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
       gasPrice: 20000000000,
       confirmations: 10,
+    },
+    optimism: {
+      url: "http://127.0.0.1:8545",
+      gasPrice: 0,
+      ovm: true,
     },
   },
   contractDeploy: {

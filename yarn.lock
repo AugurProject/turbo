@@ -1328,6 +1328,13 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@eth-optimism/hardhat-ovm@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/hardhat-ovm/-/hardhat-ovm-0.0.2.tgz#3317fece96db0b79cc9a1e70ceb933a8b437da6d"
+  integrity sha512-olo7Bsx2GeII2b9a1JZI7bvItvflVkAwowtjtdxMmAzl3+GX3uK+mltG9+v59DJZ8GAkcaFlaL0vXQ4rMT/XrQ==
+  dependencies:
+    node-fetch "^2.6.1"
+
 "@eth-optimism/smock@^0.2.1-alpha.0":
   version "0.2.1-alpha.0"
   resolved "https://registry.yarnpkg.com/@eth-optimism/smock/-/smock-0.2.1-alpha.0.tgz#83ee0cd5484a7a0f76e836304f2a5b75a5a95eb9"

@@ -28,6 +28,8 @@ export enum ChainId {
   Ropsten = 3,
   Rinkeby = 4,
   Kovan = 42,
+  OptimismKovan = 69,
+  OptimismLocal = 420,
   HardHat = 31337,
   ArbitrumKovan4 = 212984383488152,
   MaticMumbai = 80001,
