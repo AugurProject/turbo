@@ -193,7 +193,7 @@ export function useApprovalStatus({
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
-  const { ammFactory, pool } = PARA_CONFIG;
+  const { ammFactory } = PARA_CONFIG;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;

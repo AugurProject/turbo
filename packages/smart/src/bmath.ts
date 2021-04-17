@@ -176,9 +176,8 @@ export async function calculateSellCompleteSets(
   _tokenBalances: BigNumber[],
   _tokenWeights: BigNumber[],
   _swapFee: BigNumber
-): Promise<BigNumber> {
+): Promise<string> {
   const tokenBalanceIn = _tokenBalances[_outcome];
-  const tokenWeightIn = _tokenWeights[_outcome];
 
   let lower = BigNumber.from(0);
   let upper = _shareTokensIn;
@@ -189,7 +188,7 @@ export async function calculateSellCompleteSets(
       // Using the formula total = a_1 + a_2 + ... + c
       const total = attemptTokenCalc(tokenAmountOut, _outcome, _tokenBalances, _tokenWeights, _swapFee);
       if (_shareTokensIn.sub(total).lte(TOLERANCE)) {
-        return total;
+        return total.toString();
       }
 
       if (total.gt(_shareTokensIn)) {
@@ -207,7 +206,7 @@ export async function calculateSellCompleteSets(
     }
   }
 
-  return tokenAmountOut;
+  return tokenAmountOut.toString();
 }
 
 export async function calculateSellCompleteSetsWithValues(
@@ -215,11 +214,11 @@ export async function calculateSellCompleteSetsWithValues(
   _hatchery: string,
   _turboId: string,
   _outcome: number,
-  _shareTokensIn: BigNumber
-): Promise<BigNumber> {
+  _shareTokensIn: string
+): Promise<string> {
   return calculateSellCompleteSets(
     _outcome,
-    _shareTokensIn,
+    BigNumber.from(_shareTokensIn),
     await _ammFactory.getPoolBalances(_hatchery, _turboId),
     await _ammFactory.getPoolWeights(_hatchery, _turboId),
     await _ammFactory.getSwapFee(_hatchery, _turboId)

@@ -255,7 +255,7 @@ const ModalAddLiquidity = ({
       return setBreakdown(defaultAddLiquidityBreakdown);
     }
 
-    const properties = checkConvertLiquidityProperties(
+    const valid = checkConvertLiquidityProperties(
       account,
       market.marketId,
       amount,
@@ -264,7 +264,7 @@ const ModalAddLiquidity = ({
       cash,
       amm,
     );
-    if (!properties) {
+    if (!valid) {
       return setBreakdown(defaultAddLiquidityBreakdown);
     }
     async function getResults() {
@@ -284,10 +284,8 @@ const ModalAddLiquidity = ({
           loginAccount?.library,
           amm,
           cash,
-          properties.fee,
           amount,
-          properties.priceNo,
-          properties.priceYes,
+          outcomes,
         );
       }
 
@@ -353,7 +351,7 @@ const ModalAddLiquidity = ({
   ).full;
 
   const confirmAction = async () => {
-    const properties = checkConvertLiquidityProperties(
+    const valid = checkConvertLiquidityProperties(
       account,
       market.marketId,
       amount,
@@ -362,7 +360,7 @@ const ModalAddLiquidity = ({
       cash,
       amm,
     );
-    if (!properties) {
+    if (!valid) {
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
@@ -389,11 +387,9 @@ const ModalAddLiquidity = ({
         loginAccount?.library,
         amm,
         cash,
-        properties.fee,
         amount,
-        properties.priceNo,
-        properties.priceYes,
-        estimatedLpAmount
+        estimatedLpAmount,
+        outcomes
       )
         .then(response => {
           const { hash } = response;
@@ -555,19 +551,6 @@ const ModalAddLiquidity = ({
   const setPrices = (price, index) => {
     const newOutcomes = outcomes;
     newOutcomes[index].price = price;
-    if (
-      price !== '' &&
-      !isNaN(price) &&
-      price !== '0' &&
-      parseFloat(price) < 1
-    ) {
-      let newValue = ONE.minus(createBigNumber(price)).toString();
-      if (newOutcomes[index].id === YES_OUTCOME_ID) {
-        newOutcomes[NO_OUTCOME_ID].price = newValue;
-      } else {
-        newOutcomes[YES_OUTCOME_ID].price = newValue;
-      }
-    }
     setOutcomes([...newOutcomes]);
   };
   return (

@@ -5,7 +5,7 @@
   "repository": "https://github.com/AugurProject/turbo/packages/smart",
   "license": "MIT",
   "scripts": {
-    "build": "yarn contracts:build && tsc -b",
+    "build": "tsc -b --clean && yarn contracts:build && tsc -b",
     "prebuild:watch": "yarn contracts:build",
     "build:watch": "tsc -b -w",
     "build:typescript": "tsc -b",

@@ -631,24 +631,12 @@ export function convertOnChainCashAmountToDisplayCashAmount(
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
-export function sharesOnChaintoDisplay(
-  onChainAmount: NumStrBigNumber,
-  precision: NumStrBigNumber = 6,
-  numTicks: NumStrBigNumber = 3
-) {
-  return createBigNumber(onChainAmount).dividedBy(
-    createBigNumber(10).pow(createBigNumber(precision).plus(createBigNumber(numTicks)))
-  );
+export function sharesOnChainToDisplay(onChainAmount: NumStrBigNumber) {
+  return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(18)));
 }
 
-export function sharesDisplayToOnChainto(
-  onChainAmount: NumStrBigNumber,
-  precision: NumStrBigNumber = 6,
-  numTicks: NumStrBigNumber = 3
-) {
-  return createBigNumber(onChainAmount).multipliedBy(
-    createBigNumber(10).pow(createBigNumber(precision).plus(createBigNumber(numTicks)))
-  );
+export function sharesDisplayToOnChain(onChainAmount: NumStrBigNumber) {
+  return createBigNumber(onChainAmount).multipliedBy(createBigNumber(10).pow(createBigNumber(18)));
 }
 
 export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
@@ -668,4 +656,3 @@ export function convertDisplayCashAmountToOnChainCashAmount(
 
 export const isSameAddress = (address1: string, address2: string) =>
   address1 && address2 && address1.toLowerCase() === address2.toLowerCase();
-
