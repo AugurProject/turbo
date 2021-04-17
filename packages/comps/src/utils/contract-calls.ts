@@ -30,8 +30,8 @@ import {
   convertOnChainSharesToDisplayShareAmount,
   isSameAddress,
   lpTokensOnChainToDisplay,
-  lpTokensDisplayToOnChain,
-  sharesOnChaintoDisplay,
+  sharesOnChainToDisplay,
+  sharesDisplayToOnChain,
 } from "./format-number";
 import {
   ETH,
@@ -57,13 +57,10 @@ import {
   BPool__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
+  calculateSellCompleteSetsWithValues,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle } from "./derived-market-data";
-
-const isValidPrice = (price: string): boolean => {
-  return price !== null && price !== undefined && price !== "0" && price !== "0.00";
-};
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).toFixed(6);
 interface LiquidityProperties {
@@ -87,23 +84,11 @@ export const checkConvertLiquidityProperties = (
   cash: Cash,
   amm: AmmExchange
 ): LiquidityProperties => {
-  if (!account || !marketId || !amount || !outcomes || outcomes.length === 0 || !cash) return null;
-  const priceNo = outcomes[NO_OUTCOME_ID]?.price;
-  const priceYes = outcomes[YES_OUTCOME_ID]?.price;
-  if (!isValidPrice(priceNo) || !isValidPrice(priceYes)) return null;
-  if (amount === "0" || amount === "0.00") return null;
-  if (Number(fee) < 0) return null;
+  if (!account || !marketId || !amount || !outcomes || outcomes.length === 0 || !cash) return false;
+  if (amount === "0" || amount === "0.00") return false;
+  if (Number(fee) < 0) return false;
 
-  return {
-    account,
-    amm,
-    marketId,
-    cash,
-    fee,
-    amount,
-    priceNo,
-    priceYes,
-  };
+  return true;
 };
 
 export async function estimateAddLiquidityPool(
@@ -111,25 +96,18 @@ export async function estimateAddLiquidityPool(
   provider: Web3Provider,
   amm: AmmExchange,
   cash: Cash,
-  fee: string,
   cashAmount: string,
-  priceNo: string,
-  priceYes: string
+  outcomes: AmmOutcome[]
 ): Promise<AddLiquidityBreakdown> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(
-    amm,
-    cash,
-    cashAmount,
-    priceNo,
-    priceYes
-  );
+  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
 
   let addLiquidityResults = null;
 
   if (!ammAddress) {
+    console.log(marketFactoryAddress, turboId, amount, weights, account);
     addLiquidityResults = await ammFactoryContract.callStatic.createPool(
       marketFactoryAddress,
       turboId,
@@ -139,6 +117,8 @@ export async function estimateAddLiquidityPool(
     );
   } else {
     // todo: get what the min lp token out is
+    console.log(marketFactoryAddress, turboId, amount, 0, account);
+
     addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
       marketFactoryAddress,
       turboId,
@@ -150,7 +130,7 @@ export async function estimateAddLiquidityPool(
 
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
-    const lpTokens = trimDecimalValue(lpTokensOnChainToDisplay(String(addLiquidityResults)));
+    const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
     const minAmounts = ["0", "0", "0", "0"]; // get from estimate
 
     return {
@@ -167,24 +147,16 @@ export async function addLiquidityPool(
   provider: Web3Provider,
   amm: AmmExchange,
   cash: Cash,
-  fee: string,
   cashAmount: string,
-  priceNo: string,
-  priceYes: string,
-  minAmount: string
+  minAmount: string,
+  outcomes: AmmOutcome[]
 ): Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
-  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(
-    amm,
-    cash,
-    cashAmount,
-    priceNo,
-    priceYes
-  );
+  const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
-  const minLptokenAmount = new BN(minAmount).times(0.99).decimalPlaces(0); // account for slippage
-  const minLpTokenAllowed = lpTokensDisplayToOnChain(minLptokenAmount).toFixed();
+  const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
+  const minLpTokenAllowed = sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
     "est add liq:",
@@ -207,29 +179,13 @@ export async function addLiquidityPool(
   return tx;
 }
 
-function shapeAddLiquidityPool(
-  amm: AmmExchange,
-  cash: Cash,
-  cashAmount: string,
-  priceNo: string,
-  priceYes: string
-): {} {
+function shapeAddLiquidityPool(amm: AmmExchange, cash: Cash, cashAmount: string, outcomes: AmmOutcome[]): {} {
   const ammAddress = amm?.id;
   const { marketFactoryAddress, turboId } = amm;
   const amount = convertDisplayCashAmountToOnChainCashAmount(cashAmount, cash.decimals).toFixed();
-
   let weights = [];
   if (!ammAddress) {
-    const decimalPercentNoContest = 0.02;
-    const totalWeight = 50; // just how balancer weights work, total weight is 50
-    const multiplier = new BN(10).pow(new BN(18));
-    // convert price to percentage of weight in the balancer pool.
-    // each outcome gets a
-    const yesWeight = String(new BN(priceNo).minus(0.01).times(totalWeight).times(multiplier));
-    const noWeight = String(new BN(priceYes).minus(0.01).times(totalWeight).times(multiplier));
-    const noContestWeight = String(new BN(decimalPercentNoContest).times(totalWeight).times(multiplier));
-
-    weights = [noContestWeight, noWeight, yesWeight];
+    weights = calcWeights(outcomes.map((o) => o.price));
   }
   return {
     marketFactoryAddress,
@@ -238,6 +194,13 @@ function shapeAddLiquidityPool(
     amount,
   };
 }
+
+const calcWeights = (prices: string[]): string[] => {
+  const totalWeight = new BN(50);
+  const multiplier = new BN(10).pow(new BN(18));
+  const results = prices.map((price) => new BN(price).times(totalWeight).times(multiplier).toFixed());
+  return results;
+};
 
 export async function getRemoveLiquidity(
   balancerPoolId: string,
@@ -321,7 +284,7 @@ export const estimateBuyTrade = async (
     0
   );
   const result = await ammFactoryContract.callStatic.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, 0);
-  const estimatedShares = convertOnChainSharesToDisplayShareAmount(String(result), 18);
+  const estimatedShares = sharesOnChainToDisplay(String(result));
 
   const tradeFees = String(estimatedShares.times(new BN(amm.feeDecimal)));
 
@@ -331,7 +294,7 @@ export const estimateBuyTrade = async (
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
 
-  console.log("buy estimate", result.toFixed());
+  console.log("buy estimate", String(result));
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
@@ -357,25 +320,36 @@ export const estimateSellTrade = async (
   }
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
-  const swaps = userBalances.map((b, i) => (i === selectedOutcomeId ? b : "0"));
+  const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
   console.log(
     "estimate sell",
-    "hatchery",
+    "factory",
     marketFactoryAddress,
     "turboId",
     turboId,
     "outcome id",
     selectedOutcomeId,
-    "swaps",
-    swaps
+    "amount",
+    amount,
+    "inputDisplayAmount",
+    inputDisplayAmount,
+    "shareTokens",
+    amm.ammOutcomes
   );
-  const breakdownWithFeeRaw = await ammFactoryContract.callStatic
-    .sell(marketFactoryAddress, turboId, selectedOutcomeId, swaps, 0)
-    .catch((e) => console.log(e));
+
+  const breakdownWithFeeRaw = await calculateSellCompleteSetsWithValues(
+    ammFactoryContract,
+    marketFactoryAddress,
+    turboId,
+    selectedOutcomeId,
+    amount
+  );
+
+  console.log("breakdownWithFeeRaw", String(breakdownWithFeeRaw));
 
   if (!breakdownWithFeeRaw) return null;
 
-  const estimateCash = convertOnChainCashAmountToDisplayCashAmount(breakdownWithFeeRaw, amm.cash.decimals);
+  const estimateCash = sharesOnChainToDisplay(breakdownWithFeeRaw); // todo: debugging div 1000 need to fix
   const tradeFees = String(estimateCash.times(new BN(amm.feeDecimal)));
 
   const averagePrice = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(2);
@@ -385,7 +359,7 @@ export const estimateSellTrade = async (
     : BigNumber.min(new BN(userBalances[0]), new BN(userBalances[selectedOutcomeId]));
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(2);
   const ratePerCash = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(6);
-  const displayShares = convertOnChainSharesToDisplayShareAmount(shares, amm.cash.decimals);
+  const displayShares = sharesOnChainToDisplay(shares);
   let remainingShares = new BN(displayShares || "0").minus(new BN(inputDisplayAmount));
 
   if (remainingShares.lt(new BN(0))) {
@@ -417,14 +391,12 @@ export async function doTrade(
   if (!provider) return console.error("doTrade: no provider");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
+  const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
   if (tradeDirection === TradingDirection.ENTRY) {
-    console.log("minAmount", minAmount);
     const bareMinAmount = new BN(minAmount).lt(0) ? 0 : minAmount;
-    console.log("bareMinAmount", bareMinAmount);
     const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(bareMinAmount, cash.decimals)
       .decimalPlaces(0)
       .toFixed();
-    const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
     console.log(
       "address",
       marketFactoryAddress,
@@ -441,23 +413,9 @@ export async function doTrade(
   }
 
   if (tradeDirection === TradingDirection.EXIT) {
-    const inputOnChainSharesAmount = convertDisplayShareAmountToOnChainShareAmount(
-      new BN(inputDisplayAmount || "0"),
-      new BN(cash.decimals)
-    );
-    let longShares = new BN("0");
-    let shortShares = new BN("0");
-    let invalidShares = new BN(userBalances[0]);
-    if (!outputYesShares) {
-      shortShares = new BN(inputOnChainSharesAmount);
-      shortShares = BN.minimum(invalidShares, shortShares);
-    } else {
-      longShares = new BN(inputOnChainSharesAmount);
-    }
-    let onChainMinAmount = convertDisplayCashAmountToOnChainCashAmount(
-      new BN(minAmount),
-      new BN(cash.decimals)
-    ).decimalPlaces(0);
+    const { marketFactoryAddress, turboId } = amm;
+    const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
+    let onChainMinAmount = sharesDisplayToOnChain(new BN(minAmount)).decimalPlaces(0);
 
     if (onChainMinAmount.lt(0)) {
       onChainMinAmount = new BN(0);
@@ -465,25 +423,18 @@ export async function doTrade(
 
     console.log(
       "doExitPosition:",
-      cash.shareToken,
-      "invalidShares",
-      String(invalidShares),
-      "short",
-      String(shortShares),
-      "long",
-      String(longShares),
+      marketFactoryAddress,
+      "marketId",
+      String(turboId),
+      "outcome",
+      selectedOutcomeId,
+      "amount",
+      String(amount),
       "min amount",
       String(onChainMinAmount)
     );
 
-    return ammFactoryContract.sell(
-      amm.marketId,
-      cash.shareToken,
-      new BN(amm.feeRaw),
-      shortShares,
-      longShares,
-      onChainMinAmount
-    );
+    return ammFactoryContract.sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, amount, "1");
   }
 
   return null;
@@ -640,10 +591,7 @@ export const getUserBalances = async (
       } else if (collection === LP_TOKEN_COLLECTION) {
         userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance), rawBalance, marketId };
       } else if (collection === MARKET_SHARE_COLLECTION) {
-        const fixedShareBalance = convertOnChainCashAmountToDisplayCashAmount(
-          new BN(rawBalance),
-          new BN(decimals)
-        ).toFixed();
+        const fixedShareBalance = sharesOnChainToDisplay(new BN(rawBalance)).toFixed();
         // todo: re organize balances to be really simple (future)
         // can index using dataKey (shareToken)
         //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
@@ -948,7 +896,7 @@ export const getLPCurrentValue = async (
     );
 
     // assuming cash is 1 usd value
-    const value = sharesOnChaintoDisplay(totalValueRaw);
+    const value = sharesOnChainToDisplay(totalValueRaw);
     return value.times(amm?.cash?.usdPrice).toFixed();
   }
   return null;
@@ -1395,6 +1343,7 @@ const retrieveExchangeInfos = async (
 ): Market[] => {
   const GET_RATIOS = "tokenRatios";
   const GET_BALANCES = "getPoolBalances";
+  const GET_FEE = "getSwapFee";
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
   const multicall = new Multicall({ ethersProvider: provider });
@@ -1436,11 +1385,28 @@ const retrieveExchangeInfos = async (
           },
         ],
       },
+      {
+        reference: `${ammFactoryAddress}-${index}-fee`,
+        contractAddress: ammFactoryAddress,
+        abi: ammFactoryAbi,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-fee`,
+            methodName: GET_FEE,
+            methodParameters: [marketFactoryAddress, index],
+            context: {
+              index,
+              marketFactoryAddress,
+            },
+          },
+        ],
+      },
     ],
     []
   );
   const ratios = {};
   const balances = {};
+  const fees = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1453,6 +1419,8 @@ const retrieveExchangeInfos = async (
       ratios[marketId] = data;
     } else if (method === GET_BALANCES) {
       balances[marketId] = data;
+    } else if (method === GET_FEE) {
+      fees[marketId] = data;
     }
   }
 
@@ -1460,6 +1428,7 @@ const retrieveExchangeInfos = async (
     const exchange = exchanges[marketId];
     const outcomePrices = calculatePrices(ratios[marketId]);
     const market = marketInfos[marketId];
+    const fee = fees[marketId];
     const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
@@ -1471,6 +1440,9 @@ const retrieveExchangeInfos = async (
     }));
     // create cross reference
     exchange.market = market;
+    const feeDecimal = new BN(String(fee)).div(new BN(10).pow(18));
+    exchange.feeDecimal = feeDecimal.toFixed();
+    exchange.feeInPercent = feeDecimal.times(100).toFixed();
     market.amm = exchange;
   });
 
@@ -1485,10 +1457,14 @@ const calculatePrices = (ratios: string[] = []) => {
 };
 
 const decodeMarket = (marketData: any) => {
-  const { shareTokens, endTime, winner, creator, creatorFee } = marketData;
+  const { shareTokens, endTime, winner, creator, creatorFee: onChainFee } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
+  const creatorFee = new BN(String(onChainFee))
+    .div(new BN(10).pow(new BN(18)))
+    .times(100)
+    .toFixed();
 
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
@@ -1498,8 +1474,8 @@ const decodeMarket = (marketData: any) => {
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
     hasWinner,
     reportingState,
-    creatorFee: String(creatorFee), // process creator fee
-    settlementFee: "0", // todo: get creation fee
+    creatorFeeRaw: String(onChainFee),
+    settlementFee: creatorFee,
     claimedProceeds: [],
     shareTokens,
     creator,

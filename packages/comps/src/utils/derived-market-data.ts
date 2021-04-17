@@ -20,14 +20,14 @@ export const getOutcomeName = (
 
   if (sportsMarketType === 1) {
     // spread
-    if (index === 1) return `${homeTeam} ${line}`;
-    if (index === 2) return `${awayTeam} ${line}`;
+    if (index === 1) return `${homeTeam} ${line}.5`;
+    if (index === 2) return `${awayTeam} ${line}.5`;
   }
 
   if (sportsMarketType === 2) {
     // over/under
-    if (index === 1) return `Over ${line}`;
-    if (index === 2) return `Under ${line}`;
+    if (index === 1) return `Over ${line}.5`;
+    if (index === 2) return `Under ${line}.5`;
   }
 
   return `Outcome ${index}`;

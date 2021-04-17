@@ -11,10 +11,10 @@ import {
 import { addresses, ChainId } from "./addresses";
 import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import { calculateSellCompleteSets } from "./src/bmath";
 
 export * from "./typechain";
 export * from "./addresses";
+export * from "./src/bmath";
 
 export { mapOverObject } from "./src/utils/common-functions"; // TODO this shouldn't live in this package
 
