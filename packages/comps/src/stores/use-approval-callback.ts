@@ -47,7 +47,7 @@ const useHasPendingTransaction = (account: string, tokenAddress: string, spender
   return useMemo(() => {
     if (!account || !tokenAddress || !spender) return false;
     const tx = Object.values(transactions).find(
-      (tx) =>
+      (tx: any) =>
         tx.approval &&
         tx.status === TX_STATUS.PENDING &&
         tx?.approval?.spender === spender &&

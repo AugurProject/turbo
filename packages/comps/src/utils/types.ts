@@ -1,5 +1,4 @@
 import { MouseEvent } from "react";
-import type { EthersSigner } from "@augurproject/contract-dependencies-ethers";
 import type { BigNumber } from "../utils/create-big-number";
 import { ethers } from "ethers";
 
@@ -330,7 +329,7 @@ export interface TimeframeData {
 export interface LoginAccountMeta {
   accountType: string;
   address: string;
-  signer: any | EthersSigner;
+  signer: any;
   provider: ethers.providers.JsonRpcProvider;
   isWeb3: boolean;
   profileImage?: string;

@@ -122,7 +122,7 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
       </div>
       <div className={Styles.TransactionList}>
         {userTransactions.map(({ message, hash, status }, index) => (
-          <Transaction key={index} label={message} link={hash} status={status} chainId={chainId} />
+          <Transaction label={message} link={hash} status={status} chainId={chainId} />
         ))}
       </div>
     </div>
