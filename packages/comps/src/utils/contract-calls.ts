@@ -39,7 +39,7 @@ import {
   NULL_ADDRESS,
   USDC,
   YES_OUTCOME_ID,
-  INVALID_OUTCOME_ID,
+  NO_CONTEST_OUTCOME_ID,
   MARKET_STATUS,
   PORTION_OF_INVALID_POOL_SELL,
   NUM_TICKS_STANDARD,
@@ -1537,7 +1537,7 @@ const decodeOutcomes = (
       id: i,
       name: getOutcomeName(i, sportId, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
       symbol: shareToken,
-      isInvalid: i === INVALID_OUTCOME_ID,
+      isInvalid: i === NO_CONTEST_OUTCOME_ID,
       isWinner: false, // need to get based on winning payout hash
       isFinalNumerator: false, // need to translate final numerator payout hash to outcome
       shareToken,
