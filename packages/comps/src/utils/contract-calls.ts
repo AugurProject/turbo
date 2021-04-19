@@ -547,8 +547,8 @@ export const getUserBalances = async (
 
   let basicBalanceCalls: ContractCallContext[] = [];
   const usdc = Object.values(cashes).find((c) => c.name === USDC);
-  console.log('cashes', cashes);
-  
+  console.log("cashes", cashes);
+
   if (usdc) {
     basicBalanceCalls = [
       {
@@ -1205,7 +1205,7 @@ export const getMarketInfos = async (
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
-  console.log('numMarkets', numMarkets)
+  console.log("numMarkets", numMarkets);
   let indexes = [];
   for (let i = 0; i < numMarkets; i++) {
     indexes.push(i);
