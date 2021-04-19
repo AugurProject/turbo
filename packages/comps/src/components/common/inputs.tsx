@@ -273,7 +273,8 @@ export const OutcomesGrid = ({
         .map((outcome) => (
           <Outcome
             index={outcome.id}
-            selected={selectedOutcome && outcome.id === selectedOutcome.id && !showAllHighlighted}
+            key={outcome.id}
+            selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
             nonSelectable={nonSelectable}
             showAllHighlighted={showAllHighlighted}
             outcome={outcome}
