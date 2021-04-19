@@ -114,7 +114,7 @@ export const SWAP: string = "swap";
 export const ADD: string = "add";
 export const REMOVE: string = "remove";
 
-export const INVALID_OUTCOME_ID: number = 0;
+export const NO_CONTEST_OUTCOME_ID: number = 0;
 export const NO_OUTCOME_ID: number = 1;
 export const YES_OUTCOME_ID: number = 2;
 export const NUM_TICKS_STANDARD = "1000";
