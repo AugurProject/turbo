@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { createWeb3ReactRoot, Web3ReactProvider } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";

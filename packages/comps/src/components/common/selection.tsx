@@ -198,10 +198,11 @@ export const CurrencyDropdown = (props: DropdownProps) => (
   />
 );
 
-const Checkbox = ({ item, initialSelected, updateSelected }) => {
+const Checkbox = ({ key, item, initialSelected, updateSelected }) => {
   const [selected, setSelected] = useState(initialSelected);
   return (
     <div
+      key={key}
       onClick={e => {
         e.preventDefault();
         setSelected(!selected);
@@ -241,9 +242,10 @@ export const CheckboxGroup = ({ title, items }) => {
   );
 };
 
-const RadioBar = ({ item, selected, onClick }) => {
+const RadioBar = ({ key, item, selected, onClick }) => {
   return (
     <div
+    key={key}
       onClick={e => {
         e.preventDefault();
         onClick(e);

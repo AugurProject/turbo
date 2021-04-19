@@ -2,7 +2,6 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { ChainId } from "@uniswap/sdk";
 import { Contract, ethers } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { EthersProvider } from "@augurproject/sdk";
 import { SUPPORTED_WALLETS } from "../constants";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { UnsupportedChainIdError } from "@web3-react/core";
@@ -61,17 +60,14 @@ export function getSigner(library: Web3Provider, account: string): JsonRpcSigner
   return library.getSigner(account).connectUnchecked();
 }
 
-// account is optional
 export function getProviderOrSigner(
   library: Web3Provider,
-  account?: string
-): Web3Provider | JsonRpcSigner | EthersProvider {
-  if (account) {
-    // This just connects the account if necessary.
-    return getSigner(library, account);
+  account: string
+): Web3Provider | JsonRpcSigner {
+  if (!isAddress(account) || account === AddressZero) {
+    throw Error(`Invalid 'address' parameter '${account}'.`);
   }
-
-  return new EthersProvider(library, 5, 50, 10);
+  return getSigner(library, account);
 }
 
 // account is optional
