@@ -10,6 +10,7 @@ import { useUserStore } from '../../stores/user';
 import {
   approveERC20Contract,
 } from '../../stores/use-approval-callback';
+import { StringValueNode } from 'graphql';
 
 export interface ButtonProps {
   id?: string;
