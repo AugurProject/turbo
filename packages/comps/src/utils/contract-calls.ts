@@ -483,6 +483,7 @@ export const getUserBalances = async (
     lpTokens: {},
     marketShares: {},
     claimableWinnings: {},
+    claimableFees: "0",
   };
 
   if (!account || !provider) return userBalances;

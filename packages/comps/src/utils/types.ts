@@ -557,6 +557,7 @@ export interface UserBalances {
   lpTokens: LPTokens;
   marketShares: AmmMarketShares;
   claimableWinnings: PositionWinnings;
+  claimableFees: string;
   rep?: string;
   legacyRep?: string;
 }

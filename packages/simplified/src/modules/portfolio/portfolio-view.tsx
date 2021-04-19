@@ -90,7 +90,7 @@ const handleClaimAll = (
 export const ClaimWinningsSection = () => {
   const { isLogged } = useAppStatusStore();
   const {
-    balances: { marketShares },
+    balances: { marketShares, claimableFees },
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
@@ -112,6 +112,7 @@ export const ClaimWinningsSection = () => {
   const USDCTotals = calculateTotalWinnings(claimableUSDCMarkets);
   // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
+  const hasClaimableFees = createBigNumber(claimableFees).gt(0);
 
   return (
     <div className={Styles.ClaimableWinningsSection}>
@@ -154,6 +155,17 @@ export const ClaimWinningsSection = () => {
               canClaimETH,
               setPendingClaim
             );
+          }}
+        />
+      )}
+      {isLogged && hasClaimableFees && (
+        <PrimaryButton
+          text={`Claim Fees (${
+            formatCash(claimableFees, USDC).full
+          })`}
+          // icon={EthIcon}
+          action={() => {
+           console.log("handle claim fees here");
           }}
         />
       )}
