@@ -447,9 +447,9 @@ export const claimWinnings = (
   cash: Cash
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
-  const hatcheryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
   const shareTokens = marketIds.map((m) => cash?.shareToken);
-  return hatcheryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
+  return marketFactoryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
 };
 
 interface UserTrades {
@@ -547,7 +547,8 @@ export const getUserBalances = async (
 
   let basicBalanceCalls: ContractCallContext[] = [];
   const usdc = Object.values(cashes).find((c) => c.name === USDC);
-
+  console.log('cashes', cashes);
+  
   if (usdc) {
     basicBalanceCalls = [
       {
@@ -573,6 +574,7 @@ export const getUserBalances = async (
   const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
 
   const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
+
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
     const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
@@ -1140,8 +1142,10 @@ const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFact
 };
 
 const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
-  const { marketFactory } = PARA_CONFIG;
-  return SportsLinkMarketFactory__factory.connect(marketFactory, getProviderOrSigner(library, account));
+  const { marketFactories } = PARA_CONFIG;
+  // need to support many markets and get collateral for each market
+  const { address } = marketFactories.sportsball;
+  return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {
@@ -1201,6 +1205,7 @@ export const getMarketInfos = async (
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
+  console.log('numMarkets', numMarkets)
   let indexes = [];
   for (let i = 0; i < numMarkets; i++) {
     indexes.push(i);
@@ -1219,9 +1224,9 @@ const retrieveMarkets = async (
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
-  const marketFactory = getMarketFactoryContract(provider, account);
-  const marketFactoryAddress = marketFactory.address;
-  const marketFactoryAbi = extractABI(marketFactory);
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryAddress = marketFactoryContract.address;
+  const marketFactoryAbi = extractABI(marketFactoryContract);
   const ammFactory = getAmmFactoryContract(provider, account);
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
