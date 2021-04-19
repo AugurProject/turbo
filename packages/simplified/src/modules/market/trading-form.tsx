@@ -202,7 +202,7 @@ const TradingForm = ({
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
-  const outcomeShareToken = selectedOutcome.shareToken;
+  const outcomeShareToken = selectedOutcome?.shareToken;
   const approvalStatus = useApprovalStatus({
     cash: ammCash,
     amm,
@@ -213,7 +213,7 @@ const TradingForm = ({
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
   const hasLiquidity = amm.liquidity !== '0';
   
-  const selectedOutcomeId = selectedOutcome.id;
+  const selectedOutcomeId = selectedOutcome?.id;
   const marketShares =
     balances?.marketShares && balances?.marketShares[amm?.marketId];
   
