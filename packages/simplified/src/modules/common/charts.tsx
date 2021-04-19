@@ -279,7 +279,7 @@ export const SimpleChartSection = ({ market, cash }) => {
             outcome={outcome}
             toggleSelected={toggleOutcome}
             isSelected={selectedOutcomes[outcome.outcomeIdx]}
-            disabled
+            // disabled
           />
         ))}
       </div>
@@ -299,8 +299,9 @@ const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostR
       mostRecentTradetime = priceTimeData[length - 1].timestamp;
     }
     const data = priceTimeData.map((pts) => [pts.timestamp, createBigNumber(pts.price).toNumber()]);
+    const outcome = formattedOutcomes[index];
     const baseSeriesOptions = {
-      name: formattedOutcomes[index].label,
+      name: outcome.label,
       type: "areaspline",
       linecap: "round",
       lineWidth: isSelected ? HIGHLIGHTED_LINE_WIDTH : NORMAL_LINE_WIDTH,
@@ -310,10 +311,10 @@ const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostR
           lineWidth: isSelected ? HIGHLIGHTED_LINE_WIDTH : NORMAL_LINE_WIDTH,
         },
       },
-      color: SERIES_COLORS[index],
+      color: SERIES_COLORS[outcome.id],
       fillColor: {
         linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-        stops: SERIES_GRADIENTS[index],
+        stops: SERIES_GRADIENTS[outcome.id],
       },
       marker: {
         enabled: false,

@@ -27,6 +27,7 @@ export interface ButtonProps {
   title?: string;
   darkTheme?: boolean;
   pending?: boolean;
+  key?: string;
 }
 
 const Button = ({
@@ -244,7 +245,7 @@ export const ApprovalButton = ({
       console.error(error);
     }
   }, [cash, loginAccount, shareToken, amm]);
-  
+
   if (!loginAccount || isApproved) {
     return null;
   }

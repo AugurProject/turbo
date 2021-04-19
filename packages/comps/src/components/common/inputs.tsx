@@ -193,6 +193,7 @@ const Outcome = ({
   const formattedPrice = formatDai(outcome.price);
   return (
     <div
+      key={index}
       onClick={onClick}
       className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
         [Styles.Selected]: selected,
@@ -269,11 +270,10 @@ export const OutcomesGrid = ({
     >
       {outcomes
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
-        .map((outcome, index) => (
+        .map((outcome) => (
           <Outcome
-            key={outcome.id}
+            index={outcome.id}
             selected={selectedOutcome && outcome.id === selectedOutcome.id && !showAllHighlighted}
-            index={index}
             nonSelectable={nonSelectable}
             showAllHighlighted={showAllHighlighted}
             outcome={outcome}

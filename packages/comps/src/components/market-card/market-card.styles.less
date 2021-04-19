@@ -100,7 +100,7 @@
 
       &:first-of-type {
         display: grid;
-        grid-gap: @size-4;
+        grid-gap: @size-6;
         grid-template-columns: 1fr;
         grid-template-rows: auto 1fr;
         margin: @size-16 0 @size-4;
@@ -132,10 +132,15 @@
         grid-column: 1 / span 2;
         grid-row: 2;
         align-items: flex-end;
+        margin-top: @size-16;
+
+        > span:last-of-type {
+          align-self: center;
+        }
       }
 
       > div:nth-of-type(2) {
-        align-items: flex-end;
+        // align-items: flex-end;
         grid-column: 1 / span 2;
         grid-row: 3;
         display: flex;

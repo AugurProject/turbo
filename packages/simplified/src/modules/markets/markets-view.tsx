@@ -57,12 +57,13 @@ const applyFiltersAndSort = (
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
-      const { title, description, categories } = market;
+      const { title, description, categories, outcomes } = market;
       const searchRegex = new RegExp(filter, "i");
       const matchTitle = searchRegex.test(title);
       const matchDescription = searchRegex.test(description);
       const matchCategories = searchRegex.test(JSON.stringify(categories));
-      if (matchTitle || matchDescription || matchCategories) {
+      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map(outcome => outcome.name)));
+      if (matchTitle || matchDescription || matchCategories || matchOutcomes) {
         return true;
       }
       return false;
