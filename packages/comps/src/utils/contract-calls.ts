@@ -320,6 +320,7 @@ export const estimateSellTrade = async (
   }
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
+  const marketFactory = getMarketFactoryContract(provider, account);
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
   console.log(
     "estimate sell",
@@ -339,7 +340,7 @@ export const estimateSellTrade = async (
 
   const breakdownWithFeeRaw = await calculateSellCompleteSetsWithValues(
     ammFactoryContract,
-    marketFactoryAddress,
+    marketFactory,
     turboId,
     selectedOutcomeId,
     amount
@@ -433,8 +434,8 @@ export async function doTrade(
       "min amount",
       String(onChainMinAmount)
     );
-
-    return ammFactoryContract.sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, amount, "1");
+    // force tx add last param, { gasLimit: "800000", gasPrice: "1000000"} 
+    return ammFactoryContract.sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinAmount.toFixed());
   }
 
   return null;
@@ -547,7 +548,6 @@ export const getUserBalances = async (
 
   let basicBalanceCalls: ContractCallContext[] = [];
   const usdc = Object.values(cashes).find((c) => c.name === USDC);
-  console.log("cashes", cashes);
 
   if (usdc) {
     basicBalanceCalls = [
