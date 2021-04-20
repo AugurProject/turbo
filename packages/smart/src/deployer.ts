@@ -18,7 +18,7 @@ import {
   TrustedMarketFactory__factory,
 } from "../typechain";
 import { BigNumberish, Contract, Signer, BigNumber } from "ethers";
-import { Addresses, MarketFactories } from "../addresses";
+import { Addresses, Collateral, MarketFactories, MarketFactory } from "../addresses";
 
 const BASIS = BigNumber.from(10).pow(18);
 export const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
@@ -28,8 +28,21 @@ export class Deployer {
 
   // Deploys the test contracts (faucets etc)
   async deployTest(): Promise<Deploy> {
+    const collateralConfig: Collateral = {
+      address: "",
+      name: "USDC",
+      symbol: "USDC",
+      decimals: 6,
+    };
+
     console.log("Deploying test contracts");
-    const collateral = await this.deployCollateral("USDC", "USDC", 6);
+    const collateral = await this.deployCollateral(
+      collateralConfig.name,
+      collateralConfig.symbol,
+      collateralConfig.decimals
+    );
+    collateralConfig.address = collateral.address;
+
     const reputationToken = await this.deployCollateral("REPv2", "REPv2", 18);
     const balancerFactory = await this.deployBalancerFactory();
 
@@ -49,17 +62,17 @@ export class Deployer {
 
     console.log("Deploying market factories");
     marketFactories["sportsball"] = await this.deploySportsLinkMarketFactory(
-      collateral.address,
+      collateralConfig,
       feePot.address,
       stakerFee,
       creatorFee
-    ).then((contract) => ({ type: "SportsLink", address: contract.address, collateral: collateral.address }));
+    );
     marketFactories["trustme"] = await this.deployTrustedMarketFactory(
-      collateral.address,
+      collateralConfig,
       feePot.address,
       stakerFee,
       creatorFee
-    ).then((contract) => ({ type: "Trusted", address: contract.address, collateral: collateral.address }));
+    );
 
     console.log("Done deploying!");
 
@@ -98,45 +111,53 @@ export class Deployer {
   }
 
   async deploySportsLinkMarketFactory(
-    collateral: string,
+    collateral: Collateral,
     feePot: string,
     stakerFee: BigNumberish,
     creatorFee: BigNumberish
-  ): Promise<SportsLinkMarketFactory> {
+  ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
-    const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
-    const shareFactor = calcShareFactor(decimals);
-    return this.deploy("sportsLinkMarketFactory", () =>
-      new SportsLinkMarketFactory__factory(this.signer).deploy(
-        owner,
-        collateral,
-        shareFactor,
-        feePot,
-        stakerFee,
-        creatorFee
-      )
+    const shareFactor = calcShareFactor(collateral.decimals);
+
+    const constructorArgs = [owner, collateral.address, shareFactor.toString(), feePot, stakerFee.toString(), creatorFee.toString()];
+
+    const contract = await this.deploy(
+      "sportsLinkMarketFactory",
+      () =>
+        (new SportsLinkMarketFactory__factory(this.signer) as any).deploy(
+          ...constructorArgs
+        ) as Promise<SportsLinkMarketFactory>
     );
+    return {
+      type: "SportsLink",
+      address: contract.address,
+      constructorArgs,
+      collateral,
+    };
   }
 
   async deployTrustedMarketFactory(
-    collateral: string,
+    collateral: Collateral,
     feePot: string,
     stakerFee: BigNumberish,
     creatorFee: BigNumberish
-  ): Promise<TrustedMarketFactory> {
+  ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
-    const decimals = await Cash__factory.connect(collateral, this.signer).decimals();
-    const shareFactor = calcShareFactor(decimals);
-    return this.deploy("trustedMarketFactory", () =>
-      new TrustedMarketFactory__factory(this.signer).deploy(
-        owner,
-        collateral,
-        shareFactor,
-        feePot,
-        stakerFee,
-        creatorFee
-      )
+    const shareFactor = calcShareFactor(collateral.decimals);
+    const constructorArgs = [owner, collateral.address, shareFactor.toString(), feePot, stakerFee.toString(), creatorFee.toString()];
+    const contract = await this.deploy(
+      "trustedMarketFactory",
+      () =>
+        (new TrustedMarketFactory__factory(this.signer) as any).deploy(
+          ...constructorArgs
+        ) as Promise<TrustedMarketFactory>
     );
+    return {
+      type: "Trusted",
+      address: contract.address,
+      constructorArgs,
+      collateral,
+    };
   }
 
   async deployTheRundownChainlink(): Promise<TheRundownChainlink> {
