@@ -19,14 +19,19 @@ import {
   PathUtils,
   Constants,
   windowRef,
+  useUserStore,
 } from "@augurproject/comps";
+import { TURBO_NO_ACCESS_MODAL } from "./constants";
+import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
 
+
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber } = useDataStore();
-  const { isMobile, modal } = useAppStatusStore();
+  const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
   const { sidebarType, showTradingForm } = useSimplifiedStore();
+  const { loginAccount, actions: { logout }, } = useUserStore();
   const modalShowing = Object.keys(modal).length !== 0;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -35,6 +40,25 @@ const AppBody = () => {
   useUserBalances(ammExchanges, cashes, markets);
   useFinalizeUserTransactions(blocknumber);
   usePageView();
+  const activeWeb3 = useActiveWeb3React();
+
+
+  useEffect(() => {
+    const isTurboOrigin = () => window.location.origin.indexOf('turbo.augur.sh') > 0;
+    if (!!loginAccount && isTurboOrigin()) {
+      const isMainnetOrMatic = () => {
+                // "1" 	  Mainnet             // "137" 	Matic Mainnet
+        return (loginAccount.chainId === 1 || loginAccount.chainId === 137);
+      }
+      if (modal.type !== TURBO_NO_ACCESS_MODAL && isMainnetOrMatic()) {
+        logout();
+        activeWeb3.deactivate();
+        setModal({
+          type: TURBO_NO_ACCESS_MODAL,
+        });
+      }
+    }
+  }, [loginAccount]);
 
   useEffect(() => {
     const html = windowRef.document.firstElementChild;
