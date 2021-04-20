@@ -26,7 +26,7 @@ export const GRAPH_DATA_KEYS = {
   CASHES: "cashes",
   ERRORS: "errors",
   MARKETS: "markets",
-  LOADING: 'loading'
+  LOADING: "loading",
 };
 
 export const GRAPH_DATA_ACTIONS = {
@@ -135,7 +135,7 @@ export const DEFAULT_DATA_STATE: GraphDataState = {
   cashes: {},
   errors: null,
   markets: {},
-  loading: true
+  loading: true,
 };
 
 export const DATA_KEYS = {
@@ -144,7 +144,7 @@ export const DATA_KEYS = {
   CASHES: "cashes",
   ERRORS: "errors",
   MARKETS: "markets",
-  LOADING: 'loading'
+  LOADING: "loading",
 };
 
 export const DATA_ACTIONS = {

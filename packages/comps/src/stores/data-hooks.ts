@@ -47,7 +47,7 @@ export const useData = (cashes, defaultState = DEFAULT_DATA_STATE) => {
           cashes,
           errors,
           markets,
-          loading
+          loading,
         }),
     },
   };

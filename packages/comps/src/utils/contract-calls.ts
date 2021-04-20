@@ -1201,7 +1201,7 @@ export const getMarketInfos = async (
   markets: MarketInfos,
   cashes: Cashes,
   account: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number, loading: boolean } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
