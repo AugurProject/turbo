@@ -283,7 +283,8 @@
   justify-content: space-between;
 
   @media @breakpoint-mobile-tablet {
-    min-height: @size-58;
+    min-height: @size-48;
+    max-height: @size-48;
 
     > span {
       margin: auto 0;
@@ -304,6 +305,9 @@
   });
 
   > span {
+    display: flex;
+    align-items: center;
+    
     &:first-of-type {
       .text-14-semi-bold;
     }
@@ -314,44 +318,6 @@
       display: flex;
     }
   }
-
-  // &.nonSelectable {
-  //   > span:nth-of-type(2) {
-  //     margin-top: @size-8;
-  //   }
-
-  //   > span:last-of-type,
-  //   > div > span,
-  //   > div > input {
-  //     .text-20-bold;
-  //   }
-
-  //   > span:first-of-type {
-  //     margin-top: 0;
-  //   }
-
-  //   &.Selected,
-  //   &:not(.Selected):hover {
-  //     .SimpleBorder;
-
-  //     background: transparent;
-  //     border-top-left-radius: 0;
-  //     border-bottom-left-radius: 0;
-  //     color: var(--simple-secondary-text);
-  //     border-left: @size-1 solid transparent;
-  //     cursor: auto;
-      
-  //     > span:first-of-type {
-  //       color: var(--simple-secondary-text);
-  //     }
-  //   }
-
-  //   &.Edited {
-  //     > div > span {
-  //       color: var(--simple-primary-text);
-  //     }
-  //   }
-  // }
 
   &.showAsButton {
     justify-content: center;
@@ -387,6 +353,62 @@
       border-bottom: @size-1 solid var(--simple-border);
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
+    }
+  }
+
+  &.nonSelectable {
+    pointer-events: none;
+
+    &:hover {
+      border: @size-1 solid var(--simple-border);
+    }
+
+    &.Editable {
+      pointer-events: all;
+      display: grid;
+      grid-template-columns: 1fr @size-80;
+      padding: 0;
+
+      > span {
+        justify-content: flex-start;
+        padding: @size-10 @size-16;
+      }
+
+      > div {
+        .text-16-semi-bold;
+
+        color: var(--simple-secondary-text);
+        display: flex;
+        justify-content: center;
+        border-left: @size-1 solid var(--simple-border);
+        padding: @size-10 @size-16;
+        align-items: center;
+        
+        > input {
+          .text-16-semi-bold;
+
+          background-color: var(--simple-light-bg);
+          padding: 0;
+          border: 0;
+          outline: 0;
+
+          &:hover,
+          &:active {
+            border: 0;
+            outline: 0;
+          }
+        }
+      }
+    }
+
+    &.Edited {
+      > div {
+        color: var(--simple-primary-text);
+
+        > input {
+          color: var(--simple-primary-text);
+        }
+      }
     }
   }
 }

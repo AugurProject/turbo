@@ -170,7 +170,7 @@ contract AMMFactory {
         uint256 _marketId,
         uint256 _outcome,
         uint256 _shareTokensIn,
-        uint256 _minSetsOut
+        uint256 _setsOut
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
@@ -179,22 +179,23 @@ contract AMMFactory {
 
         OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
         _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
+        _undesiredToken.approve(address(_pool), MAX_UINT);
 
-        uint256 _undesiredTokenOut = 0;
+        uint256 _undesiredTokenOut = _setsOut;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             if (i == _outcome) continue;
             OwnedERC20 _token = _market.shareTokens[i];
             (uint256 tokenAmountIn, ) =
-                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _minSetsOut, MAX_UINT);
+                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _setsOut, MAX_UINT);
             _undesiredTokenOut += tokenAmountIn;
         }
+
+        _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
 
         // Transfer undesired token balance back.
         _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
 
-        _marketFactory.burnShares(_marketId, _minSetsOut, msg.sender);
-
-        return _minSetsOut;
+        return _setsOut;
     }
 
     // Returns an array of token values for the outcomes of the market, relative to the first outcome.

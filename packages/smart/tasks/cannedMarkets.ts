@@ -13,7 +13,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const signer = await makeSigner(hre);
   const network = await ethers.provider.getNetwork();
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
-  const { MarketFactory } = contracts;
+  const { MarketFactories } = contracts;
   const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
   const markets = [
@@ -33,7 +33,9 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
       .add(60 * 5); // 5 minutes from now
     const duration = 60 * 60; // one hour
     const endTime = startTime.add(duration);
-    await createMarket(signer, MarketFactory, startTime, endTime, eventId, homeId, awayId, spread, ou, confirmations);
+    const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+    await createMarket(signer, marketFactory, startTime, endTime, eventId, homeId, awayId, spread, ou, confirmations);
+
     console.log(`Created head-to-head market`);
     console.log(`Created spread market`);
     console.log(`Created over-under market`);

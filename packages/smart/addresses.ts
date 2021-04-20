@@ -1,12 +1,20 @@
 // This file is updated by deployer.
 export interface Addresses {
-  collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  marketFactory: string;
+  marketFactories: MarketFactories;
   ammFactory: string;
   theRundownChainlink?: string;
 }
+export type MarketFactories = {
+  [name: string]: MarketFactory;
+};
+export interface MarketFactory {
+  type: MarketFactoryType;
+  address: string;
+  collateral: string;
+}
+export type MarketFactoryType = "SportsLink" | "Trusted" | "Price";
 export enum ChainId {
   Mainnet = 1,
   Ropsten = 3,
@@ -20,32 +28,38 @@ type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
 export const addresses: AddressMapping = {
-  212984383488152: {
-    collateral: "0xe5aa91537A66e884178B2A9faD97afFfe78b5EC5",
-    reputationToken: "0xA50667Cf776fcb033001F1ff54fC313E90ABE508",
-    balancerFactory: "0x60d10F04E830B5E5430C4e850d43127e893Ac396",
-    marketFactory: "0x1a6B0282AfD831aC7872cf61BcF82843B1FB9E2f",
-    ammFactory: "0x6662b8850cE9455f1E1dd9A5f65103C0685A0FeE",
-  },
-  80001: {
-    collateral: "0x0aE2e61C5f0C5d40a93c44A855E649071F6Eb4C6",
-    reputationToken: "0xaB6A64C82C32Cc079B626C1cac5Dce8aa2E3e3EF",
-    balancerFactory: "0xd62e60a61F033658fc2D16cb82861e5776d1BFDf",
-    marketFactory: "0x9a7c7af945bB7684909732a929F3047Dd984380F",
-    ammFactory: "0xf0591767C4F1d47c2746387463De4B91A89231c5",
-  },
   31337: {
-    collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
     balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    marketFactory: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-    ammFactory: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    ammFactory: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      },
+      trustme: {
+        type: "Trusted",
+        address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+        collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      },
+    },
   },
   42: {
-    collateral: "0xbFa52f46798752c49319D29037EbA8Aa1B5274C4",
-    reputationToken: "0x2aCcfD30bd072717F1E1E281472FDFFb79dcdf8a",
-    balancerFactory: "0x339ED094a60EaC295E6D74F737ef0627328015c1",
-    marketFactory: "0xF43912D1a48e6067c7DfC60a873d54E91BCE2D30",
-    ammFactory: "0x1B2b2665BA3e695ac949cC0351ad14cd589f5F6a",
+    reputationToken: "0x6f40e095501F98633bD2Dd8233537deA4a2cbA13",
+    balancerFactory: "0x87f6475903F26158ADfDF795Bd195De87D4Ab990",
+    ammFactory: "0xeDeb99aC75941c98483b50948edD7ef6f125751F",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x3b2B9Eee08a2530cdaF9863340ec6d37Ca313214",
+        collateral: "0x1Deb581A8005E51DE745cf082E69a1bBEba5a4D1",
+      },
+      trustme: {
+        type: "Trusted",
+        address: "0xfc01beB461c101b398a22160edc0d7FA533a4E68",
+        collateral: "0x1Deb581A8005E51DE745cf082E69a1bBEba5a4D1",
+      },
+    },
   },
 };
