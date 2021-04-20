@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
   const provider = loginAccount?.library ? loginAccount.library : null;
   const {
     cashes,
-    actions: { updateDataHeartbeat, updateLoading },
+    actions: { updateDataHeartbeat },
   } = state;
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
