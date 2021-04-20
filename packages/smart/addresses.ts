@@ -46,19 +46,19 @@ export const addresses: AddressMapping = {
     },
   },
   42: {
-    reputationToken: "0x6f40e095501F98633bD2Dd8233537deA4a2cbA13",
-    balancerFactory: "0x87f6475903F26158ADfDF795Bd195De87D4Ab990",
-    ammFactory: "0xeDeb99aC75941c98483b50948edD7ef6f125751F",
+    reputationToken: "0xe3ee127f2F7Fe9Dba9197d7B1241bE89DDd55C2E",
+    balancerFactory: "0x044EC25DB006F25F809ebaB6fEFCD600C89cD7d8",
+    ammFactory: "0x7495Bf7311039AD14243E2067b30B541149890fE",
     marketFactories: {
       sportsball: {
         type: "SportsLink",
-        address: "0x3b2B9Eee08a2530cdaF9863340ec6d37Ca313214",
-        collateral: "0x1Deb581A8005E51DE745cf082E69a1bBEba5a4D1",
+        address: "0x3b834B11D00EC677D658c11f64608Dde72eAe2cE",
+        collateral: "0xB05fD0221DD4A71F41fBFc0EB6b481B95A13b14e",
       },
       trustme: {
         type: "Trusted",
-        address: "0xfc01beB461c101b398a22160edc0d7FA533a4E68",
-        collateral: "0x1Deb581A8005E51DE745cf082E69a1bBEba5a4D1",
+        address: "0x91137a3dD443E9f991aCf04407A0f961A88843BF",
+        collateral: "0xB05fD0221DD4A71F41fBFc0EB6b481B95A13b14e",
       },
     },
   },
