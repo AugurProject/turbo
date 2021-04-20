@@ -434,8 +434,14 @@ export async function doTrade(
       "min amount",
       String(onChainMinAmount)
     );
-    // force tx add last param, { gasLimit: "800000", gasPrice: "1000000"} 
-    return ammFactoryContract.sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinAmount.toFixed());
+    // force tx add last param, { gasLimit: "800000", gasPrice: "1000000"}
+    return ammFactoryContract.sellForCollateral(
+      marketFactoryAddress,
+      turboId,
+      selectedOutcomeId,
+      amount,
+      onChainMinAmount.toFixed()
+    );
   }
 
   return null;
