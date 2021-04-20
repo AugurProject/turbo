@@ -9,7 +9,7 @@ task("verifyDeploy", "Verify contract deploy")
     const deployedAddresses = JSON.parse(args.addresses) as Addresses;
     const { reputationToken, balancerFactory, marketFactories, ammFactory, theRundownChainlink } = deployedAddresses;
 
-    let collaterals: { [address: string]: boolean } = {};
+    const collaterals: { [address: string]: boolean } = {};
     if (marketFactories) {
       for (const [name, marketFactory] of Object.entries(marketFactories)) {
         console.log(`verify::marketFactory::${name}`);
