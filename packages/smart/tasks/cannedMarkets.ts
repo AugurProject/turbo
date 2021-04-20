@@ -29,7 +29,6 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
       .add(60 * 5); // 5 minutes from now
     const duration = 60 * 60; // one hour
     const endTime = startTime.add(duration);
-
     const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
     await createMarket(signer, marketFactory, startTime, endTime, eventId, homeId, awayId, spread, ou, confirmations);
     console.log(`Created head-to-head market`);
