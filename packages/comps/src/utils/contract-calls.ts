@@ -127,7 +127,7 @@ export async function estimateAddLiquidityPool(
     );
   }
 
-  console.log('addLiquidityResults', addLiquidityResults)
+  console.log("addLiquidityResults", addLiquidityResults);
 
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
@@ -227,9 +227,7 @@ export async function getRemoveLiquidity(
     .catch((e) => console.log(e));
 
   if (!results) return null;
-  const minAmounts: string[] = results.map((v) =>
-  lpTokensOnChainToDisplay(String(v)).toFixed()
-  );
+  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
   const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
 
   return {
@@ -1000,13 +998,13 @@ const getEthBalance = async (provider: Web3Provider, cashes: Cashes, account: st
   };
 };
 
-export const isAddress = value => {
+export const isAddress = (value) => {
   try {
-    return ethers.utils.getAddress(value.toLowerCase())
+    return ethers.utils.getAddress(value.toLowerCase());
   } catch {
-    return false
+    return false;
   }
-}
+};
 
 export const getContract = (tokenAddress: string, ABI: any, library: Web3Provider, account?: string): Contract => {
   if (!isAddress(tokenAddress) || tokenAddress === NULL_ADDRESS) {
@@ -1218,31 +1216,25 @@ const retrieveMarkets = async (
   return { marketInfos, exchanges, blocknumber };
 };
 
-
-const exchangesHaveLiquidity = async (
-  exchanges: AmmExchanges,
-  provider: Web3Provider
-): Market[] => {
+const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
   const TOTAL_SUPPLY = "totalSupply";
   const multicall = new Multicall({ ethersProvider: provider });
   const ex = Object.values(exchanges).filter((k) => k.id);
-  const contractMarketsCall: ContractCallContext[] = ex.map(e => (
-    {
+  const contractMarketsCall: ContractCallContext[] = ex.map((e) => ({
+    reference: `${e.id}-total-supply`,
+    contractAddress: e.id,
+    abi: BPoolABI,
+    calls: [
+      {
         reference: `${e.id}-total-supply`,
-        contractAddress: e.id,
-        abi: BPoolABI,
-        calls: [
-          {
-            reference: `${e.id}-total-supply`,
-            methodName: TOTAL_SUPPLY,
-            methodParameters: [],
-            context: {
-              marketId: e.marketId
-            },
-          },
-        ],
-      })      
-  );
+        methodName: TOTAL_SUPPLY,
+        methodParameters: [],
+        context: {
+          marketId: e.marketId,
+        },
+      },
+    ],
+  }));
   const balances = {};
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
@@ -1265,7 +1257,6 @@ const exchangesHaveLiquidity = async (
   return exchanges;
 };
 
-
 const retrieveExchangeInfos = async (
   exchangesInfo: AmmExchanges,
   marketInfos: MarketInfos,
@@ -1273,7 +1264,6 @@ const retrieveExchangeInfos = async (
   ammFactory: AMMFactory,
   provider: Web3Provider
 ): Market[] => {
-
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
 
   const GET_RATIOS = "tokenRatios";
@@ -1388,7 +1378,7 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   if (ratios.length === 0) return "0";
   if (!ratios[outcomeId]) return "0";
   return String(ratios[outcomeId]);
-}
+};
 const calculatePrices = (ratios: string[] = []) => {
   //price[0] = ratio[0] / sum(ratio)
   const sum = ratios.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
