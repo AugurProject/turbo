@@ -119,7 +119,14 @@ export class Deployer {
     const owner = await this.signer.getAddress();
     const shareFactor = calcShareFactor(collateral.decimals);
 
-    const constructorArgs = [owner, collateral.address, shareFactor.toString(), feePot, stakerFee.toString(), creatorFee.toString()];
+    const constructorArgs = [
+      owner,
+      collateral.address,
+      shareFactor.toString(),
+      feePot,
+      stakerFee.toString(),
+      creatorFee.toString(),
+    ];
 
     const contract = await this.deploy(
       "sportsLinkMarketFactory",
@@ -144,7 +151,14 @@ export class Deployer {
   ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
     const shareFactor = calcShareFactor(collateral.decimals);
-    const constructorArgs = [owner, collateral.address, shareFactor.toString(), feePot, stakerFee.toString(), creatorFee.toString()];
+    const constructorArgs = [
+      owner,
+      collateral.address,
+      shareFactor.toString(),
+      feePot,
+      stakerFee.toString(),
+      creatorFee.toString(),
+    ];
     const contract = await this.deploy(
       "trustedMarketFactory",
       () =>

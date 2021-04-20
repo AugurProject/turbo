@@ -50,13 +50,15 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                   ),
                                   context.factory.createPropertyAssignment(
                                     "constructorArgs",
-                                    ts.factory.createArrayLiteralExpression(marketFactory.constructorArgs.map(value => {
-                                      if (typeof value === "number") {
-                                        return ts.factory.createNumericLiteral(value);
-                                      } else {
-                                        return ts.factory.createStringLiteral(value)
-                                      }
-                                    }))
+                                    ts.factory.createArrayLiteralExpression(
+                                      marketFactory.constructorArgs.map((value) => {
+                                        if (typeof value === "number") {
+                                          return ts.factory.createNumericLiteral(value);
+                                        } else {
+                                          return ts.factory.createStringLiteral(value);
+                                        }
+                                      })
+                                    )
                                   ),
                                   context.factory.createPropertyAssignment(
                                     "collateral",
