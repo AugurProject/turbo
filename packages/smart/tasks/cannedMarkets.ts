@@ -13,11 +13,13 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
   const markets = [
-    { eventId: "0xf2a", homeId: 0x1, awayId: 0x2 },
-    { eventId: "0x10011101a", homeId: 0x3, awayId: 0x4 },
-    { eventId: "0x12a", homeId: 0x5, awayId: 0x6 },
+    { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -5, ou: 200 },
+    { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -3, ou: 30 },
+    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 1, ou: 2 },
+    { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -3, ou: 3 },
   ];
-  for (const { eventId, homeId, awayId } of markets) {
+
+  for (const { eventId, homeId, awayId, spread, ou } of markets) {
     console.log("Creating market:");
     console.log(`    Event ID: ${eventId}`);
     console.log(`    Home ID: ${homeId}`);
@@ -28,7 +30,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     const duration = 60 * 60; // one hour
     const endTime = startTime.add(duration);
     const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
-    await createMarket(signer, marketFactory, startTime, endTime, eventId, homeId, awayId, -5, 200, confirmations);
+    await createMarket(signer, marketFactory, startTime, endTime, eventId, homeId, awayId, spread, ou, confirmations);
     console.log(`Created head-to-head market`);
     console.log(`Created spread market`);
     console.log(`Created over-under market`);
