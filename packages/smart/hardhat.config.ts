@@ -85,6 +85,4 @@ if (PRIVATE_KEY && config.networks) {
   });
 }
 
-if (ETHERSCAN_API_KEY) config.etherscan = { apiKey: ETHERSCAN_API_KEY };
-
 export default config;
