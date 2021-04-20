@@ -639,11 +639,11 @@ export function sharesDisplayToOnChain(onChainAmount: NumStrBigNumber) {
   return createBigNumber(onChainAmount).multipliedBy(createBigNumber(10).pow(createBigNumber(18)));
 }
 
-export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
+export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 18) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
-export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
+export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 18) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
