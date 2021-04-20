@@ -38,16 +38,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
-    - name: Prettify code
-      uses: creyD/prettier_action@v3.1
-      with:
-        # This part is also where you can pass other options, for example:
-        prettier_options: --write **/**.ts
-        prettier_version: 2.2.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.PUBLIC_REPO_ACCESS }}
-
     - run: yarn
     - run: yarn build
+    - run: yarn format
     - run: yarn lint
     - run: yarn test
