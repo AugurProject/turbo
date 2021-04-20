@@ -127,8 +127,6 @@ export async function estimateAddLiquidityPool(
     );
   }
 
-  console.log("addLiquidityResults", addLiquidityResults);
-
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
