@@ -117,6 +117,20 @@ const EmptyMarketView = () => {
   );
 };
 
+const NonexistingMarketView = () => {
+  return (
+    <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
+      <section>
+        <section>
+          <span>Market does not exist</span>
+        </section>
+      </section>
+      <section>
+      </section>
+    </div>
+  );
+};
+
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
@@ -125,7 +139,7 @@ const MarketView = ({ defaultMarket = null }) => {
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { markets, ammExchanges } = useDataStore();
+  const { markets, ammExchanges, loading } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
@@ -137,6 +151,7 @@ const MarketView = ({ defaultMarket = null }) => {
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
 
+  if (!market && !loading) return <NonexistingMarketView />;
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
   // @ts-ignore

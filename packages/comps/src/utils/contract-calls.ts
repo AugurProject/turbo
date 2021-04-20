@@ -1201,7 +1201,7 @@ export const getMarketInfos = async (
   markets: MarketInfos,
   cashes: Cashes,
   account: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number, loading: boolean } => {
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
@@ -1212,7 +1212,7 @@ export const getMarketInfos = async (
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(indexes, cashes, provider, account);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, loading: false };
 };
 
 const retrieveMarkets = async (
