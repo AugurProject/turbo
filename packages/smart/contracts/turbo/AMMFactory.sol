@@ -207,6 +207,11 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
         address _basisToken = address(_market.shareTokens[0]);
         uint256[] memory _ratios = new uint256[](_market.shareTokens.length);
@@ -224,6 +229,11 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _balances = new uint256[](_tokens.length);
         for (uint256 i = 0; i < _tokens.length; i++) {
@@ -238,6 +248,11 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _weights = new uint256[](_tokens.length);
         for (uint256 i = 0; i < _tokens.length; i++) {

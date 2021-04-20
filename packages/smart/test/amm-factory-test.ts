@@ -113,4 +113,16 @@ describe("AMMFactory", () => {
 
     expect(collateralAfter.gt(collateralBefore)).to.be.true;
   });
+
+  it("should not fail when getting weights/ratios/balances on non-existent pools", async () => {
+    const nonExistentMarketId = 10;
+    const tokenRatios = await ammFactory.tokenRatios(marketFactory.address, nonExistentMarketId);
+    expect(tokenRatios).to.be.empty;
+
+    const poolBalances = await ammFactory.getPoolBalances(marketFactory.address, nonExistentMarketId);
+    expect(poolBalances).to.be.empty;
+
+    const poolWeights = await ammFactory.getPoolWeights(marketFactory.address, nonExistentMarketId);
+    expect(poolWeights).to.be.empty;
+  });
 });
