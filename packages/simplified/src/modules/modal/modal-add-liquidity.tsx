@@ -61,11 +61,14 @@ const {
   CONNECT_ACCOUNT,
   SET_PRICES,
   TX_STATUS,
+  INVALID_PRICE,
   INSUFFICIENT_BALANCE,
-  ONE,
   ERROR_AMOUNT,
+  INVALID_PRICE_SUBTEXT,
   PORTION_OF_CASH_INVALID_POOL,
   ApprovalState,
+  ZERO,
+  ONE
 } = Constants;
 
 const TRADING_FEE_OPTIONS = [
@@ -313,17 +316,17 @@ const ModalAddLiquidity = ({
   else if (new BN(amount).gt(new BN(userMaxAmount)))
     inputFormError = INSUFFICIENT_BALANCE;
   else if (modalType === CREATE) {
-    const yesPrice = outcomes[YES_OUTCOME_ID].price;
-    const noPrice = outcomes[NO_OUTCOME_ID].price;
-    if (
-      yesPrice === '0' ||
-      !yesPrice ||
-      noPrice === '0' ||
-      !noPrice ||
-      noPrice === '0.00' ||
-      yesPrice === '0.00'
-    ) {
-      inputFormError = SET_PRICES;
+    let totalPrice = ZERO;
+    outcomes.map(outcome => {
+      const price = outcome.price;
+      if (price === '0' || !price) {
+        inputFormError = SET_PRICES;
+      } else {
+        totalPrice = totalPrice.plus(createBigNumber(price));
+      }
+    });
+    if (inputFormError === '' && !totalPrice.eq(ONE)) {
+      buttonError = INVALID_PRICE;
     }
   }
 
@@ -467,7 +470,7 @@ const ModalAddLiquidity = ({
       showTradingFee: true,
       setOdds: true,
       setOddsTitle: mustSetPrices
-        ? 'Set the price (between 0.0 to 1.0)'
+        ? 'Set the price (between 0.0 - 0.1). Total price of all outcomes must add up to 1.'
         : 'Current Prices',
       receiveTitle: "You'll receive",
       actionButtonText: 'Add',
@@ -623,7 +626,6 @@ const ModalAddLiquidity = ({
                   editable={mustSetPrices}
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
-                  error={hasPriceErrors}
                   dontFilterInvalid
                 />
               </>
@@ -675,6 +677,7 @@ const ModalAddLiquidity = ({
                     : LIQUIDITY_STRINGS[modalType].actionButtonText
                   : inputFormError
               }
+              subText={buttonError === INVALID_PRICE ? INVALID_PRICE_SUBTEXT : null}
             />
             <div className={Styles.FooterText}>
               {LIQUIDITY_STRINGS[modalType].footerText}

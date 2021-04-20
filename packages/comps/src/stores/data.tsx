@@ -69,7 +69,10 @@ const output = {
 // for now we jsut do this here...
 const getCashesInfo = (): any[] => {
   // @ts-ignore
-  const { collateral } = PARA_CONFIG;
+  const { marketFactories } = PARA_CONFIG;
+  const { collateral: usdcCollateral } = marketFactories.sportsball;
+  // todo: need to grab all collaterals per market factory
+
   // const paraValues = Object.values(paraDeploys);
   // const keysValues = paraValues.reduce((p, v) => ({ ...p, [v.name]: v }), {});
   const cashes = [
@@ -77,7 +80,7 @@ const getCashesInfo = (): any[] => {
       name: "USDC",
       displayDecimals: 2,
       decimals: 6,
-      address: collateral,
+      address: usdcCollateral,
       shareToken: "",
       usdPrice: "1",
       asset: "",
@@ -94,6 +97,7 @@ const getCashesInfo = (): any[] => {
   ];
   // const cashes = paraCashes[String(networkId)].Cashes;
 
+  console.log('cashes', cashes);
   return cashes;
 };
 
