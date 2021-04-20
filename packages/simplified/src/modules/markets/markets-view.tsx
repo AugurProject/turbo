@@ -51,7 +51,6 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
-  handleGraphError
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -145,6 +144,7 @@ const MarketsView = () => {
     cashes,
     markets,
     actions: { updateDataHeartbeat },
+    loading: dataLoading 
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
@@ -171,7 +171,6 @@ const MarketsView = () => {
         showLiquidMarkets,
         showInvalidMarkets,
       },
-      (err) => updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, err)
     );
   };
 
@@ -201,7 +200,6 @@ const MarketsView = () => {
       });
     }
   };
-
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -276,7 +274,7 @@ const MarketsView = () => {
         <section>
           <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
         </section>
-      ) : loading ? (
+      ) : (loading && dataLoading) ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />

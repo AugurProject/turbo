@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
   const provider = loginAccount?.library ? loginAccount.library : null;
   const {
     cashes,
-    actions: { updateDataHeartbeat },
+    actions: { updateDataHeartbeat, updateLoading },
   } = state;
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
@@ -37,16 +37,15 @@ export const DataProvider = ({ children }) => {
       if (provider && account) {
         return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
       }
-      return { markets: {}, ammExchanges: {}, blocknumber: null };
+      return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
-
-    getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+    getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading)
     });
 
     const intervalId = setInterval(() => {
-      getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+      getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
