@@ -72,14 +72,12 @@ const getCashesInfo = (): any[] => {
   const { collateral: usdcCollateral } = marketFactories.sportsball;
   // todo: need to grab all collaterals per market factory
 
-  // const paraValues = Object.values(paraDeploys);
-  // const keysValues = paraValues.reduce((p, v) => ({ ...p, [v.name]: v }), {});
   const cashes = [
     {
       name: "USDC",
       displayDecimals: 2,
-      decimals: 6,
-      address: usdcCollateral,
+      decimals: usdcCollateral.decimals,
+      address: usdcCollateral.address,
       shareToken: "",
       usdPrice: "1",
       asset: "",
@@ -94,9 +92,7 @@ const getCashesInfo = (): any[] => {
       asset: "ETH",
     },
   ];
-  // const cashes = paraCashes[String(networkId)].Cashes;
 
-  console.log('cashes', cashes);
   return cashes;
 };
 
