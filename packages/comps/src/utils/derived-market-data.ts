@@ -136,7 +136,7 @@ const sportsData = {
         outcomes: [
           NO_CONTEST,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,          
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -160,7 +160,7 @@ const sportsData = {
         outcomes: [
           NO_CONTEST,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,          
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -184,7 +184,7 @@ const sportsData = {
         outcomes: [
           NO_CONTEST,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,          
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -208,7 +208,7 @@ const sportsData = {
         outcomes: [
           NO_CONTEST,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,          
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
