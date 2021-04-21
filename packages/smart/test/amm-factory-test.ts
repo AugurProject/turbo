@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { AbstractMarketFactory, AMMFactory } from "../typechain";
 import { BigNumber, Contract, ContractFactory } from "ethers";
 import { calcShareFactor } from "../src";
-import { calculateSellCompleteSetsWithValues } from "../src/bmath";
+import { calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 describe("AMMFactory", () => {
   let AMMFactory__factory: ContractFactory;
@@ -130,5 +130,16 @@ describe("AMMFactory", () => {
 
     const poolWeights = await ammFactory.getPoolWeights(marketFactory.address, nonExistentMarketId);
     expect(poolWeights).to.be.empty;
+  });
+
+  it("should not be an infinite loop", async () => {
+    calculateSellCompleteSets(
+      BigNumber.from("1000000000000"),
+      0,
+      BigNumber.from("11000000000000000000"),
+      ["9437597515460458265822", "10012000000000000000000", "10012000000000000000000"].map((b) => BigNumber.from(b)),
+      ["1000000000000000000", "20000000000000000000", "29000000000000000000"].map((b) => BigNumber.from(b)),
+      BigNumber.from("15000000000000000")
+    );
   });
 });
