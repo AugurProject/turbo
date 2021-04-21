@@ -4,6 +4,13 @@
 .Slippage {
   margin-top: @size-12;
   cursor: pointer;
+  overflow: hidden;
+  height: @size-20;
+  transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
+
+  &.showSelection {
+    height: @size-60;
+  }
 
   > label {
     .text-12-semi-bold;
@@ -96,7 +103,7 @@
         margin-left: -@size-1;
 
         &.first {
-          transform: translateX(92%);
+          transform: translateX(94%);
         }
 
         &.second {

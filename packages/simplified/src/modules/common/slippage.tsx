@@ -53,7 +53,7 @@ export const Slippage = () => {
   const [error, setError] = useState('');
 
   return (
-    <section className={Styles.Slippage}>
+    <section className={classNames(Styles.Slippage, {[Styles.showSelection]: showSelection})}>
       <label onClick={() => setShowSelection(!showSelection)}>
         Slippage Tolerance
         {generateTooltip(
