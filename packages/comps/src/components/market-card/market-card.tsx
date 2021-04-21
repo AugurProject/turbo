@@ -125,7 +125,7 @@ const OutcomesTable = ({
   );
 };
 
-const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
+export const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
   <span>
     <span>
       {!!title && <span>{title}</span>}
