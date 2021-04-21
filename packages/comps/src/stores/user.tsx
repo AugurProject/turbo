@@ -13,7 +13,7 @@ export const UserStore = {
   actions: STUBBED_USER_ACTIONS,
 };
 
-export const UserProvider = ({ children }) => {
+export const UserProvider = ({ children }: any) => {
   const state = useUser();
 
   if (!UserStore.actionsSet) {

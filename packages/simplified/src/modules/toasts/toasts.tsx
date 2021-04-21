@@ -42,7 +42,7 @@ export const Toasts = () => {
   );
 };
 
-const Toast = ({ toast, markAsSeen }) => {
+const Toast = ({ toast, markAsSeen }: typeof React.Component) => {
   const confirmed = toast.status === TX_STATUS.CONFIRMED;
 
   useEffect(() => {

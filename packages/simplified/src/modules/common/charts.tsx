@@ -226,7 +226,7 @@ export const SelectOutcomeButton = ({
   isSelected,
   cash,
   disabled = false,
-}) => {
+}: typeof React.Component) => {
   return (
     <button
       className={classNames(Styles.SelectOutcomeButton, {

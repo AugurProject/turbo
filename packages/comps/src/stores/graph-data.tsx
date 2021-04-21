@@ -16,7 +16,7 @@ export const GraphDataStore = {
   actions: STUBBED_GRAPH_DATA_ACTIONS,
 };
 // default to GraphClient.client if no client is passed...
-export const GraphDataProvider = ({ children, client = GraphClient.client }) => {
+export const GraphDataProvider = ({ children, client = GraphClient.client }: any) => {
   const state = useGraphData();
 
   if (!GraphDataStore.actionsSet) {
