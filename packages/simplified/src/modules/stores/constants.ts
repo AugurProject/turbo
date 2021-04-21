@@ -17,7 +17,6 @@ export const DEFAULT_SIMPLIFIED_STATE = {
   marketsViewSettings: DEFAULT_MARKET_VIEW_SETTINGS,
   settings: {
     slippage: SETTINGS_SLIPPAGE,
-    showInvalidMarkets: false,
     showLiquidMarkets: false,
   },
 };

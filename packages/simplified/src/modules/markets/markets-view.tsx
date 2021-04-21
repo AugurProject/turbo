@@ -50,7 +50,7 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
-  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
+  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -73,7 +73,7 @@ const applyFiltersAndSort = (
     if (showLiquidMarkets && (!market.amm || isNaN(market?.amm?.liquidityUSD) || !market?.amm?.liquidityUSD)) {
       return false;
     }
-    if (!showInvalidMarkets && market.isInvalid) {
+    if (market.isInvalid) {
       return false;
     }
     if (
@@ -135,7 +135,7 @@ const MarketsView = () => {
   } = useAppStatusStore();
   const {
     marketsViewSettings,
-    settings: { showLiquidMarkets, showInvalidMarkets },
+    settings: { showLiquidMarkets },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
@@ -144,7 +144,7 @@ const MarketsView = () => {
     cashes,
     markets,
     actions: { updateDataHeartbeat },
-    loading: dataLoading 
+    loading: dataLoading
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
@@ -169,7 +169,6 @@ const MarketsView = () => {
         currency,
         reportingState,
         showLiquidMarkets,
-        showInvalidMarkets,
       },
     );
   };
@@ -177,7 +176,7 @@ const MarketsView = () => {
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf(), showInvalidMarkets]);
+  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
