@@ -117,12 +117,12 @@ const EmptyMarketView = () => {
   );
 };
 
-const NonexistingMarketView = () => {
+const NonexistingMarketView = ({text}) => {
   return (
     <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
       <section>
         <section>
-          <span>Market does not exist</span>
+          <span>{text}</span>
         </section>
       </section>
       <section>
@@ -151,8 +151,8 @@ const MarketView = ({ defaultMarket = null }) => {
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
   
-  if ((!market && !loading) || !isLogged) return <NonexistingMarketView />;
-  if (!market) return <EmptyMarketView />;
+  if ((!market && !loading) || !isLogged) return <NonexistingMarketView text={!isLogged ? 'Please connect a wallet to view market data' : 'Market does not exist'}/>;
+  if (!market) return <EmptyMarketView />; 
   const details = getDetails(market);
   // @ts-ignore
   // const currentAMMs = getCurrentAmms(market, markets);
