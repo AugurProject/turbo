@@ -15,7 +15,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
   const markets = [
     { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -5, ou: 200 },
     { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -3, ou: 30 },
-    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 1, ou: 2 },
+    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 1, ou: 50 },
     { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -3, ou: 3 },
   ];
 

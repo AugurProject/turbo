@@ -413,8 +413,13 @@ export async function doTrade(
   if (tradeDirection === TradingDirection.EXIT) {
     const { marketFactoryAddress, turboId } = amm;
     const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-    let onChainMinAmount = sharesDisplayToOnChain(new BN(minAmount)).decimalPlaces(0);
-
+    console.log('minAmount', minAmount)
+    let min = new BN(minAmount);
+    if (min.lt(0)) {
+      min = "0.01" // set to 1 cent until estimate gets worked out. 
+    }
+    let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
+    console.log('onChainMinAmount', String(minAmount), String(onChainMinAmount))
     if (onChainMinAmount.lt(0)) {
       onChainMinAmount = new BN(0);
     }
@@ -429,15 +434,16 @@ export async function doTrade(
       "amount",
       String(amount),
       "min amount",
-      String(onChainMinAmount)
+      onChainMinAmount.toFixed()
     );
-    // force tx add last param, { gasLimit: "800000", gasPrice: "1000000"}
+
     return ammFactoryContract.sellForCollateral(
       marketFactoryAddress,
       turboId,
       selectedOutcomeId,
       amount,
-      onChainMinAmount.toFixed()
+      onChainMinAmount.toFixed(),
+      //{ gasLimit: "800000", gasPrice: "10000000000"}
     );
   }
 
