@@ -9,7 +9,11 @@
   transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
 
   &.showSelection {
-    height: @size-60;
+    height: @size-85;
+
+    > ul {
+      opacity: 1;
+    }
   }
 
   > label {
@@ -47,6 +51,7 @@
     margin-top: @size-12;
     justify-content: flex-end;
     align-items: center;
+    opacity: 0;
 
     > div {
       .SimpleBorder;
