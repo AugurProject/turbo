@@ -80,23 +80,23 @@ export const addresses: AddressMapping = {
     },
   },
   42: {
-    reputationToken: "0xEd5A05A4B31f9CCA1E3bb03F76bdF2d88204b1a5",
-    balancerFactory: "0xa7503Fa3F8af11923B8FA0cfaaf607A62EbB8bB9",
-    ammFactory: "0x8D13ef08fb43e2266acB9257Da0b264CD5717f59",
+    reputationToken: "0x2101ae7832c3e9096b2E5C00B6b80DE008359603",
+    balancerFactory: "0xD6D8aB2BA1096E0A8F9E2380E29A345436DF6542",
+    ammFactory: "0x48CFE5Ac2Bd221bA8418d8d19AEC4476496a50e4",
     marketFactories: {
       sportsball: {
         type: "SportsLink",
-        address: "0x85096ca3Ac86Abd5c68B6eC63387AF66D0F20735",
+        address: "0x397018eFcC4780921D932ef67455E8Af0eCC4efA",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
-          "0xa2A9957E4cf252123BA866b793F2c4a0fdbcE148",
+          "0x5Ce0584F57d10016EF81bDA485fF650a8411A7fc",
           "1000000000000",
-          "0x67231a19201B5dE00A47e9bf768e8F884BF50e24",
+          "0xf4e8b109fc051F0c0b1dB2457a512836aFA2D143",
           "0",
           "5000000000000000",
         ],
         collateral: {
-          address: "0xa2A9957E4cf252123BA866b793F2c4a0fdbcE148",
+          address: "0x5Ce0584F57d10016EF81bDA485fF650a8411A7fc",
           name: "USDC",
           symbol: "USDC",
           decimals: 6,
@@ -104,17 +104,17 @@ export const addresses: AddressMapping = {
       },
       trustme: {
         type: "Trusted",
-        address: "0xfdB64CFbEEC3dac1387D3bFaa3c4Fd070245De0a",
+        address: "0x06352C1e7c46702d3a8F1730A94d2e43752c7Add",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
-          "0xa2A9957E4cf252123BA866b793F2c4a0fdbcE148",
+          "0x5Ce0584F57d10016EF81bDA485fF650a8411A7fc",
           "1000000000000",
-          "0x67231a19201B5dE00A47e9bf768e8F884BF50e24",
+          "0xf4e8b109fc051F0c0b1dB2457a512836aFA2D143",
           "0",
           "5000000000000000",
         ],
         collateral: {
-          address: "0xa2A9957E4cf252123BA866b793F2c4a0fdbcE148",
+          address: "0x5Ce0584F57d10016EF81bDA485fF650a8411A7fc",
           name: "USDC",
           symbol: "USDC",
           decimals: 6,
