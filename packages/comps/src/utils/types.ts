@@ -608,6 +608,7 @@ export interface GraphDataState {
   markets: {
     [marketIdKey: string]: MarketInfo;
   };
+  loading?: boolean;
 }
 
 export interface UserState {

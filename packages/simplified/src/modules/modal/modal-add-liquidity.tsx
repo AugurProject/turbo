@@ -43,7 +43,8 @@ const {
   },
   LabelComps: {
     generateTooltip
-  }
+  },
+  MarketCardComps: { MarketTitleArea }
 } = Components;
 const {
   YES_NO,
@@ -693,7 +694,7 @@ const ModalAddLiquidity = ({
             <main>
               <div className={Styles.MarketTitle}>
                 <span>Market</span>
-                <span>{market.description}</span>
+                <span><MarketTitleArea {...{ ...market }} /></span>
               </div>
               <section>
                 <span className={Styles.SmallLabel}>
