@@ -9,10 +9,14 @@
   transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
 
   &.showSelection {
-    height: @size-85;
+    height: @size-60;
 
     > ul {
       opacity: 1;
+    }
+
+    &.HasError {
+      height: @size-85;
     }
   }
 
