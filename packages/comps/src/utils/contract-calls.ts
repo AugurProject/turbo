@@ -130,7 +130,7 @@ export async function estimateAddLiquidityPool(
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    const minAmounts = outcomes.map(o => "0");
+    const minAmounts = outcomes.map((o) => "0");
 
     return {
       lpTokens,
@@ -413,13 +413,13 @@ export async function doTrade(
   if (tradeDirection === TradingDirection.EXIT) {
     const { marketFactoryAddress, turboId } = amm;
     const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-    console.log('minAmount', minAmount)
+    console.log("minAmount", minAmount);
     let min = new BN(minAmount);
     if (min.lt(0)) {
-      min = "0.01" // set to 1 cent until estimate gets worked out. 
+      min = "0.01"; // set to 1 cent until estimate gets worked out.
     }
     let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
-    console.log('onChainMinAmount', String(minAmount), String(onChainMinAmount))
+    console.log("onChainMinAmount", String(minAmount), String(onChainMinAmount));
     if (onChainMinAmount.lt(0)) {
       onChainMinAmount = new BN(0);
     }
@@ -442,7 +442,7 @@ export async function doTrade(
       turboId,
       selectedOutcomeId,
       amount,
-      onChainMinAmount.toFixed(),
+      onChainMinAmount.toFixed()
       //{ gasLimit: "800000", gasPrice: "10000000000"}
     );
   }
