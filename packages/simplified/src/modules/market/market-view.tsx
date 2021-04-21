@@ -120,7 +120,7 @@ const EmptyMarketView = () => {
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile } = useAppStatusStore();
+  const { isMobile, isLogged } = useAppStatusStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
@@ -136,7 +136,8 @@ const MarketView = ({ defaultMarket = null }) => {
   const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
-
+  
+  if ((!market && !loading) || !isLogged) return <NonexistingMarketView />;
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
   // @ts-ignore
