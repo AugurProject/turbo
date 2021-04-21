@@ -256,7 +256,7 @@ export const SimpleChartSection = ({ market, cash }) => {
     updates[id] = !updates[id];
     setSelectedOutcomes(updates);
   };
-  console.log(formattedOutcomes);
+
   return (
     <section className={Styles.SimpleChartSection}>
       <MultiButtonSelection
