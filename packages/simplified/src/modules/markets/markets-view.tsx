@@ -50,8 +50,7 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
-  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
-  handleGraphError
+  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -79,7 +78,7 @@ const applyFiltersAndSort = (
     if (showLiquidMarkets && (!market.amm || isNaN(market?.amm?.liquidityUSD) || !market?.amm?.liquidityUSD)) {
       return false;
     }
-    if (!showInvalidMarkets && market.isInvalid) {
+    if (market.isInvalid) {
       return false;
     }
     if (
@@ -145,7 +144,7 @@ const MarketsView = () => {
   } = useAppStatusStore();
   const {
     marketsViewSettings,
-    settings: { showLiquidMarkets, showInvalidMarkets },
+    settings: { showLiquidMarkets },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
@@ -154,6 +153,7 @@ const MarketsView = () => {
     cashes,
     markets,
     actions: { updateDataHeartbeat },
+    loading: dataLoading
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
@@ -178,16 +178,14 @@ const MarketsView = () => {
         currency,
         reportingState,
         showLiquidMarkets,
-        showInvalidMarkets,
       },
-      (err) => updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, err)
     );
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf(), showInvalidMarkets]);
+  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
@@ -210,7 +208,6 @@ const MarketsView = () => {
       });
     }
   };
-
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -285,7 +282,7 @@ const MarketsView = () => {
         <section>
           <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
         </section>
-      ) : loading ? (
+      ) : (loading && dataLoading) ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />

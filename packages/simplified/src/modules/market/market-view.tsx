@@ -117,15 +117,29 @@ const EmptyMarketView = () => {
   );
 };
 
+const NonexistingMarketView = ({text}) => {
+  return (
+    <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
+      <section>
+        <section>
+          <span>{text}</span>
+        </section>
+      </section>
+      <section>
+      </section>
+    </div>
+  );
+};
+
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile } = useAppStatusStore();
+  const { isMobile, isLogged } = useAppStatusStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { markets, ammExchanges } = useDataStore();
+  const { markets, ammExchanges, loading } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
@@ -136,8 +150,9 @@ const MarketView = ({ defaultMarket = null }) => {
   const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
-
-  if (!market) return <EmptyMarketView />;
+  
+  if ((!market && !loading) || !isLogged) return <NonexistingMarketView text={!isLogged ? 'Please connect a wallet to view market data' : 'Market does not exist'}/>;
+  if (!market) return <EmptyMarketView />; 
   const details = getDetails(market);
   // @ts-ignore
   // const currentAMMs = getCurrentAmms(market, markets);

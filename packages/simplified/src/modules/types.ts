@@ -461,7 +461,6 @@ interface Modal {
 
 export interface Settings {
   slippage: string;
-  showInvalidMarkets: boolean;
   showLiquidMarkets: boolean;
 }
 
