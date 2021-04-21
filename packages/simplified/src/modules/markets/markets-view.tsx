@@ -148,11 +148,8 @@ const MarketsView = () => {
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
-    blocknumber,
     ammExchanges,
-    cashes,
     markets,
-    actions: { updateDataHeartbeat },
     loading: dataLoading
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;

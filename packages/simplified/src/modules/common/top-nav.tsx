@@ -16,10 +16,8 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
-  LabelComps,
   Components
 } from '@augurproject/comps';
-const { generateTooltip } = LabelComps;
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryButton } = ButtonComps;
