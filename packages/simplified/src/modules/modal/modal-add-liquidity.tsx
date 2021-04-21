@@ -44,7 +44,7 @@ const {
   LabelComps: {
     generateTooltip
   },
-  MarketCardComps: { MarketTitleArea }
+  MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay }
 } = Components;
 const {
   YES_NO,
@@ -618,7 +618,7 @@ const ModalAddLiquidity = ({
                   {LIQUIDITY_STRINGS[modalType].setOddsTitle}
                 </span>
                 <OutcomesGrid
-                  outcomes={outcomes}
+                  outcomes={orderOutcomesForDisplay(outcomes)}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
                   marketType={YES_NO}
