@@ -1,0 +1,26 @@
+{{#Entities}}
+type {{name}}Event @entity {
+  id: ID!
+
+  blockHash: String!
+
+  blockNumber: Int!
+
+  logIndex: Int!
+
+  "A composite key of blockNumber+logIndex used for easily paging through logs"
+  logPosition: String!
+
+  name: String!
+
+  transactionHash: String!
+
+  origin: String!
+
+  {{#inputs}}
+
+  {{name}}: {{type}}
+  {{/inputs}}
+}
+
+{{/Entities}}
