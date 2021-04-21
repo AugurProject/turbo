@@ -67,7 +67,7 @@ describe("AMMFactory", () => {
     await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols);
 
     const basis = BigNumber.from(10).pow(18);
-    const weights = [basis.mul(2).div(2), basis.mul(24).div(2), basis.mul(25).div(2)];
+    const weights = [basis.mul(2), basis.mul(24), basis.mul(24)];
 
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
@@ -75,28 +75,28 @@ describe("AMMFactory", () => {
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
   });
 
-  it("liquidity removal for collateral", async () => {
-    const _outcome = 1;
+  it("sell shares for collateral", async () => {
+    const _outcome = 0;
     const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
 
-    const liquidity = usdcBasis.mul(100); // 1000 of the collateral
+    const collateralIn = usdcBasis.mul(1); // 100 of the collateral
 
     const secondSignerAMMFactory = ammFactory.connect(secondSigner);
     const secondMarketFactory = marketFactory.connect(secondSigner);
 
     const secondCollateral = collateral.connect(secondSigner);
-    await secondCollateral.faucet(liquidity);
+    await secondCollateral.faucet(collateralIn);
     await secondCollateral.approve(secondMarketFactory.address, MAX_APPROVAL);
 
-    const _sets = await secondMarketFactory.calcShares(liquidity);
-    await secondMarketFactory.mintShares(marketId.toString(), _sets, secondSigner.address);
+    const _setsInForCollateral = await secondMarketFactory.calcShares(collateralIn);
+    await secondMarketFactory.mintShares(marketId.toString(), _setsInForCollateral, secondSigner.address);
 
     const setsToBurn = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactory,
       marketFactory as AbstractMarketFactory,
       marketId.toString(),
       _outcome,
-      _sets
+      _setsInForCollateral
     );
 
     const shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
@@ -105,9 +105,15 @@ describe("AMMFactory", () => {
     const collateralBefore = await secondCollateral.balanceOf(secondSigner.address);
     const sharesBefore = await shareTokens[_outcome].balanceOf(secondSigner.address);
 
-    expect(_sets.lte(sharesBefore)).to.be.true;
+    expect(_setsInForCollateral.lte(sharesBefore)).to.be.true;
 
-    await secondSignerAMMFactory.sellForCollateral(secondMarketFactory.address, marketId, _outcome, _sets, setsToBurn);
+    await secondSignerAMMFactory.sellForCollateral(
+      secondMarketFactory.address,
+      marketId,
+      _outcome,
+      _setsInForCollateral,
+      setsToBurn
+    );
 
     const collateralAfter = await secondCollateral.balanceOf(secondSigner.address);
 

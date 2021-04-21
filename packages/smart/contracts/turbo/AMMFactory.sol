@@ -256,7 +256,7 @@ contract AMMFactory {
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _weights = new uint256[](_tokens.length);
         for (uint256 i = 0; i < _tokens.length; i++) {
-            _weights[i] = _pool.getBalance(_tokens[i]);
+            _weights[i] = _pool.getDenormalizedWeight(_tokens[i]);
         }
         return _weights;
     }
