@@ -226,7 +226,7 @@ export const SelectOutcomeButton = ({
   isSelected,
   cash,
   disabled = false,
-}) => {
+}: typeof React.Component) => {
   const OutcomePrice =
     isNaN(Number(lastPrice)) || Number(lastPrice) <= 0
       ? `${getCashFormat(cash?.name)?.symbol} -`

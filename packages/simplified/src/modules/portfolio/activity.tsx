@@ -1,13 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import Styles from './activity.styles.less';
 import { useAppStatusStore, useDataStore, useUserStore, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
-import { ActivityItem } from '../types';
 const { Pagination, sliceByPage } = PaginationComps;
 const { ReceiptLink } = Links;
 const { shapeUserActvity } = ProcessData;
 const { getCashFormat } = Formatter;
 
-const ActivityCard = ({ activity }: { activity: ActivityItem }) => (
+const ActivityCard = ({ activity }: typeof React.Component) => (
   <div className={Styles.ActivityCard}>
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>

@@ -15,7 +15,7 @@ export const DataStore = {
   actions: STUBBED_DATA_ACTIONS,
 };
 
-export const DataProvider = ({ children }) => {
+export const DataProvider = ({ children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account, loginAccount } = useUserStore();

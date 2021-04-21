@@ -1,5 +1,4 @@
 import { MouseEvent } from "react";
-import type { EthersSigner } from "@augurproject/contract-dependencies-ethers";
 import type { BigNumber } from "bignumber.js";
 import { ethers } from "ethers";
 
@@ -187,6 +186,7 @@ export interface ClaimedProceeds {
 }
 export interface MarketInfo {
   marketId: string;
+  eventId: string;
   description: string;
   endTimestamp: number;
   creationTimestamp: string;
@@ -275,7 +275,7 @@ export interface AppStatus {
 export interface LoginAccountMeta {
   accountType: string;
   address: string;
-  signer: any | EthersSigner;
+  signer: any;
   provider: ethers.providers.JsonRpcProvider;
   isWeb3: boolean;
   profileImage?: string;

@@ -11,7 +11,7 @@ function getLibrary(provider) {
   return library;
 }
 
-export const ConnectAccountProvider = ({ children }) => (
+export const ConnectAccountProvider = ({ children }: any) => (
   <Web3ReactProvider getLibrary={getLibrary}>
     <Web3ProviderNetwork getLibrary={getLibrary}>{children}</Web3ProviderNetwork>
   </Web3ReactProvider>

@@ -197,6 +197,7 @@ export interface ClaimedProceeds {
 }
 export interface MarketInfo {
   marketId: string;
+  eventId: string;
   hatcheryAddress: string;
   turboId: string;
   title: string;

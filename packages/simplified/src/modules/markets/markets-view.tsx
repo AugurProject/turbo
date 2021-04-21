@@ -54,6 +54,11 @@ const applyFiltersAndSort = (
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
+  // immediately sort by event id and turbo id.
+  updatedFilteredMarkets = updatedFilteredMarkets.sort(
+    (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
+  );
+
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
       const { title, description, categories, outcomes } = market;
@@ -61,7 +66,7 @@ const applyFiltersAndSort = (
       const matchTitle = searchRegex.test(title);
       const matchDescription = searchRegex.test(description);
       const matchCategories = searchRegex.test(JSON.stringify(categories));
-      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map(outcome => outcome.name)));
+      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map((outcome) => outcome.name)));
       if (matchTitle || matchDescription || matchCategories || matchOutcomes) {
         return true;
       }
@@ -120,10 +125,14 @@ const applyFiltersAndSort = (
     return true;
   });
   if (sortBy !== ENDING_SOON) {
+    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId))
+    ;
+    // handle grouping by event Id and resort by liquidity.
     updatedFilteredMarkets = updatedFilteredMarkets
-      .filter((m) => m.amm !== null)
-      .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
+      .filter((m) => m?.amm?.id !== null)
+      .concat(sortedIlliquid);
   }
+
   setFilteredMarkets(updatedFilteredMarkets);
 };
 

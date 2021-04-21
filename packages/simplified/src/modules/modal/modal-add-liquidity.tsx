@@ -318,7 +318,7 @@ const ModalAddLiquidity = ({
     inputFormError = INSUFFICIENT_BALANCE;
   else if (modalType === CREATE) {
     let totalPrice = ZERO;
-    outcomes.map(outcome => {
+    outcomes.forEach(outcome => {
       const price = outcome.price;
       if (price === '0' || !price) {
         inputFormError = SET_PRICES;
