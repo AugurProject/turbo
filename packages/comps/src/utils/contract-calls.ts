@@ -130,7 +130,7 @@ export async function estimateAddLiquidityPool(
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    const minAmounts = ["0", "0", "0", "0"]; // get from estimate
+    const minAmounts = outcomes.map(o => "0");
 
     return {
       lpTokens,
