@@ -20,6 +20,10 @@ import {
 import { AmmOutcome, MarketOutcome } from "../types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
+import makePath from "@augurproject/comps/build/utils/links/make-path";
+import { MARKETS } from "modules/constants";
+import { Link } from 'react-router-dom';
+
 const {
   SEO,
   LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
@@ -117,16 +121,20 @@ const EmptyMarketView = () => {
   );
 };
 
-const NonexistingMarketView = ({text}) => {
+const NonexistingMarketView = ({ text, showLink }) => {
   return (
     <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
       <section>
         <section>
           <span>{text}</span>
+          {showLink && (
+            <Link placeholder="Markets" to={makePath(MARKETS)}>
+              Return to markets list
+            </Link>
+          )}
         </section>
       </section>
-      <section>
-      </section>
+      <section></section>
     </div>
   );
 };
@@ -150,9 +158,15 @@ const MarketView = ({ defaultMarket = null }) => {
   const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
-  
-  if ((!market && !loading) || !isLogged) return <NonexistingMarketView text={!isLogged ? 'Please connect a wallet to view market data' : 'Market does not exist'}/>;
-  if (!market) return <EmptyMarketView />; 
+
+  if ((!market && !loading) || !isLogged)
+    return (
+      <NonexistingMarketView
+        text={!isLogged ? "Please connect a wallet to view market data." : "Market does not exist."}
+        showLink={isLogged}
+      />
+    );
+  if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
   // @ts-ignore
   // const currentAMMs = getCurrentAmms(market, markets);
