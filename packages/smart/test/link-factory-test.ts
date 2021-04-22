@@ -84,7 +84,7 @@ describe("LinkFactory", () => {
 
   it("head to head market is correct", async () => {
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
-    const [noContest, away, home] = headToHeadMarket.shareTokens.map((addr) =>
+    const [noContest, home, away] = headToHeadMarket.shareTokens.map((addr) =>
       OwnedERC20__factory.connect(addr, signer)
     );
     expect(await noContest.symbol()).to.equal("No Contest");
@@ -97,28 +97,26 @@ describe("LinkFactory", () => {
 
   it("spread market is correct", async () => {
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
-    const [noContest, underdog, favorite] = spreadMarket.shareTokens.map((addr) =>
-      OwnedERC20__factory.connect(addr, signer)
-    );
+    const [noContest, home, away] = spreadMarket.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await underdog.symbol()).to.equal("Underdog");
-    expect(await underdog.name()).to.equal("Underdog");
-    expect(await favorite.symbol()).to.equal("Favorite");
-    expect(await favorite.name()).to.equal("Favorite");
+    expect(await away.symbol()).to.equal("Away");
+    expect(await away.name()).to.equal("Away");
+    expect(await home.symbol()).to.equal("Home");
+    expect(await home.name()).to.equal("Home");
   });
 
   it("over under market is correct", async () => {
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
-    const [noContest, underdog, favorite] = overUnderMarket.shareTokens.map((addr) =>
+    const [noContest, over, under] = overUnderMarket.shareTokens.map((addr) =>
       OwnedERC20__factory.connect(addr, signer)
     );
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await underdog.symbol()).to.equal("Under");
-    expect(await underdog.name()).to.equal("Under");
-    expect(await favorite.symbol()).to.equal("Over");
-    expect(await favorite.name()).to.equal("Over");
+    expect(await under.symbol()).to.equal("Under");
+    expect(await under.name()).to.equal("Under");
+    expect(await over.symbol()).to.equal("Over");
+    expect(await over.name()).to.equal("Over");
   });
 
   it("can resolve markets", async () => {

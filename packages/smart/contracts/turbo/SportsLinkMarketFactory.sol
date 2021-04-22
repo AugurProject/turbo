@@ -101,8 +101,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[1] = "Home";
+        _outcomes[2] = "Away";
 
         uint256 _id = markets.length;
         markets.push(
@@ -147,8 +147,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[0] = "No Contest";
-        _outcomes[1] = "Underdog";
-        _outcomes[2] = "Favorite";
+        _outcomes[1] = "Home";
+        _outcomes[2] = "Away";
 
         uint256 _id = markets.length;
         markets.push(
@@ -193,8 +193,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[0] = "No Contest";
-        _outcomes[1] = "Under";
-        _outcomes[2] = "Over";
+        _outcomes[1] = "Over";
+        _outcomes[2] = "Under";
 
         uint256 _id = markets.length;
         markets.push(
