@@ -135,7 +135,6 @@ export async function estimateAddLiquidityPool(
 
     return {
       lpTokens,
-      minAmounts,
     };
   }
 
