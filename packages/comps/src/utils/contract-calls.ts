@@ -42,6 +42,7 @@ import {
   NO_CONTEST_OUTCOME_ID,
   MARKET_STATUS,
   NUM_TICKS_STANDARD,
+  DEFAULT_AMM_FEE_RAW,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1404,7 +1405,7 @@ const retrieveExchangeInfos = async (
     const exchange = exchanges[marketId];
     const outcomePrices = calculatePrices(ratios[marketId]);
     const market = marketInfos[marketId];
-    const fee = new BN(String(fees[marketId])).toFixed();
+    const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
     const balancesRaw = balances[marketId];
     const weights = poolWeights[marketId];
     const { numTicks } = market;
