@@ -198,7 +198,7 @@ const ModalAddLiquidity = ({
           new BN(estimatedLpAmount)
             .plus(new BN(shareBalance || '0'))
             .div(new BN(displaySupply).plus(new BN(estimatedLpAmount)))
-            .times(new BN(100))
+            .times(new BN(100)).abs()
         );
       } else if (isRemove) {
         const userBalanceLpTokens =
@@ -211,11 +211,10 @@ const ModalAddLiquidity = ({
         userPercent = String(
           new BN(userAmount || '0')
             .minus(new BN(estUserAmount))
-            .div(new BN(rawSupply).minus(new BN(estUserAmount)))
+            .div(new BN(rawSupply).minus(new BN(estUserAmount))).abs()
         );
       }
     }
-
     return formatPercent(userPercent).full;
   }, [
     amm?.totalSupply,
@@ -325,17 +324,11 @@ const ModalAddLiquidity = ({
   }
 
   const getCreateBreakdown = () => {
-    const fullBreakdown = breakdown.minAmounts.length > 0 ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
-      {
-        label: `${outcomes[i]?.name} Shares`,
-        value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-      })) : [];
-      
-      fullBreakdown.push(
+    const fullBreakdown = [
       {
         label: 'LP tokens',
         value: `${formatSimpleShares(breakdown.lpTokens).formatted}`,
-      });
+      }];
 
       return fullBreakdown;
   }
@@ -416,11 +409,11 @@ const ModalAddLiquidity = ({
       confirmButtonText: 'confirm remove',
       currencyName: SHARES,
       footerText: `Removing liquidity returns shares; these shares may be sold for ${chosenCash}.`,
-      breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
+      breakdown: breakdown?.minAmounts ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
         {
           label: `${outcomes[i]?.name} Shares`,
           value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-        })),
+        })) : [],
       liquidityDetails: {
         title: 'Market Liquidity Details',
         breakdown: [
@@ -445,11 +438,11 @@ const ModalAddLiquidity = ({
       },
       confirmReceiveOverview: {
         title: 'What you will recieve',
-        breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
+        breakdown: breakdown?.minAmounts ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
           {
             label: `${outcomes[i]?.name} Shares`,
             value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-          }))
+          })) : [],
       },
     },
     [ADD]: {

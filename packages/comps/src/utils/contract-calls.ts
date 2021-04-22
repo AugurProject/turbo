@@ -135,7 +135,6 @@ export async function estimateAddLiquidityPool(
 
     return {
       lpTokens,
-      minAmounts,
     };
   }
 
@@ -1426,10 +1425,19 @@ const retrieveExchangeInfos = async (
     exchange.balancesRaw = balancesRaw ? balancesRaw.map((b) => String(b)) : [];
     exchange.shareFactor = new BN(String(shareFactors[market.marketFactoryAddress])).toFixed();
     exchange.weights = weights ? weights.map((w) => String(w)) : [];
+    exchange.liquidityUSD = getTotalLiquidity(outcomePrices, balancesRaw);
     market.amm = exchange;
   });
 
   return exchanges;
+};
+
+const getTotalLiquidity = (prices: string[], balances: string[]) => {
+  if (prices.length === 0) return "0";
+  const outcomeLiquidity = prices.map((p, i) =>
+    new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
+  );
+  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), new BN(0)).toFixed(4);
 };
 
 const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
@@ -1541,6 +1549,10 @@ const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"
   // todo: need to use cash to get decimals
   const MULTIPLIER = new BN(10).pow(18);
   return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
+};
+
+const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
+  return convertOnChainCashAmountToDisplayCashAmount(onChainBalance).toFixed();
 };
 
 let ABIs = {};
