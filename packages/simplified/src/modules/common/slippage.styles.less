@@ -4,6 +4,21 @@
 .Slippage {
   margin-top: @size-12;
   cursor: pointer;
+  overflow: hidden;
+  height: @size-20;
+  transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
+
+  &.showSelection {
+    height: @size-60;
+
+    > ul {
+      opacity: 1;
+    }
+
+    &.HasError {
+      height: @size-85;
+    }
+  }
 
   > label {
     .text-12-semi-bold;
@@ -40,6 +55,7 @@
     margin-top: @size-12;
     justify-content: flex-end;
     align-items: center;
+    opacity: 0;
 
     > div {
       .SimpleBorder;
@@ -93,17 +109,18 @@
         border-radius: @size-8;
         z-index: 1;
         transition: all 0.1s linear 0s;
+        margin-left: -@size-1;
 
         &.first {
-          transform: translateX(95%);
+          transform: translateX(94%);
         }
 
         &.second {
-          transform: translateX(180%);
+          transform: translateX(170%);
         }
 
         &.third {
-          transform: translateX(258%);
+          transform: translateX(250%);
         }
 
         &.none {

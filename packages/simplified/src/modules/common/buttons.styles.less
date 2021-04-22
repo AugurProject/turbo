@@ -105,11 +105,12 @@
   .TinyButton;
 
   background-color: transparent;
-  border: @size-1 solid var(--simple-border);
+  border: 0;
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
       background-color: var(--simple-alternate-background);
+      border: 0;
     }
 
     &:focus {
@@ -119,7 +120,6 @@
     &:active,
     &.Selected {
       background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--color-secondary-text);
     }
   }
 }
