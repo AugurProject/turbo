@@ -12,7 +12,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class Gravatar extends Entity {
+export class PoolCreated extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -20,17 +20,17 @@ export class Gravatar extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save Gravatar entity without an ID");
+    assert(id !== null, "Cannot save PoolCreated entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save Gravatar entity with non-string ID. " +
+      "Cannot save PoolCreated entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("Gravatar", id.toString(), this);
+    store.set("PoolCreated", id.toString(), this);
   }
 
-  static load(id: string): Gravatar | null {
-    return store.get("Gravatar", id) as Gravatar | null;
+  static load(id: string): PoolCreated | null {
+    return store.get("PoolCreated", id) as PoolCreated | null;
   }
 
   get id(): string {
@@ -42,30 +42,39 @@ export class Gravatar extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get owner(): Bytes {
-    let value = this.get("owner");
-    return value.toBytes();
-  }
-
-  set owner(value: Bytes) {
-    this.set("owner", Value.fromBytes(value));
-  }
-
-  get displayName(): string {
-    let value = this.get("displayName");
+  get pool(): string {
+    let value = this.get("pool");
     return value.toString();
   }
 
-  set displayName(value: string) {
-    this.set("displayName", Value.fromString(value));
+  set pool(value: string) {
+    this.set("pool", Value.fromString(value));
   }
 
-  get imageUrl(): string {
-    let value = this.get("imageUrl");
+  get marketFactory(): string {
+    let value = this.get("marketFactory");
     return value.toString();
   }
 
-  set imageUrl(value: string) {
-    this.set("imageUrl", Value.fromString(value));
+  set marketFactory(value: string) {
+    this.set("marketFactory", Value.fromString(value));
+  }
+
+  get marketId(): i32 {
+    let value = this.get("marketId");
+    return value.toI32();
+  }
+
+  set marketId(value: i32) {
+    this.set("marketId", Value.fromI32(value));
+  }
+
+  get creator(): string {
+    let value = this.get("creator");
+    return value.toString();
+  }
+
+  set creator(value: string) {
+    this.set("creator", Value.fromString(value));
   }
 }

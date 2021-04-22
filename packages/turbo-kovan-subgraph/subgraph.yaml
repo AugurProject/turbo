@@ -15,12 +15,12 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/Augur.ts
+      file: ./src/AMMFactory.ts
       entities:
         - PoolCreated
       abis:
-        - name: Augur
+        - name: AMMFactory
           file: ./abis/AMMFactory.json
       eventHandlers:
-        - event: PoolCreated(address, indexed address, indexed uint256, indexed address)
+        - event: PoolCreated(address,indexed address,indexed uint256,indexed address)
           handler: handlePoolCreatedEvent
