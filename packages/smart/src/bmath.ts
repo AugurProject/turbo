@@ -169,6 +169,8 @@ function attemptTokenCalc(
   return total;
 }
 
+const TOLERANCE = BigNumber.from(10).pow(10);
+
 export async function calcSellCompleteSets(
   _shareFactor: string,
   _outcome: number,
@@ -208,7 +210,7 @@ export function calculateSellCompleteSets(
 
       // Using the formula total = a_1 + a_2 + ... + c
       const total = attemptTokenCalc(tokenAmountOut, _outcome, _tokenBalances, _tokenWeights, _swapFee);
-      if (_shareTokensIn.sub(total).abs().lte(_shareFactor) && _shareTokensIn.gt(total)) {
+      if (_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) {
         break;
       }
 
