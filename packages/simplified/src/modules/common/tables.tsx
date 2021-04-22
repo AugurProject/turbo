@@ -25,7 +25,6 @@ import {
 import getUSDC from '../../utils/get-usdc';
 const {
   LabelComps: {
-    InvalidFlagTipIcon,
     MovementLabel,
     generateTooltip,
     WarningBanner,
@@ -84,7 +83,6 @@ const MarketTableHeader = ({
   <div className={Styles.MarketTableHeader}>
     <MarketLink id={market.marketId}>
       <span>{market.description}</span>
-      <InvalidFlagTipIcon {...{ market }} />
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
     </MarketLink>
   </div>

@@ -22,7 +22,7 @@ import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, InvalidFlagTipIcon, ReportingStateLabel },
+  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
   Icons: { ConfirmedCheck },
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
@@ -169,7 +169,6 @@ const MarketView = ({ defaultMarket = null }) => {
           <CategoryIcon big categories={categories} />
           <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <InvalidFlagTipIcon {...{ market, big: true }} />
           <CurrencyLabel name={amm?.cash?.name} />
         </div>
         {!!title && <h1>{title}</h1>}

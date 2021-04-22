@@ -30,7 +30,6 @@ const {
   formatPercent,
   convertOnChainSharesToDisplayShareAmount,
   formatSimpleShares,
-  formatCash,
 } = Formatter;
 const {
   Icons: { BackIcon },
@@ -66,7 +65,6 @@ const {
   INSUFFICIENT_BALANCE,
   ERROR_AMOUNT,
   INVALID_PRICE_SUBTEXT,
-  PORTION_OF_CASH_INVALID_POOL,
   ApprovalState,
   ZERO,
   ONE
@@ -346,13 +344,6 @@ const ModalAddLiquidity = ({
 
       return fullBreakdown;
   }
-
-  const invalidCashAmount = formatCash(
-    createBigNumber(amount === '' ? '0' : amount).times(
-      PORTION_OF_CASH_INVALID_POOL
-    ),
-    cash?.name
-  ).full;
 
   const confirmAction = async () => {
     const valid = checkConvertLiquidityProperties(
