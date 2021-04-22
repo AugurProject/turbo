@@ -12,7 +12,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class PoolCreated extends Entity {
+export class AMMFactory extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -20,17 +20,17 @@ export class PoolCreated extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save PoolCreated entity without an ID");
+    assert(id !== null, "Cannot save AMMFactory entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save PoolCreated entity with non-string ID. " +
+      "Cannot save AMMFactory entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("PoolCreated", id.toString(), this);
+    store.set("AMMFactory", id.toString(), this);
   }
 
-  static load(id: string): PoolCreated | null {
-    return store.get("PoolCreated", id) as PoolCreated | null;
+  static load(id: string): AMMFactory | null {
+    return store.get("AMMFactory", id) as AMMFactory | null;
   }
 
   get id(): string {
@@ -42,22 +42,22 @@ export class PoolCreated extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get pool(): string {
+  get pool(): Bytes {
     let value = this.get("pool");
-    return value.toString();
+    return value.toBytes();
   }
 
-  set pool(value: string) {
-    this.set("pool", Value.fromString(value));
+  set pool(value: Bytes) {
+    this.set("pool", Value.fromBytes(value));
   }
 
-  get marketFactory(): string {
+  get marketFactory(): Bytes {
     let value = this.get("marketFactory");
-    return value.toString();
+    return value.toBytes();
   }
 
-  set marketFactory(value: string) {
-    this.set("marketFactory", Value.fromString(value));
+  set marketFactory(value: Bytes) {
+    this.set("marketFactory", Value.fromBytes(value));
   }
 
   get marketId(): i32 {
@@ -69,12 +69,12 @@ export class PoolCreated extends Entity {
     this.set("marketId", Value.fromI32(value));
   }
 
-  get creator(): string {
+  get creator(): Bytes {
     let value = this.get("creator");
-    return value.toString();
+    return value.toBytes();
   }
 
-  set creator(value: string) {
-    this.set("creator", Value.fromString(value));
+  set creator(value: Bytes) {
+    this.set("creator", Value.fromBytes(value));
   }
 }

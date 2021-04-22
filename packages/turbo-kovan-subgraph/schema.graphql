@@ -1,11 +1,11 @@
-type PoolCreated @entity {
+type AMMFactory @entity {
   id: ID!
 
-  pool: String!
+  pool: Bytes!
 
-  marketFactory: String!
+  marketFactory: Bytes!
 
   marketId: Int!
 
-  creator: String!
+  creator: Bytes!
 }

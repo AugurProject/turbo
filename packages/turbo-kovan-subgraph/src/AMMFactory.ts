@@ -1,11 +1,10 @@
 import { AMMFactory } from "../generated/schema";
-import { PoolCreated } from '../generated/AMMFactory/AMMFactory'
+import { PoolCreated } from "../generated/AMMFactory/AMMFactory";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
-  let poolCreated = new PoolCreated(event.params.id.toHex());
-  poolCreated.pool = event.params.pool;
-  poolCreated.marketFactory = event.params.marketFactory;
-  poolCreated.marketId = event.params.marketId;
-  poolCreated.creator = event.params.creator;
-  poolCreated.save();
+  let entity = new AMMFactory(event.params.pool.toHex());
+  entity.marketFactory = event.params.marketFactory;
+  entity.marketId = event.params.marketId.toI32();
+  entity.creator = event.params.creator;
+  entity.save();
 }
