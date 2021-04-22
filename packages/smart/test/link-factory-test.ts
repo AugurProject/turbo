@@ -97,9 +97,7 @@ describe("LinkFactory", () => {
 
   it("spread market is correct", async () => {
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
-    const [noContest, home, away] = spreadMarket.shareTokens.map((addr) =>
-      OwnedERC20__factory.connect(addr, signer)
-    );
+    const [noContest, home, away] = spreadMarket.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
     expect(await away.symbol()).to.equal("Away");
