@@ -9,7 +9,6 @@ import {
   CategoryIcon,
   CategoryLabel,
   CurrencyTipIcon,
-  InvalidFlagTipIcon,
   ReportingStateLabel,
   ValueLabel,
 } from "../common/labels";
@@ -155,7 +154,6 @@ export const MarketCardView = ({
           <CategoryLabel {...{ categories }} />
           <div>
             <ReportingStateLabel {...{ reportingState }} />
-            <InvalidFlagTipIcon {...{ market }} />
             <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
           </div>
         </article>

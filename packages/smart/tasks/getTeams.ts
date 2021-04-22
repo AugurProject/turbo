@@ -16,7 +16,7 @@ interface TeamsObjectType {
 task("getTeams", "Retrieve teams information")
   .addParam("sports", "The Sport ID array to get team data for, e.g.: 1,2,3")
   .addParam("key", "The API key for fetching from TheRunDown")
-  .setAction(async (args, hre) => {
+  .setAction(async (args) => {
     const promiseArray = [];
     let num = 0;
     const sportsArray = args.sports.split(",");
