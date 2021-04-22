@@ -84,7 +84,7 @@ describe("LinkFactory", () => {
 
   it("head to head market is correct", async () => {
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
-    const [noContest, home, away] = headToHeadMarket.shareTokens.map((addr) =>
+    const [noContest, away, home] = headToHeadMarket.shareTokens.map((addr) =>
       OwnedERC20__factory.connect(addr, signer)
     );
     expect(await noContest.symbol()).to.equal("No Contest");
@@ -97,7 +97,7 @@ describe("LinkFactory", () => {
 
   it("spread market is correct", async () => {
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
-    const [noContest, home, away] = spreadMarket.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
+    const [noContest, away, home] = spreadMarket.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
     expect(await away.symbol()).to.equal("Away");
