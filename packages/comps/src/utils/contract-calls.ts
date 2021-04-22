@@ -291,7 +291,7 @@ export const estimateBuyTrade = async (
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
 
-  console.log("buy estimate", String(result));
+  console.log("buy estimate", String(result), "slippagePercent", slippagePercent);
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
@@ -335,7 +335,7 @@ export const estimateSellTrade = async (
     amm.shareFactor
   );
 
-  const breakdownWithFeeRaw = await calcSellCompleteSets(
+  const breakdownCompleteSets = await calcSellCompleteSets(
     amm.shareFactor,
     selectedOutcomeId,
     amount,
@@ -344,31 +344,26 @@ export const estimateSellTrade = async (
     amm.feeRaw
   );
 
-  console.log("breakdownWithFeeRaw", String(breakdownWithFeeRaw));
+  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets));
 
-  if (!breakdownWithFeeRaw) return null;
+  if (!breakdownCompleteSets) return null;
 
-  const estimateCash = sharesOnChainToDisplay(breakdownWithFeeRaw); // todo: debugging div 1000 need to fix
-  const tradeFees = String(estimateCash.times(new BN(amm.feeDecimal)));
+  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets); // todo: debugging div 1000 need to fix
+  const tradeFees = String(completeSets.times(new BN(amm.feeDecimal)));
 
-  const averagePrice = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(2);
-  const price = amm.ammOutcomes[selectedOutcomeId].price;
-  const shares = !selectedOutcomeId
-    ? new BN(userBalances[selectedOutcomeId] || "0")
-    : BigNumber.min(new BN(userBalances[0]), new BN(userBalances[selectedOutcomeId]));
-  const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(2);
-  const ratePerCash = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(6);
-  const displayShares = sharesOnChainToDisplay(shares);
-  let remainingShares = new BN(displayShares || "0").minus(new BN(inputDisplayAmount));
-
-  if (remainingShares.lt(new BN(0))) {
-    remainingShares = new BN(0);
-  }
+  const displayAmount = new BN(inputDisplayAmount);
+  const averagePrice = new BN(completeSets).div(displayAmount);
+  const price = new BN(String(amm.ammOutcomes[selectedOutcomeId].price));
+  const userShares = new BN(userBalances[selectedOutcomeId] || "0");
+  const slippagePercent = averagePrice.minus(price).div(price).times(100).abs().toFixed(2);
+  const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
+  const displayShares = sharesOnChainToDisplay(userShares);
+  const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
 
   return {
-    outputValue: String(estimateCash),
+    outputValue: String(completeSets),
     tradeFees,
-    averagePrice,
+    averagePrice: averagePrice.toFixed(2),
     maxProfit: null,
     slippagePercent,
     ratePerCash,
