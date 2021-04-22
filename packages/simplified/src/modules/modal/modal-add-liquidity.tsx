@@ -172,13 +172,8 @@ const ModalAddLiquidity = ({
   );
 
   const feePercentFormatted = useMemo(() => {
-    const feeOption = TRADING_FEE_OPTIONS.find(
-      (t) => t.id === tradingFeeSelection
-    );
-    const feePercent =
-      modalType === CREATE ? feeOption.value : amm?.feeInPercent;
-    return formatPercent(feePercent).full;
-  }, [tradingFeeSelection, amm?.feeInPercent]);
+    return formatPercent(amm?.feeInPercent).full;
+  }, [amm?.feeInPercent]);
 
   const onChainFee = useMemo(() => {
     const feeOption = TRADING_FEE_OPTIONS.find(
