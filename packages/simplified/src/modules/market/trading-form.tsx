@@ -346,8 +346,6 @@ const TradingForm = ({
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
-    const percentageOff = new BN(1).minus(new BN(slippage).div(100));
-    const worstCaseOutput = minOutput; //String(new BN(minOutput).times(percentageOff));
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
     const outcomeName = outcomes[selectedOutcomeId]?.name;
     setWaitingToSign(true);
