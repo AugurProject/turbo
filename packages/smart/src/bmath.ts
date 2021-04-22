@@ -169,21 +169,37 @@ function attemptTokenCalc(
   return total;
 }
 
-const TOLERANCE = BigNumber.from(10).pow(5);
+const TOLERANCE = BigNumber.from(10).pow(10);
 
-export async function calculateSellCompleteSets(
+export async function calcSellCompleteSets(
+  _shareFactor: string,
+  _outcome: number,
+  _shareTokensIn: string,
+  _tokenBalances: string[],
+  _tokenWeights: string[],
+  _swapFee: string
+): Promise<string> {
+  return calculateSellCompleteSets(
+    BigNumber.from(_shareFactor),
+    _outcome,
+    BigNumber.from(_shareTokensIn),
+    _tokenBalances.map((t) => BigNumber.from(t)),
+    _tokenWeights.map((w) => BigNumber.from(w)),
+    BigNumber.from(_swapFee)
+  );
+}
+
+export function calculateSellCompleteSets(
   _shareFactor: BigNumber,
   _outcome: number,
   _shareTokensIn: BigNumber,
   _tokenBalances: BigNumber[],
   _tokenWeights: BigNumber[],
   _swapFee: BigNumber
-): Promise<string> {
-  const tokenBalanceIn = _tokenBalances[_outcome];
-
+): string {
   let lower = BigNumber.from(0);
   let upper = _shareTokensIn;
-  let tokenAmountOut = tokenBalanceIn;
+  let tokenAmountOut = upper.sub(lower).div(2).add(lower);
 
   while (!tokenAmountOut.eq(0)) {
     try {

@@ -346,11 +346,8 @@ const TradingForm = ({
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
-    const percentageOff = new BN(1).minus(new BN(slippage).div(100));
-    const worstCaseOutput = String(new BN(minOutput).times(percentageOff));
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
     const outcomeName = outcomes[selectedOutcomeId]?.name;
-    const userBalances = marketShares?.outcomeSharesRaw || [];
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(
@@ -358,16 +355,15 @@ const TradingForm = ({
       outcomeName,
       ammCash?.name,
       amount,
-      worstCaseOutput,
+      minOutput,
     );
     doTrade(
       direction,
       loginAccount?.library,
       amm,
-      worstCaseOutput,
+      minOutput,
       amount,
       selectedOutcomeId,
-      userBalances,
       account,
       ammCash,
     )

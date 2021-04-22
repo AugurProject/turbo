@@ -178,6 +178,9 @@ export interface AmmExchange {
   invalidPool: InvalidPool;
   swapInvalidForCashInETH?: string;
   symbols: string[];
+  shareFactor: string;
+  balancesRaw: string[];
+  weights: string[];
 }
 
 export interface Cashes {
@@ -198,7 +201,7 @@ export interface ClaimedProceeds {
 export interface MarketInfo {
   marketId: string;
   eventId: string;
-  hatcheryAddress: string;
+  marketFactoryAddress: string;
   turboId: string;
   title: string;
   description?: string;
