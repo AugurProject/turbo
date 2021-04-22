@@ -315,9 +315,7 @@ export const estimateSellTrade = async (
     console.error("estimateSellTrade: no provider");
     return null;
   }
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
-  const marketFactory = getMarketFactoryContract(provider, account);
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
   console.log(
     "estimate sell",
@@ -444,7 +442,7 @@ export async function doTrade(
       selectedOutcomeId,
       amount,
       onChainMinAmount.toFixed()
-      //{ gasLimit: "800000", gasPrice: "10000000000"}
+      ,{ gasLimit: "800000", gasPrice: "10000000000"}
     );
   }
 
@@ -1412,7 +1410,7 @@ const retrieveExchangeInfos = async (
     const exchange = exchanges[marketId];
     const outcomePrices = calculatePrices(ratios[marketId]);
     const market = marketInfos[marketId];
-    const fee = fees[marketId];
+    const fee = new BN(String(fees[marketId])).toFixed();
     const balancesRaw = balances[marketId];
     const weights = poolWeights[marketId];
     const { numTicks } = market;
