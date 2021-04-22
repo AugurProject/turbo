@@ -1434,10 +1434,12 @@ const retrieveExchangeInfos = async (
 };
 
 const getTotalLiquidity = (prices: string[], balances: string[]) => {
-  if (prices.length === 0) return "0"
-  const outcomeLiquidity = prices.map((p, i) => new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed());
+  if (prices.length === 0) return "0";
+  const outcomeLiquidity = prices.map((p, i) =>
+    new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
+  );
   return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), new BN(0)).toFixed(4);
-}
+};
 
 const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   if (ratios.length === 0) return "0";
@@ -1551,9 +1553,7 @@ const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"
 };
 
 const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
-  // todo: need to use cash to get decimals
-  const MULTIPLIER = new BN(10).pow(18);
-  return new BN(onChainBalance).div(MULTIPLIER).toFixed();
+  return convertOnChainCashAmountToDisplayCashAmount(onChainBalance).toFixed();
 };
 
 let ABIs = {};

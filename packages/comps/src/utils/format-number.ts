@@ -626,7 +626,7 @@ export function convertDisplayShareAmountToOnChainShareAmount(
 
 export function convertOnChainCashAmountToDisplayCashAmount(
   onChainAmount: NumStrBigNumber,
-  precision: NumStrBigNumber
+  precision: NumStrBigNumber = 18
 ) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
