@@ -111,7 +111,7 @@ contract AMMFactory {
     function removeLiquidity(
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
-        uint256[] memory _lpTokensPerOutcome,
+        uint256 _lpTokensIn,
         uint256 _minCollateralOut
     ) public returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
@@ -119,17 +119,37 @@ contract AMMFactory {
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        uint256 _minSetsToSell = _marketFactory.calcShares(_minCollateralOut);
+        _pool.transferFrom(msg.sender, address(this), _lpTokensIn);
+
+        uint256[] memory minAmountsOut = new uint256[](_market.shareTokens.length);
+        uint256[] memory exitPoolEstimate = _pool.calcExitPool(_lpTokensIn, minAmountsOut);
+        _pool.exitPool(_lpTokensIn, minAmountsOut);
+
+        // Find the number of sets to sell.
         uint256 _setsToSell = MAX_UINT;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _lpTokens = _lpTokensPerOutcome[i];
-            uint256 _acquiredToken = _pool.exitswapPoolAmountIn(address(_token), _lpTokens, _minSetsToSell);
-            if (_acquiredToken < _setsToSell) _setsToSell = _acquiredToken; // sell as many complete sets as you can
+            uint256 _acquiredTokenBalance = exitPoolEstimate[i];
+            if (_acquiredTokenBalance < _setsToSell) _setsToSell = _acquiredTokenBalance;
         }
 
-        // returns actual collateral out
-        return _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
+        // Must be a multiple of share factor.
+        _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
+
+        uint256 collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
+        require(collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
+
+        // Transfer the remaining shares back to msg.sender.
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            uint256 _acquiredTokenBalance = exitPoolEstimate[i];
+            OwnedERC20 _token = _market.shareTokens[i];
+            uint256 _balance = _acquiredTokenBalance - _setsToSell;
+            if (_balance > 0) {
+                _token.transfer(msg.sender, _balance);
+            }
+        }
+
+        // returns actual collateral out.
+        return collateralOut;
     }
 
     function buy(
@@ -264,5 +284,18 @@ contract AMMFactory {
     function getSwapFee(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         return _pool.getSwapFee();
+    }
+
+    function getPoolTokenBalance(
+        AbstractMarketFactory _marketFactory,
+        uint256 _marketId,
+        address whom
+    ) external view returns (uint256) {
+        BPool _pool = pools[address(_marketFactory)][_marketId];
+        return _pool.balanceOf(whom);
+    }
+
+    function getPool(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (BPool) {
+        return pools[address(_marketFactory)][_marketId];
     }
 }

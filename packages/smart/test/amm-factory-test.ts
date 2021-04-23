@@ -10,6 +10,7 @@ import { calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "
 describe("AMMFactory", () => {
   let AMMFactory__factory: ContractFactory;
   let BFactory__factory: ContractFactory;
+  let BPool__factory: ContractFactory;
   let Cash__factory: ContractFactory;
   let FeePot__factory: ContractFactory;
   let TrustedMarketFactory__factory: ContractFactory;
@@ -25,6 +26,7 @@ describe("AMMFactory", () => {
   const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
 
   const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
+  const ZERO = BigNumber.from(0);
 
   let collateral: Contract;
   let shareFactor: BigNumber;
@@ -33,9 +35,14 @@ describe("AMMFactory", () => {
   let bFactory: Contract;
   let ammFactory: Contract;
 
+  // These are specific to the one market we are dealing with in the tests below.
+  let shareTokens: Contract[];
+  let bPool: Contract;
+
   before(async () => {
     AMMFactory__factory = await ethers.getContractFactory("AMMFactory");
     BFactory__factory = await ethers.getContractFactory("BFactory");
+    BPool__factory = await ethers.getContractFactory("BPool");
     Cash__factory = await ethers.getContractFactory("Cash");
     FeePot__factory = await ethers.getContractFactory("FeePot");
     TrustedMarketFactory__factory = await ethers.getContractFactory("TrustedMarketFactory");
@@ -73,13 +80,19 @@ describe("AMMFactory", () => {
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
+
+    const bPoolAddress = await ammFactory.getPool(marketFactory.address, marketId);
+    bPool = BPool__factory.attach(bPoolAddress).connect(signer);
+    await bPool.approve(ammFactory.address, MAX_APPROVAL);
+
+    const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
+    shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
   });
 
   it("sell shares for collateral", async () => {
     const _outcome = 0;
-    const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
 
-    const collateralIn = usdcBasis.mul(1); // 100 of the collateral
+    const collateralIn = usdcBasis.mul(100); // 100 of the collateral
 
     const secondSignerAMMFactory = ammFactory.connect(secondSigner);
     const secondMarketFactory = marketFactory.connect(secondSigner);
@@ -98,8 +111,6 @@ describe("AMMFactory", () => {
       _outcome,
       _setsInForCollateral
     );
-
-    const shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
 
     await shareTokens[_outcome].approve(secondSignerAMMFactory.address, MAX_APPROVAL);
     const collateralBefore = await secondCollateral.balanceOf(secondSigner.address);
@@ -141,5 +152,76 @@ describe("AMMFactory", () => {
       ["1000000000000000000", "20000000000000000000", "29000000000000000000"].map((b) => BigNumber.from(b)),
       BigNumber.from("15000000000000000")
     );
+  });
+
+  describe("removeLiquidity", () => {
+    it("should return shares if pool unbalanced", async () => {
+      const secondAmmFactory = ammFactory.connect(secondSigner);
+
+      const secondBPool = bPool.connect(secondSigner);
+      await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
+
+      // Use first signer to alter balances in the pool.
+      const collateralIn = usdcBasis.mul(100); // 100 of the collateral
+      await collateral.faucet(collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+
+      await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));
+
+      const collateralBefore = await collateral.balanceOf(secondSigner.address);
+
+      const poolTokens = await secondAmmFactory.getPoolTokenBalance(
+        marketFactory.address,
+        marketId,
+        secondSigner.address
+      );
+
+      expect(poolTokens.gt(0)).to.be.true;
+
+      await secondAmmFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0));
+
+      const collateralAfter = await collateral.balanceOf(secondSigner.address);
+
+      // Check that we gained collateral.
+      expect(collateralAfter.gt(collateralBefore)).to.be.true;
+
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(secondSigner.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      expect(sharesAfter).to.deep.equal(["17831329283225693600", "145090554589", "17831329283225693600"]);
+    });
+
+    it("liquidity removal for collateral and burn sets", async () => {
+      const sharesBefore = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      expect(sharesBefore).to.deep.equal(["0", "0", "0"]);
+
+      const collateralBefore = await collateral.balanceOf(signer.address);
+
+      const poolTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
+      await ammFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0));
+
+      const collateralAfter = await collateral.balanceOf(signer.address);
+
+      // Check that we gained collateral.
+      expect(collateralAfter.gt(collateralBefore)).to.be.true;
+
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
+    });
   });
 });
