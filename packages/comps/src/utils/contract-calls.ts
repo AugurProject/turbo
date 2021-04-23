@@ -283,7 +283,7 @@ export const estimateBuyTrade = async (
   const result = await ammFactoryContract.callStatic.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, 0);
   const estimatedShares = sharesOnChainToDisplay(String(result));
 
-  const tradeFees = String(estimatedShares.times(new BN(amm.feeDecimal)));
+  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares)).toFixed(4);
   const maxProfit = String(new BN(estimatedShares).minus(new BN(inputDisplayAmount)));
@@ -349,7 +349,7 @@ export const estimateSellTrade = async (
   if (!breakdownCompleteSets) return null;
 
   const completeSets = sharesOnChainToDisplay(breakdownCompleteSets); // todo: debugging div 1000 need to fix
-  const tradeFees = String(completeSets.times(new BN(amm.feeDecimal)));
+  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const displayAmount = new BN(inputDisplayAmount);
   const averagePrice = new BN(completeSets).div(displayAmount);

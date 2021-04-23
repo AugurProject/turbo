@@ -110,11 +110,11 @@ const getEnterBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) =>
         : '-',
     },
     {
-      label: 'Estimated Fees (Shares)',
+      label: `Estimated Fees (${cash.name})`,
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatSimpleShares(breakdown?.tradeFees || 0).full
+        ? formatCash(breakdown?.tradeFees || 0, cash?.name).full
         : '-',
-    },
+    },    
   ];
 };
 
@@ -141,9 +141,9 @@ const getExitBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) => 
         : '-',
     },
     {
-      label: `Estimated Fees (${cash.name})`,
+      label: 'Estimated Fees (Shares)',
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatCash(breakdown?.tradeFees || 0, cash?.name).full
+        ? formatSimpleShares(breakdown?.tradeFees || 0).full
         : '-',
     },
   ];
