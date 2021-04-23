@@ -466,6 +466,26 @@
 
 .NonexistingMarketView {
   > section > section > span {
-    .text-20-semi-bold;
+    .text-20-bold;
+  }
+
+  > section > section {
+    > a {
+      .text-20-bold;
+
+      text-decoration: none;
+      margin-left: @size-4;
+      color: var(--simple-secondary-text);
+    }
+
+    &:hover {
+      > a {
+        color: var(--simple-primary-text);
+
+        &[disabled] {
+          color: var(--simple-secondary-text);
+        }
+      }
+    }
   }
 }
