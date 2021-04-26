@@ -18,7 +18,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
 
     event SharesMinted(uint256 id, uint256 amount, address receiver);
     event SharesBurned(uint256 id, uint256 amount, address receiver);
-    event WinningsClaimed(uint256 id, uint256 amount, address receiver);
+    event WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
 
     IERC20Full public collateral;
     FeePot public feePot;
@@ -117,13 +117,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     }
 
     function claimWinnings(uint256 _id, address _receiver) public returns (uint256) {
-        Market memory _market = markets[_id];
-
-        // errors if market does not exist or is not resolved or resolvable
-        if (_market.winner == OwnedERC20(0)) {
+        if (!isMarketResolved(_id)) {
+            // errors if market does not exist or is not resolved or resolvable
             resolveMarket(_id);
         }
 
+        Market memory _market = markets[_id];
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
@@ -163,6 +162,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _payout;
     }
 
+    function isMarketResolved(uint256 _id) public view returns (bool) {
+        Market memory _market = markets[_id];
+        return _market.winner != OwnedERC20(0);
+    }
+
+    // shares => collateral
     function calcCost(uint256 _shares) public view returns (uint256) {
         require(
             _shares >= shareFactor && _shares % shareFactor == 0,
@@ -171,6 +176,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _shares / shareFactor;
     }
 
+    // collateral => shares
     function calcShares(uint256 _collateralIn) public view returns (uint256) {
         return _collateralIn * shareFactor;
     }

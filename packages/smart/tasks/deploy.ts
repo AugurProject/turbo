@@ -11,7 +11,7 @@ import {
   Deployer,
   EthersFastSubmitWallet,
   isContractDeployTestConfig,
-  mapOverObject,
+  mapOverObject, sleep
 } from "../src";
 import "hardhat/types/config";
 import {
@@ -51,6 +51,7 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre) => {
   // Verify deploy
   if (hre.config.etherscan?.apiKey && deploy?.addresses && ["kovan", "mainnet"].includes(hre.network.name)) {
     console.log("Verifying deployment");
+    await sleep(10000); // give etherscan a chance to process the deploy txs
     await hre.run("verifyDeploy", {
       account: await signer.getAddress(),
       addresses: JSON.stringify(deploy.addresses),
