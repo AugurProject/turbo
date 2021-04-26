@@ -1,0 +1,11 @@
+type AMMFactory @entity {
+  id: ID!
+
+  pool: Bytes!
+
+  marketFactory: Bytes!
+
+  marketId: Int!
+
+  creator: Bytes!
+}
