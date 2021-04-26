@@ -174,40 +174,40 @@ const getClientConfig = (): { augurClient: string; blockClient: string } => {
   return clientConfig[Number(networkId)];
 };
 
-const paraCashes = {
-  "1": {
-    networkId: "1",
-    Cashes: [
-      {
-        name: "ETH",
-        displayDecimals: 4,
-      },
-      {
-        name: "USDC",
-        displayDecimals: 2,
-      },
-    ],
-    network: "mainnet",
-  },
-  "42": {
-    networkId: "42",
-    Cashes: [
-      {
-        name: "ETH",
-        displayDecimals: 4,
-      },
-      {
-        name: "USDC",
-        displayDecimals: 2,
-      },
-    ],
-    network: "kovan",
-  },
-};
+// const paraCashes = {
+//   "1": {
+//     networkId: "1",
+//     Cashes: [
+//       {
+//         name: "ETH",
+//         displayDecimals: 4,
+//       },
+//       {
+//         name: "USDC",
+//         displayDecimals: 2,
+//       },
+//     ],
+//     network: "mainnet",
+//   },
+//   "42": {
+//     networkId: "42",
+//     Cashes: [
+//       {
+//         name: "ETH",
+//         displayDecimals: 4,
+//       },
+//       {
+//         name: "USDC",
+//         displayDecimals: 2,
+//       },
+//     ],
+//     network: "kovan",
+//   },
+// };
 
 const getCashesInfo = (): Cash[] => {
   // this prob wont be used
-  const { networkId } = PARA_CONFIG;
+  // const { networkId } = PARA_CONFIG;
 
   return [];
 };

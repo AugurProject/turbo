@@ -50,10 +50,14 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
-  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets, showInvalidMarkets },
-  handleGraphError
+  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
+
+  // immediately sort by event id and turbo id.
+  updatedFilteredMarkets = updatedFilteredMarkets.sort(
+    (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
+  );
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
@@ -62,7 +66,7 @@ const applyFiltersAndSort = (
       const matchTitle = searchRegex.test(title);
       const matchDescription = searchRegex.test(description);
       const matchCategories = searchRegex.test(JSON.stringify(categories));
-      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map(outcome => outcome.name)));
+      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map((outcome) => outcome.name)));
       if (matchTitle || matchDescription || matchCategories || matchOutcomes) {
         return true;
       }
@@ -74,7 +78,7 @@ const applyFiltersAndSort = (
     if (showLiquidMarkets && (!market.amm || isNaN(market?.amm?.liquidityUSD) || !market?.amm?.liquidityUSD)) {
       return false;
     }
-    if (!showInvalidMarkets && market.isInvalid) {
+    if (market.isInvalid) {
       return false;
     }
     if (
@@ -121,10 +125,14 @@ const applyFiltersAndSort = (
     return true;
   });
   if (sortBy !== ENDING_SOON) {
+    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId))
+    ;
+    // handle grouping by event Id and resort by liquidity.
     updatedFilteredMarkets = updatedFilteredMarkets
-      .filter((m) => m.amm !== null)
-      .concat(updatedFilteredMarkets.filter((m) => m.amm === null));
+      .filter((m) => m?.amm?.id !== null)
+      .concat(sortedIlliquid);
   }
+
   setFilteredMarkets(updatedFilteredMarkets);
 };
 
@@ -136,15 +144,13 @@ const MarketsView = () => {
   } = useAppStatusStore();
   const {
     marketsViewSettings,
-    settings: { showLiquidMarkets, showInvalidMarkets },
+    settings: { showLiquidMarkets },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
-    blocknumber,
     ammExchanges,
-    cashes,
     markets,
-    actions: { updateDataHeartbeat },
+    loading: dataLoading
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
@@ -169,16 +175,14 @@ const MarketsView = () => {
         currency,
         reportingState,
         showLiquidMarkets,
-        showInvalidMarkets,
       },
-      (err) => updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, err)
     );
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf(), showInvalidMarkets]);
+  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
@@ -201,7 +205,6 @@ const MarketsView = () => {
       });
     }
   };
-
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -276,7 +279,7 @@ const MarketsView = () => {
         <section>
           <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
         </section>
-      ) : loading ? (
+      ) : (loading && dataLoading) ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />

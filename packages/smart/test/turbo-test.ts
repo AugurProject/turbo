@@ -205,7 +205,7 @@ describe("Turbo", () => {
 
     await marketFactory.claimWinnings(marketId, signer.address);
 
-    const expectedWinnings = BigNumber.from("0x3ec22b"); // hardcoded from observation
+    const expectedWinnings = BigNumber.from("0x3e71d7"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

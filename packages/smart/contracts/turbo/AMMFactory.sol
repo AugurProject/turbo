@@ -16,7 +16,31 @@ contract AMMFactory {
     mapping(address => mapping(uint256 => BPool)) public pools;
     uint256 fee;
 
-    event PoolCreated(address pool, address indexed marketFactory, uint256 indexed marketId, address indexed creator);
+    event PoolCreated(
+        address pool,
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed creator,
+        address lpTokenRecipient
+    );
+    event LiquidityChanged(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        address recipient,
+        // from the perspective of the user. e.g. collateral is negative when adding liquidity
+        int256 collateral,
+        int256 lpTokens
+    );
+    event SharesSwapped(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        uint256 outcome,
+        // from the perspective of the user. e.g. collateral is negative when buying
+        int256 collateral,
+        int256 shares
+    );
 
     constructor(BFactory _bFactory, uint256 _fee) {
         bFactory = _bFactory;
@@ -69,7 +93,7 @@ contract AMMFactory {
         uint256 _lpTokenBalance = _pool.balanceOf(address(this));
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
-        emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender);
+        emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
 
         return _pool;
     }
@@ -105,31 +129,70 @@ contract AMMFactory {
 
         _pool.transfer(_lpTokenRecipient, _totalLPTokens);
 
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _lpTokenRecipient,
+            -int256(_collateralIn),
+            int256(_totalLPTokens)
+        );
+
         return _totalLPTokens;
     }
 
     function removeLiquidity(
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
-        uint256[] memory _lpTokensPerOutcome,
-        uint256 _minCollateralOut
+        uint256 _lpTokensIn,
+        uint256 _minCollateralOut,
+        address _collateralRecipient
     ) public returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        uint256 _minSetsToSell = _marketFactory.calcShares(_minCollateralOut);
+        _pool.transferFrom(msg.sender, address(this), _lpTokensIn);
+
+        uint256[] memory minAmountsOut = new uint256[](_market.shareTokens.length);
+        uint256[] memory exitPoolEstimate = _pool.calcExitPool(_lpTokensIn, minAmountsOut);
+        _pool.exitPool(_lpTokensIn, minAmountsOut);
+
+        // Find the number of sets to sell.
         uint256 _setsToSell = MAX_UINT;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _lpTokens = _lpTokensPerOutcome[i];
-            uint256 _acquiredToken = _pool.exitswapPoolAmountIn(address(_token), _lpTokens, _minSetsToSell);
-            if (_acquiredToken < _setsToSell) _setsToSell = _acquiredToken; // sell as many complete sets as you can
+            uint256 _acquiredTokenBalance = exitPoolEstimate[i];
+            if (_acquiredTokenBalance < _setsToSell) _setsToSell = _acquiredTokenBalance;
         }
 
-        // returns actual collateral out
-        return _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
+        // Must be a multiple of share factor.
+        _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
+
+        uint256 _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
+
+        // Transfer the remaining shares back to msg.sender.
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            uint256 _acquiredTokenBalance = exitPoolEstimate[i];
+            OwnedERC20 _token = _market.shareTokens[i];
+            uint256 _balance = _acquiredTokenBalance - _setsToSell;
+            if (_balance > 0) {
+                _token.transfer(msg.sender, _balance);
+            }
+        }
+
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _collateralRecipient,
+            int256(_collateralOut),
+            -int256(_lpTokensIn)
+        );
+
+        // returns actual collateral out.
+        return _collateralOut;
     }
 
     function buy(
@@ -162,6 +225,15 @@ contract AMMFactory {
 
         _desiredToken.transfer(msg.sender, _totalDesiredOutcome);
 
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            -int256(_collateralIn),
+            int256(_totalDesiredOutcome)
+        );
+
         return _totalDesiredOutcome;
     }
 
@@ -170,7 +242,7 @@ contract AMMFactory {
         uint256 _marketId,
         uint256 _outcome,
         uint256 _shareTokensIn,
-        uint256 _minSetsOut
+        uint256 _setsOut
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
@@ -179,22 +251,33 @@ contract AMMFactory {
 
         OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
         _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
+        _undesiredToken.approve(address(_pool), MAX_UINT);
 
-        uint256 _undesiredTokenOut = 0;
+        uint256 _undesiredTokenOut = _setsOut;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             if (i == _outcome) continue;
             OwnedERC20 _token = _market.shareTokens[i];
             (uint256 tokenAmountIn, ) =
-                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _minSetsOut, MAX_UINT);
+                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _setsOut, MAX_UINT);
             _undesiredTokenOut += tokenAmountIn;
         }
+
+        _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
 
         // Transfer undesired token balance back.
         _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
 
-        _marketFactory.burnShares(_marketId, _minSetsOut, msg.sender);
+        uint256 _collateralOut = _marketFactory.calcCost(_setsOut);
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            int256(_collateralOut),
+            -int256(_undesiredTokenOut)
+        );
 
-        return _minSetsOut;
+        return _collateralOut;
     }
 
     // Returns an array of token values for the outcomes of the market, relative to the first outcome.
@@ -206,6 +289,11 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
         address _basisToken = address(_market.shareTokens[0]);
         uint256[] memory _ratios = new uint256[](_market.shareTokens.length);
@@ -223,6 +311,11 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _balances = new uint256[](_tokens.length);
         for (uint256 i = 0; i < _tokens.length; i++) {
@@ -237,10 +330,15 @@ contract AMMFactory {
         returns (uint256[] memory)
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == BPool(0)) {
+            return new uint256[](0);
+        }
+
         address[] memory _tokens = _pool.getCurrentTokens();
         uint256[] memory _weights = new uint256[](_tokens.length);
         for (uint256 i = 0; i < _tokens.length; i++) {
-            _weights[i] = _pool.getBalance(_tokens[i]);
+            _weights[i] = _pool.getDenormalizedWeight(_tokens[i]);
         }
         return _weights;
     }
@@ -248,5 +346,18 @@ contract AMMFactory {
     function getSwapFee(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         return _pool.getSwapFee();
+    }
+
+    function getPoolTokenBalance(
+        AbstractMarketFactory _marketFactory,
+        uint256 _marketId,
+        address whom
+    ) external view returns (uint256) {
+        BPool _pool = pools[address(_marketFactory)][_marketId];
+        return _pool.balanceOf(whom);
+    }
+
+    function getPool(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (BPool) {
+        return pools[address(_marketFactory)][_marketId];
     }
 }

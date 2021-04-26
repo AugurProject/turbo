@@ -1,27 +1,34 @@
 import { task } from "hardhat/config";
-import { swapFee } from "../src";
+import { sleep, swapFee } from "../src";
+import { Addresses } from "../addresses";
 
 task("verifyDeploy", "Verify contract deploy")
   .addParam("addresses", "Deployed addresses")
   .addParam("account", "The account's address")
   .setAction(async (args, hre) => {
-    const deployedAddresses = JSON.parse(args.addresses);
-    const {
-      collateral,
-      reputationToken,
-      balancerFactory,
-      hatcheryRegistry,
-      ammFactory,
-      theRundownChainlink,
-    } = deployedAddresses;
-    const account = args.account;
+    const deployedAddresses = JSON.parse(args.addresses) as Addresses;
+    const { reputationToken, balancerFactory, marketFactories, ammFactory, theRundownChainlink } = deployedAddresses;
 
-    if (collateral) {
-      console.log("verify::collateral", collateral);
-      await hre.run("verify:verify", {
-        address: collateral,
-        constructorArguments: ["USDC", "USDC", 6],
-      });
+    const collaterals: { [address: string]: boolean } = {};
+    if (marketFactories) {
+      for (const [name, marketFactory] of Object.entries(marketFactories)) {
+        console.log(`verify::marketFactory::${name}`);
+        await hre.run("verify:verify", {
+          address: marketFactory.address,
+          constructorArguments: marketFactory.constructorArgs,
+        });
+        await rateLimit();
+        const { collateral } = marketFactory;
+        if (!collaterals[collateral.address]) {
+          collaterals[collateral.address] = true;
+          console.log(`verify::collateral::${collateral.name}`);
+          await hre.run("verify:verify", {
+            address: collateral.address,
+            constructorArguments: [collateral.name, collateral.symbol, collateral.decimals],
+          });
+          await rateLimit();
+        }
+      }
     }
 
     if (reputationToken) {
@@ -30,6 +37,7 @@ task("verifyDeploy", "Verify contract deploy")
         address: reputationToken,
         constructorArguments: ["REPv2", "REPv2", 18],
       });
+      await rateLimit();
     }
 
     if (balancerFactory) {
@@ -37,14 +45,7 @@ task("verifyDeploy", "Verify contract deploy")
       await hre.run("verify:verify", {
         address: balancerFactory,
       });
-    }
-
-    if (hatcheryRegistry) {
-      console.log("verify::hatcheryRegistry", hatcheryRegistry);
-      await hre.run("verify:verify", {
-        address: hatcheryRegistry,
-        constructorArguments: [account, reputationToken],
-      });
+      await rateLimit();
     }
 
     if (ammFactory) {
@@ -53,6 +54,7 @@ task("verifyDeploy", "Verify contract deploy")
         address: ammFactory,
         constructorArguments: [balancerFactory, swapFee],
       });
+      await rateLimit();
     }
 
     if (theRundownChainlink) {
@@ -60,5 +62,10 @@ task("verifyDeploy", "Verify contract deploy")
       await hre.run("verify:verify", {
         address: theRundownChainlink,
       });
+      await rateLimit();
     }
   });
+
+async function rateLimit() {
+  await sleep(200); // 5 per second
+}

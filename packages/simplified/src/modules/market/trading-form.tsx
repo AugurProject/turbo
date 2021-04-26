@@ -110,11 +110,11 @@ const getEnterBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) =>
         : '-',
     },
     {
-      label: 'Estimated Fees (Shares)',
+      label: `Estimated Fees (${cash.name})`,
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatSimpleShares(breakdown?.tradeFees || 0).full
+        ? formatCash(breakdown?.tradeFees || 0, cash?.name).full
         : '-',
-    },
+    },    
   ];
 };
 
@@ -141,9 +141,9 @@ const getExitBreakdown = (breakdown: EstimateTradeResult | null, cash: Cash) => 
         : '-',
     },
     {
-      label: `Estimated Fees (${cash.name})`,
+      label: 'Estimated Fees (Shares)',
       value: !isNaN(Number(breakdown?.tradeFees))
-        ? formatCash(breakdown?.tradeFees || 0, cash?.name).full
+        ? formatSimpleShares(breakdown?.tradeFees || 0).full
         : '-',
     },
   ];
@@ -202,7 +202,7 @@ const TradingForm = ({
   const approvalAction = isBuy
     ? ApprovalAction.ENTER_POSITION
     : ApprovalAction.EXIT_POSITION;
-  const outcomeShareToken = selectedOutcome.shareToken;
+  const outcomeShareToken = selectedOutcome?.shareToken;
   const approvalStatus = useApprovalStatus({
     cash: ammCash,
     amm,
@@ -211,9 +211,9 @@ const TradingForm = ({
     outcomeShareToken
   });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.liquidity !== '0';
+  const hasLiquidity = amm.totalSupply !== '0';
   
-  const selectedOutcomeId = selectedOutcome.id;
+  const selectedOutcomeId = selectedOutcome?.id;
   const marketShares =
     balances?.marketShares && balances?.marketShares[amm?.marketId];
   
@@ -346,11 +346,8 @@ const TradingForm = ({
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
-    const percentageOff = new BN(1).minus(new BN(slippage).div(100));
-    const worstCaseOutput = String(new BN(minOutput).times(percentageOff));
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
     const outcomeName = outcomes[selectedOutcomeId]?.name;
-    const userBalances = marketShares?.outcomeSharesRaw || [];
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(
@@ -358,16 +355,15 @@ const TradingForm = ({
       outcomeName,
       ammCash?.name,
       amount,
-      worstCaseOutput,
+      minOutput,
     );
     doTrade(
       direction,
       loginAccount?.library,
       amm,
-      worstCaseOutput,
+      minOutput,
       amount,
       selectedOutcomeId,
-      userBalances,
       account,
       ammCash,
     )

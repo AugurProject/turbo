@@ -178,6 +178,9 @@ export interface AmmExchange {
   invalidPool: InvalidPool;
   swapInvalidForCashInETH?: string;
   symbols: string[];
+  shareFactor: string;
+  balancesRaw: string[];
+  weights: string[];
 }
 
 export interface Cashes {
@@ -197,7 +200,8 @@ export interface ClaimedProceeds {
 }
 export interface MarketInfo {
   marketId: string;
-  hatcheryAddress: string;
+  eventId: string;
+  marketFactoryAddress: string;
   turboId: string;
   title: string;
   description?: string;
@@ -217,7 +221,7 @@ export interface MarketInfo {
   isInvalid: boolean;
   numTicks: string;
   hasWinner: boolean;
-  winner?: string;
+  winner?: number;
 }
 
 export interface MarketOutcome {
@@ -608,6 +612,7 @@ export interface GraphDataState {
   markets: {
     [marketIdKey: string]: MarketInfo;
   };
+  loading?: boolean;
 }
 
 export interface UserState {

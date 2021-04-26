@@ -30,7 +30,6 @@ const {
   formatPercent,
   convertOnChainSharesToDisplayShareAmount,
   formatSimpleShares,
-  formatCash,
 } = Formatter;
 const {
   Icons: { BackIcon },
@@ -43,7 +42,8 @@ const {
   },
   LabelComps: {
     generateTooltip
-  }
+  },
+  MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay }
 } = Components;
 const {
   YES_NO,
@@ -61,11 +61,13 @@ const {
   CONNECT_ACCOUNT,
   SET_PRICES,
   TX_STATUS,
+  INVALID_PRICE,
   INSUFFICIENT_BALANCE,
-  ONE,
   ERROR_AMOUNT,
-  PORTION_OF_CASH_INVALID_POOL,
+  INVALID_PRICE_SUBTEXT,
   ApprovalState,
+  ZERO,
+  ONE
 } = Constants;
 
 const TRADING_FEE_OPTIONS = [
@@ -170,13 +172,8 @@ const ModalAddLiquidity = ({
   );
 
   const feePercentFormatted = useMemo(() => {
-    const feeOption = TRADING_FEE_OPTIONS.find(
-      (t) => t.id === tradingFeeSelection
-    );
-    const feePercent =
-      modalType === CREATE ? feeOption.value : amm?.feeInPercent;
-    return formatPercent(feePercent).full;
-  }, [tradingFeeSelection, amm?.feeInPercent]);
+    return formatPercent(amm?.feeInPercent).full;
+  }, [amm?.feeInPercent]);
 
   const onChainFee = useMemo(() => {
     const feeOption = TRADING_FEE_OPTIONS.find(
@@ -201,7 +198,7 @@ const ModalAddLiquidity = ({
           new BN(estimatedLpAmount)
             .plus(new BN(shareBalance || '0'))
             .div(new BN(displaySupply).plus(new BN(estimatedLpAmount)))
-            .times(new BN(100))
+            .times(new BN(100)).abs()
         );
       } else if (isRemove) {
         const userBalanceLpTokens =
@@ -214,11 +211,10 @@ const ModalAddLiquidity = ({
         userPercent = String(
           new BN(userAmount || '0')
             .minus(new BN(estUserAmount))
-            .div(new BN(rawSupply).minus(new BN(estUserAmount)))
+            .div(new BN(rawSupply).minus(new BN(estUserAmount))).abs()
         );
       }
     }
-
     return formatPercent(userPercent).full;
   }, [
     amm?.totalSupply,
@@ -313,42 +309,29 @@ const ModalAddLiquidity = ({
   else if (new BN(amount).gt(new BN(userMaxAmount)))
     inputFormError = INSUFFICIENT_BALANCE;
   else if (modalType === CREATE) {
-    const yesPrice = outcomes[YES_OUTCOME_ID].price;
-    const noPrice = outcomes[NO_OUTCOME_ID].price;
-    if (
-      yesPrice === '0' ||
-      !yesPrice ||
-      noPrice === '0' ||
-      !noPrice ||
-      noPrice === '0.00' ||
-      yesPrice === '0.00'
-    ) {
-      inputFormError = SET_PRICES;
+    let totalPrice = ZERO;
+    outcomes.forEach(outcome => {
+      const price = outcome.price;
+      if (price === '0' || !price) {
+        inputFormError = SET_PRICES;
+      } else {
+        totalPrice = totalPrice.plus(createBigNumber(price));
+      }
+    });
+    if (inputFormError === '' && !totalPrice.eq(ONE)) {
+      buttonError = INVALID_PRICE;
     }
   }
 
   const getCreateBreakdown = () => {
-    const fullBreakdown = breakdown.minAmounts.length > 0 ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
-      {
-        label: `${outcomes[i]?.name} Shares`,
-        value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-      })) : [];
-      
-      fullBreakdown.push(
+    const fullBreakdown = [
       {
         label: 'LP tokens',
         value: `${formatSimpleShares(breakdown.lpTokens).formatted}`,
-      });
+      }];
 
       return fullBreakdown;
   }
-
-  const invalidCashAmount = formatCash(
-    createBigNumber(amount === '' ? '0' : amount).times(
-      PORTION_OF_CASH_INVALID_POOL
-    ),
-    cash?.name
-  ).full;
 
   const confirmAction = async () => {
     const valid = checkConvertLiquidityProperties(
@@ -426,11 +409,11 @@ const ModalAddLiquidity = ({
       confirmButtonText: 'confirm remove',
       currencyName: SHARES,
       footerText: `Removing liquidity returns shares; these shares may be sold for ${chosenCash}.`,
-      breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
+      breakdown: breakdown?.minAmounts ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
         {
           label: `${outcomes[i]?.name} Shares`,
           value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-        })),
+        })) : [],
       liquidityDetails: {
         title: 'Market Liquidity Details',
         breakdown: [
@@ -455,11 +438,11 @@ const ModalAddLiquidity = ({
       },
       confirmReceiveOverview: {
         title: 'What you will recieve',
-        breakdown: breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
+        breakdown: breakdown?.minAmounts ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => (
           {
             label: `${outcomes[i]?.name} Shares`,
             value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-          }))
+          })) : [],
       },
     },
     [ADD]: {
@@ -467,12 +450,12 @@ const ModalAddLiquidity = ({
       showTradingFee: true,
       setOdds: true,
       setOddsTitle: mustSetPrices
-        ? 'Set the price (between 0.0 to 1.0)'
+        ? 'Set the price (between 0.0 - 0.1). Total price of all outcomes must add up to 1.'
         : 'Current Prices',
       receiveTitle: "You'll receive",
       actionButtonText: 'Add',
       confirmButtonText: 'confirm add',
-      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
+      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
@@ -514,7 +497,7 @@ const ModalAddLiquidity = ({
       actionButtonText: 'Add',
       confirmButtonText: 'confirm market liquidity',
       currencyName: `${chosenCash}`,
-      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. ${invalidCashAmount} will be added to the invalid balancer pool.`,
+      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. `,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
@@ -614,7 +597,7 @@ const ModalAddLiquidity = ({
                   {LIQUIDITY_STRINGS[modalType].setOddsTitle}
                 </span>
                 <OutcomesGrid
-                  outcomes={outcomes}
+                  outcomes={orderOutcomesForDisplay(outcomes)}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
                   marketType={YES_NO}
@@ -623,7 +606,6 @@ const ModalAddLiquidity = ({
                   editable={mustSetPrices}
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
-                  error={hasPriceErrors}
                   dontFilterInvalid
                 />
               </>
@@ -675,6 +657,7 @@ const ModalAddLiquidity = ({
                     : LIQUIDITY_STRINGS[modalType].actionButtonText
                   : inputFormError
               }
+              subText={buttonError === INVALID_PRICE ? INVALID_PRICE_SUBTEXT : null}
             />
             <div className={Styles.FooterText}>
               {LIQUIDITY_STRINGS[modalType].footerText}
@@ -690,7 +673,7 @@ const ModalAddLiquidity = ({
             <main>
               <div className={Styles.MarketTitle}>
                 <span>Market</span>
-                <span>{market.description}</span>
+                <span><MarketTitleArea {...{ ...market }} /></span>
               </div>
               <section>
                 <span className={Styles.SmallLabel}>

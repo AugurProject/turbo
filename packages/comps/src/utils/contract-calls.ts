@@ -41,8 +41,8 @@ import {
   YES_OUTCOME_ID,
   NO_CONTEST_OUTCOME_ID,
   MARKET_STATUS,
-  PORTION_OF_INVALID_POOL_SELL,
   NUM_TICKS_STANDARD,
+  DEFAULT_AMM_FEE_RAW,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -57,7 +57,7 @@ import {
   BPool__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
-  calculateSellCompleteSetsWithValues,
+  calcSellCompleteSets,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle } from "./derived-market-data";
@@ -131,11 +131,10 @@ export async function estimateAddLiquidityPool(
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    const minAmounts = ["0", "0", "0", "0"]; // get from estimate
+    const minAmounts = outcomes.map((o) => "0");
 
     return {
       lpTokens,
-      minAmounts,
     };
   }
 
@@ -156,7 +155,7 @@ export async function addLiquidityPool(
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
   const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
-  const minLpTokenAllowed = sharesDisplayToOnChain(minLptokenAmount).toFixed();
+  const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
     "est add liq:",
@@ -226,9 +225,7 @@ export async function getRemoveLiquidity(
     .catch((e) => console.log(e));
 
   if (!results) return null;
-  const minAmounts: string[] = results.map((v) =>
-    convertOnChainSharesToDisplayShareAmount(String(v), cash?.decimals).toFixed()
-  );
+  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
   const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
 
   return {
@@ -286,7 +283,7 @@ export const estimateBuyTrade = async (
   const result = await ammFactoryContract.callStatic.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, 0);
   const estimatedShares = sharesOnChainToDisplay(String(result));
 
-  const tradeFees = String(estimatedShares.times(new BN(amm.feeDecimal)));
+  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares)).toFixed(4);
   const maxProfit = String(new BN(estimatedShares).minus(new BN(inputDisplayAmount)));
@@ -294,7 +291,7 @@ export const estimateBuyTrade = async (
   const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
 
-  console.log("buy estimate", String(result));
+  console.log("buy estimate", String(result), "slippagePercent", slippagePercent);
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
@@ -318,7 +315,6 @@ export const estimateSellTrade = async (
     console.error("estimateSellTrade: no provider");
     return null;
   }
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
   console.log(
@@ -334,42 +330,40 @@ export const estimateSellTrade = async (
     "inputDisplayAmount",
     inputDisplayAmount,
     "shareTokens",
-    amm.ammOutcomes
+    amm.ammOutcomes,
+    "share factor",
+    amm.shareFactor
   );
 
-  const breakdownWithFeeRaw = await calculateSellCompleteSetsWithValues(
-    ammFactoryContract,
-    marketFactoryAddress,
-    turboId,
+  const breakdownCompleteSets = await calcSellCompleteSets(
+    amm.shareFactor,
     selectedOutcomeId,
-    amount
+    amount,
+    amm.balancesRaw,
+    amm.weights,
+    amm.feeRaw
   );
 
-  console.log("breakdownWithFeeRaw", String(breakdownWithFeeRaw));
+  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets));
 
-  if (!breakdownWithFeeRaw) return null;
+  if (!breakdownCompleteSets) return null;
 
-  const estimateCash = sharesOnChainToDisplay(breakdownWithFeeRaw); // todo: debugging div 1000 need to fix
-  const tradeFees = String(estimateCash.times(new BN(amm.feeDecimal)));
+  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets); // todo: debugging div 1000 need to fix
+  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
-  const averagePrice = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(2);
-  const price = amm.ammOutcomes[selectedOutcomeId].price;
-  const shares = !selectedOutcomeId
-    ? new BN(userBalances[selectedOutcomeId] || "0")
-    : BigNumber.min(new BN(userBalances[0]), new BN(userBalances[selectedOutcomeId]));
-  const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(2);
-  const ratePerCash = new BN(estimateCash).div(new BN(inputDisplayAmount)).toFixed(6);
-  const displayShares = sharesOnChainToDisplay(shares);
-  let remainingShares = new BN(displayShares || "0").minus(new BN(inputDisplayAmount));
-
-  if (remainingShares.lt(new BN(0))) {
-    remainingShares = new BN(0);
-  }
+  const displayAmount = new BN(inputDisplayAmount);
+  const averagePrice = new BN(completeSets).div(displayAmount);
+  const price = new BN(String(amm.ammOutcomes[selectedOutcomeId].price));
+  const userShares = new BN(userBalances[selectedOutcomeId] || "0");
+  const slippagePercent = averagePrice.minus(price).div(price).times(100).abs().toFixed(2);
+  const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
+  const displayShares = sharesOnChainToDisplay(userShares);
+  const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
 
   return {
-    outputValue: String(estimateCash),
+    outputValue: String(completeSets),
     tradeFees,
-    averagePrice,
+    averagePrice: averagePrice.toFixed(2),
     maxProfit: null,
     slippagePercent,
     ratePerCash,
@@ -384,7 +378,6 @@ export async function doTrade(
   minAmount: string,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
-  userBalances: string[] = ["0", "0", "0"],
   account: string,
   cash: Cash
 ) {
@@ -415,8 +408,11 @@ export async function doTrade(
   if (tradeDirection === TradingDirection.EXIT) {
     const { marketFactoryAddress, turboId } = amm;
     const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-    let onChainMinAmount = sharesDisplayToOnChain(new BN(minAmount)).decimalPlaces(0);
-
+    let min = new BN(minAmount);
+    if (min.lt(0)) {
+      min = "0.01"; // set to 1 cent until estimate gets worked out.
+    }
+    let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
     if (onChainMinAmount.lt(0)) {
       onChainMinAmount = new BN(0);
     }
@@ -431,10 +427,17 @@ export async function doTrade(
       "amount",
       String(amount),
       "min amount",
-      String(onChainMinAmount)
+      onChainMinAmount.toFixed()
     );
 
-    return ammFactoryContract.sellForCollateral(marketFactoryAddress, turboId, selectedOutcomeId, amount, "1");
+    return ammFactoryContract.sellForCollateral(
+      marketFactoryAddress,
+      turboId,
+      selectedOutcomeId,
+      amount,
+      onChainMinAmount.toFixed()
+      //,{ gasLimit: "800000", gasPrice: "10000000000"}
+    );
   }
 
   return null;
@@ -447,9 +450,9 @@ export const claimWinnings = (
   cash: Cash
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
-  const hatcheryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
   const shareTokens = marketIds.map((m) => cash?.shareToken);
-  return hatcheryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
+  return marketFactoryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
 };
 
 interface UserTrades {
@@ -497,7 +500,7 @@ export const getUserBalances = async (
   const finalizedAmmExchanges = Object.values(ammExchanges).filter((a) => finalizedMarketIds.includes(a.marketId));
 
   // balance of
-  const exchanges = Object.values(ammExchanges).filter((e) => e.id);
+  const exchanges = Object.values(ammExchanges).filter((e) => e.id && e.totalSupply !== "0");
   userBalances.ETH = await getEthBalance(provider, cashes, account);
 
   const multicall = new Multicall({ ethersProvider: provider });
@@ -571,8 +574,8 @@ export const getUserBalances = async (
   }
   // need different calls to get lp tokens and market share balances
   const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
-
   const balanceResult: ContractCallResults = await multicall.call(balanceCalls);
+
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
     const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
@@ -633,91 +636,12 @@ export const getUserBalances = async (
     populateClaimableWinnings(keyedFinalizedMarkets, finalizedAmmExchanges, userBalances.marketShares);
   }
 
-  normalizeNoInvalidPositionsBalances(userBalances.marketShares, ammExchanges);
   const userPositions = getTotalPositions(userBalances.marketShares);
   const availableFundsUsd = String(new BN(userBalances.ETH.usdValue).plus(new BN(userBalances.USDC.usdValue)));
   const totalAccountValue = String(new BN(availableFundsUsd).plus(new BN(userPositions.totalPositionUsd)));
   await populateInitLPValues(userBalances.lpTokens, provider, ammExchanges, account);
 
   return { ...userBalances, ...userPositions, totalAccountValue, availableFundsUsd };
-};
-
-export const getMarketInvalidity = async (
-  provider: Web3Provider,
-  markets: MarketInfos,
-  ammExchanges: AmmExchanges,
-  cashes: Cashes
-): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges }> => {
-  if (!provider) return { markets, ammExchanges };
-
-  const CALC_OUT_GIVEN_IN = "calcOutGivenIn";
-  const exchanges = Object.values(ammExchanges);
-  const invalidMarkets: string[] = [];
-
-  const multicall = new Multicall({ ethersProvider: provider });
-  const contractLpBalanceCall: ContractCallContext[] = exchanges
-    .filter((e) => e?.invalidPool?.id && e?.invalidPool?.invalidBalance && e.invalidPool?.invalidBalance !== "0")
-    .reduce(
-      (p, exchange) => [
-        ...p,
-        {
-          reference: `${exchange?.id}-bPool`,
-          contractAddress: exchange?.invalidPool?.id,
-          abi: BPoolABI,
-          calls: [
-            {
-              reference: `${exchange?.id}-bPool`,
-              methodName: CALC_OUT_GIVEN_IN,
-              methodParameters: [
-                exchange?.invalidPool?.invalidBalance,
-                exchange?.invalidPool?.invalidWeight,
-                exchange?.invalidPool?.cashBalance,
-                exchange?.invalidPool?.cashWeight,
-                PORTION_OF_INVALID_POOL_SELL.times(new BN(exchange?.invalidPool?.invalidBalance)).toFixed(0),
-                exchange?.invalidPool?.swapFee || "0",
-              ],
-              context: {
-                ammExchangeId: exchange?.id,
-              },
-            },
-          ],
-        },
-      ],
-      []
-    );
-
-  const balanceResult: ContractCallResults = await multicall.call(contractLpBalanceCall);
-
-  for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
-    const key = Object.keys(balanceResult.results)[i];
-    const method = String(balanceResult.results[key].originalContractCallContext.calls[0].methodName);
-    const balanceValue = balanceResult.results[key].callsReturnContext[0].returnValues as ethers.utils.Result;
-    const context = balanceResult.results[key].originalContractCallContext.calls[0].context;
-    const rawBalance = new BN(balanceValue.hex).toFixed();
-
-    if (method === CALC_OUT_GIVEN_IN) {
-      const amm = ammExchanges[context.ammExchangeId];
-      const outputCash = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), amm?.cash?.decimals);
-      amm.swapInvalidForCashInETH = outputCash.toFixed();
-      if (amm.cash.name !== ETH) {
-        // converting raw value in cash to cash in ETH. needed for invalidity check
-        const ethCash = Object.values(cashes).find((c) => c.name === ETH);
-        amm.swapInvalidForCashInETH = outputCash.div(new BN(ethCash.usdPrice)).toFixed();
-      }
-      amm.isAmmMarketInvalid = await getIsMarketInvalid(amm, cashes);
-      if (amm.isAmmMarketInvalid) {
-        invalidMarkets.push(amm.marketId);
-      }
-    }
-  }
-
-  // reset all invalid flags
-  Object.values(markets).forEach((m) => {
-    const isInvalid = invalidMarkets.includes(m.marketId);
-    if (m.isInvalid !== isInvalid) m.isInvalid = isInvalid;
-  });
-
-  return { markets, ammExchanges };
 };
 
 const populateClaimableWinnings = (
@@ -743,36 +667,6 @@ const populateClaimableWinnings = (
     }
     return p;
   }, {});
-};
-
-const normalizeNoInvalidPositionsBalances = (ammMarketShares: AmmMarketShares, ammExchanges: AmmExchanges): void => {
-  Object.keys(ammMarketShares).forEach((ammId) => {
-    const marketShares = ammMarketShares[ammId];
-    const amm = ammExchanges[ammId];
-    const minNoInvalidBalance = String(
-      Math.min(Number(marketShares.outcomeShares[0]), Number(marketShares.outcomeShares[1]))
-    );
-    marketShares.outcomeShares[1] = minNoInvalidBalance;
-    const minNoInvalidRawBalance = String(
-      BigNumber.min(new BN(marketShares.outcomeSharesRaw[0]), new BN(marketShares.outcomeSharesRaw[1]))
-    );
-    const newPositions = marketShares.positions.reduce((p, position) => {
-      // user can only sell the min of 'No' and 'Invalid' shares
-      if (position.outcomeId === NO_OUTCOME_ID && minNoInvalidBalance === "0") return p;
-      if (position.outcomeId === NO_OUTCOME_ID) {
-        const { priceNo, past24hrPriceNo } = amm;
-        position.balance = minNoInvalidBalance;
-        position.rawBalance = minNoInvalidRawBalance;
-        position.quantity = trimDecimalValue(minNoInvalidBalance);
-        position.usdValue = String(new BN(minNoInvalidBalance).times(new BN(priceNo)).times(amm.cash.usdPrice));
-        position.past24hrUsdValue = past24hrPriceNo
-          ? String(new BN(minNoInvalidBalance).times(new BN(past24hrPriceNo)))
-          : null;
-      }
-      return [...p, position];
-    }, []);
-    marketShares.positions = newPositions;
-  });
 };
 
 const getTotalPositions = (
@@ -1089,10 +983,6 @@ const lastClaimTimestamp = (amm: AmmExchange, isYesOutcome: boolean, account: st
   return claims.reduce((p, c) => (Number(c.timestamp) > p ? Number(c.timestamp) : p), 0);
 };
 
-const getIsMarketInvalid = async (amm: AmmExchange, cashes: Cashes): Promise<boolean> => {
-  return false;
-};
-
 const getEthBalance = async (provider: Web3Provider, cashes: Cashes, account: string): Promise<CurrencyBalance> => {
   const ethCash = Object.values(cashes).find((c) => c.name === ETH);
   const ethbalance = await provider.getBalance(account);
@@ -1103,20 +993,6 @@ const getEthBalance = async (provider: Web3Provider, cashes: Cashes, account: st
     rawBalance: String(ethbalance),
     usdValue: ethCash ? String(ethValue.times(new BN(ethCash.usdPrice))) : String(ethValue),
   };
-};
-
-const getUserTrades = (
-  account: string,
-  transactions: AmmTransaction[]
-): { enters: AmmTransaction[]; exits: AmmTransaction[] } => {
-  if (!transactions || transactions.length === 0) return { enters: [], exits: [] };
-  const enterTrades = transactions.filter(
-    (t) => t.sender.toLowerCase() === account.toLowerCase() && t.tx_type === TransactionTypes.ENTER
-  );
-  const exitTrades = transactions.filter(
-    (t) => t.sender.toLowerCase() === account.toLowerCase() && t.tx_type === TransactionTypes.EXIT
-  );
-  return { enters: enterTrades, exits: exitTrades };
 };
 
 export const isAddress = (value) => {
@@ -1140,8 +1016,10 @@ const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFact
 };
 
 const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
-  const { marketFactory } = PARA_CONFIG;
-  return SportsLinkMarketFactory__factory.connect(marketFactory, getProviderOrSigner(library, account));
+  const { marketFactories } = PARA_CONFIG;
+  // need to support many markets and get collateral for each market
+  const { address } = marketFactories.sportsball;
+  return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {
@@ -1197,7 +1075,7 @@ export const getMarketInfos = async (
   markets: MarketInfos,
   cashes: Cashes,
   account: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
@@ -1207,7 +1085,7 @@ export const getMarketInfos = async (
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(indexes, cashes, provider, account);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, loading: false };
 };
 
 const retrieveMarkets = async (
@@ -1219,9 +1097,9 @@ const retrieveMarkets = async (
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
-  const marketFactory = getMarketFactoryContract(provider, account);
-  const marketFactoryAddress = marketFactory.address;
-  const marketFactoryAbi = extractABI(marketFactory);
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryAddress = marketFactoryContract.address;
+  const marketFactoryAbi = extractABI(marketFactoryContract);
   const ammFactory = getAmmFactoryContract(provider, account);
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
@@ -1329,28 +1207,83 @@ const retrieveMarkets = async (
   const blocknumber = marketsResult.blockNumber;
 
   if (Object.keys(exchanges).length > 0) {
-    exchanges = await retrieveExchangeInfos(exchanges, marketInfos, marketFactoryAddress, ammFactory, provider);
+    exchanges = await retrieveExchangeInfos(
+      exchanges,
+      marketInfos,
+      marketFactoryAddress,
+      ammFactory,
+      provider,
+      account
+    );
   }
 
   return { marketInfos, exchanges, blocknumber };
 };
 
+const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
+  const TOTAL_SUPPLY = "totalSupply";
+  const multicall = new Multicall({ ethersProvider: provider });
+  const ex = Object.values(exchanges).filter((k) => k.id);
+  const contractMarketsCall: ContractCallContext[] = ex.map((e) => ({
+    reference: `${e.id}-total-supply`,
+    contractAddress: e.id,
+    abi: BPoolABI,
+    calls: [
+      {
+        reference: `${e.id}-total-supply`,
+        methodName: TOTAL_SUPPLY,
+        methodParameters: [],
+        context: {
+          marketId: e.marketId,
+        },
+      },
+    ],
+  }));
+  const balances = {};
+  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
+    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const marketId = context.marketId;
+
+    if (method === TOTAL_SUPPLY) {
+      balances[marketId] = data;
+    }
+  }
+
+  Object.keys(exchanges).forEach((marketId) => {
+    const exchange = exchanges[marketId];
+    exchange.totalSupply = balances[marketId] ? String(balances[marketId]) : "0";
+  });
+
+  return exchanges;
+};
+
 const retrieveExchangeInfos = async (
-  exchanges: AmmExchanges,
+  exchangesInfo: AmmExchanges,
   marketInfos: MarketInfos,
   marketFactoryAddress: string,
   ammFactory: AMMFactory,
-  provider: Web3Provider
+  provider: Web3Provider,
+  account: string
 ): Market[] => {
+  const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
+
   const GET_RATIOS = "tokenRatios";
   const GET_BALANCES = "getPoolBalances";
   const GET_FEE = "getSwapFee";
+  const GET_SHARE_FACTOR = "shareFactor";
+  const GET_POOL_WEIGHTS = "getPoolWeights";
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
   const multicall = new Multicall({ ethersProvider: provider });
   const indexes = Object.keys(exchanges)
-    .filter((k) => exchanges[k].id)
+    .filter((k) => exchanges[k].id && exchanges[k].totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
@@ -1402,13 +1335,51 @@ const retrieveExchangeInfos = async (
           },
         ],
       },
+      {
+        reference: `${ammFactoryAddress}-${index}-weights`,
+        contractAddress: ammFactoryAddress,
+        abi: ammFactoryAbi,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-weights`,
+            methodName: GET_POOL_WEIGHTS,
+            methodParameters: [marketFactoryAddress, index],
+            context: {
+              index,
+              marketFactoryAddress,
+            },
+          },
+        ],
+      },
     ],
     []
   );
+  // need to get share factor per market factory
+  const shareFactorCalls: ContractCallContext[] = [
+    {
+      reference: `${marketFactoryAddress}-factor`,
+      contractAddress: marketFactoryAddress,
+      abi: marketFactoryAbi,
+      calls: [
+        {
+          reference: `${marketFactoryAddress}-factor`,
+          methodName: GET_SHARE_FACTOR,
+          methodParameters: [],
+          context: {
+            index: 0,
+            marketFactoryAddress,
+          },
+        },
+      ],
+    },
+  ];
+
   const ratios = {};
   const balances = {};
   const fees = {};
-  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall);
+  const shareFactors = {};
+  const poolWeights = {};
+  const marketsResult: ContractCallResults = await multicall.call([...contractMarketsCall, ...shareFactorCalls]);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -1418,6 +1389,10 @@ const retrieveExchangeInfos = async (
 
     if (method === GET_RATIOS) {
       ratios[marketId] = data;
+    } else if (method === GET_SHARE_FACTOR) {
+      shareFactors[context.marketFactoryAddress] = data;
+    } else if (method === GET_POOL_WEIGHTS) {
+      poolWeights[marketId] = data;
     } else if (method === GET_BALANCES) {
       balances[marketId] = data;
     } else if (method === GET_FEE) {
@@ -1429,27 +1404,47 @@ const retrieveExchangeInfos = async (
     const exchange = exchanges[marketId];
     const outcomePrices = calculatePrices(ratios[marketId]);
     const market = marketInfos[marketId];
-    const fee = fees[marketId];
+    const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
+    const balancesRaw = balances[marketId];
+    const weights = poolWeights[marketId];
     const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
-      ratioRaw: exchange.id ? String(ratios[marketId][i]) : "",
-      ratio: exchange.id ? toDisplayRatio(String(ratios[marketId][i])) : "",
-      balanceRaw: exchange.id ? String(balances[marketId][i]) : "",
-      balance: exchange.id ? toDisplayBalance(String(balances[marketId][i]), numTicks) : "",
+      ratioRaw: exchange.id ? getArrayValue(ratios[marketId], i) : "",
+      ratio: exchange.id ? toDisplayRatio(getArrayValue(ratios[marketId], i)) : "",
+      balanceRaw: exchange.id ? getArrayValue(balances[marketId], i) : "",
+      balance: exchange.id ? toDisplayBalance(getArrayValue(balances[marketId], i), numTicks) : "",
       ...o,
     }));
     // create cross reference
     exchange.market = market;
-    const feeDecimal = new BN(String(fee)).div(new BN(10).pow(18));
-    exchange.feeDecimal = feeDecimal.toFixed();
-    exchange.feeInPercent = feeDecimal.times(100).toFixed();
+    const feeDecimal = fee ? new BN(String(fee)).div(new BN(10).pow(18)) : "0";
+    exchange.feeDecimal = fee ? feeDecimal.toFixed() : "0";
+    exchange.feeInPercent = fee ? feeDecimal.times(100).toFixed() : "0";
+    exchange.feeRaw = fee;
+    exchange.balancesRaw = balancesRaw ? balancesRaw.map((b) => String(b)) : [];
+    exchange.shareFactor = new BN(String(shareFactors[market.marketFactoryAddress])).toFixed();
+    exchange.weights = weights ? weights.map((w) => String(w)) : [];
+    exchange.liquidityUSD = getTotalLiquidity(outcomePrices, balancesRaw);
     market.amm = exchange;
   });
 
   return exchanges;
 };
 
+const getTotalLiquidity = (prices: string[], balances: string[]) => {
+  if (prices.length === 0) return "0";
+  const outcomeLiquidity = prices.map((p, i) =>
+    new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
+  );
+  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), new BN(0)).toFixed(4);
+};
+
+const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
+  if (ratios.length === 0) return "0";
+  if (!ratios[outcomeId]) return "0";
+  return String(ratios[outcomeId]);
+};
 const calculatePrices = (ratios: string[] = []) => {
   //price[0] = ratio[0] / sum(ratio)
   const sum = ratios.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
@@ -1554,6 +1549,10 @@ const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"
   // todo: need to use cash to get decimals
   const MULTIPLIER = new BN(10).pow(18);
   return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
+};
+
+const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
+  return convertOnChainCashAmountToDisplayCashAmount(onChainBalance).toFixed();
 };
 
 let ABIs = {};

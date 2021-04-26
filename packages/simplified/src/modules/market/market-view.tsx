@@ -8,7 +8,6 @@ import { AddLiquidity, NetworkMismatchBanner, AddCurrencyLiquidity } from "../co
 // eslint-disable-next-line
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
-import { MarketInfo } from "../types";
 import {
   Constants,
   useAppStatusStore,
@@ -17,12 +16,15 @@ import {
   Utils,
   Components,
 } from "@augurproject/comps";
-import { AmmOutcome, MarketOutcome } from "../types";
+import { MarketInfo, AmmOutcome, MarketOutcome } from "../types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
+import makePath from "@augurproject/comps/build/utils/links/make-path";
+import { MARKETS } from "modules/constants";
+import { Link } from 'react-router-dom';
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, InvalidFlagTipIcon, ReportingStateLabel },
+  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
   Icons: { ConfirmedCheck },
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
@@ -117,33 +119,55 @@ const EmptyMarketView = () => {
   );
 };
 
+const NonexistingMarketView = ({ text, showLink }) => {
+  return (
+    <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
+      <section>
+        <section>
+          <span>{text}</span>
+          {showLink && (
+            <Link placeholder="Markets" to={makePath(MARKETS)}>
+              Return to markets list
+            </Link>
+          )}
+        </section>
+      </section>
+      <section></section>
+    </div>
+  );
+};
+
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile } = useAppStatusStore();
+  const { isMobile, isLogged } = useAppStatusStore();
   const {
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { markets, ammExchanges } = useDataStore();
+  const { markets, ammExchanges, loading } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
   const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
-  const selectedOutcome = market ? market.outcomes[2] : DefaultMarketOutcomes[2];
+  const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
   // add end time data full to market details when design is ready
   const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
 
+  if ((!market && !loading) || !isLogged)
+    return (
+      <NonexistingMarketView
+        text={!isLogged ? "Please connect a wallet to view market data." : "Market does not exist."}
+        showLink={isLogged}
+      />
+    );
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
-  // @ts-ignore
-  // const currentAMMs = getCurrentAmms(market, markets);
-
-  const { reportingState, outcomes, title, description, startTimestamp, categories } = market;
-  const winningOutcomes = getWinningOutcome(amm?.ammOutcomes, outcomes);
+  const { reportingState, title, description, startTimestamp, categories, winner } = market;
+  const winningOutcome = market.amm?.ammOutcomes?.find(o => o.id === winner);
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -154,14 +178,13 @@ const MarketView = ({ defaultMarket = null }) => {
           <CategoryIcon big categories={categories} />
           <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <InvalidFlagTipIcon {...{ market, big: true }} />
           <CurrencyLabel name={amm?.cash?.name} />
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
         {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp)}</span>}
-        {reportingState === MARKET_STATUS.FINALIZED && winningOutcomes.length > 0 && (
-          <WinningOutcomeLabel winningOutcome={winningOutcomes[0]} />
+        {reportingState === MARKET_STATUS.FINALIZED && winningOutcome && (
+          <WinningOutcomeLabel winningOutcome={winningOutcome} />
         )}
         <ul className={Styles.StatsRow}>
           <li>

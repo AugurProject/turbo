@@ -8,7 +8,7 @@ import { createBigNumber, Formatter, Icons, SelectionComps, MarketCardComps } fr
 
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
-const { formatCashPrice } = Formatter;
+const { formatCashPrice, getCashFormat } = Formatter;
 const { Checkbox } = Icons;
 
 const HIGHLIGHTED_LINE_WIDTH = 2;
@@ -226,7 +226,11 @@ export const SelectOutcomeButton = ({
   isSelected,
   cash,
   disabled = false,
-}) => {
+}: typeof React.Component) => {
+  const OutcomePrice =
+    isNaN(Number(lastPrice)) || Number(lastPrice) <= 0
+      ? `${getCashFormat(cash?.name)?.symbol} -`
+      : formatCashPrice(createBigNumber(lastPrice), cash?.name).full;
   return (
     <button
       className={classNames(Styles.SelectOutcomeButton, {
@@ -237,16 +241,14 @@ export const SelectOutcomeButton = ({
     >
       <span>{Checkbox}</span>
       {label}
-      <b>{formatCashPrice(createBigNumber(lastPrice), cash?.name).full}</b>
+      <b>{OutcomePrice}</b>
     </button>
   );
 };
 
 export const SimpleChartSection = ({ market, cash }) => {
   const formattedOutcomes = getFormattedOutcomes({ market });
-  const [selectedOutcomes, setSelectedOutcomes] = useState(
-    formattedOutcomes.map(({ outcomeIdx }) => true)
-  );
+  const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));
   const [rangeSelection, setRangeSelection] = useState(3);
 
   const toggleOutcome = (id) => {

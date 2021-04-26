@@ -127,16 +127,16 @@ const sportsData = {
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: {
         title: `Which team will win?`,
-        description: `${NAMING_TEAM.AWAY_TEAM} @ ${NAMING_TEAM.HOME_TEAM}?`,
-        outcomes: [NO_CONTEST_TIE, `${NAMING_TEAM.HOME_TEAM}`, `${NAMING_TEAM.AWAY_TEAM}`],
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
+        outcomes: [NO_CONTEST_TIE, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 points?`,
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -151,16 +151,16 @@ const sportsData = {
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: {
         title: `Which team will win?`,
-        description: `${NAMING_TEAM.AWAY_TEAM} @ ${NAMING_TEAM.HOME_TEAM}?`,
-        outcomes: [NO_CONTEST, `${NAMING_TEAM.HOME_TEAM}`, `${NAMING_TEAM.AWAY_TEAM}`],
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
+        outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 runs?`,
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -175,16 +175,16 @@ const sportsData = {
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: {
         title: `Which team will win?`,
-        description: `${NAMING_TEAM.AWAY_TEAM} @ ${NAMING_TEAM.HOME_TEAM}?`,
-        outcomes: [NO_CONTEST, `${NAMING_TEAM.HOME_TEAM}`, `${NAMING_TEAM.AWAY_TEAM}`],
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
+        outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 points?`,
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -199,16 +199,16 @@ const sportsData = {
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: {
         title: `Which team will win?`,
-        description: `${NAMING_TEAM.AWAY_TEAM} @ ${NAMING_TEAM.HOME_TEAM}?`,
-        outcomes: [NO_CONTEST, `${NAMING_TEAM.HOME_TEAM}`, `${NAMING_TEAM.AWAY_TEAM}`],
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
+        outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 goals?`,
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
           `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {

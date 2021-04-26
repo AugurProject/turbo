@@ -1,10 +1,11 @@
 import { BigNumber } from "ethers";
-import { AMMFactory } from "../typechain";
+import { AbstractMarketFactory, AMMFactory } from "../typechain";
 
 const BONE = BigNumber.from(10).pow(18);
 const MIN_BPOW_BASE = BigNumber.from(1);
 const MAX_BPOW_BASE = BONE.mul(2).sub(1);
 const BPOW_PRECISION = BONE.div(BigNumber.from(10).pow(10));
+export const MAX_OUT_RATIO = BONE.div(3).add(1);
 
 function assert(condition: boolean, error: string) {
   if (!condition) {
@@ -152,7 +153,7 @@ function attemptTokenCalc(
   let total = tokenAmountOut;
   for (let i = 0; i < _tokenBalances.length; i++) {
     if (i === _outcome) continue;
-    const result = calcInGivenOut(
+    const tokensInForToken = calcInGivenOut(
       runningBalance,
       _tokenWeights[_outcome],
       _tokenBalances[i],
@@ -161,34 +162,56 @@ function attemptTokenCalc(
       _swapFee
     );
 
-    total = total.add(result);
-    runningBalance = runningBalance.add(result);
+    total = total.add(tokensInForToken);
+    runningBalance = runningBalance.add(tokensInForToken);
   }
 
   return total;
 }
 
-const TOLERANCE = BigNumber.from(10);
+const TOLERANCE = BigNumber.from(10).pow(10);
 
-export async function calculateSellCompleteSets(
+export async function calcSellCompleteSets(
+  _shareFactor: string,
+  _outcome: number,
+  _shareTokensIn: string,
+  _tokenBalances: string[],
+  _tokenWeights: string[],
+  _swapFee: string
+): Promise<string> {
+  return calculateSellCompleteSets(
+    BigNumber.from(_shareFactor),
+    _outcome,
+    BigNumber.from(_shareTokensIn),
+    _tokenBalances.map((t) => BigNumber.from(t)),
+    _tokenWeights.map((w) => BigNumber.from(w)),
+    BigNumber.from(_swapFee)
+  );
+}
+
+export function calculateSellCompleteSets(
+  _shareFactor: BigNumber,
   _outcome: number,
   _shareTokensIn: BigNumber,
   _tokenBalances: BigNumber[],
   _tokenWeights: BigNumber[],
   _swapFee: BigNumber
-): Promise<string> {
-  const tokenBalanceIn = _tokenBalances[_outcome];
-
+): string {
   let lower = BigNumber.from(0);
   let upper = _shareTokensIn;
-  let tokenAmountOut = tokenBalanceIn;
+  let tokenAmountOut = upper.sub(lower).div(2).add(lower);
 
   while (!tokenAmountOut.eq(0)) {
     try {
+      for (let i = 0; i < _tokenBalances.length; i++) {
+        if (i === _outcome) continue;
+        assert(tokenAmountOut.lte(bmul(_tokenBalances[i], MAX_OUT_RATIO)), "ERR_MAX_OUT_RATIO");
+      }
+
       // Using the formula total = a_1 + a_2 + ... + c
       const total = attemptTokenCalc(tokenAmountOut, _outcome, _tokenBalances, _tokenWeights, _swapFee);
-      if (_shareTokensIn.sub(total).lte(TOLERANCE)) {
-        return total.toString();
+      if (_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) {
+        break;
       }
 
       if (total.gt(_shareTokensIn)) {
@@ -206,21 +229,22 @@ export async function calculateSellCompleteSets(
     }
   }
 
-  return tokenAmountOut.toString();
+  return tokenAmountOut.div(_shareFactor).mul(_shareFactor).toString();
 }
 
 export async function calculateSellCompleteSetsWithValues(
   _ammFactory: AMMFactory,
-  _hatchery: string,
-  _turboId: string,
+  _marketFactory: AbstractMarketFactory,
+  _marketId: string,
   _outcome: number,
   _shareTokensIn: string
 ): Promise<string> {
   return calculateSellCompleteSets(
+    await _marketFactory.shareFactor(),
     _outcome,
     BigNumber.from(_shareTokensIn),
-    await _ammFactory.getPoolBalances(_hatchery, _turboId),
-    await _ammFactory.getPoolWeights(_hatchery, _turboId),
-    await _ammFactory.getSwapFee(_hatchery, _turboId)
+    await _ammFactory.getPoolBalances(_marketFactory.address, _marketId),
+    await _ammFactory.getPoolWeights(_marketFactory.address, _marketId),
+    await _ammFactory.getSwapFee(_marketFactory.address, _marketId)
   );
 }

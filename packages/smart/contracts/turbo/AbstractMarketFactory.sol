@@ -18,12 +18,14 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
 
     event SharesMinted(uint256 id, uint256 amount, address receiver);
     event SharesBurned(uint256 id, uint256 amount, address receiver);
-    event WinningsClaimed(uint256 id, uint256 amount, address receiver);
+    event WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
 
     IERC20Full public collateral;
     FeePot public feePot;
     uint256 public stakerFee;
     uint256 public creatorFee;
+    // creator address => amount of collateral
+    mapping(address => uint256) public accumulatedCreatorFees;
 
     // How many shares equals one collateral.
     // Necessary to account for math errors from small numbers in balancer.
@@ -137,6 +139,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _totalWinnings;
     }
 
+    function claimCreatorFees(address _receiver) public {
+        uint256 _fees = accumulatedCreatorFees[msg.sender];
+        accumulatedCreatorFees[msg.sender] = 0;
+        collateral.transfer(_receiver, _fees);
+    }
+
     function payout(
         uint256 _id,
         uint256 _shares,
@@ -148,13 +156,14 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         uint256 _creatorFee = _market.creatorFee.mul(_payout) / 10**18;
         uint256 _stakerFee = stakerFee.mul(_payout) / 10**18;
 
-        collateral.transfer(_market.creator, _creatorFee);
+        accumulatedCreatorFees[_market.creator] += _creatorFee;
         feePot.depositFees(_stakerFee);
         collateral.transfer(_payee, _payout.sub(_creatorFee).sub(_stakerFee));
 
         return _payout;
     }
 
+    // shares => collateral
     function calcCost(uint256 _shares) public view returns (uint256) {
         require(
             _shares >= shareFactor && _shares % shareFactor == 0,
@@ -163,6 +172,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _shares / shareFactor;
     }
 
+    // collateral => shares
     function calcShares(uint256 _collateralIn) public view returns (uint256) {
         return _collateralIn * shareFactor;
     }

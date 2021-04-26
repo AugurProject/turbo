@@ -159,7 +159,7 @@ export const AmountInput = ({
   );
 };
 
-const PLACEHOLDER = "0";
+const PLACEHOLDER = "00";
 
 export const isInvalidNumber = (number) => {
   return number !== "" && (isNaN(number) || Number(number) < 0 || Number(number) === 0);
@@ -205,6 +205,7 @@ const Outcome = ({
         [Styles.disabled]: !isLogged,
         [Styles.Error]: error,
         [Styles.noClick]: noClick,
+        [Styles.Editable]: editable
       })}
     >
       <span>{outcome.name}</span>
@@ -273,7 +274,7 @@ export const OutcomesGrid = ({
         .map((outcome) => (
           <Outcome
             index={outcome.id}
-            selected={selectedOutcome && outcome.id === selectedOutcome.id && !showAllHighlighted}
+            selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
             nonSelectable={nonSelectable}
             showAllHighlighted={showAllHighlighted}
             outcome={outcome}

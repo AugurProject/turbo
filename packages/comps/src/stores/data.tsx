@@ -15,7 +15,7 @@ export const DataStore = {
   actions: STUBBED_DATA_ACTIONS,
 };
 
-export const DataProvider = ({ children }) => {
+export const DataProvider = ({ children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account, loginAccount } = useUserStore();
@@ -37,16 +37,15 @@ export const DataProvider = ({ children }) => {
       if (provider && account) {
         return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
       }
-      return { markets: {}, ammExchanges: {}, blocknumber: null };
+      return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
-
-    getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+    getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading)
     });
 
     const intervalId = setInterval(() => {
-      getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+      getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
@@ -69,15 +68,16 @@ const output = {
 // for now we jsut do this here...
 const getCashesInfo = (): any[] => {
   // @ts-ignore
-  const { collateral } = PARA_CONFIG;
-  // const paraValues = Object.values(paraDeploys);
-  // const keysValues = paraValues.reduce((p, v) => ({ ...p, [v.name]: v }), {});
+  const { marketFactories } = PARA_CONFIG;
+  const { collateral: usdcCollateral } = marketFactories.sportsball;
+  // todo: need to grab all collaterals per market factory
+
   const cashes = [
     {
       name: "USDC",
       displayDecimals: 2,
-      decimals: 6,
-      address: collateral,
+      decimals: usdcCollateral.decimals,
+      address: usdcCollateral.address,
       shareToken: "",
       usdPrice: "1",
       asset: "",
@@ -92,7 +92,6 @@ const getCashesInfo = (): any[] => {
       asset: "ETH",
     },
   ];
-  // const cashes = paraCashes[String(networkId)].Cashes;
 
   return cashes;
 };

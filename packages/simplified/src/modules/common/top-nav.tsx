@@ -16,10 +16,8 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
-  LabelComps,
   Components
 } from '@augurproject/comps';
-const { generateTooltip } = LabelComps;
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryButton } = ButtonComps;
@@ -29,7 +27,7 @@ const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
   const {
-    settings: { showInvalidMarkets, showLiquidMarkets },
+    settings: {showLiquidMarkets },
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
@@ -62,24 +60,6 @@ export const SettingsButton = () => {
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>
             <h2>Settings</h2>
-          </li>
-          <li>
-            <label>
-              Show Invalid Markets
-              {generateTooltip(
-                'Filters out markets which are likely to resolve to "Invalid" based upon the current trading price of the "Invalid" outcome.',
-                'showInvalidMarketsInfo'
-              )}
-            </label>
-            <ToggleSwitch
-              toggle={showInvalidMarkets}
-              setToggle={() =>
-                updateSettings(
-                  { showInvalidMarkets: !showInvalidMarkets },
-                  account
-                )
-              }
-            />
           </li>
           <li>
             <label>Show liquid markets only</label>

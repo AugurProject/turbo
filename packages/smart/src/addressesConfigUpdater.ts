@@ -2,10 +2,11 @@ import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
 import prettier from "prettier";
+import { Addresses, MarketFactories, MarketFactory } from "../addresses";
 
 const printer = ts.createPrinter();
 
-export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Record<string, string>): void {
+export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Addresses): void {
   const sourceFile = ts.createSourceFile(
     "addresses.ts",
     fs.readFileSync(addressFilePath, "utf8"),
@@ -29,8 +30,66 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
               context.factory.createPropertyAssignment(
                 `${chainId}`,
                 ts.factory.createObjectLiteralExpression(
-                  Object.entries(addresses).map(([key, addy]) => {
-                    return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(addy));
+                  Object.entries(addresses).map(([key, val]) => {
+                    if (key === "marketFactories") {
+                      return context.factory.createPropertyAssignment(
+                        `${key}`,
+                        ts.factory.createObjectLiteralExpression(
+                          Object.entries(val as MarketFactories).map(
+                            ([name, marketFactory]: [name: string, marketFactory: MarketFactory]) => {
+                              return context.factory.createPropertyAssignment(
+                                name,
+                                ts.factory.createObjectLiteralExpression([
+                                  context.factory.createPropertyAssignment(
+                                    "type",
+                                    ts.factory.createStringLiteral(marketFactory.type)
+                                  ),
+                                  context.factory.createPropertyAssignment(
+                                    "address",
+                                    ts.factory.createStringLiteral(marketFactory.address)
+                                  ),
+                                  context.factory.createPropertyAssignment(
+                                    "constructorArgs",
+                                    ts.factory.createArrayLiteralExpression(
+                                      marketFactory.constructorArgs.map((value) => {
+                                        if (typeof value === "number") {
+                                          return ts.factory.createNumericLiteral(value);
+                                        } else {
+                                          return ts.factory.createStringLiteral(value);
+                                        }
+                                      })
+                                    )
+                                  ),
+                                  context.factory.createPropertyAssignment(
+                                    "collateral",
+                                    ts.factory.createObjectLiteralExpression([
+                                      context.factory.createPropertyAssignment(
+                                        "address",
+                                        ts.factory.createStringLiteral(marketFactory.collateral.address)
+                                      ),
+                                      context.factory.createPropertyAssignment(
+                                        "name",
+                                        ts.factory.createStringLiteral(marketFactory.collateral.name)
+                                      ),
+                                      context.factory.createPropertyAssignment(
+                                        "symbol",
+                                        ts.factory.createStringLiteral(marketFactory.collateral.symbol)
+                                      ),
+                                      context.factory.createPropertyAssignment(
+                                        "decimals",
+                                        ts.factory.createNumericLiteral(marketFactory.collateral.decimals)
+                                      ),
+                                    ])
+                                  ),
+                                ])
+                              );
+                            }
+                          )
+                        )
+                      );
+                    } else {
+                      return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(val));
+                    }
                   })
                 )
               ),

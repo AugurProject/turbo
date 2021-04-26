@@ -111,7 +111,7 @@
 
     > section:nth-of-type(3) {
       display: grid;
-      grid-template-columns: repeat(4, 195px);
+      grid-template-columns: repeat(4, 1fr);
       grid-template-rows: @size-85;
       grid-gap: @size-2;
 
@@ -142,7 +142,7 @@
 
     > section:last-of-type {
       > div {
-        width: 781px;
+        width: 100%;
         height: 450px;
         margin-top: @size-16;
       }
@@ -459,6 +459,32 @@
       &:last-of-type {
         grid-column: 1 / span 3;
         border-top: @size-1 solid var(--simple-border);
+      }
+    }
+  }
+}
+
+.NonexistingMarketView {
+  > section > section > span {
+    .text-20-bold;
+  }
+
+  > section > section {
+    > a {
+      .text-20-bold;
+
+      text-decoration: none;
+      margin-left: @size-4;
+      color: var(--simple-secondary-text);
+    }
+
+    &:hover {
+      > a {
+        color: var(--simple-primary-text);
+
+        &[disabled] {
+          color: var(--simple-secondary-text);
+        }
       }
     }
   }

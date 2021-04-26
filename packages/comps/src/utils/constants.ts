@@ -35,6 +35,7 @@ export const BUY: string = "buy";
 export const SELL: string = "sell";
 
 export const ADD_LIQUIDITY: string = "add liquidity";
+export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
 
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;
@@ -130,6 +131,8 @@ export const ENTER_AMOUNT: string = "Enter Amount";
 export const ERROR_AMOUNT: string = "Amount is not valid";
 export const CONNECT_ACCOUNT: string = "Connect Account";
 export const SET_PRICES: string = "Set Prices";
+export const INVALID_PRICE: string = "Invalid Price";
+export const INVALID_PRICE_SUBTEXT: string = "Prices must add up to $1";
 
 export const SETTINGS_SLIPPAGE: string = "2";
 // graph market status

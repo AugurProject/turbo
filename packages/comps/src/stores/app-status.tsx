@@ -21,7 +21,7 @@ export const AppStatusStore = {
   actions: STUBBED_APP_STATUS_ACTIONS,
 };
 
-export const AppStatusProvider = ({ children }) => {
+export const AppStatusProvider = ({ children }: any) => {
   const state = useAppStatus();
   const { account } = useUserStore();
   if (!!account && !state.isLogged) {

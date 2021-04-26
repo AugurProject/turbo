@@ -541,11 +541,11 @@ function addBigUnitPostfix(value, formattedValue, removeComma = false) {
   let postfixed;
   if (value.gt(TRILLION)) {
     postfixed = "> 1T";
-  } else if (value.gt(BILLION)) {
+  } else if (value.gte(BILLION)) {
     postfixed = addCommas(`${value.dividedBy(BILLION).toFixed(2)}B`, removeComma);
-  } else if (value.gt(MILLION)) {
+  } else if (value.gte(MILLION)) {
     postfixed = addCommas(`${value.dividedBy(MILLION).toFixed(2)}M`, removeComma);
-  } else if (value.gt(THOUSAND.times(TEN))) {
+  } else if (value.gte(THOUSAND.times(TEN))) {
     postfixed = addCommas(`${value.dividedBy(THOUSAND).toFixed(2)}K`, removeComma);
   } else {
     postfixed = addCommas(formattedValue, removeComma);
@@ -626,7 +626,7 @@ export function convertDisplayShareAmountToOnChainShareAmount(
 
 export function convertOnChainCashAmountToDisplayCashAmount(
   onChainAmount: NumStrBigNumber,
-  precision: NumStrBigNumber
+  precision: NumStrBigNumber = 18
 ) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
@@ -639,11 +639,11 @@ export function sharesDisplayToOnChain(onChainAmount: NumStrBigNumber) {
   return createBigNumber(onChainAmount).multipliedBy(createBigNumber(10).pow(createBigNumber(18)));
 }
 
-export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
+export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 18) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
-export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 12) {
+export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 18) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 

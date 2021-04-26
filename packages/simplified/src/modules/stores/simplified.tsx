@@ -34,7 +34,7 @@ const useLoadUserSettings = () => {
   }, [account]);
 };
 
-export const SimplifiedProvider = ({ children }) => {
+export const SimplifiedProvider = ({ children }: any) => {
   const state = useSimplified();
 
   useLoadUserSettings();
