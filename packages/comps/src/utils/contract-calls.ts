@@ -169,10 +169,10 @@ export async function addLiquidityPool(
     minLpTokenAllowed
   );
   if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account);
+    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account, { gasLimit: "800000", gasPrice: "10000000000"});
   } else {
     // todo: get what the min lp token out is
-    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account);
+    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, { gasLimit: "800000", gasPrice: "10000000000"});
   }
 
   return tx;
@@ -495,7 +495,7 @@ export const getUserBalances = async (
   const LP_TOKEN_COLLECTION = "lpTokens";
   const MARKET_SHARE_COLLECTION = "marketShares";
   // finalized markets
-  const finalizedMarkets = Object.values(markets).filter((m) => m.reportingState === MARKET_STATUS.FINALIZED);
+  const finalizedMarkets = Object.values(markets).filter((m) => m.hasWinner);
   const finalizedMarketIds = finalizedMarkets.map((f) => f.marketId);
   const finalizedAmmExchanges = Object.values(ammExchanges).filter((a) => finalizedMarketIds.includes(a.marketId));
 
@@ -651,10 +651,10 @@ const populateClaimableWinnings = (
 ): void => {
   finalizedAmmExchanges.reduce((p, amm) => {
     const market = finalizedMarkets[amm.marketId];
-    const winningOutcome = market.outcomes.find((o) => o.payoutNumerator !== "0");
-    if (winningOutcome) {
+    const winningOutcomeId = market.winner;
+    if (winningOutcomeId) {
       const outcomeBalances = marketShares[amm.marketId];
-      const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
+      const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === Number(winningOutcomeId));
       if (userShares && new BN(userShares?.rawBalance).gt(0)) {
         const initValue = userShares.initCostCash; // get init CostCash
         const claimableBalance = new BN(userShares.balance).minus(new BN(initValue)).abs().toFixed(4);

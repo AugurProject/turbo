@@ -516,6 +516,7 @@ export interface CurrencyBalance extends SimpleBalance {
 
 export interface Winnings {
   sharetoken: string;
+  marketIds: [];
   claimableBalance: string;
   userBalances: string[];
 }
