@@ -447,7 +447,7 @@ export const claimWinnings = (
   account: string,
   provider: Web3Provider,
   marketIds: string[],
-  factories: string[], // needed for multi market factory
+  factories: string[] // needed for multi market factory
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
   const marketFactoryContract = getMarketFactoryContract(provider, account);
@@ -650,7 +650,7 @@ const populateClaimableWinnings = (
 ): void => {
   finalizedAmmExchanges.reduce((p, amm) => {
     const market = finalizedMarkets[amm.marketId];
-    const winningOutcome = market.winner ? market.outcomes[market.winner]: null;
+    const winningOutcome = market.winner ? market.outcomes[market.winner] : null;
     if (winningOutcome) {
       const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
