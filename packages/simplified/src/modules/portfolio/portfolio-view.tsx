@@ -32,28 +32,32 @@ const { PrimaryButton } = ButtonComps;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash) => {
   let total = createBigNumber('0');
-  let marketIds = [];
+  let ids = [];
+  let factories = [];
   claimbleMarketsPerCash.forEach(
     ({
-      ammExchange: { marketId },
+      ammExchange: { turboId, marketFactoryAddress },
       claimableWinnings: { claimableBalance },
     }) => {
       total = total.plus(createBigNumber(claimableBalance));
       // @ts-ignore
-      marketIds.push(marketId);
+      ids.push(turboId);
+      factories.push(marketFactoryAddress);
     }
   );
   return {
     hasWinnings: !total.eq(0),
     total,
-    marketIds,
+    ids,
+    factories,
   };
 };
 
 const handleClaimAll = (
   loginAccount,
   cash,
-  marketIds,
+  ids,
+  factories,
   addTransaction,
   canClaim,
   setPendingClaim
@@ -62,7 +66,7 @@ const handleClaimAll = (
   const chainId = loginAccount?.chainId;
   if (from && canClaim) {
     setPendingClaim(true);
-    claimWinnings(from, loginAccount?.library, marketIds, cash)
+    claimWinnings(from, loginAccount?.library, ids, factories)
       .then(response => {
         // handle transaction response here
         setPendingClaim(false);
@@ -132,7 +136,8 @@ export const ClaimWinningsSection = () => {
             handleClaimAll(
               loginAccount,
               usdcCash,
-              USDCTotals.marketIds,
+              USDCTotals.ids,
+              USDCTotals.factories,
               addTransaction,
               true,
               setPendingClaim
@@ -150,7 +155,8 @@ export const ClaimWinningsSection = () => {
             handleClaimAll(
               loginAccount,
               ethCash,
-              ETHTotals.marketIds,
+              ETHTotals.ids,
+              ETHTotals.factories,
               addTransaction,
               canClaimETH,
               setPendingClaim

@@ -447,12 +447,12 @@ export const claimWinnings = (
   account: string,
   provider: Web3Provider,
   marketIds: string[],
-  cash: Cash
+  factories: string[], // needed for multi market factory
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
   const marketFactoryContract = getMarketFactoryContract(provider, account);
-  const shareTokens = marketIds.map((m) => cash?.shareToken);
-  return marketFactoryContract.claimWinnings(marketIds, shareTokens, account, ethers.utils.formatBytes32String("11"));
+  console.log('marketIds', marketIds)
+  return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
 interface UserTrades {
@@ -651,7 +651,7 @@ const populateClaimableWinnings = (
 ): void => {
   finalizedAmmExchanges.reduce((p, amm) => {
     const market = finalizedMarkets[amm.marketId];
-    const winningOutcome = market.outcomes.find((o) => o.payoutNumerator !== "0");
+    const winningOutcome = market.winner ? market.outcomes[market.winner]: null;
     if (winningOutcome) {
       const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
@@ -660,7 +660,6 @@ const populateClaimableWinnings = (
         const claimableBalance = new BN(userShares.balance).minus(new BN(initValue)).abs().toFixed(4);
         marketShares[amm.marketId].claimableWinnings = {
           claimableBalance,
-          sharetoken: amm.cash.shareToken,
           userBalances: outcomeBalances.outcomeSharesRaw,
         };
       }
