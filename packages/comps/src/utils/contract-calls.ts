@@ -451,7 +451,6 @@ export const claimWinnings = (
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
   const marketFactoryContract = getMarketFactoryContract(provider, account);
-  console.log('marketIds', marketIds)
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 

@@ -109,11 +109,8 @@ export const ClaimWinningsSection = () => {
   const claimableEthMarkets = claimableMarkets.filter(
     (m) => m.claimableWinnings.sharetoken === ethCash?.shareToken
   );
-  const claimableUSDCMarkets = claimableMarkets.filter(
-    (m) => m.claimableWinnings.sharetoken === usdcCash.shareToken
-  );
   const ETHTotals = calculateTotalWinnings(claimableEthMarkets);
-  const USDCTotals = calculateTotalWinnings(claimableUSDCMarkets);
+  const USDCTotals = calculateTotalWinnings(claimableMarkets);
   // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
   const hasClaimableFees = createBigNumber(claimableFees).gt(0);
