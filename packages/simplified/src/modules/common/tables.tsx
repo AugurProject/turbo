@@ -293,7 +293,7 @@ export const PositionTable = ({
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove =
     seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
-  const hasLiquidity = ammExchange.liquidity !== '0';
+  const hasLiquidity = ammExchange.totalSupply !== '0';
 
   return (
     <>

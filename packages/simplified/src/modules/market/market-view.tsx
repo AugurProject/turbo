@@ -8,7 +8,6 @@ import { AddLiquidity, NetworkMismatchBanner, AddCurrencyLiquidity } from "../co
 // eslint-disable-next-line
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
-import { MarketInfo } from "../types";
 import {
   Constants,
   useAppStatusStore,
@@ -17,13 +16,12 @@ import {
   Utils,
   Components,
 } from "@augurproject/comps";
-import { AmmOutcome, MarketOutcome } from "../types";
+import { MarketInfo, AmmOutcome, MarketOutcome } from "../types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
 import makePath from "@augurproject/comps/build/utils/links/make-path";
 import { MARKETS } from "modules/constants";
 import { Link } from 'react-router-dom';
-
 const {
   SEO,
   LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
@@ -168,11 +166,8 @@ const MarketView = ({ defaultMarket = null }) => {
     );
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
-  // @ts-ignore
-  // const currentAMMs = getCurrentAmms(market, markets);
-
-  const { reportingState, outcomes, title, description, startTimestamp, categories } = market;
-  const winningOutcomes = getWinningOutcome(amm?.ammOutcomes, outcomes);
+  const { reportingState, title, description, startTimestamp, categories, winner } = market;
+  const winningOutcome = market.amm?.ammOutcomes?.find(o => o.id === winner);
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -188,8 +183,8 @@ const MarketView = ({ defaultMarket = null }) => {
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
         {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp)}</span>}
-        {reportingState === MARKET_STATUS.FINALIZED && winningOutcomes.length > 0 && (
-          <WinningOutcomeLabel winningOutcome={winningOutcomes[0]} />
+        {reportingState === MARKET_STATUS.FINALIZED && winningOutcome && (
+          <WinningOutcomeLabel winningOutcome={winningOutcome} />
         )}
         <ul className={Styles.StatsRow}>
           <li>

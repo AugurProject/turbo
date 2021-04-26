@@ -74,12 +74,12 @@ export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[]
 
 const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   const {
-    market: { hasWinner },
+    market: { hasWinner, winner },
   } = amm;
   const content = hasWinner ? (
     <div className={Styles.WinningOutcome}>
       <span>Winning Outcome</span>
-      <span>Detroit Pistons</span>
+      <span>{amm.ammOutcomes.find(o => o.id === winner)?.name}</span>
       {ConfirmedCheck}
     </div>
   ) : (
@@ -157,7 +157,7 @@ export const MarketCardView = ({
             <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
           </div>
         </article>
-        {!amm?.id ? (
+        {!amm?.id && !market.hasWinner ? (
           <>
             <MarketTitleArea {...{ ...market }} />
             <div>

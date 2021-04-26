@@ -211,7 +211,7 @@ const TradingForm = ({
     outcomeShareToken
   });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.liquidity !== '0';
+  const hasLiquidity = amm.totalSupply !== '0';
   
   const selectedOutcomeId = selectedOutcome?.id;
   const marketShares =
