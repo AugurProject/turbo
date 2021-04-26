@@ -221,7 +221,7 @@ export interface MarketInfo {
   isInvalid: boolean;
   numTicks: string;
   hasWinner: boolean;
-  winner?: string;
+  winner?: number;
 }
 
 export interface MarketOutcome {
