@@ -59,3 +59,7 @@ typings/
 
 # next.js build output
 .next
+
+/generated
+/build
+abis/*.json
