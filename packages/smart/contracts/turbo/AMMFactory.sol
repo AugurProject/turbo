@@ -16,7 +16,31 @@ contract AMMFactory {
     mapping(address => mapping(uint256 => BPool)) public pools;
     uint256 fee;
 
-    event PoolCreated(address pool, address indexed marketFactory, uint256 indexed marketId, address indexed creator);
+    event PoolCreated(
+        address pool,
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed creator,
+        address lpTokenRecipient
+    );
+    event LiquidityChanged(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        address recipient,
+        // from the perspective of the user. e.g. collateral is negative when adding liquidity
+        int256 collateral,
+        int256 lpTokens
+    );
+    event SharesSwapped(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        uint256 outcome,
+        // from the perspective of the user. e.g. collateral is negative when buying
+        int256 collateral,
+        int256 shares
+    );
 
     constructor(BFactory _bFactory, uint256 _fee) {
         bFactory = _bFactory;
@@ -69,7 +93,7 @@ contract AMMFactory {
         uint256 _lpTokenBalance = _pool.balanceOf(address(this));
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
-        emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender);
+        emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
 
         return _pool;
     }
@@ -105,6 +129,15 @@ contract AMMFactory {
 
         _pool.transfer(_lpTokenRecipient, _totalLPTokens);
 
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _lpTokenRecipient,
+            -int256(_collateralIn),
+            int256(_totalLPTokens)
+        );
+
         return _totalLPTokens;
     }
 
@@ -112,7 +145,8 @@ contract AMMFactory {
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
         uint256 _lpTokensIn,
-        uint256 _minCollateralOut
+        uint256 _minCollateralOut,
+        address _collateralRecipient
     ) public returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
@@ -135,8 +169,8 @@ contract AMMFactory {
         // Must be a multiple of share factor.
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
-        uint256 collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
-        require(collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
+        uint256 _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
 
         // Transfer the remaining shares back to msg.sender.
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
@@ -148,8 +182,17 @@ contract AMMFactory {
             }
         }
 
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _collateralRecipient,
+            int256(_collateralOut),
+            -int256(_lpTokensIn)
+        );
+
         // returns actual collateral out.
-        return collateralOut;
+        return _collateralOut;
     }
 
     function buy(
@@ -181,6 +224,15 @@ contract AMMFactory {
         require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
 
         _desiredToken.transfer(msg.sender, _totalDesiredOutcome);
+
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            -int256(_collateralIn),
+            int256(_totalDesiredOutcome)
+        );
 
         return _totalDesiredOutcome;
     }
@@ -215,7 +267,17 @@ contract AMMFactory {
         // Transfer undesired token balance back.
         _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
 
-        return _setsOut;
+        uint256 _collateralOut = _marketFactory.calcCost(_setsOut);
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            int256(_collateralOut),
+            -int256(_undesiredTokenOut)
+        );
+
+        return _collateralOut;
     }
 
     // Returns an array of token values for the outcomes of the market, relative to the first outcome.

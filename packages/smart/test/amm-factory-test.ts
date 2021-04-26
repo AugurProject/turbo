@@ -178,14 +178,20 @@ describe("AMMFactory", () => {
         secondSigner.address
       );
 
-      expect(poolTokens.gt(0)).to.be.true;
+      expect(poolTokens.gt(0), "pool tokens greater than zero").to.be.true;
 
-      await secondAmmFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0));
+      await secondAmmFactory.removeLiquidity(
+        marketFactory.address,
+        marketId,
+        poolTokens,
+        BigNumber.from(0),
+        secondSigner.address
+      );
 
       const collateralAfter = await collateral.balanceOf(secondSigner.address);
 
       // Check that we gained collateral.
-      expect(collateralAfter.gt(collateralBefore)).to.be.true;
+      expect(collateralAfter.gt(collateralBefore), "collateral gained").to.be.true;
 
       const sharesAfter = await Promise.all(
         shareTokens.map((shareToken: Contract) =>
@@ -208,7 +214,7 @@ describe("AMMFactory", () => {
       const collateralBefore = await collateral.balanceOf(signer.address);
 
       const poolTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
-      await ammFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0));
+      await ammFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0), signer.address);
 
       const collateralAfter = await collateral.balanceOf(signer.address);
 

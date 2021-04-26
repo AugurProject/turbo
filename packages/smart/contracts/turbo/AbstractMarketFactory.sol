@@ -18,7 +18,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
 
     event SharesMinted(uint256 id, uint256 amount, address receiver);
     event SharesBurned(uint256 id, uint256 amount, address receiver);
-    event WinningsClaimed(uint256 id, uint256 amount, address receiver);
+    event WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
 
     IERC20Full public collateral;
     FeePot public feePot;
@@ -163,6 +163,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _payout;
     }
 
+    // shares => collateral
     function calcCost(uint256 _shares) public view returns (uint256) {
         require(
             _shares >= shareFactor && _shares % shareFactor == 0,
@@ -171,6 +172,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _shares / shareFactor;
     }
 
+    // collateral => shares
     function calcShares(uint256 _collateralIn) public view returns (uint256) {
         return _collateralIn * shareFactor;
     }
