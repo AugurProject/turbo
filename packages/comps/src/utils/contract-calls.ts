@@ -155,7 +155,7 @@ export async function addLiquidityPool(
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
   const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
-  const minLpTokenAllowed = sharesDisplayToOnChain(minLptokenAmount).toFixed();
+  const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
     "est add liq:",
