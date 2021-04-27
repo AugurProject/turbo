@@ -1,19 +1,8 @@
 import { MouseEvent } from "react";
-import type { BigNumber } from "../utils/create-big-number";
+import type { BigNumber } from "./create-big-number";
+import type { TradingDirection } from './constants';
 import { ethers } from "ethers";
 
-export enum SizeTypes {
-  SMALL = "small",
-  NORMAL = "normal",
-  LARGE = "large",
-}
-
-export const TransactionTypes = {
-  ENTER: "ENTER",
-  EXIT: "EXIT",
-  ADD_LIQUIDITY: "ADD_LIQUIDITY",
-  REMOVE_LIQUIDITY: "REMOVE_LIQUIDITY",
-};
 export interface TextLink {
   text: string;
   link?: string;
@@ -26,7 +15,7 @@ export interface TextObject {
   subheader: TextLink[];
 }
 
-export interface Alert {
+export declare interface Alert {
   id: string;
   uniqueId: string;
   toast: boolean;
@@ -428,10 +417,6 @@ export interface EthereumWallet {
   keys: { ethereumAddress: string };
 }
 
-export enum TradingDirection {
-  ENTRY = "ENTRY",
-  EXIT = "EXIT",
-}
 export interface TradeInfo {
   marketId: string;
   amm: AmmExchange;

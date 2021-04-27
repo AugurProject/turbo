@@ -3,7 +3,6 @@ import Styles from "./markets-view.styles.less";
 import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
-import { MarketInfo } from "../types";
 import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
@@ -13,6 +12,8 @@ import {
   Constants,
   Components,
 } from "@augurproject/comps";
+import type { MarketInfo } from "@augurproject/comps/build/types";
+
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const {
   SelectionComps: { SquareDropdown },

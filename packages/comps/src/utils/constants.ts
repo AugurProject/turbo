@@ -283,3 +283,15 @@ export const DefaultMarketOutcomes = [
     price: "$0.75",
   },
 ];
+
+export enum TransactionTypes {
+  ENTER = "ENTER",
+  EXIT = "EXIT",
+  ADD_LIQUIDITY = "ADD_LIQUIDITY",
+  REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
+}
+
+export enum TradingDirection {
+  ENTRY = "ENTRY",
+  EXIT = "EXIT",
+}

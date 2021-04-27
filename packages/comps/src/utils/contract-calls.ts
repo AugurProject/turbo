@@ -1,7 +1,7 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import {
-  TradingDirection,
+  // ,
   AmmExchange,
   AmmExchanges,
   AmmMarketShares,
@@ -9,7 +9,7 @@ import {
   Cashes,
   CurrencyBalance,
   PositionBalance,
-  TransactionTypes,
+  // ,
   UserBalances,
   MarketInfos,
   LPTokens,
@@ -43,6 +43,8 @@ import {
   MARKET_STATUS,
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
+  TradingDirection,
+  TransactionTypes,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";

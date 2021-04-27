@@ -10,7 +10,6 @@ import {
   PositionBalance,
   SimpleBalance,
   Winnings,
-  TransactionTypes,
 } from '../types';
 import {
   useAppStatusStore,
@@ -56,6 +55,7 @@ const {
   TX_STATUS,
   ETH,
   TABLES,
+  TransactionTypes
 } = Constants;
 
 interface PositionsTableProps {

@@ -1,5 +1,5 @@
 import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
-import { ParaDeploys } from "../types";
+import type { ParaDeploys } from "@augurproject/comps/build/types";
 
 // @ts-ignore
 export const PARA_CONFIG: ParaDeploys = ((process.env.CONFIGURATION as unknown) as ParaDeploys) || {};
