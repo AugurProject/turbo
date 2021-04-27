@@ -6,7 +6,7 @@ import ReactTooltip from "react-tooltip";
 import TooltipStyles from "./tooltip.styles.less";
 import { HelpIcon, AugurBlankIcon, EthIcon, UsdIcon, WarningIcon, XIcon, InvalidFlagIcon } from "./icons";
 import { MARKET_STATUS } from "../../utils/constants";
-import { FormattedNumber } from "../../utils/types";
+import { FormattedNumber } from "../../types";
 
 export interface ValueLabelProps {
   large?: boolean;

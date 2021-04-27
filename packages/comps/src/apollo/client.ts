@@ -2,7 +2,7 @@ import ApolloClient from "apollo-boost";
 import { GET_MARKETS, GET_BLOCK, CASH_TOKEN_DATA } from "./queries";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Cash } from "../utils/types";
+import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { ETH } from "../utils/constants";

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
-import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
+import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
 import { formatCashPrice, formatDai, formatPercent, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
 import {

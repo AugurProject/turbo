@@ -7,7 +7,7 @@ import { USDC, ERROR_AMOUNT, SHARES, ETH } from "../../utils/constants";
 import { useAppStatusStore } from "../../stores/app-status";
 import { TinyButton } from "./buttons";
 import { CurrencyDropdown } from "./selection";
-import { AmmOutcome, Cash } from "../../utils/types";
+import { AmmOutcome, Cash } from "../../types";
 
 const ENTER_CHAR_CODE = 13;
 

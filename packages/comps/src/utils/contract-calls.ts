@@ -1,7 +1,6 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import {
-  // ,
   AmmExchange,
   AmmExchanges,
   AmmMarketShares,
@@ -9,7 +8,6 @@ import {
   Cashes,
   CurrencyBalance,
   PositionBalance,
-  // ,
   UserBalances,
   MarketInfos,
   LPTokens,
@@ -18,7 +16,7 @@ import {
   AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
-} from "./types";
+} from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
