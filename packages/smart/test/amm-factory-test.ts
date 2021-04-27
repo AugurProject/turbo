@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { AbstractMarketFactory, AMMFactory } from "../typechain";
 import { BigNumber, Contract, ContractFactory } from "ethers";
 import { calcShareFactor } from "../src";
-import { calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
+import { buyWithValues, calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 describe("AMMFactory", () => {
   let AMMFactory__factory: ContractFactory;
@@ -152,6 +152,34 @@ describe("AMMFactory", () => {
       ["1000000000000000000", "20000000000000000000", "29000000000000000000"].map((b) => BigNumber.from(b)),
       BigNumber.from("15000000000000000")
     );
+  });
+
+  describe("buy", () => {
+    it("should match the contract values", async () => {
+      const collateralIn = usdcBasis.mul(100); // 100 of the collateral
+      await collateral.faucet(collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+
+      const contractResult = await ammFactory.callStatic.buy(
+        marketFactory.address,
+        marketId,
+        BigNumber.from(1),
+        collateralIn,
+        BigNumber.from(0)
+      );
+
+      const result = await buyWithValues(
+        ammFactory as AMMFactory,
+        marketFactory as AbstractMarketFactory,
+        marketId.toNumber(),
+        1,
+        collateralIn.toString()
+      );
+
+      expect(contractResult.sub(result).toString()).to.be.equal("0");
+    });
   });
 
   describe("removeLiquidity", () => {
