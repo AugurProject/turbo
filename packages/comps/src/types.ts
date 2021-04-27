@@ -1,6 +1,6 @@
 import { MouseEvent } from "react";
 import type { BigNumber } from "./utils/create-big-number";
-import type { TradingDirection } from './utils/constants';
+import type { TradingDirection } from "./utils/constants";
 import { ethers } from "ethers";
 
 export interface TextLink {

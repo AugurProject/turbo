@@ -131,7 +131,7 @@ export async function estimateAddLiquidityPool(
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    const minAmounts = outcomes.map((o) => "0");
+    // const minAmounts = outcomes.map((o) => "0");
 
     return {
       lpTokens,
@@ -154,7 +154,7 @@ export async function addLiquidityPool(
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
-  const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
+  // const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
