@@ -28,6 +28,7 @@ export interface ButtonProps {
   darkTheme?: boolean;
   pending?: boolean;
   key?: string;
+  label?: string;
 }
 
 const Button = ({
@@ -45,12 +46,14 @@ const Button = ({
   target = '_blank',
   rel = 'noopener noreferrer',
   pending,
+  label
 }: ButtonProps) => {
   return href ? (
     <a
       id={id}
       title={title}
       href={href}
+      aria-label={label}
       className={classNames(
         Styles.Button,
         {
@@ -74,6 +77,7 @@ const Button = ({
     <button
       id={id}
       title={title}
+      aria-label={label}
       className={classNames(
         Styles.Button,
         {
