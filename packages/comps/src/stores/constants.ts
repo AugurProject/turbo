@@ -1,4 +1,4 @@
-import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../utils/types";
+import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../types";
 import { addresses } from "@augurproject/smart";
 
 export const PARA_CONFIG: ParaDeploys =

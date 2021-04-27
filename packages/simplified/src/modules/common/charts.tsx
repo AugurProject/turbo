@@ -3,14 +3,13 @@ import Highcharts from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import Styles from "./charts.styles.less";
 import classNames from "classnames";
-import { MarketInfo } from "../types";
+import type { MarketInfo } from "@augurproject/comps/build/types";
 import { createBigNumber, Formatter, Icons, SelectionComps, MarketCardComps } from "@augurproject/comps";
 
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
 const { formatCashPrice, getCashFormat } = Formatter;
 const { Checkbox } = Icons;
-
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
 // const DEFAULT_SELECTED_ID = 2;

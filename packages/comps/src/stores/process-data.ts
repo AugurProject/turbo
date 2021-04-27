@@ -1,4 +1,4 @@
-import { AmmExchange, MarketInfo, ActivityData } from "../utils/types";
+import { AmmExchange, MarketInfo, ActivityData } from "../types";
 
 export const shapeUserActvity = (
   account: string,

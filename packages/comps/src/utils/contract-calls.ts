@@ -1,7 +1,6 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import {
-  TradingDirection,
   AmmExchange,
   AmmExchanges,
   AmmMarketShares,
@@ -9,7 +8,6 @@ import {
   Cashes,
   CurrencyBalance,
   PositionBalance,
-  TransactionTypes,
   UserBalances,
   MarketInfos,
   LPTokens,
@@ -18,7 +16,7 @@ import {
   AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
-} from "./types";
+} from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
@@ -43,6 +41,8 @@ import {
   MARKET_STATUS,
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
+  TradingDirection,
+  TransactionTypes,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -131,7 +131,7 @@ export async function estimateAddLiquidityPool(
   if (addLiquidityResults) {
     // lp tokens are 18 decimal
     const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    const minAmounts = outcomes.map((o) => "0");
+    // const minAmounts = outcomes.map((o) => "0");
 
     return {
       lpTokens,
@@ -154,7 +154,7 @@ export async function addLiquidityPool(
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
-  const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
+  // const minLptokenAmount = new BN(minAmount).times(new BN(0.99)).decimalPlaces(0); // account for slippage
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
