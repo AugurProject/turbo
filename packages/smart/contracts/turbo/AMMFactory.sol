@@ -94,6 +94,14 @@ contract AMMFactory {
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
         emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _lpTokenRecipient,
+            -int256(_initialLiquidity),
+            int256(_lpTokenBalance)
+        );
 
         return _pool;
     }
