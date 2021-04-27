@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router';
-import Styles from './top-nav.styles.less';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
-import { Toasts } from '../toasts/toasts';
-import { useSimplifiedStore } from '../stores/simplified';
+import React, { useEffect, useState, useRef } from "react";
+import { useLocation } from "react-router";
+import Styles from "./top-nav.styles.less";
+import { Link } from "react-router-dom";
+import classNames from "classnames";
+import { Toasts } from "../toasts/toasts";
+import { useSimplifiedStore } from "../stores/simplified";
 import {
   Icons,
   useAppStatusStore,
@@ -16,8 +16,8 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
-  Components
-} from '@augurproject/comps';
+  Components,
+} from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryButton } = ButtonComps;
@@ -27,7 +27,7 @@ const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
   const {
-    settings: {showLiquidMarkets },
+    settings: { showLiquidMarkets },
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
@@ -36,41 +36,32 @@ export const SettingsButton = () => {
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
-      if (
-        open &&
-        !!event.target &&
-        settingsRef.current !== null &&
-        !settingsRef?.current?.contains(event.target)
-      ) {
+      if (open && !!event.target && settingsRef.current !== null && !settingsRef?.current?.contains(event.target)) {
         setOpened(false);
       }
     };
 
-    window.addEventListener('click', handleWindowOnClick);
+    window.addEventListener("click", handleWindowOnClick);
 
     return () => {
-      window.removeEventListener('click', handleWindowOnClick);
+      window.removeEventListener("click", handleWindowOnClick);
     };
   });
 
   return (
     <div className={Styles.SettingsMenuWrapper}>
-      <SecondaryButton action={() => setOpened(!open)} icon={GearIcon} />
+      <SecondaryButton label="Settings" action={() => setOpened(!open)} icon={GearIcon} />
       {open && (
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>
             <h2>Settings</h2>
           </li>
           <li>
-            <label>Show liquid markets only</label>
+            <label for="showLiquidMarkets">Show liquid markets only</label>
             <ToggleSwitch
+              id="showLiquidMarkets"
               toggle={showLiquidMarkets}
-              setToggle={() =>
-                updateSettings(
-                  { showLiquidMarkets: !showLiquidMarkets },
-                  account
-                )
-              }
+              setToggle={() => updateSettings({ showLiquidMarkets: !showLiquidMarkets }, account)}
             />
           </li>
         </ul>
@@ -88,14 +79,16 @@ export const TopNav = () => {
     isMobile,
     actions: { setModal },
   } = useAppStatusStore();
-  const { actions: { setSidebar } } = useSimplifiedStore();
+  const {
+    actions: { setSidebar },
+  } = useSimplifiedStore();
   const {
     account,
     loginAccount,
     transactions,
     actions: { updateLoginAccount, logout },
   } = useUserStore();
-  const [lastUser, setLastUser] = useLocalStorage('lastUser', null);
+  const [lastUser, setLastUser] = useLocalStorage("lastUser", null);
 
   useEffect(() => {
     const isMetaMask = loginAccount?.library?.provider?.isMetaMask;
@@ -122,7 +115,7 @@ export const TopNav = () => {
   };
 
   return (
-    <nav
+    <section
       className={classNames(Styles.TopNav, {
         [Styles.TwoTone]: path !== MARKETS,
         [Styles.OnMarketsView]: path === MARKET,
@@ -144,9 +137,7 @@ export const TopNav = () => {
                 }}
                 disabled={!isLogged}
                 to={makePath(PORTFOLIO)}
-                placeholder={
-                  isLogged ? 'Portfolio' : 'Please Login to view Portfolio'
-                }
+                placeholder={isLogged ? "Portfolio" : "Please Login to view Portfolio"}
               >
                 Portfolio
               </Link>
@@ -167,7 +158,8 @@ export const TopNav = () => {
         {isMobile ? (
           <button
             className={Styles.MobileMenuButton}
-            title="Augur Menu"
+            title="Augur Settings Menu"
+            aria-label="Settings"
             onClick={() => setSidebar(SIDEBAR_TYPES.NAVIGATION)}
           >
             {ThreeLinesIcon}
@@ -177,7 +169,7 @@ export const TopNav = () => {
         )}
         <Toasts />
       </section>
-    </nav>
+    </section>
   );
 };
 

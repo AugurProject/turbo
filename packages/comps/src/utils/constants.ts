@@ -132,7 +132,8 @@ export const ERROR_AMOUNT: string = "Amount is not valid";
 export const CONNECT_ACCOUNT: string = "Connect Account";
 export const SET_PRICES: string = "Set Prices";
 export const INVALID_PRICE: string = "Invalid Price";
-export const INVALID_PRICE_SUBTEXT: string = "Prices must add up to $1";
+export const INVALID_PRICE_ADD_UP_SUBTEXT: string = "Prices must add up to $1";
+export const INVALID_PRICE_GREATER_THAN_SUBTEXT: string = "Price must be at least $0.02";
 
 export const SETTINGS_SLIPPAGE: string = "2";
 // graph market status
