@@ -117,13 +117,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     }
 
     function claimWinnings(uint256 _id, address _receiver) public returns (uint256) {
-        Market memory _market = markets[_id];
-
-        // errors if market does not exist or is not resolved or resolvable
-        if (_market.winner == OwnedERC20(0)) {
+        if (!isMarketResolved(_id)) {
+            // errors if market does not exist or is not resolved or resolvable
             resolveMarket(_id);
         }
 
+        Market memory _market = markets[_id];
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
@@ -161,6 +160,11 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         collateral.transfer(_payee, _payout.sub(_creatorFee).sub(_stakerFee));
 
         return _payout;
+    }
+
+    function isMarketResolved(uint256 _id) public view returns (bool) {
+        Market memory _market = markets[_id];
+        return _market.winner != OwnedERC20(0);
     }
 
     // shares => collateral

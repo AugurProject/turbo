@@ -315,5 +315,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         return events[_eventId][2] != 0;
     }
 
+    function isEventResolved(uint256 _eventId) public view returns (bool) {
+        uint256 _marketId = events[_eventId][2];
+        return isMarketResolved(_marketId);
+    }
+
     function onTransferOwnership(address, address) internal override {}
 }
