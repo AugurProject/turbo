@@ -131,13 +131,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   }, [chosenCash]);
   const isRemove = modalType === REMOVE;
   const approvedToTransfer = ApprovalState.APPROVED;
-  // const approvedToTransfer = useApprovalStatus({
-  //   cash,
-  //   amm,
-  //   actionType: ApprovalAction.TRANSFER_LIQUIDITY,
-  // });
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
-  // const isApprovedMain = ApprovalState.APPROVED;
   const approvedMain = useApprovalStatus({
     cash,
     amm,
@@ -203,38 +197,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   } else if (hasPriceErrors) {
     buttonError = "Price is not valid";
   }
-
-  useEffect(() => {
-    const priceErrorsWithEmptyString = outcomes.filter(
-      (outcome) => parseFloat(outcome.price) >= 1 || outcome.price === ""
-    );
-    if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
-      return setBreakdown(defaultAddLiquidityBreakdown);
-    }
-
-    const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
-    if (!valid) {
-      return setBreakdown(defaultAddLiquidityBreakdown);
-    }
-    async function getResults() {
-      let results: LiquidityBreakdown;
-      if (isRemove) {
-        results = await getRemoveLiquidity(amm.id, loginAccount?.library, cash, amount, account, outcomes);
-      } else {
-        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount, outcomes);
-      }
-
-      if (!results) {
-        return setBreakdown(defaultAddLiquidityBreakdown);
-      }
-      setBreakdown(results);
-      setEstimatedLpAmount(results.lpTokens);
-    }
-
-    getResults();
-  }, [account, amount, tradingFeeSelection, cash, outcomes[YES_OUTCOME_ID]?.price, outcomes[NO_OUTCOME_ID]?.price]);
+  
   let lessThanMinPrice = false;
-  let lessThanTotalPrice = false;
 
   let inputFormError = "";
   if (!account) inputFormError = CONNECT_ACCOUNT;
@@ -246,7 +210,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       const price = outcome.price;
       if (price === "0" || !price) {
         inputFormError = SET_PRICES;
-      } else if (createBigNumber(price).lte(createBigNumber(MIN_PRICE))) {
+      } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
@@ -255,7 +219,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     });
     if (inputFormError === "" && !totalPrice.eq(ONE)) {
       buttonError = INVALID_PRICE;
-      lessThanTotalPrice = true;
     }
   }
 
@@ -317,6 +280,42 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       history.push(`/${MARKETS}`);
     }
   };
+
+  const totalPrice = outcomes.reduce(
+    (p, outcome) => outcome.price === "" ? parseFloat(outcome.price) + p : p, 0
+  );
+
+  useEffect(() => {
+    const priceErrorsWithEmptyString = outcomes.filter(
+      (outcome) => parseFloat(outcome.price) >= 1 || outcome.price === ""
+    );
+
+    if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
+      return setBreakdown(defaultAddLiquidityBreakdown);
+    }
+
+    const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+    if (!valid) {
+      return setBreakdown(defaultAddLiquidityBreakdown);
+    }
+    async function getResults() {
+      let results: LiquidityBreakdown;
+      if (isRemove) {
+        results = await getRemoveLiquidity(amm.id, loginAccount?.library, cash, amount, account, outcomes);
+      } else {
+        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount, outcomes);
+      }
+
+      if (!results) {
+        return setBreakdown(defaultAddLiquidityBreakdown);
+      }
+      setBreakdown(results);
+      setEstimatedLpAmount(results.lpTokens);
+    }
+
+    if (isApproved && !buttonError)
+    getResults();
+  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice]);
 
   const LIQUIDITY_STRINGS = {
     [REMOVE]: {
