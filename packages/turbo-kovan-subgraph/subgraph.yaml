@@ -8,9 +8,9 @@ dataSources:
     name: AMMFactory
     network: kovan
     source:
-      address: '0xa4164dEE6865d8a7AFAaeB917A6B13df4483CF51'
+      address: '0xaed5d90cC0b3E855914D5dC76e4f79a031715963'
       abi: AMMFactory
-      startBlock: 24510234
+      startBlock: 24526311
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,9 +34,9 @@ dataSources:
     name: AbstractMarketFactory
     network: kovan
     source:
-      address: '0x9c120b0382A3e2C1D2b650B9A47C26630D3D6459' # use SportsLinkMarketFactory
+      address: '0x1241fc05166D282b56caF96cFfBC551d10d645F2' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
-      startBlock: 24510238
+      startBlock: 24526314
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
