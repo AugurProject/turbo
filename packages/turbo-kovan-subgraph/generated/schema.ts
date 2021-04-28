@@ -42,22 +42,85 @@ export class AMMFactory extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get pool(): Bytes {
+  get blockHash(): string {
+    let value = this.get("blockHash");
+    return value.toString();
+  }
+
+  set blockHash(value: string) {
+    this.set("blockHash", Value.fromString(value));
+  }
+
+  get blockNumber(): i32 {
+    let value = this.get("blockNumber");
+    return value.toI32();
+  }
+
+  set blockNumber(value: i32) {
+    this.set("blockNumber", Value.fromI32(value));
+  }
+
+  get logIndex(): i32 {
+    let value = this.get("logIndex");
+    return value.toI32();
+  }
+
+  set logIndex(value: i32) {
+    this.set("logIndex", Value.fromI32(value));
+  }
+
+  get logPosition(): string {
+    let value = this.get("logPosition");
+    return value.toString();
+  }
+
+  set logPosition(value: string) {
+    this.set("logPosition", Value.fromString(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get transactionHash(): string {
+    let value = this.get("transactionHash");
+    return value.toString();
+  }
+
+  set transactionHash(value: string) {
+    this.set("transactionHash", Value.fromString(value));
+  }
+
+  get origin(): string {
+    let value = this.get("origin");
+    return value.toString();
+  }
+
+  set origin(value: string) {
+    this.set("origin", Value.fromString(value));
+  }
+
+  get pool(): string {
     let value = this.get("pool");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set pool(value: Bytes) {
-    this.set("pool", Value.fromBytes(value));
+  set pool(value: string) {
+    this.set("pool", Value.fromString(value));
   }
 
-  get marketFactory(): Bytes {
+  get marketFactory(): string {
     let value = this.get("marketFactory");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set marketFactory(value: Bytes) {
-    this.set("marketFactory", Value.fromBytes(value));
+  set marketFactory(value: string) {
+    this.set("marketFactory", Value.fromString(value));
   }
 
   get marketId(): i32 {
@@ -69,12 +132,338 @@ export class AMMFactory extends Entity {
     this.set("marketId", Value.fromI32(value));
   }
 
-  get creator(): Bytes {
+  get creator(): string {
     let value = this.get("creator");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set creator(value: Bytes) {
-    this.set("creator", Value.fromBytes(value));
+  set creator(value: string) {
+    this.set("creator", Value.fromString(value));
+  }
+
+  get lpTokenRecipient(): string {
+    let value = this.get("lpTokenRecipient");
+    return value.toString();
+  }
+
+  set lpTokenRecipient(value: string) {
+    this.set("lpTokenRecipient", Value.fromString(value));
+  }
+}
+
+export class Market extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Market entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Market entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Market", id.toString(), this);
+  }
+
+  static load(id: string): Market | null {
+    return store.get("Market", id) as Market | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get liquidity(): Array<string> {
+    let value = this.get("liquidity");
+    return value.toStringArray();
+  }
+
+  set liquidity(value: Array<string>) {
+    this.set("liquidity", Value.fromStringArray(value));
+  }
+
+  get shares(): Array<string> {
+    let value = this.get("shares");
+    return value.toStringArray();
+  }
+
+  set shares(value: Array<string>) {
+    this.set("shares", Value.fromStringArray(value));
+  }
+}
+
+export class Liquidity extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Liquidity entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Liquidity entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Liquidity", id.toString(), this);
+  }
+
+  static load(id: string): Liquidity | null {
+    return store.get("Liquidity", id) as Liquidity | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get marketId(): string {
+    let value = this.get("marketId");
+    return value.toString();
+  }
+
+  set marketId(value: string) {
+    this.set("marketId", Value.fromString(value));
+  }
+
+  get marketFactory(): string {
+    let value = this.get("marketFactory");
+    return value.toString();
+  }
+
+  set marketFactory(value: string) {
+    this.set("marketFactory", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get recipient(): string {
+    let value = this.get("recipient");
+    return value.toString();
+  }
+
+  set recipient(value: string) {
+    this.set("recipient", Value.fromString(value));
+  }
+
+  get collateral(): i32 {
+    let value = this.get("collateral");
+    return value.toI32();
+  }
+
+  set collateral(value: i32) {
+    this.set("collateral", Value.fromI32(value));
+  }
+
+  get lpTokens(): i32 {
+    let value = this.get("lpTokens");
+    return value.toI32();
+  }
+
+  set lpTokens(value: i32) {
+    this.set("lpTokens", Value.fromI32(value));
+  }
+}
+
+export class Shares extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Shares entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Shares entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Shares", id.toString(), this);
+  }
+
+  static load(id: string): Shares | null {
+    return store.get("Shares", id) as Shares | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get marketId(): string {
+    let value = this.get("marketId");
+    return value.toString();
+  }
+
+  set marketId(value: string) {
+    this.set("marketId", Value.fromString(value));
+  }
+
+  get marketFactory(): string {
+    let value = this.get("marketFactory");
+    return value.toString();
+  }
+
+  set marketFactory(value: string) {
+    this.set("marketFactory", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get outcome(): i32 {
+    let value = this.get("outcome");
+    return value.toI32();
+  }
+
+  set outcome(value: i32) {
+    this.set("outcome", Value.fromI32(value));
+  }
+
+  get collateral(): i32 {
+    let value = this.get("collateral");
+    return value.toI32();
+  }
+
+  set collateral(value: i32) {
+    this.set("collateral", Value.fromI32(value));
+  }
+
+  get shares(): i32 {
+    let value = this.get("shares");
+    return value.toI32();
+  }
+
+  set shares(value: i32) {
+    this.set("shares", Value.fromI32(value));
+  }
+}
+
+export class User extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save User entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save User entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("User", id.toString(), this);
+  }
+
+  static load(id: string): User | null {
+    return store.get("User", id) as User | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get winningsClaimed(): Array<string> {
+    let value = this.get("winningsClaimed");
+    return value.toStringArray();
+  }
+
+  set winningsClaimed(value: Array<string>) {
+    this.set("winningsClaimed", Value.fromStringArray(value));
+  }
+}
+
+export class WinningsClaimed extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save WinningsClaimed entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save WinningsClaimed entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("WinningsClaimed", id.toString(), this);
+  }
+
+  static load(id: string): WinningsClaimed | null {
+    return store.get("WinningsClaimed", id) as WinningsClaimed | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get user(): string {
+    let value = this.get("user");
+    return value.toString();
+  }
+
+  set user(value: string) {
+    this.set("user", Value.fromString(value));
+  }
+
+  get marketId(): string {
+    let value = this.get("marketId");
+    return value.toString();
+  }
+
+  set marketId(value: string) {
+    this.set("marketId", Value.fromString(value));
+  }
+
+  get winningShares(): i32 {
+    let value = this.get("winningShares");
+    return value.toI32();
+  }
+
+  set winningShares(value: i32) {
+    this.set("winningShares", Value.fromI32(value));
   }
 }

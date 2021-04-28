@@ -8,9 +8,9 @@ dataSources:
     name: AMMFactory
     network: kovan
     source:
-      address: '0x1B2b2665BA3e695ac949cC0351ad14cd589f5F6a'
+      address: '0xa4164dEE6865d8a7AFAaeB917A6B13df4483CF51'
       abi: AMMFactory
-      startBlock: 24283940
+      startBlock: 24510234
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -18,9 +18,36 @@ dataSources:
       file: ./src/AMMFactory.ts
       entities:
         - PoolCreated
+        - LiquidityChanged
+        - SharesSwapped
       abis:
         - name: AMMFactory
           file: ./abis/AMMFactory.json
       eventHandlers:
-        - event: PoolCreated(address,indexed address,indexed uint256,indexed address)
+        - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
           handler: handlePoolCreatedEvent
+        - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256)
+          handler: handleLiquidityChangedEvent
+        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256)
+          handler: handleSharesSwappedEvent
+  - kind: ethereum/contract
+    name: AbstractMarketFactory
+    network: kovan
+    source:
+      address: '0x9c120b0382A3e2C1D2b650B9A47C26630D3D6459' # use SportsLinkMarketFactory
+      abi: AbstractMarketFactory
+      startBlock: 24510238
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/AMMFactory.ts
+      entities:
+        - User
+        - WinningsClaimed
+      abis:
+        - name: AbstractMarketFactory
+          file: ./abis/AbstractMarketFactory.json
+      eventHandlers:
+        - event: WinningsClaimed(uint256,uint256,indexed address)
+          handler: handleWinningsClaimedEvent

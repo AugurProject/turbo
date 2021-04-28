@@ -10,6 +10,44 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class LiquidityChanged extends ethereum.Event {
+  get params(): LiquidityChanged__Params {
+    return new LiquidityChanged__Params(this);
+  }
+}
+
+export class LiquidityChanged__Params {
+  _event: LiquidityChanged;
+
+  constructor(event: LiquidityChanged) {
+    this._event = event;
+  }
+
+  get marketFactory(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get marketId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get user(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._event.parameters[3].value.toAddress();
+  }
+
+  get collateral(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get lpTokens(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
+  }
+}
+
 export class PoolCreated extends ethereum.Event {
   get params(): PoolCreated__Params {
     return new PoolCreated__Params(this);
@@ -37,6 +75,48 @@ export class PoolCreated__Params {
 
   get creator(): Address {
     return this._event.parameters[3].value.toAddress();
+  }
+
+  get lpTokenRecipient(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+}
+
+export class SharesSwapped extends ethereum.Event {
+  get params(): SharesSwapped__Params {
+    return new SharesSwapped__Params(this);
+  }
+}
+
+export class SharesSwapped__Params {
+  _event: SharesSwapped;
+
+  constructor(event: SharesSwapped) {
+    this._event = event;
+  }
+
+  get marketFactory(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get marketId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get user(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get outcome(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get collateral(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+
+  get shares(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
   }
 }
 
@@ -201,6 +281,34 @@ export class AMMFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  getPool(_marketFactory: Address, _marketId: BigInt): Address {
+    let result = super.call("getPool", "getPool(address,uint256):(address)", [
+      ethereum.Value.fromAddress(_marketFactory),
+      ethereum.Value.fromUnsignedBigInt(_marketId)
+    ]);
+
+    return result[0].toAddress();
+  }
+
+  try_getPool(
+    _marketFactory: Address,
+    _marketId: BigInt
+  ): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "getPool",
+      "getPool(address,uint256):(address)",
+      [
+        ethereum.Value.fromAddress(_marketFactory),
+        ethereum.Value.fromUnsignedBigInt(_marketId)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   getPoolBalances(_marketFactory: Address, _marketId: BigInt): Array<BigInt> {
     let result = super.call(
       "getPoolBalances",
@@ -231,6 +339,45 @@ export class AMMFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigIntArray());
+  }
+
+  getPoolTokenBalance(
+    _marketFactory: Address,
+    _marketId: BigInt,
+    whom: Address
+  ): BigInt {
+    let result = super.call(
+      "getPoolTokenBalance",
+      "getPoolTokenBalance(address,uint256,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(_marketFactory),
+        ethereum.Value.fromUnsignedBigInt(_marketId),
+        ethereum.Value.fromAddress(whom)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getPoolTokenBalance(
+    _marketFactory: Address,
+    _marketId: BigInt,
+    whom: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getPoolTokenBalance",
+      "getPoolTokenBalance(address,uint256,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(_marketFactory),
+        ethereum.Value.fromUnsignedBigInt(_marketId),
+        ethereum.Value.fromAddress(whom)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   getPoolWeights(_marketFactory: Address, _marketId: BigInt): Array<BigInt> {
@@ -321,17 +468,19 @@ export class AMMFactory extends ethereum.SmartContract {
   removeLiquidity(
     _marketFactory: Address,
     _marketId: BigInt,
-    _lpTokensPerOutcome: Array<BigInt>,
-    _minCollateralOut: BigInt
+    _lpTokensIn: BigInt,
+    _minCollateralOut: BigInt,
+    _collateralRecipient: Address
   ): BigInt {
     let result = super.call(
       "removeLiquidity",
-      "removeLiquidity(address,uint256,uint256[],uint256):(uint256)",
+      "removeLiquidity(address,uint256,uint256,uint256,address):(uint256)",
       [
         ethereum.Value.fromAddress(_marketFactory),
         ethereum.Value.fromUnsignedBigInt(_marketId),
-        ethereum.Value.fromUnsignedBigIntArray(_lpTokensPerOutcome),
-        ethereum.Value.fromUnsignedBigInt(_minCollateralOut)
+        ethereum.Value.fromUnsignedBigInt(_lpTokensIn),
+        ethereum.Value.fromUnsignedBigInt(_minCollateralOut),
+        ethereum.Value.fromAddress(_collateralRecipient)
       ]
     );
 
@@ -341,17 +490,19 @@ export class AMMFactory extends ethereum.SmartContract {
   try_removeLiquidity(
     _marketFactory: Address,
     _marketId: BigInt,
-    _lpTokensPerOutcome: Array<BigInt>,
-    _minCollateralOut: BigInt
+    _lpTokensIn: BigInt,
+    _minCollateralOut: BigInt,
+    _collateralRecipient: Address
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "removeLiquidity",
-      "removeLiquidity(address,uint256,uint256[],uint256):(uint256)",
+      "removeLiquidity(address,uint256,uint256,uint256,address):(uint256)",
       [
         ethereum.Value.fromAddress(_marketFactory),
         ethereum.Value.fromUnsignedBigInt(_marketId),
-        ethereum.Value.fromUnsignedBigIntArray(_lpTokensPerOutcome),
-        ethereum.Value.fromUnsignedBigInt(_minCollateralOut)
+        ethereum.Value.fromUnsignedBigInt(_lpTokensIn),
+        ethereum.Value.fromUnsignedBigInt(_minCollateralOut),
+        ethereum.Value.fromAddress(_collateralRecipient)
       ]
     );
     if (result.reverted) {
@@ -366,7 +517,7 @@ export class AMMFactory extends ethereum.SmartContract {
     _marketId: BigInt,
     _outcome: BigInt,
     _shareTokensIn: BigInt,
-    _minSetsOut: BigInt
+    _setsOut: BigInt
   ): BigInt {
     let result = super.call(
       "sellForCollateral",
@@ -376,7 +527,7 @@ export class AMMFactory extends ethereum.SmartContract {
         ethereum.Value.fromUnsignedBigInt(_marketId),
         ethereum.Value.fromUnsignedBigInt(_outcome),
         ethereum.Value.fromUnsignedBigInt(_shareTokensIn),
-        ethereum.Value.fromUnsignedBigInt(_minSetsOut)
+        ethereum.Value.fromUnsignedBigInt(_setsOut)
       ]
     );
 
@@ -388,7 +539,7 @@ export class AMMFactory extends ethereum.SmartContract {
     _marketId: BigInt,
     _outcome: BigInt,
     _shareTokensIn: BigInt,
-    _minSetsOut: BigInt
+    _setsOut: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "sellForCollateral",
@@ -398,7 +549,7 @@ export class AMMFactory extends ethereum.SmartContract {
         ethereum.Value.fromUnsignedBigInt(_marketId),
         ethereum.Value.fromUnsignedBigInt(_outcome),
         ethereum.Value.fromUnsignedBigInt(_shareTokensIn),
-        ethereum.Value.fromUnsignedBigInt(_minSetsOut)
+        ethereum.Value.fromUnsignedBigInt(_setsOut)
       ]
     );
     if (result.reverted) {
@@ -650,12 +801,16 @@ export class RemoveLiquidityCall__Inputs {
     return this._call.inputValues[1].value.toBigInt();
   }
 
-  get _lpTokensPerOutcome(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
+  get _lpTokensIn(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 
   get _minCollateralOut(): BigInt {
     return this._call.inputValues[3].value.toBigInt();
+  }
+
+  get _collateralRecipient(): Address {
+    return this._call.inputValues[4].value.toAddress();
   }
 }
 
@@ -704,7 +859,7 @@ export class SellForCollateralCall__Inputs {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get _minSetsOut(): BigInt {
+  get _setsOut(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 }

@@ -19,6 +19,49 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "marketFactory",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "marketId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "collateral",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "lpTokens",
+        "type": "int256"
+      }
+    ],
+    "name": "LiquidityChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "pool",
@@ -41,9 +84,58 @@
         "internalType": "address",
         "name": "creator",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lpTokenRecipient",
+        "type": "address"
       }
     ],
     "name": "PoolCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "marketFactory",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "marketId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "outcome",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "collateral",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "shares",
+        "type": "int256"
+      }
+    ],
+    "name": "SharesSwapped",
     "type": "event"
   },
   {
@@ -189,12 +281,65 @@
         "type": "uint256"
       }
     ],
+    "name": "getPool",
+    "outputs": [
+      {
+        "internalType": "contract BPool",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract AbstractMarketFactory",
+        "name": "_marketFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_marketId",
+        "type": "uint256"
+      }
+    ],
     "name": "getPoolBalances",
     "outputs": [
       {
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract AbstractMarketFactory",
+        "name": "_marketFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_marketId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "whom",
+        "type": "address"
+      }
+    ],
+    "name": "getPoolTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -285,14 +430,19 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256[]",
-        "name": "_lpTokensPerOutcome",
-        "type": "uint256[]"
+        "internalType": "uint256",
+        "name": "_lpTokensIn",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "_minCollateralOut",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_collateralRecipient",
+        "type": "address"
       }
     ],
     "name": "removeLiquidity",
@@ -330,7 +480,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_minSetsOut",
+        "name": "_setsOut",
         "type": "uint256"
       }
     ],
