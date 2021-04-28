@@ -140,7 +140,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
-    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId]?.balance;
+    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
 
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
@@ -170,19 +170,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             .abs()
         );
       } else if (isRemove) {
-        const userBalanceLpTokens = balances && balances.lpTokens && balances.lpTokens[amm?.id];
+        const userBalanceLpTokens = balances?.lpTokens[amm?.marketId];
         const userAmount = userBalanceLpTokens?.rawBalance || "0";
-        const estUserAmount = convertDisplayCashAmountToOnChainCashAmount(amount, cash?.decimals);
         userPercent = String(
-          new BN(userAmount || "0")
-            .minus(new BN(estUserAmount))
-            .div(new BN(rawSupply).minus(new BN(estUserAmount)))
-            .abs()
+          new BN(userAmount).dividedBy(rawSupply).times(100).abs()
         );
       }
     }
     return formatPercent(userPercent).full;
-  }, [amm?.totalSupply, amount, balances, shareBalance, estimatedLpAmount, amm?.id, cash?.decimals]);
+  }, [amm?.totalSupply, amount, balances, shareBalance, estimatedLpAmount, amm?.id, cash?.decimals, modalType]);
 
   let buttonError = "";
   const priceErrors = outcomes.filter((outcome) => {
