@@ -434,12 +434,6 @@ export const PositionsLiquidityViewSwitcher = ({
   view,
   claimableFirst = false,
 }: PositionsLiquidityViewSwitcherProps) => {
-  const [tableView, setTableView] = useState(POSITIONS);
-  useEffect(() => {
-    if (view === TABLES && tableView === null) {
-      setTableView(POSITIONS);
-    }
-  }, [view]);
   const [page, setPage] = useState(1);
   const {
     balances: { lpTokens, marketShares },
@@ -471,6 +465,13 @@ export const PositionsLiquidityViewSwitcher = ({
         lpTokens: lpTokens[marketId],
       }))
     : [];
+
+  const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
+  useEffect(() => {
+    if (view === TABLES && tableView === null) {
+      setTableView(POSITIONS);
+    }
+  }, [view]);
   return (
     <div className={Styles.PositionsLiquidityViewSwitcher}>
       <div>
