@@ -118,7 +118,7 @@ export async function estimateAddLiquidityPool(
     );
   } else {
     // todo: get what the min lp token out is
-    console.log("est add additional", marketFactoryAddress, turboId, amount, 0, account);
+    console.log("est add additional", marketFactoryAddress, "marketId", turboId, "amount", amount, 0, account);
 
     addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
       marketFactoryAddress,
@@ -158,7 +158,7 @@ export async function addLiquidityPool(
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
-    "add init liquidity:",
+    !ammAddress ? "add init liquidity:" : "add additional liquidity",
     marketFactoryAddress,
     turboId,
     "amount",
@@ -602,7 +602,11 @@ export const getUserBalances = async (
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
         if (rawBalance !== "0") {
-          userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance), rawBalance, marketId };
+          userBalances[collection][dataKey] = {
+            balance: lpTokensOnChainToDisplay(rawBalance).toFixed(),
+            rawBalance,
+            marketId,
+          };
         } else {
           delete userBalances[collection][dataKey];
         }
