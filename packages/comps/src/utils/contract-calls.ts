@@ -107,7 +107,7 @@ export async function estimateAddLiquidityPool(
   let addLiquidityResults = null;
 
   if (!ammAddress) {
-    console.log('est add init', marketFactoryAddress, turboId, amount, weights, account);
+    console.log("est add init", marketFactoryAddress, turboId, amount, weights, account);
     addLiquidityResults = await ammFactoryContract.callStatic.createPool(
       marketFactoryAddress,
       turboId,
@@ -117,7 +117,7 @@ export async function estimateAddLiquidityPool(
     );
   } else {
     // todo: get what the min lp token out is
-    console.log('est add additional', marketFactoryAddress, turboId, amount, 0, account);
+    console.log("est add additional", marketFactoryAddress, turboId, amount, 0, account);
 
     addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
       marketFactoryAddress,
