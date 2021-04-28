@@ -599,7 +599,11 @@ export const getUserBalances = async (
           usdValue: balance.toFixed(),
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
-        userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance), rawBalance, marketId };
+        if (rawBalance !== "0") {
+          userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance), rawBalance, marketId };
+        } else {
+          delete userBalances[collection][dataKey];
+        }
       } else if (collection === MARKET_SHARE_COLLECTION) {
         const fixedShareBalance = sharesOnChainToDisplay(new BN(rawBalance)).toFixed();
         // todo: re organize balances to be really simple (future)
