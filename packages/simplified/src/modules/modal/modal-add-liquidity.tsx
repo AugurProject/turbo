@@ -47,8 +47,6 @@ const {
   MARKETS,
   ApprovalAction,
   ENTER_AMOUNT,
-  YES_OUTCOME_ID,
-  NO_OUTCOME_ID,
   CREATE,
   ADD,
   REMOVE,
