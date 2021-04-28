@@ -208,10 +208,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
 
     const getEstimate = async () => {
       const outcomeName = outcomes[selectedOutcomeId]?.name;
-      let userBalances: string[] = [];
-      if (outcomeSharesRaw) {
-        userBalances = marketShares?.outcomeSharesRaw;
-      }
       const breakdown = isBuy
         ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, account, ammCash)
         : await estimateSellTrade(
@@ -219,9 +215,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
             loginAccount?.library,
             amount,
             selectedOutcomeId,
-            userBalances,
-            account,
-            ammCash
           );
 
       tradingEstimateEvents(isBuy, outcomeName, ammCash?.name, amount, breakdown?.outputValue || "");
