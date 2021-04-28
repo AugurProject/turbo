@@ -118,7 +118,7 @@ export async function estimateAddLiquidityPool(
     );
   } else {
     // todo: get what the min lp token out is
-    console.log("est add additional", marketFactoryAddress, 'marketId', turboId, 'amount', amount, 0, account);
+    console.log("est add additional", marketFactoryAddress, "marketId", turboId, "amount", amount, 0, account);
 
     addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
       marketFactoryAddress,
@@ -169,14 +169,24 @@ export async function addLiquidityPool(
     minLpTokenAllowed
   );
   if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account
+    tx = ammFactoryContract.createPool(
+      marketFactoryAddress,
+      turboId,
+      amount,
+      weights,
+      account
       //,{ gasLimit: "800000", gasPrice: "10000000000"}
-      );
+    );
   } else {
     // todo: get what the min lp token out is
-    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account
+    tx = ammFactoryContract.addLiquidity(
+      marketFactoryAddress,
+      turboId,
+      amount,
+      minLpTokenAllowed,
+      account
       //,{ gasLimit: "800000", gasPrice: "10000000000"}
-      );
+    );
   }
 
   return tx;
@@ -603,7 +613,11 @@ export const getUserBalances = async (
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
         if (rawBalance !== "0") {
-          userBalances[collection][dataKey] = { balance: lpTokensOnChainToDisplay(rawBalance).toFixed(), rawBalance, marketId };
+          userBalances[collection][dataKey] = {
+            balance: lpTokensOnChainToDisplay(rawBalance).toFixed(),
+            rawBalance,
+            marketId,
+          };
         } else {
           delete userBalances[collection][dataKey];
         }
