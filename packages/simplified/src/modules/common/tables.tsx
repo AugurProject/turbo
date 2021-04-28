@@ -466,7 +466,7 @@ export const PositionsLiquidityViewSwitcher = ({
       }))
     : [];
 
-  const [tableView, setTableView] = useState(positions.length === 0 ? LIQUIDITY : POSITIONS);
+  const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
   useEffect(() => {
     if (view === TABLES && tableView === null) {
       setTableView(POSITIONS);
