@@ -169,14 +169,16 @@ export async function addLiquidityPool(
     minLpTokenAllowed
   );
   if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account
-      , { gasLimit: "800000", gasPrice: "10000000000" }
-    );
+    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account, {
+      gasLimit: "800000",
+      gasPrice: "10000000000",
+    });
   } else {
     // todo: get what the min lp token out is
-    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account
-      , { gasLimit: "800000", gasPrice: "10000000000" }
-    );
+    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
+      gasLimit: "800000",
+      gasPrice: "10000000000",
+    });
   }
 
   return tx;
@@ -316,7 +318,7 @@ export const estimateSellTrade = async (
   provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
-  userBalances: string[],
+  userBalances: string[]
 ): Promise<EstimateTradeResult | null> => {
   if (!provider) {
     console.error("estimateSellTrade: no provider");
@@ -605,7 +607,7 @@ export const getUserBalances = async (
           delete userBalances[collection][dataKey];
         }
       } else if (collection === MARKET_SHARE_COLLECTION) {
-        console.log('rawBalance', rawBalance)
+        console.log("rawBalance", rawBalance);
         const fixedShareBalance = sharesOnChainToDisplay(new BN(rawBalance)).toFixed();
         // todo: re organize balances to be really simple (future)
         // can index using dataKey (shareToken)
@@ -874,9 +876,9 @@ const getInitPositionValues = (
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
-      .times(totalLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(totalLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -904,13 +906,13 @@ const accumSharesPrice = (
       (p, t) =>
         isYesOutcome
           ? {
-            shares: p.shares.plus(new BN(t.yesShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-          }
+              shares: p.shares.plus(new BN(t.yesShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
+            }
           : {
-            shares: p.shares.plus(new BN(t.noShares)),
-            cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-          },
+              shares: p.shares.plus(new BN(t.noShares)),
+              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
+            },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
@@ -1414,7 +1416,11 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await multicall.call([...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall]);
+  const marketsResult: ContractCallResults = await multicall.call([
+    ...contractMarketsCall,
+    ...shareFactorCalls,
+    ...contractPricesCall,
+  ]);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
