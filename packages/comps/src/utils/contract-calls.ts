@@ -58,6 +58,7 @@ import {
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
   calcSellCompleteSets,
+  estimateBuy,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle } from "./derived-market-data";
@@ -279,7 +280,14 @@ export const estimateBuyTrade = async (
     amount,
     0
   );
-  const result = await ammFactoryContract.callStatic.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, 0);
+  const result = await estimateBuy(
+    amm.shareFactor,
+    selectedOutcomeId,
+    amount,
+    amm.balancesRaw,
+    amm.weights,
+    amm.feeRaw
+  );
   const estimatedShares = sharesOnChainToDisplay(String(result));
 
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));

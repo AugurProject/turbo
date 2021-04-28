@@ -17,7 +17,7 @@ import { mapOverObject } from "./src";
 
 export * from "./typechain";
 export * from "./addresses";
-export { calcSellCompleteSets } from "./src/bmath";
+export { calcSellCompleteSets, estimateBuy } from "./src/bmath";
 
 export { mapOverObject } from "./src/utils/common-functions"; // TODO this shouldn't live in this package
 

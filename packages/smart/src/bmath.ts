@@ -318,6 +318,27 @@ function swapExactAmountIn(
   return [tokenAmountOut, spotPriceAfter];
 }
 
+export function estimateBuy(
+  _shareFactor: string,
+  _outcome: number,
+  _collateralIn: string,
+  _tokenBalances: string[],
+  _tokenWeights: string[],
+  _swapFee: string
+): string {
+  const tokenBalances = _tokenBalances.map((b) => BigNumber.from(b));
+  const tokenWeights = _tokenWeights.map((w) => BigNumber.from(w));
+  const result = buy(
+    BigNumber.from(_shareFactor),
+    _outcome,
+    BigNumber.from(_collateralIn),
+    tokenBalances,
+    tokenWeights,
+    BigNumber.from(_swapFee)
+  );
+  return result.toString();
+}
+
 function buy(
   _shareFactor: BigNumber,
   _outcome: number,
