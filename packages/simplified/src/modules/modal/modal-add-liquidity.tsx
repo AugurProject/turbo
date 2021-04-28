@@ -26,9 +26,8 @@ const {
   getRemoveLiquidity,
 } = ContractCalls;
 const {
-  convertDisplayCashAmountToOnChainCashAmount,
   formatPercent,
-  convertOnChainSharesToDisplayShareAmount,
+  lpTokensOnChainToDisplay,
   formatSimpleShares,
 } = Formatter;
 const {
@@ -161,13 +160,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     const rawSupply = amm?.totalSupply;
     if (rawSupply) {
       if (modalType === ADD) {
-        const displaySupply = convertOnChainSharesToDisplayShareAmount(rawSupply, cash?.decimals);
+        const displaySupply = lpTokensOnChainToDisplay(rawSupply);
         userPercent = String(
           new BN(estimatedLpAmount)
             .plus(new BN(shareBalance || "0"))
             .div(new BN(displaySupply).plus(new BN(estimatedLpAmount)))
             .times(new BN(100))
-            .abs()
+            .abs()          
         );
       } else if (isRemove) {
         const userBalanceLpTokens = balances?.lpTokens[amm?.marketId];
