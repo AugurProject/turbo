@@ -6,7 +6,7 @@ import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { ETH } from "../utils/constants";
-import { SEARCH_MARKETS } from "./queries";
+import { SEARCH_MARKETS, LIQUIDITIES } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
 
 dayjs.extend(utc);
@@ -108,6 +108,32 @@ export async function searchMarkets(searchString, cb) {
   }
 }
 
+export async function getLiquidities(cb) {
+  const clientConfig = getClientConfig();
+  let response = null;
+  try {
+    response = await augurV2Client(clientConfig.turboClient).query({
+      query: LIQUIDITIES,
+    });
+  } catch (e) {
+    cb([]);
+    console.error(e);
+  }
+
+  if (response) {
+    if (response.errors) {
+      console.error(JSON.stringify(response.errors, null, 1));
+    }
+    if (response?.data?.liquidities) {
+      cb(response.data.liquidities);
+    } else {
+      cb([]);
+    }
+    // if (response?.data?.marketSearch) updateHeartbeat(null, [...response.data.marketSearch?.map((market) => market.id)]);
+    // else updateHeartbeat(null, []);
+  }
+}
+
 async function getPastDayBlockNumber(blockClient) {
   const utcCurrentTime = dayjs.utc();
   const utcOneDayBack = utcCurrentTime.subtract(1, "day").unix();
@@ -157,7 +183,7 @@ const getCashTokenData = async (cashes: Cash[]): Promise<{ [address: string]: Ca
 
 // https://thegraph.com/explorer/subgraph/augurproject/augur-v2-staging
 // kovan playground
-const getClientConfig = (): { augurClient: string; blockClient: string } => {
+const getClientConfig = (): { augurClient: string; blockClient: string; turboClient?: string } => {
   const { networkId } = PARA_CONFIG;
   const clientConfig = {
     "1": {
@@ -168,6 +194,7 @@ const getClientConfig = (): { augurClient: string; blockClient: string } => {
     "42": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",
       blockClient: "https://api.thegraph.com/subgraphs/name/blocklytics/kovan-blocks",
+      turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-kovan",
       network: "kovan",
     },
   };

@@ -599,6 +599,7 @@ export interface GraphDataState {
     [marketIdKey: string]: MarketInfo;
   };
   loading?: boolean;
+  liquidities?: Array<any>;
 }
 
 export interface UserState {
