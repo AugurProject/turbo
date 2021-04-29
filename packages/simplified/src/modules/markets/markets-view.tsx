@@ -145,7 +145,7 @@ const MarketsView = () => {
   } = useAppStatusStore();
   const {
     marketsViewSettings,
-    settings: { showLiquidMarkets },
+    settings: { showLiquidMarkets, timeFormat },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
@@ -296,6 +296,7 @@ const MarketsView = () => {
               ammExchanges={ammExchanges}
               handleNoLiquidity={handleNoLiquidity}
               noLiquidityDisabled={!isLogged}
+              timeFormat={timeFormat}
             />
           ))}
         </section>

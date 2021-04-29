@@ -12,7 +12,7 @@ import {
   ReportingStateLabel,
   ValueLabel,
 } from "../common/labels";
-import { MARKET_STATUS } from "../../utils/constants";
+import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
@@ -109,13 +109,13 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   );
 };
 
-export const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
+export const MarketTitleArea = ({ title = null, description = null, startTimestamp, timeFormat = TWELVE_HOUR_TIME }: any) => (
   <span>
     <span>
       {!!title && <span>{title}</span>}
       {!!description && <span>{description}</span>}
     </span>
-    <span>{getMarketEndtimeFull(startTimestamp)}</span>
+    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
   </span>
 );
 
@@ -124,11 +124,13 @@ export const MarketCardView = ({
   market,
   handleNoLiquidity = (market: MarketInfo) => {},
   noLiquidityDisabled = false,
+  timeFormat = TWELVE_HOUR_TIME,
 }: {
   amm: AmmExchange;
   market: MarketInfo;
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
+  timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
@@ -159,7 +161,7 @@ export const MarketCardView = ({
         </article>
         {!amm?.id && !market.hasWinner ? (
           <>
-            <MarketTitleArea {...{ ...market }} />
+            <MarketTitleArea {...{ ...market, timeFormat }} />
             <div>
               <span>Market requires Initial liquidity</span>
               <PrimaryButton
@@ -175,7 +177,7 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <MarketTitleArea {...{ ...market }} />
+            <MarketTitleArea {...{ ...market, timeFormat }} />
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable {...{ amm }} />

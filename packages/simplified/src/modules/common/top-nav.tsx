@@ -22,17 +22,18 @@ const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES } = Constants;
+const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
 const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
   const {
-    settings: { showLiquidMarkets },
+    settings: { showLiquidMarkets, timeFormat },
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
+  const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
@@ -62,6 +63,16 @@ export const SettingsButton = () => {
               id="showLiquidMarkets"
               toggle={showLiquidMarkets}
               setToggle={() => updateSettings({ showLiquidMarkets: !showLiquidMarkets }, account)}
+            />
+          </li>
+          <li>
+            <label for="switchTime">Display time in 24hr format</label>
+            <ToggleSwitch
+              id="switchTime"
+              toggle={is24hour}
+              setToggle={() =>
+                updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
+              }
             />
           </li>
         </ul>

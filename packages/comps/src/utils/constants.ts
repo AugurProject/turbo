@@ -136,6 +136,8 @@ export const INVALID_PRICE_ADD_UP_SUBTEXT: string = "Prices must add up to $1";
 export const INVALID_PRICE_GREATER_THAN_SUBTEXT: string = "Price must be at least $0.02";
 
 export const SETTINGS_SLIPPAGE: string = "2";
+export const TWELVE_HOUR_TIME: string = "12hr";
+export const TWENTY_FOUR_HOUR_TIME: string = "24hr";
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",
