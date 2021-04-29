@@ -75,6 +75,7 @@ export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[]
 const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   const {
     market: { hasWinner, winner },
+    hasLiquidity,
   } = amm;
   const content = hasWinner ? (
     <div className={Styles.WinningOutcome}>
@@ -87,7 +88,7 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
       .slice(0, 3)
       .map((outcome) => {
         const OutcomePrice =
-          isNaN(Number(outcome?.price)) || Number(outcome?.price) <= 0
+          !hasLiquidity || isNaN(Number(outcome?.price)) || Number(outcome?.price) <= 0
             ? `${getCashFormat(amm?.cash?.name)?.symbol} -`
             : formatCashPrice(outcome.price, amm?.cash?.name).full;
         return (
