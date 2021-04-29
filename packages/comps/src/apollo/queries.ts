@@ -305,3 +305,16 @@ export const CASH_TOKEN_DATA = gql`
     }
   }
 `;
+
+export const LIQUIDITIES = gql`
+  query Liquidity {
+    liquidities(first: 5) {
+      id
+      collateral
+      lpTokens
+      marketFactory
+      user
+      recipient
+    }
+  }
+`;

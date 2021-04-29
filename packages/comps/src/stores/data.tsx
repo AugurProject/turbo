@@ -3,6 +3,7 @@ import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_RE
 import { useData } from "./data-hooks";
 import { useUserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
+import { getLiquidities } from "../apollo/client";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -22,7 +23,7 @@ export const DataProvider = ({ children }: any) => {
   const provider = loginAccount?.library ? loginAccount.library : null;
   const {
     cashes,
-    actions: { updateDataHeartbeat },
+    actions: { updateDataHeartbeat, updateLiquidities },
   } = state;
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
@@ -40,7 +41,7 @@ export const DataProvider = ({ children }: any) => {
       return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading)
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
     });
 
     const intervalId = setInterval(() => {
@@ -53,6 +54,23 @@ export const DataProvider = ({ children }: any) => {
       clearInterval(intervalId);
     };
   }, [provider, account]);
+
+  useEffect(() => {
+    // start data heartbeat
+    let isMounted = true;
+
+    const fetchLiquidities = () => getLiquidities((liquidities) => isMounted && updateLiquidities(liquidities));
+
+    fetchLiquidities();
+
+    const intervalId = setInterval(() => {
+      fetchLiquidities();
+    }, NETWORK_BLOCK_REFRESH_TIME[42]);
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 };
