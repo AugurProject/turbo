@@ -1,4 +1,5 @@
 import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
+import { Constants } from '@augurproject/comps';
 import type { ParaDeploys } from "@augurproject/comps/build/types";
 
 // @ts-ignore
@@ -18,6 +19,7 @@ export const DEFAULT_SIMPLIFIED_STATE = {
   settings: {
     slippage: SETTINGS_SLIPPAGE,
     showLiquidMarkets: false,
+    timeFormat: Constants.TWELVE_HOUR_TIME,
   },
 };
 
@@ -26,6 +28,7 @@ export const SIMPLIFIED_STATE_KEYS = {
   MARKETS_VIEW_SETTINGS: "marketsViewSettings",
   SETTINGS: "settings",
   SHOW_TRADING_FORM: "showTradingForm",
+  TIME_FORMAT: "timeFormat",
 };
 
 export const SIMPLIFIED_ACTIONS = {
