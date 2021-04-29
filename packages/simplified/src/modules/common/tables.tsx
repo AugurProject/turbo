@@ -265,7 +265,7 @@ export const PositionTable = ({
   const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
-
+  const { hasLiquidity } = ammExchange;
   return (
     <>
       <div className={Styles.PositionTable}>
@@ -275,7 +275,7 @@ export const PositionTable = ({
         {positions &&
           positions
             .filter((p) => p.visible)
-            .map((position, id) => <PositionRow key={id} position={position} hasLiquidity={ammExchange.hasLiquidity} />)}
+            .map((position, id) => <PositionRow key={id} position={position} hasLiquidity={hasLiquidity} />)}
         <PositionFooter showTradeButton={!singleMarket} market={market} claimableWinnings={claimableWinnings} />
       </div>
       {!seenMarketPositionWarningAdd &&

@@ -178,7 +178,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     outcomeShareToken,
   });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-
+  const { hasLiquidity } = amm;
   const selectedOutcomeId = selectedOutcome?.id;
   const marketShares = balances?.marketShares && balances?.marketShares[amm?.marketId];
 
@@ -252,7 +252,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     if (!isLogged) {
       actionText = "Connect Wallet";
       disabled = true;
-    } else if (!amm.hasLiquidity) {
+    } else if (!hasLiquidity) {
       actionText = "Liquidity Depleted";
       disabled = true;
     } else if (Number(amount) === 0 || isNaN(Number(amount)) || amount === "") {
@@ -279,7 +279,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       actionText,
       subText,
     };
-  }, [orderType, amount, buttonError, userBalance, breakdown?.slippagePercent, slippage, amm.hasLiquidity, waitingToSign]);
+  }, [orderType, amount, buttonError, userBalance, breakdown?.slippagePercent, slippage, hasLiquidity, waitingToSign]);
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
@@ -360,7 +360,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           error={amountError}
           maxValue={userBalance}
           ammCash={ammCash}
-          disabled={!amm.hasLiquidity}
+          disabled={!hasLiquidity}
           rate={
             !isNaN(Number(breakdown?.ratePerCash))
               ? `1 ${ammCash?.name} = ${
