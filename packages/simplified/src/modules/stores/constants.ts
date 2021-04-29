@@ -1,5 +1,5 @@
 import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
-import { Constants } from '@augurproject/comps';
+import { Constants } from "@augurproject/comps";
 import type { ParaDeploys } from "@augurproject/comps/build/types";
 
 // @ts-ignore
