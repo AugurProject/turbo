@@ -178,8 +178,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     outcomeShareToken,
   });
   const isApprovedTrade = approvalStatus === ApprovalState.APPROVED;
-  const hasLiquidity = amm.totalSupply !== "0";
-
+  const { hasLiquidity } = amm;
   const selectedOutcomeId = selectedOutcome?.id;
   const marketShares = balances?.marketShares && balances?.marketShares[amm?.marketId];
 

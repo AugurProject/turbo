@@ -161,6 +161,7 @@ export interface AmmExchange {
   past24hrPriceNo?: string;
   past24hrPriceYes?: string;
   totalSupply?: string;
+  hasLiquidity?: boolean;
   apy?: string;
   ammOutcomes: AmmOutcome[];
   isAmmMarketInvalid: boolean;

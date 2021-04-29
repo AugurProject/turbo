@@ -265,8 +265,7 @@ export const PositionTable = ({
   const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
-  const hasLiquidity = ammExchange.totalSupply !== "0";
-
+  const { hasLiquidity } = ammExchange;
   return (
     <>
       <div className={Styles.PositionTable}>

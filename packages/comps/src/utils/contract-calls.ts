@@ -1272,6 +1272,7 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
   Object.keys(exchanges).forEach((marketId) => {
     const exchange = exchanges[marketId];
     exchange.totalSupply = balances[marketId] ? String(balances[marketId]) : "0";
+    exchange.hasLiquidity = exchange.totalSupply !== "0";
   });
 
   return exchanges;
