@@ -73,8 +73,6 @@ export const RESOLVED = "Resolved";
 export const ENTER_AMOUNT = "Enter Amount";
 
 export const SETTINGS_SLIPPAGE = "2";
-export const TWELVE_HOUR_TIME = "12hr";
-export const TWENTY_FOUR_HOUR_TIME = "24hr";
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",
