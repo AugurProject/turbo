@@ -170,14 +170,14 @@ export async function addLiquidityPool(
   );
   if (!ammAddress) {
     tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account, {
-      gasLimit: "800000",
-      gasPrice: "10000000000",
+      // gasLimit: "800000",
+      // gasPrice: "10000000000",
     });
   } else {
     // todo: get what the min lp token out is
     tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
-      gasLimit: "800000",
-      gasPrice: "10000000000",
+      // gasLimit: "800000",
+      // gasPrice: "10000000000",
     });
   }
 
