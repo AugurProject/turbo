@@ -240,6 +240,38 @@ export async function getRemoveLiquidity(
   };
 }
 
+export async function estimateLPTokenInShares(
+  balancerPoolId: string,
+  provider: Web3Provider,
+  lpTokenBalance: string,
+  account: string,
+  outcomes: AmmOutcome[] = []
+): Promise<LiquidityBreakdown | null> {
+  if (!provider || !balancerPoolId) {
+    console.error("estimate lp tokens: no provider or no balancer pool id");
+    return null;
+  }
+  const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
+  // balancer lp tokens are 18 decimal places
+  const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
+
+  const results = await balancerPool
+    .calcExitPool(
+      lpBalance,
+      outcomes.map((o) => "0")
+    ) // uint256[] calldata minAmountsOut values be?
+    .catch((e) => console.log(e));
+
+  if (!results) return null;
+  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
+  const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
+
+  return {
+    minAmountsRaw,
+    minAmounts,
+  };
+}
+
 export function doRemoveLiquidity(
   balancerPoolId: string,
   provider: Web3Provider,
@@ -249,7 +281,7 @@ export function doRemoveLiquidity(
   cash: Cash
 ): Promise<TransactionResponse | null> {
   if (!provider || !balancerPoolId) {
-    console.error("getRemoveLiquidity: no provider or no balancer pool id");
+    console.error("doRemoveLiquidity: no provider or no balancer pool id");
     return null;
   }
   const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
@@ -788,26 +820,23 @@ export const getLPCurrentValue = async (
   amm: AmmExchange,
   account: string
 ): Promise<string> => {
-  const { cash, ammOutcomes } = amm;
+  const { ammOutcomes } = amm;
   if (!ammOutcomes || ammOutcomes.length === 0 || displayBalance === "0") return null;
-  // todo: need a way to determine value of LP tokens
-  const estimate = await getRemoveLiquidity(
+  const estimate = await estimateLPTokenInShares(
     amm.id,
     provider,
-    cash,
     displayBalance,
     account,
     amm.ammOutcomes
   ).catch((error) => console.error("getLPCurrentValue estimation error", error));
+
   if (estimate && estimate.minAmountsRaw) {
     const totalValueRaw = ammOutcomes.reduce(
       (p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)),
       new BN(0)
     );
 
-    // assuming cash is 1 usd value
-    const value = sharesOnChainToDisplay(totalValueRaw);
-    return value.times(amm?.cash?.usdPrice).toFixed();
+    return totalValueRaw.times(amm?.cash?.usdPrice).toFixed();
   }
   return null;
 };
