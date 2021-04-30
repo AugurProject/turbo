@@ -9,6 +9,70 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
 contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
+    function encodeCreation(
+        uint128 _eventId,
+        uint16 _homeTeamId,
+        uint16 _awayTeamId,
+        uint32 _startTimestamp,
+        uint16 _homeSpread,
+        uint16 _totalScore
+    ) external pure returns (bytes32 _payload) {
+        bytes memory _a =
+            abi.encodePacked(_eventId, _homeTeamId, _awayTeamId, _startTimestamp, _homeSpread, _totalScore);
+        assembly {
+            _payload := mload(add(_a, 32))
+        }
+    }
+
+    function decodeCreation(bytes32 _payload)
+        public
+        pure
+        returns (
+            uint128 _eventId,
+            uint16 _homeTeamId,
+            uint16 _awayTeamId,
+            uint32 _startTimestamp,
+            uint16 _homeSpread,
+            uint16 _totalScore
+        )
+    {
+        uint256 _temp = uint256(_payload);
+        // prettier-ignore
+        {
+            _eventId        = uint128(_temp >> 128);
+            _homeTeamId     = uint16((_temp << 128)                       >> (256 - 16));
+            _awayTeamId     = uint16((_temp << (128 + 16))                >> (256 - 16));
+            _startTimestamp = uint32((_temp << (128 + 16 + 16))           >> (256 - 32));
+            _homeSpread     = uint16((_temp << (128 + 16 + 16 + 32))      >> (256 - 16));
+            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16)) >> (256 - 16));
+        }
+    }
+
+    function encodeResolution(uint128 _eventId, uint8 _eventStatus, uint16 _homeScore, uint16 _awayScore) external pure returns (bytes32 _payload) {
+        bytes memory _a =
+        abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
+        assembly {
+            _payload := mload(add(_a, 32))
+        }
+    }
+
+    function decodeResolution(bytes32 _payload)
+    public
+    pure
+    returns (
+        uint128 _eventId, uint8 _eventStatus, uint16 _homeScore, uint16 _awayScore
+    )
+    {
+        uint256 _temp = uint256(_payload);
+        // prettier-ignore
+        {
+            _eventId     = uint128(_temp >> 128);
+            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
+            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
+            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
+        }
+    }
+
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 

@@ -131,4 +131,47 @@ describe("LinkFactory", () => {
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]);
   });
+
+  it("encodes and decodes market creation payload", async () => {
+    const fakeStartTime = 1619743497;
+    const payload = await marketFactory.encodeCreation(
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      fakeStartTime,
+      homeSpread,
+      overUnderTotal
+    );
+    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d00000000");
+
+    const decoded = await marketFactory.decodeCreation(payload);
+    console.log(decoded);
+    expect(decoded._eventId, "_eventId").to.equal(eventId);
+    expect(decoded._homeTeamId, "_homeTeamId").to.equal(homeTeamId);
+    expect(decoded._awayTeamId, "_awayTeamId").to.equal(awayTeamId);
+    expect(decoded._startTimestamp, "_startTimestamp").to.equal(fakeStartTime);
+    expect(decoded._homeSpread, "_homeSpread").to.equal(homeSpread);
+    expect(decoded._totalScore, "_totalScore").to.equal(overUnderTotal);
+  });
+
+  it("encodes and decodes market resolution payload", async () => {
+    const eventStatus = 2;
+    const homeScore = 12;
+    const awayScore = 4810;
+    const payload = await marketFactory.encodeResolution(
+      eventId,
+      eventStatus,
+      homeScore,
+      awayScore
+    );
+    expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
+
+    const decoded = await marketFactory.decodeResolution(payload);
+    console.log(decoded);
+    expect(decoded._eventId, "_eventId").to.equal(eventId);
+    expect(decoded._eventStatus, "_eventStatus").to.equal(eventStatus);
+    expect(decoded._homeScore, "_homeScore").to.equal(homeScore);
+    expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
+  });
+
 });
