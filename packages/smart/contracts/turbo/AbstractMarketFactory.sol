@@ -204,8 +204,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         emit ProtocolFeeChanged(_newFee);
     }
 
-    function setProtocol(address _newProtocol, bool _claimFirst) external {
-        require(msg.sender == protocol, "Only the protocol can change the protocol");
+    function setProtocol(address _newProtocol, bool _claimFirst) external onlyOwner {
         if (_claimFirst) {
             claimProtocolFees();
         }
