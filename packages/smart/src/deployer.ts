@@ -56,7 +56,7 @@ export class Deployer {
     console.log("Deploying feepot for test collateral");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
     const stakerFee = 0;
-    const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
+    const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.05%
     const protocolFee = 0;
 
     const marketFactories: MarketFactories = {};
