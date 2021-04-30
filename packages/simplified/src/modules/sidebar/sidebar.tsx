@@ -17,7 +17,7 @@ const {
   SIDEBAR_TYPES,
   DEFAULT_MARKET_VIEW_SETTINGS,
   categoryItems,
-  currencyItems,
+  // currencyItems,
   marketStatusItems,
   sortByItems,
 } = Constants;
@@ -84,14 +84,14 @@ const FilterSideBar = () => {
           selected={localSettings.reportingState}
           items={marketStatusItems}
         />
-        <RadioBarGroup
+        {/* <RadioBarGroup
           title="currency"
           update={(value) => {
             setLocalSettings({ ...localSettings, currency: value });
           }}
           selected={localSettings.currency}
           items={currencyItems}
-        />
+        /> */}
       </div>
       <div className={Styles.Footer}>
         <SecondaryButton
