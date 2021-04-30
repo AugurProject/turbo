@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { checkIsERC20Approved, checkIsERC1155Approved, checkAllowance } from "./use-approval-callback";
-import { Cash, MarketInfo, TransactionDetails, AmmExchange } from "../utils/types";
+import { Cash, MarketInfo, TransactionDetails, AmmExchange } from "../types";
 import { PARA_CONFIG } from "./constants";
 import { ETH, TX_STATUS, ApprovalAction, ApprovalState } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";

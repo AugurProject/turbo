@@ -20,7 +20,7 @@ import {
 } from "./constants";
 import addCommas from "./add-commas-to-number";
 import getPrecision from "./get-number-precision";
-import { FormattedNumber, FormattedNumberOptions } from "./types";
+import { FormattedNumber, FormattedNumberOptions } from "../types";
 import { BigNumber, createBigNumber } from "./create-big-number";
 
 type NumStrBigNumber = number | BigNumber | string;

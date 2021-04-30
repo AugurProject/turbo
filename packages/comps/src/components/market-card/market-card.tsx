@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
-import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../utils/types";
+import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
 import { formatCashPrice, formatDai, formatPercent, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
 import {
@@ -12,7 +12,7 @@ import {
   ReportingStateLabel,
   ValueLabel,
 } from "../common/labels";
-import { MARKET_STATUS } from "../../utils/constants";
+import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
@@ -75,6 +75,7 @@ export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[]
 const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   const {
     market: { hasWinner, winner },
+    hasLiquidity,
   } = amm;
   const content = hasWinner ? (
     <div className={Styles.WinningOutcome}>
@@ -87,7 +88,7 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
       .slice(0, 3)
       .map((outcome) => {
         const OutcomePrice =
-          isNaN(Number(outcome?.price)) || Number(outcome?.price) <= 0
+          !hasLiquidity || isNaN(Number(outcome?.price)) || Number(outcome?.price) <= 0
             ? `${getCashFormat(amm?.cash?.name)?.symbol} -`
             : formatCashPrice(outcome.price, amm?.cash?.name).full;
         return (
@@ -109,13 +110,13 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   );
 };
 
-export const MarketTitleArea = ({ title = null, description = null, startTimestamp }: any) => (
+export const MarketTitleArea = ({ title = null, description = null, startTimestamp, timeFormat = TWELVE_HOUR_TIME }: any) => (
   <span>
     <span>
       {!!title && <span>{title}</span>}
       {!!description && <span>{description}</span>}
     </span>
-    <span>{getMarketEndtimeFull(startTimestamp)}</span>
+    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
   </span>
 );
 
@@ -124,11 +125,13 @@ export const MarketCardView = ({
   market,
   handleNoLiquidity = (market: MarketInfo) => {},
   noLiquidityDisabled = false,
+  timeFormat = TWELVE_HOUR_TIME,
 }: {
   amm: AmmExchange;
   market: MarketInfo;
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
+  timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
@@ -159,7 +162,7 @@ export const MarketCardView = ({
         </article>
         {!amm?.id && !market.hasWinner ? (
           <>
-            <MarketTitleArea {...{ ...market }} />
+            <MarketTitleArea {...{ ...market, timeFormat }} />
             <div>
               <span>Market requires Initial liquidity</span>
               <PrimaryButton
@@ -175,7 +178,7 @@ export const MarketCardView = ({
           </>
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
-            <MarketTitleArea {...{ ...market }} />
+            <MarketTitleArea {...{ ...market, timeFormat }} />
             <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
             <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable {...{ amm }} />

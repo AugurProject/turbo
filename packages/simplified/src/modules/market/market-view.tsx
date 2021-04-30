@@ -16,12 +16,12 @@ import {
   Utils,
   Components,
 } from "@augurproject/comps";
-import { MarketInfo, AmmOutcome, MarketOutcome } from "../types";
+import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
 import makePath from "@augurproject/comps/build/utils/links/make-path";
 import { MARKETS } from "modules/constants";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 const {
   SEO,
   LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
@@ -142,6 +142,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const marketId = useMarketQueryId();
   const { isMobile, isLogged } = useAppStatusStore();
   const {
+    settings: { timeFormat },
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
@@ -167,7 +168,8 @@ const MarketView = ({ defaultMarket = null }) => {
   if (!market) return <EmptyMarketView />;
   const details = getDetails(market);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
-  const winningOutcome = market.amm?.ammOutcomes?.find(o => o.id === winner);
+  const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
+
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -182,7 +184,7 @@ const MarketView = ({ defaultMarket = null }) => {
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
-        {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp)}</span>}
+        {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
         {reportingState === MARKET_STATUS.FINALIZED && winningOutcome && (
           <WinningOutcomeLabel winningOutcome={winningOutcome} />
         )}

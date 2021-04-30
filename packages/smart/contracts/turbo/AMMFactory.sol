@@ -53,7 +53,7 @@ contract AMMFactory {
         uint256 _initialLiquidity,
         uint256[] memory _weights,
         address _lpTokenRecipient
-    ) public returns (BPool) {
+    ) public returns (uint256) {
         require(pools[address(_marketFactory)][_marketId] == BPool(0), "Pool already created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
@@ -103,7 +103,7 @@ contract AMMFactory {
             int256(_lpTokenBalance)
         );
 
-        return _pool;
+        return _lpTokenBalance;
     }
 
     function addLiquidity(

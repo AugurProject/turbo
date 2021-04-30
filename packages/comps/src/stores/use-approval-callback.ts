@@ -9,7 +9,7 @@ import {
 } from "../utils/contract-calls";
 import { BigNumber as BN } from "bignumber.js";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
-import { AmmExchange, LoginAccount, TransactionDetails } from "../utils/types";
+import { AmmExchange, LoginAccount, TransactionDetails } from "../types";
 import { useUserStore } from "./user";
 import { PARA_CONFIG } from "./constants";
 

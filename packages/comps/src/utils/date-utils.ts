@@ -1,3 +1,5 @@
+import { TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } from "./constants";
+
 const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
 export const getDayFormat = (timestamp) => {
@@ -9,13 +11,15 @@ export const getDayFormat = (timestamp) => {
   return `${mon} ${day}`;
 };
 
-export const getTimeFormat = (timestamp) => {
+export const getTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
   if (!timestamp) return "N/A";
   const inMilli = Number(timestamp) * 1000;
   const date = new Date(inMilli);
-  const hours = `0${date.getHours()}`.slice(-2);
-  const minutes = `0${Number(date.getMinutes())}`.slice(-2);
-  return `${hours}:${minutes}`;
+  return date.toLocaleDateString("en-us", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: format === TWELVE_HOUR_TIME,
+  });
 };
 
 export const getMarketEndtimeDate = (timestamp: string | number) => {
@@ -26,11 +30,11 @@ export const getMarketEndtimeDate = (timestamp: string | number) => {
   return `${monthDay}, ${year}`;
 };
 
-export const getMarketEndtimeFull = (timestamp: string | number) => {
+export const getMarketEndtimeFull = (timestamp: string | number, format = TWENTY_FOUR_HOUR_TIME) => {
   if (!timestamp) return "Missing";
   // use existing to make sure to be consistent
   const monthDayYear = getMarketEndtimeDate(timestamp);
-  const timeHour = getTimeFormat(timestamp);
+  const timeHour = getTimeFormat(timestamp, format);
   const offset = getTimestampTimezoneOffSet(timestamp);
   return `${monthDayYear} ${timeHour} ${offset}`;
 };

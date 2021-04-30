@@ -7,7 +7,6 @@ import * as DateUtils from './utils/date-utils';
 import * as Formatter from './utils/format-number';
 import getPrecision from './utils/get-number-precision';
 import logError from './utils/log-error';
-import * as _Types from './utils/types';
 import { windowRef } from './utils/window-ref';
 import * as _TeamHelpers from './utils/team-helpers';
 import * as _Icons from './components/common/icons';
@@ -139,7 +138,6 @@ export const Utils = {
   ..._TeamHelpers,
 };
 export const PaginationComps = _Pagination;
-export const Types = _Types;
 export const MarketCardComps = _MarketCard;
 export const Logo = _Logo;
 export const ButtonComps = _Buttons;
@@ -206,7 +204,6 @@ const AugurComps = {
   GraphClient,
   Icons,
   Stores,
-  Types,
   Utils,
   Modals
 };

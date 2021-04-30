@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import Styles from './labels.styles.less';
 import { useLocation } from 'react-router';
 import classNames from 'classnames';
-import { MarketInfo } from '../types';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
   useAppStatusStore,
@@ -14,6 +13,8 @@ import {
   PARA_CONFIG,
   LabelComps,
 } from '@augurproject/comps';
+import type { MarketInfo } from '@augurproject/comps/build/types';
+
 const { CREATE, USDC, ETH, MODAL_ADD_LIQUIDITY, MARKET, ADD } = Constants;
 const { ValueLabel } = LabelComps;
 const {

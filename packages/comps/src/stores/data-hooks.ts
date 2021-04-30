@@ -3,12 +3,18 @@ import { useReducer } from "react";
 import { windowRef } from "../utils/window-ref";
 import { DATA_ACTIONS, DATA_KEYS, DEFAULT_DATA_STATE } from "./constants";
 
-const { UPDATE_DATA_HEARTBEAT } = DATA_ACTIONS;
-const { AMM_EXCHANGES, BLOCKNUMBER, CASHES, ERRORS, MARKETS, LOADING } = DATA_KEYS;
+const { UPDATE_DATA_HEARTBEAT, UPDATE_LIQUIDITIES } = DATA_ACTIONS;
+const { AMM_EXCHANGES, BLOCKNUMBER, CASHES, ERRORS, MARKETS, LOADING, LIQUIDITIES } = DATA_KEYS;
 
 export function DataReducer(state, action) {
   const updatedState = { ...state };
   switch (action.type) {
+    case UPDATE_LIQUIDITIES: {
+      // this is temporary to prove out data from graph.
+      const { liquidities } = action;
+      updatedState[LIQUIDITIES] = liquidities;
+      break;
+    }
     case UPDATE_DATA_HEARTBEAT: {
       const { markets, cashes, ammExchanges, errors, blocknumber, loading } = action;
       updatedState[MARKETS] = markets;
@@ -39,6 +45,7 @@ export const useData = (cashes, defaultState = DEFAULT_DATA_STATE) => {
   return {
     ...state,
     actions: {
+      updateLiquidities: (liquidities) => dispatch({ type: UPDATE_LIQUIDITIES, liquidities }),
       updateDataHeartbeat: ({ markets, cashes, ammExchanges }, blocknumber, errors, loading) =>
         dispatch({
           type: UPDATE_DATA_HEARTBEAT,

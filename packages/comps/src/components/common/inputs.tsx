@@ -7,7 +7,7 @@ import { USDC, ERROR_AMOUNT, SHARES, ETH } from "../../utils/constants";
 import { useAppStatusStore } from "../../stores/app-status";
 import { TinyButton } from "./buttons";
 import { CurrencyDropdown } from "./selection";
-import { AmmOutcome, Cash } from "../../utils/types";
+import { AmmOutcome, Cash } from "../../types";
 
 const ENTER_CHAR_CODE = 13;
 
@@ -271,7 +271,7 @@ export const OutcomesGrid = ({
     >
       {outcomes
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
-        .map((outcome) => (
+        .map((outcome, index) => (
           <Outcome
             index={outcome.id}
             selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
@@ -280,7 +280,7 @@ export const OutcomesGrid = ({
             outcome={outcome}
             onClick={() => setSelectedOutcome(outcome)}
             editable={editable}
-            setEditableValue={(price) => setEditableValue(price, outcome.id)}
+            setEditableValue={(price) => setEditableValue(price, index)}
             ammCash={ammCash}
             showAsButton={showAsButtons}
             error={error}

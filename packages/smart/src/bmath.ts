@@ -6,6 +6,8 @@ const MIN_BPOW_BASE = BigNumber.from(1);
 const MAX_BPOW_BASE = BONE.mul(2).sub(1);
 const BPOW_PRECISION = BONE.div(BigNumber.from(10).pow(10));
 export const MAX_OUT_RATIO = BONE.div(3).add(1);
+export const MAX_IN_RATIO = BONE.div(2);
+export const MAX_UINT = BigNumber.from(2).pow(256).sub(1);
 
 function assert(condition: boolean, error: string) {
   if (!condition) {
@@ -54,7 +56,7 @@ function bdiv(a: BigNumber, b: BigNumber): BigNumber {
   const c0 = a.mul(BONE);
   assert(a.eq(0) || c0.div(a).eq(BONE), "ERR_DIV_INTERNAL"); // bmul overflow
   const c1 = c0.add(b.div(2));
-  assert(c1.gte(c0), "ERR_DIV_INTERNAL"); //  badd require
+  assert(c1.gte(c0), "ERR_DIV_INTERNAL"); //  badd assert
   return c1.div(b);
 }
 
@@ -140,6 +142,37 @@ export function calcInGivenOut(
   const foo = bsub(boo, BONE);
   const tokenAmountIn = bsub(BONE, swapFee);
   return bdiv(bmul(tokenBalanceIn, foo), tokenAmountIn);
+}
+
+function calcOutGivenIn(
+  tokenBalanceIn: BigNumber,
+  tokenWeightIn: BigNumber,
+  tokenBalanceOut: BigNumber,
+  tokenWeightOut: BigNumber,
+  tokenAmountIn: BigNumber,
+  swapFee: BigNumber
+): BigNumber {
+  const weightRatio = bdiv(tokenWeightIn, tokenWeightOut);
+  let adjustedIn = bsub(BONE, swapFee);
+  adjustedIn = bmul(tokenAmountIn, adjustedIn);
+  const y = bdiv(tokenBalanceIn, badd(tokenBalanceIn, adjustedIn));
+  const foo = bpow(y, weightRatio);
+  const bar = bsub(BONE, foo);
+  return bmul(tokenBalanceOut, bar);
+}
+
+function calcSpotPrice(
+  tokenBalanceIn: BigNumber,
+  tokenWeightIn: BigNumber,
+  tokenBalanceOut: BigNumber,
+  tokenWeightOut: BigNumber,
+  swapFee: BigNumber
+): BigNumber {
+  const numer = bdiv(tokenBalanceIn, tokenWeightIn);
+  const denom = bdiv(tokenBalanceOut, tokenWeightOut);
+  const ratio = bdiv(numer, denom);
+  const scale = bdiv(BONE, bsub(BONE, swapFee));
+  return bmul(ratio, scale);
 }
 
 function attemptTokenCalc(
@@ -247,4 +280,109 @@ export async function calculateSellCompleteSetsWithValues(
     await _ammFactory.getPoolWeights(_marketFactory.address, _marketId),
     await _ammFactory.getSwapFee(_marketFactory.address, _marketId)
   );
+}
+
+function swapExactAmountIn(
+  tokenAmountIn: BigNumber,
+  minAmountOut: BigNumber,
+  maxPrice: BigNumber,
+  inTokenBalance: BigNumber,
+  inTokenWeight: BigNumber,
+  outTokenBalance: BigNumber,
+  outTokenWeight: BigNumber,
+  _swapFee: BigNumber
+): [tokenAmountOut: BigNumber, spotPriceAfter: BigNumber] {
+  assert(tokenAmountIn.lte(bmul(inTokenBalance, MAX_IN_RATIO)), "ERR_MAX_IN_RATIO");
+
+  const spotPriceBefore = calcSpotPrice(inTokenBalance, inTokenWeight, outTokenBalance, outTokenWeight, _swapFee);
+  assert(spotPriceBefore.lte(maxPrice), "ERR_BAD_LIMIT_PRICE");
+
+  const tokenAmountOut = calcOutGivenIn(
+    inTokenBalance,
+    inTokenWeight,
+    outTokenBalance,
+    outTokenWeight,
+    tokenAmountIn,
+    _swapFee
+  );
+  assert(tokenAmountOut.gte(minAmountOut), "ERR_LIMIT_OUT");
+
+  inTokenBalance = badd(inTokenBalance, tokenAmountIn);
+  outTokenBalance = bsub(outTokenBalance, tokenAmountOut);
+
+  const spotPriceAfter = calcSpotPrice(inTokenBalance, inTokenWeight, outTokenBalance, outTokenWeight, _swapFee);
+  assert(spotPriceAfter.gte(spotPriceBefore), "ERR_MATH_APPROX");
+  assert(spotPriceAfter.lte(maxPrice), "ERR_LIMIT_PRICE");
+  assert(spotPriceBefore.lte(bdiv(tokenAmountIn, tokenAmountOut)), "ERR_MATH_APPROX");
+
+  return [tokenAmountOut, spotPriceAfter];
+}
+
+export function estimateBuy(
+  _shareFactor: string,
+  _outcome: number,
+  _collateralIn: string,
+  _tokenBalances: string[],
+  _tokenWeights: string[],
+  _swapFee: string
+): string {
+  const tokenBalances = _tokenBalances.map((b) => BigNumber.from(b));
+  const tokenWeights = _tokenWeights.map((w) => BigNumber.from(w));
+  const result = buy(
+    BigNumber.from(_shareFactor),
+    _outcome,
+    BigNumber.from(_collateralIn),
+    tokenBalances,
+    tokenWeights,
+    BigNumber.from(_swapFee)
+  );
+  return result.toString();
+}
+
+function buy(
+  _shareFactor: BigNumber,
+  _outcome: number,
+  _collateralIn: BigNumber,
+  _tokenBalances: BigNumber[],
+  _tokenWeights: BigNumber[],
+  _swapFee: BigNumber
+): BigNumber {
+  const _sets = _collateralIn.mul(_shareFactor);
+  let _totalDesiredOutcome = _sets;
+  let _runningBalance = BigNumber.from(0);
+
+  for (let i = 0; i < _tokenBalances.length; i++) {
+    if (i == _outcome) continue;
+    const [_acquiredToken] = swapExactAmountIn(
+      _sets,
+      BigNumber.from(0),
+      MAX_UINT,
+      _tokenBalances[i],
+      _tokenWeights[i],
+      _tokenBalances[_outcome].sub(_runningBalance),
+      _tokenWeights[_outcome],
+      _swapFee
+    );
+    _totalDesiredOutcome = _totalDesiredOutcome.add(_acquiredToken);
+    _runningBalance = _runningBalance.add(_acquiredToken);
+  }
+
+  return _totalDesiredOutcome;
+}
+
+export async function buyWithValues(
+  _ammFactory: AMMFactory,
+  _marketFactory: AbstractMarketFactory,
+  _marketId: number,
+  _outcome: number,
+  _shareTokensIn: string
+): Promise<string> {
+  return buy(
+    await _marketFactory.shareFactor(),
+    _outcome,
+    BigNumber.from(_shareTokensIn),
+    await _ammFactory.getPoolBalances(_marketFactory.address, _marketId),
+    await _ammFactory.getPoolWeights(_marketFactory.address, _marketId),
+    await _ammFactory.getSwapFee(_marketFactory.address, _marketId)
+  ).toString();
 }

@@ -23,7 +23,7 @@ export const LinkLogo = () => {
 
   return (
     <MarketsLink id="logolink">
-      <section className={Styles.v2Logo}>
+      <section aria-label="Augur markets list page link" className={Styles.v2Logo}>
         {isMobile ? v2AugurLogo : AugurTextLogo}
       </section>
     </MarketsLink>

@@ -11,7 +11,8 @@ import {
   Deployer,
   EthersFastSubmitWallet,
   isContractDeployTestConfig,
-  mapOverObject, sleep
+  mapOverObject,
+  sleep,
 } from "../src";
 import "hardhat/types/config";
 import {

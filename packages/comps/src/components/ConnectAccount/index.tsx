@@ -24,6 +24,7 @@ const LoginButton = ({ action, text, icon, darkMode, className }: LoginButtonPro
     action={action}
     text={text}
     icon={icon}
+    label={`account info button, account: ${text}`}
     className={classNames(
       {
         "dark-mode": darkMode,

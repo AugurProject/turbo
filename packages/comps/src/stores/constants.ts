@@ -1,4 +1,4 @@
-import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../utils/types";
+import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../types";
 import { addresses } from "@augurproject/smart";
 
 export const PARA_CONFIG: ParaDeploys =
@@ -18,6 +18,7 @@ export const DEFAULT_GRAPH_DATA_STATE: GraphDataState = {
   cashes: {},
   errors: null,
   markets: {},
+  liquidities: [],
 };
 
 export const GRAPH_DATA_KEYS = {
@@ -127,6 +128,7 @@ export const MOCK_APP_STATUS_STATE = {
 
 export const STUBBED_DATA_ACTIONS = {
   updateDataHeartbeat: (processed, blocknumber, errors) => {},
+  updateLiquidities: (liquidities) => {},
 };
 
 export const DEFAULT_DATA_STATE: GraphDataState = {
@@ -136,6 +138,7 @@ export const DEFAULT_DATA_STATE: GraphDataState = {
   errors: null,
   markets: {},
   loading: true,
+  liquidities: [],
 };
 
 export const DATA_KEYS = {
@@ -145,10 +148,12 @@ export const DATA_KEYS = {
   ERRORS: "errors",
   MARKETS: "markets",
   LOADING: "loading",
+  LIQUIDITIES: "liquidities",
 };
 
 export const DATA_ACTIONS = {
   UPDATE_DATA_HEARTBEAT: "UPDATE_DATA_HEARTBEAT",
+  UPDATE_LIQUIDITIES: "UPDATE_LIQUIDITIES",
 };
 
 export const MAINNET: string = "1";
