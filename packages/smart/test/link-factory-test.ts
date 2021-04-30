@@ -11,7 +11,7 @@ import {
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
-import { calcShareFactor } from "../src";
+import { calcShareFactor, SportsLinkEventStatus } from "../src";
 
 describe("LinkFactory", () => {
   let signer: SignerWithAddress;
@@ -28,7 +28,6 @@ describe("LinkFactory", () => {
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
-  const endTime = estimatedStartTime.add(60 * 60); // one hour after start time
 
   let collateral: Cash;
   let marketFactory: SportsLinkMarketFactory;
@@ -58,14 +57,14 @@ describe("LinkFactory", () => {
 
   it("can create markets", async () => {
     await marketFactory.createMarket(
-      signer.address,
-      endTime,
-      eventId,
-      homeTeamId,
-      awayTeamId,
-      homeSpread,
-      overUnderTotal,
-      estimatedStartTime
+      await marketFactory.encodeCreation(
+        eventId,
+        homeTeamId,
+        awayTeamId,
+        estimatedStartTime,
+        homeSpread,
+        overUnderTotal
+      )
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -120,7 +119,9 @@ describe("LinkFactory", () => {
   });
 
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(eventId, 10, 2);
+    await marketFactory.trustedResolveMarkets(
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 10, 2)
+    );
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]);
@@ -158,12 +159,7 @@ describe("LinkFactory", () => {
     const eventStatus = 2;
     const homeScore = 12;
     const awayScore = 4810;
-    const payload = await marketFactory.encodeResolution(
-      eventId,
-      eventStatus,
-      homeScore,
-      awayScore
-    );
+    const payload = await marketFactory.encodeResolution(eventId, eventStatus, homeScore, awayScore);
     expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
 
     const decoded = await marketFactory.decodeResolution(payload);
@@ -173,5 +169,4 @@ describe("LinkFactory", () => {
     expect(decoded._homeScore, "_homeScore").to.equal(homeScore);
     expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
   });
-
 });

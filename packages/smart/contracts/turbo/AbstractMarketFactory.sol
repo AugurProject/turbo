@@ -113,7 +113,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         }
 
         emit SharesBurned(_id, _sharesToBurn, msg.sender);
-        return payout(_id, _sharesToBurn, _receiver);
+        return payout(_id, _sharesToBurn, _receiver, false);
     }
 
     function claimWinnings(uint256 _id, address _receiver) public returns (uint256) {
@@ -127,7 +127,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
         emit WinningsClaimed(_id, _winningShares, msg.sender);
-        return payout(_id, _winningShares, _receiver);
+        return payout(_id, _winningShares, _receiver, true);
     }
 
     function claimManyWinnings(uint256[] memory _ids, address _receiver) public returns (uint256) {
@@ -147,16 +147,21 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     function payout(
         uint256 _id,
         uint256 _shares,
-        address _payee
+        address _payee,
+        bool _includeFee
     ) internal returns (uint256) {
         uint256 _payout = calcCost(_shares);
-        Market memory _market = markets[_id];
 
-        uint256 _creatorFee = _market.creatorFee.mul(_payout) / 10**18;
-        uint256 _stakerFee = stakerFee.mul(_payout) / 10**18;
+        uint256 _creatorFee = 0;
+        uint256 _stakerFee = 0;
+        if (_includeFee) {
+            Market memory _market = markets[_id];
+            _creatorFee = _market.creatorFee.mul(_payout) / 10**18;
+            _stakerFee = stakerFee.mul(_payout) / 10**18;
+            accumulatedCreatorFees[_market.creator] += _creatorFee;
+            feePot.depositFees(_stakerFee);
+        }
 
-        accumulatedCreatorFees[_market.creator] += _creatorFee;
-        feePot.depositFees(_stakerFee);
         collateral.transfer(_payee, _payout.sub(_creatorFee).sub(_stakerFee));
 
         return _payout;

@@ -9,70 +9,6 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
 contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
-    function encodeCreation(
-        uint128 _eventId,
-        uint16 _homeTeamId,
-        uint16 _awayTeamId,
-        uint32 _startTimestamp,
-        uint16 _homeSpread,
-        uint16 _totalScore
-    ) external pure returns (bytes32 _payload) {
-        bytes memory _a =
-            abi.encodePacked(_eventId, _homeTeamId, _awayTeamId, _startTimestamp, _homeSpread, _totalScore);
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeCreation(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint16 _homeTeamId,
-            uint16 _awayTeamId,
-            uint32 _startTimestamp,
-            uint16 _homeSpread,
-            uint16 _totalScore
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        // prettier-ignore
-        {
-            _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                       >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))           >> (256 - 32));
-            _homeSpread     = uint16((_temp << (128 + 16 + 16 + 32))      >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16)) >> (256 - 16));
-        }
-    }
-
-    function encodeResolution(uint128 _eventId, uint8 _eventStatus, uint16 _homeScore, uint16 _awayScore) external pure returns (bytes32 _payload) {
-        bytes memory _a =
-        abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeResolution(bytes32 _payload)
-    public
-    pure
-    returns (
-        uint128 _eventId, uint8 _eventStatus, uint16 _homeScore, uint16 _awayScore
-    )
-    {
-        uint256 _temp = uint256(_payload);
-        // prettier-ignore
-        {
-            _eventId     = uint128(_temp >> 128);
-            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
-            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
-            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
-        }
-    }
-
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -101,6 +37,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     }
 
     enum MarketType {HeadToHead, Spread, OverUnder}
+    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
 
     struct MarketDetails {
         uint256 eventId;
@@ -108,6 +45,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         uint256 awayTeamId;
         uint256 estimatedStartTime;
         MarketType marketType;
+        EventStatus eventStatus;
         // This value depends on the marketType.
         // HeadToHead: ignored
         // Spread: the home team spread
@@ -119,26 +57,28 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     // EventId => [MarketId]
     mapping(uint256 => uint256[3]) internal events;
 
-    function createMarket(
-        address _creator,
-        uint256 _endTime,
-        uint256 _eventId,
-        uint256 _homeTeamId,
-        uint256 _awayTeamId,
-        int256 _homeSpread,
-        int256 _overUnderTotal,
-        uint256 _estimatedStartTime // signal to AMMs to stop trading and prevent the adding of new liquidity
-    ) public onlyOwner returns (uint256[3] memory _ids) {
+    function createMarket(bytes32 _payload) external onlyOwner returns (uint256[3] memory _ids) {
+        (
+            uint256 _eventId,
+            uint256 _homeTeamId,
+            uint256 _awayTeamId,
+            uint256 _startTimestamp,
+            int256 _homeSpread,
+            uint256 _totalScore
+        ) = decodeCreation(_payload);
+        address _creator = msg.sender;
+        uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
+
         require(!isEventRegistered(_eventId), "Markets already created");
 
-        _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _estimatedStartTime);
+        _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
         _ids[1] = createSpreadMarket(
             _creator,
             _endTime,
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             _homeSpread
         );
         _ids[2] = createOverUnderMarket(
@@ -147,8 +87,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
-            _overUnderTotal
+            _startTimestamp,
+            _totalScore
         );
 
         events[_eventId] = _ids;
@@ -160,7 +100,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         uint256 _eventId,
         uint256 _homeTeamId,
         uint256 _awayTeamId,
-        uint256 _estimatedStartTime
+        uint256 _startTimestamp
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[0] = "No Contest";
@@ -181,8 +121,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             MarketType.HeadToHead,
+            EventStatus.Scheduled,
             0
         );
         emit MarketCreated(
@@ -193,7 +134,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             0
         );
         return _id;
@@ -205,7 +146,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         uint256 _eventId,
         uint256 _homeTeamId,
         uint256 _awayTeamId,
-        uint256 _estimatedStartTime,
+        uint256 _startTimestamp,
         int256 _homeSpread
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
@@ -227,8 +168,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             MarketType.Spread,
+            EventStatus.Scheduled,
             _homeSpread
         );
         emit MarketCreated(
@@ -239,7 +181,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             _homeSpread
         );
         return _id;
@@ -251,8 +193,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         uint256 _eventId,
         uint256 _homeTeamId,
         uint256 _awayTeamId,
-        uint256 _estimatedStartTime,
-        int256 _overUnderTotal
+        uint256 _startTimestamp,
+        uint256 _overUnderTotal
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[0] = "No Contest";
@@ -273,9 +215,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
+            _startTimestamp,
             MarketType.OverUnder,
-            _overUnderTotal
+            EventStatus.Scheduled,
+            int256(_overUnderTotal)
         );
         emit MarketCreated(
             _id,
@@ -285,8 +228,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _eventId,
             _homeTeamId,
             _awayTeamId,
-            _estimatedStartTime,
-            _overUnderTotal
+            _startTimestamp,
+            int256(_overUnderTotal)
         );
         return _id;
     }
@@ -295,12 +238,19 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         require(false, "Only the TrustedMarketFactory owner can resolve the market, using trustedResolveMarkets");
     }
 
-    function trustedResolveMarkets(
-        uint256 _eventId,
-        int256 _homeScore,
-        int256 _awayScore
-    ) public onlyOwner {
+    function trustedResolveMarkets(bytes32 _payload) public onlyOwner {
+        (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
         uint256[3] memory _ids = events[_eventId];
+
+        // resolve markets as No Contest
+        if (EventStatus(_eventStatus) != EventStatus.Final) {
+            for (uint256 i = 0; i < _ids.length; i++) {
+                uint256 _id = _ids[0];
+                markets[_id].winner = markets[_id].shareTokens[0];
+            }
+            return;
+        }
+
         resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
         resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
         resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
@@ -308,8 +258,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
     function resolveHeadToHeadMarket(
         uint256 _id,
-        int256 _homeScore,
-        int256 _awayScore
+        uint256 _homeScore,
+        uint256 _awayScore
     ) internal {
         OwnedERC20 _winner;
         if (_homeScore > _awayScore) {
@@ -326,13 +276,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
     function resolveSpreadMarket(
         uint256 _id,
-        int256 _homeScore,
-        int256 _awayScore
+        uint256 _homeScore,
+        uint256 _awayScore
     ) internal {
         MarketDetails memory _details = marketDetails[_id];
         int256 _targetSpread = _details.value0;
 
-        int256 _actualSpread = _homeScore.sub(_awayScore);
+        int256 _actualSpread = int256(_homeScore).sub(int256(_awayScore));
 
         OwnedERC20 _winner;
         if (_actualSpread > _targetSpread) {
@@ -349,13 +299,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
 
     function resolveOverUnderMarket(
         uint256 _id,
-        int256 _homeScore,
-        int256 _awayScore
+        uint256 _homeScore,
+        uint256 _awayScore
     ) internal {
         MarketDetails memory _details = marketDetails[_id];
         int256 _targetTotal = _details.value0;
 
-        int256 _actualTotal = _homeScore.add(_awayScore);
+        int256 _actualTotal = int256(_homeScore).add(int256(_awayScore));
 
         OwnedERC20 _winner;
         if (_actualTotal > _targetTotal) {
@@ -382,6 +332,77 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     function isEventResolved(uint256 _eventId) public view returns (bool) {
         uint256 _marketId = events[_eventId][2];
         return isMarketResolved(_marketId);
+    }
+
+    function encodeCreation(
+        uint128 _eventId,
+        uint16 _homeTeamId,
+        uint16 _awayTeamId,
+        uint32 _startTimestamp,
+        int16 _homeSpread,
+        uint16 _totalScore
+    ) external pure returns (bytes32 _payload) {
+        bytes memory _a =
+            abi.encodePacked(_eventId, _homeTeamId, _awayTeamId, _startTimestamp, _homeSpread, _totalScore);
+        assembly {
+            _payload := mload(add(_a, 32))
+        }
+    }
+
+    function decodeCreation(bytes32 _payload)
+        public
+        pure
+        returns (
+            uint128 _eventId,
+            uint16 _homeTeamId,
+            uint16 _awayTeamId,
+            uint32 _startTimestamp,
+            int16 _homeSpread,
+            uint16 _totalScore
+        )
+    {
+        uint256 _temp = uint256(_payload);
+        // prettier-ignore
+        {
+            _eventId        = uint128(_temp >> 128);
+            _homeTeamId     = uint16((_temp << 128)                       >> (256 - 16));
+            _awayTeamId     = uint16((_temp << (128 + 16))                >> (256 - 16));
+            _startTimestamp = uint32((_temp << (128 + 16 + 16))           >> (256 - 32));
+            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))      >> (256 - 16));
+            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16)) >> (256 - 16));
+        }
+    }
+
+    function encodeResolution(
+        uint128 _eventId,
+        uint8 _eventStatus,
+        uint16 _homeScore,
+        uint16 _awayScore
+    ) external pure returns (bytes32 _payload) {
+        bytes memory _a = abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
+        assembly {
+            _payload := mload(add(_a, 32))
+        }
+    }
+
+    function decodeResolution(bytes32 _payload)
+        public
+        pure
+        returns (
+            uint128 _eventId,
+            uint8 _eventStatus,
+            uint16 _homeScore,
+            uint16 _awayScore
+        )
+    {
+        uint256 _temp = uint256(_payload);
+        // prettier-ignore
+        {
+            _eventId     = uint128(_temp >> 128);
+            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
+            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
+            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
+        }
     }
 
     function onTransferOwnership(address, address) internal override {}
