@@ -47,12 +47,12 @@ type Liquidity @entity {
   recipient: String!
 
   "From the perspective of the user. E.g. collateral is negative when adding liquidity."
-  collateral: Int!
+  collateral: String!
 
-  lpTokens: Int!
+  lpTokens: String!
 }
 
-type Shares @entity {
+type Trades @entity {
   id: ID!
 
   marketId: Market!
@@ -61,12 +61,12 @@ type Shares @entity {
 
   user: String!
 
-  outcome: Int!
+  outcome: String!
 
   "From the perspective of the user. E.g. collateral is negative when buying."
-  collateral: Int!
+  collateral: String!
 
-  shares: Int!
+  shares: String!
 }
 
 type User @entity {
@@ -82,5 +82,5 @@ type WinningsClaimed @entity {
 
   marketId: String!
 
-  winningShares: Int!
+  winningShares: String!
 }

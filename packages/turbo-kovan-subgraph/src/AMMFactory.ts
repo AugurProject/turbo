@@ -1,5 +1,6 @@
 import { AMMFactory, Liquidity, Market, Shares } from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
+import { bigIntToHexString } from "./utils";
 
 // event PoolCreated(
 //   address pool,
@@ -54,8 +55,8 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   entity.marketId = event.params.marketId.toString();
   entity.user = event.params.user.toHexString();
   entity.recipient = event.params.recipient.toHexString();
-  entity.collateral = event.params.collateral.toI32();
-  entity.lpTokens = event.params.lpTokens.toI32();
+  entity.collateral = bigIntToHexString(event.params.collateral);
+  entity.lpTokens = bigIntToHexString(event.params.lpTokens);
 
   entity.save();
 }
@@ -84,9 +85,9 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   entity.marketFactory = event.params.marketFactory.toHexString();
   entity.marketId = event.params.marketId.toString();
   entity.user = event.params.user.toHexString();
-  entity.outcome = event.params.outcome.toI32();
-  entity.collateral = event.params.collateral.toI32();
-  entity.shares = event.params.shares.toI32();
+  entity.outcome = bigIntToHexString(event.params.outcome);
+  entity.collateral = bigIntToHexString(event.params.collateral);
+  entity.shares = bigIntToHexString(event.params.shares);
 
   entity.save();
 }

@@ -1,14 +1,16 @@
 {
-  "name": "turbo-kovan",
+  "name": "@augurproject/subgraph",
   "version": "0.1.0",
   "scripts": {
+    "smart": "yarn --silent workspace @augurproject/smart",
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
-    "create": "graph create bconfortin/turbo-kovan --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create bconfortin/turbo-kovan --node http://127.0.0.1:8020",
+    "create": "graph create augurproject/turbo-kovan --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create augurproject/turbo-kovan --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy bconfortin/turbo-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy bconfortin/turbo-kovan --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy": "graph deploy augurproject/turbo-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy augurproject/turbo-kovan --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "grab-abis": "yarn smart build && rsync -v ../smart/abi/contracts/**/**/*.json abis/"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.0",
