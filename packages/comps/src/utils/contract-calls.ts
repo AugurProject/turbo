@@ -611,7 +611,6 @@ export const getUserBalances = async (
           delete userBalances[collection][dataKey];
         }
       } else if (collection === MARKET_SHARE_COLLECTION) {
-        console.log("rawBalance", rawBalance);
         const fixedShareBalance = sharesOnChainToDisplay(new BN(rawBalance)).toFixed();
         // todo: re organize balances to be really simple (future)
         // can index using dataKey (shareToken)
@@ -1317,22 +1316,6 @@ const retrieveExchangeInfos = async (
               index,
               marketFactoryAddress,
             },
-          },
-          {
-            reference: `${ammFactoryAddress}-${index}-ratios`,
-            contractAddress: ammFactoryAddress,
-            abi: ammFactoryAbi,
-            calls: [
-              {
-                reference: `${ammFactoryAddress}-${index}-ratios`,
-                methodName: GET_RATIOS,
-                methodParameters: [marketFactoryAddress, index],
-                context: {
-                  index,
-                  marketFactoryAddress,
-                },
-              },
-            ],
           },
         ],
       },
