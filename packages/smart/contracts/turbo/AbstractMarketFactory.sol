@@ -7,11 +7,11 @@ import "../balancer/BPool.sol";
 import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
 
-abstract contract AbstractMarketFactory is TurboShareTokenFactory {
+abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     using SafeMathUint256 for uint256;
 
     // Should always have ID. Others are optional.
-    // event MarketCreated(uint256 id, address creator, uint256 endTime, ...);
+    // event MarketCreated(uint256 id, address settlementAddress, uint256 endTime, ...);
 
     // Should always have ID. Others are optional.
     // event MarketResolved(uint256 id, ...);
@@ -20,12 +20,27 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     event SharesBurned(uint256 id, uint256 amount, address receiver);
     event WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
 
+    event SettlementFeeClaimed(address settlementAddress, uint256 amount, address indexed receiver);
+    event ProtocolFeeClaimed(address protocol, uint256 amount);
+
+    event ProtocolChanged(address protocol);
+    event ProtocolFeeChanged(uint256 fee);
+    event SettlementFeeChanged(uint256 fee);
+    event StakerFeeChanged(uint256 fee);
+
     IERC20Full public collateral;
     FeePot public feePot;
+
+    // fees are out of 1e18 and only apply to new markets
     uint256 public stakerFee;
-    uint256 public creatorFee;
-    // creator address => amount of collateral
-    mapping(address => uint256) public accumulatedCreatorFees;
+    uint256 public settlementFee;
+    uint256 public protocolFee;
+
+    address public protocol; // collects protocol fees
+
+    uint256 public accumulatedProtocolFee = 0;
+    // settlement address => amount of collateral
+    mapping(address => uint256) public accumulatedSettlementFees;
 
     // How many shares equals one collateral.
     // Necessary to account for math errors from small numbers in balancer.
@@ -34,33 +49,41 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     uint256 public shareFactor;
 
     struct Market {
-        address creator;
+        address settlementAddress;
         OwnedERC20[] shareTokens;
         uint256 endTime;
         OwnedERC20 winner;
-        uint256 creatorFee;
+        uint256 settlementFee;
+        uint256 protocolFee;
+        uint256 stakerFee;
     }
     Market[] internal markets;
 
     uint256 private constant MAX_UINT = 2**256 - 1;
 
     constructor(
+        address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
         FeePot _feePot,
         uint256 _stakerFee,
-        uint256 _creatorFee
+        uint256 _settlementFee,
+        address _protocol,
+        uint256 _protocolFee
     ) {
+        owner = _owner; // controls fees for new markets
         collateral = _collateral;
         shareFactor = _shareFactor;
         feePot = _feePot;
         stakerFee = _stakerFee;
-        creatorFee = _creatorFee;
+        settlementFee = _settlementFee;
+        protocol = _protocol;
+        protocolFee = _protocolFee;
 
         _collateral.approve(address(_feePot), MAX_UINT);
     }
 
-    // function createMarket(address _creator, uint256 _endTime, ...) public returns (uint256);
+    // function createMarket(address _settlementAddress, uint256 _endTime, ...) public returns (uint256);
 
     function resolveMarket(uint256 _id) public virtual;
 
@@ -68,7 +91,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     // As a check of market existence, use `endTime != 0` on the returned struct
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id > markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0);
+            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0);
         } else {
             return markets[_id];
         }
@@ -112,8 +135,13 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
             _market.shareTokens[_i].trustedBurn(msg.sender, _sharesToBurn);
         }
 
+        uint256 _payout = calcCost(_sharesToBurn);
+        uint256 _protocolFee = _payout.mul(_market.protocolFee).div(10**18);
+        _payout = _payout.sub(_protocolFee);
+        collateral.transfer(_receiver, _payout);
+
         emit SharesBurned(_id, _sharesToBurn, msg.sender);
-        return payout(_id, _sharesToBurn, _receiver, false);
+        return _payout;
     }
 
     function claimWinnings(uint256 _id, address _receiver) public returns (uint256) {
@@ -126,8 +154,14 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
+        uint256 _payout = calcCost(_winningShares);
+        uint256 _settlementFee = _payout.mul(_market.settlementFee).div(10**18);
+        uint256 _stakerFee = _payout.mul(_market.stakerFee).div(10**18);
+        _payout = _payout.sub(_settlementFee).sub(_stakerFee);
+        collateral.transfer(_receiver, _payout);
+
         emit WinningsClaimed(_id, _winningShares, msg.sender);
-        return payout(_id, _winningShares, _receiver, true);
+        return _payout;
     }
 
     function claimManyWinnings(uint256[] memory _ids, address _receiver) public returns (uint256) {
@@ -138,33 +172,62 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
         return _totalWinnings;
     }
 
-    function claimCreatorFees(address _receiver) public {
-        uint256 _fees = accumulatedCreatorFees[msg.sender];
-        accumulatedCreatorFees[msg.sender] = 0;
+    function claimSettlementFees(address _receiver) public returns (uint256) {
+        uint256 _fees = accumulatedSettlementFees[msg.sender];
+        accumulatedSettlementFees[msg.sender] = 0;
         collateral.transfer(_receiver, _fees);
+        emit SettlementFeeClaimed(msg.sender, _fees, _receiver);
+        return _fees;
     }
 
-    function payout(
-        uint256 _id,
-        uint256 _shares,
-        address _payee,
-        bool _includeFee
-    ) internal returns (uint256) {
-        uint256 _payout = calcCost(_shares);
+    function claimProtocolFees() public returns (uint256) {
+        require(msg.sender == protocol || msg.sender == address(this), "Only protocol can claim protocol fee");
+        uint256 _fees = accumulatedProtocolFee;
+        accumulatedProtocolFee = 0;
+        collateral.transfer(protocol, _fees);
+        emit ProtocolFeeClaimed(protocol, _fees);
+        return _fees;
+    }
 
-        uint256 _creatorFee = 0;
-        uint256 _stakerFee = 0;
-        if (_includeFee) {
-            Market memory _market = markets[_id];
-            _creatorFee = _market.creatorFee.mul(_payout) / 10**18;
-            _stakerFee = stakerFee.mul(_payout) / 10**18;
-            accumulatedCreatorFees[_market.creator] += _creatorFee;
-            feePot.depositFees(_stakerFee);
+    function setSettlementFee(uint256 _newFee) external onlyOwner {
+        settlementFee = _newFee;
+        emit SettlementFeeChanged(_newFee);
+    }
+
+    function setStakerFee(uint256 _newFee) external onlyOwner {
+        stakerFee = _newFee;
+        emit StakerFeeChanged(_newFee);
+    }
+
+    function setProtocolFee(uint256 _newFee) external onlyOwner {
+        protocolFee = _newFee;
+        emit ProtocolFeeChanged(_newFee);
+    }
+
+    function setProtocol(address _newProtocol, bool _claimFirst) external {
+        require(msg.sender == protocol, "Only the protocol can change the protocol");
+        if (_claimFirst) {
+            claimProtocolFees();
         }
+        protocol = _newProtocol;
+        emit ProtocolChanged(_newProtocol);
+    }
 
-        collateral.transfer(_payee, _payout.sub(_creatorFee).sub(_stakerFee));
-
-        return _payout;
+    function makeMarket(
+        address _settlementAddress,
+        string[] memory _names,
+        string[] memory _symbols,
+        uint256 _endTime
+    ) internal returns (Market memory _market) {
+        _market = Market(
+            _settlementAddress,
+            createShareTokens(_names, _symbols, address(this)),
+            _endTime,
+            OwnedERC20(0),
+            settlementFee,
+            protocolFee,
+            stakerFee
+        );
     }
 
     function isMarketResolved(uint256 _id) public view returns (bool) {
@@ -185,4 +248,6 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory {
     function calcShares(uint256 _collateralIn) public view returns (uint256) {
         return _collateralIn * shareFactor;
     }
+
+    function onTransferOwnership(address, address) internal override {}
 }

@@ -47,7 +47,10 @@ describe("LinkFactory", () => {
       shareFactor,
       feePot.address,
       smallFee,
-      smallFee
+      smallFee,
+      signer.address,
+      smallFee,
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -146,7 +149,6 @@ describe("LinkFactory", () => {
     expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d00000000");
 
     const decoded = await marketFactory.decodeCreation(payload);
-    console.log(decoded);
     expect(decoded._eventId, "_eventId").to.equal(eventId);
     expect(decoded._homeTeamId, "_homeTeamId").to.equal(homeTeamId);
     expect(decoded._awayTeamId, "_awayTeamId").to.equal(awayTeamId);
@@ -163,7 +165,6 @@ describe("LinkFactory", () => {
     expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
 
     const decoded = await marketFactory.decodeResolution(payload);
-    console.log(decoded);
     expect(decoded._eventId, "_eventId").to.equal(eventId);
     expect(decoded._eventStatus, "_eventStatus").to.equal(eventStatus);
     expect(decoded._homeScore, "_homeScore").to.equal(homeScore);

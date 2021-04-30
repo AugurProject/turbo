@@ -36,49 +36,6 @@ type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
 export const addresses: AddressMapping = {
-  31337: {
-    reputationToken: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-    balancerFactory: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-    ammFactory: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-    marketFactories: {
-      sportsball: {
-        type: "SportsLink",
-        address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-        constructorArgs: [
-          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-          "1000000000000",
-          "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-          "0",
-          "5000000000000000",
-        ],
-        collateral: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-          name: "USDC",
-          symbol: "USDC",
-          decimals: 6,
-        },
-      },
-      trustme: {
-        type: "Trusted",
-        address: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-        constructorArgs: [
-          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-          "1000000000000",
-          "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-          "0",
-          "5000000000000000",
-        ],
-        collateral: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
-          name: "USDC",
-          symbol: "USDC",
-          decimals: 6,
-        },
-      },
-    },
-  },
   42: {
     reputationToken: "0x773B956634C3A3Dab6Fe4787d1fb98ceaAE25eAD",
     balancerFactory: "0x59FfbeBBBe873Ba4bfdbA3B7a63E221c6243EfEA",
@@ -115,6 +72,54 @@ export const addresses: AddressMapping = {
         ],
         collateral: {
           address: "0x2bD6870231204bE256d5B0e37CD948ec7B11C0fa",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+    },
+  },
+  31337: {
+    reputationToken: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+    balancerFactory: "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+    ammFactory: "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0xc5a5C42992dECbae36851359345FE25997F5C42d",
+        constructorArgs: [
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+          "1000000000000",
+          "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+          "0",
+          "5000000000000000",
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "0",
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        ],
+        collateral: {
+          address: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+      trustme: {
+        type: "Trusted",
+        address: "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
+        constructorArgs: [
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
+          "1000000000000",
+          "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+          "0",
+          "5000000000000000",
+          "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "0",
+        ],
+        collateral: {
+          address: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
           name: "USDC",
           symbol: "USDC",
           decimals: 6,

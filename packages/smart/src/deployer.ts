@@ -56,7 +56,8 @@ export class Deployer {
     console.log("Deploying feepot for test collateral");
     const feePot = await this.deployFeePot(collateral.address, reputationToken.address);
     const stakerFee = 0;
-    const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
+    const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
+    const protocolFee = 0;
 
     const marketFactories: MarketFactories = {};
 
@@ -65,13 +66,15 @@ export class Deployer {
       collateralConfig,
       feePot.address,
       stakerFee,
-      creatorFee
+      settlementFee,
+      protocolFee
     );
     marketFactories["trustme"] = await this.deployTrustedMarketFactory(
       collateralConfig,
       feePot.address,
       stakerFee,
-      creatorFee
+      settlementFee,
+      protocolFee
     );
 
     console.log("Done deploying!");
@@ -114,7 +117,8 @@ export class Deployer {
     collateral: Collateral,
     feePot: string,
     stakerFee: BigNumberish,
-    creatorFee: BigNumberish
+    settlementFee: BigNumberish,
+    protocolFee: BigNumberish
   ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
     const shareFactor = calcShareFactor(collateral.decimals);
@@ -125,7 +129,10 @@ export class Deployer {
       shareFactor.toString(),
       feePot,
       stakerFee.toString(),
-      creatorFee.toString(),
+      settlementFee.toString(),
+      owner, // protocol, but just use owner for now
+      protocolFee.toString(),
+      owner, // link node, but just use owner for now
     ];
 
     const contract = await this.deploy(
@@ -147,7 +154,8 @@ export class Deployer {
     collateral: Collateral,
     feePot: string,
     stakerFee: BigNumberish,
-    creatorFee: BigNumberish
+    settlementFee: BigNumberish,
+    protocolFee: BigNumberish,
   ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
     const shareFactor = calcShareFactor(collateral.decimals);
@@ -157,7 +165,9 @@ export class Deployer {
       shareFactor.toString(),
       feePot,
       stakerFee.toString(),
-      creatorFee.toString(),
+      settlementFee.toString(),
+      owner, // protocol, but just use owner for now
+      protocolFee.toString(),
     ];
     const contract = await this.deploy(
       "trustedMarketFactory",

@@ -8,7 +8,7 @@ import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
-contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
+contract SportsLinkMarketFactory is AbstractMarketFactory {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -25,16 +25,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     );
     event MarketResolved(uint256 id, address winner);
 
-    constructor(
-        address _owner,
-        IERC20Full _collateral,
-        uint256 _shareFactor,
-        FeePot _feePot,
-        uint256 _stakerFee,
-        uint256 _creatorFee
-    ) AbstractMarketFactory(_collateral, _shareFactor, _feePot, _stakerFee, _creatorFee) {
-        owner = _owner;
-    }
+    event LinkNodeChanged(address newLinkNode);
 
     enum MarketType {HeadToHead, Spread, OverUnder}
     enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
@@ -57,7 +48,36 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     // EventId => [MarketId]
     mapping(uint256 => uint256[3]) internal events;
 
-    function createMarket(bytes32 _payload) external onlyOwner returns (uint256[3] memory _ids) {
+    address linkNode;
+
+    constructor(
+        address _owner,
+        IERC20Full _collateral,
+        uint256 _shareFactor,
+        FeePot _feePot,
+        uint256 _stakerFee,
+        uint256 _settlementFee,
+        address _protocol,
+        uint256 _protocolFee,
+        address _linkNode
+    )
+        AbstractMarketFactory(
+            _owner,
+            _collateral,
+            _shareFactor,
+            _feePot,
+            _stakerFee,
+            _settlementFee,
+            _protocol,
+            _protocolFee
+        )
+    {
+        linkNode = _linkNode;
+    }
+
+    function createMarket(bytes32 _payload) external returns (uint256[3] memory _ids) {
+        require(msg.sender == linkNode, "Only link node can create markets");
+
         (
             uint256 _eventId,
             uint256 _homeTeamId,
@@ -108,15 +128,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Home";
 
         uint256 _id = markets.length;
-        markets.push(
-            Market(
-                _creator,
-                createShareTokens(_outcomes, _outcomes, address(this)),
-                _endTime,
-                OwnedERC20(0),
-                creatorFee
-            )
-        );
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -155,15 +167,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Home";
 
         uint256 _id = markets.length;
-        markets.push(
-            Market(
-                _creator,
-                createShareTokens(_outcomes, _outcomes, address(this)),
-                _endTime,
-                OwnedERC20(0),
-                creatorFee
-            )
-        );
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -202,15 +206,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         _outcomes[2] = "Under";
 
         uint256 _id = markets.length;
-        markets.push(
-            Market(
-                _creator,
-                createShareTokens(_outcomes, _outcomes, address(this)),
-                _endTime,
-                OwnedERC20(0),
-                creatorFee
-            )
-        );
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -235,10 +231,12 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
     }
 
     function resolveMarket(uint256) public pure override {
-        require(false, "Only the TrustedMarketFactory owner can resolve the market, using trustedResolveMarkets");
+        require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
     }
 
-    function trustedResolveMarkets(bytes32 _payload) public onlyOwner {
+    function trustedResolveMarkets(bytes32 _payload) public {
+        require(msg.sender == linkNode, "Only link node can resolve markets");
+
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
         uint256[3] memory _ids = events[_eventId];
 
@@ -324,6 +322,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
         return marketDetails[_marketId];
     }
 
+    function changeLinkNode(address _newLinkNode) external onlyOwner {
+        linkNode = _newLinkNode;
+        emit LinkNodeChanged(_newLinkNode);
+    }
+
     function isEventRegistered(uint256 _eventId) public view returns (bool) {
         // The first market id could be zero, so use another one that can't.
         return events[_eventId][2] != 0;
@@ -404,6 +407,4 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, Ownable {
             _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
         }
     }
-
-    function onTransferOwnership(address, address) internal override {}
 }
