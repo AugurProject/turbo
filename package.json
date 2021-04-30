@@ -16,6 +16,7 @@
     "smart": "yarn --silent workspace @augurproject/smart",
     "comps": "yarn --silent workspace @augurproject/comps",
     "simp": "yarn --silent workspace @augurproject/simplified",
+    "subgraph": "yarn --silent workspace @augurproject/subgraph",
     "hardhat": "yarn --silent smart hardhat"
   },
   "workspaces": {
