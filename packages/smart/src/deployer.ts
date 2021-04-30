@@ -155,7 +155,7 @@ export class Deployer {
     feePot: string,
     stakerFee: BigNumberish,
     settlementFee: BigNumberish,
-    protocolFee: BigNumberish,
+    protocolFee: BigNumberish
   ): Promise<MarketFactory> {
     const owner = await this.signer.getAddress();
     const shareFactor = calcShareFactor(collateral.decimals);
