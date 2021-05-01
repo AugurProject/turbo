@@ -27,10 +27,8 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
     const startTime = BigNumber.from(Date.now())
       .div(1000)
       .add(60 * 5); // 5 minutes from now
-    const duration = 60 * 60; // one hour
-    const endTime = startTime.add(duration);
     const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
-    await createMarket(signer, marketFactory, startTime, endTime, eventId, homeId, awayId, spread, ou, confirmations);
+    await createMarket(signer, marketFactory, startTime, eventId, homeId, awayId, spread, ou, confirmations);
     console.log(`Created head-to-head market`);
     console.log(`Created spread market`);
     console.log(`Created over-under market`);
@@ -41,7 +39,6 @@ export async function createMarket(
   signer: Signer,
   marketFactory: SportsLinkMarketFactory,
   startTime: BigNumberish,
-  endTime: BigNumberish,
   eventId: BigNumberish,
   homeId: BigNumberish,
   awayId: BigNumberish,
@@ -49,18 +46,12 @@ export async function createMarket(
   overUnderTarget: BigNumberish,
   confirmations: number
 ): Promise<void> {
-  const creator = await signer.getAddress();
-
   const result = await marketFactory
-    .createMarket(creator, endTime, eventId, homeId, awayId, homeSpreadTarget, overUnderTarget, startTime)
+    .createMarket(
+      await marketFactory.encodeCreation(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget)
+    )
     .then((tx: ContractTransaction) => tx.wait(confirmations));
   console.log("result", result);
 
   return;
-}
-
-export interface SportsMarkets {
-  headToHead: BigNumber;
-  spread: BigNumber;
-  overUnder: BigNumber;
 }

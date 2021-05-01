@@ -23,7 +23,8 @@ describe("AMMFactory", () => {
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
   const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
-  const creatorFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
+  const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
+  const protocolFee = 0;
 
   const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
   const ZERO = BigNumber.from(0);
@@ -61,7 +62,9 @@ describe("AMMFactory", () => {
       shareFactor,
       feePot.address,
       stakerFee,
-      creatorFee
+      settlementFee,
+      signer.address,
+      protocolFee
     );
 
     bFactory = await BFactory__factory.deploy();

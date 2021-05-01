@@ -24,15 +24,29 @@ contract PriceMarketFactory is AbstractMarketFactory {
     MarketDetails[] internal marketDetails;
 
     constructor(
-        BPool _pool,
-        IERC20Full _tokenIn,
-        IERC20Full _tokenOut,
+        address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
         FeePot _feePot,
         uint256 _stakerFee,
-        uint256 _creatorFee
-    ) AbstractMarketFactory(_collateral, _shareFactor, _feePot, _stakerFee, _creatorFee) {
+        uint256 _settlementFee,
+        address _protocol,
+        uint256 _protocolFee,
+        BPool _pool,
+        IERC20Full _tokenIn,
+        IERC20Full _tokenOut
+    )
+        AbstractMarketFactory(
+            _owner,
+            _collateral,
+            _shareFactor,
+            _feePot,
+            _stakerFee,
+            _settlementFee,
+            _protocol,
+            _protocolFee
+        )
+    {
         pool = _pool;
         tokenIn = _tokenIn;
         tokenOut = _tokenOut;
@@ -53,9 +67,7 @@ contract PriceMarketFactory is AbstractMarketFactory {
         _symbols[1] = string("HIGH");
 
         uint256 _id = markets.length;
-        markets.push(
-            Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0), creatorFee)
-        );
+        markets.push(makeMarket(_creator, _names, _symbols, _endTime));
         marketDetails.push(MarketDetails(_spotPrice, 0));
 
         emit MarketCreated(_id, _creator, _endTime, _spotPrice);
