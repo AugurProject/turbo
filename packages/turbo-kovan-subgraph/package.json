@@ -4,12 +4,12 @@
   "scripts": {
     "smart": "yarn --silent workspace @augurproject/smart",
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
-    "create": "graph create augurproject/turbo-kovan --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create augurproject/turbo-kovan --node http://127.0.0.1:8020",
+    "create": "graph create augurproject/augur-turbo-kovan --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create augurproject/augur-turbo-kovan --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy augurproject/turbo-kovan --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy augurproject/turbo-kovan --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "deploy": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-kovan",
+    "deploy-local": "graph deploy --ipfs http://localhost:5001 --node http://127.0.0.1:8020 augurproject/augur-turbo-kovan",
     "grab-abis": "yarn smart build && rsync -v ../smart/abi/contracts/**/**/*.json abis/"
   },
   "devDependencies": {
