@@ -180,7 +180,7 @@ contract AMMFactory is BNum {
         uint256 _lpTokensIn,
         uint256 _minCollateralOut,
         address _collateralRecipient
-    ) public returns (uint256) {
+    ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -202,16 +202,17 @@ contract AMMFactory is BNum {
         // Must be a multiple of share factor.
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
-        uint256 _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
         require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
 
         // Transfer the remaining shares back to msg.sender.
+        _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             uint256 _acquiredTokenBalance = exitPoolEstimate[i];
             OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _balance = _acquiredTokenBalance - _setsToSell;
-            if (_balance > 0) {
-                _token.transfer(msg.sender, _balance);
+            _balances[i] = _acquiredTokenBalance - _setsToSell;
+            if (_balances[i] > 0) {
+                _token.transfer(msg.sender, _balances[i]);
             }
         }
 
@@ -223,9 +224,6 @@ contract AMMFactory is BNum {
             int256(_collateralOut),
             -int256(_lpTokensIn)
         );
-
-        // returns actual collateral out.
-        return _collateralOut;
     }
 
     function buy(

@@ -222,6 +222,14 @@ describe("AMMFactory", () => {
 
       expect(poolTokens.gt(0), "pool tokens greater than zero").to.be.true;
 
+      const [collateralGained, sharesGained] = await secondAmmFactory.callStatic.removeLiquidity(
+        marketFactory.address,
+        marketId,
+        poolTokens,
+        BigNumber.from(0),
+        secondSigner.address
+      );
+
       await secondAmmFactory.removeLiquidity(
         marketFactory.address,
         marketId,
@@ -241,6 +249,7 @@ describe("AMMFactory", () => {
         )
       );
 
+      expect(sharesAfter).to.deep.equal(sharesGained.map((s: BigNumber) => s.toString()));
       expect(sharesAfter).to.deep.equal(["17963113090909090800", "151132827551", "17963113090909090800"]);
     });
 
