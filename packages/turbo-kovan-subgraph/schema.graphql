@@ -73,11 +73,11 @@ type AddLiquidity @entity {
 
 type Outcomes @entity {
   id: ID!
-  amount: String!
-  addLiquidity: AddLiquidity!
-  removeLiquidity: RemoveLiquidity!
-  buy: Buy!
-  sell: Sell!
+  amount: String
+  addLiquidity: AddLiquidity
+  removeLiquidity: RemoveLiquidity
+  buy: Buy
+  sell: Sell
 }
 
 type RemoveLiquidity @entity {
@@ -94,8 +94,8 @@ type Buy @entity {
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
-  price: String!
-  cash: String!
+  price: String
+  cash: String
 }
 
 type Sell @entity {
@@ -104,9 +104,9 @@ type Sell @entity {
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
-  amount: String!
-  price: String!
-  cash: String!
+  amount: String
+  price: String
+  cash: String
 }
 
 type Trades @entity {

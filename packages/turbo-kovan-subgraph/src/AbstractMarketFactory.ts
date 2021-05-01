@@ -1,7 +1,11 @@
 import { User, WinningsClaimed } from "../generated/schema";
 import { WinningsClaimed as WinningsClaimedEvent } from "../generated/AbstractMarketFactory/AbstractMarketFactory";
 
-// WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
+// WinningsClaimed(
+//   uint256 id,
+//   uint256 amount,
+//   address indexed receiver
+// );
 // WinningsClaimed(_id, _winningShares, msg.sender);
 
 export function handleWinningsClaimedEvent(event: WinningsClaimedEvent): void {
