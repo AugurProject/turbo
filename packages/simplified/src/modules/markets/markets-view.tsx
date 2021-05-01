@@ -28,7 +28,7 @@ const {
   ALL_CURRENCIES,
   ALL_MARKETS,
   categoryItems,
-  currencyItems,
+  // currencyItems,
   marketStatusItems,
   OPEN,
   OTHER,
@@ -76,12 +76,12 @@ const applyFiltersAndSort = (
   }
 
   updatedFilteredMarkets = updatedFilteredMarkets.filter((market: MarketInfo) => {
-    if (showLiquidMarkets && (!market.amm || isNaN(market?.amm?.liquidityUSD) || !market?.amm?.liquidityUSD)) {
+    if (showLiquidMarkets && (!market.amm || !market.amm.hasLiquidity)) {
       return false;
     }
-    if (market.isInvalid) {
-      return false;
-    }
+    // if (market.isInvalid) {
+    //   return false;
+    // }
     if (
       categories !== ALL_MARKETS &&
       categories !== OTHER &&
@@ -253,13 +253,13 @@ const MarketsView = () => {
           options={marketStatusItems}
           defaultValue={reportingState}
         />
-        <SquareDropdown
+        {/* <SquareDropdown
           onChange={(value) => {
             updateMarketsViewSettings({ currency: value });
           }}
           options={currencyItems}
           defaultValue={currency}
-        />
+        /> */}
         <SearchButton
           selected={showFilter}
           action={() => {

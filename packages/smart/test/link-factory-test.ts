@@ -11,7 +11,7 @@ import {
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
-import { calcShareFactor } from "../src";
+import { calcShareFactor, SportsLinkEventStatus } from "../src";
 
 describe("LinkFactory", () => {
   let signer: SignerWithAddress;
@@ -28,7 +28,6 @@ describe("LinkFactory", () => {
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
-  const endTime = estimatedStartTime.add(60 * 60); // one hour after start time
 
   let collateral: Cash;
   let marketFactory: SportsLinkMarketFactory;
@@ -48,7 +47,10 @@ describe("LinkFactory", () => {
       shareFactor,
       feePot.address,
       smallFee,
-      smallFee
+      smallFee,
+      signer.address,
+      smallFee,
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -58,14 +60,14 @@ describe("LinkFactory", () => {
 
   it("can create markets", async () => {
     await marketFactory.createMarket(
-      signer.address,
-      endTime,
-      eventId,
-      homeTeamId,
-      awayTeamId,
-      homeSpread,
-      overUnderTotal,
-      estimatedStartTime
+      await marketFactory.encodeCreation(
+        eventId,
+        homeTeamId,
+        awayTeamId,
+        estimatedStartTime,
+        homeSpread,
+        overUnderTotal
+      )
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -120,7 +122,9 @@ describe("LinkFactory", () => {
   });
 
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(eventId, 10, 2);
+    await marketFactory.trustedResolveMarkets(
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 10, 2)
+    );
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]);
@@ -130,5 +134,40 @@ describe("LinkFactory", () => {
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]);
+  });
+
+  it("encodes and decodes market creation payload", async () => {
+    const fakeStartTime = 1619743497;
+    const payload = await marketFactory.encodeCreation(
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      fakeStartTime,
+      homeSpread,
+      overUnderTotal
+    );
+    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d00000000");
+
+    const decoded = await marketFactory.decodeCreation(payload);
+    expect(decoded._eventId, "_eventId").to.equal(eventId);
+    expect(decoded._homeTeamId, "_homeTeamId").to.equal(homeTeamId);
+    expect(decoded._awayTeamId, "_awayTeamId").to.equal(awayTeamId);
+    expect(decoded._startTimestamp, "_startTimestamp").to.equal(fakeStartTime);
+    expect(decoded._homeSpread, "_homeSpread").to.equal(homeSpread);
+    expect(decoded._totalScore, "_totalScore").to.equal(overUnderTotal);
+  });
+
+  it("encodes and decodes market resolution payload", async () => {
+    const eventStatus = 2;
+    const homeScore = 12;
+    const awayScore = 4810;
+    const payload = await marketFactory.encodeResolution(eventId, eventStatus, homeScore, awayScore);
+    expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
+
+    const decoded = await marketFactory.decodeResolution(payload);
+    expect(decoded._eventId, "_eventId").to.equal(eventId);
+    expect(decoded._eventStatus, "_eventStatus").to.equal(eventStatus);
+    expect(decoded._homeScore, "_homeScore").to.equal(homeScore);
+    expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
   });
 });

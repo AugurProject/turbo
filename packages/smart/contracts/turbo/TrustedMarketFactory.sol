@@ -7,11 +7,16 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
 
-contract TrustedMarketFactory is AbstractMarketFactory, Ownable {
+contract TrustedMarketFactory is AbstractMarketFactory {
     using SafeMathUint256 for uint256;
 
     event MarketCreated(uint256 id, address creator, uint256 _endTime, string description, string[] outcomes);
     event MarketResolved(uint256 id, address winner);
+
+    struct MarketDetails {
+        string description;
+    }
+    MarketDetails[] internal marketDetails;
 
     constructor(
         address _owner,
@@ -19,15 +24,21 @@ contract TrustedMarketFactory is AbstractMarketFactory, Ownable {
         uint256 _shareFactor,
         FeePot _feePot,
         uint256 _stakerFee,
-        uint256 _creatorFee
-    ) AbstractMarketFactory(_collateral, _shareFactor, _feePot, _stakerFee, _creatorFee) {
-        owner = _owner;
-    }
-
-    struct MarketDetails {
-        string description;
-    }
-    MarketDetails[] internal marketDetails;
+        uint256 _settlementFee,
+        address _protocol,
+        uint256 _protocolFee
+    )
+        AbstractMarketFactory(
+            _owner,
+            _collateral,
+            _shareFactor,
+            _feePot,
+            _stakerFee,
+            _settlementFee,
+            _protocol,
+            _protocolFee
+        )
+    {}
 
     function createMarket(
         address _creator,
@@ -37,9 +48,7 @@ contract TrustedMarketFactory is AbstractMarketFactory, Ownable {
         string[] calldata _symbols
     ) public onlyOwner returns (uint256) {
         uint256 _id = markets.length;
-        markets.push(
-            Market(_creator, createShareTokens(_names, _symbols, address(this)), _endTime, OwnedERC20(0), creatorFee)
-        );
+        markets.push(makeMarket(_creator, _names, _symbols, _endTime));
         marketDetails.push(MarketDetails(_description));
 
         emit MarketCreated(_id, _creator, _endTime, _description, _symbols);
@@ -59,6 +68,4 @@ contract TrustedMarketFactory is AbstractMarketFactory, Ownable {
     function getMarketDetails(uint256 _id) public view returns (MarketDetails memory) {
         return marketDetails[_id];
     }
-
-    function onTransferOwnership(address, address) internal override {}
 }
