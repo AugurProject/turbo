@@ -1,4 +1,13 @@
-import { AMMFactory, Liquidity, Market, Shares } from "../generated/schema";
+import {
+  AddLiquidity,
+  AMMFactory,
+  Liquidity,
+  Market,
+  Outcomes,
+  RemoveLiquidity,
+  Sender,
+  Trades
+} from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
 import { bigIntToHexString } from "./utils";
 
@@ -40,9 +49,59 @@ export function handlePoolCreatedEvent(event: PoolCreated): void {
 //   int256 lpTokens
 // );
 
+function addLiquidityEvent(event: LiquidityChanged): void {
+  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let addLiquidityEntity = AddLiquidity.load(id);
+  let senderEntity = Sender.load(id);
+
+  if (addLiquidityEntity == null) {
+    addLiquidityEntity = new AddLiquidity(id);
+  }
+
+  if (senderEntity == null) {
+    senderEntity = new Sender(id);
+  }
+
+  senderEntity.save();
+
+  addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
+  addLiquidityEntity.timestamp = event.block.timestamp;
+  addLiquidityEntity.collateral = event.params.collateral.toString();
+  addLiquidityEntity.lpTokens = event.params.lpTokens.toString();
+
+  addLiquidityEntity.save();
+}
+
+function removeLiquidityEvent(event: LiquidityChanged): void {
+  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let removeLiquidityEntity = RemoveLiquidity.load(id);
+  let senderEntity = Sender.load(id);
+  let outcomesEntity = Outcomes.load(id);
+
+  if (removeLiquidityEntity == null) {
+    removeLiquidityEntity = new RemoveLiquidity(id);
+  }
+
+  if (senderEntity == null) {
+    senderEntity = new Sender(id);
+  }
+
+  if (outcomesEntity == null) {
+    outcomesEntity = new Outcomes(id);
+  }
+
+  senderEntity.save();
+  outcomesEntity.save();
+
+  removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
+  removeLiquidityEntity.timestamp = event.block.timestamp;
+
+  removeLiquidityEntity.save();
+}
+
 export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let entity = new Liquidity(id);
+  let liquidityEntity = new Liquidity(id);
 
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let marketEntity = Market.load(marketId);
@@ -51,14 +110,20 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   }
   marketEntity.save();
 
-  entity.marketFactory = event.params.marketFactory.toHexString();
-  entity.marketId = event.params.marketId.toString();
-  entity.user = event.params.user.toHexString();
-  entity.recipient = event.params.recipient.toHexString();
-  entity.collateral = bigIntToHexString(event.params.collateral);
-  entity.lpTokens = bigIntToHexString(event.params.lpTokens);
+  liquidityEntity.marketFactory = event.params.marketFactory.toHexString();
+  liquidityEntity.marketId = marketId;
+  liquidityEntity.user = event.params.user.toHexString();
+  liquidityEntity.recipient = event.params.recipient.toHexString();
+  liquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  liquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
 
-  entity.save();
+  liquidityEntity.save();
+
+  if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
+    addLiquidityEvent(event);
+  } else {
+    removeLiquidityEvent(event);
+  }
 }
 
 // event SharesSwapped(
@@ -73,7 +138,7 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
 export function handleSharesSwappedEvent(event: SharesSwapped): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let entity = new Shares(id);
+  let entity = new Trades(id);
 
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let marketEntity = Market.load(marketId);
@@ -83,7 +148,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   marketEntity.save();
 
   entity.marketFactory = event.params.marketFactory.toHexString();
-  entity.marketId = event.params.marketId.toString();
+  entity.marketId = marketId;
   entity.user = event.params.user.toHexString();
   entity.outcome = bigIntToHexString(event.params.outcome);
   entity.collateral = bigIntToHexString(event.params.collateral);

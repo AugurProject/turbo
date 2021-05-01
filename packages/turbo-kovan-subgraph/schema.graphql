@@ -32,7 +32,7 @@ type Market @entity {
 
   liquidity: [Liquidity!]! @derivedFrom(field: "marketId")
 
-  shares: [Shares!]! @derivedFrom(field: "marketId")
+  trades: [Trades!]! @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -50,6 +50,63 @@ type Liquidity @entity {
   collateral: String!
 
   lpTokens: String!
+}
+
+type Sender @entity {
+  id: ID!
+  addLiquidity: AddLiquidity
+  removeLiquidity: RemoveLiquidity
+  buy: Buy
+  sell: Sell
+  claimedProceeds: ClaimedProceeds
+  claimedFees: ClaimedFees
+}
+
+type AddLiquidity @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "addLiquidity")
+  transactionHash: String!
+  timestamp: BigInt!
+  collateral: String!
+  lpTokens: String!
+}
+
+type Outcomes @entity {
+  id: ID!
+  amount: String!
+  addLiquidity: AddLiquidity!
+  removeLiquidity: RemoveLiquidity!
+  buy: Buy!
+  sell: Sell!
+}
+
+type RemoveLiquidity @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "removeLiquidity")
+  transactionHash: String!
+  timestamp: BigInt!
+  outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
+}
+
+type Buy @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "buy")
+  transactionHash: String!
+  timestamp: BigInt!
+  outcomes: [Outcomes!]! @derivedFrom(field: "buy")
+  price: String!
+  cash: String!
+}
+
+type Sell @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "sell")
+  transactionHash: String!
+  timestamp: BigInt!
+  outcomes: [Outcomes!]! @derivedFrom(field: "sell")
+  amount: String!
+  price: String!
+  cash: String!
 }
 
 type Trades @entity {
@@ -83,4 +140,24 @@ type WinningsClaimed @entity {
   marketId: String!
 
   winningShares: String!
+}
+
+type ClaimedProceeds @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "claimedProceeds")
+  fees: String!
+  outcome: String!
+  marketId: String!
+  cash: String!
+  transactionHash: String!
+  timestamp: BigInt!
+}
+
+type ClaimedFees @entity {
+  id: ID!
+  sender: [Sender!]! @derivedFrom(field: "claimedFees")
+  cash: String!
+  marketId: String!
+  transactionHash: String!
+  timestamp: BigInt!
 }
