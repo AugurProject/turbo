@@ -1,15 +1,15 @@
-import { Address, BigDecimal, BigInt, Bytes, crypto, log } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, Bytes, crypto, log } from "@graphprotocol/graph-ts";
 
 let ZERO = new BigInt(0);
 
 function upperCase(s: string): string {
   let letterMap = new Map<string, string>();
-  letterMap.set('a', 'A');
-  letterMap.set('b', 'B');
-  letterMap.set('c', 'C');
-  letterMap.set('d', 'D');
-  letterMap.set('e', 'E');
-  letterMap.set('f', 'F');
+  letterMap.set("a", "A");
+  letterMap.set("b", "B");
+  letterMap.set("c", "C");
+  letterMap.set("d", "D");
+  letterMap.set("e", "E");
+  letterMap.set("f", "F");
 
   let r = new Array<string>();
   for (let i = 0; i < s.length; i++) {
@@ -35,7 +35,7 @@ export function toChecksumAddress(originalAddress: Address): string {
   return "0x" + ret.join("");
 }
 
-export function mapAddressArray(arr:Address[]):string[] {
+export function mapAddressArray(arr: Address[]): string[] {
   let result = new Array<string>();
   for (let i = 0; i < arr.length; i++) {
     result.push(toChecksumAddress(arr[i]));
@@ -44,9 +44,9 @@ export function mapAddressArray(arr:Address[]):string[] {
   return result;
 }
 
-export function bigIntToHexString(bigint: BigInt):string {
+export function bigIntToHexString(bigint: BigInt): string {
   let hexString = bigint.toHexString().split("").slice(2);
-  if(hexString.length == 1) {
+  if (hexString.length == 1) {
     hexString.unshift("0");
   }
   hexString.unshift("0x");
@@ -57,7 +57,7 @@ export function bigIntToHexString(bigint: BigInt):string {
   return hexString.join("");
 }
 
-export function mapByteArray(arr:Bytes[]):string[] {
+export function mapByteArray(arr: Bytes[]): string[] {
   let result = new Array<string>();
   for (let i = 0; i < arr.length; i++) {
     result.push(arr[i].toHexString());
@@ -66,7 +66,7 @@ export function mapByteArray(arr:Bytes[]):string[] {
   return result;
 }
 
-export function mapArray(arr: BigInt[]):string[] {
+export function mapArray(arr: BigInt[]): string[] {
   let result = new Array<string>();
   for (let i = 0; i < arr.length; i++) {
     result.push(bigIntToHexString(arr[i]));

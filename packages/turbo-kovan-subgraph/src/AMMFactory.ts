@@ -1,12 +1,14 @@
 import {
   AddLiquidity,
-  AMMFactory, Buy,
+  AMMFactory,
+  Buy,
   Liquidity,
   Market,
   Outcomes,
-  RemoveLiquidity, Sell,
+  RemoveLiquidity,
+  Sell,
   Sender,
-  Trades
+  Trades,
 } from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
 import { bigIntToHexString } from "./utils";
@@ -26,7 +28,8 @@ export function handlePoolCreatedEvent(event: PoolCreated): void {
   entity.blockHash = event.block.hash.toHexString();
   entity.blockNumber = event.block.number.toI32();
   entity.logIndex = event.logIndex.toI32();
-  entity.logPosition = event.block.number.toString().padStart(10, "0") + "-" + event.logIndex.toString().padStart(5, "0");
+  entity.logPosition =
+    event.block.number.toString().padStart(10, "0") + "-" + event.logIndex.toString().padStart(5, "0");
   entity.name = "PoolCreated";
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.origin = event.transaction.from.toHexString();
