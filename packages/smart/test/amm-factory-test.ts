@@ -185,6 +185,17 @@ describe("AMMFactory", () => {
     });
   });
 
+  describe("addLiquidity", () => {
+    it("should work", async () => {
+      // Use first signer to alter balances in the pool.
+      const collateralIn = usdcBasis.mul(1000); // 100 of the collateral
+      await collateral.faucet(collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+    });
+  });
+
   describe("removeLiquidity", () => {
     it("should return shares if pool unbalanced", async () => {
       const secondAmmFactory = ammFactory.connect(secondSigner);
@@ -230,7 +241,7 @@ describe("AMMFactory", () => {
         )
       );
 
-      expect(sharesAfter).to.deep.equal(["17831329283225693600", "145090554589", "17831329283225693600"]);
+      expect(sharesAfter).to.deep.equal(["17963113090909090800", "151132827551", "17963113090909090800"]);
     });
 
     it("liquidity removal for collateral and burn sets", async () => {

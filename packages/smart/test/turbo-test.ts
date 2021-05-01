@@ -156,7 +156,7 @@ describe("Turbo", () => {
 
     const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x05797f9cd2e89cc26d")); // hardcoded from observation
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a814e10a740000")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
