@@ -9,8 +9,8 @@ import { WinningsClaimed as WinningsClaimedEvent } from "../generated/AbstractMa
 // WinningsClaimed(_id, _winningShares, msg.sender);
 
 export function handleWinningsClaimedEvent(event: WinningsClaimedEvent): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let entity = new WinningsClaimed(id);
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const entity = new WinningsClaimed(id);
 
   let userEntity = User.load(event.params.receiver.toHexString());
   if (userEntity == null) {
