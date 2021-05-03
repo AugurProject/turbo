@@ -271,7 +271,7 @@ export const OutcomesGrid = ({
     >
       {outcomes
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
-        .map((outcome, index) => (
+        .map((outcome) => (
           <Outcome
             index={outcome.id}
             selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
@@ -280,7 +280,7 @@ export const OutcomesGrid = ({
             outcome={outcome}
             onClick={() => setSelectedOutcome(outcome)}
             editable={editable}
-            setEditableValue={(price) => setEditableValue(price, index)}
+            setEditableValue={(price) => setEditableValue(price, outcome.id)}
             ammCash={ammCash}
             showAsButton={showAsButtons}
             error={error}
