@@ -124,8 +124,13 @@ export async function getTransactions(cb) {
     if (response.errors) {
       console.error(JSON.stringify(response.errors, null, 1));
     }
-    if (response?.data) {
-      cb(response.data);
+    if (response?.data?.markets) {
+      const processed = response.data.markets.reduce((acc, item) => {
+        let update = acc;
+        update[item.id] = item;
+        return update;
+      }, {});
+      cb(processed);
     } else {
       cb([]);
     }

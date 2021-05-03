@@ -131,62 +131,41 @@ const AMM_common = gql`
 `;
 
 export const CurrentMarket_fields = gql`
-  {
-    addLiquidities {
+{
+  markets {
+  id  
+  
+  addLiquidity {
+    id
+    sender {
       id
-      sender {
-        id
-      }
-      marketId {
-        id
-      }
-      transactionHash
-      timestamp
-      collateral
-      lpTokens
     }
-    removeLiquidities {
-      id
-      sender {
-        id
-      }
-      marketId {
-        id
-      }
-      transactionHash
-      timestamp
-      outcomes {
-        id
-      }
-    }
-    buys {
-      id
-      sender {
-        id
-      }
-      transactionHash
-      timestamp
-      outcomes {
-        id
-      }
-      price
-      cash
-    }
-    sells {
-      id
-      sender {
-        id
-      }
-      transactionHash
-      timestamp
-      outcomes {
-        id
-      }
-      amount
-      price
-      cash
-    }
+    transactionHash
+    timestamp
+    collateral
+    lpTokens
   }
+  removeLiquidity {
+   id
+    sender {
+      id
+    }
+    transactionHash
+    timestamp
+    outcomes {
+      id      
+    }    
+  }
+  trades {
+    id
+    user
+    outcome
+    collateral
+    shares
+  
+  }
+}
+}
 `;
 
 const ParaShareToken_fields = gql`
