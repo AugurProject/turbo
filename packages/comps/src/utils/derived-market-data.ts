@@ -43,7 +43,7 @@ export const getOutcomeName = (
     if (outcomeId === AWAY_TEAM_OUTCOME) {
       const newLine = Number(line) * -1; // invert for away team
       pLine = newLine > 0 ? `+${newLine}` : `${newLine}`;
-    } 
+    }
     const outcomes = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, pLine);
     return outcomes;
   }
