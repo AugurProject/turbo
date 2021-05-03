@@ -1,5 +1,5 @@
 import ApolloClient from "apollo-boost";
-import { GET_MARKETS, GET_BLOCK, CASH_TOKEN_DATA } from "./queries";
+import { GET_MARKETS, GET_BLOCK, CASH_TOKEN_DATA, CurrentMarket_fields } from "./queries";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Cash } from "../types";
@@ -108,12 +108,12 @@ export async function searchMarkets(searchString, cb) {
   }
 }
 
-export async function getLiquidities(cb) {
+export async function getTransactions(cb) {
   const clientConfig = getClientConfig();
   let response = null;
   try {
     response = await augurV2Client(clientConfig.turboClient).query({
-      query: LIQUIDITIES,
+      query: CurrentMarket_fields,
     });
   } catch (e) {
     cb([]);
@@ -124,8 +124,13 @@ export async function getLiquidities(cb) {
     if (response.errors) {
       console.error(JSON.stringify(response.errors, null, 1));
     }
-    if (response?.data?.liquidities) {
-      cb(response.data.liquidities);
+    if (response?.data?.markets) {
+      const processed = response.data.markets.reduce((acc, item) => {
+        let update = acc;
+        update[item.id] = item;
+        return update;
+      }, {});
+      cb(processed);
     } else {
       cb([]);
     }
