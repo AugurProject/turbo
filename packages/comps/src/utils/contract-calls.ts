@@ -864,9 +864,9 @@ const populateInitLPValues = async (
 export const getUserLpTokenInitialAmount = (
   transactions: MarketTransactions,
   account: string,
-  cash: Cash,
+  cash: Cash
 ): { [marketId: string]: string } => {
-  const lpAmounts = Object.keys(transactions).reduce((p, marketId) => {
+  return Object.keys(transactions).reduce((p, marketId) => {
     const id = marketId.toLowerCase();
     const adds = transactions[marketId].addLiquidity
       .filter((t) => isSameAddress(t.sender.id, account))
@@ -877,11 +877,9 @@ export const getUserLpTokenInitialAmount = (
     const initCostUsd = String(adds.minus(removed));
     return {
       ...p,
-      [id]: convertOnChainCashAmountToDisplayCashAmount(initCostUsd, cash.decimals).toFixed(),      
+      [id]: convertOnChainCashAmountToDisplayCashAmount(initCostUsd, cash.decimals).toFixed(),
     };
   }, {});
-
-  return lpAmounts;
 };
 
 // TODO: isYesOutcome is for convenience, down the road, outcome index will be used.
