@@ -18,38 +18,42 @@ const NAMING_LINE = {
 };
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
+const HOME_TEAM_OUTCOME = 1;
+const AWAY_TEAM_OUTCOME = 2;
 
 export const getOutcomeName = (
-  index: number,
+  outcomeId: number,
   sportId: string,
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
   line: string
 ) => {
-  const marketOutcome = getMarketOutcome(sportId, sportsMarketType, index);
+  const marketOutcome = getMarketOutcome(sportId, sportsMarketType, outcomeId);
   // create outcome name using market type and line
-  if (index === NO_CONTEST_OUTCOME_ID) return marketOutcome;
+  if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
 
-  if (sportsMarketType === 0) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) {
     return populateHomeAway(marketOutcome, homeTeam, awayTeam);
   }
 
-  if (sportsMarketType === 1) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.SPREAD) {
     // spread
-    let pLine = line;
-    if (index === 2) {
-      pLine = String(Number(line) * -1); // invert for away team
+    let pLine = Number(line) > 0 ? `+${line}` : line;
+    if (outcomeId === AWAY_TEAM_OUTCOME) {
+      const newLine = Number(line) * -1; // invert for away team
+      pLine = newLine > 0 ? `+${newLine}` : `${newLine}`;
     }
-    return populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, pLine);
+    const outcomes = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, pLine);
+    return outcomes;
   }
 
-  if (sportsMarketType === 2) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
     // over/under
     return marketOutcome.replace(NAMING_LINE.OVER_UNDER_LINE, line);
   }
 
-  return `Outcome ${index}`;
+  return `Outcome ${outcomeId}`;
 };
 
 // todo: move this to own file when new market factory is available
