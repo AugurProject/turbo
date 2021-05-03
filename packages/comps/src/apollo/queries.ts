@@ -19,7 +19,7 @@ export const SEARCH_MARKETS = gql`
 `;
 
 // Get all markets except CATEGORICAL
-// https://thegraph.com/explorer/subgraph/augurproject/augur-v2-staging
+// https://thegraph.com/explorer/subgraph/augurproject/augur-turbo-kovan
 const AMM_enters = gql`
   fragment AMM_enters on AMMExchange {
     enters {
@@ -131,89 +131,57 @@ const AMM_common = gql`
 `;
 
 const CurrentMarket_fields = gql`
-  fragment CurrentMarket_fields on Market {
-    description
+{
+  addLiquidities {
     id
+  	sender {
+      id
+    }
+    transactionHash
+    timestamp
+    collateral
+    lpTokens
+  }
+  removeLiquidities {
+   id
+    sender {
+      id
+    }
+    transactionHash
+    timestamp
+    outcomes {
+      id      
+    }    
+  }
+  buys {
+    id
+    sender {
+      id
+    }
+    transactionHash
+    timestamp
     outcomes {
       id
-      value
-      isFinalNumerator
-      payoutNumerator
     }
-    marketType
-    numTicks
-    timestamp
-    fee
-    openInterest
-    outcomeVolumes
-    prices
-    designatedReporter
-    extraInfoRaw
-    currentDisputeWindow {
-      id
-      endTime
-    }
-    shareTokens {
-      id
-    }
-    owner {
-      id
-    }
-    creator {
-      id
-    }
-    offsetName
-    template {
-      id
-      question
-    }
-    noShowBond
-    universe {
-      id
-      reportingFee
-    }
-    endTimestamp
-    status
-    categories
-    tradingProceedsClaimed {
-      id
-      shareToken {
-        id
-      }
-      sender {
-        id
-      }
-      outcome
-      numPayoutTokens
-      fees
-      timestamp
-    }
-    amms {
-      ...AMM_common
-      ...AMM_enters
-      ...AMM_exits
-      ...AMM_swaps
-      ...AMM_addLiquidity
-      ...AMM_removeLiquidity
-      fee
-      feePercent
-      symbols
-      invalidPool {
-        id
-        cashBalance
-        cashWeight
-        invalidBalance
-        invalidWeight
-        swapFee
-      }
-    }
+    price
+    cash
   }
-  ${AMM_common}
-  ${AMM_enters}
-  ${AMM_exits}
-  ${AMM_swaps}
-  ${AMM_addLiquidity}
-  ${AMM_removeLiquidity}
+  sells {
+    id
+    sender {
+      id
+    }
+    transactionHash
+    timestamp
+    outcomes {
+      id
+    }
+    amount
+    price
+    cash
+  }
+}
+
 `;
 
 const ParaShareToken_fields = gql`
