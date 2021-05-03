@@ -853,7 +853,7 @@ const populateInitLPValues = async (
     const lptoken = lptokens[marketId];
     const amm = ammExchanges[marketId];
     // sum up enters/exits transaction usd cash values
-    const initialCashValueUsd = accumLpSharesAmounts(amm.transactions, account);
+    const initialCashValueUsd = "0";
     lptoken.initCostUsd = initialCashValueUsd;
     lptoken.usdValue = lptoken?.balance ? await getLPCurrentValue(lptoken.balance, provider, amm, account) : "0";
   }
@@ -861,15 +861,25 @@ const populateInitLPValues = async (
   return lptokens;
 };
 
-const accumLpSharesAmounts = (transactions: AmmTransaction[], account: string): string => {
-  const adds = transactions
-    .filter((t) => isSameAddress(t.sender, account) && t.tx_type === TransactionTypes.ADD_LIQUIDITY)
-    .reduce((p, t) => p.plus(new BN(t.cashValueUsd || "0")), new BN("0"));
-  const removed = transactions
-    .filter((t) => isSameAddress(t.sender, account) && t.tx_type === TransactionTypes.REMOVE_LIQUIDITY)
-    .reduce((p, t) => p.plus(new BN(t.cashValueUsd || "0")), new BN("0"));
-
-  return String(adds.minus(removed));
+export const getUserLpTokenInitialAmount = (
+  transactions: MarketTransactions,
+  account: string,
+  cash: Cash
+): { [marketId: string]: string } => {
+  return Object.keys(transactions).reduce((p, marketId) => {
+    const id = marketId.toLowerCase();
+    const adds = transactions[marketId].addLiquidity
+      .filter((t) => isSameAddress(t.sender.id, account))
+      .reduce((p, t) => p.plus(new BN(t.collateral || "0").abs()), new BN("0"));
+    const removed = transactions[marketId].removeLiquidity
+      .filter((t) => isSameAddress(t.sender.id, account))
+      .reduce((p, t) => p.plus(new BN(t.collateral || "0").abs()), new BN("0"));
+    const initCostUsd = String(adds.minus(removed));
+    return {
+      ...p,
+      [id]: convertOnChainCashAmountToDisplayCashAmount(initCostUsd, cash.decimals).toFixed(),
+    };
+  }, {});
 };
 
 // TODO: isYesOutcome is for convenience, down the road, outcome index will be used.

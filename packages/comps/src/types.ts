@@ -106,6 +106,24 @@ export interface AmmTransaction {
   netShares?: string; // only for add liquidity
 }
 
+export interface AddRemoveLIquidity {
+  collateral: string;
+  id: string;
+  lpTokens: string;
+  sender: {
+    id: string;
+  };
+  timestamp: string;
+  transactionHash: string;
+}
+
+export interface MarketTransactions {
+  [marketId: string]: {
+    addLiquidity: AddRemoveLIquidity[];
+    removeLiquidity: AddRemoveLIquidity[];
+  };
+}
+
 export interface Trade {
   price: number;
   timestamp: number;
