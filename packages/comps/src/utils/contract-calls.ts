@@ -1579,7 +1579,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
     awayTeamId,
     startTimestamp,
     sportId,
-    sportsMarketType
+    sportsMarketType,
   };
 };
 
