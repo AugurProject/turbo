@@ -8,7 +8,7 @@ dataSources:
     name: AMMFactory
     network: kovan
     source:
-      address: '0xa3c66a83Bf96dc1dFd574ea431865D21f34f801D'
+      address: '0x3fe9C3175c0721CFbb3AD578eEc7117C5e26cfB3'
       abi: AMMFactory
       startBlock: 24612272
     mapping:
@@ -34,7 +34,7 @@ dataSources:
     name: AbstractMarketFactory
     network: kovan
     source:
-      address: '0xB0bA59d42Fb0f9305F06FC0e2C4e2fe64A5bd39F' # use SportsLinkMarketFactory
+      address: '0x779bD416785BD5247E891F26659dB0cd4b59268D' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
       startBlock: 24612276
     mapping:

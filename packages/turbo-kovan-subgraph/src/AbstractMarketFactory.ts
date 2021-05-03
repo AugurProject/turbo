@@ -23,11 +23,12 @@ import { WinningsClaimed as WinningsClaimedEvent } from "../generated/AbstractMa
 
 export function handleWinningsClaimedEvent(event: WinningsClaimedEvent): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const senderId = event.params.receiver.toHexString();
   const entity = new ClaimedProceeds(id);
-  let senderEntity = Sender.load(event.params.receiver.toHexString());
+  let senderEntity = Sender.load(senderId);
 
   if (senderEntity == null) {
-    senderEntity = new Sender(event.params.receiver.toHexString());
+    senderEntity = new Sender(senderId);
   }
 
   senderEntity.save();
@@ -35,6 +36,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimedEvent): void {
   entity.marketId = event.params.id.toHexString();
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
+  entity.sender = senderId;
   // TODO: confirm fields with Tom
   // entity.cash = event.params.cash;
   // entity.outcome = event.params.outcome;

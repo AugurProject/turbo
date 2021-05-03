@@ -58,17 +58,17 @@ type Liquidity @entity {
 
 type Sender @entity {
   id: ID!
-  addLiquidity: AddLiquidity
-  removeLiquidity: RemoveLiquidity
-  buy: Buy
-  sell: Sell
-  claimedProceeds: ClaimedProceeds
-  claimedFees: ClaimedFees
+  addLiquidity: [AddLiquidity!] @derivedFrom(field: "sender")
+  removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "sender")
+  buy: [Buy!] @derivedFrom(field: "sender")
+  sell: [Sell!] @derivedFrom(field: "sender")
+  claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "sender")
+  claimedFees: [ClaimedFees!] @derivedFrom(field: "sender")
 }
 
 type AddLiquidity @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "addLiquidity")
+  sender: Sender!
   marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
@@ -87,7 +87,7 @@ type Outcomes @entity {
 
 type RemoveLiquidity @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "removeLiquidity")
+  sender: Sender!
   marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
@@ -96,7 +96,7 @@ type RemoveLiquidity @entity {
 
 type Buy @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "buy")
+  sender: Sender!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
@@ -106,7 +106,7 @@ type Buy @entity {
 
 type Sell @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "sell")
+  sender: Sender!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
@@ -150,7 +150,7 @@ type WinningsClaimed @entity {
 
 type ClaimedProceeds @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "claimedProceeds")
+  sender: Sender!
   fees: String!
   outcome: String!
   marketId: String!
@@ -161,7 +161,7 @@ type ClaimedProceeds @entity {
 
 type ClaimedFees @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "claimedFees")
+  sender: Sender!
   cash: String!
   marketId: String!
   transactionHash: String!
