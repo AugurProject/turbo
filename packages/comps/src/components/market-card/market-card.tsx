@@ -72,6 +72,9 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
 export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
   ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1));
 
+export const unOrderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
+  ammOutcomes.slice(-1).concat(ammOutcomes.slice(0, -1));
+
 const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   const {
     market: { hasWinner, winner },
