@@ -1,4 +1,4 @@
-import { User, WinningsClaimed } from "../generated/schema";
+import { ClaimedProceeds, Outcomes, RemoveLiquidity, Sender, User, WinningsClaimed } from "../generated/schema";
 import { WinningsClaimed as WinningsClaimedEvent } from "../generated/AbstractMarketFactory/AbstractMarketFactory";
 
 // WinningsClaimed(
@@ -8,19 +8,37 @@ import { WinningsClaimed as WinningsClaimedEvent } from "../generated/AbstractMa
 // );
 // WinningsClaimed(_id, _winningShares, msg.sender);
 
+// ClaimedProceeds {
+//   id
+//   sender {
+//     id
+//   }
+//   fees
+//   outcome
+//   marketId
+//   cash
+//   timestamp
+//   tx_hash
+// }
+
 export function handleWinningsClaimedEvent(event: WinningsClaimedEvent): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  const entity = new WinningsClaimed(id);
+  const entity = new ClaimedProceeds(id);
+  let senderEntity = Sender.load(event.params.receiver.toHexString());
 
-  let userEntity = User.load(event.params.receiver.toHexString());
-  if (userEntity == null) {
-    userEntity = new User(event.params.receiver.toHexString());
+  if (senderEntity == null) {
+    senderEntity = new Sender(event.params.receiver.toHexString());
   }
-  userEntity.save();
+
+  senderEntity.save();
 
   entity.marketId = event.params.id.toHexString();
-  entity.user = event.params.receiver.toString();
-  entity.winningShares = event.params.amount.toI32();
+  entity.transactionHash = event.transaction.hash.toHexString();
+  entity.timestamp = event.block.timestamp;
+  // TODO: confirm fields with Tom
+  // entity.cash = event.params.cash;
+  // entity.outcome = event.params.outcome;
+  // entity.fees = event.params.fees;
 
   entity.save();
 }

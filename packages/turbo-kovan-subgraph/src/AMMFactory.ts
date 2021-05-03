@@ -54,6 +54,7 @@ export function handlePoolCreatedEvent(event: PoolCreated): void {
 
 function addLiquidityEvent(event: LiquidityChanged): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let addLiquidityEntity = AddLiquidity.load(id);
   let senderEntity = Sender.load(id);
 
@@ -71,12 +72,14 @@ function addLiquidityEvent(event: LiquidityChanged): void {
   addLiquidityEntity.timestamp = event.block.timestamp;
   addLiquidityEntity.collateral = event.params.collateral.toString();
   addLiquidityEntity.lpTokens = event.params.lpTokens.toString();
+  addLiquidityEntity.marketId = marketId;
 
   addLiquidityEntity.save();
 }
 
 function removeLiquidityEvent(event: LiquidityChanged): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let removeLiquidityEntity = RemoveLiquidity.load(id);
   let senderEntity = Sender.load(id);
   let outcomesEntity = Outcomes.load(id);
@@ -98,6 +101,7 @@ function removeLiquidityEvent(event: LiquidityChanged): void {
 
   removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   removeLiquidityEntity.timestamp = event.block.timestamp;
+  removeLiquidityEntity.marketId = marketId;
 
   removeLiquidityEntity.save();
 }

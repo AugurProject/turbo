@@ -32,6 +32,10 @@ type Market @entity {
 
   liquidity: [Liquidity!]! @derivedFrom(field: "marketId")
 
+  addLiquidity: [AddLiquidity!]! @derivedFrom(field: "marketId")
+
+  removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
+
   trades: [Trades!]! @derivedFrom(field: "marketId")
 }
 
@@ -65,6 +69,7 @@ type Sender @entity {
 type AddLiquidity @entity {
   id: ID!
   sender: [Sender!]! @derivedFrom(field: "addLiquidity")
+  marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
   collateral: String!
@@ -83,6 +88,7 @@ type Outcomes @entity {
 type RemoveLiquidity @entity {
   id: ID!
   sender: [Sender!]! @derivedFrom(field: "removeLiquidity")
+  marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
