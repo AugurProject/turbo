@@ -25,6 +25,7 @@ describe("LinkFactory", () => {
   const awayTeamId = 1881;
   const homeSpread = 4;
   const overUnderTotal = 13;
+  const sportId = 4;
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
@@ -50,7 +51,8 @@ describe("LinkFactory", () => {
       smallFee,
       signer.address,
       smallFee,
-      signer.address // pretending the deployer is a link node for testing purposes
+      signer.address, // pretending the deployer is a link node for testing purposes
+      sportId
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);

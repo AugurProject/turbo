@@ -241,6 +241,30 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         return _market.winner != OwnedERC20(0);
     }
 
+    // Only usable off-chain. Gas cost can easily eclipse block limit.
+    function listUnresolvedMarkets() external view returns (uint256[] memory) {
+        uint256 _totalUnresolved = 0;
+        for (uint256 i = 0; i < markets.length; i++) {
+            if (!isMarketResolved(i)) {
+                _totalUnresolved++;
+            }
+        }
+
+        uint256[] memory _marketIds = new uint256[](_totalUnresolved);
+
+        uint256 n = 0;
+        for (uint256 i = 0; i < markets.length; i++) {
+            if (n >= _totalUnresolved) break;
+
+            if (!isMarketResolved(i)) {
+                _marketIds[n] = i;
+                n++;
+            }
+        }
+
+        return _marketIds;
+    }
+
     // shares => collateral
     function calcCost(uint256 _shares) public view returns (uint256) {
         require(
