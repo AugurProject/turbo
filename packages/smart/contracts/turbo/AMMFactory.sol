@@ -5,8 +5,9 @@ pragma experimental ABIEncoderV2;
 import "../balancer/BFactory.sol";
 import "../libraries/SafeMathUint256.sol";
 import "./AbstractMarketFactory.sol";
+import "../balancer/BNum.sol";
 
-contract AMMFactory {
+contract AMMFactory is BNum {
     using SafeMathUint256 for uint256;
 
     uint256 private constant MAX_UINT = 2**256 - 1;
@@ -125,11 +126,35 @@ contract AMMFactory {
         uint256 _sets = _marketFactory.calcShares(_collateralIn);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
-        // Add liquidity to pool
-        uint256 _totalLPTokens = 0;
+        // Find poolAmountOut
+        uint256 _poolAmountOut = MAX_UINT;
+
+        {
+            uint256 _totalSupply = _pool.totalSupply();
+            uint256[] memory _maxAmountsIn = new uint256[](_market.shareTokens.length);
+            for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+                _maxAmountsIn[i] = _sets;
+
+                OwnedERC20 _token = _market.shareTokens[i];
+                uint256 _bPoolTokenBalance = _pool.getBalance(address(_token));
+                uint256 _tokenPoolAmountOut = bdiv(bmul(_sets, _totalSupply), _bPoolTokenBalance);
+
+                if (_tokenPoolAmountOut < _poolAmountOut) {
+                    _poolAmountOut = _tokenPoolAmountOut;
+                }
+            }
+            _pool.joinPool(_poolAmountOut, _maxAmountsIn);
+        }
+
+        // Add liquidity to pool by depositing the remaining share tokens.
+        uint256 _totalLPTokens = _poolAmountOut;
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
-            uint256 __acquiredLPTokens = _pool.joinswapExternAmountIn(address(_token), _sets, 0);
+            uint256 _tokenBalance = _token.balanceOf(address(this));
+            if (_tokenBalance == 0) continue;
+
+            uint256 __acquiredLPTokens =
+                _pool.joinswapExternAmountIn(address(_token), _token.balanceOf(address(this)), 0);
             _totalLPTokens += __acquiredLPTokens;
         }
 
@@ -155,7 +180,7 @@ contract AMMFactory {
         uint256 _lpTokensIn,
         uint256 _minCollateralOut,
         address _collateralRecipient
-    ) public returns (uint256) {
+    ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -177,16 +202,17 @@ contract AMMFactory {
         // Must be a multiple of share factor.
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
-        uint256 _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
         require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
 
         // Transfer the remaining shares back to msg.sender.
+        _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             uint256 _acquiredTokenBalance = exitPoolEstimate[i];
             OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _balance = _acquiredTokenBalance - _setsToSell;
-            if (_balance > 0) {
-                _token.transfer(msg.sender, _balance);
+            _balances[i] = _acquiredTokenBalance - _setsToSell;
+            if (_balances[i] > 0) {
+                _token.transfer(msg.sender, _balances[i]);
             }
         }
 
@@ -198,9 +224,6 @@ contract AMMFactory {
             int256(_collateralOut),
             -int256(_lpTokensIn)
         );
-
-        // returns actual collateral out.
-        return _collateralOut;
     }
 
     function buy(
