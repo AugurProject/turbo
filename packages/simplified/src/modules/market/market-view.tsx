@@ -15,6 +15,7 @@ import {
   useScrollToTopOnMount,
   Utils,
   Components,
+  DerivedMarketData
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
@@ -29,6 +30,9 @@ const {
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
 } = Components;
+const {
+  getSportsResolutionRules
+} = DerivedMarketData;
 // eslint-disable-next-line
 const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
@@ -166,7 +170,7 @@ const MarketView = ({ defaultMarket = null }) => {
       />
     );
   if (!market) return <EmptyMarketView />;
-  const details = getDetails(market);
+  const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
 
