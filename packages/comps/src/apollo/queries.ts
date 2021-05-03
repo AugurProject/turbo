@@ -130,11 +130,14 @@ const AMM_common = gql`
   }
 `;
 
-const CurrentMarket_fields = gql`
+export const CurrentMarket_fields = gql`
   {
     addLiquidities {
       id
       sender {
+        id
+      }
+      marketId {
         id
       }
       transactionHash
@@ -145,6 +148,9 @@ const CurrentMarket_fields = gql`
     removeLiquidities {
       id
       sender {
+        id
+      }
+      marketId {
         id
       }
       transactionHash

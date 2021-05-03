@@ -599,7 +599,7 @@ export interface GraphDataState {
     [marketIdKey: string]: MarketInfo;
   };
   loading?: boolean;
-  liquidities?: Array<any>;
+  transactions?: any;
 }
 
 export interface UserState {

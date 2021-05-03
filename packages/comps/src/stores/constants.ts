@@ -18,7 +18,6 @@ export const DEFAULT_GRAPH_DATA_STATE: GraphDataState = {
   cashes: {},
   errors: null,
   markets: {},
-  liquidities: [],
 };
 
 export const GRAPH_DATA_KEYS = {
@@ -128,7 +127,7 @@ export const MOCK_APP_STATUS_STATE = {
 
 export const STUBBED_DATA_ACTIONS = {
   updateDataHeartbeat: (processed, blocknumber, errors) => {},
-  updateLiquidities: (liquidities) => {},
+  updateTransactions: (transactions) => {},
 };
 
 export const DEFAULT_DATA_STATE: GraphDataState = {
@@ -138,7 +137,7 @@ export const DEFAULT_DATA_STATE: GraphDataState = {
   errors: null,
   markets: {},
   loading: true,
-  liquidities: [],
+  transactions: {},
 };
 
 export const DATA_KEYS = {
@@ -148,12 +147,12 @@ export const DATA_KEYS = {
   ERRORS: "errors",
   MARKETS: "markets",
   LOADING: "loading",
-  LIQUIDITIES: "liquidities",
+  TRANSACTIONS: "transactions",
 };
 
 export const DATA_ACTIONS = {
   UPDATE_DATA_HEARTBEAT: "UPDATE_DATA_HEARTBEAT",
-  UPDATE_LIQUIDITIES: "UPDATE_LIQUIDITIES",
+  UPDATE_TRANSACTIONS: "UPDATE_TRANSACTIONS",
 };
 
 export const MAINNET: string = "1";
