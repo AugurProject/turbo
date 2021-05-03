@@ -85,18 +85,18 @@ export const addresses: AddressMapping = {
     },
   },
   42: {
-    reputationToken: "0x400224D5C60f04829ee1fa30d6D34c07727c938E",
-    balancerFactory: "0x7AF2600FBB954239B3148a36FA65d40341e2f833",
-    ammFactory: "0xa3c66a83Bf96dc1dFd574ea431865D21f34f801D",
+    reputationToken: "0x8c47eFDCF33F635e9A3f60fe94bE461d209d5322",
+    balancerFactory: "0x9fcadea7c68f1D931D79DCd2A046dCf2D572E4F4",
+    ammFactory: "0x3fe9C3175c0721CFbb3AD578eEc7117C5e26cfB3",
     marketFactories: {
       sportsball: {
         type: "SportsLink",
-        address: "0xB0bA59d42Fb0f9305F06FC0e2C4e2fe64A5bd39F",
+        address: "0x779bD416785BD5247E891F26659dB0cd4b59268D",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
-          "0x649E1b656c76775c6A53f95784389E8C6bbdbfBF",
+          "0xe0927a5F474a57111A7F5Ee048C351920d1b45A0",
           "1000000000000",
-          "0x92Ae2A9B4D97ed0f13F3df71aB36948C53b15734",
+          "0x4095Aea7C14518a98Df8915CA86b0f319645A987",
           "0",
           "500000000000000",
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
@@ -104,7 +104,7 @@ export const addresses: AddressMapping = {
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
         ],
         collateral: {
-          address: "0x649E1b656c76775c6A53f95784389E8C6bbdbfBF",
+          address: "0xe0927a5F474a57111A7F5Ee048C351920d1b45A0",
           name: "USDC",
           symbol: "USDC",
           decimals: 6,
@@ -112,19 +112,19 @@ export const addresses: AddressMapping = {
       },
       trustme: {
         type: "Trusted",
-        address: "0xE637e165aec68D85C80aDEB70520612e630eFB82",
+        address: "0xa8c215c0109Acd399100Fa8F589C8727A4486a3D",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
-          "0x649E1b656c76775c6A53f95784389E8C6bbdbfBF",
+          "0xe0927a5F474a57111A7F5Ee048C351920d1b45A0",
           "1000000000000",
-          "0x92Ae2A9B4D97ed0f13F3df71aB36948C53b15734",
+          "0x4095Aea7C14518a98Df8915CA86b0f319645A987",
           "0",
           "500000000000000",
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
           "0",
         ],
         collateral: {
-          address: "0x649E1b656c76775c6A53f95784389E8C6bbdbfBF",
+          address: "0xe0927a5F474a57111A7F5Ee048C351920d1b45A0",
           name: "USDC",
           symbol: "USDC",
           decimals: 6,
