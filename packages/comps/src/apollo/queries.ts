@@ -162,6 +162,8 @@ export const CurrentMarket_fields = gql`
         outcome
         collateral
         shares
+        timestamp
+        transactionHash
       }
     }
   }

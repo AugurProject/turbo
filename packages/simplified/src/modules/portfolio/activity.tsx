@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import Styles from './activity.styles.less';
 import { useAppStatusStore, useDataStore, useUserStore, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
+import { useSimplifiedStore } from 'modules/stores/simplified';
 const { Pagination, sliceByPage } = PaginationComps;
 const { ReceiptLink } = Links;
 const { shapeUserActvity } = ProcessData;
@@ -24,10 +25,11 @@ const ACTIVITY_PAGE_LIMIT = 5;
 export const Activity = () => {
   const { isLogged } = useAppStatusStore();
   const { account } = useUserStore();
-  const { ammExchanges, markets } = useDataStore();
+  const { settings: { timeFormat }} = useSimplifiedStore();
+  const { transactions, markets, cashes } = useDataStore();
   const activity = useMemo(
-    () => shapeUserActvity(account, markets, ammExchanges),
-    [ammExchanges, account, markets]
+    () => shapeUserActvity(account, markets, transactions, cashes, timeFormat),
+    [transactions, account, markets, cashes]
   );
   const [page, setPage] = useState(1);
   return (
