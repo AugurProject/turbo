@@ -134,9 +134,11 @@ export const CurrentMarket_fields = gql`
   {
     markets {
       id
-
       addLiquidity {
         id
+        marketId {
+          id
+        }
         sender {
           id
         }
@@ -147,6 +149,9 @@ export const CurrentMarket_fields = gql`
       }
       removeLiquidity {
         id
+        marketId {
+          id
+        }
         sender {
           id
         }
@@ -158,10 +163,105 @@ export const CurrentMarket_fields = gql`
       }
       trades {
         id
+        marketId {
+          id
+        }
         user
         outcome
         collateral
+        price
         shares
+        timestamp
+        transactionHash
+      }
+    }
+  }
+`;
+
+export const test = gql`
+  query senders($account: String) {
+    senders(where: { id: $account }) {
+      claimedFees {
+        id
+        cash
+        timestamp
+        transactionHash
+        receiver
+      }
+      claimedProceeds {
+        id
+        fees
+        outcome
+        marketId
+        timestamp
+        transactionHash
+        cash
+      }
+    }
+  }
+`;
+
+export const BIG_TEST = gql`
+  query getTransactions($account: String) {
+    senders(where: { id: $account }) {
+      claimedFees {
+        id
+        cash
+        timestamp
+        transactionHash
+        receiver
+      }
+      claimedProceeds {
+        id
+        fees
+        outcome
+        marketId
+        timestamp
+        transactionHash
+        cash
+      }
+    }
+    markets {
+      id
+      addLiquidity {
+        id
+        marketId {
+          id
+        }
+        sender {
+          id
+        }
+        transactionHash
+        timestamp
+        collateral
+        lpTokens
+      }
+      removeLiquidity {
+        id
+        marketId {
+          id
+        }
+        sender {
+          id
+        }
+        transactionHash
+        timestamp
+        outcomes {
+          id
+        }
+      }
+      trades {
+        id
+        marketId {
+          id
+        }
+        user
+        outcome
+        collateral
+        price
+        shares
+        timestamp
+        transactionHash
       }
     }
   }

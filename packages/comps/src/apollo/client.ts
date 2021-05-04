@@ -6,7 +6,7 @@ import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { ETH } from "../utils/constants";
-import { SEARCH_MARKETS, LIQUIDITIES } from "./queries";
+import { SEARCH_MARKETS, LIQUIDITIES, BIG_TEST } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
 
 dayjs.extend(utc);
@@ -116,7 +116,7 @@ export async function getTransactions(cb) {
       query: CurrentMarket_fields,
     });
   } catch (e) {
-    cb([]);
+    cb({});
     console.error(e);
   }
 
@@ -132,10 +132,42 @@ export async function getTransactions(cb) {
       }, {});
       cb(processed);
     } else {
-      cb([]);
+      cb({});
     }
     // if (response?.data?.marketSearch) updateHeartbeat(null, [...response.data.marketSearch?.map((market) => market.id)]);
     // else updateHeartbeat(null, []);
+  }
+}
+
+export async function getAllTransactions(account, cb) {
+  const clientConfig = getClientConfig();
+  let response = null;
+  try {
+    response = await augurV2Client(clientConfig.turboClient).query({
+      query: BIG_TEST,
+      variables: {
+        account,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+  }
+  if (response) {
+    if (response?.errors) {
+      console.error(JSON.stringify(response.errors, null, 1));
+    }
+    if (response?.data) {
+      const processedMarkets = (response?.data?.markets || []).reduce((acc, item) => {
+        let update = acc;
+        update[item.id] = item;
+        return update;
+      }, {});
+      const processedSenders =
+        response?.data?.senders?.length > 0
+          ? { ...response.data.senders[0], userAddress: account }
+          : { claimedProceeds: [], claimedFees: [], userAddress: account };
+      cb({ ...processedMarkets, ...processedSenders });
+    }
   }
 }
 
