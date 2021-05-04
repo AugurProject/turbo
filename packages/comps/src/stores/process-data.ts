@@ -6,7 +6,8 @@ import {
   formatCash,
   formatCashPrice,
   formatSimpleShares,
-  // formatLpTokens,
+  formatLpTokens,
+  formatPercent,
   isSameAddress,
   sharesOnChainToDisplay,
 } from "../utils/format-number";
@@ -64,15 +65,29 @@ const getActivityType = (
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
+      const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()), { 
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: v => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
+      subheader = `Contributed ${lpTokens} of the pool.`;
       break;
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
-      // commented for now, we may need these for more descriptions.
-      // const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs())).full;
+      const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()), { 
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: v => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
+      subheader = `Withdrew ${lpTokens} of the pool.`;
       break;
     }
     default: {
