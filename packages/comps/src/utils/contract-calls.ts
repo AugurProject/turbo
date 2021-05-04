@@ -16,6 +16,7 @@ import {
   AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
+  MarketTransactions,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
@@ -505,7 +506,8 @@ export const getUserBalances = async (
   account: string,
   ammExchanges: AmmExchanges,
   cashes: Cashes,
-  markets: MarketInfos
+  markets: MarketInfos,
+  transactions: MarketTransactions,
 ): Promise<UserBalances> => {
   const userBalances = {
     ETH: {
@@ -530,6 +532,8 @@ export const getUserBalances = async (
   };
 
   if (!account || !provider) return userBalances;
+
+  const userTransactions = getUserTransactions(transactions, account);
 
   const BALANCE_OF = "balanceOf";
   const LP_TOKEN_COLLECTION = "lpTokens";
@@ -648,17 +652,12 @@ export const getUserBalances = async (
         // can index using dataKey (shareToken)
         //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
 
-        // todo: need historical trades to calculate positions initial value
-        const trades = {
-          enters: [],
-          exits: [],
-        };
-
         // shape AmmMarketShares
         const existingMarketShares = userBalances.marketShares[marketId];
+        const marketTransactions = userTransactions[marketId];
         const exchange = ammExchanges[marketId];
         if (existingMarketShares) {
-          const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
+          const position = getPositionUsdValues(marketTransactions, rawBalance, fixedShareBalance, outcomeId, exchange, account);
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
@@ -670,7 +669,7 @@ export const getUserBalances = async (
             outcomeShares: [],
           };
           // calc user position here **
-          const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
+          const position = getPositionUsdValues(marketTransactions, rawBalance, fixedShareBalance, outcomeId, exchange, account);
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
@@ -742,7 +741,7 @@ const getTotalPositions = (
 };
 
 const getPositionUsdValues = (
-  trades: UserTrades,
+  trades: AllMarketTransactions,
   rawBalance: string,
   balance: string,
   outcome: string,
@@ -881,6 +880,33 @@ export const getUserLpTokenInitialAmount = (
     };
   }, {});
 };
+
+const getUserTransactions = (
+  transactions: MarketTransactions,
+  account: string,
+): MarketTransactions => {
+  return Object.keys(transactions).reduce((p, marketId) => {
+    const id = marketId.toLowerCase();
+    const addLiquidity = transactions[marketId].addLiquidity
+      .filter((t) => isSameAddress(t.sender.id, account))
+    const removeLiquidity = transactions[marketId].removeLiquidity
+      .filter((t) => isSameAddress(t.sender.id, account))
+    const buys = transactions[marketId].trades
+      .filter((t) => isSameAddress(t.sender.id, account) && new BN(t.collateral).lt(0))
+    const sells = transactions[marketId].trades
+      .filter((t) => isSameAddress(t.sender.id, account) && new BN(t.collateral).gt(0))
+
+      return {
+      ...p,
+      [id]: {
+        addLiquidity,
+        removeLiquidity,
+        buys,
+        sells
+      }
+    };
+  }, {});
+}
 
 // TODO: isYesOutcome is for convenience, down the road, outcome index will be used.
 const getInitPositionValues = (

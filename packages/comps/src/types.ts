@@ -106,6 +106,13 @@ export interface AmmTransaction {
   netShares?: string; // only for add liquidity
 }
 
+export interface BuySellTransactions {
+  collateral: string;
+  id: string;
+  outcome: string;
+  shares: string;
+  user: string;
+}
 export interface AddRemoveLIquidity {
   collateral: string;
   id: string;
@@ -121,6 +128,8 @@ export interface MarketTransactions {
   [marketId: string]: {
     addLiquidity: AddRemoveLIquidity[];
     removeLiquidity: AddRemoveLIquidity[];
+    buys: BuySellTransactions[];
+    sells: BuySellTransactions[];
   };
 }
 
