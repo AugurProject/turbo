@@ -120,24 +120,25 @@ export function useCanEnterCashPosition({ name, address }: Cash, refresh: any = 
   return canEnterPosition;
 }
 
-export function useUserBalances(ammExchanges, cashes, markets) {
+export function useUserBalances(ammExchanges, cashes, markets, transactions) {
   const {
     loginAccount,
     actions: { updateUserBalances },
   } = useUserStore();
   useEffect(() => {
-    const fetchUserBalances = (library, account, ammExchanges, cashes, markets) =>
-      getUserBalances(library, account, ammExchanges, cashes, markets);
+    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) =>
+      getUserBalances(library, account, ammExchanges, cashes, markets, transactions);
     if (loginAccount?.library && loginAccount?.account) {
       fetchUserBalances(
         loginAccount.library,
         loginAccount.account,
         ammExchanges,
         cashes,
-        markets
+        markets,
+        transactions
       ).then((userBalances) => updateUserBalances(userBalances));
     }
-  }, [loginAccount?.account, loginAccount?.library, ammExchanges, cashes, markets, PARA_CONFIG]);
+  }, [loginAccount?.account, loginAccount?.library, ammExchanges, cashes, markets, transactions, PARA_CONFIG]);
 }
 
 export function useFinalizeUserTransactions(refresh: any = null) {
