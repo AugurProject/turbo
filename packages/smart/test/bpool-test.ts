@@ -1,4 +1,4 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { ethers } from "hardhat";
 import { BFactory__factory, BPool, BPool__factory, Cash, Cash__factory } from "../typechain";
 import { expect } from "chai";

@@ -36,7 +36,7 @@ const {
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   LabelComps: { generateTooltip },
-  MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay },
+  MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
 } = Components;
 const {
   YES_NO,
@@ -250,7 +250,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           console.log("Error when trying to remove AMM liquidity: ", error?.message);
         });
     } else {
-      await addLiquidityPool(account, loginAccount?.library, amm, cash, amount, estimatedLpAmount, outcomes)
+      await addLiquidityPool(account, loginAccount?.library, amm, cash, amount, estimatedLpAmount, unOrderOutcomesForDisplay(outcomes))
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -296,7 +296,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       if (isRemove) {
         results = await getRemoveLiquidity(amm.id, loginAccount?.library, cash, amount, account, outcomes);
       } else {
-        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount, outcomes);
+        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount, unOrderOutcomesForDisplay(outcomes));
       }
 
       if (!results) {

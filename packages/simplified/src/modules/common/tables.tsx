@@ -30,7 +30,7 @@ const {
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings } = ContractCalls;
+const { claimWinnings, getUserLpTokenInitialAmount } = ContractCalls;
 const { formatLpTokens, formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
 const {
   MODAL_ADD_LIQUIDITY,
@@ -312,11 +312,11 @@ const LiquidityHeader = () => (
   </ul>
 );
 
-const LiquidityRow = ({ liquidity, amm }: { liquidity: LPTokenBalance; amm: AmmExchange }) => {
+const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; initCostUsd: string }) => {
   return (
     <ul className={Styles.LiquidityRow}>
       <li>{formatLpTokens(liquidity.balance).formatted}</li>
-      <li>{formatDai(liquidity.initCostUsd).full}</li>
+      <li>{formatDai(initCostUsd).full}</li>
       <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>
   );
@@ -385,6 +385,12 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
+  const {
+    account
+  } = useUserStore();
+  const { transactions } = useDataStore();
+  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
+  const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
   return (
     <div className={Styles.LiquidityTable}>
       {!singleMarket && <MarketTableHeader market={market} ammExchange={ammExchange} />}
@@ -408,7 +414,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
           />
         </span>
       )}
-      {lpTokens && <LiquidityRow liquidity={lpTokens} amm={ammExchange} />}
+      {lpTokens && <LiquidityRow liquidity={lpTokens} initCostUsd={initCostUsd} />}
       {lpTokens && <LiquidityFooter market={market} />}
     </div>
   );

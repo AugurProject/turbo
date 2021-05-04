@@ -1,5 +1,6 @@
 import './assets/styles/shared.less';
 import * as _ContractCalls from './utils/contract-calls';
+import * as _DerivedMarketData from './utils/derived-market-data';
 import addCommasToNumber from './utils/add-commas-to-number';
 import * as _Constants from './utils/constants';
 import { createBigNumber } from './utils/create-big-number';
@@ -69,6 +70,7 @@ import ModalConnectWallet from './components/modal/modal-connect-wallet';
 import { ToggleSwitch, BuySellToggleSwitch } from './components/common/toggle-switch';
 
 export const ContractCalls = _ContractCalls;
+export const DerivedMarketData = _DerivedMarketData;
 export const GraphClient = _GraphClient;
 export const Stores = {
   AppStatus: _AppStatusStore,
@@ -205,7 +207,8 @@ const AugurComps = {
   Icons,
   Stores,
   Utils,
-  Modals
+  Modals,
+  DerivedMarketData
 };
 
 export default AugurComps;
