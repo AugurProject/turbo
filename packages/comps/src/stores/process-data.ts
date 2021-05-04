@@ -33,7 +33,6 @@ export const shapeUserActvity = (
       ) || [].map((tx) => (tx.tx_type = TransactionTypes.REMOVE_LIQUIDITY));
     userTransactions = userTransactions.concat(marketTrades).concat(adds).concat(removes);
   }
-
   return formatUserTransactionActvity(account, markets, userTransactions, usdc, timeFormat);
 };
 
@@ -113,8 +112,7 @@ export const formatUserTransactionActvity = (
       //     value: `${formatCash(c.winnings, c.cash.name).full}`,
       //   };
       // });
-
-      const datedUserTx = transactions.map((t) => {
+      const datedUserTx = [transaction].map((t) => {
         const market = markets[`${transaction?.marketId?.id}`];
         const typeDetails = getActivityType(t, cash, market);
         if (!market) {
