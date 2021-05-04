@@ -1,7 +1,14 @@
 import { BUY, SELL, USDC, TransactionTypes } from "../utils/constants";
 import { getDayFormat, getDayTimestamp, getTimeFormat } from "../utils/date-utils";
 import { MarketInfo, ActivityData, AmmTransaction, Cash } from "../types";
-import { convertOnChainCashAmountToDisplayCashAmount, formatCash, formatCashPrice, formatSimpleShares, isSameAddress, sharesOnChainToDisplay } from "../utils/format-number";
+import {
+  convertOnChainCashAmountToDisplayCashAmount,
+  formatCash,
+  formatCashPrice,
+  formatSimpleShares,
+  isSameAddress,
+  sharesOnChainToDisplay,
+} from "../utils/format-number";
 import { createBigNumber } from "../utils/create-big-number";
 
 export const shapeUserActvity = (
@@ -12,28 +19,28 @@ export const shapeUserActvity = (
   timeFormat?: string
 ): ActivityData[] => {
   let userTransactions = [];
-  const usdc = Object.entries(cashes).find((cash) => cash[1].name === USDC)[1];;
+  const usdc = Object.entries(cashes).find((cash) => cash[1].name === USDC)[1];
   for (const marketTransactions in transactions) {
     const marketTrades =
       transactions[marketTransactions].trades?.filter((trade) => isSameAddress(trade.user, account)) || [];
     const adds =
       transactions[marketTransactions].addLiquidity?.filter((transaction) =>
         isSameAddress(transaction.sender.id, account)
-      ) || [].map(tx => tx.tx_type = TransactionTypes.ADD_LIQUIDITY);
+      ) || [].map((tx) => (tx.tx_type = TransactionTypes.ADD_LIQUIDITY));
     const removes =
       transactions[marketTransactions].removeLiquidity?.filter((transaction) =>
         isSameAddress(transaction.sender.id, account)
-      ) || [].map(tx => tx.tx_type = TransactionTypes.REMOVE_LIQUIDITY);
+      ) || [].map((tx) => (tx.tx_type = TransactionTypes.REMOVE_LIQUIDITY));
     userTransactions = userTransactions.concat(marketTrades).concat(adds).concat(removes);
   }
-  
+
   return formatUserTransactionActvity(account, markets, userTransactions, usdc, timeFormat);
 };
 
 const getActivityType = (
   tx: AmmTransaction,
   cash: Cash,
-  market: MarketInfo,
+  market: MarketInfo
 ): {
   type: string;
   subheader: string;
@@ -44,12 +51,12 @@ const getActivityType = (
   let value = null;
   switch (tx.tx_type) {
     case TransactionTypes.ADD_LIQUIDITY: {
-      type = 'Add Liquidity';
+      type = "Add Liquidity";
       value = `${formatCash(tx.value, cash.name).full}`;
       break;
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
-      type = 'Remove Liquidity';
+      type = "Remove Liquidity";
       value = `${formatCash(tx.value, cash.name).full}`;
       break;
     }
@@ -57,10 +64,9 @@ const getActivityType = (
       const shares = sharesOnChainToDisplay(createBigNumber(tx?.shares));
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
       const isBuy = collateral.lt(0);
-      const shareType = market?.outcomes?.find(o => o.id === createBigNumber(tx?.outcome).toNumber())?.name;
+      const shareType = market?.outcomes?.find((o) => o.id === createBigNumber(tx?.outcome).toNumber())?.name;
       const formattedPrice = formatCashPrice(tx.price, cash.name);
-      subheader = `${formatSimpleShares(String(shares)).full
-        } Shares of ${shareType} @ ${formattedPrice.full}`;
+      subheader = `${formatSimpleShares(String(shares)).full} Shares of ${shareType} @ ${formattedPrice.full}`;
       // when design wants to add usd value
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       type = isBuy ? BUY : SELL;
@@ -117,8 +123,7 @@ export const formatUserTransactionActvity = (
         return {
           id: t.id,
           currency: cashName,
-          description:
-            market?.description,
+          description: market?.description,
           title: market?.title,
           ...typeDetails,
           date: getDayFormat(t.timestamp),
