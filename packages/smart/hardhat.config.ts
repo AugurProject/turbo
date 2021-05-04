@@ -1,5 +1,5 @@
 import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-etherscan";
+import "hardhat-deploy";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
 import "hardhat-docgen";
