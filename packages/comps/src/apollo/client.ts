@@ -6,7 +6,7 @@ import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { ETH } from "../utils/constants";
-import { SEARCH_MARKETS, LIQUIDITIES, BIG_TEST } from "./queries";
+import { SEARCH_MARKETS, GET_TRANSACTIONS } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
 
 dayjs.extend(utc);
@@ -144,7 +144,7 @@ export async function getAllTransactions(account = "0x0", cb) {
   let response = null;
   try {
     response = await augurV2Client(clientConfig.turboClient).query({
-      query: BIG_TEST,
+      query: GET_TRANSACTIONS,
       variables: {
         account,
       },

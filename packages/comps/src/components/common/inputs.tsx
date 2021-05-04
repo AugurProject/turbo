@@ -178,7 +178,7 @@ const Outcome = ({
   error,
   noClick,
   index,
-}) => {
+}: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
@@ -273,6 +273,7 @@ export const OutcomesGrid = ({
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
         .map((outcome, index) => (
           <Outcome
+            key={`outcome-${outcome.id}`}
             index={outcome.id}
             selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
             nonSelectable={nonSelectable}

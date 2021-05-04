@@ -26,10 +26,10 @@ export const Activity = () => {
   const { isLogged } = useAppStatusStore();
   const { account } = useUserStore();
   const { settings: { timeFormat }} = useSimplifiedStore();
-  const { transactions, markets, cashes } = useDataStore();
+  const { blocknumber, transactions, markets, cashes } = useDataStore();
   const activity = useMemo(
     () => shapeUserActvity(account, markets, transactions, cashes, timeFormat),
-    [transactions, account, markets, cashes]
+    [blocknumber, account, timeFormat]
   );
   const [page, setPage] = useState(1);
   return (
@@ -43,12 +43,13 @@ export const Activity = () => {
                 <div key={activityGroup.date}>
                   <span>{activityGroup.date}</span>
                   <div>
-                    {activityGroup.activity.map((activityItem) => (
+                    {activityGroup.activity.map((activityItem) => {
+                      return (
                       <ActivityCard
                         key={`${activityItem.id}-${activityItem.currency}-${activityItem.type}-${activityItem.date}-${activityItem.time}`}
                         activity={activityItem}
                       />
-                    ))}
+                    )})}
                   </div>
                 </div>
               )
