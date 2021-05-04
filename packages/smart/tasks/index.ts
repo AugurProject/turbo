@@ -8,5 +8,4 @@ export * from "./rundown";
 export * from "./setTrustedResolution";
 export * from "./requestScore";
 export * from "./fundLink";
-export * from "./verifyDeploy";
 export * from "./getTeams";
