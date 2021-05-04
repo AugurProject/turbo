@@ -30,6 +30,7 @@ import {
   lpTokensOnChainToDisplay,
   sharesOnChainToDisplay,
   sharesDisplayToOnChain,
+  cashOnChainToDisplay,
 } from "./format-number";
 import {
   ETH,
@@ -208,35 +209,37 @@ const calcWeights = (prices: string[]): string[] => {
 };
 
 export async function getRemoveLiquidity(
-  balancerPoolId: string,
+  amm: AmmExchange,
   provider: Web3Provider,
-  cash: Cash,
   lpTokenBalance: string,
   account: string,
-  outcomes: AmmOutcome[] = []
+  cash: Cash
 ): Promise<LiquidityBreakdown | null> {
-  if (!provider || !balancerPoolId) {
-    console.error("getRemoveLiquidity: no provider or no balancer pool id");
+  if (!provider) {
+    console.error("getRemoveLiquidity: no provider");
     return null;
   }
-  const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
+  const { market } = amm;
+  const ammFactory = getAmmFactoryContract(provider, account);
+
   // balancer lp tokens are 18 decimal places
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
-  const results = await balancerPool
-    .calcExitPool(
-      lpBalance,
-      outcomes.map((o) => "0")
-    ) // uint256[] calldata minAmountsOut values be?
+  const results = await ammFactory.callStatic
+    .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
     .catch((e) => console.log(e));
 
   if (!results) return null;
-  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
-  const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
+  const { _balances, _collateralOut } = results;
+
+  const minAmounts: string[] = _balances.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
+  const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
+  const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
 
   return {
     minAmountsRaw,
     minAmounts,
+    cashAmount,
   };
 }
 
@@ -273,21 +276,22 @@ export async function estimateLPTokenInShares(
 }
 
 export function doRemoveLiquidity(
-  balancerPoolId: string,
+  amm: AmmExchange,
   provider: Web3Provider,
   lpTokenBalance: string,
   amountsRaw: string[],
   account: string,
   cash: Cash
 ): Promise<TransactionResponse | null> {
-  if (!provider || !balancerPoolId) {
-    console.error("doRemoveLiquidity: no provider or no balancer pool id");
+  if (!provider) {
+    console.error("doRemoveLiquidity: no provider");
     return null;
   }
-  const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
+  const { market } = amm;
+  const ammFactory = getAmmFactoryContract(provider, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
-  return balancerPool.exitPool(lpBalance, amountsRaw);
+  return ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
 export const estimateBuyTrade = async (
