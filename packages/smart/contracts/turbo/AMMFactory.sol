@@ -31,7 +31,8 @@ contract AMMFactory is BNum {
         address recipient,
         // from the perspective of the user. e.g. collateral is negative when adding liquidity
         int256 collateral,
-        int256 lpTokens
+        int256 lpTokens,
+        uint256[] sharesReturned
     );
     event SharesSwapped(
         address indexed marketFactory,
@@ -95,6 +96,11 @@ contract AMMFactory is BNum {
         uint256 _lpTokenBalance = _pool.balanceOf(address(this));
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
+        uint256[] memory _balances = new uint256[](_market.shareTokens.length);
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            _balances[i] = 0;
+        }
+
         emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
         emit LiquidityChanged(
             address(_marketFactory),
@@ -102,7 +108,8 @@ contract AMMFactory is BNum {
             msg.sender,
             _lpTokenRecipient,
             -int256(_initialLiquidity),
-            int256(_lpTokenBalance)
+            int256(_lpTokenBalance),
+            _balances
         );
 
         return _lpTokenBalance;
@@ -114,7 +121,7 @@ contract AMMFactory is BNum {
         uint256 _collateralIn,
         uint256 _minLPTokensOut,
         address _lpTokenRecipient
-    ) public returns (uint256) {
+    ) public returns  (uint256 _poolAmountOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
@@ -128,7 +135,7 @@ contract AMMFactory is BNum {
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Find poolAmountOut
-        uint256 _poolAmountOut = MAX_UINT;
+        _poolAmountOut = MAX_UINT;
 
         {
             uint256 _totalSupply = _pool.totalSupply();
@@ -147,21 +154,19 @@ contract AMMFactory is BNum {
             _pool.joinPool(_poolAmountOut, _maxAmountsIn);
         }
 
-        // Add liquidity to pool by depositing the remaining share tokens.
-        uint256 _totalLPTokens = _poolAmountOut;
+        require(_poolAmountOut >= _minLPTokensOut, "Would not have received enough LP tokens");
+
+        _pool.transfer(_lpTokenRecipient, _poolAmountOut);
+
+        // Transfer the remaining shares back to msg.sender.
+        _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
-            uint256 _tokenBalance = _token.balanceOf(address(this));
-            if (_tokenBalance == 0) continue;
-
-            uint256 __acquiredLPTokens =
-                _pool.joinswapExternAmountIn(address(_token), _token.balanceOf(address(this)), 0);
-            _totalLPTokens += __acquiredLPTokens;
+            _balances[i] = _token.balanceOf(address(this));
+            if (_balances[i] > 0) {
+                _token.transfer(_lpTokenRecipient, _balances[i]);
+            }
         }
-
-        require(_totalLPTokens >= _minLPTokensOut, "Would not have received enough LP tokens");
-
-        _pool.transfer(_lpTokenRecipient, _totalLPTokens);
 
         emit LiquidityChanged(
             address(_marketFactory),
@@ -169,10 +174,9 @@ contract AMMFactory is BNum {
             msg.sender,
             _lpTokenRecipient,
             -int256(_collateralIn),
-            int256(_totalLPTokens)
+            int256(_poolAmountOut),
+            _balances
         );
-
-        return _totalLPTokens;
     }
 
     function removeLiquidity(
@@ -223,7 +227,8 @@ contract AMMFactory is BNum {
             msg.sender,
             _collateralRecipient,
             int256(_collateralOut),
-            -int256(_lpTokensIn)
+            -int256(_lpTokensIn),
+            _balances
         );
     }
 
