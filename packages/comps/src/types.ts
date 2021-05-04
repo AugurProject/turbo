@@ -128,7 +128,7 @@ export interface AllMarketTransactions {
   addLiquidity: AddRemoveLIquidity[];
   removeLiquidity: AddRemoveLIquidity[];
   buys: BuySellTransactions[];
-  sells: BuySellTransactions[];  
+  sells: BuySellTransactions[];
 }
 export interface MarketTransactions {
   [marketId: string]: AllMarketTransactions;

@@ -30,6 +30,7 @@ import {
   lpTokensOnChainToDisplay,
   sharesOnChainToDisplay,
   sharesDisplayToOnChain,
+  cashOnChainToDisplay,
 } from "./format-number";
 import {
   ETH,
@@ -211,7 +212,8 @@ export async function getRemoveLiquidity(
   amm: AmmExchange,
   provider: Web3Provider,
   lpTokenBalance: string,
-  account: string
+  account: string,
+  cash: Cash
 ): Promise<LiquidityBreakdown | null> {
   if (!provider) {
     console.error("getRemoveLiquidity: no provider");
@@ -223,18 +225,22 @@ export async function getRemoveLiquidity(
   // balancer lp tokens are 18 decimal places
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
-  const results = await ammFactory
+  const results = await ammFactory.callStatic
     .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
     .catch((e) => console.log(e));
 
-    console.log('results', results)
+  console.log("results", results);
   if (!results) return null;
-  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
-  const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
+  const { _balances, _collateralOut } = results;
+
+  const minAmounts: string[] = _balances.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
+  const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
+  const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
 
   return {
     minAmountsRaw,
     minAmounts,
+    cashAmount,
   };
 }
 
@@ -282,7 +288,7 @@ export function doRemoveLiquidity(
     console.error("doRemoveLiquidity: no provider");
     return null;
   }
-  console.log('amountsRaw', amountsRaw)
+  console.log("amountsRaw", amountsRaw);
   const { market } = amm;
   const ammFactory = getAmmFactoryContract(provider, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
