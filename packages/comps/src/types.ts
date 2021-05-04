@@ -116,7 +116,9 @@ export interface BuySellTransactions {
   id: string;
   outcome: string;
   shares: string;
+  price: string;
   user: string;
+  timestamp: string;
 }
 export interface AddRemoveLiquidity {
   collateral: string;
