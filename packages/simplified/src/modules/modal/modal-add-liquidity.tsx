@@ -166,7 +166,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             .plus(new BN(shareBalance || "0"))
             .div(new BN(displaySupply).plus(new BN(estimatedLpAmount)))
             .times(new BN(100))
-            .abs()          
+            .abs()
         );
       } else if (isRemove) {
         const userBalanceLpTokens = balances?.lpTokens[amm?.marketId];
@@ -190,7 +190,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   } else if (hasPriceErrors) {
     buttonError = "Price is not valid";
   }
-  
+
   let lessThanMinPrice = false;
 
   let inputFormError = "";
@@ -232,7 +232,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveLiquidity(amm.id, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
+      doRemoveLiquidity(amm, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -294,7 +294,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     async function getResults() {
       let results: LiquidityBreakdown;
       if (isRemove) {
-        results = await getRemoveLiquidity(amm.id, loginAccount?.library, cash, amount, account, outcomes);
+        results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash);
       } else {
         results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount, unOrderOutcomesForDisplay(outcomes));
       }
@@ -307,7 +307,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     }
 
     if (isApproved && !buttonError)
-    getResults();
+      getResults();
   }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice]);
 
   const LIQUIDITY_STRINGS = {
@@ -323,10 +323,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       currencyName: SHARES,
       footerText: `Removing liquidity returns shares; these shares may be sold for ${chosenCash}.`,
       breakdown: breakdown?.minAmounts
-        ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
-            label: `${outcomes[i]?.name} Shares`,
-            value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-          }))
+        ? [...breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
+          label: `${outcomes[i]?.name} Shares`,
+          value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
+        })), {
+          label: "amount",
+          value: `${breakdown.cashAmount} ${amm?.cash?.name}`,
+        }]
         : [],
       liquidityDetails: {
         title: "Market Liquidity Details",
@@ -353,10 +356,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       confirmReceiveOverview: {
         title: "What you will recieve",
         breakdown: breakdown?.minAmounts
-          ? breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
-              label: `${outcomes[i]?.name} Shares`,
-              value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-            }))
+          ? [...breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
+            label: `${outcomes[i]?.name} Shares`,
+            value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
+          })), {
+            label: "amount",
+            value: `${breakdown.cashAmount} ${amm?.cash?.name}`,
+          }]
           : [],
       },
     },

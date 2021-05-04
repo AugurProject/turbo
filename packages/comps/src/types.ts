@@ -124,13 +124,14 @@ export interface AddRemoveLIquidity {
   transactionHash: string;
 }
 
+export interface AllMarketTransactions {
+  addLiquidity: AddRemoveLIquidity[];
+  removeLiquidity: AddRemoveLIquidity[];
+  buys: BuySellTransactions[];
+  sells: BuySellTransactions[];
+}
 export interface MarketTransactions {
-  [marketId: string]: {
-    addLiquidity: AddRemoveLIquidity[];
-    removeLiquidity: AddRemoveLIquidity[];
-    buys: BuySellTransactions[];
-    sells: BuySellTransactions[];
-  };
+  [marketId: string]: AllMarketTransactions;
 }
 
 export interface Trade {
