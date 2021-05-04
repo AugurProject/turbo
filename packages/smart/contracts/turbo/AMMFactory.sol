@@ -40,7 +40,8 @@ contract AMMFactory is BNum {
         uint256 outcome,
         // from the perspective of the user. e.g. collateral is negative when buying
         int256 collateral,
-        int256 shares
+        int256 shares,
+        uint256 price
     );
 
     constructor(BFactory _bFactory, uint256 _fee) {
@@ -243,18 +244,21 @@ contract AMMFactory is BNum {
         uint256 _sets = _marketFactory.calcShares(_collateralIn);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
-        OwnedERC20 _desiredToken = _market.shareTokens[_outcome];
         uint256 _totalDesiredOutcome = _sets;
-        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            if (i == _outcome) continue;
-            OwnedERC20 _token = _market.shareTokens[i];
-            (uint256 _acquiredToken, ) =
-                _pool.swapExactAmountIn(address(_token), _sets, address(_desiredToken), 0, MAX_UINT);
-            _totalDesiredOutcome += _acquiredToken;
-        }
-        require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
+        {
+            OwnedERC20 _desiredToken = _market.shareTokens[_outcome];
 
-        _desiredToken.transfer(msg.sender, _totalDesiredOutcome);
+            for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+                if (i == _outcome) continue;
+                OwnedERC20 _token = _market.shareTokens[i];
+                (uint256 _acquiredToken, ) =
+                    _pool.swapExactAmountIn(address(_token), _sets, address(_desiredToken), 0, MAX_UINT);
+                _totalDesiredOutcome += _acquiredToken;
+            }
+            require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
+
+            _desiredToken.transfer(msg.sender, _totalDesiredOutcome);
+        }
 
         emit SharesSwapped(
             address(_marketFactory),
@@ -262,7 +266,8 @@ contract AMMFactory is BNum {
             msg.sender,
             _outcome,
             -int256(_collateralIn),
-            int256(_totalDesiredOutcome)
+            int256(_totalDesiredOutcome),
+            bmul(_sets, _totalDesiredOutcome)
         );
 
         return _totalDesiredOutcome;
@@ -277,26 +282,27 @@ contract AMMFactory is BNum {
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
-
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
-
-        OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
-        _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
-        _undesiredToken.approve(address(_pool), MAX_UINT);
-
         uint256 _undesiredTokenOut = _setsOut;
-        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            if (i == _outcome) continue;
-            OwnedERC20 _token = _market.shareTokens[i];
-            (uint256 tokenAmountIn, ) =
-                _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _setsOut, MAX_UINT);
-            _undesiredTokenOut += tokenAmountIn;
+        {
+            AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+
+            OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
+            _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
+            _undesiredToken.approve(address(_pool), MAX_UINT);
+
+            for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+                if (i == _outcome) continue;
+                OwnedERC20 _token = _market.shareTokens[i];
+                (uint256 tokenAmountIn, ) =
+                    _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _setsOut, MAX_UINT);
+                _undesiredTokenOut += tokenAmountIn;
+            }
+
+            _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
+
+            // Transfer undesired token balance back.
+            _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
         }
-
-        _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
-
-        // Transfer undesired token balance back.
-        _undesiredToken.transfer(msg.sender, _shareTokensIn - _undesiredTokenOut);
 
         uint256 _collateralOut = _marketFactory.calcCost(_setsOut);
         emit SharesSwapped(
@@ -305,7 +311,8 @@ contract AMMFactory is BNum {
             msg.sender,
             _outcome,
             int256(_collateralOut),
-            -int256(_undesiredTokenOut)
+            -int256(_undesiredTokenOut),
+            bmul(_setsOut, _undesiredTokenOut)
         );
 
         return _collateralOut;
