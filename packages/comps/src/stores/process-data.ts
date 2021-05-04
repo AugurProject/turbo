@@ -1,7 +1,7 @@
-import { BUY, SELL, TransactionTypes } from "../utils/constants";
+import { BUY, SELL, USDC, TransactionTypes } from "../utils/constants";
 import { getDayFormat, getDayTimestamp, getTimeFormat } from "../utils/date-utils";
-import { AmmExchange, MarketInfo, ActivityData, AmmTransaction, Cash } from "../types";
-import { convertOnChainCashAmountToDisplayCashAmount, convertOnChainSharesToDisplayShareAmount, formatCash, formatCashPrice, formatSimpleShares, isSameAddress, sharesOnChainToDisplay } from "../utils/format-number";
+import { MarketInfo, ActivityData, AmmTransaction, Cash } from "../types";
+import { convertOnChainCashAmountToDisplayCashAmount, formatCash, formatCashPrice, formatSimpleShares, isSameAddress, sharesOnChainToDisplay } from "../utils/format-number";
 import { createBigNumber } from "../utils/create-big-number";
 
 export const shapeUserActvity = (
@@ -12,7 +12,7 @@ export const shapeUserActvity = (
   timeFormat?: string
 ): ActivityData[] => {
   let userTransactions = [];
-  const usdc = cashes["0x5B9a38Bf07324B2Ff946F1ccdBD4698A8BC6c952"];
+  const usdc = Object.entries(cashes).find((cash) => cash[1].name === USDC)[1];;
   for (const marketTransactions in transactions) {
     const marketTrades =
       transactions[marketTransactions].trades?.filter((trade) => isSameAddress(trade.user, account)) || [];
@@ -29,9 +29,6 @@ export const shapeUserActvity = (
   
   return formatUserTransactionActvity(account, markets, userTransactions, usdc, timeFormat);
 };
-// date?: string;
-// sortableMonthDay?: number;
-// activity?: ActivityItem[];
 
 const getActivityType = (
   tx: AmmTransaction,
@@ -45,7 +42,6 @@ const getActivityType = (
   let type = null;
   let subheader = null;
   let value = null;
-  console.log("in activityTypeFormer thing", tx);
   switch (tx.tx_type) {
     case TransactionTypes.ADD_LIQUIDITY: {
       type = 'Add Liquidity';
@@ -58,11 +54,10 @@ const getActivityType = (
       break;
     }
     default: {
-      const shares = sharesOnChainToDisplay(createBigNumber(tx.shares));
-      const collateral = convertOnChainCashAmountToDisplayCashAmount(tx.collateral, cash.decimals);
+      const shares = sharesOnChainToDisplay(createBigNumber(tx?.shares));
+      const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
       const isBuy = collateral.lt(0);
-      const shareType = market?.outcomes?.find(o => o.id === createBigNumber(tx.outcome).toNumber())?.name;
-      console.log(shareType);
+      const shareType = market?.outcomes?.find(o => o.id === createBigNumber(tx?.outcome).toNumber())?.name;
       const formattedPrice = formatCashPrice(tx.price, cash.name);
       subheader = `${formatSimpleShares(String(shares)).full
         } Shares of ${shareType} @ ${formattedPrice.full}`;
@@ -114,9 +109,11 @@ export const formatUserTransactionActvity = (
       // });
 
       const datedUserTx = transactions.map((t) => {
-        const market = markets[`${transaction.marketId.id}`];
-        console.log("datedUserTx", market);
+        const market = markets[`${transaction?.marketId?.id}`];
         const typeDetails = getActivityType(t, cash, market);
+        if (!market) {
+          return null;
+        }
         return {
           id: t.id,
           currency: cashName,
@@ -144,6 +141,7 @@ export const formatUserTransactionActvity = (
         item.activity.push(t);
         return p;
       }
+      if (t === null) return [...p];
       return [
         ...p,
         {
