@@ -183,7 +183,7 @@ export const GET_TRANSACTIONS = gql`
     senders(where: { id: $account }) {
       claimedFees {
         id
-        cash
+        collateral
         timestamp
         transactionHash
         receiver
@@ -195,7 +195,10 @@ export const GET_TRANSACTIONS = gql`
         marketId
         timestamp
         transactionHash
-        cash
+        payout
+        sender {
+          id
+        }
       }
     }
     markets {
