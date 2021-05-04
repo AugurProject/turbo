@@ -28,7 +28,7 @@ const { parsePath } = PathUtils;
 
 
 const AppBody = () => {
-  const { markets, cashes, ammExchanges, blocknumber } = useDataStore();
+  const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
   const { sidebarType, showTradingForm } = useSimplifiedStore();
   const { loginAccount, actions: { logout }, } = useUserStore();
@@ -37,7 +37,7 @@ const AppBody = () => {
   const path = parsePath(location.pathname)[0];
   const sidebarOut = sidebarType && isMobile;
 
-  useUserBalances(ammExchanges, cashes, markets);
+  useUserBalances(ammExchanges, cashes, markets, transactions);
   useFinalizeUserTransactions(blocknumber);
   usePageView();
   const activeWeb3 = useActiveWeb3React();

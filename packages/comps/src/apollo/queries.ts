@@ -246,6 +246,7 @@ export const BIG_TEST = gql`
         }
         transactionHash
         timestamp
+        collateral
         outcomes {
           id
         }
