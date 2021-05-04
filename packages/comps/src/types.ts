@@ -85,11 +85,16 @@ export interface AmmTransaction {
   id: string;
   tx_type: string;
   cash: string;
-  noShares: string;
-  yesShares: string;
+  shares?: string;
+  noShares?: string;
+  yesShares?: string;
+  marketId?: { id: string };
   sender: string;
   timestamp: string;
   tx_hash: string;
+  transactionHash?: string;
+  outcome?: string;
+  collateral?: string;
   price?: string;
   value: string;
   subheader: string;
@@ -229,6 +234,8 @@ export interface ClaimedProceeds {
 export interface MarketInfo {
   marketId: string;
   eventId: string;
+  sportId?: string;
+  sportsMarketType?: number;
   marketFactoryAddress: string;
   turboId: string;
   title: string;

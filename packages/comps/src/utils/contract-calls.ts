@@ -1211,7 +1211,7 @@ const retrieveMarkets = async (
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
-    const marketId = `${context.marketFactoryAddress}-${context.index}`;
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
 
     if (method === GET_MARKET_DETAILS) {
       details[marketId] = data;
@@ -1442,7 +1442,7 @@ const retrieveExchangeInfos = async (
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
-    const marketId = `${context.marketFactoryAddress}-${context.index}`;
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
 
     if (method === GET_RATIOS) {
       ratios[marketId] = data;

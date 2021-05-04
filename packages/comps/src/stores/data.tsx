@@ -3,7 +3,7 @@ import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_RE
 import { useData } from "./data-hooks";
 import { useUserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
-import { getTransactions } from "../apollo/client";
+import { getAllTransactions } from "../apollo/client";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -56,21 +56,19 @@ export const DataProvider = ({ children }: any) => {
   }, [provider, account]);
 
   useEffect(() => {
-    // start data heartbeat
     let isMounted = true;
+    const fetchTransactions = () => getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions));
 
-    const fetchLiquidities = () => getTransactions((transactions) => isMounted && updateTransactions(transactions));
-
-    fetchLiquidities();
+    fetchTransactions();
 
     const intervalId = setInterval(() => {
-      fetchLiquidities();
+      fetchTransactions();
     }, NETWORK_BLOCK_REFRESH_TIME[42]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
-    };
-  }, []);
+    }
+  })
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 };
