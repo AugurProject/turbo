@@ -721,7 +721,6 @@ const populateClaimableWinnings = (
       const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
       if (userShares && new BN(userShares?.rawBalance).gt(0)) {
-        const initValue = userShares.initCostCash; // get init CostCash
         const claimableBalance = new BN(userShares.balance).minus(new BN(initValue)).abs().toFixed(4);
         marketShares[amm.marketId].claimableWinnings = {
           claimableBalance,
@@ -771,7 +770,6 @@ const getPositionUsdValues = (
   let change24hrPositionUsd = null;
   let avgPrice = "0";
   let initCostUsd = "0";
-  let initCostCash = "0";
   let totalChangeUsd = "0";
   let quantity = trimDecimalValue(balance);
   const outcomeId = Number(outcome);
@@ -786,7 +784,6 @@ const getPositionUsdValues = (
 
   let result = {
     avgPrice: "0",
-    initCostCash: "0",
     positionFromRemoveLiquidity: false,
     positionFromLiquidity: false,
   };
@@ -797,7 +794,6 @@ const getPositionUsdValues = (
   if (postitionResult) {
     avgPrice = trimDecimalValue(postitionResult.avgPrice);
     initCostUsd = new BN(postitionResult.avgPrice).times(new BN(quantity)).toFixed(4);
-    initCostCash = postitionResult.initCostCash;
   }
 
   let usdChangedValue = new BN(currUsdValue).minus(new BN(initCostUsd));
@@ -822,7 +818,6 @@ const getPositionUsdValues = (
     totalChangeUsd,
     avgPrice,
     initCostUsd,
-    initCostCash,
     outcomeName,
     outcomeId,
     maxUsdValue,
@@ -935,14 +930,11 @@ const getInitPositionValues = (
   outcome: string,
   account: string,
   userClaims: UserClaimTransactions
-): { avgPrice: string; initCostCash: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
+): { avgPrice: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
   const outcomeId = String(new BN(outcome));
   // sum up trades shares
-
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
   const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcomeId, account, claimTimestamp);
-  const sharesExited = accumSharesPrice(marketTransactions?.sells, outcomeId, account, claimTimestamp);
-
   const enterAvgPriceBN = sharesEntered.shares.gt(0) ? sharesEntered.cashAmount.div(sharesEntered.shares) : new BN(0);
 
   // get shares from LP activity
@@ -956,14 +948,6 @@ const getInitPositionValues = (
 
   const positionFromLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
-
-  // liquidity has cash and cash for shares properties
-  const allInputCashAmounts = sharesRemoveLiquidity.cashAmount
-    .plus(sharesAddLiquidity.cashAmount)
-    .plus(sharesEntered.cashAmount);
-  const netCashAmounts = allInputCashAmounts.minus(sharesExited.cashAmount);
-  const allTradeCashAmounts = convertOnChainSharesToDisplayShareAmount(netCashAmounts, amm.cash.decimals);
-
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
   const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
 
@@ -978,7 +962,6 @@ const getInitPositionValues = (
 
   return {
     avgPrice: String(weightedAvgPrice),
-    initCostCash: allTradeCashAmounts.toFixed(4),
     positionFromLiquidity,
     positionFromRemoveLiquidity,
   };
@@ -991,7 +974,6 @@ const accumSharesPrice = (
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
-
   const result = transactions
     .filter(
       (t) =>
@@ -1000,7 +982,7 @@ const accumSharesPrice = (
     .reduce(
       (p, t) => ({
         shares: p.shares.plus(new BN(t.shares)),
-        cashAmount: p.cashAmount.plus(new BN(t.shares).times(new BN(t.price || "0"))),
+        cashAmount: p.cashAmount.plus(new BN(t.collateral).abs()),
       }),
       { shares: new BN(0), cashAmount: new BN(0) }
     );
