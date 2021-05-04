@@ -166,6 +166,7 @@ export const isInvalidNumber = (number) => {
 };
 
 const Outcome = ({
+  key,
   outcome,
   selected,
   onClick,
@@ -273,6 +274,7 @@ export const OutcomesGrid = ({
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
         .map((outcome, index) => (
           <Outcome
+            key={`outcome-${outcome.id}`}
             index={outcome.id}
             selected={selectedOutcome && outcome.id === selectedOutcome?.id && !showAllHighlighted}
             nonSelectable={nonSelectable}

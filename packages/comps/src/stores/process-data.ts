@@ -6,6 +6,7 @@ import {
   formatCash,
   formatCashPrice,
   formatSimpleShares,
+  // formatLpTokens,
   isSameAddress,
   sharesOnChainToDisplay,
 } from "../utils/format-number";
@@ -23,18 +24,26 @@ export const shapeUserActvity = (
   for (const marketTransactions in transactions) {
     const marketTrades =
       transactions[marketTransactions].trades?.filter((trade) => isSameAddress(trade.user, account)) || [];
-    const adds =
+    const adds = (
       transactions[marketTransactions].addLiquidity?.filter((transaction) =>
         isSameAddress(transaction.sender.id, account)
-      ) || [].map((tx) => (tx.tx_type = TransactionTypes.ADD_LIQUIDITY));
-    const removes =
+      ) || []
+    ).map((tx) => {
+      tx.tx_type = TransactionTypes.ADD_LIQUIDITY;
+      return tx;
+    });
+    const removes = (
       transactions[marketTransactions].removeLiquidity?.filter((transaction) =>
         isSameAddress(transaction.sender.id, account)
-      ) || [].map((tx) => (tx.tx_type = TransactionTypes.REMOVE_LIQUIDITY));
+      ) || []
+    ).map((tx) => {
+      tx.tx_type = TransactionTypes.REMOVE_LIQUIDITY;
+      return tx;
+    });
     userTransactions = userTransactions.concat(marketTrades).concat(adds).concat(removes);
   }
-  const processedFees = (transactions?.claimedFees || []).map(tx => tx.tx_type = `Claimed Fees`);
-  const processedProceeds = (transactions?.claimedProceeds || []).map(tx => tx.tx_type = `Claimed Proceeds`);
+  const processedFees = (transactions?.claimedFees || []).map((tx) => (tx.tx_type = `Claimed Fees`));
+  const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => (tx.tx_type = `Claimed Proceeds`));
   userTransactions.concat(processedFees).concat(processedProceeds);
   return formatUserTransactionActvity(account, markets, userTransactions, usdc, timeFormat);
 };
@@ -54,12 +63,16 @@ const getActivityType = (
   switch (tx.tx_type) {
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
-      value = `${formatCash(tx.value, cash.name).full}`;
+      const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
+      value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       break;
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
-      value = `${formatCash(tx.value, cash.name).full}`;
+      const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
+      // commented for now, we may need these for more descriptions.
+      // const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs())).full;
+      value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       break;
     }
     default: {
@@ -97,11 +110,11 @@ export const formatUserTransactionActvity = (
       const cashName = cash?.name;
       let datedUserTx = null;
       switch (transaction.tx_type) {
-        case 'Claimed Proceeds': {
+        case "Claimed Proceeds": {
           console.log("proceeds", transaction);
           break;
         }
-        case 'Claimed Fees': {
+        case "Claimed Fees": {
           console.log("fees", transaction);
           break;
         }
@@ -126,7 +139,7 @@ export const formatUserTransactionActvity = (
           break;
         }
       }
-     
+
       // const claims = markets[
       //   `${transaction.marketId}-${transaction.id}`
       // ].claimedProceeds.filter((c) => isSameAddress(c.user, account) && c.cash.name === cashName);
@@ -148,8 +161,7 @@ export const formatUserTransactionActvity = (
       //   };
       // });
       // const datedUserTx = [transaction].map((t) => {
-        
-        
+
       //   if (!market) {
       //     return null;
       //   }
