@@ -51,3 +51,5 @@ dataSources:
       eventHandlers:
         - event: WinningsClaimed(uint256,uint256,indexed address)
           handler: handleWinningsClaimedEvent
+        - event: SettlementFeeClaimed(address,uint256,indexed address)
+          handler: handleSettlementFeeClaimedEvent

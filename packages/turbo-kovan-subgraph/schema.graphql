@@ -163,7 +163,8 @@ type ClaimedFees @entity {
   id: ID!
   sender: Sender!
   cash: String!
-  marketId: String!
   transactionHash: String!
   timestamp: BigInt!
+  receiver: String!
+  marketId: String!
 }
