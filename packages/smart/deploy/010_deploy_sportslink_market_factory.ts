@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { calcShareFactor } from "../src";
 import { makeSigner } from "../tasks";
-import { Cash } from "../typechain";
+import { Cash, SportsLinkMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, ethers } = hre;
@@ -15,12 +15,30 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const shareFactor = calcShareFactor(await collateral.decimals());
 
   const feePot = await deployments.get("FeePot");
-  const stakerFee = BigNumber.from(10).pow(16);
-  const creatorFee = BigNumber.from(10).pow(16);
+  const stakerFee = 0;
+  const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.005%
+  const protocolFee = 0;
+
+  // These should be specified but they're changeable so setting them to deployer is OK.
+  const owner = deployer;
+  const protocol = deployer;
+  const linkNode = deployer;
+
+  const args: Parameters<SportsLinkMarketFactory__factory["deploy"]> = [
+    owner,
+    collateral.address,
+    shareFactor,
+    feePot.address,
+    stakerFee,
+    settlementFee,
+    protocol,
+    protocolFee,
+    linkNode,
+  ];
 
   await deployments.deploy("SportsLinkMarketFactory", {
     from: deployer,
-    args: [deployer, collateral.address, shareFactor, feePot.address, stakerFee, creatorFee],
+    args,
     log: true,
   });
 };
