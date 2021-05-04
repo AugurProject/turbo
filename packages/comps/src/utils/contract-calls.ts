@@ -16,11 +16,12 @@ import {
   AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
-  MarketTransactions,
+  AllMarketsTransactions,
   BuySellTransactions,
-  AllMarketTransactions,
+  MarketTransactions,
   AddRemoveLiquidity,
   ClaimWinningsTransactions,
+  UserClaimTransactions,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
@@ -510,7 +511,7 @@ export const getUserBalances = async (
   ammExchanges: AmmExchanges,
   cashes: Cashes,
   markets: MarketInfos,
-  transactions: MarketTransactions
+  transactions: AllMarketsTransactions
 ): Promise<UserBalances> => {
   const userBalances = {
     ETH: {
@@ -536,8 +537,8 @@ export const getUserBalances = async (
 
   if (!account || !provider) return userBalances;
 
-  const userTransactions = getUserTransactions(transactions, account);
-
+  const userMarketTransactions = getUserTransactions(transactions, account);
+  const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -657,7 +658,7 @@ export const getUserBalances = async (
 
         // shape AmmMarketShares
         const existingMarketShares = userBalances.marketShares[marketId];
-        const marketTransactions = userTransactions[marketId];
+        const marketTransactions = userMarketTransactions[marketId];
         const exchange = ammExchanges[marketId];
         if (existingMarketShares) {
           const position = getPositionUsdValues(
@@ -666,7 +667,8 @@ export const getUserBalances = async (
             fixedShareBalance,
             outcomeId,
             exchange,
-            account
+            account,
+            userClaims
           );
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
@@ -685,7 +687,8 @@ export const getUserBalances = async (
             fixedShareBalance,
             outcomeId,
             exchange,
-            account
+            account,
+            userClaims
           );
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
@@ -758,12 +761,13 @@ const getTotalPositions = (
 };
 
 const getPositionUsdValues = (
-  trades: AllMarketTransactions,
+  marketTransactions: MarketTransactions,
   rawBalance: string,
   balance: string,
   outcome: string,
   amm: AmmExchange,
-  account: string
+  account: string,
+  userClaims: UserClaimTransactions,
 ): PositionBalance => {
   let past24hrUsdValue = null;
   let change24hrPositionUsd = null;
@@ -790,7 +794,7 @@ const getPositionUsdValues = (
   };
 
   const currUsdValue = new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)).toFixed();
-  const postitionResult = getInitPositionValues(trades, amm, outcome, account);
+  const postitionResult = getInitPositionValues(marketTransactions, amm, outcome, account, userClaims);
 
   if (postitionResult) {
     avgPrice = trimDecimalValue(postitionResult.avgPrice);
@@ -878,7 +882,7 @@ const populateInitLPValues = async (
 };
 
 export const getUserLpTokenInitialAmount = (
-  transactions: MarketTransactions,
+  transactions: AllMarketsTransactions,
   account: string,
   cash: Cash
 ): { [marketId: string]: string } => {
@@ -898,7 +902,7 @@ export const getUserLpTokenInitialAmount = (
   }, {});
 };
 
-const getUserTransactions = (transactions: MarketTransactions, account: string): MarketTransactions => {
+const getUserTransactions = (transactions: AllMarketsTransactions, account: string): AllMarketsTransactions => {
   if (!transactions) return {};
   console.log("transactions", transactions);
   return Object.keys(transactions).reduce((p, marketId) => {
@@ -925,13 +929,14 @@ const getUserTransactions = (transactions: MarketTransactions, account: string):
 };
 
 const getInitPositionValues = (
-  marketTransactions: AllMarketTransactions,
+  marketTransactions: MarketTransactions,
   amm: AmmExchange,
   outcome: string,
-  account: string
+  account: string,
+  userClaims: UserClaimTransactions,
 ): { avgPrice: string; initCostCash: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
   // sum up trades shares
-  const claimTimestamp = lastClaimTimestamp(marketTransactions?.claimWinnings, outcome, account);
+  const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcome, account);
   const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcome, account, claimTimestamp);
   const sharesExited = accumSharesPrice(marketTransactions?.sells, outcome, account, claimTimestamp);
 
