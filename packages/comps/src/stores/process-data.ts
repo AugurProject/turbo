@@ -136,7 +136,7 @@ export const formatUserTransactionActvity = (
       return [...p, ...datedUserTx];
       // return [...p, ...datedUserTx, ...userClaims];
     }, [])
-    .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
+    .sort((a, b) => (a?.timestamp < b?.timestamp ? 1 : -1));
 
   // form array of grouped by date activities
   return [...formattedTransactions]

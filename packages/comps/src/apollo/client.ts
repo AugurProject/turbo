@@ -139,7 +139,7 @@ export async function getTransactions(cb) {
   }
 }
 
-export async function getAllTransactions(account, cb) {
+export async function getAllTransactions(account = "0x0", cb) {
   const clientConfig = getClientConfig();
   let response = null;
   try {
