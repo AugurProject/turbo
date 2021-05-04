@@ -121,7 +121,7 @@ contract AMMFactory is BNum {
         uint256 _collateralIn,
         uint256 _minLPTokensOut,
         address _lpTokenRecipient
-    ) public returns  (uint256 _poolAmountOut, uint256[] memory _balances) {
+    ) public returns (uint256 _poolAmountOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
