@@ -24,10 +24,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = deployer;
 
   const args: Parameters<TrustedMarketFactory__factory["deploy"]> = [
-    owner, collateral.address, shareFactor, feePot.address, stakerFee, settlementFee, protocol, protocolFee
-]
+    owner,
+    collateral.address,
+    shareFactor,
+    feePot.address,
+    stakerFee,
+    settlementFee,
+    protocol,
+    protocolFee,
+  ];
 
-    await deployments.deploy("TrustedMarketFactory", {
+  await deployments.deploy("TrustedMarketFactory", {
     from: deployer,
     args,
     log: true,
