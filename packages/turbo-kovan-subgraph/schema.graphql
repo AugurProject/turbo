@@ -92,6 +92,8 @@ type RemoveLiquidity @entity {
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
+  collateral: String!
+  lpTokens: String!
 }
 
 type Buy @entity {
@@ -100,8 +102,9 @@ type Buy @entity {
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
-  price: String
-  cash: String
+  collateral: String!
+  shares: String!
+  price: BigDecimal!
 }
 
 type Sell @entity {
@@ -110,9 +113,9 @@ type Sell @entity {
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
-  amount: String
-  price: String
-  cash: String
+  collateral: String!
+  shares: String!
+  price: BigDecimal!
 }
 
 type Trades @entity {
@@ -130,22 +133,12 @@ type Trades @entity {
   collateral: String!
 
   shares: String!
-}
 
-type User @entity {
-  id: ID!
+  price: BigDecimal!
 
-  winningsClaimed: [WinningsClaimed!]! @derivedFrom(field: "user")
-}
+  transactionHash: String!
 
-type WinningsClaimed @entity {
-  id: ID!
-
-  user: User!
-
-  marketId: String!
-
-  winningShares: String!
+  timestamp: BigInt!
 }
 
 type ClaimedProceeds @entity {
@@ -154,7 +147,7 @@ type ClaimedProceeds @entity {
   fees: String!
   outcome: String!
   marketId: String!
-  cash: String!
+  collateral: String!
   transactionHash: String!
   timestamp: BigInt!
 }
@@ -162,9 +155,8 @@ type ClaimedProceeds @entity {
 type ClaimedFees @entity {
   id: ID!
   sender: Sender!
-  cash: String!
+  collateral: String!
   transactionHash: String!
   timestamp: BigInt!
   receiver: String!
-  marketId: String!
 }

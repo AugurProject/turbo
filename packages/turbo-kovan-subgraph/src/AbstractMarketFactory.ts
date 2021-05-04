@@ -1,12 +1,6 @@
 import { ClaimedFees, ClaimedProceeds, Sender } from "../generated/schema";
 import { WinningsClaimed, SettlementFeeClaimed  } from "../generated/AbstractMarketFactory/AbstractMarketFactory";
-
-// WinningsClaimed(
-//   uint256 id,
-//   uint256 amount,
-//   address indexed receiver
-// );
-// WinningsClaimed(_id, _winningShares, msg.sender);
+import { bigIntToHexString } from "./utils";
 
 // ClaimedProceeds {
 //   id
@@ -38,13 +32,12 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   senderEntity.save();
 
   entity.marketId = event.params.id.toHexString();
+  entity.sender = senderId;
+  entity.collateral = bigIntToHexString(event.params.amount);
+  entity.outcome = event.params.winningOutcome.toHexString();
+  entity.fees = bigIntToHexString(event.params.settlementFee);
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
-  entity.sender = senderId;
-  // TODO: confirm fields with Tom
-  // entity.cash = event.params.cash;
-  // entity.outcome = event.params.outcome;
-  // entity.fees = event.params.fees;
 
   entity.save();
 }
@@ -78,11 +71,11 @@ export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed) {
 
   senderEntity.save();
 
-  entity.marketId = event.params.marketId.toHexString();
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
+  entity.collateral = bigIntToHexString(event.params.amount);
   entity.sender = senderId;
   entity.receiver = event.params.receiver.toHexString();
+  entity.transactionHash = event.transaction.hash.toHexString();
+  entity.timestamp = event.block.timestamp;
 
   entity.save();
 }
