@@ -113,7 +113,7 @@ export interface BuySellTransactions {
   shares: string;
   user: string;
 }
-export interface AddRemoveLIquidity {
+export interface AddRemoveLiquidity {
   collateral: string;
   id: string;
   lpTokens: string;
@@ -122,13 +122,23 @@ export interface AddRemoveLIquidity {
   };
   timestamp: string;
   transactionHash: string;
+  outcomes: string[];
 }
 
+export interface ClaimWinningsTransactions {
+  id: string;
+  outcome: string;
+  winningShares: string;
+  settlementFee: string;
+  payout: string;
+  receiver: string;
+}
 export interface AllMarketTransactions {
-  addLiquidity: AddRemoveLIquidity[];
-  removeLiquidity: AddRemoveLIquidity[];
+  addLiquidity: AddRemoveLiquidity[];
+  removeLiquidity: AddRemoveLiquidity[];
   buys: BuySellTransactions[];
   sells: BuySellTransactions[];
+  claimWinnings: ClaimWinningsTransactions[];
 }
 export interface MarketTransactions {
   [marketId: string]: AllMarketTransactions;

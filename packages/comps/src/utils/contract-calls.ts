@@ -17,6 +17,10 @@ import {
   LiquidityBreakdown,
   AmmOutcome,
   MarketTransactions,
+  BuySellTransactions,
+  AllMarketTransactions,
+  AddRemoveLiquidity,
+  ClaimWinningsTransactions,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
@@ -500,11 +504,6 @@ export const claimWinnings = (
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
-interface UserTrades {
-  enters: AmmTransaction[];
-  exits: AmmTransaction[];
-}
-
 export const getUserBalances = async (
   provider: Web3Provider,
   account: string,
@@ -791,7 +790,7 @@ const getPositionUsdValues = (
   };
 
   const currUsdValue = new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)).toFixed();
-  const postitionResult = getInitPositionValues(trades, amm, false, account);
+  const postitionResult = getInitPositionValues(trades, amm, outcome, account);
 
   if (postitionResult) {
     avgPrice = trimDecimalValue(postitionResult.avgPrice);
@@ -900,6 +899,8 @@ export const getUserLpTokenInitialAmount = (
 };
 
 const getUserTransactions = (transactions: MarketTransactions, account: string): MarketTransactions => {
+  if (!transactions) return {};
+  console.log("transactions", transactions);
   return Object.keys(transactions).reduce((p, marketId) => {
     const id = marketId.toLowerCase();
     const addLiquidity = transactions[marketId].addLiquidity.filter((t) => isSameAddress(t.sender.id, account));
@@ -923,23 +924,27 @@ const getUserTransactions = (transactions: MarketTransactions, account: string):
   }, {});
 };
 
-// TODO: isYesOutcome is for convenience, down the road, outcome index will be used.
 const getInitPositionValues = (
-  trades: UserTrades,
+  marketTransactions: AllMarketTransactions,
   amm: AmmExchange,
-  isYesOutcome: boolean,
+  outcome: string,
   account: string
 ): { avgPrice: string; initCostCash: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
   // sum up trades shares
-  const claimTimestamp = lastClaimTimestamp(amm, isYesOutcome, account);
-  const sharesEntered = accumSharesPrice(trades.enters, isYesOutcome, account, claimTimestamp);
-  const sharesExited = accumSharesPrice(trades.exits, isYesOutcome, account, claimTimestamp);
+  const claimTimestamp = lastClaimTimestamp(marketTransactions?.claimWinnings, outcome, account);
+  const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcome, account, claimTimestamp);
+  const sharesExited = accumSharesPrice(marketTransactions?.sells, outcome, account, claimTimestamp);
 
   const enterAvgPriceBN = sharesEntered.shares.gt(0) ? sharesEntered.cashAmount.div(sharesEntered.shares) : new BN(0);
 
   // get shares from LP activity
-  const sharesAddLiquidity = accumLpSharesAddPrice(amm.transactions, isYesOutcome, account, claimTimestamp);
-  const sharesRemoveLiquidity = accumLpSharesRemovesPrice(amm.transactions, isYesOutcome, account, claimTimestamp);
+  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcome, account, claimTimestamp);
+  const sharesRemoveLiquidity = accumLpSharesPrice(
+    marketTransactions?.removeLiquidity,
+    outcome,
+    account,
+    claimTimestamp
+  );
 
   const positionFromLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
@@ -973,62 +978,41 @@ const getInitPositionValues = (
 };
 
 const accumSharesPrice = (
-  trades: AmmTransaction[],
-  isYesOutcome: boolean,
+  transactions: BuySellTransactions[],
+  outcome: string,
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
-  const result = trades
+  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+  const result = transactions
     .filter(
-      (t) =>
-        isSameAddress(t.sender, account) &&
-        (isYesOutcome ? t.yesShares !== "0" : t.noShares !== "0") &&
-        Number(t.timestamp) > cutOffTimestamp
+      (t) => isSameAddress(t.sender.id, account) && t.outcome === outcome && Number(t.timestamp) > cutOffTimestamp
     )
     .reduce(
-      (p, t) =>
-        isYesOutcome
-          ? {
-              shares: p.shares.plus(new BN(t.yesShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-            }
-          : {
-              shares: p.shares.plus(new BN(t.noShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-            },
+      (p, t) => ({
+        shares: p.shares.plus(new BN(t.shares)),
+        cashAmount: p.cashAmount.plus(new BN(t.shares).times(new BN(t.collateral).div(new BN(t.shares)))),
+      }),
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
   return { shares: result.shares, cashAmount: result.cashAmount };
 };
 
-const accumLpSharesAddPrice = (
-  transactions: AmmTransaction[],
-  isYesOutcome: boolean,
+const accumLpSharesPrice = (
+  transactions: AddRemoveLiquidity[],
+  outcome: string,
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
+  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
   const result = transactions
-    .filter(
-      (t) =>
-        isSameAddress(t.sender, account) &&
-        t.tx_type === TransactionTypes.ADD_LIQUIDITY &&
-        Number(t.timestamp) > cutOffTimestamp
-    )
+    .filter((t) => isSameAddress(t.sender.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
-        const yesShares = new BN(t.yesShares);
-        const noShares = new BN(t.noShares);
-        const cashValue = new BN(t.cash).minus(new BN(t.cashValue));
-
-        if (isYesOutcome) {
-          const netYesShares = noShares.minus(yesShares);
-          if (netYesShares.lte(new BN(0))) return p;
-          return { shares: p.shares.plus(t.netShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-        }
-        const netNoShares = yesShares.minus(noShares);
-        if (netNoShares.lte(new BN(0))) return p;
-        return { shares: p.shares.plus(t.netShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
+        const shares = t.outcomes[Number(outcome)];
+        const cashValue = new BN(t.collateral);
+        return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
@@ -1036,45 +1020,9 @@ const accumLpSharesAddPrice = (
   return { shares: result.shares, cashAmount: result.cashAmount };
 };
 
-const accumLpSharesRemovesPrice = (
-  transactions: AmmTransaction[],
-  isYesOutcome: boolean,
-  account: string,
-  cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber } => {
-  const result = transactions
-    .filter(
-      (t) =>
-        isSameAddress(t.sender, account) &&
-        t.tx_type === TransactionTypes.REMOVE_LIQUIDITY &&
-        Number(t.timestamp) > cutOffTimestamp
-    )
-    .reduce(
-      (p, t) => {
-        const yesShares = new BN(t.yesShares);
-        const noShares = new BN(t.noShares);
-
-        if (isYesOutcome) {
-          const cashValue = new BN(t.noShareCashValue);
-          return { shares: p.shares.plus(yesShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-        }
-        const cashValue = new BN(t.yesShareCashValue);
-        return { shares: p.shares.plus(noShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-      },
-      { shares: new BN(0), cashAmount: new BN(0) }
-    );
-
-  return { shares: result.shares, cashAmount: result.cashAmount };
-};
-
-const lastClaimTimestamp = (amm: AmmExchange, isYesOutcome: boolean, account: string): number => {
-  const shareToken = amm.cash.shareToken;
-  const claims = amm.market.claimedProceeds.filter(
-    (c) =>
-      isSameAddress(c.shareToken, shareToken) &&
-      isSameAddress(c.user, account) &&
-      c.outcome === (isYesOutcome ? YES_OUTCOME_ID : NO_OUTCOME_ID)
-  );
+const lastClaimTimestamp = (transactions: ClaimWinningsTransactions[], outcome: string, account: string): number => {
+  if (!transactions || transactions.length === 0) return 0;
+  const claims = transactions.filter((c) => isSameAddress(c.receiver, account) && c.outcome === Number(outcome));
   return claims.reduce((p, c) => (Number(c.timestamp) > p ? Number(c.timestamp) : p), 0);
 };
 

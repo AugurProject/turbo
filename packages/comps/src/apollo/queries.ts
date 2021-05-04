@@ -152,6 +152,7 @@ export const CurrentMarket_fields = gql`
         }
         transactionHash
         timestamp
+        collateral
         outcomes {
           id
         }
