@@ -765,7 +765,7 @@ const getPositionUsdValues = (
   outcome: string,
   amm: AmmExchange,
   account: string,
-  userClaims: UserClaimTransactions,
+  userClaims: UserClaimTransactions
 ): PositionBalance => {
   let past24hrUsdValue = null;
   let change24hrPositionUsd = null;
@@ -904,8 +904,12 @@ const getUserTransactions = (transactions: AllMarketsTransactions, account: stri
   if (!transactions) return {};
   return Object.keys(transactions).reduce((p, marketId) => {
     const id = marketId.toLowerCase();
-    const addLiquidity = (transactions[marketId]?.addLiquidity || []).filter((t) => isSameAddress(t.sender?.id, account));
-    const removeLiquidity = (transactions[marketId]?.removeLiquidity || []).filter((t) => isSameAddress(t.sender?.id, account));
+    const addLiquidity = (transactions[marketId]?.addLiquidity || []).filter((t) =>
+      isSameAddress(t.sender?.id, account)
+    );
+    const removeLiquidity = (transactions[marketId]?.removeLiquidity || []).filter((t) =>
+      isSameAddress(t.sender?.id, account)
+    );
     const buys = (transactions[marketId]?.trades || []).filter(
       (t) => isSameAddress(t.user, account) && new BN(t.collateral).lt(0)
     );
@@ -930,9 +934,9 @@ const getInitPositionValues = (
   amm: AmmExchange,
   outcome: string,
   account: string,
-  userClaims: UserClaimTransactions,
+  userClaims: UserClaimTransactions
 ): { avgPrice: string; initCostCash: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
-  const outcomeId = String(new BN(outcome))
+  const outcomeId = String(new BN(outcome));
   // sum up trades shares
 
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
@@ -967,9 +971,9 @@ const getInitPositionValues = (
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
-      .times(totalLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(totalLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -990,7 +994,8 @@ const accumSharesPrice = (
 
   const result = transactions
     .filter(
-      (t) => isSameAddress(t.user, account) && new BN(t.outcome).eq(new BN(outcome)) && Number(t.timestamp) > cutOffTimestamp
+      (t) =>
+        isSameAddress(t.user, account) && new BN(t.outcome).eq(new BN(outcome)) && Number(t.timestamp) > cutOffTimestamp
     )
     .reduce(
       (p, t) => ({
@@ -1016,7 +1021,7 @@ const accumLpSharesPrice = (
     .reduce(
       (p, t) => {
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        const shares = (t.outcomes && t.outcomes.length > 0) ? new BN(t.outcomes[Number(outcome)]) : new BN(0);
+        const shares = t.outcomes && t.outcomes.length > 0 ? new BN(t.outcomes[Number(outcome)]) : new BN(0);
         const cashValue = new BN(t.collateral);
         return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
