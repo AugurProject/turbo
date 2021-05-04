@@ -158,7 +158,7 @@ contract AMMFactory is BNum {
 
         _pool.transfer(_lpTokenRecipient, _poolAmountOut);
 
-        // Transfer the remaining shares back to msg.sender.
+        // Transfer the remaining shares back to _lpTokenRecipient.
         _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
@@ -210,14 +210,14 @@ contract AMMFactory is BNum {
         _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
         require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
 
-        // Transfer the remaining shares back to msg.sender.
+        // Transfer the remaining shares back to _collateralRecipient.
         _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             uint256 _acquiredTokenBalance = exitPoolEstimate[i];
             OwnedERC20 _token = _market.shareTokens[i];
             _balances[i] = _acquiredTokenBalance - _setsToSell;
             if (_balances[i] > 0) {
-                _token.transfer(msg.sender, _balances[i]);
+                _token.transfer(_collateralRecipient, _balances[i]);
             }
         }
 
