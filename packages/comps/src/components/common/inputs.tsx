@@ -166,7 +166,6 @@ export const isInvalidNumber = (number) => {
 };
 
 const Outcome = ({
-  key,
   outcome,
   selected,
   onClick,
@@ -179,7 +178,7 @@ const Outcome = ({
   error,
   noClick,
   index,
-}) => {
+}: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();

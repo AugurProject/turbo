@@ -112,7 +112,7 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
   return sportsData[sportId]?.types[sportsMarketType];
 };
 
-export const getSportsResolutionRules = (sportId: string, sportsMarketType: number): { resolutionRules: string[] } => {
+export const getSportsResolutionRules = (sportId: string, sportsMarketType: number): string[] => {
   if (!sportsResolutionRules[sportId]) return null;
   return sportsResolutionRules[sportId]?.types[sportsMarketType];
 };
