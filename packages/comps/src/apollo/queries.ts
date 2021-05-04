@@ -137,6 +137,7 @@ export const CurrentMarket_fields = gql`
 
       addLiquidity {
         id
+        marketId { id }
         sender {
           id
         }
@@ -147,6 +148,7 @@ export const CurrentMarket_fields = gql`
       }
       removeLiquidity {
         id
+        marketId { id }
         sender {
           id
         }
@@ -158,9 +160,11 @@ export const CurrentMarket_fields = gql`
       }
       trades {
         id
+        marketId { id }
         user
         outcome
         collateral
+        price
         shares
         timestamp
         transactionHash
