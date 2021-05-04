@@ -186,13 +186,44 @@ describe("AMMFactory", () => {
   });
 
   describe("addLiquidity", () => {
-    it("should work", async () => {
+    it("with balanced pool", async () => {
       // Use first signer to alter balances in the pool.
       const collateralIn = usdcBasis.mul(1000); // 100 of the collateral
       await collateral.faucet(collateralIn.mul(2));
       await collateral.approve(ammFactory.address, collateralIn.mul(2));
 
       await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      // The pool is even right now so we wouldn't expect any shares.
+      expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
+    });
+
+    it("with unbalanced pool", async () => {
+      const secondBPool = bPool.connect(secondSigner);
+      await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
+
+      // Use first signer to alter balances in the pool.
+      const collateralIn = usdcBasis.mul(100); // 100 of the collateral
+      await collateral.faucet(collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+
+      await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));
+
+      // Sending the LP tokens to second signer.
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      expect(sharesAfter).to.deep.equal(["0", "196766714446257596869", "0"]);
     });
   });
 
@@ -208,6 +239,7 @@ describe("AMMFactory", () => {
       await collateral.faucet(collateralIn.mul(2));
       await collateral.approve(ammFactory.address, collateralIn.mul(2));
 
+      // Sending the LP tokens to second signer.
       await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
 
       await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));

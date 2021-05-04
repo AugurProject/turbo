@@ -16,6 +16,12 @@ import {
   AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
+  AllMarketsTransactions,
+  BuySellTransactions,
+  MarketTransactions,
+  AddRemoveLiquidity,
+  ClaimWinningsTransactions,
+  UserClaimTransactions,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
@@ -30,6 +36,7 @@ import {
   lpTokensOnChainToDisplay,
   sharesOnChainToDisplay,
   sharesDisplayToOnChain,
+  cashOnChainToDisplay,
 } from "./format-number";
 import {
   ETH,
@@ -208,35 +215,37 @@ const calcWeights = (prices: string[]): string[] => {
 };
 
 export async function getRemoveLiquidity(
-  balancerPoolId: string,
+  amm: AmmExchange,
   provider: Web3Provider,
-  cash: Cash,
   lpTokenBalance: string,
   account: string,
-  outcomes: AmmOutcome[] = []
+  cash: Cash
 ): Promise<LiquidityBreakdown | null> {
-  if (!provider || !balancerPoolId) {
-    console.error("getRemoveLiquidity: no provider or no balancer pool id");
+  if (!provider) {
+    console.error("getRemoveLiquidity: no provider");
     return null;
   }
-  const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
+  const { market } = amm;
+  const ammFactory = getAmmFactoryContract(provider, account);
+
   // balancer lp tokens are 18 decimal places
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
-  const results = await balancerPool
-    .calcExitPool(
-      lpBalance,
-      outcomes.map((o) => "0")
-    ) // uint256[] calldata minAmountsOut values be?
+  const results = await ammFactory.callStatic
+    .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
     .catch((e) => console.log(e));
 
   if (!results) return null;
-  const minAmounts: string[] = results.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
-  const minAmountsRaw: string[] = results.map((v) => new BN(String(v)).toFixed());
+  const { _balances, _collateralOut } = results;
+
+  const minAmounts: string[] = _balances.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
+  const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
+  const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
 
   return {
     minAmountsRaw,
     minAmounts,
+    cashAmount,
   };
 }
 
@@ -273,21 +282,22 @@ export async function estimateLPTokenInShares(
 }
 
 export function doRemoveLiquidity(
-  balancerPoolId: string,
+  amm: AmmExchange,
   provider: Web3Provider,
   lpTokenBalance: string,
   amountsRaw: string[],
   account: string,
   cash: Cash
 ): Promise<TransactionResponse | null> {
-  if (!provider || !balancerPoolId) {
-    console.error("doRemoveLiquidity: no provider or no balancer pool id");
+  if (!provider) {
+    console.error("doRemoveLiquidity: no provider");
     return null;
   }
-  const balancerPool = getBalancerPoolContract(provider, balancerPoolId, account);
+  const { market } = amm;
+  const ammFactory = getAmmFactoryContract(provider, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
 
-  return balancerPool.exitPool(lpBalance, amountsRaw);
+  return ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
 export const estimateBuyTrade = async (
@@ -495,17 +505,13 @@ export const claimWinnings = (
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
-interface UserTrades {
-  enters: AmmTransaction[];
-  exits: AmmTransaction[];
-}
-
 export const getUserBalances = async (
   provider: Web3Provider,
   account: string,
   ammExchanges: AmmExchanges,
   cashes: Cashes,
-  markets: MarketInfos
+  markets: MarketInfos,
+  transactions: AllMarketsTransactions
 ): Promise<UserBalances> => {
   const userBalances = {
     ETH: {
@@ -531,6 +537,8 @@ export const getUserBalances = async (
 
   if (!account || !provider) return userBalances;
 
+  const userMarketTransactions = getUserTransactions(transactions, account);
+  const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -544,8 +552,6 @@ export const getUserBalances = async (
   userBalances.ETH = await getEthBalance(provider, cashes, account);
 
   const multicall = new Multicall({ ethersProvider: provider });
-
-  // todo: for some reason this call is failing
   const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
     reference: exchange.id,
     contractAddress: exchange.id,
@@ -648,17 +654,20 @@ export const getUserBalances = async (
         // can index using dataKey (shareToken)
         //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
 
-        // todo: need historical trades to calculate positions initial value
-        const trades = {
-          enters: [],
-          exits: [],
-        };
-
         // shape AmmMarketShares
         const existingMarketShares = userBalances.marketShares[marketId];
+        const marketTransactions = userMarketTransactions[marketId];
         const exchange = ammExchanges[marketId];
         if (existingMarketShares) {
-          const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
+          const position = getPositionUsdValues(
+            marketTransactions,
+            rawBalance,
+            fixedShareBalance,
+            outcomeId,
+            exchange,
+            account,
+            userClaims
+          );
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
@@ -670,7 +679,15 @@ export const getUserBalances = async (
             outcomeShares: [],
           };
           // calc user position here **
-          const position = getPositionUsdValues(trades, rawBalance, fixedShareBalance, outcomeId, exchange, account);
+          const position = getPositionUsdValues(
+            marketTransactions,
+            rawBalance,
+            fixedShareBalance,
+            outcomeId,
+            exchange,
+            account,
+            userClaims
+          );
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
@@ -742,12 +759,13 @@ const getTotalPositions = (
 };
 
 const getPositionUsdValues = (
-  trades: UserTrades,
+  marketTransactions: MarketTransactions,
   rawBalance: string,
   balance: string,
   outcome: string,
   amm: AmmExchange,
-  account: string
+  account: string,
+  userClaims: UserClaimTransactions
 ): PositionBalance => {
   let past24hrUsdValue = null;
   let change24hrPositionUsd = null;
@@ -774,7 +792,7 @@ const getPositionUsdValues = (
   };
 
   const currUsdValue = new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)).toFixed();
-  const postitionResult = getInitPositionValues(trades, amm, false, account);
+  const postitionResult = getInitPositionValues(marketTransactions, amm, outcome, account, userClaims);
 
   if (postitionResult) {
     avgPrice = trimDecimalValue(postitionResult.avgPrice);
@@ -862,17 +880,17 @@ const populateInitLPValues = async (
 };
 
 export const getUserLpTokenInitialAmount = (
-  transactions: MarketTransactions,
+  transactions: AllMarketsTransactions,
   account: string,
   cash: Cash
 ): { [marketId: string]: string } => {
   return Object.keys(transactions).reduce((p, marketId) => {
     const id = marketId.toLowerCase();
-    const adds = transactions[marketId].addLiquidity
-      .filter((t) => isSameAddress(t.sender.id, account))
+    const adds = (transactions[marketId]?.addLiquidity || [])
+      .filter((t) => isSameAddress(t.sender?.id, account))
       .reduce((p, t) => p.plus(new BN(t.collateral || "0").abs()), new BN("0"));
-    const removed = transactions[marketId].removeLiquidity
-      .filter((t) => isSameAddress(t.sender.id, account))
+    const removed = (transactions[marketId]?.removeLiquidity || [])
+      .filter((t) => isSameAddress(t.sender?.id, account))
       .reduce((p, t) => p.plus(new BN(t.collateral || "0").abs()), new BN("0"));
     const initCostUsd = String(adds.minus(removed));
     return {
@@ -882,23 +900,59 @@ export const getUserLpTokenInitialAmount = (
   }, {});
 };
 
-// TODO: isYesOutcome is for convenience, down the road, outcome index will be used.
+const getUserTransactions = (transactions: AllMarketsTransactions, account: string): AllMarketsTransactions => {
+  if (!transactions) return {};
+  return Object.keys(transactions).reduce((p, marketId) => {
+    const id = marketId.toLowerCase();
+    const addLiquidity = (transactions[marketId]?.addLiquidity || []).filter((t) =>
+      isSameAddress(t.sender?.id, account)
+    );
+    const removeLiquidity = (transactions[marketId]?.removeLiquidity || []).filter((t) =>
+      isSameAddress(t.sender?.id, account)
+    );
+    const buys = (transactions[marketId]?.trades || []).filter(
+      (t) => isSameAddress(t.user, account) && new BN(t.collateral).lt(0)
+    );
+    const sells = (transactions[marketId]?.trades || []).filter(
+      (t) => isSameAddress(t.user, account) && new BN(t.collateral).gt(0)
+    );
+
+    return {
+      ...p,
+      [id]: {
+        addLiquidity,
+        removeLiquidity,
+        buys,
+        sells,
+      },
+    };
+  }, {});
+};
+
 const getInitPositionValues = (
-  trades: UserTrades,
+  marketTransactions: MarketTransactions,
   amm: AmmExchange,
-  isYesOutcome: boolean,
-  account: string
+  outcome: string,
+  account: string,
+  userClaims: UserClaimTransactions
 ): { avgPrice: string; initCostCash: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
+  const outcomeId = String(new BN(outcome));
   // sum up trades shares
-  const claimTimestamp = lastClaimTimestamp(amm, isYesOutcome, account);
-  const sharesEntered = accumSharesPrice(trades.enters, isYesOutcome, account, claimTimestamp);
-  const sharesExited = accumSharesPrice(trades.exits, isYesOutcome, account, claimTimestamp);
+
+  const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
+  const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcomeId, account, claimTimestamp);
+  const sharesExited = accumSharesPrice(marketTransactions?.sells, outcomeId, account, claimTimestamp);
 
   const enterAvgPriceBN = sharesEntered.shares.gt(0) ? sharesEntered.cashAmount.div(sharesEntered.shares) : new BN(0);
 
   // get shares from LP activity
-  const sharesAddLiquidity = accumLpSharesAddPrice(amm.transactions, isYesOutcome, account, claimTimestamp);
-  const sharesRemoveLiquidity = accumLpSharesRemovesPrice(amm.transactions, isYesOutcome, account, claimTimestamp);
+  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
+  const sharesRemoveLiquidity = accumLpSharesPrice(
+    marketTransactions?.removeLiquidity,
+    outcome,
+    account,
+    claimTimestamp
+  );
 
   const positionFromLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
@@ -908,13 +962,12 @@ const getInitPositionValues = (
     .plus(sharesAddLiquidity.cashAmount)
     .plus(sharesEntered.cashAmount);
   const netCashAmounts = allInputCashAmounts.minus(sharesExited.cashAmount);
-  const initCostCash = convertOnChainSharesToDisplayShareAmount(netCashAmounts, amm.cash.decimals);
+  const allTradeCashAmounts = convertOnChainSharesToDisplayShareAmount(netCashAmounts, amm.cash.decimals);
 
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const allCashShareAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
+  const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
 
-  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allCashShareAmounts.div(totalLiquidityShares) : new BN(0);
-
+  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
@@ -925,69 +978,52 @@ const getInitPositionValues = (
 
   return {
     avgPrice: String(weightedAvgPrice),
-    initCostCash: initCostCash.toFixed(4),
+    initCostCash: allTradeCashAmounts.toFixed(4),
     positionFromLiquidity,
     positionFromRemoveLiquidity,
   };
 };
 
 const accumSharesPrice = (
-  trades: AmmTransaction[],
-  isYesOutcome: boolean,
+  transactions: BuySellTransactions[],
+  outcome: string,
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
-  const result = trades
+  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+
+  const result = transactions
     .filter(
       (t) =>
-        isSameAddress(t.sender, account) &&
-        (isYesOutcome ? t.yesShares !== "0" : t.noShares !== "0") &&
-        Number(t.timestamp) > cutOffTimestamp
+        isSameAddress(t.user, account) && new BN(t.outcome).eq(new BN(outcome)) && Number(t.timestamp) > cutOffTimestamp
     )
     .reduce(
-      (p, t) =>
-        isYesOutcome
-          ? {
-              shares: p.shares.plus(new BN(t.yesShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.yesShares).times(t.price)),
-            }
-          : {
-              shares: p.shares.plus(new BN(t.noShares)),
-              cashAmount: p.cashAmount.plus(new BN(t.noShares).times(t.price)),
-            },
+      (p, t) => ({
+        shares: p.shares.plus(new BN(t.shares)),
+        cashAmount: p.cashAmount.plus(new BN(t.shares).times(new BN(t.price || "0"))),
+      }),
       { shares: new BN(0), cashAmount: new BN(0) }
     );
 
   return { shares: result.shares, cashAmount: result.cashAmount };
 };
 
-const accumLpSharesAddPrice = (
-  transactions: AmmTransaction[],
-  isYesOutcome: boolean,
+const accumLpSharesPrice = (
+  transactions: AddRemoveLiquidity[],
+  outcome: string,
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
+  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+
   const result = transactions
-    .filter(
-      (t) =>
-        isSameAddress(t.sender, account) &&
-        t.tx_type === TransactionTypes.ADD_LIQUIDITY &&
-        Number(t.timestamp) > cutOffTimestamp
-    )
+    .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
-        const yesShares = new BN(t.yesShares);
-        const noShares = new BN(t.noShares);
-        const cashValue = new BN(t.cash).minus(new BN(t.cashValue));
-
-        if (isYesOutcome) {
-          const netYesShares = noShares.minus(yesShares);
-          if (netYesShares.lte(new BN(0))) return p;
-          return { shares: p.shares.plus(t.netShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-        }
-        const netNoShares = yesShares.minus(noShares);
-        if (netNoShares.lte(new BN(0))) return p;
-        return { shares: p.shares.plus(t.netShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
+        // todo: need to figure out price for removing liuidity, prob different than add liquidity
+        const shares = t.outcomes && t.outcomes.length > 0 ? new BN(t.outcomes[Number(outcome)]) : new BN(0);
+        const cashValue = new BN(t.collateral);
+        return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
@@ -995,45 +1031,9 @@ const accumLpSharesAddPrice = (
   return { shares: result.shares, cashAmount: result.cashAmount };
 };
 
-const accumLpSharesRemovesPrice = (
-  transactions: AmmTransaction[],
-  isYesOutcome: boolean,
-  account: string,
-  cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber } => {
-  const result = transactions
-    .filter(
-      (t) =>
-        isSameAddress(t.sender, account) &&
-        t.tx_type === TransactionTypes.REMOVE_LIQUIDITY &&
-        Number(t.timestamp) > cutOffTimestamp
-    )
-    .reduce(
-      (p, t) => {
-        const yesShares = new BN(t.yesShares);
-        const noShares = new BN(t.noShares);
-
-        if (isYesOutcome) {
-          const cashValue = new BN(t.noShareCashValue);
-          return { shares: p.shares.plus(yesShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-        }
-        const cashValue = new BN(t.yesShareCashValue);
-        return { shares: p.shares.plus(noShares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
-      },
-      { shares: new BN(0), cashAmount: new BN(0) }
-    );
-
-  return { shares: result.shares, cashAmount: result.cashAmount };
-};
-
-const lastClaimTimestamp = (amm: AmmExchange, isYesOutcome: boolean, account: string): number => {
-  const shareToken = amm.cash.shareToken;
-  const claims = amm.market.claimedProceeds.filter(
-    (c) =>
-      isSameAddress(c.shareToken, shareToken) &&
-      isSameAddress(c.user, account) &&
-      c.outcome === (isYesOutcome ? YES_OUTCOME_ID : NO_OUTCOME_ID)
-  );
+const lastClaimTimestamp = (transactions: ClaimWinningsTransactions[], outcome: string, account: string): number => {
+  if (!transactions || transactions.length === 0) return 0;
+  const claims = transactions.filter((c) => isSameAddress(c.receiver, account) && c.outcome === outcome);
   return claims.reduce((p, c) => (Number(c.timestamp) > p ? Number(c.timestamp) : p), 0);
 };
 
@@ -1222,7 +1222,7 @@ const retrieveMarkets = async (
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
-    const marketId = `${context.marketFactoryAddress}-${context.index}`;
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
 
     if (method === GET_MARKET_DETAILS) {
       details[marketId] = data;
@@ -1453,7 +1453,7 @@ const retrieveExchangeInfos = async (
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
     const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
     const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
-    const marketId = `${context.marketFactoryAddress}-${context.index}`;
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
 
     if (method === GET_RATIOS) {
       ratios[marketId] = data;

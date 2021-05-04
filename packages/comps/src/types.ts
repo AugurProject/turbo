@@ -85,11 +85,16 @@ export interface AmmTransaction {
   id: string;
   tx_type: string;
   cash: string;
-  noShares: string;
-  yesShares: string;
+  shares?: string;
+  noShares?: string;
+  yesShares?: string;
+  marketId?: { id: string };
   sender: string;
   timestamp: string;
   tx_hash: string;
+  transactionHash?: string;
+  outcome?: string;
+  collateral?: string;
   price?: string;
   value: string;
   subheader: string;
@@ -106,7 +111,16 @@ export interface AmmTransaction {
   netShares?: string; // only for add liquidity
 }
 
-export interface AddRemoveLIquidity {
+export interface BuySellTransactions {
+  collateral: string;
+  id: string;
+  outcome: string;
+  shares: string;
+  price: string;
+  user: string;
+  timestamp: string;
+}
+export interface AddRemoveLiquidity {
   collateral: string;
   id: string;
   lpTokens: string;
@@ -115,13 +129,39 @@ export interface AddRemoveLIquidity {
   };
   timestamp: string;
   transactionHash: string;
+  outcomes: string[];
 }
 
+export interface ClaimWinningsTransactions {
+  id: string;
+  outcome: string;
+  fees: string;
+  marketId: string;
+  timestamp: string;
+  transactionHash: string;
+  cash: string;
+}
+
+export interface ClaimFeesTransactions {
+  id: string;
+  cash: string;
+  timestamp: string;
+  transactionHash: string;
+  receiver: string;
+}
 export interface MarketTransactions {
-  [marketId: string]: {
-    addLiquidity: AddRemoveLIquidity[];
-    removeLiquidity: AddRemoveLIquidity[];
-  };
+  addLiquidity: AddRemoveLiquidity[];
+  removeLiquidity: AddRemoveLiquidity[];
+  buys: BuySellTransactions[];
+  sells: BuySellTransactions[];
+}
+export interface UserClaimTransactions {
+  claimedFees: ClaimFeesTransactions[];
+  claimedProceeds: ClaimWinningsTransactions[];
+  userAddress: string;
+}
+export interface AllMarketsTransactions {
+  [marketId: string]: MarketTransactions;
 }
 
 export interface Trade {
@@ -209,6 +249,8 @@ export interface ClaimedProceeds {
 export interface MarketInfo {
   marketId: string;
   eventId: string;
+  sportId?: string;
+  sportsMarketType?: number;
   marketFactoryAddress: string;
   turboId: string;
   title: string;

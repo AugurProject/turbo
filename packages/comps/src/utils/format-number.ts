@@ -647,6 +647,10 @@ export function lpTokensDisplayToOnChain(onChainAmount: NumStrBigNumber, precisi
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }
 
+export function cashOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 6) {
+  return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
+}
+
 export function convertDisplayCashAmountToOnChainCashAmount(
   displayAmount: NumStrBigNumber,
   precision: NumStrBigNumber
