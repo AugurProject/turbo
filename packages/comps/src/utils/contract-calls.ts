@@ -229,7 +229,6 @@ export async function getRemoveLiquidity(
     .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
     .catch((e) => console.log(e));
 
-  console.log("results", results);
   if (!results) return null;
   const { _balances, _collateralOut } = results;
 
@@ -288,7 +287,6 @@ export function doRemoveLiquidity(
     console.error("doRemoveLiquidity: no provider");
     return null;
   }
-  console.log("amountsRaw", amountsRaw);
   const { market } = amm;
   const ammFactory = getAmmFactoryContract(provider, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
