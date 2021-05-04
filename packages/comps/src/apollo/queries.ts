@@ -178,30 +178,7 @@ export const CurrentMarket_fields = gql`
   }
 `;
 
-export const test = gql`
-  query senders($account: String) {
-    senders(where: { id: $account }) {
-      claimedFees {
-        id
-        cash
-        timestamp
-        transactionHash
-        receiver
-      }
-      claimedProceeds {
-        id
-        fees
-        outcome
-        marketId
-        timestamp
-        transactionHash
-        cash
-      }
-    }
-  }
-`;
-
-export const BIG_TEST = gql`
+export const GET_TRANSACTIONS = gql`
   query getTransactions($account: String) {
     senders(where: { id: $account }) {
       claimedFees {

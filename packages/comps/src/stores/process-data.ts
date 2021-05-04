@@ -65,13 +65,16 @@ const getActivityType = (
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
-      const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()), { 
-        decimals: 2,
-        decimalsRounded: 0,
-        denomination: v => `${v}%`,
-        roundDown: false,
-        bigUnitPostfix: false,
-      }).full;
+      const lpTokens = formatLpTokens(
+        convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()),
+        {
+          decimals: 2,
+          decimalsRounded: 0,
+          denomination: (v) => `${v}%`,
+          roundDown: false,
+          bigUnitPostfix: false,
+        }
+      ).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       subheader = `Contributed ${lpTokens} of the pool`;
       break;
@@ -79,13 +82,16 @@ const getActivityType = (
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
-      const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()), { 
-        decimals: 2,
-        decimalsRounded: 0,
-        denomination: v => `${v}%`,
-        roundDown: false,
-        bigUnitPostfix: false,
-      }).full;
+      const lpTokens = formatLpTokens(
+        convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()),
+        {
+          decimals: 2,
+          decimalsRounded: 0,
+          denomination: (v) => `${v}%`,
+          roundDown: false,
+          bigUnitPostfix: false,
+        }
+      ).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       subheader = `Withdrew ${lpTokens} of the pool`;
       break;
