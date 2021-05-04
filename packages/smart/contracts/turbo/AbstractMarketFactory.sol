@@ -18,7 +18,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
 
     event SharesMinted(uint256 id, uint256 amount, address receiver);
     event SharesBurned(uint256 id, uint256 amount, address receiver);
-    event WinningsClaimed(uint256 id, uint256 amount, address indexed receiver);
+    event WinningsClaimed(uint256 id, address winningOutcome, uint256 amount, uint256 settlementFee, uint256 payout, address indexed receiver);
 
     event SettlementFeeClaimed(address settlementAddress, uint256 amount, address indexed receiver);
     event ProtocolFeeClaimed(address protocol, uint256 amount);
@@ -160,7 +160,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         _payout = _payout.sub(_settlementFee).sub(_stakerFee);
         collateral.transfer(_receiver, _payout);
 
-        emit WinningsClaimed(_id, _winningShares, msg.sender);
+        emit WinningsClaimed(_id, _market.winner, _winningShares, _settlementFee, _payout, _receiver);
         return _payout;
     }
 
