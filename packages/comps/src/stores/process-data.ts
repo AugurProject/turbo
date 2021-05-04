@@ -73,7 +73,7 @@ const getActivityType = (
         bigUnitPostfix: false,
       }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
-      subheader = `Contributed ${lpTokens} of the pool.`;
+      subheader = `Contributed ${lpTokens} of the pool`;
       break;
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
@@ -87,7 +87,7 @@ const getActivityType = (
         bigUnitPostfix: false,
       }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
-      subheader = `Withdrew ${lpTokens} of the pool.`;
+      subheader = `Withdrew ${lpTokens} of the pool`;
       break;
     }
     default: {
