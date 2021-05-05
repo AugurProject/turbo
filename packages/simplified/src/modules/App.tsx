@@ -37,7 +37,7 @@ const AppBody = () => {
   const path = parsePath(location.pathname)[0];
   const sidebarOut = sidebarType && isMobile;
 
-  useUserBalances(ammExchanges, cashes, markets, transactions);
+  useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
   usePageView();
   const activeWeb3 = useActiveWeb3React();

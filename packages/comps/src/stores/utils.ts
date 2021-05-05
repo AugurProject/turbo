@@ -120,7 +120,7 @@ export function useCanEnterCashPosition({ name, address }: Cash, refresh: any = 
   return canEnterPosition;
 }
 
-export function useUserBalances(ammExchanges, cashes, markets, transactions) {
+export function useUserBalances({ammExchanges, blocknumber, cashes, markets, transactions}) {
   const {
     loginAccount,
     actions: { updateUserBalances },
@@ -138,7 +138,7 @@ export function useUserBalances(ammExchanges, cashes, markets, transactions) {
         transactions
       ).then((userBalances) => updateUserBalances(userBalances));
     }
-  }, [loginAccount?.account, loginAccount?.library, ammExchanges, cashes, markets, transactions, PARA_CONFIG]);
+  }, [loginAccount?.account, loginAccount?.library, blocknumber]);
 }
 
 export function useFinalizeUserTransactions(refresh: any = null) {
