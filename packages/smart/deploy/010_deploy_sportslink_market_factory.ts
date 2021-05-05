@@ -24,6 +24,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = deployer;
   const linkNode = deployer;
 
+  const sportId = 4;
+
   const args: Parameters<SportsLinkMarketFactory__factory["deploy"]> = [
     owner,
     collateral.address,
@@ -34,6 +36,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     protocol,
     protocolFee,
     linkNode,
+    sportId,
   ];
 
   await deployments.deploy("SportsLinkMarketFactory", {

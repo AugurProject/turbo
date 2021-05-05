@@ -49,6 +49,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     mapping(uint256 => uint256[3]) internal events;
 
     address linkNode;
+    uint256 public sportId;
 
     constructor(
         address _owner,
@@ -59,7 +60,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _settlementFee,
         address _protocol,
         uint256 _protocolFee,
-        address _linkNode
+        address _linkNode,
+        uint256 _sportId
     )
         AbstractMarketFactory(
             _owner,
@@ -73,6 +75,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
+        sportId = _sportId;
     }
 
     function createMarket(bytes32 _payload) external returns (uint256[3] memory _ids) {
@@ -239,6 +242,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
         uint256[3] memory _ids = events[_eventId];
+
+        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
 
         // resolve markets as No Contest
         if (EventStatus(_eventStatus) != EventStatus.Final) {
