@@ -1517,7 +1517,7 @@ const calculatePrices = (ratios: string[] = [], weights: string[] = []): string[
 };
 
 const decodeMarket = (marketData: any) => {
-  const { shareTokens, endTime, winner, creator, creatorFee: onChainFee } = marketData;
+  const { shareTokens, endTime, winner, creator, creatorFee: onChainFee, creationTimestamp } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
@@ -1528,6 +1528,7 @@ const decodeMarket = (marketData: any) => {
 
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
+    creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
     marketType: "Categorical", // categorical markets
     numTicks: NUM_TICKS_STANDARD,
     totalStake: "0", //String(marketData["totalStake"]),
@@ -1543,8 +1544,6 @@ const decodeMarket = (marketData: any) => {
 };
 
 const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
-  // todo: need to get market creation time
-  const start = Math.floor(Date.now() / 1000);
   const {
     awayTeamId: coAwayTeamId,
     eventId: coEventId,
@@ -1571,7 +1570,6 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
 
   return {
     ...market,
-    creationTimestamp: String(start),
     title,
     description,
     categories,
