@@ -1,5 +1,5 @@
 import { ClaimedFees, ClaimedProceeds, Sender } from "../generated/schema";
-import { WinningsClaimed, SettlementFeeClaimed  } from "../generated/AbstractMarketFactory/AbstractMarketFactory";
+import { WinningsClaimed, SettlementFeeClaimed } from "../generated/AbstractMarketFactory/AbstractMarketFactory";
 import { bigIntToHexString } from "./utils";
 
 // ClaimedProceeds {
