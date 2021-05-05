@@ -14,3 +14,5 @@ coverage
 *.d.ts
 # ignore docs
 augur.sh
+#ignore subgraph
+packages/turbo-kovan-subgraph
