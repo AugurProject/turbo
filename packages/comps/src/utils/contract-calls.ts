@@ -45,6 +45,7 @@ import {
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
+  DUST_POSITION_AMOUNT,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -811,7 +812,7 @@ const getPositionUsdValues = (
   positionFromLiquidity = !result.positionFromRemoveLiquidity && result.positionFromLiquidity;
   positionFromRemoveLiquidity = result.positionFromRemoveLiquidity;
 
-  if (balance === "0") return null;
+  if (new BN(balance).lt(DUST_POSITION_AMOUNT)) return null;
 
   return {
     balance,
