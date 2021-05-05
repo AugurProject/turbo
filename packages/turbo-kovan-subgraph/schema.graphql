@@ -104,7 +104,7 @@ type Buy @entity {
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
   collateral: String!
   shares: String!
-  price: BigInt!
+  price: BigDecimal!
 }
 
 type Sell @entity {
@@ -115,7 +115,7 @@ type Sell @entity {
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
   collateral: String!
   shares: String!
-  price: BigInt!
+  price: BigDecimal!
 }
 
 type Trades @entity {
@@ -134,7 +134,7 @@ type Trades @entity {
 
   shares: String!
 
-  price: BigInt!
+  price: BigDecimal!
 
   transactionHash: String!
 
