@@ -1,5 +1,5 @@
 import { BUY, SELL, USDC, TransactionTypes } from "../utils/constants";
-import { getDayFormat, getDayTimestamp, getTimeFormat } from "../utils/date-utils";
+import { getDayFormat, getDayTimestamp } from "../utils/date-utils";
 import { MarketInfo, ActivityData, AmmTransaction, Cash } from "../types";
 import {
   convertOnChainCashAmountToDisplayCashAmount,
@@ -7,7 +7,6 @@ import {
   formatCashPrice,
   formatSimpleShares,
   formatLpTokens,
-  formatPercent,
   isSameAddress,
   sharesOnChainToDisplay,
 } from "../utils/format-number";
@@ -17,8 +16,7 @@ export const shapeUserActvity = (
   account: string,
   markets: { [id: string]: MarketInfo },
   transactions: any,
-  cashes: Array<Cash>,
-  timeFormat?: string
+  cashes: Array<Cash>
 ): ActivityData[] => {
   let userTransactions = [];
   const usdc = Object.entries(cashes).find((cash) => cash[1].name === USDC)[1];
@@ -46,7 +44,7 @@ export const shapeUserActvity = (
   const processedFees = (transactions?.claimedFees || []).map((tx) => (tx.tx_type = `Claimed Fees`));
   const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => (tx.tx_type = `Claimed Proceeds`));
   userTransactions.concat(processedFees).concat(processedProceeds);
-  return formatUserTransactionActvity(account, markets, userTransactions, usdc, timeFormat);
+  return formatUserTransactionActvity(account, markets, userTransactions, usdc);
 };
 
 const getActivityType = (
@@ -120,8 +118,7 @@ export const formatUserTransactionActvity = (
   account: string,
   markets: { [id: string]: MarketInfo },
   transactions: Array<AmmTransaction>,
-  cash: Cash,
-  timeFormat?: string
+  cash: Cash
 ): ActivityData[] => {
   if (!account) return [];
   if (!transactions || transactions.length === 0) return [];
@@ -153,7 +150,6 @@ export const formatUserTransactionActvity = (
             ...typeDetails,
             date: getDayFormat(transaction.timestamp),
             sortableMonthDay: getDayTimestamp(transaction.timestamp),
-            time: getTimeFormat(transaction.timestamp, timeFormat),
             txHash: transaction.transactionHash,
             timestamp: Number(transaction.timestamp),
           };
@@ -224,3 +220,97 @@ export const formatUserTransactionActvity = (
     }, [])
     .sort((a, b) => (a.sortableMonthDay < b.sortableMonthDay ? 1 : -1));
 };
+
+export const getCombinedMarketTransactionsFormatted = (transactions, market: MarketInfo, cashes: Cash[]) => {
+  const usdc = Object.entries(cashes).find((cash) => cash[1].name === USDC)[1];
+  const trades = prepareTrades(transactions, market, usdc);
+  const adds = prepareAddLiqudity(transactions, market, usdc);
+  const removes = prepareRemoveLiquidity(transactions, market, usdc);
+  const sortedByTime = []
+    .concat(trades)
+    .concat(adds)
+    .concat(removes)
+    .sort((a,b) => a?.timestamp < b?.timestamp ? 1 : -1);
+  return sortedByTime;
+};
+
+const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
+  const { marketId, outcomes } = market;
+  const trades = transactions[marketId]?.trades;
+  return (trades || []).map((trade) => {
+    const collateral = convertOnChainCashAmountToDisplayCashAmount(trade?.collateral, cash.decimals);
+    const isBuy = collateral.lt(0);
+    const shares = sharesOnChainToDisplay(createBigNumber(trade?.shares)).abs();
+    const processed = sharedProcessed(trade, market, cash);
+    const outcomeName = outcomes?.find((o) => o.id === createBigNumber(trade?.outcome).toNumber())?.name;
+    processed.tx_type = isBuy ? TransactionTypes.ENTER : TransactionTypes.EXIT;
+    processed.displayShares = formatSimpleShares(String(shares)).full;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.displayPrice = formatCashPrice(trade.price, cash.name);
+    processed.sender = trade.user;
+    processed.subheader = `Swap ${cash.name} for ${outcomeName} Shares`;
+    return processed;
+  });
+};
+
+const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
+  const { marketId } = market;
+  const adds = transactions[marketId]?.addLiquidity;
+  return (adds || []).map((add) => {
+    const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
+    const lpTokens = formatLpTokens(
+      convertOnChainCashAmountToDisplayCashAmount(createBigNumber(add?.lpTokens).abs()),
+      {
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: (v) => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }
+    ).full;
+    const processed = sharedProcessed(add, market, cash);
+    processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
+    processed.sender = add.sender.id;
+    processed.lpTokenPercent = lpTokens;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.subheader = `Liquidity Added`;
+    return processed;
+  });
+};
+
+const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) => {
+  const { marketId } = market;
+  const removes = transactions[marketId]?.removeLiquidity;
+  return (removes || []).map((remove) => {
+    const collateral = convertOnChainCashAmountToDisplayCashAmount(remove?.collateral, cash.decimals);
+    const lpTokens = formatLpTokens(
+      convertOnChainCashAmountToDisplayCashAmount(createBigNumber(remove?.lpTokens).abs()),
+      {
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: (v) => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }
+    ).full;
+    const processed = sharedProcessed(remove, market, cash);
+    processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
+    processed.sender = remove.sender.id;
+    processed.lpTokenPercent = lpTokens;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.subheader = `Liquidity Removed`;
+    return processed;
+  });
+};
+
+const sharedProcessed = (tx, market, cash) => {
+  const { title, description, marketId } = market;
+  const processed = { ...tx };
+  processed.txHash = tx.transactionHash;
+  processed.currency = cash.name;
+  processed.timestamp = Number(tx.timestamp);
+  processed.marketId = marketId;
+  processed.description = description;
+  processed.title = title;
+  return processed;
+}

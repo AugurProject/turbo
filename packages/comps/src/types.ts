@@ -91,7 +91,7 @@ export interface AmmTransaction {
   marketId?: { id: string };
   sender: string;
   timestamp: string;
-  tx_hash: string;
+  txHash: string;
   transactionHash?: string;
   outcome?: string;
   collateral?: string;

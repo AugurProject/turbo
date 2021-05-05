@@ -15,7 +15,8 @@ import {
   useScrollToTopOnMount,
   Utils,
   Components,
-  DerivedMarketData
+  DerivedMarketData,
+  ProcessData,
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
@@ -40,6 +41,7 @@ const {
   Formatter: { formatDai },
   PathUtils: { parseQuery },
 } = Utils;
+const { getCombinedMarketTransactionsFormatted } = ProcessData;
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
@@ -136,7 +138,7 @@ const MarketView = ({ defaultMarket = null }) => {
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { markets, ammExchanges, loading } = useDataStore();
+  const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
@@ -159,7 +161,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
-
+  const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -231,8 +233,7 @@ const MarketView = ({ defaultMarket = null }) => {
         </div>
         <div className={Styles.TransactionsTable}>
           <span>Transactions</span>
-          <section>Transactions are temporarily unavailable.</section>
-          {/* <TransactionsTable transactions={amm?.transactions} /> */}
+          <TransactionsTable transactions={marketTransactions} />
         </div>
         <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>
