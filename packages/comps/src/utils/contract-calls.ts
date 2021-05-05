@@ -45,7 +45,7 @@ import {
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
-  DUST_POSITION_AMOUNT
+  DUST_POSITION_AMOUNT,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
