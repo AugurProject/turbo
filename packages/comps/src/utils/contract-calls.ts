@@ -4,7 +4,6 @@ import {
   AmmExchange,
   AmmExchanges,
   AmmMarketShares,
-  AmmTransaction,
   Cashes,
   CurrencyBalance,
   PositionBalance,
@@ -31,7 +30,6 @@ import {
   convertDisplayCashAmountToOnChainCashAmount,
   convertDisplayShareAmountToOnChainShareAmount,
   convertOnChainCashAmountToDisplayCashAmount,
-  convertOnChainSharesToDisplayShareAmount,
   isSameAddress,
   lpTokensOnChainToDisplay,
   sharesOnChainToDisplay,
@@ -40,16 +38,13 @@ import {
 } from "./format-number";
 import {
   ETH,
-  NO_OUTCOME_ID,
   NULL_ADDRESS,
   USDC,
-  YES_OUTCOME_ID,
   NO_CONTEST_OUTCOME_ID,
   MARKET_STATUS,
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
-  TransactionTypes,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -504,6 +499,18 @@ export const claimWinnings = (
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
+
+
+export const claimFees = (
+  account: string,
+  provider: Web3Provider,
+  factories: string[] // needed for multi market factory
+): Promise<TransactionResponse | null> => {
+  if (!provider) return console.error("claimFees: no provider");
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  return marketFactoryContract.claimSettlementFees(account);
+};
+
 
 export const getUserBalances = async (
   provider: Web3Provider,

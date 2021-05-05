@@ -97,7 +97,7 @@ const getActivityType = (
       break;
     }
     default: {
-      const shares = sharesOnChainToDisplay(createBigNumber(tx?.shares));
+      const shares = sharesOnChainToDisplay(createBigNumber(tx?.shares)).abs();
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
       const isBuy = collateral.lt(0);
       const shareType = market?.outcomes?.find((o) => o.id === createBigNumber(tx?.outcome).toNumber())?.name;
