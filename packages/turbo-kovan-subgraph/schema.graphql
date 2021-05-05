@@ -36,7 +36,7 @@ type Market @entity {
 
   removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
 
-  trades: [Trades!]! @derivedFrom(field: "marketId")
+  trades: [Trade!]! @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -104,7 +104,7 @@ type Buy @entity {
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
   collateral: String!
   shares: String!
-  price: BigInt!
+  price: BigDecimal!
 }
 
 type Sell @entity {
@@ -115,10 +115,10 @@ type Sell @entity {
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
   collateral: String!
   shares: String!
-  price: BigInt!
+  price: BigDecimal!
 }
 
-type Trades @entity {
+type Trade @entity {
   id: ID!
 
   marketId: Market!
@@ -134,7 +134,7 @@ type Trades @entity {
 
   shares: String!
 
-  price: BigInt!
+  price: BigDecimal!
 
   transactionHash: String!
 
