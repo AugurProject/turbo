@@ -88,11 +88,11 @@ export const addresses: AddressMapping = {
   42: {
     reputationToken: "0x889048125521599E96A1e551bA7b843073c7De10",
     balancerFactory: "0x7757a7589bAC9D0B959B3721363Cf33665Ed2997",
-    ammFactory: "0x80802520c7379848854ceFd4Ea4bd7A1FAD1c9a4",
+    ammFactory: "0x87798DB53Deb245a762f801Ac6BCa4A7831B2aE0",
     marketFactories: {
       sportsball: {
         type: "SportsLink",
-        address: "0xbfFa6a63d0eFe043B39E698630E71b433e0c72f0",
+        address: "0xFDE7135E882CF7c078e2c1100154712aCd40145c",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
           "0x5B9a38Bf07324B2Ff946F1ccdBD4698A8BC6c952",
@@ -114,7 +114,7 @@ export const addresses: AddressMapping = {
       },
       trustme: {
         type: "Trusted",
-        address: "0xe4D50264177222bBE24a0bC577c8AF33B1d63e28",
+        address: "0xFE48D94B3Ae76aaC4D8538A9E571921718867298",
         constructorArgs: [
           "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
           "0x5B9a38Bf07324B2Ff946F1ccdBD4698A8BC6c952",
