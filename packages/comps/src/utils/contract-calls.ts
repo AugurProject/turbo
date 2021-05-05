@@ -1517,10 +1517,11 @@ const calculatePrices = (ratios: string[] = [], weights: string[] = []): string[
 };
 
 const decodeMarket = (marketData: any) => {
-  const { shareTokens, endTime, winner, creator, creatorFee: onChainFee, creationTimestamp } = marketData;
+  const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
+
   const creatorFee = new BN(String(onChainFee))
     .div(new BN(10).pow(new BN(18)))
     .times(100)
