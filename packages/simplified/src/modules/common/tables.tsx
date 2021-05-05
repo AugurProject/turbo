@@ -17,6 +17,7 @@ import {
   useUserStore,
   useCanExitCashPosition,
   Constants,
+  DateUtils,
   Formatter,
   ContractCalls,
   Components,
@@ -32,6 +33,7 @@ const {
 } = Components;
 const { claimWinnings, getUserLpTokenInitialAmount } = ContractCalls;
 const { formatLpTokens, formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
+const { timeSinceTimestamp } = DateUtils;
 const {
   MODAL_ADD_LIQUIDITY,
   USDC,
@@ -385,9 +387,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
-  const {
-    account
-  } = useUserStore();
+  const { account } = useUserStore();
   const { transactions } = useDataStore();
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
@@ -629,15 +629,17 @@ const TX_PAGE_LIMIT = 10;
 const TransactionRow = ({ transaction }: TransactionProps) => (
   <ul className={Styles.TransactionRow} key={transaction.id}>
     <li>
-      <ReceiptLink hash={transaction.tx_hash} label={transaction.subheader} />
+      <ReceiptLink hash={transaction.txHash} label={transaction?.subheader} />
     </li>
-    <li>{formatDai(transaction.cashValueUsd).full}</li>
-    <li>{transaction.tokenAmount}</li>
-    <li>{formatSimpleShares(transaction.shareAmount).formatted}</li>
+    <li>{transaction.displayCollateral}</li>
+    <li>{transaction.lpTokenPercent ? transaction.lpTokenPercent : "0%"}</li>
+    <li>{transaction.displayShares ? transaction.displayShares : 0}</li>
     <li>
       <AddressLink account={transaction.sender} short />
     </li>
-    <li>{transaction.time}</li>
+    <li>
+      {timeSinceTimestamp(transaction.timestamp)}
+    </li>
   </ul>
 );
 
@@ -672,7 +674,6 @@ export const TransactionsTable = ({ transactions }: TransactionsProps) => {
         .sort((a, b) => (!sortUp ? b.timestamp - a.timestamp : a.timestamp - b.timestamp)),
     [selectedType, transactions, sortUp]
   );
-
   return (
     <div className={Styles.TransactionsTable}>
       <TransactionsHeader

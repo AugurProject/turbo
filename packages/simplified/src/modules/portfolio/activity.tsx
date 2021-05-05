@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import Styles from './activity.styles.less';
-import { useAppStatusStore, useDataStore, useUserStore, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
+import { useAppStatusStore, useDataStore, useUserStore, DateUtils, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
 import { useSimplifiedStore } from 'modules/stores/simplified';
 const { Pagination, sliceByPage } = PaginationComps;
 const { ReceiptLink } = Links;
 const { shapeUserActvity } = ProcessData;
 const { getCashFormat } = Formatter;
+const { getTimeFormat } = DateUtils;
 
-const ActivityCard = ({ activity }: typeof React.Component) => (
+const ActivityCard = ({ activity }: typeof React.Component, timeFormat: string) => (
   <div className={Styles.ActivityCard}>
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>
@@ -16,7 +17,7 @@ const ActivityCard = ({ activity }: typeof React.Component) => (
     {activity.subheader && (
       <div className={Styles.subheader}>{activity.subheader}</div>
     )}
-    <div className={Styles.time}>{activity.time}</div>
+    <div className={Styles.time}>{getTimeFormat(activity.timestamp, timeFormat)}</div>
     {activity.txHash && <ReceiptLink hash={activity.txHash} />}
   </div>
 );
@@ -28,8 +29,8 @@ export const Activity = () => {
   const { settings: { timeFormat }} = useSimplifiedStore();
   const { blocknumber, transactions, markets, cashes } = useDataStore();
   const activity = useMemo(
-    () => shapeUserActvity(account, markets, transactions, cashes, timeFormat),
-    [blocknumber, account, timeFormat]
+    () => shapeUserActvity(account, markets, transactions, cashes),
+    [blocknumber, account]
   );
   const [page, setPage] = useState(1);
   return (
@@ -46,8 +47,9 @@ export const Activity = () => {
                     {activityGroup.activity.map((activityItem) => {
                       return (
                       <ActivityCard
-                        key={`${activityItem.id}-${activityItem.currency}-${activityItem.type}-${activityItem.date}-${activityItem.time}`}
+                        key={`${activityItem.id}-${activityItem.currency}-${activityItem.type}-${activityItem.date}-${activityItem.timestamp}`}
                         activity={activityItem}
+                        timeFormat={timeFormat}
                       />
                     )})}
                   </div>
