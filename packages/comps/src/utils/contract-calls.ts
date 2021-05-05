@@ -500,7 +500,6 @@ export const claimWinnings = (
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
-
 export const claimFees = (
   account: string,
   provider: Web3Provider,
@@ -510,7 +509,6 @@ export const claimFees = (
   const marketFactoryContract = getMarketFactoryContract(provider, account);
   return marketFactoryContract.claimSettlementFees(account);
 };
-
 
 export const getUserBalances = async (
   provider: Web3Provider,
@@ -981,7 +979,6 @@ const accumSharesPrice = (
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
-  console.log("transactions", transactions);
   const result = transactions
     .filter(
       (t) =>
