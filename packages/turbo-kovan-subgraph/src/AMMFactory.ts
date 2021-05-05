@@ -8,7 +8,7 @@ import {
   RemoveLiquidity,
   Sell,
   Sender,
-  Trades,
+  Trade,
 } from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
 import { bigIntToHexString } from "./utils";
@@ -210,7 +210,7 @@ function handleSell(event: SharesSwapped): void {
 export function handleSharesSwappedEvent(event: SharesSwapped): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let senderId = event.params.user.toHexString();
-  let tradesEntity = new Trades(id);
+  let tradeEntity = new Trade(id);
 
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let marketEntity = Market.load(marketId);
@@ -219,18 +219,18 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
     marketEntity.save();
   }
 
-  tradesEntity.marketFactory = event.params.marketFactory.toHexString();
-  tradesEntity.marketId = marketId;
-  tradesEntity.user = senderId;
-  tradesEntity.outcome = bigIntToHexString(event.params.outcome);
-  tradesEntity.collateral = bigIntToHexString(event.params.collateral);
-  tradesEntity.shares = bigIntToHexString(event.params.shares);
-  tradesEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
+  tradeEntity.marketFactory = event.params.marketFactory.toHexString();
+  tradeEntity.marketId = marketId;
+  tradeEntity.user = senderId;
+  tradeEntity.outcome = bigIntToHexString(event.params.outcome);
+  tradeEntity.collateral = bigIntToHexString(event.params.collateral);
+  tradeEntity.shares = bigIntToHexString(event.params.shares);
+  tradeEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
 
-  tradesEntity.transactionHash = event.transaction.hash.toHexString();
-  tradesEntity.timestamp = event.block.timestamp;
+  tradeEntity.transactionHash = event.transaction.hash.toHexString();
+  tradeEntity.timestamp = event.block.timestamp;
 
-  tradesEntity.save();
+  tradeEntity.save();
 
   if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
     handleBuy(event);

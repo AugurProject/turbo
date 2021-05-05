@@ -36,7 +36,7 @@ type Market @entity {
 
   removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
 
-  trades: [Trades!]! @derivedFrom(field: "marketId")
+  trades: [Trade!]! @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -118,7 +118,7 @@ type Sell @entity {
   price: BigDecimal!
 }
 
-type Trades @entity {
+type Trade @entity {
   id: ID!
 
   marketId: Market!
