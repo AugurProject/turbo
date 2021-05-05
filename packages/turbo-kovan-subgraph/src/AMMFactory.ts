@@ -8,10 +8,11 @@ import {
   RemoveLiquidity,
   Sell,
   Sender,
-  Trades,
+  Trade,
 } from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
 import { bigIntToHexString } from "./utils";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 // event PoolCreated(
 //   address pool,
@@ -54,31 +55,37 @@ export function handlePoolCreatedEvent(event: PoolCreated): void {
 
 function addLiquidityEvent(event: LiquidityChanged): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
+  const senderId = event.params.user.toHexString();
   let addLiquidityEntity = AddLiquidity.load(id);
-  let senderEntity = Sender.load(id);
+  let senderEntity = Sender.load(senderId);
 
   if (addLiquidityEntity == null) {
     addLiquidityEntity = new AddLiquidity(id);
   }
 
   if (senderEntity == null) {
-    senderEntity = new Sender(id);
+    senderEntity = new Sender(senderId);
   }
 
   senderEntity.save();
 
   addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   addLiquidityEntity.timestamp = event.block.timestamp;
-  addLiquidityEntity.collateral = event.params.collateral.toString();
-  addLiquidityEntity.lpTokens = event.params.lpTokens.toString();
+  addLiquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  addLiquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
+  addLiquidityEntity.marketId = marketId;
+  addLiquidityEntity.sender = senderId;
 
   addLiquidityEntity.save();
 }
 
 function removeLiquidityEvent(event: LiquidityChanged): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
+  const senderId = event.params.user.toHexString();
   let removeLiquidityEntity = RemoveLiquidity.load(id);
-  let senderEntity = Sender.load(id);
+  let senderEntity = Sender.load(senderId);
   let outcomesEntity = Outcomes.load(id);
 
   if (removeLiquidityEntity == null) {
@@ -86,7 +93,7 @@ function removeLiquidityEvent(event: LiquidityChanged): void {
   }
 
   if (senderEntity == null) {
-    senderEntity = new Sender(id);
+    senderEntity = new Sender(senderId);
   }
 
   if (outcomesEntity == null) {
@@ -98,12 +105,17 @@ function removeLiquidityEvent(event: LiquidityChanged): void {
 
   removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   removeLiquidityEntity.timestamp = event.block.timestamp;
+  removeLiquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  removeLiquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
+  removeLiquidityEntity.marketId = marketId;
+  removeLiquidityEntity.sender = senderId;
 
   removeLiquidityEntity.save();
 }
 
 export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const senderId = event.params.user.toHexString();
   const liquidityEntity = new Liquidity(id);
 
   const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
@@ -115,7 +127,7 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
   liquidityEntity.marketFactory = event.params.marketFactory.toHexString();
   liquidityEntity.marketId = marketId;
-  liquidityEntity.user = event.params.user.toHexString();
+  liquidityEntity.user = senderId;
   liquidityEntity.recipient = event.params.recipient.toHexString();
   liquidityEntity.collateral = bigIntToHexString(event.params.collateral);
   liquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
@@ -141,12 +153,13 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
 function handleBuy(event: SharesSwapped): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const senderId = event.params.user.toHexString();
   const buyEntity = new Buy(id);
-  let senderEntity = Sender.load(id);
+  let senderEntity = Sender.load(senderId);
   let outcomesEntity = Outcomes.load(id);
 
   if (senderEntity == null) {
-    senderEntity = new Sender(id);
+    senderEntity = new Sender(senderId);
   }
 
   if (outcomesEntity == null) {
@@ -158,22 +171,23 @@ function handleBuy(event: SharesSwapped): void {
 
   buyEntity.transactionHash = event.transaction.hash.toHexString();
   buyEntity.timestamp = event.block.timestamp;
-  // TODO: confirm fields with Tom
-  // buyEntity.price = bigIntToHexString(event.params.price);
-  // buyEntity.cash = bigIntToHexString(event.params.cash);
-  // sellEntity.amount = bigIntToHexString(event.params.amount);
+  buyEntity.sender = senderId;
+  buyEntity.collateral = bigIntToHexString(event.params.collateral);
+  buyEntity.shares = bigIntToHexString(event.params.shares);
+  buyEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
 
   buyEntity.save();
 }
 
 function handleSell(event: SharesSwapped): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const senderId = event.params.user.toHexString();
   const sellEntity = new Sell(id);
-  let senderEntity = Sender.load(id);
+  let senderEntity = Sender.load(senderId);
   let outcomesEntity = Outcomes.load(id);
 
   if (senderEntity == null) {
-    senderEntity = new Sender(id);
+    senderEntity = new Sender(senderId);
   }
 
   if (outcomesEntity == null) {
@@ -185,33 +199,38 @@ function handleSell(event: SharesSwapped): void {
 
   sellEntity.transactionHash = event.transaction.hash.toHexString();
   sellEntity.timestamp = event.block.timestamp;
-  // TODO: confirm fields with Tom
-  // sellEntity.price = bigIntToHexString(event.params.price);
-  // sellEntity.cash = bigIntToHexString(event.params.cash);
-  // sellEntity.amount = bigIntToHexString(event.params.amount);
+  sellEntity.sender = senderId;
+  sellEntity.collateral = bigIntToHexString(event.params.collateral);
+  sellEntity.shares = bigIntToHexString(event.params.shares);
+  sellEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
 
   sellEntity.save();
 }
 
 export function handleSharesSwappedEvent(event: SharesSwapped): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  const tradesEntity = new Trades(id);
+  const senderId = event.params.user.toHexString();
+  const tradeEntity = new Trade(id);
 
   const marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let marketEntity = Market.load(marketId);
   if (marketEntity == null) {
     marketEntity = new Market(marketId);
+    marketEntity.save();
   }
-  marketEntity.save();
 
-  tradesEntity.marketFactory = event.params.marketFactory.toHexString();
-  tradesEntity.marketId = marketId;
-  tradesEntity.user = event.params.user.toHexString();
-  tradesEntity.outcome = bigIntToHexString(event.params.outcome);
-  tradesEntity.collateral = bigIntToHexString(event.params.collateral);
-  tradesEntity.shares = bigIntToHexString(event.params.shares);
+  tradeEntity.marketFactory = event.params.marketFactory.toHexString();
+  tradeEntity.marketId = marketId;
+  tradeEntity.user = senderId;
+  tradeEntity.outcome = bigIntToHexString(event.params.outcome);
+  tradeEntity.collateral = bigIntToHexString(event.params.collateral);
+  tradeEntity.shares = bigIntToHexString(event.params.shares);
+  tradeEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
 
-  tradesEntity.save();
+  tradeEntity.transactionHash = event.transaction.hash.toHexString();
+  tradeEntity.timestamp = event.block.timestamp;
+
+  tradeEntity.save();
 
   if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
     handleBuy(event);
