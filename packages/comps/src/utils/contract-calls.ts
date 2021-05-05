@@ -935,7 +935,7 @@ const getInitPositionValues = (
   // sum up trades shares
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
   const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcomeId, account, claimTimestamp);
-  const enterAvgPriceBN = sharesEntered.shares.gt(0) ? sharesEntered.cashAmount.div(sharesEntered.shares) : new BN(0);
+  const enterAvgPriceBN = sharesEntered.avgPrice;
 
   // get shares from LP activity
   const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
@@ -972,8 +972,9 @@ const accumSharesPrice = (
   outcome: string,
   account: string,
   cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber } => {
+): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+  console.log("transactions", transactions);
   const result = transactions
     .filter(
       (t) =>
@@ -983,11 +984,15 @@ const accumSharesPrice = (
       (p, t) => ({
         shares: p.shares.plus(new BN(t.shares)),
         cashAmount: p.cashAmount.plus(new BN(t.collateral).abs()),
+        avgPrice: p.cashAmount
+          .times(p.avgPrice)
+          .plus(new BN(t.collateral).times(new BN(t.price)))
+          .div(p.cashAmount.plus(new BN(t.collateral))),
       }),
-      { shares: new BN(0), cashAmount: new BN(0) }
+      { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) }
     );
 
-  return { shares: result.shares, cashAmount: result.cashAmount };
+  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice: result.avgPrice };
 };
 
 const accumLpSharesPrice = (
