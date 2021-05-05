@@ -14,7 +14,6 @@ import {
   DateUtils,
 } from "@augurproject/comps";
 import { SimplifiedStore } from "modules/stores/simplified";
-
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
 const { formatCashPrice, getCashFormat } = Formatter;
@@ -23,7 +22,6 @@ const { TransactionTypes } = Constants;
 const { getDayFormat, getTimeFormat } = DateUtils;
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
-// const DEFAULT_SELECTED_ID = 2;
 const ONE_MIN = 60;
 const FIFTEEN_MIN = 900;
 const ONE_HOUR = 3600;
@@ -145,13 +143,10 @@ const processPriceTimeData = (transactions = [], formattedOutcomes, market, rang
     const trades = (transactions || []).filter(
       (t) => t.tx_type === TransactionTypes.ENTER || t.tx_type === TransactionTypes.EXIT
     );
-    // console.log(trades, trades[outcome?.id], outcome.id);
     const sortedOutcomeTrades = trades
       .filter((t) => Number(t.outcome) === Number(outcome?.id))
       .sort((a, b) => a?.timestamp - b?.timestamp);
-    // const sortedOutcomeTrades = (market?.amm?.trades[outcome.id] || []).sort((a, b) => a.timestamp - b.timestamp) || [];
     let newLastPrice = determineLastPrice(sortedOutcomeTrades, startTime);
-    // if (sortedOutcomeTrades.length === 0) return newArray;
     for (let i = 0; i < totalTicks; i++) {
       const curTick = startTime + tick * i;
       const nextTick = curTick + tick;
@@ -302,7 +297,6 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
             outcome={outcome}
             toggleSelected={toggleOutcome}
             isSelected={selectedOutcomes[outcome.outcomeIdx]}
-            // disabled
           />
         ))}
       </div>
