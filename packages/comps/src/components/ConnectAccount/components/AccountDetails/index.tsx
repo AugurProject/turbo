@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "react-feather";
 import CopyHelper from "./CopyHelper";
 import { getEtherscanLink, shortenAddress } from "../../utils";
-// import { injected, walletlink } from "../../connectors";
 import { injected } from "../../connectors";
 import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
@@ -182,7 +181,7 @@ export const AccountDetails = ({
       <section>
         <TinyButton action={() => openOptions()} text="Switch Wallet" />
         {connector !== injected && notWalletLink && (
-          <TinyButton action={() => (connector as any).close()} text="Sign Out" />
+          <TinyButton action={() => (connector as any).disconnect()} text="Sign Out" />
         )}
         {connector === injected && notWalletLink && (
           <TinyButton

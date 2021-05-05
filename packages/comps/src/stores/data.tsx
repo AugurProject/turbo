@@ -57,7 +57,8 @@ export const DataProvider = ({ children }: any) => {
 
   useEffect(() => {
     let isMounted = true;
-    const fetchTransactions = () => getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions));
+    const fetchTransactions = () =>
+      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions));
 
     fetchTransactions();
 
@@ -67,8 +68,8 @@ export const DataProvider = ({ children }: any) => {
     return () => {
       isMounted = false;
       clearInterval(intervalId);
-    }
-  })
+    };
+  }, []);
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 };
