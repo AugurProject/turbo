@@ -58,7 +58,7 @@ export const SettingsButton = () => {
             <h2>Settings</h2>
           </li>
           <li>
-            <label for="showLiquidMarkets">Show liquid markets only</label>
+            <label htmlFor="showLiquidMarkets">Show liquid markets only</label>
             <ToggleSwitch
               id="showLiquidMarkets"
               toggle={showLiquidMarkets}
@@ -66,7 +66,7 @@ export const SettingsButton = () => {
             />
           </li>
           <li>
-            <label for="switchTime">Display time in 24hr format</label>
+            <label htmlFor="switchTime">Display time in 24hr format</label>
             <ToggleSwitch
               id="switchTime"
               toggle={is24hour}
