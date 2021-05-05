@@ -15,7 +15,7 @@ import {
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 
-const { claimWinnings } = ContractCalls;
+const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
 const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
 const {
@@ -91,6 +91,44 @@ const handleClaimAll = (
   } 
 };
 
+const handleClaimFees = (
+  loginAccount,
+  cash,
+  ids,
+  factories,
+  addTransaction,
+  canClaim,
+  setPendingClaimFees
+) => {
+  const from = loginAccount?.account;
+  const chainId = loginAccount?.chainId;
+  if (from && canClaim) {
+    setPendingClaimFees(true);
+    claimFees(from, loginAccount?.library, factories)
+      .then(response => {
+        // handle transaction response here
+        setPendingClaimFees(false);
+        if (response) {
+          const { hash } = response;
+          addTransaction({
+            hash,
+            chainId,
+            seen: false,
+            status: TX_STATUS.PENDING,
+            from,
+            addedTime: new Date().getTime(),
+            message: `Claim All ${cash.name} Fees`,
+            marketDescription: '',
+          });
+        }
+      })
+      .catch(error => {
+        setPendingClaimFees(false);
+        console.log('Error when trying to claim winnings: ', error?.message);
+      });
+  } 
+};
+
 export const ClaimWinningsSection = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -99,6 +137,7 @@ export const ClaimWinningsSection = () => {
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
+  const [pendingClaimFees, setPendingClaimFees] = useState(false);
   const { cashes } = useDataStore();
   const claimableMarkets = marketShares
     ? keyedObjToArray(marketShares).filter((m) => !!m?.claimableWinnings)
@@ -163,12 +202,20 @@ export const ClaimWinningsSection = () => {
       )}
       {isLogged && hasClaimableFees && (
         <PrimaryButton
-          text={`Claim Fees (${
+          text={!pendingClaimFees ? `Claim Fees (${
             formatCash(claimableFees, USDC).full
-          })`}
+          })` : `Waiting for Confirmation`}
           // icon={EthIcon}
           action={() => {
-           console.log("handle claim fees here");
+            handleClaimFees(
+              loginAccount,
+              usdcCash,
+              USDCTotals.ids,
+              USDCTotals.factories,
+              addTransaction,
+              true,
+              setPendingClaimFees
+            );
           }}
         />
       )}
