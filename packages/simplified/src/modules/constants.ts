@@ -141,10 +141,10 @@ export const marketStatusItems = [
     label: OPEN,
     value: OPEN,
   },
-  {
-    label: IN_SETTLEMENT,
-    value: IN_SETTLEMENT,
-  },
+  // {
+  //   label: IN_SETTLEMENT,
+  //   value: IN_SETTLEMENT,
+  // },
   {
     label: RESOLVED,
     value: RESOLVED,
