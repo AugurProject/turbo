@@ -726,7 +726,7 @@ const populateClaimableWinnings = (
       const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);
       if (userShares && new BN(userShares?.rawBalance).gt(0)) {
-        const claimableBalance = new BN(userShares.balance).minus(new BN(initValue)).abs().toFixed(4);
+        const claimableBalance = new BN(userShares.balance).minus(new BN(userShares.initCostUsd)).abs().toFixed(4);
         marketShares[amm.marketId].claimableWinnings = {
           claimableBalance,
           userBalances: outcomeBalances.outcomeSharesRaw,
