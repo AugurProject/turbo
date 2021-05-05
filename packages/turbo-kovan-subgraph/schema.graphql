@@ -32,7 +32,11 @@ type Market @entity {
 
   liquidity: [Liquidity!]! @derivedFrom(field: "marketId")
 
-  trades: [Trades!]! @derivedFrom(field: "marketId")
+  addLiquidity: [AddLiquidity!]! @derivedFrom(field: "marketId")
+
+  removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
+
+  trades: [Trade!]! @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -54,17 +58,18 @@ type Liquidity @entity {
 
 type Sender @entity {
   id: ID!
-  addLiquidity: AddLiquidity
-  removeLiquidity: RemoveLiquidity
-  buy: Buy
-  sell: Sell
-  claimedProceeds: ClaimedProceeds
-  claimedFees: ClaimedFees
+  addLiquidity: [AddLiquidity!] @derivedFrom(field: "sender")
+  removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "sender")
+  buy: [Buy!] @derivedFrom(field: "sender")
+  sell: [Sell!] @derivedFrom(field: "sender")
+  claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "sender")
+  claimedFees: [ClaimedFees!] @derivedFrom(field: "sender")
 }
 
 type AddLiquidity @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "addLiquidity")
+  sender: Sender!
+  marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
   collateral: String!
@@ -82,34 +87,38 @@ type Outcomes @entity {
 
 type RemoveLiquidity @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "removeLiquidity")
+  sender: Sender!
+  marketId: Market!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
+  collateral: String!
+  lpTokens: String!
 }
 
 type Buy @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "buy")
+  sender: Sender!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "buy")
-  price: String
-  cash: String
+  collateral: String!
+  shares: String!
+  price: BigDecimal!
 }
 
 type Sell @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "sell")
+  sender: Sender!
   transactionHash: String!
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "sell")
-  amount: String
-  price: String
-  cash: String
+  collateral: String!
+  shares: String!
+  price: BigDecimal!
 }
 
-type Trades @entity {
+type Trade @entity {
   id: ID!
 
   marketId: Market!
@@ -124,40 +133,31 @@ type Trades @entity {
   collateral: String!
 
   shares: String!
-}
 
-type User @entity {
-  id: ID!
+  price: BigDecimal!
 
-  winningsClaimed: [WinningsClaimed!]! @derivedFrom(field: "user")
-}
+  transactionHash: String!
 
-type WinningsClaimed @entity {
-  id: ID!
-
-  user: User!
-
-  marketId: String!
-
-  winningShares: String!
+  timestamp: BigInt!
 }
 
 type ClaimedProceeds @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "claimedProceeds")
+  sender: Sender!
   fees: String!
   outcome: String!
   marketId: String!
-  cash: String!
+  payout: String!
+  shares: String!
   transactionHash: String!
   timestamp: BigInt!
 }
 
 type ClaimedFees @entity {
   id: ID!
-  sender: [Sender!]! @derivedFrom(field: "claimedFees")
-  cash: String!
-  marketId: String!
+  sender: Sender!
+  collateral: String!
+  receiver: String!
   transactionHash: String!
   timestamp: BigInt!
 }
