@@ -63,6 +63,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 settlementFee;
         uint256 protocolFee;
         uint256 stakerFee;
+        uint256 creationTimestamp;
     }
     Market[] internal markets;
 
@@ -98,7 +99,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     // As a check of market existence, use `endTime != 0` on the returned struct
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id > markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0);
+            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
         } else {
             return markets[_id];
         }
@@ -232,7 +233,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
             OwnedERC20(0),
             settlementFee,
             protocolFee,
-            stakerFee
+            stakerFee,
+            block.timestamp
         );
     }
 
