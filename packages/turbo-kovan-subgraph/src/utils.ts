@@ -1,6 +1,6 @@
 import { Address, BigInt, Bytes, crypto } from "@graphprotocol/graph-ts";
 
-const ZERO = new BigInt(0);
+let ZERO = new BigInt(0);
 
 function upperCase(s: string): string {
   const letterMap = new Map<string, string>();
@@ -45,7 +45,7 @@ export function mapAddressArray(arr: Address[]): string[] {
 }
 
 export function bigIntToHexString(bigint: BigInt): string {
-  const hexString = bigint.toHexString().split("").slice(2);
+  let hexString = bigint.toHexString().split("").slice(2);
   if (hexString.length == 1) {
     hexString.unshift("0");
   }
