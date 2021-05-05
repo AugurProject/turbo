@@ -574,7 +574,6 @@ export interface PositionBalance extends SimpleBalance {
   change24hrPositionUsd: string;
   avgPrice: string;
   initCostUsd: string;
-  initCostCash: string;
   outcomeName: string;
   outcomeId: number;
   maxUsdValue: string;
