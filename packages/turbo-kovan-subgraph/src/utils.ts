@@ -1,16 +1,6 @@
-import { Address, BigDecimal, BigInt, Bytes, crypto } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, crypto } from "@graphprotocol/graph-ts";
 
 const ZERO = new BigInt(0);
-export const BONE = new BigInt(10**18);
-
-export const DEFAULT_DECIMALS = 18
-export function toDecimal(value: BigInt, decimals: number = DEFAULT_DECIMALS): BigDecimal {
-  let precision = BigInt.fromI32(10)
-    .pow(<u8>decimals)
-    .toBigDecimal()
-
-  return value.divDecimal(precision)
-}
 
 function upperCase(s: string): string {
   const letterMap = new Map<string, string>();
