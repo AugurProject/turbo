@@ -36,6 +36,7 @@ export const SELL: string = "sell";
 
 export const ADD_LIQUIDITY: string = "add liquidity";
 export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
+export const DUST_POSITION_AMOUNT = createBigNumber("0.0001");
 
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;
