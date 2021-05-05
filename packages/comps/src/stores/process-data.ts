@@ -230,7 +230,7 @@ export const getCombinedMarketTransactionsFormatted = (transactions, market: Mar
     .concat(trades)
     .concat(adds)
     .concat(removes)
-    .sort((a,b) => a?.timestamp < b?.timestamp ? 1 : -1);
+    .sort((a, b) => (a?.timestamp < b?.timestamp ? 1 : -1));
   return sortedByTime;
 };
 
@@ -258,16 +258,13 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
   const adds = transactions[marketId]?.addLiquidity;
   return (adds || []).map((add) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
-    const lpTokens = formatLpTokens(
-      convertOnChainCashAmountToDisplayCashAmount(createBigNumber(add?.lpTokens).abs()),
-      {
-        decimals: 2,
-        decimalsRounded: 0,
-        denomination: (v) => `${v}%`,
-        roundDown: false,
-        bigUnitPostfix: false,
-      }
-    ).full;
+    const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(add?.lpTokens).abs()), {
+      decimals: 2,
+      decimalsRounded: 0,
+      denomination: (v) => `${v}%`,
+      roundDown: false,
+      bigUnitPostfix: false,
+    }).full;
     const processed = sharedProcessed(add, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = add.sender.id;
@@ -313,4 +310,4 @@ const sharedProcessed = (tx, market, cash) => {
   processed.description = description;
   processed.title = title;
   return processed;
-}
+};
