@@ -66,8 +66,8 @@ const GetStatusIcon = (transactionStatus: string) => {
   }
 };
 
-const Transaction = ({ label, link, status, chainId }) => (
-  <div>
+const Transaction = ({ label, link, status, chainId }: typeof React.Component) => (
+  <div key={link}>
     <span>{label}</span>
     {link && (
       <a href={getEtherscanLink(chainId, link, "transaction")} target="_blank" rel="noopener noreferrer">
@@ -121,7 +121,7 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
       </div>
       <div className={Styles.TransactionList}>
         {userTransactions.map(({ message, hash, status }, index) => (
-          <Transaction label={message} link={hash} status={status} chainId={chainId} />
+          <Transaction key={hash} label={message} link={hash} status={status} chainId={chainId} />
         ))}
       </div>
     </div>

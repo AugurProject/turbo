@@ -245,7 +245,7 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
     const outcomeName = outcomes?.find((o) => o.id === createBigNumber(trade?.outcome).toNumber())?.name;
     processed.tx_type = isBuy ? TransactionTypes.ENTER : TransactionTypes.EXIT;
     processed.displayShares = formatSimpleShares(String(shares)).full;
-    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.displayPrice = formatCashPrice(trade.price, cash.name);
     processed.sender = trade.user;
     processed.subheader = `Swap ${cash.name} for ${outcomeName} Shares`;
@@ -269,7 +269,7 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = add.sender.id;
     processed.lpTokenPercent = lpTokens;
-    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Added`;
     return processed;
   });
@@ -294,7 +294,7 @@ const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) =>
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = remove.sender.id;
     processed.lpTokenPercent = lpTokens;
-    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name).full;
+    processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Removed`;
     return processed;
   });

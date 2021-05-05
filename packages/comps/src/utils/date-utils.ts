@@ -46,16 +46,21 @@ export const timeSince = (timestamp: number) => {
 
 export const getDayFormat = (timestamp) => {
   if (!timestamp) return "N/A";
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
-  const day = `0${date.getDate()}`.slice(-2);
-  const mon = shortMonths[Number(date.getMonth())];
-  return `${mon} ${day}`;
+  const language = navigator?.language || "en-us";
+  return date.toLocaleDateString(language, {
+    month: "short",
+    day: "numeric",
+  });
+  // const day = `0${date.getDate()}`.slice(-2);
+  // const mon = shortMonths[Number(date.getMonth())];
+  // return `${mon} ${day}`;
 };
 
 export const getTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
   if (!timestamp) return "N/A";
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const language = navigator?.language || "en-us";
   return date.toLocaleTimeString(language, {
@@ -67,7 +72,7 @@ export const getTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
 
 export const getDateFormat = (timestamp) => {
   if (!timestamp) return "N/A";
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const language = navigator?.language || "en-us";
   return date.toLocaleDateString(language, {
@@ -79,7 +84,7 @@ export const getDateFormat = (timestamp) => {
 
 export const getDateTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
   if (!timestamp) return "N/A";
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const language = navigator?.language || "en-us";
   return date.toLocaleDateString(language, {
@@ -93,7 +98,7 @@ export const getDateTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => 
 };
 
 export const getMarketEndtimeDate = (timestamp: string | number) => {
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const year = date.getFullYear();
   const monthDay = getDayFormat(timestamp);
@@ -110,7 +115,7 @@ export const getMarketEndtimeFull = (timestamp: string | number, format = TWENTY
 };
 
 const getTimestampTimezoneOffSet = (timestamp: string | number) => {
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   // timezone offset comes in minutes
   const timezone = date.getTimezoneOffset() / 60;
@@ -119,7 +124,7 @@ const getTimestampTimezoneOffSet = (timestamp: string | number) => {
 };
 
 export const getDayTimestamp = (timestamp: string) => {
-  const inMilli = Number(timestamp) * 1000;
+  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const day = `0${date.getDate()}`.slice(-2);
   const mon = `0${Number(date.getMonth()) + 1}`.slice(-2);

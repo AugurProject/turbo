@@ -8,7 +8,7 @@ const { shapeUserActvity } = ProcessData;
 const { getCashFormat } = Formatter;
 const { getTimeFormat } = DateUtils;
 
-const ActivityCard = ({ activity }: typeof React.Component, timeFormat: string) => (
+const ActivityCard = ({ activity , timeFormat }: typeof React.Component) => (
   <div className={Styles.ActivityCard}>
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>
@@ -33,6 +33,7 @@ export const Activity = () => {
     [blocknumber, account]
   );
   const [page, setPage] = useState(1);
+
   return (
     <div className={Styles.Activity}>
       <span>your activity</span>

@@ -4,49 +4,58 @@ import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import Styles from "./charts.styles.less";
 import classNames from "classnames";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-import { createBigNumber, Formatter, Icons, SelectionComps, MarketCardComps } from "@augurproject/comps";
-
+import {
+  Constants,
+  createBigNumber,
+  Formatter,
+  Icons,
+  SelectionComps,
+  MarketCardComps,
+  DateUtils,
+} from "@augurproject/comps";
+import { SimplifiedStore } from "modules/stores/simplified";
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
 const { formatCashPrice, getCashFormat } = Formatter;
 const { Checkbox } = Icons;
+const { TransactionTypes } = Constants;
+const { getDayFormat, getTimeFormat } = DateUtils;
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
-// const DEFAULT_SELECTED_ID = 2;
-const ONE_MIN_MS = 60000;
-const FIFTEEN_MIN_MS = 900000;
-const ONE_HOUR_MS = 3600 * 1000;
-const ONE_QUARTER_DAY = ONE_HOUR_MS * 6;
-const ONE_DAY_MS = 24 * ONE_HOUR_MS;
-const ONE_WEEK_MS = ONE_DAY_MS * 7;
-const ONE_MONTH_MS = ONE_DAY_MS * 30;
+const ONE_MIN = 60;
+const FIFTEEN_MIN = 900;
+const ONE_HOUR = 3600;
+const ONE_QUARTER_DAY = ONE_HOUR * 6;
+const ONE_DAY = 24 * ONE_HOUR;
+const ONE_WEEK = ONE_DAY * 7;
+const ONE_MONTH = ONE_DAY * 30;
 const DATE = new Date();
-const END_TIME = DATE.getTime();
+const END_TIME = Math.floor(DATE.getTime() / 1000);
 
 const RANGE_OPTIONS = [
   {
     id: 0,
     label: "24hr",
-    tick: FIFTEEN_MIN_MS,
-    startTime: END_TIME - ONE_DAY_MS,
+    tick: FIFTEEN_MIN,
+    startTime: END_TIME - ONE_DAY,
   },
   {
     id: 1,
     label: "7d",
-    tick: ONE_HOUR_MS,
-    startTime: END_TIME - ONE_WEEK_MS,
+    tick: ONE_HOUR,
+    startTime: END_TIME - ONE_WEEK,
   },
   {
     id: 2,
     label: "30d",
     tick: ONE_QUARTER_DAY,
-    startTime: END_TIME - ONE_MONTH_MS,
+    startTime: END_TIME - ONE_MONTH,
   },
   {
     id: 3,
     label: "All time",
-    tick: ONE_DAY_MS,
-    startTime: END_TIME - ONE_MONTH_MS * 6,
+    tick: ONE_DAY,
+    startTime: END_TIME - ONE_MONTH * 6,
   },
 ];
 
@@ -91,25 +100,25 @@ interface HighcartsChart extends Highcharts.Chart {
 }
 
 const calculateRangeSelection = (rangeSelection, market) => {
-  const marketStart = market.creationTimestamp * 1000;
+  const marketStart = market.creationTimestamp;
   let { startTime, tick } = RANGE_OPTIONS[rangeSelection];
   if (rangeSelection === 3) {
     // allTime:
     const timespan = END_TIME - marketStart;
-    const numHoursRd = Math.round(timespan / ONE_HOUR_MS);
-    tick = ONE_MIN_MS;
+    const numHoursRd = Math.round(timespan / ONE_HOUR);
+    tick = ONE_MIN;
     if (numHoursRd <= 12) {
-      tick = ONE_MIN_MS * 5;
+      tick = ONE_MIN * 5;
     } else if (numHoursRd <= 24) {
-      tick = ONE_MIN_MS * 10;
+      tick = ONE_MIN * 10;
     } else if (numHoursRd <= 48) {
-      tick = FIFTEEN_MIN_MS;
+      tick = FIFTEEN_MIN;
     } else if (numHoursRd <= 24 * 7) {
-      tick = ONE_HOUR_MS;
+      tick = ONE_HOUR;
     } else if (numHoursRd <= 24 * 30) {
       tick = ONE_QUARTER_DAY;
     } else {
-      tick = ONE_DAY_MS;
+      tick = ONE_DAY;
     }
     startTime = marketStart - tick;
   }
@@ -119,28 +128,30 @@ const calculateRangeSelection = (rangeSelection, market) => {
 
 const determineLastPrice = (sortedOutcomeTrades, startTime) => {
   let lastPrice = 0;
-  const index = sortedOutcomeTrades
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .findIndex((t) => startTime > t.timestamp * 1000);
-  const sortTS = sortedOutcomeTrades[index]?.timestamp * 1000;
+  const index = sortedOutcomeTrades.sort((a, b) => b.timestamp - a.timestamp).findIndex((t) => startTime > t.timestamp);
+  const sortTS = sortedOutcomeTrades[index]?.timestamp;
   if (!isNaN(sortTS)) {
     lastPrice = sortedOutcomeTrades[index].price;
   }
   return createBigNumber(lastPrice).toFixed(4);
 };
 
-const processPriceTimeData = (formattedOutcomes, market, rangeSelection) => ({
+const processPriceTimeData = (transactions = [], formattedOutcomes, market, rangeSelection) => ({
   priceTimeArray: formattedOutcomes.map((outcome) => {
     const { startTime, tick, totalTicks } = calculateRangeSelection(rangeSelection, market);
     const newArray: any[] = [];
-    const sortedOutcomeTrades = (market?.amm?.trades[outcome.id] || []).sort((a, b) => a.timestamp - b.timestamp) || [];
+    const trades = (transactions || []).filter(
+      (t) => t.tx_type === TransactionTypes.ENTER || t.tx_type === TransactionTypes.EXIT
+    );
+    const sortedOutcomeTrades = trades
+      .filter((t) => Number(t.outcome) === Number(outcome?.id))
+      .sort((a, b) => a?.timestamp - b?.timestamp);
     let newLastPrice = determineLastPrice(sortedOutcomeTrades, startTime);
-    if (sortedOutcomeTrades.length === 0) return newArray;
     for (let i = 0; i < totalTicks; i++) {
       const curTick = startTime + tick * i;
       const nextTick = curTick + tick;
       const matchingTrades = sortedOutcomeTrades.filter((trade) => {
-        const tradeTime = trade.timestamp * 1000;
+        const tradeTime = trade.timestamp;
         return tradeTime > curTick && nextTick > tradeTime;
       });
       let priceToUse = newLastPrice;
@@ -162,19 +173,24 @@ const processPriceTimeData = (formattedOutcomes, market, rangeSelection) => ({
   }),
 });
 
-export const PriceHistoryChart = ({ formattedOutcomes, market, selectedOutcomes, rangeSelection, cash }) => {
+export const PriceHistoryChart = ({
+  transactions,
+  formattedOutcomes,
+  market,
+  selectedOutcomes,
+  rangeSelection,
+  cash,
+}) => {
   const container = useRef(null);
   const { maxPriceBigNumber: maxPrice, minPriceBigNumber: minPrice } = market;
-  const { priceTimeArray } = processPriceTimeData(formattedOutcomes, market, rangeSelection);
-  const options = useMemo(
-    () =>
-      getOptions({
-        maxPrice,
-        minPrice,
-        cash,
-      }),
-    [maxPrice, minPrice]
-  );
+  const { priceTimeArray } = processPriceTimeData(transactions, formattedOutcomes, market, rangeSelection);
+  const options = useMemo(() => {
+    return getOptions({
+      maxPrice,
+      minPrice,
+      cash,
+    });
+  }, [maxPrice, minPrice]);
 
   useMemo(() => {
     const chartContainer = container.current;
@@ -245,7 +261,7 @@ export const SelectOutcomeButton = ({
   );
 };
 
-export const SimpleChartSection = ({ market, cash }) => {
+export const SimpleChartSection = ({ market, cash, transactions }) => {
   const formattedOutcomes = getFormattedOutcomes({ market });
   const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));
   const [rangeSelection, setRangeSelection] = useState(3);
@@ -266,6 +282,7 @@ export const SimpleChartSection = ({ market, cash }) => {
       <PriceHistoryChart
         {...{
           market,
+          transactions,
           formattedOutcomes,
           selectedOutcomes,
           rangeSelection,
@@ -280,7 +297,6 @@ export const SimpleChartSection = ({ market, cash }) => {
             outcome={outcome}
             toggleSelected={toggleOutcome}
             isSelected={selectedOutcomes[outcome.outcomeIdx]}
-            // disabled
           />
         ))}
       </div>
@@ -403,11 +419,12 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
     split: false,
     useHTML: true,
     formatter() {
-      let out = `<h5>${Highcharts.dateFormat(
-        "%b %e %l:%M %p",
-        // @ts-ignore
-        this.x
-      )}</h5><ul>`;
+      const {
+        settings: { timeFormat },
+      } = SimplifiedStore.get();
+      // @ts-ignore
+      const date = `${getDayFormat(this.x)}, ${getTimeFormat(this.x, timeFormat)}`;
+      let out = `<h5>${date}</h5><ul>`;
       // @ts-ignore
       this.points.forEach((point) => {
         out += `<li><span style="color:${point.color}">&#9679;</span><b>${point.series.name}</b><span>${
@@ -417,6 +434,9 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
       out += "</ul>";
       return out;
     },
+  },
+  time: {
+    useUTC: false,
   },
   rangeSelector: {
     enabled: false,
