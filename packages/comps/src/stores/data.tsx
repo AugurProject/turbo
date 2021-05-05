@@ -69,7 +69,7 @@ export const DataProvider = ({ children }: any) => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, []);
+  }, [account]);
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 };
