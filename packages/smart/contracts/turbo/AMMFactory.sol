@@ -272,7 +272,7 @@ contract AMMFactory is BNum {
             _outcome,
             -int256(_collateralIn),
             int256(_totalDesiredOutcome),
-            bmul(_sets, _totalDesiredOutcome)
+            bdiv(_sets, _totalDesiredOutcome)
         );
 
         return _totalDesiredOutcome;
@@ -317,7 +317,7 @@ contract AMMFactory is BNum {
             _outcome,
             int256(_collateralOut),
             -int256(_undesiredTokenOut),
-            bmul(_setsOut, _undesiredTokenOut)
+            bdiv(_setsOut, _undesiredTokenOut)
         );
 
         return _collateralOut;
