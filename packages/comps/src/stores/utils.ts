@@ -120,7 +120,7 @@ export function useCanEnterCashPosition({ name, address }: Cash, refresh: any = 
   return canEnterPosition;
 }
 
-export function useUserBalances({ammExchanges, blocknumber, cashes, markets, transactions}) {
+export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions }) {
   const {
     loginAccount,
     actions: { updateUserBalances },
