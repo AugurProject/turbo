@@ -33,7 +33,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
 
   entity.marketId = event.params.id.toHexString();
   entity.sender = senderId;
-  entity.collateral = bigIntToHexString(event.params.amount);
+  entity.shares = bigIntToHexString(event.params.amount);
   entity.outcome = event.params.winningOutcome.toHexString();
   entity.fees = bigIntToHexString(event.params.settlementFee);
   entity.transactionHash = event.transaction.hash.toHexString();

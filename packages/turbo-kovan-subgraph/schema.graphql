@@ -147,7 +147,8 @@ type ClaimedProceeds @entity {
   fees: String!
   outcome: String!
   marketId: String!
-  collateral: String!
+  payout: String!
+  shares: String!
   transactionHash: String!
   timestamp: BigInt!
 }
@@ -156,7 +157,7 @@ type ClaimedFees @entity {
   id: ID!
   sender: Sender!
   collateral: String!
+  receiver: String!
   transactionHash: String!
   timestamp: BigInt!
-  receiver: String!
 }

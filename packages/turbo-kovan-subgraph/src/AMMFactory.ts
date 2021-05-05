@@ -11,7 +11,7 @@ import {
   Trades,
 } from "../generated/schema";
 import { PoolCreated, LiquidityChanged, SharesSwapped } from "../generated/AMMFactory/AMMFactory";
-import { bigIntToHexString } from "./utils";
+import { bigIntToHexString, BONE, toDecimal } from "./utils";
 
 // event PoolCreated(
 //   address pool,
@@ -173,7 +173,7 @@ function handleBuy(event: SharesSwapped): void {
   buyEntity.sender = senderId;
   buyEntity.collateral = bigIntToHexString(event.params.collateral);
   buyEntity.shares = bigIntToHexString(event.params.shares);
-  buyEntity.price = event.params.collateral.abs().toBigDecimal().div(event.params.shares.abs().toBigDecimal());
+  buyEntity.price = toDecimal(event.params.price).div(toDecimal(BONE));
 
   buyEntity.save();
 }
@@ -201,7 +201,7 @@ function handleSell(event: SharesSwapped): void {
   sellEntity.sender = senderId;
   sellEntity.collateral = bigIntToHexString(event.params.collateral);
   sellEntity.shares = bigIntToHexString(event.params.shares);
-  sellEntity.price = event.params.collateral.abs().toBigDecimal().div(event.params.shares.abs().toBigDecimal()); // times(10 ^ shareFactor)
+  sellEntity.price = toDecimal(event.params.price).div(toDecimal(BONE));
 
   sellEntity.save();
 }
@@ -224,7 +224,8 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradesEntity.outcome = bigIntToHexString(event.params.outcome);
   tradesEntity.collateral = bigIntToHexString(event.params.collateral);
   tradesEntity.shares = bigIntToHexString(event.params.shares);
-  tradesEntity.price = event.params.collateral.abs().toBigDecimal().div(event.params.shares.abs().toBigDecimal());
+  tradesEntity.price = toDecimal(event.params.price).div(toDecimal(BONE));
+
   tradesEntity.transactionHash = event.transaction.hash.toHexString();
   tradesEntity.timestamp = event.block.timestamp;
 
