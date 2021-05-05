@@ -59,7 +59,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
 // address indexed receiver
 // );
 
-export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed) {
+export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
   const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const senderId = event.params.settlementAddress.toHexString();
   const entity = new ClaimedFees(id);
