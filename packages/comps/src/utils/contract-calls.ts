@@ -972,9 +972,9 @@ const accumSharesPrice = (
   outcome: string,
   account: string,
   cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber, avgPrice: BigNumber } => {
+): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
-  console.log('transactions', transactions)
+  console.log("transactions", transactions);
   const result = transactions
     .filter(
       (t) =>
@@ -984,7 +984,10 @@ const accumSharesPrice = (
       (p, t) => ({
         shares: p.shares.plus(new BN(t.shares)),
         cashAmount: p.cashAmount.plus(new BN(t.collateral).abs()),
-        avgPrice: ((p.cashAmount.times(p.avgPrice)).plus(new BN(t.collateral).times(new BN(t.price)))).div(p.cashAmount.plus(new BN(t.collateral)))
+        avgPrice: p.cashAmount
+          .times(p.avgPrice)
+          .plus(new BN(t.collateral).times(new BN(t.price)))
+          .div(p.cashAmount.plus(new BN(t.collateral))),
       }),
       { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) }
     );
