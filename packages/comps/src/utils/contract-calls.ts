@@ -555,6 +555,7 @@ export const getUserBalances = async (
 
   // balance of
   const exchanges = Object.values(ammExchanges).filter((e) => e.id && e.totalSupply !== "0");
+  const allExchanges = Object.values(ammExchanges).filter((e) => e.id);
   userBalances.ETH = await getEthBalance(provider, cashes, account);
 
   const multicall = new Multicall({ ethersProvider: provider });
@@ -577,7 +578,7 @@ export const getUserBalances = async (
     ],
   }));
 
-  const contractMarketShareBalanceCall: ContractCallContext[] = exchanges.reduce((p, exchange) => {
+  const contractMarketShareBalanceCall: ContractCallContext[] = allExchanges.reduce((p, exchange) => {
     const shareTokenOutcomeShareBalances = exchange.ammOutcomes.map((outcome) => ({
       reference: `${outcome.shareToken}`,
       contractAddress: outcome.shareToken,
