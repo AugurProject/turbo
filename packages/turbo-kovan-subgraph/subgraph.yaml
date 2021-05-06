@@ -8,9 +8,9 @@ dataSources:
     name: AMMFactory
     network: kovan
     source:
-      address: '0x80802520c7379848854ceFd4Ea4bd7A1FAD1c9a4'
+      address: '0x87798DB53Deb245a762f801Ac6BCa4A7831B2aE0'
       abi: AMMFactory
-      startBlock: 24661915
+      startBlock: 24674799
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,14 +34,14 @@ dataSources:
     name: AbstractMarketFactory
     network: kovan
     source:
-      address: '0xbfFa6a63d0eFe043B39E698630E71b433e0c72f0' # use SportsLinkMarketFactory
+      address: '0xFDE7135E882CF7c078e2c1100154712aCd40145c' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
-      startBlock: 24661765
+      startBlock: 24674788
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/AMMFactory.ts
+      file: ./src/AbstractMarketFactory.ts
       entities:
         - WinningsClaimed
         - SettlementFeeClaimed
