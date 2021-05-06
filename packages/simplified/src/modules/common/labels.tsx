@@ -69,12 +69,6 @@ export const AppViewStats = ({ small }) => {
         label="Available USDC"
         value={usdValueUSDC}
       />
-      <ValueLabel
-        large={!small}
-        small={small}
-        label="Available ETH"
-        value={ethValue}
-      />
     </div>
   );
 };
