@@ -37,6 +37,8 @@ type Market @entity {
   removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
 
   trades: [Trade!]! @derivedFrom(field: "marketId")
+
+  claimProceeds: [ClaimedProceeds!]! @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -146,7 +148,7 @@ type ClaimedProceeds @entity {
   sender: Sender!
   fees: String!
   outcome: String!
-  marketId: String!
+  marketId: Market!
   payout: String!
   shares: String!
   transactionHash: String!

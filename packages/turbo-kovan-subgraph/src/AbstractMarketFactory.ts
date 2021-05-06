@@ -21,6 +21,7 @@ import { bigIntToHexString } from "./utils";
 
 export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
   let entity = new ClaimedProceeds(id);
   let senderEntity = Sender.load(senderId);
@@ -31,7 +32,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
 
   senderEntity.save();
 
-  entity.marketId = event.params.id.toHexString();
+  entity.marketId = marketId;
   entity.sender = senderId;
   entity.shares = bigIntToHexString(event.params.amount);
   entity.payout = bigIntToHexString(event.params.payout);
