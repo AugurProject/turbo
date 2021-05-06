@@ -959,14 +959,6 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
-  console.log(
-    "totalLiquidityShares",
-    String(totalLiquidityShares),
-    "totalShares",
-    String(totalShares),
-    "enterAvgPriceBN",
-    String(enterAvgPriceBN)
-  );
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
         .times(totalLiquidityShares)
