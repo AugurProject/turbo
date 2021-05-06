@@ -20,9 +20,9 @@ import { bigIntToHexString } from "./utils";
 // price is collateral/shares
 
 export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
-  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  const senderId = event.params.receiver.toHexString();
-  const entity = new ClaimedProceeds(id);
+  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let senderId = event.params.receiver.toHexString();
+  let entity = new ClaimedProceeds(id);
   let senderEntity = Sender.load(senderId);
 
   if (senderEntity == null) {
@@ -34,6 +34,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.marketId = event.params.id.toHexString();
   entity.sender = senderId;
   entity.shares = bigIntToHexString(event.params.amount);
+  entity.payout = bigIntToHexString(event.params.payout);
   entity.outcome = event.params.winningOutcome.toHexString();
   entity.fees = bigIntToHexString(event.params.settlementFee);
   entity.transactionHash = event.transaction.hash.toHexString();
@@ -60,9 +61,9 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
 // );
 
 export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
-  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  const senderId = event.params.settlementAddress.toHexString();
-  const entity = new ClaimedFees(id);
+  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let senderId = event.params.settlementAddress.toHexString();
+  let entity = new ClaimedFees(id);
   let senderEntity = Sender.load(senderId);
 
   if (senderEntity == null) {
