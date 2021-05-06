@@ -12,7 +12,6 @@ import {
   LPTokens,
   EstimateTradeResult,
   Cash,
-  AddLiquidityBreakdown,
   LiquidityBreakdown,
   AmmOutcome,
   AllMarketsTransactions,
@@ -102,47 +101,48 @@ export async function estimateAddLiquidityPool(
   cash: Cash,
   cashAmount: string,
   outcomes: AmmOutcome[]
-): Promise<AddLiquidityBreakdown> {
+): Promise<LiquidityBreakdown> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
 
-  let addLiquidityResults = null;
+  let results = null;
+  let tokenAmount = "0";
+  let minAmounts = [];
+  let minAmountsRaw = [];
 
   if (!ammAddress) {
     console.log("est add init", marketFactoryAddress, turboId, amount, weights, account);
-    addLiquidityResults = await ammFactoryContract.callStatic.createPool(
-      marketFactoryAddress,
-      turboId,
-      amount,
-      weights,
-      account
-    );
+    results = await ammFactoryContract.callStatic.createPool(marketFactoryAddress, turboId, amount, weights, account);
+    tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(results || "0")));
   } else {
     // todo: get what the min lp token out is
     console.log("est add additional", marketFactoryAddress, "marketId", turboId, "amount", amount, 0, account);
 
-    addLiquidityResults = await ammFactoryContract.callStatic.addLiquidity(
-      marketFactoryAddress,
-      turboId,
-      amount,
-      0,
-      account
-    );
+    results = await ammFactoryContract.callStatic.addLiquidity(marketFactoryAddress, turboId, amount, 0, account);
+    if (results) {
+      const { _balances, _poolAmountOut } = results;
+      minAmounts = _balances
+        ? _balances.map((v, i) => ({
+            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+            outcomeId: i,
+            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+          }))
+        : [];
+      minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
+      // lp tokens are 18 decimal
+      tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
+    }
   }
 
-  if (addLiquidityResults) {
-    // lp tokens are 18 decimal
-    const lpTokens = trimDecimalValue(sharesOnChainToDisplay(String(addLiquidityResults)));
-    // const minAmounts = outcomes.map((o) => "0");
+  if (!results) return null;
 
-    return {
-      lpTokens,
-    };
-  }
-
-  return null;
+  return {
+    amount: tokenAmount,
+    minAmounts,
+    minAmountsRaw,
+  };
 }
 
 export async function addLiquidityPool(
@@ -234,7 +234,10 @@ export async function getRemoveLiquidity(
   if (!results) return null;
   const { _balances, _collateralOut } = results;
 
-  const minAmounts: string[] = _balances.map((v) => lpTokensOnChainToDisplay(String(v)).toFixed());
+  const minAmounts: string[] = _balances.map((v, i) => ({
+    amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+    outcomeId: i,
+  }));
   const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
   const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
 
@@ -331,20 +334,18 @@ export const estimateBuyTrade = async (
     amm.feeRaw
   );
   const estimatedShares = sharesOnChainToDisplay(String(result));
-
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
-
-  const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares)).toFixed(4);
+  const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares));
   const maxProfit = String(new BN(estimatedShares).minus(new BN(inputDisplayAmount)));
   const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
-  const slippagePercent = new BN(averagePrice).minus(price).div(price).times(100).toFixed(4);
+  const slippagePercent = averagePrice.minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
-
-  console.log("buy estimate", String(result), "slippagePercent", slippagePercent);
+  console.log("avg price", String(averagePrice), "outcome price", String(price));
+  console.log("est shares", String(estimatedShares), "slippagePercent", slippagePercent);
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
-    averagePrice,
+    averagePrice: averagePrice.toFixed(2),
     maxProfit,
     slippagePercent,
     ratePerCash,

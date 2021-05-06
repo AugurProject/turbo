@@ -691,11 +691,7 @@ export interface TransactionDetails {
 }
 
 export interface LiquidityBreakdown {
-  lpTokens?: string;
-  cashAmount?: string;
+  amount?: string;
   minAmountsRaw?: string[];
-  minAmounts?: string[];
-}
-export interface AddLiquidityBreakdown extends LiquidityBreakdown {
-  lpTokens: string;
+  minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
 }

@@ -209,11 +209,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     }
   }
 
-  const getCreateBreakdown = () => {
+  const getCreateBreakdown = (isRemove) => {
     const fullBreakdown = [
+      ...orderOutcomesForDisplay(breakdown.minAmounts).filter(m => !m.hide).map(m => ({
+        label: `${market.outcomes[m.outcomeId]?.name} Shares`,
+        value: `${formatSimpleShares(m.amount).formatted}`,
+      })),
       {
-        label: "LP tokens",
-        value: `${formatSimpleShares(breakdown.lpTokens).formatted}`,
+        label: isRemove ? "Amount" : "LP tokens",
+        value: `${formatSimpleShares(breakdown.amount).formatted}`,
       },
     ];
 
@@ -333,18 +337,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       confirmButtonText: "confirm remove",
       currencyName: SHARES,
       footerText: `Removing liquidity returns shares; these shares may be sold for ${chosenCash}.`,
-      breakdown: breakdown?.minAmounts
-        ? [
-            ...breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
-              label: `${outcomes[i]?.name} Shares`,
-              value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-            })),
-            {
-              label: "amount",
-              value: `${breakdown.cashAmount} ${amm?.cash?.name}`,
-            },
-          ]
-        : [],
+      breakdown: getCreateBreakdown(true),
       liquidityDetails: {
         title: "Market Liquidity Details",
         breakdown: [
@@ -369,18 +362,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       },
       confirmReceiveOverview: {
         title: "What you will recieve",
-        breakdown: breakdown?.minAmounts
-          ? [
-              ...breakdown.minAmounts.slice(0, outcomes.length).map((m, i) => ({
-                label: `${outcomes[i]?.name} Shares`,
-                value: `${formatSimpleShares(breakdown.minAmounts[i]).formatted}`,
-              })),
-              {
-                label: "amount",
-                value: `${breakdown.cashAmount} ${amm?.cash?.name}`,
-              },
-            ]
-          : [],
+        breakdown: getCreateBreakdown(true),
       },
     },
     [ADD]: {
