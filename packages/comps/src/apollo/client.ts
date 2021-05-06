@@ -134,8 +134,6 @@ export async function getTransactions(cb) {
     } else {
       cb({});
     }
-    // if (response?.data?.marketSearch) updateHeartbeat(null, [...response.data.marketSearch?.map((market) => market.id)]);
-    // else updateHeartbeat(null, []);
   }
 }
 
@@ -162,6 +160,17 @@ export async function getAllTransactions(account = "0x0", cb) {
         update[item.id] = item;
         return update;
       }, {});
+      // THIS CODE IS FOR CONVIENCE TO INSTEAD GRAB EVERYONES CLAIMS AND FEES
+      // let proceeds = [];
+      // let fees = [];
+      // const senders = (response?.data?.senders || []);
+      // for (const index in senders) {
+      //   const sender = senders[index];
+      //   proceeds = proceeds.concat(sender?.claimedProceeds);
+      //   fees = fees.concat(sender?.claimedFees);
+      // }
+      // const processedSenders = { claimedProceeds: proceeds, claimedFees: fees, userAddress: account };
+      // END CONVIENCE CODE
       const processedSenders =
         response?.data?.senders?.length > 0
           ? { ...response.data.senders[0], userAddress: account }

@@ -13,7 +13,7 @@ const ActivityCard = ({ activity , timeFormat }: typeof React.Component) => (
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>
     <div className={Styles.icon}>{getCashFormat(activity.currency).icon}</div>
-    <span className={Styles.description}>{activity.title} {activity.description}</span>
+    <span className={Styles.description}>{activity.title}{activity.description ? <><br/>{activity.description}</> : ''}</span>
     {activity.subheader && (
       <div className={Styles.subheader}>{activity.subheader}</div>
     )}
