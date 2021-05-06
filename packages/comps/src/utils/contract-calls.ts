@@ -959,6 +959,14 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
+  console.log(
+    "totalLiquidityShares",
+    String(totalLiquidityShares),
+    "totalShares",
+    String(totalShares),
+    "enterAvgPriceBN",
+    String(enterAvgPriceBN)
+  );
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
         .times(totalLiquidityShares)
@@ -986,14 +994,20 @@ const accumSharesPrice = (
         isSameAddress(t.user, account) && new BN(t.outcome).eq(new BN(outcome)) && Number(t.timestamp) > cutOffTimestamp
     )
     .reduce(
-      (p, t) => ({
-        shares: p.shares.plus(new BN(t.shares)),
-        cashAmount: p.cashAmount.plus(new BN(t.collateral).abs()),
-        avgPrice: p.cashAmount
+      (p, t) => {
+        const shares = p.shares.plus(new BN(t.shares)).abs();
+        const cashAmount = p.cashAmount.plus(new BN(t.collateral).abs());
+        const avgPrice = cashAmount
           .times(p.avgPrice)
           .plus(new BN(t.collateral).times(new BN(t.price)))
-          .div(p.cashAmount.plus(new BN(t.collateral))),
-      }),
+          .div(cashAmount)
+          .abs();
+        return {
+          shares,
+          cashAmount,
+          avgPrice,
+        };
+      },
       { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) }
     );
 
