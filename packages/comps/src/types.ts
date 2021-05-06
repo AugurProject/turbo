@@ -109,6 +109,8 @@ export interface AmmTransaction {
   noShareCashValue?: string;
   cashValue?: string; // for add/remove liquidity
   netShares?: string; // only for add liquidity
+  payout?: string;
+  fees?: string;
 }
 
 export interface BuySellTransactions {
