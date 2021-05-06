@@ -248,7 +248,7 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.displayPrice = formatCashPrice(trade.price, cash.name);
     processed.sender = trade.user;
-    processed.subheader = `Swap ${cash.name} for ${outcomeName} Shares`;
+    processed.subheader = `${isBuy ? 'Buy' : 'Sell'} ${outcomeName}`;
     return processed;
   });
 };
@@ -268,7 +268,7 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
     const processed = sharedProcessed(add, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = add.sender.id;
-    processed.lpTokenPercent = lpTokens;
+    processed.displayShares = lpTokens;
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Added`;
     return processed;
@@ -293,7 +293,7 @@ const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) =>
     const processed = sharedProcessed(remove, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = remove.sender.id;
-    processed.lpTokenPercent = lpTokens;
+    processed.displayShares = lpTokens;
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Removed`;
     return processed;

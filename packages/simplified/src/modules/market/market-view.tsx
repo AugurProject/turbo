@@ -4,7 +4,7 @@ import Styles from "./market-view.styles.less";
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
 // eslint-disable-next-line
-import { AddLiquidity, NetworkMismatchBanner, AddCurrencyLiquidity } from "../common/labels";
+import { AddLiquidity, NetworkMismatchBanner } from "../common/labels";
 // eslint-disable-next-line
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
@@ -146,7 +146,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
   const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
   // add end time data full to market details when design is ready
-  const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
+  // const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
 
