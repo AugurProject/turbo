@@ -632,7 +632,6 @@ const TransactionRow = ({ transaction }: TransactionProps) => (
       <ReceiptLink hash={transaction.txHash} label={transaction?.subheader} />
     </li>
     <li>{transaction.displayCollateral.full}</li>
-    {/* <li>{transaction.lpTokenPercent ? transaction.lpTokenPercent : "0%"}</li> */}
     <li>{transaction.displayShares ? transaction.displayShares : 0}</li>
     <li>
       <AddressLink account={transaction.sender} short />
