@@ -113,6 +113,7 @@ export const SIDEBAR_TYPES = {
 //  transaction types
 export const ALL: string = "all";
 export const SWAP: string = "swap";
+export const TRADES: string = "trades";
 export const ADD: string = "add";
 export const REMOVE: string = "remove";
 

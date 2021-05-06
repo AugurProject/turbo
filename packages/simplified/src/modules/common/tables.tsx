@@ -42,7 +42,7 @@ const {
   ALL,
   ADD,
   REMOVE,
-  SWAP,
+  TRADES,
   TX_STATUS,
   ETH,
   TABLES,
@@ -566,7 +566,7 @@ const TransactionsHeader = ({ selectedType, setSelectedType, sortUp, setSortUp }
             onChange={(value) => setSelectedType(value)}
             options={[
               { label: ALL, value: ALL },
-              { label: SWAP, value: SWAP },
+              { label: TRADES, value: TRADES },
               { label: ADD, value: ADD },
               { label: REMOVE, value: REMOVE },
             ]}
@@ -584,11 +584,11 @@ const TransactionsHeader = ({ selectedType, setSelectedType, sortUp, setSortUp }
             </span>
             <span
               className={classNames({
-                [Styles.Selected]: selectedType === SWAP,
+                [Styles.Selected]: selectedType === TRADES,
               })}
-              onClick={() => setSelectedType(SWAP)}
+              onClick={() => setSelectedType(TRADES)}
             >
-              swaps
+              trades
             </span>
             <span
               className={classNames({
@@ -610,7 +610,7 @@ const TransactionsHeader = ({ selectedType, setSelectedType, sortUp, setSortUp }
         )}
       </li>
       <li>total value</li>
-      <li>token amount</li>
+      {/* <li>token amount</li> */}
       <li>share amount</li>
       <li>account</li>
       <li className={classNames({ [Styles.SortUp]: sortUp })} onClick={() => setSortUp()}>
@@ -632,7 +632,6 @@ const TransactionRow = ({ transaction }: TransactionProps) => (
       <ReceiptLink hash={transaction.txHash} label={transaction?.subheader} />
     </li>
     <li>{transaction.displayCollateral.full}</li>
-    <li>{transaction.lpTokenPercent ? transaction.lpTokenPercent : "0%"}</li>
     <li>{transaction.displayShares ? transaction.displayShares : 0}</li>
     <li>
       <AddressLink account={transaction.sender} short />
@@ -657,7 +656,7 @@ export const TransactionsTable = ({ transactions }: TransactionsProps) => {
         .concat(transactions)
         .filter(({ tx_type }) => {
           switch (selectedType) {
-            case SWAP: {
+            case TRADES: {
               return tx_type === TransactionTypes.ENTER || tx_type === TransactionTypes.EXIT;
             }
             case ADD: {

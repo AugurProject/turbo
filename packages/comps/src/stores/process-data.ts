@@ -41,9 +41,15 @@ export const shapeUserActvity = (
     });
     userTransactions = userTransactions.concat(marketTrades).concat(adds).concat(removes);
   }
-  const processedFees = (transactions?.claimedFees || []).map((tx) => (tx.tx_type = `Claimed Fees`));
-  const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => (tx.tx_type = `Claimed Proceeds`));
-  userTransactions.concat(processedFees).concat(processedProceeds);
+  const processedFees = (transactions?.claimedFees || []).map((tx) => {
+    tx.tx_type = `Claimed Fees`;
+    return tx;
+  });
+  const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => {
+    tx.tx_type = `Claimed Proceeds`;
+    return tx;
+  });
+  userTransactions = userTransactions.concat(processedFees).concat(processedProceeds);
   return formatUserTransactionActvity(account, markets, userTransactions, usdc);
 };
 
@@ -60,6 +66,14 @@ const getActivityType = (
   let subheader = null;
   let value = null;
   switch (tx.tx_type) {
+    case "Claimed Proceeds": {
+      type = "Claimed Proceeds";
+      const payout = convertOnChainCashAmountToDisplayCashAmount(tx?.payout, cash.decimals);
+      const fees = convertOnChainCashAmountToDisplayCashAmount(tx?.fees, cash.decimals);
+      subheader = `fees: ${formatCash(String(fees.abs()), cash.name).full}`;
+      value = `${formatCash(String(payout.abs()), cash.name).full}`;
+      break;
+    }
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
@@ -129,7 +143,19 @@ export const formatUserTransactionActvity = (
       let datedUserTx = null;
       switch (transaction.tx_type) {
         case "Claimed Proceeds": {
-          console.log("proceeds", transaction);
+          const market = markets[`${transaction?.marketId}`];
+          const typeDetails = getActivityType(transaction, cash, market);
+          datedUserTx = {
+            id: transaction.id,
+            currency: cashName,
+            description: market?.description,
+            title: market?.title || "market not found",
+            ...typeDetails,
+            date: getDayFormat(transaction.timestamp),
+            sortableMonthDay: getDayTimestamp(transaction.timestamp),
+            txHash: transaction.transactionHash,
+            timestamp: Number(transaction.timestamp),
+          };
           break;
         }
         case "Claimed Fees": {
@@ -203,7 +229,7 @@ export const formatUserTransactionActvity = (
   // form array of grouped by date activities
   return [...formattedTransactions]
     .reduce((p, t) => {
-      const item = p.find((x) => x.date === t.date);
+      const item = p.find((x) => x?.date === t?.date);
       if (item) {
         item.activity.push(t);
         return p;
@@ -248,7 +274,7 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.displayPrice = formatCashPrice(trade.price, cash.name);
     processed.sender = trade.user;
-    processed.subheader = `Swap ${cash.name} for ${outcomeName} Shares`;
+    processed.subheader = `${isBuy ? "Buy" : "Sell"} ${outcomeName}`;
     return processed;
   });
 };
@@ -268,7 +294,7 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
     const processed = sharedProcessed(add, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = add.sender.id;
-    processed.lpTokenPercent = lpTokens;
+    processed.displayShares = lpTokens;
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Added`;
     return processed;
@@ -293,7 +319,7 @@ const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) =>
     const processed = sharedProcessed(remove, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = remove.sender.id;
-    processed.lpTokenPercent = lpTokens;
+    processed.displayShares = lpTokens;
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);
     processed.subheader = `Liquidity Removed`;
     return processed;

@@ -330,16 +330,26 @@
 }
 
 .TransactionsSharedRowHeader {
-  grid-template-columns: @size-150 repeat(5, 1fr);
+  grid-template-columns: @size-150 repeat(4, 1fr);
 
-  @media @breakpoint-mobile-tablet {
+  @media @breakpoint-mobile {
     grid-template-columns: @size-150 repeat(2, 1fr);
     min-width: @size-320;
 
     > li {
       &:nth-of-type(3),
-      &:nth-of-type(4),
-      &:nth-of-type(5) {
+      &:nth-of-type(4) {
+        display: none;
+      }
+    }
+  }
+
+  @media @breakpoint-tablet {
+    grid-template-columns: @size-150 repeat(3, 1fr);
+    min-width: @size-320;
+
+    > li {
+      &:nth-of-type(4) {
         display: none;
       }
     }
