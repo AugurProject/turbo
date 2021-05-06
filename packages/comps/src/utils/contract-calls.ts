@@ -709,7 +709,7 @@ export const getUserBalances = async (
   }
 
   const userPositions = getTotalPositions(userBalances.marketShares);
-  const availableFundsUsd = String(new BN(userBalances.ETH.usdValue).plus(new BN(userBalances.USDC.usdValue)));
+  const availableFundsUsd = String(new BN(userBalances.USDC.usdValue));
   const totalAccountValue = String(new BN(availableFundsUsd).plus(new BN(userPositions.totalPositionUsd)));
   await populateInitLPValues(userBalances.lpTokens, provider, ammExchanges, account);
 
