@@ -81,7 +81,7 @@ const getActivityType = (
       const { totalSupply } = amm;
       const poolPct = lpTokenPercentageAmount(
         lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
-        lpTokensOnChainToDisplay(totalSupply)
+        lpTokensOnChainToDisplay(totalSupply || "1")
       );
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
       const lpTokens = formatLpTokens(poolPct, {
