@@ -42,6 +42,7 @@ contract AMMFactory is BNum {
         // from the perspective of the user. e.g. collateral is negative when buying
         int256 collateral,
         int256 shares,
+        uint256[] inOutRatio,
         uint256 price
     );
 
@@ -250,6 +251,7 @@ contract AMMFactory is BNum {
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         uint256 _totalDesiredOutcome = _sets;
+        uint256[] memory _inOutRatio = new uint256[](_market.shareTokens.length);
         {
             OwnedERC20 _desiredToken = _market.shareTokens[_outcome];
 
@@ -258,6 +260,7 @@ contract AMMFactory is BNum {
                 OwnedERC20 _token = _market.shareTokens[i];
                 (uint256 _acquiredToken, ) =
                     _pool.swapExactAmountIn(address(_token), _sets, address(_desiredToken), 0, MAX_UINT);
+                _inOutRatio[i] = bdiv(_acquiredToken, _sets);
                 _totalDesiredOutcome += _acquiredToken;
             }
             require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
@@ -272,6 +275,7 @@ contract AMMFactory is BNum {
             _outcome,
             -int256(_collateralIn),
             int256(_totalDesiredOutcome),
+            _inOutRatio,
             bdiv(_sets, _totalDesiredOutcome)
         );
 
@@ -288,9 +292,9 @@ contract AMMFactory is BNum {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
         uint256 _undesiredTokenOut = _setsOut;
+        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        uint256[] memory _inOutRatio = new uint256[](_market.shareTokens.length);
         {
-            AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
-
             OwnedERC20 _undesiredToken = _market.shareTokens[_outcome];
             _undesiredToken.transferFrom(msg.sender, address(this), _shareTokensIn);
             _undesiredToken.approve(address(_pool), MAX_UINT);
@@ -300,6 +304,7 @@ contract AMMFactory is BNum {
                 OwnedERC20 _token = _market.shareTokens[i];
                 (uint256 tokenAmountIn, ) =
                     _pool.swapExactAmountOut(address(_undesiredToken), MAX_UINT, address(_token), _setsOut, MAX_UINT);
+                _inOutRatio[i] = bdiv(tokenAmountIn, _setsOut);
                 _undesiredTokenOut += tokenAmountIn;
             }
 
@@ -317,6 +322,7 @@ contract AMMFactory is BNum {
             _outcome,
             int256(_collateralOut),
             -int256(_undesiredTokenOut),
+            _inOutRatio,
             bdiv(_setsOut, _undesiredTokenOut)
         );
 

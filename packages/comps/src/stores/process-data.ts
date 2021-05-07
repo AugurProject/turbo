@@ -47,6 +47,7 @@ export const shapeUserActvity = (
   });
   const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => {
     tx.tx_type = `Claimed Proceeds`;
+    console.log(tx);
     return tx;
   });
   userTransactions = userTransactions.concat(processedFees).concat(processedProceeds);
@@ -69,8 +70,7 @@ const getActivityType = (
     case "Claimed Proceeds": {
       type = "Claimed Proceeds";
       const payout = convertOnChainCashAmountToDisplayCashAmount(tx?.payout, cash.decimals);
-      const fees = convertOnChainCashAmountToDisplayCashAmount(tx?.fees, cash.decimals);
-      subheader = `fees: ${formatCash(String(fees.abs()), cash.name).full}`;
+      subheader = ``;
       value = `${formatCash(String(payout.abs()), cash.name).full}`;
       break;
     }
@@ -143,7 +143,7 @@ export const formatUserTransactionActvity = (
       let datedUserTx = null;
       switch (transaction.tx_type) {
         case "Claimed Proceeds": {
-          const market = markets[`${transaction?.marketId}`];
+          const market = markets[`${transaction?.marketId?.id}`];
           const typeDetails = getActivityType(transaction, cash, market);
           datedUserTx = {
             id: transaction.id,

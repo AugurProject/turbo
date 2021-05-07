@@ -192,7 +192,9 @@ export const GET_TRANSACTIONS = gql`
         id
         fees
         outcome
-        marketId
+        marketId {
+          id
+        }
         timestamp
         transactionHash
         payout
