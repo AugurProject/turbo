@@ -497,8 +497,8 @@ export interface EstimateTradeResult {
   maxProfit: string;
   tradeFees: string;
   remainingShares?: string;
-  slippagePercent: string;
   ratePerCash: string;
+  priceImpact: string;
 }
 
 export interface PriceTimeSeriesData {

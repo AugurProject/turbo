@@ -202,6 +202,18 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     };
   }, []);
 
+  const userBalance = String(
+    useMemo(() => {
+      return isBuy
+        ? ammCash?.name
+          ? balances[ammCash?.name]?.balance
+          : "0"
+        : marketShares?.outcomeShares
+        ? marketShares?.outcomeShares[selectedOutcomeId]
+        : "0";
+    }, [orderType, ammCash?.name, amm?.id, selectedOutcomeId, balances])
+  );
+
   useEffect(() => {
     let isMounted = true;
 
@@ -222,7 +234,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       isMounted && setBreakdown(breakdown);
     };
 
-    if (amount && Number(amount) > 0) {
+    if (amount && Number(amount) > 0 && new BN(amount).lte(new BN(userBalance))) {
       getEstimate();
     } else if (breakdown !== null) {
       isMounted && setBreakdown(null);
@@ -231,19 +243,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     return () => {
       isMounted = false;
     };
-  }, [orderType, selectedOutcomeId, amount, outcomeSharesRaw, amm?.volumeTotal, amm?.liquidity]);
-
-  const userBalance = String(
-    useMemo(() => {
-      return isBuy
-        ? ammCash?.name
-          ? balances[ammCash?.name]?.balance
-          : "0"
-        : marketShares?.outcomeShares
-        ? marketShares?.outcomeShares[selectedOutcomeId]
-        : "0";
-    }, [orderType, ammCash?.name, amm?.id, selectedOutcomeId, balances])
-  );
+  }, [orderType, selectedOutcomeId, amount, outcomeSharesRaw, amm?.volumeTotal, amm?.liquidity, userBalance]);
 
   const canMakeTrade: CanTradeProps = useMemo(() => {
     let actionText = buttonError || orderType;
@@ -261,17 +261,14 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : "Share"} Balance`;
       disabled = true;
-    } else if (false /* breakdown === null */) {
-      // todo: need better way to determine if there is liquidity
-      actionText = INSUFFICIENT_LIQUIDITY;
-      disabled = true;
-    } else if (new BN(slippage || SETTINGS_SLIPPAGE).lt(new BN(breakdown?.slippagePercent))) {
-      subText = `(Adjust slippage tolerance to ${Math.ceil(Number(breakdown?.slippagePercent))}%)`;
-      disabled = true;
     } else if (waitingToSign) {
       actionText = "Waiting for Confirmation";
       disabled = true;
       subText = "(Confirm the transaction in your wallet)";
+    } else if (breakdown === null) {
+      // todo: need better way to determine if there is liquidity
+      actionText = INSUFFICIENT_LIQUIDITY;
+      disabled = true;
     }
 
     return {
@@ -279,7 +276,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       actionText,
       subText,
     };
-  }, [orderType, amount, buttonError, userBalance, breakdown?.slippagePercent, slippage, hasLiquidity, waitingToSign]);
+  }, [orderType, amount, buttonError, breakdown, userBalance, hasLiquidity, waitingToSign]);
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
@@ -288,7 +285,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(isBuy, outcomeName, ammCash?.name, amount, minOutput);
-    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash)
+    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage)
       .then((response) => {
         if (response) {
           const { hash } = response;
@@ -312,6 +309,18 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       });
   };
 
+  const getRate = () => {
+    const priceImpact = formatPercent(breakdown?.priceImpact);
+    const value = !isNaN(Number(breakdown?.ratePerCash))
+    ? `1 ${ammCash?.name} = ${
+        formatSimpleShares(breakdown?.ratePerCash || 0, {
+          denomination: (v) => `${v} Shares`,
+        }).full
+      } (${priceImpact.full})`
+    : null
+
+    return value;
+  }
   return (
     <div className={Styles.TradingForm}>
       <div>
@@ -362,18 +371,10 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           maxValue={userBalance}
           ammCash={ammCash}
           disabled={!hasLiquidity}
-          rate={
-            !isNaN(Number(breakdown?.ratePerCash))
-              ? `1 ${ammCash?.name} = ${
-                  formatSimpleShares(breakdown?.ratePerCash || 0, {
-                    denomination: (v) => `${v} Shares`,
-                  }).full
-                }`
-              : null
-          }
+          rate={getRate()}
           isBuy={orderType === BUY}
         />
-        <Slippage />
+        {isBuy && <Slippage />}
         <InfoNumbers infoNumbers={formatBreakdown(isBuy, breakdown, ammCash)} />
         {isLogged && !isApprovedTrade && (
           <ApprovalButton
