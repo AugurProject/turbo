@@ -373,7 +373,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           rate={getRate()}
           isBuy={orderType === BUY}
         />
-        <Slippage />
+        {isBuy && <Slippage />}
         <InfoNumbers infoNumbers={formatBreakdown(isBuy, breakdown, ammCash)} />
         {isLogged && !isApprovedTrade && (
           <ApprovalButton
