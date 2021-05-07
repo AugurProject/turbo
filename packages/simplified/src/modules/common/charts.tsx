@@ -449,5 +449,5 @@ export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }
     ...outcome,
     outcomeIdx,
     label: (outcome?.name).toLowerCase(),
-    lastPrice: !amm ? "0.5" : outcome.price,
+    lastPrice: !amm.hasLiquidity ? "-" : outcome.price,
   }));
