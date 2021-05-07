@@ -171,6 +171,7 @@ export const formatUserTransactionActvity = (
           datedUserTx = {
             id: transaction.id,
             currency: cashName,
+            marketId: market.marketId,
             description: market?.description,
             title: market?.title,
             ...typeDetails,

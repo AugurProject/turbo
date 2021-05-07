@@ -178,6 +178,7 @@ const Outcome = ({
   error,
   noClick,
   index,
+  hasLiquidity,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
   const input = useRef(null);
@@ -190,7 +191,12 @@ const Outcome = ({
       setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
-  const formattedPrice = formatDai(outcome.price);
+  const price = !!hasLiquidity
+    ? formatCashPrice(outcome?.price, ammCash?.name).full
+    : prepend
+    ? `${symbol}-`
+    : `- ${symbol}`;
+
   return (
     <div
       key={index}
@@ -205,7 +211,7 @@ const Outcome = ({
         [Styles.disabled]: !isLogged,
         [Styles.Error]: error,
         [Styles.noClick]: noClick,
-        [Styles.Editable]: editable
+        [Styles.Editable]: editable,
       })}
     >
       <span>{outcome.name}</span>
@@ -225,7 +231,7 @@ const Outcome = ({
           />
         </div>
       ) : (
-        <span>{formatCashPrice(formattedPrice.fullPrecision, ammCash?.name).full}</span>
+        <span>{price}</span>
       )}
     </div>
   );
@@ -246,6 +252,7 @@ export interface OutcomesGridProps {
   dontFilterInvalid?: boolean;
   error?: boolean;
   noClick?: boolean;
+  hasLiquidity?: boolean;
 }
 export const OutcomesGrid = ({
   outcomes,
@@ -260,6 +267,7 @@ export const OutcomesGrid = ({
   dontFilterInvalid,
   error,
   noClick,
+  hasLiquidity,
 }: OutcomesGridProps) => {
   return (
     <div
@@ -286,6 +294,7 @@ export const OutcomesGrid = ({
             showAsButton={showAsButtons}
             error={error}
             noClick={noClick}
+            hasLiquidity={hasLiquidity}
           />
         ))}
     </div>
