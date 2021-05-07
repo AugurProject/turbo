@@ -112,6 +112,7 @@ export async function estimateAddLiquidityPool(
   let tokenAmount = "0";
   let minAmounts = [];
   let minAmountsRaw = [];
+  let poolPct = "0";
 
   if (!ammAddress) {
     console.log("est add init", marketFactoryAddress, turboId, amount, weights, account);
@@ -134,6 +135,12 @@ export async function estimateAddLiquidityPool(
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
       tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
+
+      const poolSupply = lpTokensOnChainToDisplay(amm?.totalSupply).plus(tokenAmount)
+      poolPct = lpTokenPercentageAmount(
+        tokenAmount,
+        poolSupply
+      );
     }
   }
 
@@ -143,6 +150,7 @@ export async function estimateAddLiquidityPool(
     amount: tokenAmount,
     minAmounts,
     minAmountsRaw,
+    poolPct
   };
 }
 
@@ -242,11 +250,16 @@ export async function getRemoveLiquidity(
   }));
   const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
   const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
+  const poolPct = lpTokenPercentageAmount(
+    lpTokenBalance,
+    lpTokensOnChainToDisplay(amm?.totalSupply || "1")
+  );
 
   return {
     minAmountsRaw,
     minAmounts,
     cashAmount,
+    poolPct
   };
 }
 

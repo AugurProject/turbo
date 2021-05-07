@@ -694,4 +694,5 @@ export interface LiquidityBreakdown {
   amount?: string;
   minAmountsRaw?: string[];
   minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
+  poolPct?: string;
 }
