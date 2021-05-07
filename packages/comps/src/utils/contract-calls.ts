@@ -326,14 +326,15 @@ export const estimateBuyTrade = async (
     amount,
     0
   );
-  const result = await estimateBuy(
-    amm.shareFactor,
-    selectedOutcomeId,
-    amount,
-    amm.balancesRaw,
-    amm.weights,
-    amm.feeRaw
-  );
+  let result = null;
+  try {
+    result = await estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
+  } catch (e) {
+    console.log("error in estimate buy", e);
+  }
+
+  if (!result) return null;
+
   const estimatedShares = sharesOnChainToDisplay(String(result));
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
   const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares));
@@ -391,7 +392,9 @@ export const estimateSellTrade = async (
     amm.balancesRaw,
     amm.weights,
     amm.feeRaw
-  );
+  ).catch((e) => {
+    console.log("error in calc complete sets", e);
+  });
 
   console.log("breakdownWithFeeRaw", String(breakdownCompleteSets));
 
@@ -437,7 +440,7 @@ export async function doTrade(
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
   if (tradeDirection === TradingDirection.ENTRY) {
     const minAmountWithSlippage = new BN(1).minus(new BN(slippage).div(100)).times(new BN(minAmount));
-    console.log('minAmount', minAmount, 'withSlippage', String(minAmountWithSlippage))
+    console.log("minAmount", minAmount, "withSlippage", String(minAmountWithSlippage));
     const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(minAmountWithSlippage, cash.decimals)
       .decimalPlaces(0)
       .toFixed();
