@@ -146,7 +146,7 @@ contract AMMFactory is BNum {
 
                 OwnedERC20 _token = _market.shareTokens[i];
                 uint256 _bPoolTokenBalance = _pool.getBalance(address(_token));
-                uint256 _tokenPoolAmountOut = bdiv(bmul(_sets, _totalSupply), _bPoolTokenBalance);
+                uint256 _tokenPoolAmountOut = bmul(((_sets * BONE) / _bPoolTokenBalance), _totalSupply);
 
                 if (_tokenPoolAmountOut < _poolAmountOut) {
                     _poolAmountOut = _tokenPoolAmountOut;

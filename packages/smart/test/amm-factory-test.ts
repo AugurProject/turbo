@@ -77,7 +77,7 @@ describe("AMMFactory", () => {
     await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols);
 
     const basis = BigNumber.from(10).pow(18);
-    const weights = [basis.mul(2), basis.mul(24), basis.mul(24)];
+    const weights = [basis.mul(2).div(2), basis.mul(49).div(2), basis.mul(49).div(2)];
 
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
@@ -203,6 +203,28 @@ describe("AMMFactory", () => {
       expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
     });
 
+    it.only("huge amount with balanced pool", async () => {
+      const addLiquidity = async function (collateralAmount: number) {
+        const collateralIn = usdcBasis.mul(collateralAmount); // 50 of the collateral
+        await collateral.faucet(collateralIn);
+        await collateral.approve(ammFactory.address, collateralIn);
+
+        await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      };
+
+      await addLiquidity(5000);
+      await addLiquidity(100000);
+
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      // The pool is even right now so we wouldn't expect any shares.
+      expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
+    });
+
     it("with unbalanced pool", async () => {
       const secondBPool = bPool.connect(secondSigner);
       await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
@@ -223,7 +245,7 @@ describe("AMMFactory", () => {
         )
       );
 
-      expect(sharesAfter).to.deep.equal(["0", "196766714446257596869", "0"]);
+      expect(sharesAfter).to.deep.equal(["0", "193151727304627160820", "0"]);
     });
   });
 
@@ -282,7 +304,7 @@ describe("AMMFactory", () => {
       );
 
       expect(sharesAfter).to.deep.equal(sharesGained.map((s: BigNumber) => s.toString()));
-      expect(sharesAfter).to.deep.equal(["17963113090909090800", "151132827551", "17963113090909090800"]);
+      expect(sharesAfter).to.deep.equal(["17630229090909090800", "484905047601", "17630229090909090800"]);
     });
 
     it("liquidity removal for collateral and burn sets", async () => {
