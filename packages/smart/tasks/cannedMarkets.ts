@@ -1,5 +1,6 @@
 import { task } from "hardhat/config";
-import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory } from "..";
+import { buildContractInterfaces, ContractInterfaces } from "..";
+import { SportsLinkMarketFactory } from "../typechain"
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
 
@@ -48,7 +49,7 @@ export async function createMarket(
 ): Promise<void> {
   const result = await marketFactory
     .createMarket(
-      await marketFactory.encodeCreation(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget)
+      await marketFactory.callStatic.encodeCreation(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget)
     )
     .then((tx: ContractTransaction) => tx.wait(confirmations));
   console.log("result", result);
