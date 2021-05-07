@@ -69,8 +69,7 @@ const getActivityType = (
     case "Claimed Proceeds": {
       type = "Claimed Proceeds";
       const payout = convertOnChainCashAmountToDisplayCashAmount(tx?.payout, cash.decimals);
-      const fees = convertOnChainCashAmountToDisplayCashAmount(tx?.fees, cash.decimals);
-      subheader = `fees: ${formatCash(String(fees.abs()), cash.name).full}`;
+      subheader = ``;
       value = `${formatCash(String(payout.abs()), cash.name).full}`;
       break;
     }
