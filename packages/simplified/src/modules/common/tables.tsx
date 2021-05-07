@@ -32,7 +32,7 @@ const {
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
 const { claimWinnings, getUserLpTokenInitialAmount } = ContractCalls;
-const { formatLpTokens, formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
+const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
 const { timeSinceTimestamp } = DateUtils;
 const {
   MODAL_ADD_LIQUIDITY,
@@ -317,7 +317,7 @@ const LiquidityHeader = () => (
 const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; initCostUsd: string }) => {
   return (
     <ul className={Styles.LiquidityRow}>
-      <li>{formatLpTokens(liquidity.balance).formatted}</li>
+      <li>{formatPercent(liquidity.poolPct).full}</li>
       <li>{formatDai(initCostUsd).full}</li>
       <li>{formatDai(liquidity.usdValue).full}</li>
     </ul>

@@ -34,6 +34,7 @@ import {
   sharesOnChainToDisplay,
   sharesDisplayToOnChain,
   cashOnChainToDisplay,
+  lpTokenPercentageAmount,
 } from "./format-number";
 import {
   ETH,
@@ -580,6 +581,7 @@ export const getUserBalances = async (
           collection: LP_TOKEN_COLLECTION,
           decimals: 18,
           marketid: exchange.marketId,
+          totalSupply: exchange?.totalSupply,
         },
       },
     ],
@@ -642,7 +644,7 @@ export const getUserBalances = async (
     const balanceValue = balanceResult.results[key].callsReturnContext[0].returnValues[0] as ethers.utils.Result;
     const context = balanceResult.results[key].originalContractCallContext.calls[0].context;
     const rawBalance = new BN(balanceValue._hex).toFixed();
-    const { dataKey, collection, decimals, marketId, outcomeId } = context;
+    const { dataKey, collection, decimals, marketId, outcomeId, totalSupply } = context;
     const balance = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(decimals));
 
     if (method === BALANCE_OF) {
@@ -654,10 +656,14 @@ export const getUserBalances = async (
         };
       } else if (collection === LP_TOKEN_COLLECTION) {
         if (rawBalance !== "0") {
+          const lpBalance = lpTokensOnChainToDisplay(rawBalance);
+          const total = lpTokensOnChainToDisplay(totalSupply);
+          const poolPct = lpTokenPercentageAmount(lpBalance, total);
           userBalances[collection][dataKey] = {
-            balance: lpTokensOnChainToDisplay(rawBalance).toFixed(),
+            balance: lpBalance.toFixed(),
             rawBalance,
             marketId,
+            poolPct,
           };
         } else {
           delete userBalances[collection][dataKey];
