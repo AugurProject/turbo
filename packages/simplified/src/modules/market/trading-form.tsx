@@ -261,10 +261,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : "Share"} Balance`;
       disabled = true;
-    } else if (false /* breakdown === null */) {
-      // todo: need better way to determine if there is liquidity
-      actionText = INSUFFICIENT_LIQUIDITY;
-      disabled = true;
     } else if (new BN(slippage || SETTINGS_SLIPPAGE).lt(new BN(breakdown?.slippagePercent))) {
       subText = `(Adjust slippage tolerance to ${Math.ceil(Number(breakdown?.slippagePercent))}%)`;
       disabled = true;
@@ -312,6 +308,18 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       });
   };
 
+  const getRate = () => {
+    const priceImpact = formatPercent(breakdown?.priceImpact);
+    const value = !isNaN(Number(breakdown?.ratePerCash))
+    ? `1 ${ammCash?.name} = ${
+        formatSimpleShares(breakdown?.ratePerCash || 0, {
+          denomination: (v) => `${v} Shares`,
+        }).full
+      } (${priceImpact.full})`
+    : null
+
+    return value;
+  }
   return (
     <div className={Styles.TradingForm}>
       <div>
@@ -361,15 +369,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           maxValue={userBalance}
           ammCash={ammCash}
           disabled={!hasLiquidity}
-          rate={
-            !isNaN(Number(breakdown?.ratePerCash))
-              ? `1 ${ammCash?.name} = ${
-                  formatSimpleShares(breakdown?.ratePerCash || 0, {
-                    denomination: (v) => `${v} Shares`,
-                  }).full
-                }`
-              : null
-          }
+          rate={getRate()}
           isBuy={orderType === BUY}
         />
         <Slippage />

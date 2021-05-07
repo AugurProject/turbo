@@ -339,6 +339,7 @@ export const estimateBuyTrade = async (
   const averagePrice = new BN(inputDisplayAmount).div(new BN(estimatedShares));
   const maxProfit = String(new BN(estimatedShares).minus(new BN(inputDisplayAmount)));
   const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
+  const priceImpact = price.minus(averagePrice).times(100).toFixed(4);
   const slippagePercent = averagePrice.minus(price).div(price).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
   console.log("avg price", String(averagePrice), "outcome price", String(price));
@@ -350,6 +351,7 @@ export const estimateBuyTrade = async (
     maxProfit,
     slippagePercent,
     ratePerCash,
+    priceImpact,
   };
 };
 
@@ -403,7 +405,8 @@ export const estimateSellTrade = async (
   const displayAmount = new BN(inputDisplayAmount);
   const averagePrice = new BN(completeSets).div(displayAmount);
   const price = new BN(String(amm.ammOutcomes[selectedOutcomeId].price));
-  const userShares = new BN(userBalances[selectedOutcomeId] || "0");
+  const userShares = userBalances ? new BN(userBalances[selectedOutcomeId] || "0") : "0";
+  const priceImpact = averagePrice.minus(price).times(100).toFixed(4);
   const slippagePercent = averagePrice.minus(price).div(price).times(100).abs().toFixed(2);
   const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
   const displayShares = sharesOnChainToDisplay(userShares);
@@ -417,6 +420,7 @@ export const estimateSellTrade = async (
     slippagePercent,
     ratePerCash,
     remainingShares: remainingShares.toFixed(6),
+    priceImpact,
   };
 };
 

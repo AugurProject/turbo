@@ -499,6 +499,7 @@ export interface EstimateTradeResult {
   remainingShares?: string;
   slippagePercent: string;
   ratePerCash: string;
+  priceImpact: string;
 }
 
 export interface PriceTimeSeriesData {
