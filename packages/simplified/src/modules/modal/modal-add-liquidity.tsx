@@ -216,7 +216,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         value: `${formatSimpleShares(m.amount).formatted}`,
       })),
       {
-        label: isRemove ? "Amount" : "LP tokens",
+        label: isRemove ? "USDC" : "LP tokens",
         value: `${formatSimpleShares(breakdown.amount).formatted}`,
       },
     ];
