@@ -47,6 +47,7 @@ export const shapeUserActvity = (
   });
   const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => {
     tx.tx_type = `Claimed Proceeds`;
+    console.log(tx);
     return tx;
   });
   userTransactions = userTransactions.concat(processedFees).concat(processedProceeds);
@@ -143,7 +144,7 @@ export const formatUserTransactionActvity = (
       let datedUserTx = null;
       switch (transaction.tx_type) {
         case "Claimed Proceeds": {
-          const market = markets[`${transaction?.marketId}`];
+          const market = markets[`${transaction?.marketId?.id}`];
           const typeDetails = getActivityType(transaction, cash, market);
           datedUserTx = {
             id: transaction.id,
