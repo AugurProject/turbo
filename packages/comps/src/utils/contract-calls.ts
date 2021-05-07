@@ -237,6 +237,7 @@ export async function getRemoveLiquidity(
   const minAmounts: string[] = _balances.map((v, i) => ({
     amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
     outcomeId: i,
+    hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
   }));
   const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
   const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
