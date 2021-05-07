@@ -60,7 +60,7 @@ const config: HardhatUserConfig = {
     maticMumbai: {
       url: "https://rpc-mumbai.maticvigil.com/v1/d955b11199dbfd5871c21bdc750c994edfa52abd",
       chainId: 80001,
-      gas: 6000000, // to fit createPool calls, which fails to estimate gas correctly
+      gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
       gasPrice: 20000000000,
       confirmations: 10,
     },

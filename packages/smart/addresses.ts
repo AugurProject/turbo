@@ -135,4 +135,53 @@ export const addresses: AddressMapping = {
     },
     theRundownChainlink: "0x468298834fb1E55Bb12b393BdFF6681Aa9c30099",
   },
+  80001: {
+    reputationToken: "0x2453CEd04d7aaf133A3e1e4D597E91ED7C7e603e",
+    balancerFactory: "0x1a6B0282AfD831aC7872cf61BcF82843B1FB9E2f",
+    ammFactory: "0x14C431EB6d00E608C8e238836e249b3eA1AA6F2e",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x3526cBDB76156a582a06e7893F6Cde6C14D9074f",
+        constructorArgs: [
+          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          "0x5662f87A598d631Ec87a4C55b03a444378b2A996",
+          "1000000000000",
+          "0xF3a9704ac128Da9B7533D843627311bFC5F32A79",
+          0,
+          "500000000000000",
+          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          0,
+          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          4,
+        ],
+        collateral: {
+          address: "0x5662f87A598d631Ec87a4C55b03a444378b2A996",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+      trustme: {
+        type: "Trusted",
+        address: "0x6b6B6e12fD043de0a18628c4928cab5C0b938032",
+        constructorArgs: [
+          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          "0x5662f87A598d631Ec87a4C55b03a444378b2A996",
+          "1000000000000",
+          "0xF3a9704ac128Da9B7533D843627311bFC5F32A79",
+          0,
+          "500000000000000",
+          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          0,
+        ],
+        collateral: {
+          address: "0x5662f87A598d631Ec87a4C55b03a444378b2A996",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+    },
+  },
 };
