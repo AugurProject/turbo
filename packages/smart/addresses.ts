@@ -88,7 +88,7 @@ export const addresses: AddressMapping = {
   42: {
     reputationToken: "0x889048125521599E96A1e551bA7b843073c7De10",
     balancerFactory: "0x7757a7589bAC9D0B959B3721363Cf33665Ed2997",
-    ammFactory: "0x113d27Afb5C4226876B9EB41A0fDc793C002A7C9",
+    ammFactory: "0x959fd7834847D9A133ce530bDe21CdA50A2E7d31",
     marketFactories: {
       sportsball: {
         type: "SportsLink",

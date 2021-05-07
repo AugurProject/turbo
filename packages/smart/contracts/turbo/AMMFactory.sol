@@ -6,7 +6,6 @@ import "../balancer/BFactory.sol";
 import "../libraries/SafeMathUint256.sol";
 import "./AbstractMarketFactory.sol";
 import "../balancer/BNum.sol";
-import "hardhat/console.sol";
 
 contract AMMFactory is BNum {
     using SafeMathUint256 for uint256;
