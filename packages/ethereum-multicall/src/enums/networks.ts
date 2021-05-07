@@ -3,4 +3,6 @@ export enum Networks {
   ropsten = 3,
   rinkeby = 4,
   kovan = 42,
+  matic = 137,
+  mumbai = 80001,
 }
