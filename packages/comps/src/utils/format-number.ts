@@ -639,6 +639,11 @@ export function sharesDisplayToOnChain(onChainAmount: NumStrBigNumber) {
   return createBigNumber(onChainAmount).multipliedBy(createBigNumber(10).pow(createBigNumber(18)));
 }
 
+export function lpTokenPercentageAmount(lpTokenAmount: NumStrBigNumber, totalSupply: NumStrBigNumber): NumStrBigNumber {
+  if (createBigNumber(totalSupply).eq(0)) return lpTokenAmount;
+  return createBigNumber(lpTokenAmount).div(createBigNumber(totalSupply)).times(100).toFixed(2);
+}
+
 export function lpTokensOnChainToDisplay(onChainAmount: NumStrBigNumber, precision: NumStrBigNumber = 18) {
   return createBigNumber(onChainAmount).dividedBy(createBigNumber(10).pow(createBigNumber(precision)));
 }

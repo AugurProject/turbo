@@ -9,6 +9,8 @@ import {
   formatLpTokens,
   isSameAddress,
   sharesOnChainToDisplay,
+  lpTokenPercentageAmount,
+  lpTokensOnChainToDisplay,
 } from "../utils/format-number";
 import { createBigNumber } from "../utils/create-big-number";
 
@@ -47,7 +49,6 @@ export const shapeUserActvity = (
   });
   const processedProceeds = (transactions?.claimedProceeds || []).map((tx) => {
     tx.tx_type = `Claimed Proceeds`;
-    console.log(tx);
     return tx;
   });
   userTransactions = userTransactions.concat(processedFees).concat(processedProceeds);
@@ -76,34 +77,40 @@ const getActivityType = (
     }
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
+      const { amm } = market;
+      const { totalSupply } = amm;
+      const poolPct = lpTokenPercentageAmount(
+        lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
+        lpTokensOnChainToDisplay(totalSupply || "1")
+      );
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
-      const lpTokens = formatLpTokens(
-        convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()),
-        {
-          decimals: 2,
-          decimalsRounded: 0,
-          denomination: (v) => `${v}%`,
-          roundDown: false,
-          bigUnitPostfix: false,
-        }
-      ).full;
+      const lpTokens = formatLpTokens(poolPct, {
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: (v) => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       subheader = `Contributed ${lpTokens} of the pool`;
       break;
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
+      const { amm } = market;
+      const { totalSupply } = amm;
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
-      const lpTokens = formatLpTokens(
-        convertOnChainCashAmountToDisplayCashAmount(createBigNumber(tx?.lpTokens).abs()),
-        {
-          decimals: 2,
-          decimalsRounded: 0,
-          denomination: (v) => `${v}%`,
-          roundDown: false,
-          bigUnitPostfix: false,
-        }
-      ).full;
+      const poolPct = lpTokenPercentageAmount(
+        lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
+        lpTokensOnChainToDisplay(totalSupply)
+      );
+      const lpTokens = formatLpTokens(poolPct, {
+        decimals: 2,
+        decimalsRounded: 0,
+        denomination: (v) => `${v}%`,
+        roundDown: false,
+        bigUnitPostfix: false,
+      }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       subheader = `Withdrew ${lpTokens} of the pool`;
       break;
@@ -281,11 +288,16 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
 };
 
 const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
-  const { marketId } = market;
+  const { marketId, amm } = market;
+  const totalSupply = amm?.totalSupply;
   const adds = transactions[marketId]?.addLiquidity;
   return (adds || []).map((add) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
-    const lpTokens = formatLpTokens(convertOnChainCashAmountToDisplayCashAmount(createBigNumber(add?.lpTokens).abs()), {
+    const poolPct = lpTokenPercentageAmount(
+      lpTokensOnChainToDisplay(add?.lpTokens).abs(),
+      lpTokensOnChainToDisplay(totalSupply)
+    );
+    const lpTokens = formatLpTokens(poolPct, {
       decimals: 2,
       decimalsRounded: 0,
       denomination: (v) => `${v}%`,
@@ -303,20 +315,22 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
 };
 
 const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) => {
-  const { marketId } = market;
+  const { marketId, amm } = market;
+  const totalSupply = amm?.totalSupply || "0";
   const removes = transactions[marketId]?.removeLiquidity;
   return (removes || []).map((remove) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(remove?.collateral, cash.decimals);
-    const lpTokens = formatLpTokens(
-      convertOnChainCashAmountToDisplayCashAmount(createBigNumber(remove?.lpTokens).abs()),
-      {
-        decimals: 2,
-        decimalsRounded: 0,
-        denomination: (v) => `${v}%`,
-        roundDown: false,
-        bigUnitPostfix: false,
-      }
-    ).full;
+    const poolPct = lpTokenPercentageAmount(
+      lpTokensOnChainToDisplay(remove?.lpTokens).abs(),
+      lpTokensOnChainToDisplay(totalSupply)
+    );
+    const lpTokens = formatLpTokens(poolPct, {
+      decimals: 2,
+      decimalsRounded: 0,
+      denomination: (v) => `${v}%`,
+      roundDown: false,
+      bigUnitPostfix: false,
+    }).full;
     const processed = sharedProcessed(remove, market, cash);
     processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
     processed.sender = remove.sender.id;
