@@ -90,6 +90,8 @@ function getClientEnvironment(publicUrl) {
         // which is why it's disabled by default.
         // It is defined here so it is available in the webpackHotDevClient.
         FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
+        // The network we are connecting to
+        ETHEREUM_NETWORK: process.env.ETHEREUM_NETWORK || 'local'
       }
     );
   // Stringify all values so we can feed into webpack DefinePlugin
