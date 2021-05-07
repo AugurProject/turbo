@@ -3,7 +3,7 @@ import Styles from './activity.styles.less';
 import { useAppStatusStore, useDataStore, useUserStore, DateUtils, Formatter, ProcessData, Links, PaginationComps } from '@augurproject/comps';
 import { useSimplifiedStore } from 'modules/stores/simplified';
 const { Pagination, sliceByPage } = PaginationComps;
-const { ReceiptLink } = Links;
+const { ReceiptLink, MarketLink } = Links;
 const { shapeUserActvity } = ProcessData;
 const { getCashFormat } = Formatter;
 const { getTimeFormat } = DateUtils;
