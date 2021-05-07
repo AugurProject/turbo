@@ -203,6 +203,28 @@ describe("AMMFactory", () => {
       expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
     });
 
+    it.only("huge amount with balanced pool", async () => {
+      const addLiquidity = async function (collateralAmount: number) {
+        const collateralIn = usdcBasis.mul(collateralAmount); // 50 of the collateral
+        await collateral.faucet(collateralIn);
+        await collateral.approve(ammFactory.address, collateralIn);
+
+        await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      };
+
+      await addLiquidity(5000);
+      await addLiquidity(100000);
+
+      const sharesAfter = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
+      // The pool is even right now so we wouldn't expect any shares.
+      expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
+    });
+
     it("with unbalanced pool", async () => {
       const secondBPool = bPool.connect(secondSigner);
       await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
