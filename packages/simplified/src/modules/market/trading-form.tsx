@@ -261,9 +261,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : "Share"} Balance`;
       disabled = true;
-    } else if (new BN(slippage || SETTINGS_SLIPPAGE).lt(new BN(breakdown?.slippagePercent))) {
-      subText = `(Adjust slippage tolerance to ${Math.ceil(Number(breakdown?.slippagePercent))}%)`;
-      disabled = true;
     } else if (waitingToSign) {
       actionText = "Waiting for Confirmation";
       disabled = true;
@@ -275,7 +272,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       actionText,
       subText,
     };
-  }, [orderType, amount, buttonError, userBalance, breakdown?.slippagePercent, slippage, hasLiquidity, waitingToSign]);
+  }, [orderType, amount, buttonError, userBalance, hasLiquidity, waitingToSign]);
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
@@ -284,7 +281,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(isBuy, outcomeName, ammCash?.name, amount, minOutput);
-    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash)
+    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage)
       .then((response) => {
         if (response) {
           const { hash } = response;
