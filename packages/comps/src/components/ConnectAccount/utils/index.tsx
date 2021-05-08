@@ -14,6 +14,19 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   42: "kovan.",
 };
 
+export const CHAIN_ID_NAMES = {
+  1: "Mainnet",
+  42: "Kovan.",
+  80001: "Mumbai.",
+  137: "Matic.",
+};
+
+const MATIC_MAINNET = 137;
+const MATIC_MUMBAAI = 80001;
+const MATIC_CHAINS = [
+  MATIC_MAINNET, MATIC_MUMBAAI
+];
+
 export const isAddress = (value) => {
   try {
     return ethers.utils.getAddress(value.toLowerCase());
@@ -27,7 +40,12 @@ export function getEtherscanLink(
   data: string,
   type: "transaction" | "market" | "address" | "block"
 ): string {
-  const prefix = `https://${ETHERSCAN_PREFIXES[chainId] || ETHERSCAN_PREFIXES[1]}etherscan.io`;
+  let prefix = `https://${ETHERSCAN_PREFIXES[chainId] || ETHERSCAN_PREFIXES[1]}etherscan.io`;
+
+  // TODO remove when etherscan supports Matic
+  if (MATIC_CHAINS.includes(chainId)) {
+    prefix = `https://explorer-${chainId === MATIC_MAINNET ? 'mainnet' : 'mumbai'}.maticvigil.com`;
+  }
 
   switch (type) {
     case "transaction": {

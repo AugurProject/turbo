@@ -103,7 +103,7 @@ const getCashesInfo = (): any[] => {
       name: "ETH",
       displayDecimals: 4,
       decimals: 18,
-      address: "0x7290c2b7D5Fc91a112d462fe06aBBB8948668f56",
+      address: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa", // WETH address on Matic Mumbai
       shareToken: "",
       usdPrice: "2000",
       asset: "ETH",
