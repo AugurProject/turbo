@@ -14,6 +14,20 @@ export interface WalletInfo {
   mobileOnly?: true;
 }
 
+export const MATIC_MUMBAI_RPCS = ['https://rpc-mumbai.maticvigil.com/', 'https://matic-mumbai.chainstacklabs.com', 'https://matic-testnet-archive-rpc.bwarelabs.com'];
+export const MATIC_MUMBAI_BLOCK_EXPLORERS = ['https://explorer-mumbai.maticvigil.com', 'https://mumbai-explorer.matic.today', 'https://backup-mumbai-explorer.matic.today'];
+export const MATIC_RPC_DATA = [{
+  chainId: '0x13881',
+  chainName: 'Mumbai-Testnet',
+  nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+  },
+  rpcUrls: MATIC_MUMBAI_RPCS,
+  blockExplorerUrls: MATIC_MUMBAI_BLOCK_EXPLORERS,
+}];
+
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   INJECTED: {
     connector: injected,

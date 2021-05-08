@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "react-feather";
 import CopyHelper from "./CopyHelper";
-import { getEtherscanLink, shortenAddress } from "../../utils";
+import { CHAIN_ID_NAMES, getEtherscanLink, shortenAddress } from "../../utils";
 import { injected } from "../../connectors";
 import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
@@ -20,13 +20,15 @@ export interface AccountCardProps {
   connector: AbstractConnector;
   connectorName: string;
   chainId: ChainId;
+  chainName: string;
 }
 
-const AccountCard = ({ account, connector, connectorName, chainId }: AccountCardProps) => {
+const AccountCard = ({ account, connector, connectorName, chainId, chainName }: AccountCardProps) => {
   return (
     <div className={Styles.AccountCard}>
       <div>
-        <span>{connectorName}</span>
+        <span>{connectorName} on {chainName}</span>
+        <span></span>
       </div>
       <div>
         <GetWalletIcon connector={connector} account={account} showPortisButton />
@@ -143,6 +145,11 @@ const formatConnectorName = (connector) => {
   );
 };
 
+const formatChainName = (chainId) => {
+  return CHAIN_ID_NAMES[chainId];
+};
+
+
 export interface AccountDetailsProps {
   openOptions: Function;
   darkMode: boolean;
@@ -160,7 +167,12 @@ export const AccountDetails = ({
 }: AccountDetailsProps) => {
   const { chainId, account, connector } = useActiveWeb3React();
   const [connectorName, setConnectorName] = useState(formatConnectorName(connector));
+  const [chainName, setChainName] = useState(formatChainName(chainId));
   const { deactivate } = useActiveWeb3React();
+
+  useEffect(() => {
+    setChainName(formatChainName(chainId));
+  }, [account, chainId, transactions]);
 
   useEffect(() => {
     setConnectorName(formatConnectorName(connector));
@@ -176,7 +188,7 @@ export const AccountDetails = ({
       })}
     >
       <section className={Styles.Content}>
-        <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} />
+        <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} chainName={chainName} />
       </section>
       <section>
         <TinyButton action={() => openOptions()} text="Switch Wallet" />

@@ -8,6 +8,7 @@ import ButtonStyles from "../common/buttons.styles.less";
 import { GetWalletIcon } from "../common/get-wallet-icon";
 import { useActiveWeb3React } from "./hooks";
 import { MODAL_CONNECT_WALLET, TX_STATUS } from "../../utils/constants";
+import { MATIC_RPC_DATA } from "../ConnectAccount/constants/index";
 import { tryAutoLogin } from "./utils";
 import { Spinner } from "../common/spinner";
 
@@ -18,7 +19,6 @@ export interface LoginButtonProps {
   darkMode: boolean;
   className: string;
 }
-
 const LoginButton = ({ action, text, icon, darkMode, className }: LoginButtonProps) => (
   <SecondaryButton
     action={action}
@@ -62,6 +62,16 @@ const ConnectAccountButton = ({
   const [initialLogin, setInitalLogin] = useState(false);
   const pendingTransaction = transactions.filter((tx) => tx.status === TX_STATUS.PENDING);
   const hasPendingTransaction = pendingTransaction.length > 0 || false;
+
+  const maticCheck = async () => {
+    // @ts-ignore
+    const ethereum = window.ethereum;
+    if (ethereum) {
+      await ethereum.request({method: 'wallet_addEthereumChain', params: MATIC_RPC_DATA });
+    }
+  }
+
+  maticCheck();
 
   useEffect(() => {
     if (autoLogin && !account) {
