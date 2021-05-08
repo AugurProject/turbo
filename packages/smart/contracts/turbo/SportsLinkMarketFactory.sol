@@ -12,6 +12,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
+    string version = "0.1"; // mostly to make redeploy easy
+
     event MarketCreated(
         uint256 id,
         address creator,
@@ -46,7 +48,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
     // EventId => [MarketId]
-    mapping(uint256 => uint256[3]) internal events;
+    mapping(uint256 => uint256[3]) public events;
 
     address linkNode;
     uint256 public sportId;
@@ -78,7 +80,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         sportId = _sportId;
     }
 
-    function createMarket(bytes32 _payload) external returns (uint256[3] memory _ids) {
+    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
         (
@@ -87,32 +89,44 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             uint256 _awayTeamId,
             uint256 _startTimestamp,
             int256 _homeSpread,
-            uint256 _totalScore
+            uint256 _totalScore,
+            bool _makeSpread,
+            bool _makeTotalScore
         ) = decodeCreation(_payload);
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
-        require(!isEventRegistered(_eventId), "Markets already created");
+        _ids = events[_eventId];
 
-        _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
-        _ids[1] = createSpreadMarket(
-            _creator,
-            _endTime,
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            _homeSpread
-        );
-        _ids[2] = createOverUnderMarket(
-            _creator,
-            _endTime,
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            _totalScore
-        );
+        if (_ids[0] == 0) {
+            _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
+        }
+
+        if (_ids[1] == 0 && _makeSpread) {
+            // spread market hasn't been created and is ready to be created
+            _ids[1] = createSpreadMarket(
+                _creator,
+                _endTime,
+                _eventId,
+                _homeTeamId,
+                _awayTeamId,
+                _startTimestamp,
+                _homeSpread
+            );
+        }
+
+        if (_ids[2] == 0 && _makeTotalScore) {
+            // over-under market hasn't been created and is ready to be created
+            _ids[2] = createOverUnderMarket(
+                _creator,
+                _endTime,
+                _eventId,
+                _homeTeamId,
+                _awayTeamId,
+                _startTimestamp,
+                _totalScore
+            );
+        }
 
         events[_eventId] = _ids;
     }
@@ -249,14 +263,22 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         if (EventStatus(_eventStatus) != EventStatus.Final) {
             for (uint256 i = 0; i < _ids.length; i++) {
                 uint256 _id = _ids[0];
+                if (_id == 0) continue; // skip non-created markets
                 markets[_id].winner = markets[_id].shareTokens[0];
             }
             return;
         }
 
-        resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
-        resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
-        resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
+        // only resolve markets that were created
+        if (_ids[0] != 0) {
+            resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
+        }
+        if (_ids[1] != 0) {
+            resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
+        }
+        if (_ids[2] != 0) {
+            resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
+        }
     }
 
     function resolveHeadToHeadMarket(
@@ -327,18 +349,26 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         return marketDetails[_marketId];
     }
 
-    function changeLinkNode(address _newLinkNode) external onlyOwner {
+    function setLinkNode(address _newLinkNode) external onlyOwner {
         linkNode = _newLinkNode;
         emit LinkNodeChanged(_newLinkNode);
     }
 
+    function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
+        uint256[3] memory _event = events[_eventId];
+        return _event;
+    }
+
+    // Events can be partially registered, by only creating some markets.
+    // This returns true only if an event is fully registered.
     function isEventRegistered(uint256 _eventId) public view returns (bool) {
-        // The first market id could be zero, so use another one that can't.
-        return events[_eventId][2] != 0;
+        uint256[3] memory _event = events[_eventId];
+        return _event[0] != 0 && _event[1] != 0 && _event[2] != 0;
     }
 
     function isEventResolved(uint256 _eventId) public view returns (bool) {
-        uint256 _marketId = events[_eventId][2];
+        // check the event's head-to-head market since it will always exist if of the event's markets exist
+        uint256 _marketId = events[_eventId][0];
         return isMarketResolved(_marketId);
     }
 
@@ -348,10 +378,29 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint16 _awayTeamId,
         uint32 _startTimestamp,
         int16 _homeSpread,
-        uint16 _totalScore
+        uint16 _totalScore,
+        bool _createSpread,
+        bool _createTotal
     ) external pure returns (bytes32 _payload) {
+        uint8 _creationFlags;
+
+        if (_createSpread) {
+            _creationFlags += 1; // 0b0000000x
+        }
+        if (_createTotal) {
+            _creationFlags += 2; // 0b000000x0
+        }
+
         bytes memory _a =
-            abi.encodePacked(_eventId, _homeTeamId, _awayTeamId, _startTimestamp, _homeSpread, _totalScore);
+            abi.encodePacked(
+                _eventId,
+                _homeTeamId,
+                _awayTeamId,
+                _startTimestamp,
+                _homeSpread,
+                _totalScore,
+                _creationFlags
+            );
         assembly {
             _payload := mload(add(_a, 32))
         }
@@ -366,18 +415,27 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             uint16 _awayTeamId,
             uint32 _startTimestamp,
             int16 _homeSpread,
-            uint16 _totalScore
+            uint16 _totalScore,
+            bool _createSpread,
+            bool _createTotal
         )
     {
         uint256 _temp = uint256(_payload);
+        uint8 _creationFlags;
         // prettier-ignore
         {
             _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                       >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))           >> (256 - 32));
-            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))      >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16)) >> (256 - 16));
+            _homeTeamId     = uint16((_temp << 128)                                >> (256 - 16));
+            _awayTeamId     = uint16((_temp << (128 + 16))                         >> (256 - 16));
+            _startTimestamp = uint32((_temp << (128 + 16 + 16))                    >> (256 - 32));
+            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))               >> (256 - 16));
+            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
+            _creationFlags  = uint8 ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
+
+            // Lowest bit is _createSpread.
+            // Second-lowest bit is _createTotal.
+            _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
+            _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
         }
     }
 

@@ -32,7 +32,7 @@ describe("AMMFactory", () => {
   let collateral: Contract;
   let shareFactor: BigNumber;
   let marketFactory: Contract;
-  const marketId = BigNumber.from(0);
+  const marketId = BigNumber.from(1);
   let bFactory: Contract;
   let ammFactory: Contract;
 

@@ -68,7 +68,9 @@ describe("LinkFactory", () => {
         awayTeamId,
         estimatedStartTime,
         homeSpread,
-        overUnderTotal
+        overUnderTotal,
+        true,
+        true
       )
     );
 
@@ -81,9 +83,9 @@ describe("LinkFactory", () => {
     [spreadMarketId] = spreadLog;
     [overUnderMarketId] = overUnderLog;
 
-    expect(headToHeadMarketId).to.equal(0);
-    expect(spreadMarketId).to.equal(1);
-    expect(overUnderMarketId).to.equal(2);
+    expect(headToHeadMarketId).to.equal(1);
+    expect(spreadMarketId).to.equal(2);
+    expect(overUnderMarketId).to.equal(3);
   });
 
   it("head to head market is correct", async () => {
@@ -146,9 +148,11 @@ describe("LinkFactory", () => {
       awayTeamId,
       fakeStartTime,
       homeSpread,
-      overUnderTotal
+      overUnderTotal,
+      true,
+      true
     );
-    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d00000000");
+    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d03000000");
 
     const decoded = await marketFactory.decodeCreation(payload);
     expect(decoded._eventId, "_eventId").to.equal(eventId);
@@ -157,6 +161,8 @@ describe("LinkFactory", () => {
     expect(decoded._startTimestamp, "_startTimestamp").to.equal(fakeStartTime);
     expect(decoded._homeSpread, "_homeSpread").to.equal(homeSpread);
     expect(decoded._totalScore, "_totalScore").to.equal(overUnderTotal);
+    expect(decoded._createSpread, "_createSpread").to.equal(true);
+    expect(decoded._createTotal, "_createTotal").to.equal(true);
   });
 
   it("encodes and decodes market resolution payload", async () => {

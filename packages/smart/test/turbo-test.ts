@@ -83,7 +83,7 @@ describe("Turbo", () => {
     expect(logs.length).to.equal(1);
     const [log] = logs;
     [marketId] = log.args;
-    expect(marketId).to.equal(0);
+    expect(marketId).to.equal(1);
 
     const market = await marketFactory.getMarket(marketId);
     [noContest, all, many, few, none] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
