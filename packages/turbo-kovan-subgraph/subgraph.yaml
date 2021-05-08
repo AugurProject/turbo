@@ -8,9 +8,9 @@ dataSources:
     name: AMMFactory
     network: kovan
     source:
-      address: '0xAEDEA613D927ffEE8735b4eDcf15E71B0bf98F1e'
+      address: '0x959fd7834847D9A133ce530bDe21CdA50A2E7d31'
       abi: AMMFactory
-      startBlock: 24697383
+      startBlock: 24719725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -28,7 +28,7 @@ dataSources:
           handler: handlePoolCreatedEvent
         - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
           handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
+        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256[],uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
     name: AbstractMarketFactory
@@ -36,7 +36,7 @@ dataSources:
     source:
       address: '0xFDE7135E882CF7c078e2c1100154712aCd40145c' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
-      startBlock: 24697383
+      startBlock: 24719727
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
