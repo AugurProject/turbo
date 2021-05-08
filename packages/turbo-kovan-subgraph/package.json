@@ -9,6 +9,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-kovan",
+    "deploy-mumbai": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-mumbai",
     "deploy-local": "graph deploy --ipfs http://localhost:5001 --node http://127.0.0.1:8020 augurproject/augur-turbo-kovan",
     "grab-abis": "yarn smart build && rsync -v ../smart/abi/contracts/**/**/*.json abis/"
   },
