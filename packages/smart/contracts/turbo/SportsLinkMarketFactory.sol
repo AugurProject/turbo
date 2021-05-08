@@ -8,7 +8,10 @@ import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
-contract SportsLinkMarketFactory is AbstractMarketFactory {
+import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
+
+
+contract SportsLinkMarketFactory is AbstractMarketFactory, ChainlinkClient {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -78,7 +81,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         sportId = _sportId;
     }
 
-    function createMarket(bytes32 _payload) external returns (uint256[3] memory _ids) {
+    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
         (
@@ -327,7 +330,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         return marketDetails[_marketId];
     }
 
-    function changeLinkNode(address _newLinkNode) external onlyOwner {
+    function setLinkNode(address _newLinkNode) external onlyOwner {
         linkNode = _newLinkNode;
         emit LinkNodeChanged(_newLinkNode);
     }
@@ -411,5 +414,70 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
             _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
         }
+    }
+
+    using Chainlink for Chainlink.Request;
+
+    function createMarketCallback(bytes32 _requestId, bytes32 _payload) public recordChainlinkFulfillment(_requestId) {
+        createMarket(_payload);
+    }
+
+    function trustedResolveMarketsCallback(bytes32 _requestId, bytes32 _payload) public recordChainlinkFulfillment(_requestId) {
+        trustedResolveMarkets(_payload);
+    }
+
+    function setChainlinkTokenExternal(address _tokenAddress) external onlyOwner {
+        setChainlinkToken(_tokenAddress);
+    }
+
+    address linkOracle;
+    function setLinkOracle(address _newOracle) external onlyOwner {
+        linkOracle = _newOracle;
+    }
+
+    function pokeMarketCreatorMLB() external onlyOwner {
+        bytes32 _jobId = "30f1c97b12d74e7ea0132e8b98530292";
+        string memory _contractAddress = string(abi.encodePacked(address(this)));
+        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.createMarketCallback.selector);
+        _request.add("contractAddress", _contractAddress);
+        _request.add("method", "create");
+        _request.add("sportId", "3");
+        _request.add("daysInAdvance", "7");
+        _request.add("startBuffer", "3600"); // 1 hour
+        _request.add("affiliateIds", "[9,3]");
+        sendChainlinkRequestTo(linkOracle, _request, 10**17);
+    }
+
+    function pokeMarketCreatorNBA() external onlyOwner {
+        bytes32 _jobId = bytes32("3fecf42a61a94cc6842333bbd0575e12");
+        string memory _contractAddress = string(abi.encodePacked(address(this)));
+        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.createMarketCallback.selector);
+        _request.add("contractAddress", _contractAddress);
+        _request.add("method", "create");
+        _request.add("sportId", "4");
+        _request.add("daysInAdvance", "7");
+        _request.add("startBuffer", "3600"); // 1 hour
+        _request.add("affiliateIds", "[9,3]");
+        sendChainlinkRequestTo(linkOracle, _request, 10**17);
+    }
+
+    function pokeMarketResolverMLB() external onlyOwner {
+        bytes32 _jobId = bytes32("bceb2baee67d4d3ca6c903f6040dcd03");
+        string memory _contractAddress = string(abi.encodePacked(address(this)));
+        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.trustedResolveMarketsCallback.selector);
+        _request.add("contractAddress", _contractAddress);
+        _request.add("method", "resolve");
+        _request.add("sportId", "3");
+        sendChainlinkRequestTo(linkOracle, _request, 10**17);
+    }
+
+    function pokeMarketResolverNBA() external onlyOwner {
+        bytes32 _jobId = bytes32("4096ea91867f47bf9b6d04332ab4397c");
+        string memory _contractAddress = string(abi.encodePacked(address(this)));
+        Chainlink.Request memory _request = buildChainlinkRequest(_jobId, address(this), this.trustedResolveMarketsCallback.selector);
+        _request.add("contractAddress", _contractAddress);
+        _request.add("method", "resolve");
+        _request.add("sportId", "4");
+        sendChainlinkRequestTo(linkOracle, _request, 10**17);
     }
 }

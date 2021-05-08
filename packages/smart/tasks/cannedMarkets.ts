@@ -3,8 +3,9 @@ import { buildContractInterfaces, ContractInterfaces } from "..";
 import { SportsLinkMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-task("cannedMarkets", "creates canned markets").setAction(async (args, hre) => {
+task("cannedMarkets", "creates canned markets").setAction(async (args, hre: HardhatRuntimeEnvironment) => {
   console.log("Creating canned markets");
   const { ethers } = hre;
   const signer = await makeSigner(hre);

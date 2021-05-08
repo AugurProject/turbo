@@ -9,3 +9,4 @@ export * from "./setTrustedResolution";
 export * from "./requestScore";
 export * from "./fundLink";
 export * from "./getTeams";
+export * from "./pokeLink"
