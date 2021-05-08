@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo } from 'react';
-import Styles from './labels.styles.less';
-import { useLocation } from 'react-router';
-import classNames from 'classnames';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import React, { useEffect, useMemo } from "react";
+import Styles from "./labels.styles.less";
+import { useLocation } from "react-router";
+import classNames from "classnames";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
   useAppStatusStore,
   useDataStore,
@@ -12,10 +12,17 @@ import {
   Constants,
   PARA_CONFIG,
   LabelComps,
-} from '@augurproject/comps';
-import type { MarketInfo } from '@augurproject/comps/build/types';
+} from "@augurproject/comps";
+import type { MarketInfo } from "@augurproject/comps/build/types";
 
-const { CREATE, USDC, ETH, MODAL_ADD_LIQUIDITY, MARKET, ADD } = Constants;
+const {
+  CREATE,
+  USDC,
+  // ETH,
+  MODAL_ADD_LIQUIDITY,
+  MARKET,
+  ADD,
+} = Constants;
 const { ValueLabel } = LabelComps;
 const {
   PathUtils: { parsePath },
@@ -31,44 +38,24 @@ const handleValue = (value, cashName = USDC) =>
 export const AppViewStats = ({ small }) => {
   const { isLogged } = useAppStatusStore();
   const { balances } = useUserStore();
-  const totalAccountValue = useMemo(
-    () => handleValue(isLogged ? balances?.totalAccountValue : 0),
-    [isLogged, balances.totalAccountValue]
-  );
-  const positionsValue = useMemo(
-    () => handleValue(isLogged ? balances?.totalPositionUsd : 0),
-    [isLogged, balances.totalPositionUsd]
-  );
-  const ethValue = useMemo(
-    () => handleValue(balances?.ETH?.balance || 0, ETH),
-    [balances?.ETH?.balance]
-  );
-  const usdValueUSDC = useMemo(
-    () => handleValue(balances?.USDC?.usdValue || 0),
-    [balances?.USDC?.usdValue]
-  );
+  const totalAccountValue = useMemo(() => handleValue(isLogged ? balances?.totalAccountValue : 0), [
+    isLogged,
+    balances.totalAccountValue,
+  ]);
+  const positionsValue = useMemo(() => handleValue(isLogged ? balances?.totalPositionUsd : 0), [
+    isLogged,
+    balances.totalPositionUsd,
+  ]);
+  // const ethValue = useMemo(
+  //   () => handleValue(balances?.ETH?.balance || 0, ETH),
+  //   [balances?.ETH?.balance]
+  // );
+  const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
   return (
     <div className={classNames(Styles.AppStats, { [Styles.small]: small })}>
-      <ValueLabel
-        large={!small}
-        label="total acc value"
-        light={!isLogged}
-        value={totalAccountValue}
-        small={small}
-      />
-      <ValueLabel
-        large={!small}
-        label="positions"
-        light={!isLogged}
-        value={positionsValue}
-        small={small}
-      />
-      <ValueLabel
-        large={!small}
-        small={small}
-        label="Available USDC"
-        value={usdValueUSDC}
-      />
+      <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />
+      <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />
+      <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
   );
 };
@@ -81,7 +68,7 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
   return (
     <button
       className={classNames(Styles.AddLiquidity)}
-      title={isLogged ? 'Add liquidity' : 'Connect an account to add liquidity'}
+      title={isLogged ? "Add liquidity" : "Connect an account to add liquidity"}
       onClick={() => {
         if (isLogged) {
           setModal({
@@ -103,13 +90,7 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
   );
 };
 
-export const AddCurrencyLiquidity = ({
-  market,
-  currency,
-}: {
-  market: MarketInfo;
-  currency: string;
-}) => {
+export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo; currency: string }) => {
   const {
     isLogged,
     actions: { setModal },
@@ -117,11 +98,7 @@ export const AddCurrencyLiquidity = ({
   return (
     <button
       className={classNames(Styles.AddCurrencyLiquidity)}
-      title={
-        isLogged
-          ? `Create this market in ${currency}`
-          : `Connect an account to create this market in ${currency}`
-      }
+      title={isLogged ? `Create this market in ${currency}` : `Connect an account to create this market in ${currency}`}
       onClick={() => {
         if (isLogged) {
           setModal({
@@ -148,18 +125,14 @@ export const NetworkMismatchBanner = () => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const { chainId } = loginAccount || {};
-  const isNetworkMismatch = useMemo(
-    () => !!chainId && String(networkId) !== String(chainId),
-    [chainId, networkId]
-  );
+  const isNetworkMismatch = useMemo(() => !!chainId && String(networkId) !== String(chainId), [chainId, networkId]);
   const isGraphError = !!errors;
-  const unsupportedChainIdError =
-    error && error instanceof UnsupportedChainIdError;
+  const unsupportedChainIdError = error && error instanceof UnsupportedChainIdError;
 
   useEffect(() => {
     // in the event of an error, scroll to top to force banner to be seen.
     if (isNetworkMismatch || isGraphError || unsupportedChainIdError) {
-      document.getElementById('mainContent')?.scrollTo(0, 0);
+      document.getElementById("mainContent")?.scrollTo(0, 0);
       window.scrollTo(0, 1);
     }
   }, [isNetworkMismatch, isGraphError, unsupportedChainIdError]);

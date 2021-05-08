@@ -151,28 +151,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     return String(new BN(feePercent).times(new BN(10)));
   }, [tradingFeeSelection, amm?.feeRaw]);
 
-  const userPercentOfPool = useMemo(() => {
-    let userPercent = "100";
-    const rawSupply = amm?.totalSupply;
-    if (rawSupply) {
-      if (modalType === ADD) {
-        const displaySupply = lpTokensOnChainToDisplay(rawSupply);
-        userPercent = String(
-          new BN(estimatedLpAmount)
-            .plus(new BN(shareBalance || "0"))
-            .div(new BN(displaySupply).plus(new BN(estimatedLpAmount)))
-            .times(new BN(100))
-            .abs()
-        );
-      } else if (isRemove) {
-        const userBalanceLpTokens = balances?.lpTokens[amm?.marketId];
-        const userAmount = userBalanceLpTokens?.rawBalance || "0";
-        userPercent = String(new BN(userAmount).dividedBy(rawSupply).times(100).abs());
-      }
-    }
-    return formatPercent(userPercent).full;
-  }, [amm?.totalSupply, amount, balances, shareBalance, estimatedLpAmount, amm?.id, cash?.decimals, modalType]);
-
   let buttonError = "";
   const priceErrors = outcomes.filter((outcome) => {
     return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
@@ -347,7 +325,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           },
           {
             label: "your share of the liquidity pool",
-            value: `${userPercentOfPool}`,
+            value: `${formatPercent(breakdown?.poolPct).full}`,
           },
         ],
       },
@@ -356,7 +334,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         breakdown: [
           {
             label: "LP tokens",
-            value: `${amount}`,
+            value: `${formatPercent(breakdown?.poolPct).full}`,
           },
         ],
       },
@@ -400,7 +378,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           },
           {
             label: "your share of the pool",
-            value: `${userPercentOfPool}`,
+            value: `${formatPercent(breakdown.poolPct).full}`,
           },
         ],
       },
@@ -444,7 +422,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           },
           {
             label: "your share of the pool",
-            value: `${userPercentOfPool}`,
+            value: `${formatPercent(breakdown.poolPct).full}`,
           },
         ],
       },
@@ -518,6 +496,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   dontFilterInvalid
+                  hasLiquidity={amm?.hasLiquidity}
                 />
               </>
             )}

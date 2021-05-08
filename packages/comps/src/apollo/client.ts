@@ -169,7 +169,9 @@ export async function getAllTransactions(account = "0x0", cb) {
       //   proceeds = proceeds.concat(sender?.claimedProceeds);
       //   fees = fees.concat(sender?.claimedFees);
       // }
+
       // const processedSenders = { claimedProceeds: proceeds, claimedFees: fees, userAddress: account };
+      // console.log("processedSenders", processedSenders, response);
       // END CONVIENCE CODE
       const processedSenders =
         response?.data?.senders?.length > 0

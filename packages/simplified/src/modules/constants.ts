@@ -72,7 +72,7 @@ export const RESOLVED = "Resolved";
 
 export const ENTER_AMOUNT = "Enter Amount";
 
-export const SETTINGS_SLIPPAGE = "2";
+export const SETTINGS_SLIPPAGE = "1";
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",
