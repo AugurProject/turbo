@@ -30,15 +30,15 @@ type AMMFactory @entity {
 type Market @entity {
   id: ID!
 
-  liquidity: [Liquidity!]! @derivedFrom(field: "marketId")
+  liquidity: [Liquidity!] @derivedFrom(field: "marketId")
 
-  addLiquidity: [AddLiquidity!]! @derivedFrom(field: "marketId")
+  addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
 
-  removeLiquidity: [RemoveLiquidity!]! @derivedFrom(field: "marketId")
+  removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")
 
-  trades: [Trade!]! @derivedFrom(field: "marketId")
+  trades: [Trade!] @derivedFrom(field: "marketId")
 
-  claimProceeds: [ClaimedProceeds!]! @derivedFrom(field: "marketId")
+  claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "marketId")
 }
 
 type Liquidity @entity {
@@ -107,6 +107,8 @@ type Buy @entity {
   collateral: String!
   shares: String!
   price: BigDecimal!
+
+  inOutRatio: [BigInt!]
 }
 
 type Sell @entity {
@@ -118,6 +120,8 @@ type Sell @entity {
   collateral: String!
   shares: String!
   price: BigDecimal!
+
+  inOutRatio: [BigInt!]
 }
 
 type Trade @entity {
@@ -141,6 +145,8 @@ type Trade @entity {
   transactionHash: String!
 
   timestamp: BigInt!
+
+  inOutRatio: [BigInt!]
 }
 
 type ClaimedProceeds @entity {
@@ -148,7 +154,7 @@ type ClaimedProceeds @entity {
   sender: Sender!
   fees: String!
   outcome: String!
-  marketId: Market!
+  marketId: Market
   payout: String!
   shares: String!
   transactionHash: String!

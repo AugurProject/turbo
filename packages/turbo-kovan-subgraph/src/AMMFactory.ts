@@ -148,7 +148,9 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 //   uint256 outcome,
 //   // from the perspective of the user. e.g. collateral is negative when buying
 //   int256 collateral,
-//   int256 shares
+//   int256 shares,
+//   uint256[] inOutRatio,
+//   uint256 price
 // );
 
 function handleBuy(event: SharesSwapped): void {
@@ -175,6 +177,7 @@ function handleBuy(event: SharesSwapped): void {
   buyEntity.collateral = bigIntToHexString(event.params.collateral);
   buyEntity.shares = bigIntToHexString(event.params.shares);
   buyEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
+  buyEntity.inOutRatio = event.params.inOutRatio;
 
   buyEntity.save();
 }
