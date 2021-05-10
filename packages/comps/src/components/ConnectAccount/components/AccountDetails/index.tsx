@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "react-feather";
 import CopyHelper from "./CopyHelper";
-import { CHAIN_ID_NAMES, getEtherscanLink, shortenAddress } from "../../utils";
+import { CHAIN_ID_NAMES, getEtherscanLink, MATIC_MUMBAI, shortenAddress } from "../../utils";
 import { injected } from "../../connectors";
 import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
@@ -14,6 +14,8 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { TX_STATUS } from "../../../../utils/constants";
 import { LinkIcon } from "../../../common/icons";
 import { ChainId } from "@uniswap/sdk";
+import { useUserStore } from '../../../../stores/user';
+import { faucetUSDC } from "../../../../utils/contract-calls";
 
 export interface AccountCardProps {
   account: string;
@@ -169,6 +171,8 @@ export const AccountDetails = ({
   const [connectorName, setConnectorName] = useState(formatConnectorName(connector));
   const [chainName, setChainName] = useState(formatChainName(chainId));
   const { deactivate } = useActiveWeb3React();
+  const { loginAccount } = useUserStore();
+  const provider = loginAccount?.library ? loginAccount.library : null;
 
   useEffect(() => {
     setChainName(formatChainName(chainId));
@@ -191,6 +195,7 @@ export const AccountDetails = ({
         <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} chainName={chainName} />
       </section>
       <section>
+        {chainId && chainId === MATIC_MUMBAI && <TinyButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
         <TinyButton action={() => openOptions()} text="Switch Wallet" />
         {connector !== injected && notWalletLink && (
           <TinyButton action={() => (connector as any).disconnect()} text="Sign Out" />
