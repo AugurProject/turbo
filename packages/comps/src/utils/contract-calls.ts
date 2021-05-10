@@ -1011,21 +1011,17 @@ const accumSharesPrice = (
       (p, t) => {
         const shares = p.shares.plus(new BN(t.shares)).abs();
         const cashAmount = p.cashAmount.plus(new BN(t.collateral).abs());
-        const avgPrice = cashAmount
-          .times(p.avgPrice)
-          .plus(new BN(t.collateral).times(new BN(t.price)))
-          .div(cashAmount)
-          .abs();
+        const accumAvgPrice = new BN(t.collateral).times(new BN(t.price)).abs().plus(p.accumAvgPrice);
         return {
           shares,
           cashAmount,
-          avgPrice,
+          accumAvgPrice,
         };
       },
-      { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) }
+      { shares: new BN(0), cashAmount: new BN(0), accumAvgPrice: new BN(0) }
     );
-
-  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice: result.avgPrice };
+  const avgPrice = result.accumAvgPrice.div(result.cashAmount);
+  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
 };
 
 const accumLpSharesPrice = (
