@@ -968,7 +968,6 @@ const getInitPositionValues = (
   const enterAvgPriceBN = sharesEntered.avgPrice;
 
   // get shares from LP activity
-  console.log('marketTransactions?.addLiquidity', marketTransactions)
   const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
@@ -977,7 +976,6 @@ const getInitPositionValues = (
     claimTimestamp
   );
 
-  console.log('sharesAddLiquidity', String(sharesAddLiquidity.shares));
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
