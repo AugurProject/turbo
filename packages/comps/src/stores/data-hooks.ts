@@ -17,17 +17,17 @@ export function DataReducer(state, action) {
       // loop through market amms, filter out amm not created
       const markets = updatedState[MARKETS];
       if (markets) {
-        const updatedMarkets = Object.keys(markets).map(marketId => {
+        const updatedMarkets = Object.keys(markets).map((marketId) => {
           const market = markets[marketId];
           const txs = transactions[marketId];
           if (txs) {
-            const {apy, vol, vol24hr } = calculateAmmTotalVolApy(market.amm, txs);
+            const { apy, vol, vol24hr } = calculateAmmTotalVolApy(market.amm, txs);
             market.amm.apy = apy;
             market.volumeTotalUSD = vol;
-            market.volume24hrTotalUSD = vol24hr;  
+            market.volume24hrTotalUSD = vol24hr;
           }
           return market;
-        })
+        });
         updatedState[MARKETS] = updatedMarkets;
       }
 
