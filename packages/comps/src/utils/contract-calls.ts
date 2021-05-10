@@ -806,7 +806,7 @@ const getPositionUsdValues = (
   const price = amm.ammOutcomes[outcomeId].price;
   const outcomeName = amm.ammOutcomes[outcomeId].name;
   let visible = false;
-  let positionFromLiquidity = false;
+  let positionFromAddLiquidity = false;
   let positionFromRemoveLiquidity = false;
 
   // need to get this from outcome
@@ -815,7 +815,7 @@ const getPositionUsdValues = (
   let result = {
     avgPrice: "0",
     positionFromRemoveLiquidity: false,
-    positionFromLiquidity: false,
+    positionFromAddLiquidity: false,
   };
 
   const currUsdValue = new BN(balance).times(new BN(price)).times(new BN(amm.cash.usdPrice)).toFixed();
@@ -833,7 +833,7 @@ const getPositionUsdValues = (
   }
   totalChangeUsd = trimDecimalValue(usdChangedValue);
   visible = true;
-  positionFromLiquidity = !result.positionFromRemoveLiquidity && result.positionFromLiquidity;
+  positionFromAddLiquidity = !result.positionFromRemoveLiquidity && result.positionFromAddLiquidity;
   positionFromRemoveLiquidity = result.positionFromRemoveLiquidity;
 
   if (new BN(balance).lt(DUST_POSITION_AMOUNT)) return null;
@@ -852,7 +852,7 @@ const getPositionUsdValues = (
     outcomeId,
     maxUsdValue,
     visible,
-    positionFromLiquidity,
+    positionFromAddLiquidity,
     positionFromRemoveLiquidity,
   };
 };
@@ -960,7 +960,7 @@ const getInitPositionValues = (
   outcome: string,
   account: string,
   userClaims: UserClaimTransactions
-): { avgPrice: string; positionFromLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
+): { avgPrice: string; positionFromAddLiquidity: boolean; positionFromRemoveLiquidity: boolean } => {
   const outcomeId = String(new BN(outcome));
   // sum up trades shares
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
@@ -968,6 +968,7 @@ const getInitPositionValues = (
   const enterAvgPriceBN = sharesEntered.avgPrice;
 
   // get shares from LP activity
+  console.log('marketTransactions?.addLiquidity', marketTransactions)
   const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
@@ -976,7 +977,8 @@ const getInitPositionValues = (
     claimTimestamp
   );
 
-  const positionFromLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
+  console.log('sharesAddLiquidity', String(sharesAddLiquidity.shares));
+  const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
   const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
@@ -992,7 +994,7 @@ const getInitPositionValues = (
 
   return {
     avgPrice: String(weightedAvgPrice),
-    positionFromLiquidity,
+    positionFromAddLiquidity,
     positionFromRemoveLiquidity,
   };
 };
