@@ -16,7 +16,11 @@ task("markets", "retreive markets").setAction(async (args, hre) => {
     console.log(`MarketFactory "${name}" has ${length} marktets. They are:`);
     for (let marketId = 0; marketId < Number(length); marketId++) {
       const market = await marketFactory.getMarket(marketId);
+      const details = await marketFactory.getMarketDetails(marketId);
+      console.log(`MARKET ${marketId}`);
       console.log(market);
+      console.log(details);
+      console.log("-".repeat(80));
     }
   });
 
