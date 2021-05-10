@@ -46,6 +46,8 @@ import {
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
   DUST_POSITION_AMOUNT,
+  DAYS_IN_YEAR,
+  SEC_IN_DAY,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1045,6 +1047,46 @@ const accumLpSharesPrice = (
     );
 
   return { shares: result.shares, cashAmount: result.cashAmount };
+};
+
+export const calculateAmmTotalVolApy = (
+  amm: AmmExchange,
+  transactions: MarketTransactions = {}
+): { apy: string; vol: string; vol24hr: string } => {
+  const defaultValues = { apy: null, vol: null, vol24hr: null };
+  if (!amm?.id || amm?.totalSupply === "0" || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+  const { feeDecimal, liquidityUSD, cash } = amm;
+  const timestamp24hr = Math.floor(new Date().getTime() / 1000 - SEC_IN_DAY);
+  // calc total volume
+  const volumeTotalUSD = calcTotalVolumeUSD(transactions, cash).toNumber();
+  const volumeTotalUSD24hr = calcTotalVolumeUSD(transactions, cash, timestamp24hr).toNumber();
+
+  const sortedAddLiquidity = (transactions?.addLiquidity || []).sort((a, b) =>
+    Number(a.timestamp) > Number(b.timestamp) ? 1 : -1
+  );
+  const startTimestamp = Number(sortedAddLiquidity[0].timestamp);
+
+  if (liquidityUSD === 0 || volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
+
+  const totalFeesInUsd = new BN(volumeTotalUSD).times(new BN(feeDecimal));
+  const currTimestamp = Math.floor(new Date().getTime() / 1000); // current time in unix timestamp
+  const secondsPast = currTimestamp - startTimestamp;
+  const pastDays = Math.floor(new BN(secondsPast).div(SEC_IN_DAY).toNumber());
+
+  const tradeFeeLiquidityPerDay = totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
+
+  const tradeFeePerDayInYear = tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
+
+  return { apy: String(tradeFeePerDayInYear), vol: volumeTotalUSD, vol24hr: volumeTotalUSD24hr };
+};
+
+const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoffTimestamp: number = 0) => {
+  const { trades } = transactions;
+  const totalCollateral = (trades || []).reduce(
+    (p, b) => (b.timestamp > cutoffTimestamp ? p.plus(new BN(b.collateral).abs()) : p),
+    new BN(0)
+  );
+  return convertOnChainCashAmountToDisplayCashAmount(totalCollateral, cash.decimals);
 };
 
 const lastClaimTimestamp = (transactions: ClaimWinningsTransactions[], outcome: string, account: string): number => {

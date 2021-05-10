@@ -1,7 +1,8 @@
-import { dispatchMiddleware } from "./utils";
+import { dispatchMiddleware, arrayToKeyedObjectByProp } from "./utils";
 import { useReducer } from "react";
 import { windowRef } from "../utils/window-ref";
 import { DATA_ACTIONS, DATA_KEYS, DEFAULT_DATA_STATE } from "./constants";
+import { calculateAmmTotalVolApy } from "../utils/contract-calls";
 
 const { UPDATE_DATA_HEARTBEAT, UPDATE_TRANSACTIONS } = DATA_ACTIONS;
 const { AMM_EXCHANGES, BLOCKNUMBER, CASHES, ERRORS, MARKETS, LOADING, TRANSACTIONS } = DATA_KEYS;
@@ -10,9 +11,28 @@ export function DataReducer(state, action) {
   const updatedState = { ...state };
   switch (action.type) {
     case UPDATE_TRANSACTIONS: {
-      // this is temporary to prove out data from graph.
       const { transactions } = action;
-      updatedState[TRANSACTIONS] = transactions;
+      const marketKeysFromTransactions = Object.keys(transactions).filter(
+        (key) => !["userAddress", "claimedFees", "claimedProceeds"].includes(key)
+      );
+      const unKeyedUpdates = marketKeysFromTransactions.map((marketId) => {
+        const marketTransactions = transactions[marketId];
+        const amm = state[AMM_EXCHANGES][marketId];
+        const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions);
+        return {
+          ...marketTransactions,
+          apy,
+          volumeTotalUSD: vol,
+          volume24hrTotalUSD: vol24hr,
+        };
+      });
+
+      const updatedTransactions = arrayToKeyedObjectByProp(unKeyedUpdates, "id");
+
+      updatedState[TRANSACTIONS] = {
+        ...transactions,
+        ...updatedTransactions,
+      };
       break;
     }
     case UPDATE_DATA_HEARTBEAT: {
