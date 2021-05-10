@@ -132,7 +132,9 @@ contract AMMFactory is BNum {
         IERC20Full _collateral = _marketFactory.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
         _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets = _marketFactory.calcShares(_collateralIn);
+        uint256 _sets =
+            (_marketFactory.calcShares(_collateralIn) / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
+
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Find poolAmountOut
@@ -146,7 +148,12 @@ contract AMMFactory is BNum {
 
                 OwnedERC20 _token = _market.shareTokens[i];
                 uint256 _bPoolTokenBalance = _pool.getBalance(address(_token));
-                uint256 _tokenPoolAmountOut = bmul(((_sets * BONE) / _bPoolTokenBalance), _totalSupply);
+
+                // This is the result the following when solving for poolAmountOut:
+                // uint256 ratio = bdiv(poolAmountOut, poolTotal);
+                // uint256 tokenAmountIn = bmul(ratio, bal);
+                uint256 _tokenPoolAmountOut =
+                    (((((_sets * BONE) - (BONE / 2)) * _totalSupply) / _bPoolTokenBalance) - (_totalSupply / 2)) / BONE;
 
                 if (_tokenPoolAmountOut < _poolAmountOut) {
                     _poolAmountOut = _tokenPoolAmountOut;
