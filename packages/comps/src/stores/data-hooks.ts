@@ -15,20 +15,19 @@ export function DataReducer(state, action) {
       const marketKeysFromTransactions = Object.keys(transactions).filter(
         (key) => !["userAddress", "claimedFees", "claimedProceeds"].includes(key)
       );
-      const unKeyedUpdates = 
-        marketKeysFromTransactions.map((marketId) => {
-          const marketTransactions = transactions[marketId];
-          const amm = state[AMM_EXCHANGES][marketId];
-          const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions);
-          return {
-            ...marketTransactions,
-            apy,
-            volumeTotalUSD: vol,
-            volume24hrTotalUSD: vol24hr,
-          };
-        });
+      const unKeyedUpdates = marketKeysFromTransactions.map((marketId) => {
+        const marketTransactions = transactions[marketId];
+        const amm = state[AMM_EXCHANGES][marketId];
+        const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions);
+        return {
+          ...marketTransactions,
+          apy,
+          volumeTotalUSD: vol,
+          volume24hrTotalUSD: vol24hr,
+        };
+      });
 
-      const updatedTransactions = arrayToKeyedObjectByProp(unKeyedUpdates, 'id');
+      const updatedTransactions = arrayToKeyedObjectByProp(unKeyedUpdates, "id");
 
       updatedState[TRANSACTIONS] = {
         ...transactions,
