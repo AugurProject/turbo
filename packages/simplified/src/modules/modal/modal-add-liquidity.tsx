@@ -422,7 +422,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           },
           {
             label: "your share of the pool",
-            value: `${formatPercent(breakdown.poolPct).full}`,
+            value: `100%`,
           },
         ],
       },
