@@ -2,6 +2,7 @@ import { dispatchMiddleware } from "./utils";
 import { useReducer } from "react";
 import { windowRef } from "../utils/window-ref";
 import { DATA_ACTIONS, DATA_KEYS, DEFAULT_DATA_STATE } from "./constants";
+import { calculateAmmTotalVolApy } from "../utils/contract-calls";
 
 const { UPDATE_DATA_HEARTBEAT, UPDATE_TRANSACTIONS } = DATA_ACTIONS;
 const { AMM_EXCHANGES, BLOCKNUMBER, CASHES, ERRORS, MARKETS, LOADING, TRANSACTIONS } = DATA_KEYS;
@@ -13,6 +14,23 @@ export function DataReducer(state, action) {
       // this is temporary to prove out data from graph.
       const { transactions } = action;
       updatedState[TRANSACTIONS] = transactions;
+      // loop through market amms, filter out amm not created
+      const markets = updatedState[MARKETS];
+      if (markets) {
+        const updatedMarkets = Object.keys(markets).map(marketId => {
+          const market = markets[marketId];
+          const txs = transactions[marketId];
+          if (txs) {
+            const {apy, vol, vol24hr } = calculateAmmTotalVolApy(market.amm, txs);
+            market.amm.apy = apy;
+            market.volumeTotalUSD = vol;
+            market.volume24hrTotalUSD = vol24hr;  
+          }
+          return market;
+        })
+        updatedState[MARKETS] = updatedMarkets;
+      }
+
       break;
     }
     case UPDATE_DATA_HEARTBEAT: {

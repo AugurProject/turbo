@@ -138,6 +138,8 @@ export const MarketCardView = ({
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
   const formattedApy = amm?.apy && formatPercent(amm.apy).full;
+  const formattedVol = amm?.volumeTotalUSD && formatDai(market.amm?.volumeTotalUSD).full;
+  console.log('amm?.volumeTotalUSD', amm?.volumeTotalUSD)
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
 
   return (
@@ -182,7 +184,7 @@ export const MarketCardView = ({
         ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
             <MarketTitleArea {...{ ...market, timeFormat }} />
-            <ValueLabel label="total volume" value={formatDai(market.amm?.volumeTotalUSD).full} />
+            <ValueLabel label="total volume" value={formattedVol || "-"} />
             <ValueLabel label="APY" value={formattedApy || "- %"} />
             <OutcomesTable {...{ amm }} />
             {!hasWinner && extraOutcomes > 0 && (

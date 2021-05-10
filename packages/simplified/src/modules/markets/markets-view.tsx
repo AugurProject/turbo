@@ -160,6 +160,8 @@ const MarketsView = () => {
   const [filter, setFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
 
+  const marketKeys = Object.keys(markets);
+
   useScrollToTopOnMount(page);
 
   const handleFilterSort = () => {
@@ -187,7 +189,7 @@ const MarketsView = () => {
 
   useEffect(() => {
     handleFilterSort();
-  }, [markets]);
+  }, [marketKeys]);
 
   let changedFilters = 0;
 
