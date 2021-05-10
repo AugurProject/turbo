@@ -247,13 +247,13 @@ export async function getRemoveLiquidity(
     hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
   }));
   const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
-  const cashAmount = cashOnChainToDisplay(String(_collateralOut), cash.decimals);
+  const amount = cashOnChainToDisplay(String(_collateralOut), cash.decimals).toFixed();
   const poolPct = lpTokenPercentageAmount(lpTokenBalance, lpTokensOnChainToDisplay(amm?.totalSupply || "1"));
 
   return {
     minAmountsRaw,
     minAmounts,
-    cashAmount,
+    amount,
     poolPct,
   };
 }
