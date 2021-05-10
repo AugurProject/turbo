@@ -33,7 +33,6 @@ const {
   SHARES,
   INSUFFICIENT_LIQUIDITY,
   ENTER_AMOUNT,
-  SETTINGS_SLIPPAGE,
   ERROR_AMOUNT,
   TX_STATUS,
   BUY,
@@ -43,6 +42,7 @@ const {
 } = Constants;
 
 const AVG_PRICE_TIP = "The difference between the market price and estimated price due to trade size.";
+const RATE_WARNING_THRESHOLD = 10;
 
 interface InfoNumber {
   label: string;
@@ -221,13 +221,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       const outcomeName = outcomes[selectedOutcomeId]?.name;
       const breakdown = isBuy
         ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, ammCash)
-        : await estimateSellTrade(
-            amm,
-            loginAccount?.library,
-            amount,
-            selectedOutcomeId,
-            marketShares
-          );
+        : await estimateSellTrade(amm, loginAccount?.library, amount, selectedOutcomeId, marketShares);
 
       tradingEstimateEvents(isBuy, outcomeName, ammCash?.name, amount, breakdown?.outputValue || "");
 
@@ -309,18 +303,30 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       });
   };
 
-  const getRate = () => {
+  const getRate = (): React.Fragment | null => {
     const priceImpact = formatPercent(breakdown?.priceImpact);
-    const value = !isNaN(Number(breakdown?.ratePerCash))
-    ? `1 ${ammCash?.name} = ${
-        formatSimpleShares(breakdown?.ratePerCash || 0, {
-          denomination: (v) => `${v} Shares`,
-        }).full
-      } (${priceImpact.full})`
-    : null
+    const shares = !isNaN(Number(breakdown?.ratePerCash))
+      ? `1 ${ammCash?.name} = ${
+          formatSimpleShares(breakdown?.ratePerCash || 0, {
+            denomination: (v) => `${v} Shares`,
+          }).full
+        }`
+      : null;
+    const rate = `(${priceImpact.full})`;
+    return shares ? (
+      <>
+        <span>{shares}</span>
+        <span
+          className={classNames({
+            [Styles.rateWarning]: Math.abs(Number(priceImpact.formatted)) >= RATE_WARNING_THRESHOLD,
+          })}
+        >
+          {rate}
+        </span>
+      </>
+    ) : null;
+  };
 
-    return value;
-  }
   return (
     <div className={Styles.TradingForm}>
       <div>

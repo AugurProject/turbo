@@ -65,7 +65,7 @@ export interface AmountInputProps {
   showCurrencyDropdown?: boolean;
   updateCash?: (string) => void;
   chosenCash: string;
-  rate?: string | null;
+  rate?: React.Fragment | null;
   error?: boolean;
   updateAmountError?: Function;
   ammCash: Cash;

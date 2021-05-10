@@ -25,7 +25,7 @@ const {
   estimateAddLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
-const { formatPercent, lpTokensOnChainToDisplay, formatSimpleShares } = Formatter;
+const { formatPercent, formatSimpleShares } = Formatter;
 const {
   Icons: { BackIcon },
   ButtonComps: { ApprovalButton, BuySellButton },
