@@ -1054,7 +1054,7 @@ export const calculateAmmTotalVolApy = (
   transactions: MarketTransactions = {},
 ): { apy: string, vol: string, vol24hr: string } => {
   const defaultValues = { apy: null, vol: null, vol24hr: null };
-  if (!amm.id || amm?.totalSupply === "0" || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+  if (!amm?.id || amm?.totalSupply === "0" || (transactions?.addLiquidity || []).length === 0) return defaultValues;
   const { feeDecimal, liquidityUSD, cash } = amm;
   const timestamp24hr = Math.floor((new Date().getTime() / 1000) - SEC_IN_DAY);
   // calc total volume

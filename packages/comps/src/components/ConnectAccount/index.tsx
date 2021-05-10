@@ -66,8 +66,9 @@ const ConnectAccountButton = ({
   const maticCheck = async () => {
     // @ts-ignore
     const ethereum = window.ethereum;
-    if (ethereum) {
-      await ethereum.request({method: 'wallet_addEthereumChain', params: MATIC_RPC_DATA });
+    // @ts-ignore
+    if (ethereum && ethereum?.chainId !== MATIC_RPC_DATA?.chainId) {
+      // await ethereum.request({method: 'wallet_addEthereumChain', params: MATIC_RPC_DATA });
     }
   }
 

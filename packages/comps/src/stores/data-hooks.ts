@@ -1,4 +1,4 @@
-import { dispatchMiddleware } from "./utils";
+import { dispatchMiddleware, arrayToKeyedObjectByProp } from "./utils";
 import { useReducer } from "react";
 import { windowRef } from "../utils/window-ref";
 import { DATA_ACTIONS, DATA_KEYS, DEFAULT_DATA_STATE } from "./constants";
@@ -11,26 +11,29 @@ export function DataReducer(state, action) {
   const updatedState = { ...state };
   switch (action.type) {
     case UPDATE_TRANSACTIONS: {
-      // this is temporary to prove out data from graph.
       const { transactions } = action;
-      updatedState[TRANSACTIONS] = transactions;
-      // loop through market amms, filter out amm not created
-      const markets = updatedState[MARKETS];
-      if (markets) {
-        const updatedMarkets = Object.keys(markets).map(marketId => {
-          const market = markets[marketId];
-          const txs = transactions[marketId];
-          if (txs) {
-            const {apy, vol, vol24hr } = calculateAmmTotalVolApy(market.amm, txs);
-            market.amm.apy = apy;
-            market.volumeTotalUSD = vol;
-            market.volume24hrTotalUSD = vol24hr;  
-          }
-          return market;
-        })
-        updatedState[MARKETS] = updatedMarkets;
-      }
+      const marketKeysFromTransactions = Object.keys(transactions).filter(
+        (key) => !["userAddress", "claimedFees", "claimedProceeds"].includes(key)
+      );
+      const unKeyedUpdates = 
+        marketKeysFromTransactions.map((marketId) => {
+          const marketTransactions = transactions[marketId];
+          const amm = state[AMM_EXCHANGES][marketId];
+          const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions);
+          return {
+            ...marketTransactions,
+            apy,
+            volumeTotalUSD: vol,
+            volume24hrTotalUSD: vol24hr,
+          };
+        });
 
+      const updatedTransactions = arrayToKeyedObjectByProp(unKeyedUpdates, 'id');
+
+      updatedState[TRANSACTIONS] = {
+        ...transactions,
+        ...updatedTransactions,
+      };
       break;
     }
     case UPDATE_DATA_HEARTBEAT: {

@@ -5,13 +5,7 @@ import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
 import { formatCashPrice, formatDai, formatPercent, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
-import {
-  CategoryIcon,
-  CategoryLabel,
-  CurrencyTipIcon,
-  ReportingStateLabel,
-  ValueLabel,
-} from "../common/labels";
+import { CategoryIcon, CategoryLabel, CurrencyTipIcon, ReportingStateLabel, ValueLabel } from "../common/labels";
 import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
@@ -83,7 +77,7 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   const content = hasWinner ? (
     <div className={Styles.WinningOutcome}>
       <span>Winning Outcome</span>
-      <span>{amm.ammOutcomes.find(o => o.id === winner)?.name}</span>
+      <span>{amm.ammOutcomes.find((o) => o.id === winner)?.name}</span>
       {ConfirmedCheck}
     </div>
   ) : (
@@ -113,7 +107,12 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
   );
 };
 
-export const MarketTitleArea = ({ title = null, description = null, startTimestamp, timeFormat = TWELVE_HOUR_TIME }: any) => (
+export const MarketTitleArea = ({
+  title = null,
+  description = null,
+  startTimestamp,
+  timeFormat = TWELVE_HOUR_TIME,
+}: any) => (
   <span>
     <span>
       {!!title && <span>{title}</span>}
@@ -126,20 +125,26 @@ export const MarketTitleArea = ({ title = null, description = null, startTimesta
 export const MarketCardView = ({
   amm,
   market,
+  marketTransactions,
   handleNoLiquidity = (market: MarketInfo) => {},
   noLiquidityDisabled = false,
   timeFormat = TWELVE_HOUR_TIME,
 }: {
   amm: AmmExchange;
   market: MarketInfo;
+  marketTransactions?: any;
   handleNoLiquidity?: Function;
   noLiquidityDisabled?: boolean;
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
-  const formattedApy = amm?.apy && formatPercent(amm.apy).full;
-  const formattedVol = amm?.volumeTotalUSD && formatDai(market.amm?.volumeTotalUSD).full;
-  console.log('amm?.volumeTotalUSD', amm?.volumeTotalUSD)
+  const formattedApy = useMemo(() => marketTransactions?.apy && formatPercent(marketTransactions.apy).full, [
+    marketTransactions?.apy,
+  ]);
+  const formattedVol = useMemo(
+    () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD).full,
+    [marketTransactions?.volumeTotalUSD]
+  );
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
 
   return (

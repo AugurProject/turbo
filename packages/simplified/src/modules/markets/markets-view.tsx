@@ -151,6 +151,7 @@ const MarketsView = () => {
   const {
     ammExchanges,
     markets,
+    transactions,
     loading: dataLoading
   } = useDataStore();
   const { sortBy, categories, reportingState, currency } = marketsViewSettings;
@@ -159,7 +160,6 @@ const MarketsView = () => {
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-
   const marketKeys = Object.keys(markets);
 
   useScrollToTopOnMount(page);
@@ -189,7 +189,7 @@ const MarketsView = () => {
 
   useEffect(() => {
     handleFilterSort();
-  }, [marketKeys]);
+  }, [marketKeys.length]);
 
   let changedFilters = 0;
 
@@ -299,6 +299,7 @@ const MarketsView = () => {
               handleNoLiquidity={handleNoLiquidity}
               noLiquidityDisabled={!isLogged}
               timeFormat={timeFormat}
+              marketTransactions={transactions[market.marketId]}
             />
           ))}
         </section>

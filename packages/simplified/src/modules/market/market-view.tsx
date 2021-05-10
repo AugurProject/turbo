@@ -31,9 +31,7 @@ const {
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
 } = Components;
-const {
-  getSportsResolutionRules
-} = DerivedMarketData;
+const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
@@ -162,6 +160,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
+  const { volume24hrTotalUSD = null, volumeTotalUSD = null } = transactions[marketId] || {};
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -183,11 +182,11 @@ const MarketView = ({ defaultMarket = null }) => {
         <ul className={Styles.StatsRow}>
           <li>
             <span>24hr Volume</span>
-            <span>{formatDai(amm?.volume24hrTotalUSD || "0.00").full}</span>
+            <span>{formatDai(volume24hrTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Total Volume</span>
-            <span>{formatDai(amm?.volumeTotalUSD || "0.00").full}</span>
+            <span>{formatDai(volumeTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Liquidity</span>
