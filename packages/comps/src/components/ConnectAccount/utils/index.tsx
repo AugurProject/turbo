@@ -21,10 +21,10 @@ export const CHAIN_ID_NAMES = {
   137: "Matic.",
 };
 
-const MATIC_MAINNET = 137;
-const MATIC_MUMBAAI = 80001;
-const MATIC_CHAINS = [
-  MATIC_MAINNET, MATIC_MUMBAAI
+export const MATIC_MAINNET = 137;
+export const MATIC_MUMBAI = 80001;
+export const MATIC_CHAINS = [
+  MATIC_MAINNET, MATIC_MUMBAI
 ];
 
 export const isAddress = (value) => {

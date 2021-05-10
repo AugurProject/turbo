@@ -56,6 +56,7 @@ import ParaShareTokenABI from "./ParaShareTokenABI.json";
 import {
   AMMFactory,
   AMMFactory__factory,
+  Cash__factory,
   BPool,
   BPool__factory,
   SportsLinkMarketFactory,
@@ -1086,6 +1087,14 @@ export const getContract = (tokenAddress: string, ABI: any, library: Web3Provide
 const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFactory => {
   const { ammFactory } = PARA_CONFIG;
   return AMMFactory__factory.connect(ammFactory, getProviderOrSigner(library, account));
+};
+
+export const faucetUSDC = async (library: Web3Provider, account?: string) => {
+  const { marketFactories } = PARA_CONFIG;
+  const usdcContract = marketFactories.sportsball.collateral.address;
+  const amount = ethers.BigNumber.from(10).pow(10); // 10k
+  const collateral = Cash__factory.connect(usdcContract, getProviderOrSigner(library, account));
+  await collateral.faucet(amount as BigNumberish);
 };
 
 const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
