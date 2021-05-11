@@ -282,7 +282,7 @@ export const PositionTable = ({
       </div>
       {!seenMarketPositionWarningAdd &&
         singleMarket &&
-        positions.filter((position) => position.positionFromLiquidity).length > 0 && (
+        positions.filter((position) => position.positionFromAddLiquidity).length > 0 && (
           <WarningBanner
             className={Styles.MarginTop}
             title="Why do I have a position after adding liquidity?"

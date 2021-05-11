@@ -582,7 +582,7 @@ export interface PositionBalance extends SimpleBalance {
   totalChangeUsd: string;
   quantity: string;
   visible: boolean;
-  positionFromLiquidity: boolean;
+  positionFromAddLiquidity: boolean;
   positionFromRemoveLiquidity: boolean;
 }
 
