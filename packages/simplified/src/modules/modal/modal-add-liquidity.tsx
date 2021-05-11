@@ -314,7 +314,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       actionButtonText: "Remove all liquidity",
       confirmButtonText: "confirm remove",
       currencyName: SHARES,
-      footerText: `Removing liquidity may returns shares; these shares may be sold for ${chosenCash} if there is still liquidity in the pool. Winning shares can be redeem for ${chosenCash} after the market has finalizes.`,
+      footerText: `Removing liquidity may returns shares; these shares may be sold for ${chosenCash} if there is still liquidity in the pool. Winning shares can be redeemed for ${chosenCash} after the market has finalizes.`,
       breakdown: getCreateBreakdown(true),
       liquidityDetails: {
         title: "Market Liquidity Details",
