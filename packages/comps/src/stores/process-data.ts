@@ -77,8 +77,7 @@ const getActivityType = (
     }
     case TransactionTypes.ADD_LIQUIDITY: {
       type = "Add Liquidity";
-      const { amm } = market;
-      const { totalSupply } = amm;
+      const totalSupply = market?.amm?.totalSupply;
       const poolPct = lpTokenPercentageAmount(
         lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
         lpTokensOnChainToDisplay(totalSupply || "1")
@@ -97,8 +96,7 @@ const getActivityType = (
     }
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
-      const { amm } = market;
-      const { totalSupply } = amm;
+      const totalSupply = market?.amm?.totalSupply;
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
       const poolPct = lpTokenPercentageAmount(
         lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
