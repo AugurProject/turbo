@@ -11,8 +11,6 @@ task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory
   .addParam("homescore", undefined, undefined, types.int)
   .addParam("awayscore", undefined, undefined, types.int)
   .setAction(async ({ marketid, eventid, homescore, awayscore }, hre) => {
-    if (!homescore || !awayscore)
-      throw Error(`homeScore and awayScore are required`);
     const { ethers } = hre;
 
     const signer = await makeSigner(hre);
