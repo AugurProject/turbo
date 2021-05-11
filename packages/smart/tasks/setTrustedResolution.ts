@@ -3,14 +3,14 @@ import { task, types } from "hardhat/config";
 import "hardhat/types/config";
 import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory } from "..";
 import { makeSigner } from "./deploy";
-import { sleep, SportsLinkEventStatus } from "../src";
+import { sleep } from "../src";
 
 task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory")
-  .addParam("marketid", undefined, undefined, types.int)
-  .addParam("eventid", undefined, undefined, types.string)
-  .addParam("homescore", undefined, undefined, types.int)
-  .addParam("awayscore", undefined, undefined, types.int)
-  .setAction(async ({ marketid, eventid, homescore, awayscore }, hre) => {
+  .addParam("market", undefined, undefined, types.int)
+  .addParam("outcomes", undefined, undefined, types.json)
+  .setAction(async ({ turbo: marketId, outcomes }, hre) => {
+    if (!Array.isArray(outcomes) || outcomes.some(isNaN))
+      throw Error(`Outcomes must be an array of strings that represent numbers, not ${outcomes}`);
     const { ethers } = hre;
 
     const signer = await makeSigner(hre);
@@ -18,10 +18,8 @@ task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
     const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventid, SportsLinkEventStatus.Final, homescore, awayscore)
-    );
+    await marketFactory.trustedSetResolution(marketId, outcomes);
     await sleep(10000);
-    const market = await marketFactory.getMarket(marketid);
+    const market = await marketFactory.getMarket(marketId);
     console.log(`Set trusted resolution: ${market.winner}`);
   });
