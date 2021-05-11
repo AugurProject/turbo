@@ -308,7 +308,7 @@ export const PositionTable = ({
 
 const LiquidityHeader = () => (
   <ul className={Styles.LiquidityHeader}>
-    <li>LP tokens owned</li>
+    <li>Share of Liquidity Pool</li>
     <li>init. value</li>
     <li>cur. value</li>
   </ul>
