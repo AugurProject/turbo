@@ -195,7 +195,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       })),
       {
         label: isRemove ? "USDC" : "LP tokens",
-        value: `${formatSimpleShares(breakdown.amount).formatted}`,
+        value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
       },
     ];
 
@@ -325,7 +325,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           },
           {
             label: "your share of the liquidity pool",
-            value: `${formatPercent(breakdown?.poolPct).full}`,
+            value: `${breakdown?.poolPct ? formatPercent(breakdown?.poolPct).full : "-"}`,
           },
         ],
       },

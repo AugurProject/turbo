@@ -255,6 +255,7 @@ export const ApprovalButton = ({
   }
 
   let buttonText = '';
+  let subText = '';
   switch (actionType) {
     case ENTER_POSITION: {
       buttonText = 'Approve to Buy';
@@ -266,6 +267,7 @@ export const ApprovalButton = ({
     }
     case REMOVE_LIQUIDITY: {
       buttonText = 'Approve Removal';
+      subText = '(approve to see removal estimation)'
       break;
     }
     case TRANSFER_LIQUIDITY: {
@@ -281,6 +283,7 @@ export const ApprovalButton = ({
     <ApproveButton
       disabled={isPendingTx}
       text={isPendingTx ? 'Approving...' : buttonText}
+      subText={subText}
       action={() => approve()}
     />
   );
