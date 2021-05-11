@@ -16,11 +16,15 @@ interface MarketLinkProps {
 const RECEIPT_LINKS = {
   42: "https://kovan.etherscan.io/tx/",
   1: "https://etherscan.io/tx/",
+  80001: "https://explorer-mumbai.maticvigil.com/tx/",
+  137: "https://explorer-mainnet.maticvigil.com/tx/",
 };
 
 const ADDRESS_LINKS = {
   42: "https://kovan.etherscan.io/address/",
   1: "https://etherscan.io/address/",
+  80001: "https://explorer-mumbai.maticvigil.com/address",
+  137: "https://explorer-mainnet.maticvigil.com/address",
 };
 
 export const MarketsLink = ({ children, id }: MarketLinkProps) => (
