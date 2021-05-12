@@ -156,7 +156,7 @@ describe("Turbo", () => {
 
     const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a814e10a740000")); // hardcoded from observation
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a814e10a73ffcd")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
@@ -165,9 +165,9 @@ describe("Turbo", () => {
 
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
-    expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91)); // minted 100 sets, burned 9
+    expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91).add(1000)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal("4112930879157688824"); // hardcoded from observation
+    expect(await all.balanceOf(signer.address)).to.equal("4112930879157689821"); // hardcoded from observation
   });
 
   it("can see the outcome ratios in the AMM", async () => {

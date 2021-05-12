@@ -186,6 +186,33 @@ describe("AMMFactory", () => {
   });
 
   describe("addLiquidity", () => {
+    const addLiquidity = async function (collateralAmount: number) {
+      const collateralIn = usdcBasis.mul(collateralAmount);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+    };
+    const addTest = function (a: number, b: number, c: number) {
+      it(`addLiquidity check: ${a}, ${b}, ${c}`, async () => {
+        await addLiquidity(a);
+        await addLiquidity(b);
+        await addLiquidity(c);
+      });
+    };
+
+    const randomValues = [1500, 5000, 100000, 500000, 750000];
+    const numberOfValues = randomValues.length;
+    for (let i = 0; i < Math.pow(randomValues.length, 3); i++) {
+      const s = i.toString(numberOfValues).padStart(3, "0");
+
+      const a = parseInt(s[2], numberOfValues);
+      const b = parseInt(s[1], numberOfValues);
+      const c = parseInt(s[0], numberOfValues);
+
+      addTest(randomValues[a], randomValues[b], randomValues[c]);
+    }
+
     it("with balanced pool", async () => {
       // Use first signer to alter balances in the pool.
       const collateralIn = usdcBasis.mul(1000); // 100 of the collateral
@@ -203,15 +230,7 @@ describe("AMMFactory", () => {
       expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
     });
 
-    it.only("huge amount with balanced pool", async () => {
-      const addLiquidity = async function (collateralAmount: number) {
-        const collateralIn = usdcBasis.mul(collateralAmount); // 50 of the collateral
-        await collateral.faucet(collateralIn);
-        await collateral.approve(ammFactory.address, collateralIn);
-
-        await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
-      };
-
+    it("huge amount with balanced pool", async () => {
       await addLiquidity(5000);
       await addLiquidity(100000);
 
@@ -264,6 +283,12 @@ describe("AMMFactory", () => {
       // Sending the LP tokens to second signer.
       await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
 
+      const sharesBefore = await Promise.all(
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(secondSigner.address).then((r: BigNumber) => r.toString())
+        )
+      );
+
       await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));
 
       const collateralBefore = await collateral.balanceOf(secondSigner.address);
@@ -303,8 +328,10 @@ describe("AMMFactory", () => {
         )
       );
 
-      expect(sharesAfter).to.deep.equal(sharesGained.map((s: BigNumber) => s.toString()));
-      expect(sharesAfter).to.deep.equal(["17630229090909090800", "484905047601", "17630229090909090800"]);
+      expect(sharesAfter).to.deep.equal(
+        sharesGained.map((s: BigNumber, index: number) => s.add(sharesBefore[index]).toString())
+      );
+      expect(sharesAfter).to.deep.equal(["17630229090909091709", "484905048517", "17630229090909091709"]);
     });
 
     it("liquidity removal for collateral and burn sets", async () => {
