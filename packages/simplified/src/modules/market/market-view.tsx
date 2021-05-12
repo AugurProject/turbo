@@ -141,7 +141,7 @@ const MarketView = ({ defaultMarket = null }) => {
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
-  const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
+  // const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
   const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
   // add end time data full to market details when design is ready
   // const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
@@ -192,10 +192,10 @@ const MarketView = ({ defaultMarket = null }) => {
             <span>Liquidity</span>
             <span>{formatDai(amm?.liquidityUSD || "0.00").full}</span>
           </li>
-          <li>
+          {/* <li>
             <span>Expires</span>
             <span>{endTimeDate}</span>
-          </li>
+          </li> */}
         </ul>
         <OutcomesGrid
           outcomes={amm?.ammOutcomes}
