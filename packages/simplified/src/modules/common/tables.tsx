@@ -26,12 +26,12 @@ import getUSDC from "../../utils/get-usdc";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner },
   PaginationComps: { sliceByPage, Pagination },
-  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
+  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton, ApprovalButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getUserLpTokenInitialAmount } = ContractCalls;
+const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
 const { timeSinceTimestamp } = DateUtils;
 const {
@@ -47,6 +47,7 @@ const {
   ETH,
   TABLES,
   TransactionTypes,
+  ApprovalAction
 } = Constants;
 
 interface PositionsTableProps {
@@ -155,6 +156,7 @@ export const PositionFooter = ({
     account,
     loginAccount,
     actions: { addTransaction },
+    balances,
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
   const ammCash = getUSDC(cashes);
@@ -196,6 +198,8 @@ export const PositionFooter = ({
 
   if ((isMobile && !claimableWinnings) || (!claimableWinnings && !showTradeButton)) return null;
 
+  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId].outcomeShares);
+
   return (
     <div className={Styles.PositionFooter}>
       {claimableWinnings && (
@@ -215,6 +219,9 @@ export const PositionFooter = ({
           />
         </>
       )}
+      {hasCompleteSets !== "0" &&  
+          <SecondaryButton text="cash out shares" action={() => cashOutAllShares(account, loginAccount?.library, balances?.marketShares[marketId]?.outcomeSharesRaw, turboId, amm?.shareFactor)} />
+      }
       {!isMobile && showTradeButton && (
         <MarketLink id={marketId} ammId={amm?.id}>
           <SecondaryButton text="trade" />

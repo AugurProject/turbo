@@ -174,7 +174,6 @@ export const {
   REMOVE_LIQUIDITY,
   ENTER_POSITION,
   EXIT_POSITION,
-  TRANSFER_LIQUIDITY,
 } = ApprovalAction;
 
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
@@ -231,11 +230,6 @@ export const ApprovalButton = ({
           text = `Liquidity (${marketCashType})`;
           break;
         }
-        case TRANSFER_LIQUIDITY: {
-          address = amm?.id;
-          text = `Transfer Liquidity`;
-          break;
-        }
         case ADD_LIQUIDITY:
         default: {
           break;
@@ -268,10 +262,6 @@ export const ApprovalButton = ({
     case REMOVE_LIQUIDITY: {
       buttonText = 'Approve Removal';
       subText = '(approve to see removal estimation)'
-      break;
-    }
-    case TRANSFER_LIQUIDITY: {
-      buttonText = 'Approve Transfer';
       break;
     }
     default:

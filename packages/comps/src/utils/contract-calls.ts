@@ -529,6 +529,37 @@ export const claimFees = (
   return marketFactoryContract.claimSettlementFees(account);
 };
 
+export const cashOutAllShares = (
+  account: string,
+  provider: Web3Provider,
+  balancesRaw: string[],
+  marketId: string,
+  shareFactor: string,
+  factories: string // needed for multi market factory
+): Promise<TransactionResponse | null> => {
+  if (!provider) return console.error("cashOutAllShares: no provider");
+  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const shareAmount = BigNumber.min(...balancesRaw);
+  const normalizedAmount = shareAmount
+    .div(new BN(shareFactor))
+    .decimalPlaces(0, 1)
+    .times(new BN(shareFactor))
+    .decimalPlaces(0, 1);
+  console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
+  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, {
+    gasLimit: "800000",
+    gasPrice: "10000000000",
+  });
+};
+
+export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
+  const shares = outcomeShares.map((s, i) => new BN(outcomeShares[i] || "0"));
+  const amount = BigNumber.min(...shares);
+  if (isNaN(amount.toFixed())) return "0";
+  const isDust = amount.lte(DUST_POSITION_AMOUNT);
+  return isDust ? "0" : amount.toFixed();
+};
+
 export const getUserBalances = async (
   provider: Web3Provider,
   account: string,
