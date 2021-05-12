@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
 import classNames from "classnames";
@@ -35,7 +35,7 @@ const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
-  DateUtils: { getMarketEndtimeDate, getMarketEndtimeFull },
+  DateUtils: { getMarketEndtimeFull },
   Formatter: { formatDai },
   PathUtils: { parseQuery },
 } = Utils;
