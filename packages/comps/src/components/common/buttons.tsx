@@ -174,7 +174,6 @@ export const {
   REMOVE_LIQUIDITY,
   ENTER_POSITION,
   EXIT_POSITION,
-  CASH_OUT_SHARES,
 } = ApprovalAction;
 
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
@@ -231,13 +230,6 @@ export const ApprovalButton = ({
           text = `Liquidity (${marketCashType})`;
           break;
         }
-        case CASH_OUT_SHARES: {
-          address = shareToken;
-          spender = amm?.marketFactoryAddress;
-          console.log('shares', address, 'spender', spender)
-          text = `Approve Shares`;
-          break;
-        }
         case ADD_LIQUIDITY:
         default: {
           break;
@@ -270,10 +262,6 @@ export const ApprovalButton = ({
     case REMOVE_LIQUIDITY: {
       buttonText = 'Approve Removal';
       subText = '(approve to see removal estimation)'
-      break;
-    }
-    case CASH_OUT_SHARES: {
-      buttonText = 'Approve Shares';
       break;
     }
     default:

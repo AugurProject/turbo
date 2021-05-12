@@ -176,7 +176,7 @@ export function useScrollToTopOnMount(...optionsTriggers) {
   }, [...optionsTriggers]);
 }
 
-const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION, CASH_OUT_SHARES } = ApprovalAction;
+const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
 export function useApprovalStatus({
   amm,
@@ -223,11 +223,6 @@ export function useApprovalStatus({
         }
         case REMOVE_LIQUIDITY: {
           address = amm?.id;
-          break;
-        }
-        case CASH_OUT_SHARES: {
-          address = outcomeShareToken;
-          spender = amm?.marketFactoryAddress;
           break;
         }
         case ENTER_POSITION:
