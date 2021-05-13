@@ -496,7 +496,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   dontFilterInvalid
-                  hasLiquidity={amm?.hasLiquidity}
+                  hasLiquidity={!mustSetPrices}
                 />
               </>
             )}
