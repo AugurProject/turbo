@@ -26,7 +26,7 @@ import getUSDC from "../../utils/get-usdc";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner },
   PaginationComps: { sliceByPage, Pagination },
-  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton, ApprovalButton },
+  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
@@ -47,7 +47,6 @@ const {
   ETH,
   TABLES,
   TransactionTypes,
-  ApprovalAction
 } = Constants;
 
 interface PositionsTableProps {
@@ -145,26 +144,50 @@ interface PositionFooterProps {
   market: MarketInfo;
   showTradeButton?: boolean;
 }
+
+const AWAITING_CONFIRM = "Waiting for Confirmation";
+const AWAITING_CONFIRM_SUBTEXT = "(Confirm this transaction in your wallet)";
 export const PositionFooter = ({
   claimableWinnings,
-  market: { settlementFee, marketId, amm, marketFactoryAddress, turboId },
+  market: { settlementFee, marketId, amm, marketFactoryAddress, turboId, title, description },
   showTradeButton,
 }: PositionFooterProps) => {
   const { cashes } = useDataStore();
-  const { isMobile } = useAppStatusStore();
   const {
     account,
     loginAccount,
     actions: { addTransaction },
     balances,
+    transactions,
   } = useUserStore();
+  const [pendingCashOut, setPendingCashOut] = useState(false);
   const [pendingClaim, setPendingClaim] = useState(false);
+  const [pendingCashOutHash, setPendingCashOutHash] = useState(null);
+  const [pendingClaimHash, setPendingClaimHash] = useState(null);
   const ammCash = getUSDC(cashes);
   const canClaimETH = useCanExitCashPosition({
     name: ammCash?.name,
     shareToken: ammCash?.sharetoken,
   });
   const isETHClaim = ammCash?.name === ETH;
+  const disableClaim =
+    pendingClaim ||
+    (pendingClaimHash &&
+      Boolean(transactions.find((t) => t.hash === pendingClaimHash && t.status === TX_STATUS.PENDING)));
+  const disableCashOut =
+    pendingCashOut ||
+    (pendingCashOutHash &&
+      Boolean(transactions.find((t) => t.hash === pendingCashOutHash && t.status === TX_STATUS.PENDING)));
+
+  useEffect(() => {
+    if (!disableClaim && pendingClaimHash) {
+      setPendingClaimHash(null);
+    }
+
+    if (!disableCashOut && pendingCashOutHash) {
+      setPendingCashOutHash(null);
+    }
+  }, [pendingCashOutHash, pendingClaimHash, disableClaim, disableCashOut, transactions]);
 
   const claim = async () => {
     if (amm && account) {
@@ -184,45 +207,85 @@ export const PositionFooter = ({
                 from: account,
                 addedTime: new Date().getTime(),
                 message: `Claim Winnings`,
-                marketDescription: amm?.market?.description,
+                marketDescription: `${title} ${description}`,
               });
+              setPendingClaimHash(hash);
             }
           })
           .catch((error) => {
             setPendingClaim(false);
-            console.log("Error when trying to claim winnings: ", error?.message);
+            console.error("Error when trying to claim winnings: ", error?.message);
           });
       }
     }
   };
 
-  if ((isMobile && !claimableWinnings) || (!claimableWinnings && !showTradeButton)) return null;
+  const cashOut = async () => {
+    setPendingCashOut(true);
+    cashOutAllShares(
+      account,
+      loginAccount?.library,
+      balances?.marketShares[marketId]?.outcomeSharesRaw,
+      turboId,
+      amm?.shareFactor
+    )
+      .then((res) => {
+        setPendingCashOut(false);
+        if (res) {
+          const { hash } = res;
+          addTransaction({
+            hash,
+            chainId: loginAccount?.chainId,
+            seen: false,
+            status: TX_STATUS.PENDING,
+            from: account,
+            addedTime: new Date().getTime(),
+            message: `Cashed Out Shares`,
+            marketDescription: `${title} ${description}`,
+          });
+          setPendingCashOutHash(hash);
+        }
+      })
+      .catch((error) => {
+        setPendingCashOut(false);
+        console.error("Error when trying to claim winnings: ", error?.message);
+      });
+  };
+  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares) !== "0";
 
-  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId].outcomeShares);
+  if (!claimableWinnings && !showTradeButton && !hasCompleteSets) return null;
 
   return (
     <div className={Styles.PositionFooter}>
+      <span>
+        {claimableWinnings && <p>{`${formatPercent(settlementFee).full} fee charged on settlement`}</p>}
+        {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
+      </span>
+      {hasCompleteSets && (
+        <PrimaryButton
+          text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
+          action={cashOut}
+          subText={pendingCashOut && AWAITING_CONFIRM_SUBTEXT}
+          disabled={disableCashOut}
+        />
+      )}
       {claimableWinnings && (
         <>
-          <span>{`${formatPercent(settlementFee).full} fee charged on settlement`}</span>
           <PrimaryButton
             text={
               !pendingClaim
                 ? `${isETHClaim && !canClaimETH ? "Approve to " : ""}Claim Winnings (${
                     formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
                   })`
-                : `Waiting for Confirmation`
+                : AWAITING_CONFIRM
             }
-            subText={pendingClaim && `(Confirm this transaction in your wallet)`}
+            subText={pendingClaim && AWAITING_CONFIRM_SUBTEXT}
             action={claim}
-            disabled={pendingClaim}
+            disabled={disableClaim}
           />
         </>
       )}
-      {hasCompleteSets !== "0" &&  
-          <SecondaryButton text="cash out shares" action={() => cashOutAllShares(account, loginAccount?.library, balances?.marketShares[marketId]?.outcomeSharesRaw, turboId, amm?.shareFactor)} />
-      }
-      {!isMobile && showTradeButton && (
+      {showTradeButton && (
         <MarketLink id={marketId} ammId={amm?.id}>
           <SecondaryButton text="trade" />
         </MarketLink>
@@ -236,7 +299,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
     balances: { marketShares },
   } = useUserStore();
   const positions = marketShares
-    ? ((Object.values(marketShares).filter(s => s.positions.length) as unknown[]) as {
+    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
         ammExchange: AmmExchange;
         positions: PositionBalance[];
         claimableWinnings: Winnings;
@@ -643,9 +706,7 @@ const TransactionRow = ({ transaction }: TransactionProps) => (
     <li>
       <AddressLink account={transaction.sender} short />
     </li>
-    <li>
-      {timeSinceTimestamp(transaction.timestamp)}
-    </li>
+    <li>{timeSinceTimestamp(transaction.timestamp)}</li>
   </ul>
 );
 

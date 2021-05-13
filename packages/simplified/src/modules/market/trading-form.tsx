@@ -293,7 +293,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
             from: loginAccount.account,
             addedTime: new Date().getTime(),
             message: `${direction === TradingDirection.ENTRY ? "Buy" : "Sell"} Shares`,
-            marketDescription: amm?.market?.description,
+            marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
           });
         }
       })

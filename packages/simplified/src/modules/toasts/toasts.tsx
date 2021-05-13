@@ -71,7 +71,7 @@ const Toast = ({ toast, markAsSeen }: typeof React.Component) => {
         {confirmed ? 'Confirmed' : 'Failed'}
       </span>
       <p>{toast.message}</p>
-      <h4>{toast.marketDescription}</h4>
+      <h4>{toast.marketDescription.trim()}</h4>
       <button onClick={() => markAsSeen(toast)}>{CloseIcon}</button>
       <ReceiptLink hash={toast.hash} />
     </article>
