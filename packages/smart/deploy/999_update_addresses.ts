@@ -47,7 +47,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         collateral: collateralDetails,
       },
     },
-    sportsLinkProxy: sportsLinkProxy.address
+    sportsLinkProxy: sportsLinkProxy.address,
   };
 
   console.log(JSON.stringify(addresses, null, 2));

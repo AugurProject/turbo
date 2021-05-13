@@ -29,10 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     }
   }
 
-  const sportsLinkProxy = SportsLinkProxy__factory.connect(
-    (await deployments.get("SportsLinkProxy")).address,
-    signer
-  );
+  const sportsLinkProxy = SportsLinkProxy__factory.connect((await deployments.get("SportsLinkProxy")).address, signer);
 
   const currentMarketFactory = await sportsLinkProxy.marketFactory();
   if (marketFactory.address === currentMarketFactory) {
