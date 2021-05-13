@@ -238,6 +238,17 @@
   align-items: center;
   display: grid;
 
+  > span,
+  > button,
+  > a,
+  > a > button {
+    margin-right: @size-12;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
   > span {
     grid-column: 1;
     grid-row: 1;
