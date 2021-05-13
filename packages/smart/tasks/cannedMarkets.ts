@@ -15,10 +15,10 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
   const markets = [
-    { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -5, ou: 200 },
-    { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -3, ou: 30 },
-    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 1, ou: 50 },
-    { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -3, ou: 3 },
+    { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -50, ou: 2000 },
+    { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -30, ou: 300 },
+    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 10, ou: 500 },
+    { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -30, ou: 30 },
   ];
 
   for (const { eventId, homeId, awayId, spread, ou } of markets) {
