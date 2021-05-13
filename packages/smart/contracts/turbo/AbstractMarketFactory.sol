@@ -89,6 +89,10 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         protocolFee = _protocolFee;
 
         _collateral.approve(address(_feePot), MAX_UINT);
+
+        // First market is always empty so that marketid zero means "no market"
+        string[] memory _nothing = new string[](0);
+        markets.push(makeMarket(address(0), _nothing, _nothing, 0));
     }
 
     // function createMarket(address _settlementAddress, uint256 _endTime, ...) public returns (uint256);

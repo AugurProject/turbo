@@ -179,6 +179,10 @@ export const AccountDetails = ({
   }, [account, chainId, transactions]);
 
   useEffect(() => {
+    setChainName(formatChainName(chainId));
+  }, [account, chainId, transactions]);
+
+  useEffect(() => {
     setConnectorName(formatConnectorName(connector));
   }, [account, connector, transactions]);
 

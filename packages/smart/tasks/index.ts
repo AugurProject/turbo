@@ -10,3 +10,4 @@ export * from "./requestScore";
 export * from "./fundLink";
 export * from "./getTeams";
 export * from "./tenderlyVerify";
+export * from "./pokeLink";

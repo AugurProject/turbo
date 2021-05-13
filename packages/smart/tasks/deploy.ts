@@ -60,11 +60,15 @@ declare module "hardhat/types/config" {
   }
 
   export interface HttpNetworkUserConfig {
-    confirmations?: number; // how many confirmations to wait after issuing a transaction
+    linkTokenAddress?: string;
+    linkNode?: string;
+    confirmations?: number;
   }
 
   export interface HttpNetworkConfig {
-    confirmations: number; // how many confirmations to wait after issuing a transaction
+    linkTokenAddress: string; // address of LINK token
+    linkNode: string; // address of link node running cron-initiated jobs to create and resolve markets
+    confirmations: number; // block confirmations before treating a tx as complete. not used in deploy
   }
 }
 
@@ -73,6 +77,12 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
 
   mapOverObject(userConfig.networks, (name, networkConfig) => {
     if (isHttpNetworkUserConfig(networkConfig)) {
+      (config.networks[name] as HttpNetworkConfig).linkTokenAddress =
+        networkConfig.linkTokenAddress === undefined
+          ? "0xC89bD4E1632D3A43CB03AAAd5262cbe4038Bc571" // mainnet addr
+          : networkConfig.linkTokenAddress;
+      (config.networks[name] as HttpNetworkConfig).linkNode =
+        networkConfig.linkNode === undefined ? "" : networkConfig.linkNode;
       (config.networks[name] as HttpNetworkConfig).confirmations =
         networkConfig.confirmations === undefined ? 0 : networkConfig.confirmations;
     }

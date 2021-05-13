@@ -19,7 +19,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const ammFactory = await deployments.get("AMMFactory");
 
-  const theRundownChainlink = await deployments.getOrNull("TheRundownChainlink");
+  const sportsLinkProxy = await deployments.get("SportsLinkProxy");
 
   const [name, symbol, decimals] = collateral.args as [string, string, number];
   const collateralDetails: Collateral = {
@@ -47,10 +47,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         collateral: collateralDetails,
       },
     },
+    sportsLinkProxy: sportsLinkProxy.address,
   };
-  if (theRundownChainlink) {
-    addresses.theRundownChainlink = theRundownChainlink.address;
-  }
 
   console.log(JSON.stringify(addresses, null, 2));
 

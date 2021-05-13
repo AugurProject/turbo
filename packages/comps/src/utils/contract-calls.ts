@@ -1231,7 +1231,7 @@ export const getMarketInfos = async (
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
   let indexes = [];
-  for (let i = 0; i < numMarkets; i++) {
+  for (let i = 1; i < numMarkets; i++) {
     indexes.push(i);
   }
 
@@ -1659,16 +1659,18 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
     marketType,
   } = marketData;
   // translate market data
-  const eventId = String(coEventId); // could be used to group events
+  const eventIdValue = new BN(String(coEventId)).toString(16); // could be used to group events
+  const eventId = `0${eventIdValue}`.slice(-32); // just grab the last 32
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
-  const categories = getSportCategories(homeTeamId);
+  let categories = getSportCategories(homeTeamId);
+  if (!categories) categories = ["Unknown", "Unknown", "Unknown"];
   const line = new BN(String(value0)).toNumber();
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   const homeTeam = getFullTeamName(homeTeamId);
   const awayTeam = getFullTeamName(awayTeamId);
-  const sportId = getSportId(homeTeamId);
+  const sportId = getSportId(homeTeamId) || "4"; // TODO: need to add team so we get correct sportsId
 
   const { shareTokens } = market;
   const outcomes = decodeOutcomes(shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);

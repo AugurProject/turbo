@@ -19,7 +19,8 @@ export interface TeamType {
 export const getTeam = (teamId: string): TeamType => Teams[teamId];
 export const getTeamName = (teamId: string): string => getTeam(teamId)?.name;
 export const getTeamMascot = (teamId: string): string => getTeam(teamId)?.mascot;
-export const getFullTeamName = (teamId: string): string => `${getTeamName(teamId)} ${getTeamMascot(teamId)}`;
+export const getFullTeamName = (teamId: string): string =>
+  `${getTeamName(teamId) || "Unknown"} ${getTeamMascot(teamId) || teamId}`;
 export const getTeamAbbrevation = (teamId: string): string => getTeam(teamId)?.abbrevation;
 export const getSportId = (teamId: string): string => getTeam(teamId)?.sport_id;
 export const getSportName = (teamId: string): SportType => Sports[getSportId(teamId)]?.name;
