@@ -96,9 +96,10 @@ const getActivityType = (
     case TransactionTypes.REMOVE_LIQUIDITY: {
       type = "Remove Liquidity";
       const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
+      const bnPoolAbs = createBigNumber(tx.lpTokens).abs();
       const poolPct = lpTokenPercentageAmount(
-        lpTokensOnChainToDisplay(tx?.lpTokens).abs(),
-        lpTokensOnChainToDisplay(tx?.totalSupply || "1")
+        lpTokensOnChainToDisplay(bnPoolAbs),
+        lpTokensOnChainToDisplay(bnPoolAbs.plus(tx?.totalSupply || "0"))
       );
       const lpTokens = formatLpTokens(poolPct, {
         decimals: 2,
@@ -284,14 +285,13 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
 };
 
 const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
-  const { marketId, amm } = market;
-  const totalSupply = amm?.totalSupply;
+  const { marketId } = market;
   const adds = transactions[marketId]?.addLiquidity;
   return (adds || []).map((add) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
     const poolPct = lpTokenPercentageAmount(
       lpTokensOnChainToDisplay(add?.lpTokens).abs(),
-      lpTokensOnChainToDisplay(totalSupply)
+      lpTokensOnChainToDisplay(add?.totalSupply || "0")
     );
     const lpTokens = formatLpTokens(poolPct, {
       decimals: 2,
@@ -311,14 +311,14 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
 };
 
 const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) => {
-  const { marketId, amm } = market;
-  const totalSupply = amm?.totalSupply || "0";
+  const { marketId } = market;
   const removes = transactions[marketId]?.removeLiquidity;
   return (removes || []).map((remove) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(remove?.collateral, cash.decimals);
+    const bnPoolAbs = createBigNumber(remove.lpTokens).abs();
     const poolPct = lpTokenPercentageAmount(
-      lpTokensOnChainToDisplay(remove?.lpTokens).abs(),
-      lpTokensOnChainToDisplay(totalSupply)
+      lpTokensOnChainToDisplay(bnPoolAbs),
+      lpTokensOnChainToDisplay(bnPoolAbs.plus(remove?.totalSupply || "0"))
     );
     const lpTokens = formatLpTokens(poolPct, {
       decimals: 2,
