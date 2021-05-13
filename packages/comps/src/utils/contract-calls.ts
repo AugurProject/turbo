@@ -1666,7 +1666,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
   let categories = getSportCategories(homeTeamId);
   if (!categories) categories = ["Unknown", "Unknown", "Unknown"];
-  const line = new BN(String(value0)).toNumber();
+  const line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   const homeTeam = getFullTeamName(homeTeamId);
   const awayTeam = getFullTeamName(awayTeamId);
