@@ -219,7 +219,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             from: account,
             addedTime: new Date().getTime(),
             message: `Remove Liquidity`,
-            marketDescription: market.description,
+            marketDescription: `${market?.title} ${market?.description}`,
           });
         })
         .catch((error) => {
@@ -245,7 +245,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             status: TX_STATUS.PENDING,
             addedTime: new Date().getTime(),
             message: `Add Liquidity`,
-            marketDescription: market.description,
+            marketDescription: `${market?.title} ${market?.description}`,
           });
         })
         .catch((error) => {

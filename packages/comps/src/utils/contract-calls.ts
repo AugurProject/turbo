@@ -553,7 +553,7 @@ export const cashOutAllShares = (
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
-  const shares = outcomeShares.map((s, i) => new BN(outcomeShares[i] || "0"));
+  const shares = (outcomeShares || []).map((s, i) => new BN(outcomeShares[i] || "0"));
   const amount = BigNumber.min(...shares);
   if (isNaN(amount.toFixed())) return "0";
   const isDust = amount.lte(DUST_POSITION_AMOUNT);
