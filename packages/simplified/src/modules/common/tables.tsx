@@ -236,7 +236,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
     balances: { marketShares },
   } = useUserStore();
   const positions = marketShares
-    ? ((Object.values(marketShares) as unknown[]) as {
+    ? ((Object.values(marketShares).filter(s => s.positions.length) as unknown[]) as {
         ammExchange: AmmExchange;
         positions: PositionBalance[];
         claimableWinnings: Winnings;
