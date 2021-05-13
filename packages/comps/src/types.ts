@@ -111,6 +111,7 @@ export interface AmmTransaction {
   netShares?: string; // only for add liquidity
   payout?: string;
   fees?: string;
+  totalSupply?: string;
 }
 
 export interface BuySellTransactions {

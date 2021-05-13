@@ -217,6 +217,7 @@ export const GET_TRANSACTIONS = gql`
         timestamp
         collateral
         lpTokens
+        totalSupply
       }
       removeLiquidity {
         id
@@ -230,6 +231,7 @@ export const GET_TRANSACTIONS = gql`
         timestamp
         collateral
         lpTokens
+        totalSupply
         outcomes {
           id
         }
