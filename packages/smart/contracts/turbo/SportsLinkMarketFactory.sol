@@ -12,8 +12,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
-    string version = "0.1"; // mostly to make redeploy easy
-
     event MarketCreated(
         uint256 id,
         address creator,
@@ -50,7 +48,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     // EventId => [MarketId]
     mapping(uint256 => uint256[3]) public events;
 
-    address linkNode;
+    address public linkNode;
     uint256 public sportId;
 
     constructor(

@@ -1,0 +1,171 @@
+{
+  "address": "0x3bB792b97eCE19f125344E4CAE331b2f5a2d0D69",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_marketFactory",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "inputs": [],
+      "name": "getOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "marketFactory",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setMarketFactory",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0xaa389b9e407d07e36fba8d4007070216430bb78fe13e7c72b39c462f475a11e8",
+  "receipt": {
+    "to": null,
+    "from": "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+    "contractAddress": "0x3bB792b97eCE19f125344E4CAE331b2f5a2d0D69",
+    "transactionIndex": 0,
+    "gasUsed": "228001",
+    "logsBloom": "0x00000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000800000000000000000080100000000000000000000000000000000000000000000000000000000000080000400000000000000000000000000000000000000000000000000000000000000000000000000200000000000000020000000000000000001000000000000000000000000004000000000000000000001000000000000000000000000000000100000000000000000000000000040000000000000000000000000000000000000000000100000",
+    "blockHash": "0x37be2099c689df3b942e5f40fedc486bc82a36536eb125ba096e71f4df6cc7f7",
+    "transactionHash": "0xaa389b9e407d07e36fba8d4007070216430bb78fe13e7c72b39c462f475a11e8",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 13774763,
+        "transactionHash": "0xaa389b9e407d07e36fba8d4007070216430bb78fe13e7c72b39c462f475a11e8",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x0000000000000000000000008c9c733ecd48426b9c53c38ccb60f3b307329be1",
+          "0x000000000000000000000000c26880a0af2ea0c7e8130e6ec47af756465452e8"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000001033506444c800000000000000000000000000000000000000000000000004c2c396bdaa0148000000000000000000000000000000000000000000000000667b43c147f26ef97a000000000000000000000000000000000000000000000004c2b3636d45bc80000000000000000000000000000000000000000000000000667b53f49856b3c17a",
+        "logIndex": 0,
+        "blockHash": "0x37be2099c689df3b942e5f40fedc486bc82a36536eb125ba096e71f4df6cc7f7"
+      }
+    ],
+    "blockNumber": 13774763,
+    "cumulativeGasUsed": "228001",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+    "0x965aC87691b7767A66bf00e9969b5638F4dE7b17"
+  ],
+  "solcInputHash": "932d27afdf1322cefd322e0317b48308",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_marketFactory\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"getOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"marketFactory\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newAddress\",\"type\":\"address\"}],\"name\":\"setMarketFactory\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"transferOwnership(address)\":{\"details\":\"Allows the current owner to transfer control of the contract to a newOwner.\",\"params\":{\"_newOwner\":\"The address to transfer ownership to.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/turbo/SportsLinkProxy.sol\":\"SportsLinkProxy\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/proxy/Proxy.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.7.0;\\n\\n/**\\n * @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM\\n * instruction `delegatecall`. We refer to the second contract as the _implementation_ behind the proxy, and it has to\\n * be specified by overriding the virtual {_implementation} function.\\n *\\n * Additionally, delegation to the implementation can be triggered manually through the {_fallback} function, or to a\\n * different contract through the {_delegate} function.\\n *\\n * The success and return data of the delegated call will be returned back to the caller of the proxy.\\n */\\nabstract contract Proxy {\\n    /**\\n     * @dev Delegates the current call to `implementation`.\\n     *\\n     * This function does not return to its internall call site, it will return directly to the external caller.\\n     */\\n    function _delegate(address implementation) internal virtual {\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 { revert(0, returndatasize()) }\\n            default { return(0, returndatasize()) }\\n        }\\n    }\\n\\n    /**\\n     * @dev This is a virtual function that should be overriden so it returns the address to which the fallback function\\n     * and {_fallback} should delegate.\\n     */\\n    function _implementation() internal view virtual returns (address);\\n\\n    /**\\n     * @dev Delegates the current call to the address returned by `_implementation()`.\\n     *\\n     * This function does not return to its internall call site, it will return directly to the external caller.\\n     */\\n    function _fallback() internal virtual {\\n        _beforeFallback();\\n        _delegate(_implementation());\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    fallback () external payable virtual {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data\\n     * is empty.\\n     */\\n    receive () external payable virtual {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @dev Hook that is called before falling back to the implementation. Can happen as part of a manual `_fallback`\\n     * call, or as part of the Solidity `fallback` or `receive` functions.\\n     *\\n     * If overriden should call `super._beforeFallback()`.\\n     */\\n    function _beforeFallback() internal virtual {\\n    }\\n}\\n\",\"keccak256\":\"0x202faa683f33bdc2fdef9c4a75626058974c69b9bee9cb981b09549ce91f0938\",\"license\":\"MIT\"},\"contracts/libraries/IOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.7.6;\\n\\ninterface IOwnable {\\n    function getOwner() external view returns (address);\\n\\n    function transferOwnership(address _newOwner) external returns (bool);\\n}\\n\",\"keccak256\":\"0xace52430f7fd5468e14cb5a8f91f66daa9518d8393b257a3d01c5899d4828000\",\"license\":\"MIT\"},\"contracts/libraries/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.7.6;\\n\\nimport \\\"./IOwnable.sol\\\";\\n\\n/**\\n * @title Ownable\\n * @dev The Ownable contract has an owner address, and provides basic authorization control\\n * functions, this simplifies the implementation of \\\"user permissions\\\".\\n */\\nabstract contract Ownable is IOwnable {\\n    address internal owner;\\n\\n    /**\\n     * @dev The Ownable constructor sets the original `owner` of the contract to the sender\\n     * account.\\n     */\\n    constructor() {\\n        owner = msg.sender;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(msg.sender == owner);\\n        _;\\n    }\\n\\n    function getOwner() public view override returns (address) {\\n        return owner;\\n    }\\n\\n    /**\\n     * @dev Allows the current owner to transfer control of the contract to a newOwner.\\n     * @param _newOwner The address to transfer ownership to.\\n     */\\n    function transferOwnership(address _newOwner) public override onlyOwner returns (bool) {\\n        require(_newOwner != address(0));\\n        onTransferOwnership(owner, _newOwner);\\n        owner = _newOwner;\\n        return true;\\n    }\\n\\n    // Subclasses of this token may want to send additional logs through the centralized Augur log emitter contract\\n    function onTransferOwnership(address, address) internal virtual;\\n}\\n\",\"keccak256\":\"0x65f237e09612478773b06aa74b21364f4ae25b6c419793be79ab9aa0258e57ef\",\"license\":\"MIT\"},\"contracts/turbo/SportsLinkProxy.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.7.6;\\n\\nimport \\\"@openzeppelin/contracts/proxy/Proxy.sol\\\";\\nimport \\\"../libraries/Ownable.sol\\\";\\n\\ncontract SportsLinkProxy is Proxy, Ownable {\\n    address public marketFactory;\\n\\n    constructor(address _owner, address _marketFactory) {\\n        owner = _owner;\\n        marketFactory = _marketFactory;\\n    }\\n\\n    function setMarketFactory(address _newAddress) external onlyOwner {\\n        marketFactory = _newAddress;\\n    }\\n\\n    function _implementation() internal view override returns (address) {\\n        return marketFactory;\\n    }\\n\\n    function onTransferOwnership(address, address) internal override {}\\n}\\n\",\"keccak256\":\"0x1a70314f1fc77829365590e8497b9b42885741b28c86610934d35ed74e2f31b9\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516102dc3803806102dc8339818101604052604081101561003357600080fd5b508051602090910151600080546001600160a01b039384166001600160a01b031991821633178216179091556001805493909216921691909117905561025e8061007e6000396000f3fe6080604052600436106100435760003560e01c806306ae70951461005a5780634dcc434a1461008b578063893d20e8146100be578063f2fde38b146100d357610052565b366100525761005061011a565b005b61005061011a565b34801561006657600080fd5b5061006f610134565b604080516001600160a01b039092168252519081900360200190f35b34801561009757600080fd5b50610050600480360360208110156100ae57600080fd5b50356001600160a01b0316610143565b3480156100ca57600080fd5b5061006f61017c565b3480156100df57600080fd5b50610106600480360360208110156100f657600080fd5b50356001600160a01b031661018b565b604080519115158252519081900360200190f35b610122610132565b61013261012d6101f1565b610200565b565b6001546001600160a01b031681565b6000546001600160a01b0316331461015a57600080fd5b600180546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031690565b600080546001600160a01b031633146101a357600080fd5b6001600160a01b0382166101b657600080fd5b6000546101cc906001600160a01b031683610224565b50600080546001600160a01b0383166001600160a01b03199091161790556001919050565b6001546001600160a01b031690565b3660008037600080366000845af43d6000803e80801561021f573d6000f35b3d6000fd5b505056fea26469706673582212208cd8bf0eaaf3ad1632e5178309f4ec05df30aca17a8dd737eeea202045f108a364736f6c63430007060033",
+  "deployedBytecode": "0x6080604052600436106100435760003560e01c806306ae70951461005a5780634dcc434a1461008b578063893d20e8146100be578063f2fde38b146100d357610052565b366100525761005061011a565b005b61005061011a565b34801561006657600080fd5b5061006f610134565b604080516001600160a01b039092168252519081900360200190f35b34801561009757600080fd5b50610050600480360360208110156100ae57600080fd5b50356001600160a01b0316610143565b3480156100ca57600080fd5b5061006f61017c565b3480156100df57600080fd5b50610106600480360360208110156100f657600080fd5b50356001600160a01b031661018b565b604080519115158252519081900360200190f35b610122610132565b61013261012d6101f1565b610200565b565b6001546001600160a01b031681565b6000546001600160a01b0316331461015a57600080fd5b600180546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b031690565b600080546001600160a01b031633146101a357600080fd5b6001600160a01b0382166101b657600080fd5b6000546101cc906001600160a01b031683610224565b50600080546001600160a01b0383166001600160a01b03199091161790556001919050565b6001546001600160a01b031690565b3660008037600080366000845af43d6000803e80801561021f573d6000f35b3d6000fd5b505056fea26469706673582212208cd8bf0eaaf3ad1632e5178309f4ec05df30aca17a8dd737eeea202045f108a364736f6c63430007060033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "transferOwnership(address)": {
+        "details": "Allows the current owner to transfer control of the contract to a newOwner.",
+        "params": {
+          "_newOwner": "The address to transfer ownership to."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 5403,
+        "contract": "contracts/turbo/SportsLinkProxy.sol:SportsLinkProxy",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 10871,
+        "contract": "contracts/turbo/SportsLinkProxy.sol:SportsLinkProxy",
+        "label": "marketFactory",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}

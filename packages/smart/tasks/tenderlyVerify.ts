@@ -19,10 +19,6 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     {
       name: "Reputation",
       address: deployedAddresses.reputationToken,
-    },
-    {
-      name: "TheRundownChainlink",
-      address: deployedAddresses.theRundownChainlink,
-    },
+    }
   ]);
 });
