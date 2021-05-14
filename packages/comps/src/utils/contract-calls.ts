@@ -908,10 +908,7 @@ export const getLPCurrentValue = async (
   ).catch((error) => console.error("getLPCurrentValue estimation error", error));
 
   if (estimate && estimate.minAmountsRaw) {
-    const totalValueRaw = ammOutcomes.reduce(
-      (p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)),
-      ZERO
-    );
+    const totalValueRaw = ammOutcomes.reduce((p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)), ZERO);
 
     return totalValueRaw.times(amm?.cash?.usdPrice).toFixed();
   }
@@ -1047,8 +1044,7 @@ const accumSharesPrice = (
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
-  if (!transactions || transactions.length === 0)
-    return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
   const result = transactions
     .filter(
       (t) =>
@@ -1075,22 +1071,25 @@ const accumLpSharesPrice = (
   transactions: AddRemoveLiquidity[],
   outcome: string,
   account: string,
-  cutOffTimestamp: number,
-): { shares: BigNumber; cashAmount: BigNumber, totalShares: BigNumber } => {
+  cutOffTimestamp: number
+): { shares: BigNumber; cashAmount: BigNumber; totalShares: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, totalShares: ZERO };
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        let shares =
-          t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : ZERO;
+        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : ZERO;
         if (shares.gt(ZERO) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
           shares = ZERO;
         }
         const cashValue = new BN(t.collateral).abs();
         const total = t.sharesReturned.reduce((p, s) => p.plus(new BN(String(s))), ZERO);
-        return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)), totalShares: p.totalShares.plus(total) };
+        return {
+          shares: p.shares.plus(shares),
+          cashAmount: p.cashAmount.plus(new BN(cashValue)),
+          totalShares: p.totalShares.plus(total),
+        };
       },
       { shares: ZERO, cashAmount: ZERO, totalShares: ZERO }
     );
