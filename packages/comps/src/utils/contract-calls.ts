@@ -999,30 +999,24 @@ const getInitPositionValues = (
   const enterAvgPriceBN = sharesEntered.avgPrice;
 
   // get shares from LP activity
-  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
+  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp, amm.shareFactor);
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
     outcome,
     account,
-    claimTimestamp
+    claimTimestamp,
+    amm.shareFactor
   );
 
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(ZERO);
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(ZERO);
-  const totalLiquidityShares = sharesRemoveLiquidity.totalShares.plus(sharesAddLiquidity.totalShares);
-  const outcomeLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const portion = outcomeLiquidityShares.div(totalLiquidityShares);
-  let netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount).times(portion);
 
-  // TODO: need to know how much collateral didn't get added to pool
-  // in order to get cash amount that went into shares
-  if (sharesRemoveLiquidity.cashAmount.eq(ZERO)) {
-    netLiquidityCashAmounts = ZERO;
-  }
-  // normalize shares amount by div by share factor
+  const outcomeLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
+
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
-    ? netLiquidityCashAmounts.div(outcomeLiquidityShares.div(new BN(amm.shareFactor)))
+    ? ((sharesAddLiquidity.avgPrice.times(sharesAddLiquidity.shares)).plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))).div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
+
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
@@ -1063,7 +1057,7 @@ const accumSharesPrice = (
       },
       { shares: ZERO, cashAmount: ZERO, accumAvgPrice: ZERO }
     );
-  const avgPrice = result.accumAvgPrice.div(result.cashAmount);
+  const avgPrice = result.cashAmount.eq(ZERO) ? ZERO : result.accumAvgPrice.div(result.cashAmount);
   return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
 };
 
@@ -1071,30 +1065,33 @@ const accumLpSharesPrice = (
   transactions: AddRemoveLiquidity[],
   outcome: string,
   account: string,
-  cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber; totalShares: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, totalShares: ZERO };
+  cutOffTimestamp: number,
+  shareFactor: string,
+): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
+  const ShareFactor = new BN(shareFactor);
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
+        const outcomeShares = new BN(t.sharesReturned[Number(outcome)]);
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : ZERO;
+        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? outcomeShares : ZERO;
         if (shares.gt(ZERO) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
-          shares = ZERO;
+          return p;
         }
-        const cashValue = new BN(t.collateral).abs();
-        const total = t.sharesReturned.reduce((p, s) => p.plus(new BN(String(s))), ZERO);
+
+        const cashValue = outcomeShares.eq(ZERO) ? ZERO : outcomeShares.div(ShareFactor).div(new BN(t.sharesReturned.length)).abs();
         return {
           shares: p.shares.plus(shares),
           cashAmount: p.cashAmount.plus(new BN(cashValue)),
-          totalShares: p.totalShares.plus(total),
         };
       },
-      { shares: ZERO, cashAmount: ZERO, totalShares: ZERO }
+      { shares: ZERO, cashAmount: ZERO }
     );
 
-  return result;
+    const avgPrice = result.shares.eq(ZERO) ? ZERO : result.cashAmount.div(result.shares.div(ShareFactor))
+    return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
 };
 
 export const calculateAmmTotalVolApy = (
