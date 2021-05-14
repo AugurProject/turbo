@@ -198,7 +198,7 @@ export const DEFAULT_MARKET_VIEW_SETTINGS = {
   reportingState: OPEN,
   sortBy: STARTS_SOON,
   currency: ALL_CURRENCIES,
-  subCategories: []
+  subCategories: [],
 };
 
 export const CREATE = "create";
