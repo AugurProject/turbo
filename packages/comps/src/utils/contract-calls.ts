@@ -1012,8 +1012,13 @@ const getInitPositionValues = (
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount);
+  let netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount);
   
+  // TODO: need to know how much collateral didn't get added to pool
+  // in order to get cash amount that went into shares
+  if (sharesRemoveLiquidity.cashAmount.eq(new BN(0))) {
+    netLiquidityCashAmounts = new BN(0);
+  }
   // normalize shares amount by div by share factor
   const avgPriceLiquidity = totalLiquidityShares.gt(0) ? netLiquidityCashAmounts.div(totalLiquidityShares.div(new BN(amm.shareFactor))) : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
