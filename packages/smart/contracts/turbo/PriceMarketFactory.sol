@@ -7,7 +7,9 @@ import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
 import "../libraries/IERC20Full.sol";
 
-contract PriceMarketFactory is AbstractMarketFactory {
+// IMPORTANT: This can *ONLY* be used for testing.
+//            The spot price is extremely manipulable.
+contract TestPriceMarketFactory is AbstractMarketFactory {
     using SafeMathUint256 for uint256;
 
     event MarketCreated(uint256 id, address creator, uint256 endTime, uint256 spotPrice);

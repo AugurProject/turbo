@@ -3,8 +3,8 @@ import {
   AMMFactory__factory,
   Cash,
   Cash__factory,
-  PriceMarketFactory,
-  PriceMarketFactory__factory,
+  TestPriceMarketFactory,
+  TestPriceMarketFactory__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
   TrustedMarketFactory,
@@ -29,7 +29,7 @@ export interface ContractInterfaces {
   };
   // TheRundownChainlink: TheRundownChainlink;
 }
-export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | PriceMarketFactory;
+export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | TestPriceMarketFactory;
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
   const contractAddresses = addresses[chainId];
@@ -47,7 +47,7 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
         contract = TrustedMarketFactory__factory.connect(address, signerOrProvider);
         break;
       case "Price":
-        contract = PriceMarketFactory__factory.connect(address, signerOrProvider);
+        contract = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
         break;
     }
     return [name, contract];
