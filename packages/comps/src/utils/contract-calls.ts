@@ -46,6 +46,7 @@ import {
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
   DUST_POSITION_AMOUNT,
+  DUST_POSITION_AMOUNT_ON_CHAIN,
   DAYS_IN_YEAR,
   SEC_IN_DAY,
 } from "./constants";
@@ -853,8 +854,9 @@ const getPositionUsdValues = (
   const postitionResult = getInitPositionValues(marketTransactions, amm, outcome, account, userClaims);
 
   if (postitionResult) {
-    avgPrice = trimDecimalValue(postitionResult.avgPrice);
-    initCostUsd = new BN(postitionResult.avgPrice).times(new BN(quantity)).toFixed(4);
+    result = postitionResult;
+    avgPrice = trimDecimalValue(result.avgPrice);
+    initCostUsd = new BN(result.avgPrice).times(new BN(quantity)).toFixed(4);
   }
 
   let usdChangedValue = new BN(currUsdValue).minus(new BN(initCostUsd));
@@ -1034,7 +1036,7 @@ const accumSharesPrice = (
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) };
   const result = transactions
     .filter(
       (t) =>
@@ -1064,19 +1066,20 @@ const accumLpSharesPrice = (
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
-
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        const shares = t.outcomes && t.outcomes.length > 0 ? new BN(t.outcomes[Number(outcome)]) : new BN(0);
+        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : new BN(0);
+        if (shares.gt(new BN(0)) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
+          shares = new BN(0)
+        }
         const cashValue = new BN(t.collateral);
         return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
       { shares: new BN(0), cashAmount: new BN(0) }
     );
-
   return { shares: result.shares, cashAmount: result.cashAmount };
 };
 
