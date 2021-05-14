@@ -125,3 +125,62 @@
     }
   }
 }
+
+.SubCategoriesFilter {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.SubCategoryFilterButton {
+  .text-12-semi-bold;
+
+  background: transparent;
+  color: var(--simple-secondary-text);
+  border: @size-1 solid var(--simple-border);
+  border-radius: @size-8;
+  padding: @size-4 @size-8;
+  height: @size-25;
+  min-height: @size-25;
+  max-height: @size-25;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+
+  &:not(:first-of-type) {
+    margin-left: @size-12;
+  }
+
+  > svg {
+    height: @size-16;
+    width: @size-16;
+    margin-right: @size-4;
+
+    > path,
+    > g > path {
+      fill: var(--simple-secondary-text);
+    }
+  }
+
+  &:hover {
+    border: @size-1 solid var(--simple-secondary-text);
+    cursor: pointer;
+  }
+
+  &.selectedFilterCategory {
+    color: var(--sports-color);
+    border: @size-1 solid var(--sports-color);
+
+    &:hover {
+      border: @size-1 solid var(--sports-color);
+    }
+  
+
+    > svg {
+      > path,
+      > g > path {
+        fill: var(--sports-color);
+      }
+    }
+  }
+}
