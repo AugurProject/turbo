@@ -1036,7 +1036,8 @@ const accumSharesPrice = (
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) };
+  if (!transactions || transactions.length === 0)
+    return { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) };
   const result = transactions
     .filter(
       (t) =>
@@ -1071,9 +1072,10 @@ const accumLpSharesPrice = (
     .reduce(
       (p, t) => {
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : new BN(0);
+        let shares =
+          t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : new BN(0);
         if (shares.gt(new BN(0)) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
-          shares = new BN(0)
+          shares = new BN(0);
         }
         const cashValue = new BN(t.collateral);
         return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
