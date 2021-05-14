@@ -1012,9 +1012,10 @@ const getInitPositionValues = (
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
-
-  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
+  const netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount);
+  
+  // normalize shares amount by div by share factor
+  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? netLiquidityCashAmounts.div(totalLiquidityShares.div(new BN(amm.shareFactor))) : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
@@ -1077,7 +1078,7 @@ const accumLpSharesPrice = (
         if (shares.gt(new BN(0)) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
           shares = new BN(0);
         }
-        const cashValue = new BN(t.collateral);
+        const cashValue = new BN(t.collateral).abs();
         return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
       { shares: new BN(0), cashAmount: new BN(0) }
