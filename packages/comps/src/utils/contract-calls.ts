@@ -985,6 +985,11 @@ const getUserTransactions = (transactions: AllMarketsTransactions, account: stri
   }, {});
 };
 
+const getDefaultPrice = (outcome: string, weights: string[]) => {
+  const total = weights.reduce((p, w) => p.plus(new BN(w)), ZERO);
+  const weight = new BN(weights[Number(outcome)]);
+  return weight.div(total);
+};
 const getInitPositionValues = (
   marketTransactions: MarketTransactions,
   amm: AmmExchange,
@@ -997,6 +1002,7 @@ const getInitPositionValues = (
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
   const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcomeId, account, claimTimestamp);
   const enterAvgPriceBN = sharesEntered.avgPrice;
+  const defaultAvgPrice = getDefaultPrice(outcome, amm.weights);
 
   // get shares from LP activity
   const sharesAddLiquidity = accumLpSharesPrice(
@@ -1004,14 +1010,16 @@ const getInitPositionValues = (
     outcomeId,
     account,
     claimTimestamp,
-    amm.shareFactor
+    amm.shareFactor,
+    defaultAvgPrice
   );
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
     outcome,
     account,
     claimTimestamp,
-    amm.shareFactor
+    amm.shareFactor,
+    defaultAvgPrice
   );
 
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(ZERO);
@@ -1075,16 +1083,15 @@ const accumLpSharesPrice = (
   outcome: string,
   account: string,
   cutOffTimestamp: number,
-  shareFactor: string
+  shareFactor: string,
+  outcomeDefaultAvgPrice: string
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
-  const ShareFactor = new BN(shareFactor);
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
         const outcomeShares = new BN(t.sharesReturned[Number(outcome)]);
-        // todo: need to figure out price for removing liuidity, prob different than add liquidity
         let shares = t.sharesReturned && t.sharesReturned.length > 0 ? outcomeShares : ZERO;
         if (shares.gt(ZERO) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
           return p;
@@ -1092,7 +1099,7 @@ const accumLpSharesPrice = (
 
         const cashValue = outcomeShares.eq(ZERO)
           ? ZERO
-          : outcomeShares.div(ShareFactor).div(new BN(t.sharesReturned.length)).abs();
+          : outcomeShares.div(new BN(shareFactor)).div(new BN(t.sharesReturned.length)).abs();
         return {
           shares: p.shares.plus(shares),
           cashAmount: p.cashAmount.plus(new BN(cashValue)),
@@ -1101,8 +1108,7 @@ const accumLpSharesPrice = (
       { shares: ZERO, cashAmount: ZERO }
     );
 
-  const avgPrice = result.shares.eq(ZERO) ? ZERO : result.cashAmount.div(result.shares.div(ShareFactor));
-  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
+  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice: new BN(outcomeDefaultAvgPrice) };
 };
 
 export const calculateAmmTotalVolApy = (
