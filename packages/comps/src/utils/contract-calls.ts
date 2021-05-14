@@ -1102,7 +1102,7 @@ export const calculateAmmTotalVolApy = (
   transactions: MarketTransactions = {}
 ): { apy: string; vol: string; vol24hr: string } => {
   const defaultValues = { apy: null, vol: null, vol24hr: null };
-  if (!amm?.id || amm?.totalSupply === "0" || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+  if (!amm?.id || (transactions?.addLiquidity || []).length === 0) return defaultValues;
   const { feeDecimal, liquidityUSD, cash } = amm;
   const timestamp24hr = Math.floor(new Date().getTime() / 1000 - SEC_IN_DAY);
   // calc total volume
@@ -1114,14 +1114,15 @@ export const calculateAmmTotalVolApy = (
   );
   const startTimestamp = Number(sortedAddLiquidity[0].timestamp);
 
-  if (liquidityUSD === 0 || volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
+  if (volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
 
   const totalFeesInUsd = new BN(volumeTotalUSD).times(new BN(feeDecimal));
   const currTimestamp = Math.floor(new Date().getTime() / 1000); // current time in unix timestamp
   const secondsPast = currTimestamp - startTimestamp;
   const pastDays = Math.floor(new BN(secondsPast).div(SEC_IN_DAY).toNumber());
 
-  const tradeFeeLiquidityPerDay = totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
+  const tradeFeeLiquidityPerDay =
+    Number(liquidityUSD || 0) === 0 ? ZERO : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
 
   const tradeFeePerDayInYear = tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
 
