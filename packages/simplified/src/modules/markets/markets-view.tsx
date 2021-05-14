@@ -37,7 +37,7 @@ const {
   sortByItems,
   TOTAL_VOLUME,
   DEFAULT_MARKET_VIEW_SETTINGS,
-  ENDING_SOON,
+  STARTS_SOON,
   RESOLVED,
   IN_SETTLEMENT,
   LIQUIDITY,
@@ -128,15 +128,14 @@ const applyFiltersAndSort = (
       return (bTransactions?.volume24hrTotalUSD || 0) > (aTransactions?.volume24hrTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === LIQUIDITY) {
       return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
-    } else if (sortBy === ENDING_SOON) {
-      return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
+    } else if (sortBy === STARTS_SOON) {
+      return marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1;
     }
     return true;
   });
-  if (sortBy !== ENDING_SOON) {
-    const sortedIlliquid = updatedFilteredMarkets
-      .filter((m) => m?.amm?.id === null)
-      .sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId));
+  if (sortBy !== STARTS_SOON) {
+    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId))
+    ;
     // handle grouping by event Id and resort by liquidity.
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
