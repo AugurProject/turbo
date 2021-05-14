@@ -1012,9 +1012,17 @@ const getInitPositionValues = (
   const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
   const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
   const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
+  let netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount);
 
-  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
+  // TODO: need to know how much collateral didn't get added to pool
+  // in order to get cash amount that went into shares
+  if (sharesRemoveLiquidity.cashAmount.eq(new BN(0))) {
+    netLiquidityCashAmounts = new BN(0);
+  }
+  // normalize shares amount by div by share factor
+  const avgPriceLiquidity = totalLiquidityShares.gt(0)
+    ? netLiquidityCashAmounts.div(totalLiquidityShares.div(new BN(amm.shareFactor)))
+    : new BN(0);
   const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(new BN(0))
     ? avgPriceLiquidity
@@ -1077,7 +1085,7 @@ const accumLpSharesPrice = (
         if (shares.gt(new BN(0)) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
           shares = new BN(0);
         }
-        const cashValue = new BN(t.collateral);
+        const cashValue = new BN(t.collateral).abs();
         return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
       },
       { shares: new BN(0), cashAmount: new BN(0) }
