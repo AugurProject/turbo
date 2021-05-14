@@ -194,7 +194,7 @@ export const MODAL_ADD_LIQUIDITY = "MODAL_ADD_LIQUIDITY";
 export const TURBO_NO_ACCESS_MODAL = "TURBO_NO_ACCESS_MODAL";
 
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
-  primaryCategory: ALL_MARKETS,
+  primaryCategory: SPORTS,
   reportingState: OPEN,
   sortBy: STARTS_SOON,
   currency: ALL_CURRENCIES,
