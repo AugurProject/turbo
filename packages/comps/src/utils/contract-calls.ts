@@ -999,7 +999,13 @@ const getInitPositionValues = (
   const enterAvgPriceBN = sharesEntered.avgPrice;
 
   // get shares from LP activity
-  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp, amm.shareFactor);
+  const sharesAddLiquidity = accumLpSharesPrice(
+    marketTransactions?.addLiquidity,
+    outcomeId,
+    account,
+    claimTimestamp,
+    amm.shareFactor
+  );
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
     outcome,
@@ -1014,7 +1020,10 @@ const getInitPositionValues = (
   const outcomeLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
-    ? ((sharesAddLiquidity.avgPrice.times(sharesAddLiquidity.shares)).plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))).div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+    ? sharesAddLiquidity.avgPrice
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
@@ -1066,7 +1075,7 @@ const accumLpSharesPrice = (
   outcome: string,
   account: string,
   cutOffTimestamp: number,
-  shareFactor: string,
+  shareFactor: string
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
   if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
   const ShareFactor = new BN(shareFactor);
@@ -1081,7 +1090,9 @@ const accumLpSharesPrice = (
           return p;
         }
 
-        const cashValue = outcomeShares.eq(ZERO) ? ZERO : outcomeShares.div(ShareFactor).div(new BN(t.sharesReturned.length)).abs();
+        const cashValue = outcomeShares.eq(ZERO)
+          ? ZERO
+          : outcomeShares.div(ShareFactor).div(new BN(t.sharesReturned.length)).abs();
         return {
           shares: p.shares.plus(shares),
           cashAmount: p.cashAmount.plus(new BN(cashValue)),
@@ -1090,8 +1101,8 @@ const accumLpSharesPrice = (
       { shares: ZERO, cashAmount: ZERO }
     );
 
-    const avgPrice = result.shares.eq(ZERO) ? ZERO : result.cashAmount.div(result.shares.div(ShareFactor))
-    return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
+  const avgPrice = result.shares.eq(ZERO) ? ZERO : result.cashAmount.div(result.shares.div(ShareFactor));
+  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
 };
 
 export const calculateAmmTotalVolApy = (
