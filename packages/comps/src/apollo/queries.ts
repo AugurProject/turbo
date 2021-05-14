@@ -146,6 +146,7 @@ export const CurrentMarket_fields = gql`
         timestamp
         collateral
         lpTokens
+        sharesReturned
       }
       removeLiquidity {
         id
@@ -157,6 +158,7 @@ export const CurrentMarket_fields = gql`
         }
         transactionHash
         timestamp
+        sharesReturned
         outcomes {
           id
         }
@@ -218,6 +220,7 @@ export const GET_TRANSACTIONS = gql`
         collateral
         lpTokens
         totalSupply
+        sharesReturned
       }
       removeLiquidity {
         id
@@ -227,6 +230,7 @@ export const GET_TRANSACTIONS = gql`
         sender {
           id
         }
+        sharesReturned
         transactionHash
         timestamp
         collateral
