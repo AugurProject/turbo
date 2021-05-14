@@ -51,6 +51,7 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
+  transactions,
   { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
@@ -114,12 +115,14 @@ const applyFiltersAndSort = (
   });
 
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+    const aTransactions = transactions ? transactions[marketA.marketId] : {};
+    const bTransactions = transactions ? transactions[marketB.marketId] : {};
     if (sortBy === TOTAL_VOLUME) {
-      return (marketB?.amm?.volumeTotalUSD || 0) > (marketA?.amm?.volumeTotalUSD || 0) ? 1 : -1;
+      return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
-      return (marketB?.amm?.volume24hrTotalUSD || 0) > (marketA?.amm?.volume24hrTotalUSD || 0) ? 1 : -1;
+      return (bTransactions?.volume24hrTotalUSD || 0) > (aTransactions?.volume24hrTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === LIQUIDITY) {
-      return (marketB?.amm?.liquidityUSD || 0) > (marketA?.amm?.liquidityUSD || 0) ? 1 : -1;
+      return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
     } else if (sortBy === ENDING_SOON) {
       return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
     }
@@ -171,6 +174,7 @@ const MarketsView = () => {
     applyFiltersAndSort(
       Object.values(markets),
       setFilteredMarkets,
+      transactions,
       {
         filter,
         categories,
