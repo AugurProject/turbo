@@ -70,6 +70,7 @@
     > div[class*='SearchInput'] {
       height: @size-56;
       opacity: 1;
+      margin-bottom: @size-16;
     }
   }
 }
@@ -91,7 +92,7 @@
 
     > div:nth-of-type(2) {
       display: flex;
-      margin: @size-16 0;
+      margin: @size-4 0;
 
       > button:first-of-type {
         flex: 1;
@@ -112,6 +113,16 @@
     padding: @size-16;
     padding-bottom: @size-40;
 
+    > div:nth-of-type(2) {
+      display: flex;
+      margin: @size-16 0;
+
+      > button:first-of-type {
+        flex: 1;
+        margin-right: @size-8;
+      }
+    }
+
     > ul {
       display: none;
     }
@@ -129,6 +140,7 @@
 .SubCategoriesFilter {
   display: flex;
   flex-flow: row wrap;
+  margin-bottom: -@size-8;
 }
 
 .SubCategoryFilterButton {
@@ -146,9 +158,10 @@
   flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
+  margin-bottom: @size-8;
 
-  &:not(:first-of-type) {
-    margin-left: @size-12;
+  &:not(:last-of-type) {
+    margin-right: @size-12;
   }
 
   > svg {
@@ -181,6 +194,24 @@
       > g > path {
         fill: var(--sports-color);
       }
+    }
+  }
+}
+
+@media @breakpoint-tiny {
+  .SubCategoriesFilter {
+    margin-bottom: @size-8;
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .SubCategoriesFilter {
+    margin-bottom: @size-8;
+  }
+  
+  .SubCategoryFilterButton {
+    &:not(:last-of-type) {
+      margin-right: @size-8;
     }
   }
 }

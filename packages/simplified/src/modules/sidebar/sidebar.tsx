@@ -65,7 +65,7 @@ const FilterSideBar = () => {
             setLocalSettings({ ...localSettings, primaryCategory: value, subCategories: [] });
           }}
           title="categories"
-          selected={localSettings.categories}
+          selected={localSettings.primaryCategory}
           items={categoryItems}
         />
         <RadioBarGroup
@@ -105,7 +105,8 @@ const FilterSideBar = () => {
           text="apply filters"
           action={() => {
             updateMarketsViewSettings({
-              categories: localSettings.categories,
+              primaryCategory: localSettings.primaryCategory,
+              subCategories: localSettings.subCategories,
               sortBy: localSettings.sortBy,
               reportingState: localSettings.reportingState,
               currency: localSettings.currency,
