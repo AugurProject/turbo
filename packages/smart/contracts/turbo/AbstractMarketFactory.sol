@@ -150,6 +150,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 _payout = calcCost(_sharesToBurn);
         uint256 _protocolFee = _payout.mul(_market.protocolFee).div(10**18);
         _payout = _payout.sub(_protocolFee);
+
+        accumulatedProtocolFee += _protocolFee;
         collateral.transfer(_receiver, _payout);
 
         emit SharesBurned(_id, _sharesToBurn, msg.sender);
@@ -170,6 +172,9 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 _settlementFee = _payout.mul(_market.settlementFee).div(10**18);
         uint256 _stakerFee = _payout.mul(_market.stakerFee).div(10**18);
         _payout = _payout.sub(_settlementFee).sub(_stakerFee);
+
+        accumulatedSettlementFees[_market.settlementAddress] += _settlementFee;
+        feePot.depositFees(_stakerFee);
         collateral.transfer(_receiver, _payout);
 
         emit WinningsClaimed(_id, address(_market.winner), _winningShares, _settlementFee, _payout, _receiver);
