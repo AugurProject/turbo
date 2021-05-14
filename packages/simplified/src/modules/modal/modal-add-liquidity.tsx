@@ -333,7 +333,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         title: "What you are Removing",
         breakdown: [
           {
-            label: "LP tokens",
+            label: "Your Share of the Liquidity Pool",
             value: `${formatPercent(breakdown?.poolPct).full}`,
           },
         ],
