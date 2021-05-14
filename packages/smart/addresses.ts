@@ -31,6 +31,7 @@ export enum ChainId {
   HardHat = 31337,
   ArbitrumKovan4 = 212984383488152,
   MaticMumbai = 80001,
+  MaticMainnet = 137,
 }
 type AddressMapping = {
   [id in ChainId]?: Addresses;
@@ -85,5 +86,55 @@ export const addresses: AddressMapping = {
       },
     },
     sportsLinkProxy: "0x38f3d3BaaE988e5d861a5A0C74a41c305A4cE745",
+  },
+  137: {
+    reputationToken: "0xae8aa4252B7DB37935C4d16E3b2A9F3c46d9749d",
+    balancerFactory: "0xafeBD08B1A4473e56e9a17d6F4B060929f29CCA2",
+    ammFactory: "0xaa778a788d44F79580950c022b606Ffc34A99462",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x811160B769EF11ddA9eece4547D23b2271AC4B92",
+        constructorArgs: [
+          "0xDb61C1457e838c08ebd57AC60834628c1c5B902A",
+          "0xe0e14c219965105a7065e88317772c2D5758C120",
+          "1000000000000",
+          "0xD25eF673301B403abbA335c2Fa8Cffb0c966393c",
+          0,
+          "500000000000000",
+          "0xDb61C1457e838c08ebd57AC60834628c1c5B902A",
+          0,
+          "0xDb61C1457e838c08ebd57AC60834628c1c5B902A",
+          4,
+        ],
+        collateral: {
+          address: "0xe0e14c219965105a7065e88317772c2D5758C120",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+      trustme: {
+        type: "Trusted",
+        address: "0x0900e0F42d62B5Ca0d3E58e73826BBdda4960EE5",
+        constructorArgs: [
+          "0xDb61C1457e838c08ebd57AC60834628c1c5B902A",
+          "0xe0e14c219965105a7065e88317772c2D5758C120",
+          "1000000000000",
+          "0xD25eF673301B403abbA335c2Fa8Cffb0c966393c",
+          0,
+          "500000000000000",
+          "0xDb61C1457e838c08ebd57AC60834628c1c5B902A",
+          0,
+        ],
+        collateral: {
+          address: "0xe0e14c219965105a7065e88317772c2D5758C120",
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 6,
+        },
+      },
+    },
+    sportsLinkProxy: "0x233ef1D2c9473B6534aa61c43e3390Ed053b91d4",
   },
 };

@@ -66,6 +66,14 @@ const config: HardhatUserConfig = {
       linkTokenAddress: "0x514910771af9ca656af840dff83e8264ecf986ca", // same as mainnet
       linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
     },
+    maticMainnet: {
+      url: "https://rpc-mainnet.maticvigil.com/",
+      chainId: 137,
+      gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
+      gasPrice: 20000000000,
+      linkTokenAddress: "0x514910771af9ca656af840dff83e8264ecf986ca", // same as mainnet
+      linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
+    },
   },
   contractDeploy: {
     strategy: "test",
