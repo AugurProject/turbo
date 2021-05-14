@@ -194,10 +194,11 @@ export const MODAL_ADD_LIQUIDITY = "MODAL_ADD_LIQUIDITY";
 export const TURBO_NO_ACCESS_MODAL = "TURBO_NO_ACCESS_MODAL";
 
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
-  categories: ALL_MARKETS,
+  primaryCategory: ALL_MARKETS,
   reportingState: OPEN,
   sortBy: TOTAL_VOLUME,
   currency: ALL_CURRENCIES,
+  subCategories: []
 };
 
 export const CREATE = "create";

@@ -52,7 +52,7 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
+  { filter, primaryCategory, sortBy, currency, reportingState, showLiquidMarkets },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -84,13 +84,13 @@ const applyFiltersAndSort = (
     //   return false;
     // }
     if (
-      categories !== ALL_MARKETS &&
-      categories !== OTHER &&
-      market.categories[0].toLowerCase() !== categories.toLowerCase()
+      primaryCategory !== ALL_MARKETS &&
+      primaryCategory !== OTHER &&
+      market.categories[0].toLowerCase() !== primaryCategory.toLowerCase()
     ) {
       return false;
     }
-    if (categories === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
+    if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
       return false;
     }
     if (currency !== ALL_CURRENCIES) {
@@ -157,7 +157,7 @@ const MarketsView = () => {
     transactions,
     loading: dataLoading
   } = useDataStore();
-  const { sortBy, categories, reportingState, currency } = marketsViewSettings;
+  const { sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
@@ -177,7 +177,7 @@ const MarketsView = () => {
       transactions,
       {
         filter,
-        categories,
+        primaryCategory,
         sortBy,
         currency,
         reportingState,
@@ -189,7 +189,7 @@ const MarketsView = () => {
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf()]);
+  }, [sortBy, filter, primaryCategory, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
@@ -240,10 +240,10 @@ const MarketsView = () => {
       <ul>
         <SquareDropdown
           onChange={(value) => {
-            updateMarketsViewSettings({ categories: value });
+            updateMarketsViewSettings({ primaryCategory: value, subCategories: [] });
           }}
           options={categoryItems}
-          defaultValue={categories}
+          defaultValue={primaryCategory}
         />
         <SquareDropdown
           onChange={(value) => {

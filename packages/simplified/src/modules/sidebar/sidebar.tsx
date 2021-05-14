@@ -62,7 +62,7 @@ const FilterSideBar = () => {
       <div className={Styles.Body}>
         <RadioBarGroup
           update={(value) => {
-            setLocalSettings({ ...localSettings, categories: value });
+            setLocalSettings({ ...localSettings, primaryCategory: value, subCategories: [] });
           }}
           title="categories"
           selected={localSettings.categories}
