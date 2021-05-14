@@ -183,9 +183,13 @@ export const categoryItems = [
 
 export const TOTAL_VOLUME: string = "Total Volume";
 export const TWENTY_FOUR_HOUR_VOLUME: string = "24hr volume";
-export const ENDING_SOON: string = "ending soon";
+export const STARTS_SOON: string = "starts soon";
 
 export const sortByItems = [
+  {
+    label: STARTS_SOON,
+    value: STARTS_SOON,
+  },
   {
     label: TOTAL_VOLUME,
     value: TOTAL_VOLUME,
@@ -197,10 +201,6 @@ export const sortByItems = [
   {
     label: LIQUIDITY,
     value: LIQUIDITY,
-  },
-  {
-    label: ENDING_SOON,
-    value: ENDING_SOON,
   },
 ];
 
