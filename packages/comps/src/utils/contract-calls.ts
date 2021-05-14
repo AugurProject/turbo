@@ -49,6 +49,7 @@ import {
   DUST_POSITION_AMOUNT_ON_CHAIN,
   DAYS_IN_YEAR,
   SEC_IN_DAY,
+  ZERO,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -480,7 +481,7 @@ export async function doTrade(
     }
     let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
     if (onChainMinAmount.lt(0)) {
-      onChainMinAmount = new BN(0);
+      onChainMinAmount = ZERO;
     }
 
     console.log(
@@ -907,10 +908,7 @@ export const getLPCurrentValue = async (
   ).catch((error) => console.error("getLPCurrentValue estimation error", error));
 
   if (estimate && estimate.minAmountsRaw) {
-    const totalValueRaw = ammOutcomes.reduce(
-      (p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)),
-      new BN(0)
-    );
+    const totalValueRaw = ammOutcomes.reduce((p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)), ZERO);
 
     return totalValueRaw.times(amm?.cash?.usdPrice).toFixed();
   }
@@ -1009,24 +1007,26 @@ const getInitPositionValues = (
     claimTimestamp
   );
 
-  const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
-  const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
-  const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  let netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount);
+  const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(ZERO);
+  const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(ZERO);
+  const totalLiquidityShares = sharesRemoveLiquidity.totalShares.plus(sharesAddLiquidity.totalShares);
+  const outcomeLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
+  const portion = outcomeLiquidityShares.div(totalLiquidityShares);
+  let netLiquidityCashAmounts = sharesAddLiquidity.cashAmount.minus(sharesRemoveLiquidity.cashAmount).times(portion);
 
   // TODO: need to know how much collateral didn't get added to pool
   // in order to get cash amount that went into shares
-  if (sharesRemoveLiquidity.cashAmount.eq(new BN(0))) {
-    netLiquidityCashAmounts = new BN(0);
+  if (sharesRemoveLiquidity.cashAmount.eq(ZERO)) {
+    netLiquidityCashAmounts = ZERO;
   }
   // normalize shares amount by div by share factor
-  const avgPriceLiquidity = totalLiquidityShares.gt(0)
-    ? netLiquidityCashAmounts.div(totalLiquidityShares.div(new BN(amm.shareFactor)))
-    : new BN(0);
-  const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
-  const weightedAvgPrice = totalShares.gt(new BN(0))
+  const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
+    ? netLiquidityCashAmounts.div(outcomeLiquidityShares.div(new BN(amm.shareFactor)))
+    : ZERO;
+  const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
+  const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(totalLiquidityShares)
+        .times(outcomeLiquidityShares)
         .div(totalShares)
         .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
@@ -1044,8 +1044,7 @@ const accumSharesPrice = (
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
-  if (!transactions || transactions.length === 0)
-    return { shares: new BN(0), cashAmount: new BN(0), avgPrice: new BN(0) };
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
   const result = transactions
     .filter(
       (t) =>
@@ -1062,7 +1061,7 @@ const accumSharesPrice = (
           accumAvgPrice,
         };
       },
-      { shares: new BN(0), cashAmount: new BN(0), accumAvgPrice: new BN(0) }
+      { shares: ZERO, cashAmount: ZERO, accumAvgPrice: ZERO }
     );
   const avgPrice = result.accumAvgPrice.div(result.cashAmount);
   return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
@@ -1073,24 +1072,29 @@ const accumLpSharesPrice = (
   outcome: string,
   account: string,
   cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+): { shares: BigNumber; cashAmount: BigNumber; totalShares: BigNumber } => {
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, totalShares: ZERO };
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
         // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        let shares =
-          t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : new BN(0);
-        if (shares.gt(new BN(0)) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
-          shares = new BN(0);
+        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? new BN(t.sharesReturned[Number(outcome)]) : ZERO;
+        if (shares.gt(ZERO) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
+          shares = ZERO;
         }
         const cashValue = new BN(t.collateral).abs();
-        return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
+        const total = t.sharesReturned.reduce((p, s) => p.plus(new BN(String(s))), ZERO);
+        return {
+          shares: p.shares.plus(shares),
+          cashAmount: p.cashAmount.plus(new BN(cashValue)),
+          totalShares: p.totalShares.plus(total),
+        };
       },
-      { shares: new BN(0), cashAmount: new BN(0) }
+      { shares: ZERO, cashAmount: ZERO, totalShares: ZERO }
     );
-  return { shares: result.shares, cashAmount: result.cashAmount };
+
+  return result;
 };
 
 export const calculateAmmTotalVolApy = (
@@ -1128,7 +1132,7 @@ const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoff
   const { trades } = transactions;
   const totalCollateral = (trades || []).reduce(
     (p, b) => (b.timestamp > cutoffTimestamp ? p.plus(new BN(b.collateral).abs()) : p),
-    new BN(0)
+    ZERO
   );
   return convertOnChainCashAmountToDisplayCashAmount(totalCollateral, cash.decimals);
 };
@@ -1615,7 +1619,7 @@ const getTotalLiquidity = (prices: string[], balances: string[]) => {
   const outcomeLiquidity = prices.map((p, i) =>
     new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
   );
-  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), new BN(0)).toFixed(4);
+  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), ZERO).toFixed(4);
 };
 
 const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
@@ -1628,7 +1632,7 @@ const calculatePrices = (ratios: string[] = [], weights: string[] = []): string[
   //price[0] = ratio[0] / sum(ratio)
   const base = ratios.length > 0 ? ratios : weights;
   if (base.length > 0) {
-    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
+    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), ZERO);
     outcomePrices = base.map((r) => new BN(String(r)).div(sum).toFixed());
   }
   return outcomePrices;

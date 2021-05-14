@@ -133,6 +133,7 @@ export interface AddRemoveLiquidity {
   timestamp: string;
   transactionHash: string;
   outcomes: string[];
+  sharesReturned: string[];
 }
 
 export interface ClaimWinningsTransactions {
