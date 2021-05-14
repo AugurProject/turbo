@@ -124,7 +124,7 @@ const applyFiltersAndSort = (
     } else if (sortBy === LIQUIDITY) {
       return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
     } else if (sortBy === STARTS_SOON) {
-      return marketA?.startTimestamp < marketB?.startTimestamp ? 1 : -1;
+      return marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1;
     }
     return true;
   });
