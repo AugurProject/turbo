@@ -44,6 +44,7 @@ const {
   MARKET_STATUS,
   TWENTY_FOUR_HOUR_VOLUME,
   CREATE,
+  SPORTS,
   MODAL_ADD_LIQUIDITY,
 } = Constants;
 
@@ -53,7 +54,7 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  { filter, primaryCategory, sortBy, currency, reportingState, showLiquidMarkets }
+  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -92,6 +93,9 @@ const applyFiltersAndSort = (
       return false;
     }
     if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
+      return false;
+    }
+    if (primaryCategory === SPORTS && subCategories.length > 0 && market.categories[market.categories.length - 1].toLowerCase() !== subCategories[subCategories.length - 1].toLowerCase()) {
       return false;
     }
     if (currency !== ALL_CURRENCIES) {
@@ -152,7 +156,7 @@ const MarketsView = () => {
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
   const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
-  const { sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
+  const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
@@ -169,6 +173,7 @@ const MarketsView = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, {
       filter,
       primaryCategory,
+      subCategories,
       sortBy,
       currency,
       reportingState,
@@ -179,7 +184,7 @@ const MarketsView = () => {
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, primaryCategory, reportingState, currency, showLiquidMarkets.valueOf()]);
+  }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
