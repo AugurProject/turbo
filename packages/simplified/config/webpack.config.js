@@ -244,6 +244,12 @@ module.exports = function (webpackEnv) {
             },
             mangle: {
               safari10: true,
+              reserved: [
+                'console.log', 
+                'console.info', 
+                'console.debug', 
+                'console.warn'
+              ],
             },
             // Added for profiling in devtools
             keep_classnames: isEnvProductionProfile,
