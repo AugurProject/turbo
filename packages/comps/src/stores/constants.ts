@@ -4,8 +4,8 @@ import { addresses } from "@augurproject/smart";
 export const PARA_CONFIG: ParaDeploys =
   // @ts-ignore
   {
-    networkId: "80001",
-    ...addresses["80001"],
+    networkId: "137",
+    ...addresses["137"],
   } as ParaDeploys;
 
 export const STUBBED_GRAPH_DATA_ACTIONS = {
