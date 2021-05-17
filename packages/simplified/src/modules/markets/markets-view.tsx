@@ -82,9 +82,6 @@ const applyFiltersAndSort = (
     if (showLiquidMarkets && (!market.amm || !market.amm.hasLiquidity)) {
       return false;
     }
-    // if (market.isInvalid) {
-    //   return false;
-    // }
     if (
       primaryCategory !== ALL_MARKETS &&
       primaryCategory !== OTHER &&
@@ -122,6 +119,7 @@ const applyFiltersAndSort = (
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
     const aTransactions = transactions ? transactions[marketA.marketId] : {};
     const bTransactions = transactions ? transactions[marketB.marketId] : {};
+    const mod = reportingState === RESOLVED ? -1 : 1;
     if (sortBy === TOTAL_VOLUME) {
       return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
@@ -129,7 +127,7 @@ const applyFiltersAndSort = (
     } else if (sortBy === LIQUIDITY) {
       return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
     } else if (sortBy === STARTS_SOON) {
-      return marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1;
+      return (marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1) * mod;
     }
     return true;
   });
