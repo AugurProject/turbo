@@ -34,7 +34,7 @@ const {
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
 const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
-const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
+const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
 const { timeSinceTimestamp } = DateUtils;
 const {
   MODAL_ADD_LIQUIDITY,
@@ -396,7 +396,7 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
     <ul className={Styles.LiquidityRow}>
       <li>{formatPercent(liquidity.poolPct).full}</li>
       <li>{formatDai(initCostUsd).full}</li>
-      <li>{formatDai(liquidity.usdValue).full}</li>
+      <li>{formatLiquidity(liquidity.usdValue).full}</li>
     </ul>
   );
 };

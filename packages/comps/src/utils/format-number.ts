@@ -233,6 +233,22 @@ export function formatDai(num: NumStrBigNumber, opts: FormattedNumberOptions = {
   });
 }
 
+export function formatLiquidity(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+  return formatNumber(num, {
+    decimals: 0,
+    decimalsRounded: 0,
+    denomination: (v) => {
+      return `${"$"}${v}`;
+    },
+    positiveSign: false,
+    zeroStyled: false,
+    blankZero: false,
+    bigUnitPostfix: false,
+    ...opts,
+  });
+}
+
+
 export function formatRep(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
   return formatNumber(num, {
     decimals: 4,

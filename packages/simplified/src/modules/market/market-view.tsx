@@ -34,11 +34,11 @@ const {
 } = Components;
 const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
-const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
+const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const { Utils: { isMarketFinal } } = Stores;
 const {
   DateUtils: { getMarketEndtimeFull },
-  Formatter: { formatDai },
+  Formatter: { formatDai, formatLiquidity },
   PathUtils: { parseQuery },
 } = Utils;
 const { getCombinedMarketTransactionsFormatted } = ProcessData;
@@ -193,7 +193,7 @@ const MarketView = ({ defaultMarket = null }) => {
           </li>
           <li>
             <span>Liquidity</span>
-            <span>{formatDai(amm?.liquidityUSD || "0.00").full}</span>
+            <span>{formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
           </li>
           {/* <li>
             <span>Expires</span>
