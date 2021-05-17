@@ -11,6 +11,7 @@ import {
   SimpleBalance,
   Winnings,
 } from "../types";
+import { getClaimAllMessage } from '../portfolio/portfolio-view';
 import {
   useAppStatusStore,
   useDataStore,
@@ -170,10 +171,12 @@ export const PositionFooter = ({
     shareToken: ammCash?.sharetoken,
   });
   const isETHClaim = ammCash?.name === ETH;
+  
   const disableClaim =
     pendingClaim ||
     (pendingClaimHash &&
-      Boolean(transactions.find((t) => t.hash === pendingClaimHash && t.status === TX_STATUS.PENDING)));
+      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash)))));
+
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
