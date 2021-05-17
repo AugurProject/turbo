@@ -409,7 +409,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   return (
     <div className={Styles.LiquidityFooter}>
       <PrimaryButton
-        text="remove liquidity"
+        text="Remove Liquidity"
         action={() =>
           setModal({
             type: MODAL_ADD_LIQUIDITY,
@@ -420,7 +420,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
         }
       />
       <SecondaryButton
-        text="add liquidity"
+        text={isfinal ? "Market Resolved" : "Add Liquidity"}
         disabled={isfinal}
         action={() =>
           !isfinal && setModal({
