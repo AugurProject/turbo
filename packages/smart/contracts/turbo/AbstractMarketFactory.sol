@@ -145,7 +145,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         }
 
         uint256 _payout = calcCost(_sharesToBurn);
-        uint256 _protocolFee = _payout * _market.protocolFee / (10**18);
+        uint256 _protocolFee = (_payout * _market.protocolFee) / (10**18);
         _payout -= _protocolFee;
 
         accumulatedProtocolFee += _protocolFee;
@@ -166,8 +166,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
         uint256 _payout = calcCost(_winningShares);
-        uint256 _settlementFee = _payout * _market.settlementFee / (10**18);
-        uint256 _stakerFee = _payout * _market.stakerFee / (10**18);
+        uint256 _settlementFee = (_payout * _market.settlementFee) / (10**18);
+        uint256 _stakerFee = (_payout * _market.stakerFee) / (10**18);
         _payout -= _settlementFee - _stakerFee;
 
         accumulatedSettlementFees[_market.settlementAddress] += _settlementFee;

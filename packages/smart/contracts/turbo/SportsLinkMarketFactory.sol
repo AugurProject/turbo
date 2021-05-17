@@ -430,7 +430,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         // Lowest bit is _createSpread.
         // Second-lowest bit is _createTotal.
         _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
-        _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
+        _createTotal = _creationFlags & 0x2 != 0; // 0b000000x0
     }
 
     function encodeResolution(

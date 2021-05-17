@@ -40,7 +40,7 @@ contract FeePot is ERC20 {
             _amount += feeReserve;
             feeReserve = 0;
         }
-        magnifiedFeesPerShare += _amount * magnitude / _totalSupply;
+        magnifiedFeesPerShare += (_amount * magnitude) / _totalSupply;
         return true;
     }
 

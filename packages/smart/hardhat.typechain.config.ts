@@ -6,7 +6,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import { SOLIDITY } from "./hardhatCommon";
 
 const config: HardhatUserConfig = {
-  solidity: SOLIDITY
+  solidity: SOLIDITY,
 };
 
 export default config;
