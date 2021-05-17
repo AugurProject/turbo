@@ -1,11 +1,12 @@
 import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../types";
 import { addresses } from "@augurproject/smart";
 
+export const DEFAULT_NETWORK_ID = process.env.DEFAULT_NETWORK_ID || "80001";
 export const PARA_CONFIG: ParaDeploys =
   // @ts-ignore
   {
-    networkId: "137",
-    ...addresses["137"],
+    networkId: DEFAULT_NETWORK_ID,
+    ...addresses[DEFAULT_NETWORK_ID],
   } as ParaDeploys;
 
 export const STUBBED_GRAPH_DATA_ACTIONS = {

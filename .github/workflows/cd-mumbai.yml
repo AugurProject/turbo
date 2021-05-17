@@ -48,7 +48,7 @@ jobs:
       - run: yarn
       - run: yarn build
       
-      - run: NODE_OPTIONS="--max_old_space_size=6144" yarn simp build
+      - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn simp build
       
       - name: Deploy to AWS
         uses: onramper/action-deploy-aws-static-site@v1
