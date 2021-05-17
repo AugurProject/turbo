@@ -14,6 +14,7 @@ import {
   ButtonComps,
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
+import { Cash } from '@augurproject/comps/build/types';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -53,6 +54,9 @@ const calculateTotalWinnings = (claimbleMarketsPerCash) => {
   };
 };
 
+export const getClaimAllMessage = (cash: Cash): string => `Claim All ${cash?.name} Winnings`;
+export const getClaimFeesMessage = (cash: Cash): string => `Claim All ${cash?.name} Fees`;
+
 const handleClaimAll = (
   loginAccount,
   cash,
@@ -79,7 +83,7 @@ const handleClaimAll = (
             status: TX_STATUS.PENDING,
             from,
             addedTime: new Date().getTime(),
-            message: `Claim All ${cash.name} Winnings`,
+            message: getClaimAllMessage(cash),
             marketDescription: '',
           });
         }
@@ -117,7 +121,7 @@ const handleClaimFees = (
             status: TX_STATUS.PENDING,
             from,
             addedTime: new Date().getTime(),
-            message: `Claim All ${cash.name} Fees`,
+            message: getClaimFeesMessage(cash),
             marketDescription: '',
           });
         }
@@ -134,6 +138,7 @@ export const ClaimWinningsSection = () => {
   const {
     balances: { marketShares, claimableFees },
     loginAccount,
+    transactions,
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
@@ -153,6 +158,12 @@ export const ClaimWinningsSection = () => {
   // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
   const hasClaimableFees = createBigNumber(claimableFees).gt(0);
+  const disableClaimUSDCWins =
+  pendingClaim ||
+    Boolean(transactions.find((t) => t.message === getClaimAllMessage(usdcCash) && t.status === TX_STATUS.PENDING));
+  const disableClaimUSDCFees =
+  pendingClaimFees ||
+      Boolean(transactions.find((t) => t.message === getClaimFeesMessage(usdcCash) && t.status === TX_STATUS.PENDING));
 
   return (
     <div className={Styles.ClaimableWinningsSection}>
@@ -166,7 +177,7 @@ export const ClaimWinningsSection = () => {
               : `Waiting for Confirmation`
           }
           subText={pendingClaim && `(Confirm this transaction in your wallet)`}
-          disabled={pendingClaim}
+          disabled={disableClaimUSDCWins}
           icon={!pendingClaim && UsdIcon}
           action={() => {
             handleClaimAll(
@@ -205,7 +216,7 @@ export const ClaimWinningsSection = () => {
           text={!pendingClaimFees ? `Claim Fees (${
             formatCash(claimableFees, USDC).full
           })` : `Waiting for Confirmation`}
-          // icon={EthIcon}
+          disabled={disableClaimUSDCFees}
           action={() => {
             handleClaimFees(
               loginAccount,
