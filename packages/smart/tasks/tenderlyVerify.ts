@@ -5,7 +5,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
   const { chainId } = await hre.ethers.provider.getNetwork();
 
   const deployedAddresses = addresses[chainId as ChainId];
-  if (!deployedAddresses) return;
+  if (!deployedAddresses) return console.warn(`No contracts known for chainid "${chainId}"`);
 
   await hre.tenderly.verify([
     {
@@ -19,6 +19,10 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     {
       name: "Reputation",
       address: deployedAddresses.reputationToken,
+    },
+    {
+      name: "SportsLinkMarketFactory",
+      address: deployedAddresses.marketFactories["sportsball"].address,
     },
   ]);
 });
