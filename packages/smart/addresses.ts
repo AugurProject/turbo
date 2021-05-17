@@ -39,7 +39,7 @@ export const addresses: AddressMapping = {
   80001: {
     reputationToken: "0xD4fB02358d9694539eeD446E6531b1fFbA9b6931",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
-    ammFactory: "0x6F35cC6b6e66E4Feeee515F16F16e39bF705b0D0",
+    ammFactory: "0x657e19AC3C6F305979b9968f3E49e422f0E232C6",
     marketFactories: {
       sportsball: {
         type: "SportsLink",
@@ -65,15 +65,15 @@ export const addresses: AddressMapping = {
       },
       trustme: {
         type: "Trusted",
-        address: "0x6b0B5E33a3549c6a79061F76DeE1B631315219a3",
+        address: "0x75b8Ec997f12E4099C49E91527C6bE2929482650",
         constructorArgs: [
-          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
           "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
           "1000000000000",
           "0xEaAbF3E7C974f33354779232BC2d135B7C2CcAB7",
           0,
           "500000000000000",
-          "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1",
+          "0x5Cfc719AD2d969e0A005541D6a562dae4a618A20",
           0,
         ],
         collateral: {
@@ -84,6 +84,6 @@ export const addresses: AddressMapping = {
         },
       },
     },
-    sportsLinkProxy: "0x3bB792b97eCE19f125344E4CAE331b2f5a2d0D69",
+    sportsLinkProxy: "0x38f3d3BaaE988e5d861a5A0C74a41c305A4cE745",
   },
 };
