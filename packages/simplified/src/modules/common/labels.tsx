@@ -12,9 +12,12 @@ import {
   Constants,
   PARA_CONFIG,
   LabelComps,
+  Stores,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-
+const {
+  Utils: { isMarketFinal }
+} = Stores;
 const {
   CREATE,
   USDC,
@@ -79,7 +82,7 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
           });
         }
       }}
-      disabled={!isLogged}
+      disabled={!isLogged || isMarketFinal(market)}
     >
       <span>
         {PlusIcon}
@@ -109,7 +112,7 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
           });
         }
       }}
-      disabled={!isLogged}
+      disabled={!isLogged || isMarketFinal(market)}
     >
       {currency === USDC ? USDCIcon : EthIcon}
       {`Create this market in ${currency}`}
