@@ -63,6 +63,7 @@ import {
   arrayToKeyedObject,
   arrayToKeyedObjectByProp,
   useApprovalStatus,
+  isMarketFinal,
 } from './stores/utils';
 import * as _ApprovalHooks from './stores/use-approval-callback';
 import * as _GraphClient from './apollo/client';
@@ -105,6 +106,7 @@ export const Stores = {
     keyedObjToKeyArray,
     arrayToKeyedObject,
     arrayToKeyedObjectByProp,
+    isMarketFinal,
   },
   Constants: _StoreConstants
 };

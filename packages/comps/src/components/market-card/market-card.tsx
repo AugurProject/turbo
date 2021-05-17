@@ -10,6 +10,7 @@ import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
+import { isMarketFinal } from '../../stores/utils';
 
 export const LoadingMarketCard = () => {
   return (
@@ -153,7 +154,7 @@ export const MarketCardView = ({
         [Styles.NoLiquidity]: !amm?.id,
       })}
       onClick={() => {
-        !amm?.id && handleNoLiquidity(market);
+        !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
       }}
     >
       <div>

@@ -22,6 +22,7 @@ import {
   Formatter,
   ContractCalls,
   Components,
+  Stores,
 } from "@augurproject/comps";
 import getUSDC from "../../utils/get-usdc";
 const {
@@ -49,6 +50,9 @@ const {
   TABLES,
   TransactionTypes,
 } = Constants;
+const {
+  Utils: { isMarketFinal },
+} = Stores;
 
 interface PositionsTableProps {
   market: MarketInfo;
@@ -401,6 +405,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const {
     actions: { setModal },
   } = useAppStatusStore();
+  const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityFooter}>
       <PrimaryButton
@@ -416,8 +421,9 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
       />
       <SecondaryButton
         text="add liquidity"
+        disabled={isfinal}
         action={() =>
-          setModal({
+          !isfinal && setModal({
             type: MODAL_ADD_LIQUIDITY,
             market,
             currency: market?.amm?.cash?.name,
