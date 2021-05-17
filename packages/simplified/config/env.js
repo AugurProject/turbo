@@ -91,7 +91,7 @@ function getClientEnvironment(publicUrl) {
         // It is defined here so it is available in the webpackHotDevClient.
         FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
         // The network we are connecting to
-        ETHEREUM_NETWORK: process.env.ETHEREUM_NETWORK || 'local'
+        DEFAULT_NETWORK_ID: process.env.DEFAULT_NETWORK_ID || '80001'
       }
     );
   // Stringify all values so we can feed into webpack DefinePlugin
