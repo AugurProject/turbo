@@ -409,7 +409,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   return (
     <div className={Styles.LiquidityFooter}>
       <PrimaryButton
-        text="remove liquidity"
+        text="Remove Liquidity"
         action={() =>
           setModal({
             type: MODAL_ADD_LIQUIDITY,
@@ -420,7 +420,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
         }
       />
       <SecondaryButton
-        text="add liquidity"
+        text={isfinal ? "Market Resolved" : "Add Liquidity"}
         disabled={isfinal}
         action={() =>
           !isfinal && setModal({
@@ -470,6 +470,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   const { transactions } = useDataStore();
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
+  const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityTable}>
       {!singleMarket && <MarketTableHeader market={market} ammExchange={ammExchange} />}
@@ -488,8 +489,8 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
                 });
               }
             }}
-            disabled={!isLogged}
-            text="Earn fees as a liquidity provider"
+            disabled={!isLogged || isfinal}
+            text={isfinal ? "Market is resolved" : "Earn fees as a liquidity provider"}
           />
         </span>
       )}

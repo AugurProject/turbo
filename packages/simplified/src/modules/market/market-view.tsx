@@ -17,6 +17,7 @@ import {
   Components,
   DerivedMarketData,
   ProcessData,
+  Stores,
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
@@ -34,6 +35,7 @@ const {
 const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { MARKET_STATUS, YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
+const { Utils: { isMarketFinal } } = Stores;
 const {
   DateUtils: { getMarketEndtimeFull },
   Formatter: { formatDai },
@@ -161,6 +163,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
   const { volume24hrTotalUSD = null, volumeTotalUSD = null } = transactions[marketId] || {};
+  const isFinalized = isMarketFinal(market);
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -176,7 +179,7 @@ const MarketView = ({ defaultMarket = null }) => {
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
         {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
-        {reportingState === MARKET_STATUS.FINALIZED && winningOutcome && (
+        {isFinalized && winningOutcome && (
           <WinningOutcomeLabel winningOutcome={winningOutcome} />
         )}
         <ul className={Styles.StatsRow}>
@@ -212,7 +215,7 @@ const MarketView = ({ defaultMarket = null }) => {
         <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} />
         <PositionsLiquidityViewSwitcher ammExchange={amm} />
         <article className={Styles.MobileLiquidSection}>
-          <AddLiquidity market={market} />
+        {!isFinalized && <AddLiquidity market={market} />}
         </article>
         <div
           className={classNames(Styles.Details, {
@@ -242,7 +245,7 @@ const MarketView = ({ defaultMarket = null }) => {
         })}
       >
         <TradingForm initialSelectedOutcome={selectedOutcome} amm={amm} />
-        <AddLiquidity market={market} />
+        {!isFinalized && <AddLiquidity market={market} />}
       </section>
     </div>
   );
