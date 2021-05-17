@@ -48,6 +48,7 @@ import {
   XTZIcon,
   USDTIcon,
 } from "./category-icons";
+import { AugurBlankIcon } from "./icons";
 // SUB CATEGORIES
 // MEDICAL
 // POLITICS
@@ -171,4 +172,12 @@ export const CATEGORIES_ICON_MAP = {
       [CAR_RACING.toLowerCase()]: { icon: CarRacingIcon },
     },
   },
+};
+
+export const getCategoryIconLabel = (categories: Array<string>) => {
+  const prime = CATEGORIES_ICON_MAP[categories[0]?.toLowerCase()];
+  const secondary = prime?.subOptions[categories[1]?.toLowerCase()];
+  const icon = secondary?.icon ? secondary.icon : prime?.icon ? prime.icon : AugurBlankIcon;
+  const label = categories[categories.length - 1];
+  return { icon, label };
 };

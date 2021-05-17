@@ -111,6 +111,7 @@ export interface AmmTransaction {
   netShares?: string; // only for add liquidity
   payout?: string;
   fees?: string;
+  totalSupply?: string;
 }
 
 export interface BuySellTransactions {
@@ -132,6 +133,7 @@ export interface AddRemoveLiquidity {
   timestamp: string;
   transactionHash: string;
   outcomes: string[];
+  sharesReturned: string[];
 }
 
 export interface ClaimWinningsTransactions {

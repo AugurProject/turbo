@@ -46,8 +46,10 @@ import {
   DEFAULT_AMM_FEE_RAW,
   TradingDirection,
   DUST_POSITION_AMOUNT,
+  DUST_POSITION_AMOUNT_ON_CHAIN,
   DAYS_IN_YEAR,
   SEC_IN_DAY,
+  ZERO,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -479,7 +481,7 @@ export async function doTrade(
     }
     let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
     if (onChainMinAmount.lt(0)) {
-      onChainMinAmount = new BN(0);
+      onChainMinAmount = ZERO;
     }
 
     console.log(
@@ -853,8 +855,9 @@ const getPositionUsdValues = (
   const postitionResult = getInitPositionValues(marketTransactions, amm, outcome, account, userClaims);
 
   if (postitionResult) {
-    avgPrice = trimDecimalValue(postitionResult.avgPrice);
-    initCostUsd = new BN(postitionResult.avgPrice).times(new BN(quantity)).toFixed(4);
+    result = postitionResult;
+    avgPrice = trimDecimalValue(result.avgPrice);
+    initCostUsd = new BN(result.avgPrice).times(new BN(quantity)).toFixed(4);
   }
 
   let usdChangedValue = new BN(currUsdValue).minus(new BN(initCostUsd));
@@ -905,10 +908,7 @@ export const getLPCurrentValue = async (
   ).catch((error) => console.error("getLPCurrentValue estimation error", error));
 
   if (estimate && estimate.minAmountsRaw) {
-    const totalValueRaw = ammOutcomes.reduce(
-      (p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)),
-      new BN(0)
-    );
+    const totalValueRaw = ammOutcomes.reduce((p, v, i) => p.plus(new BN(estimate.minAmounts[i]).times(v.price)), ZERO);
 
     return totalValueRaw.times(amm?.cash?.usdPrice).toFixed();
   }
@@ -985,6 +985,11 @@ const getUserTransactions = (transactions: AllMarketsTransactions, account: stri
   }, {});
 };
 
+const getDefaultPrice = (outcome: string, weights: string[]) => {
+  const total = weights.reduce((p, w) => p.plus(new BN(w)), ZERO);
+  const weight = new BN(weights[Number(outcome)]);
+  return weight.div(total);
+};
 const getInitPositionValues = (
   marketTransactions: MarketTransactions,
   amm: AmmExchange,
@@ -997,26 +1002,42 @@ const getInitPositionValues = (
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
   const sharesEntered = accumSharesPrice(marketTransactions?.buys, outcomeId, account, claimTimestamp);
   const enterAvgPriceBN = sharesEntered.avgPrice;
+  const defaultAvgPrice = getDefaultPrice(outcome, amm.weights);
 
   // get shares from LP activity
-  const sharesAddLiquidity = accumLpSharesPrice(marketTransactions?.addLiquidity, outcomeId, account, claimTimestamp);
+  const sharesAddLiquidity = accumLpSharesPrice(
+    marketTransactions?.addLiquidity,
+    outcomeId,
+    account,
+    claimTimestamp,
+    amm.shareFactor,
+    defaultAvgPrice
+  );
   const sharesRemoveLiquidity = accumLpSharesPrice(
     marketTransactions?.removeLiquidity,
     outcome,
     account,
-    claimTimestamp
+    claimTimestamp,
+    amm.shareFactor,
+    defaultAvgPrice
   );
 
-  const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(new BN(0));
-  const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(new BN(0));
-  const totalLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
-  const allLiquidityCashAmounts = sharesRemoveLiquidity.cashAmount.plus(sharesAddLiquidity.cashAmount);
+  const positionFromAddLiquidity = sharesAddLiquidity.shares.gt(ZERO);
+  const positionFromRemoveLiquidity = sharesRemoveLiquidity.shares.gt(ZERO);
 
-  const avgPriceLiquidity = totalLiquidityShares.gt(0) ? allLiquidityCashAmounts.div(totalLiquidityShares) : new BN(0);
-  const totalShares = totalLiquidityShares.plus(sharesEntered.shares);
-  const weightedAvgPrice = totalShares.gt(new BN(0))
+  const outcomeLiquidityShares = sharesRemoveLiquidity.shares.plus(sharesAddLiquidity.shares);
+
+  const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
+    ? sharesAddLiquidity.avgPrice
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+    : ZERO;
+
+  const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
+  const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(totalLiquidityShares)
+        .times(outcomeLiquidityShares)
         .div(totalShares)
         .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
@@ -1034,7 +1055,7 @@ const accumSharesPrice = (
   account: string,
   cutOffTimestamp: number
 ): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
   const result = transactions
     .filter(
       (t) =>
@@ -1051,9 +1072,9 @@ const accumSharesPrice = (
           accumAvgPrice,
         };
       },
-      { shares: new BN(0), cashAmount: new BN(0), accumAvgPrice: new BN(0) }
+      { shares: ZERO, cashAmount: ZERO, accumAvgPrice: ZERO }
     );
-  const avgPrice = result.accumAvgPrice.div(result.cashAmount);
+  const avgPrice = result.cashAmount.eq(ZERO) ? ZERO : result.accumAvgPrice.div(result.cashAmount);
   return { shares: result.shares, cashAmount: result.cashAmount, avgPrice };
 };
 
@@ -1061,23 +1082,33 @@ const accumLpSharesPrice = (
   transactions: AddRemoveLiquidity[],
   outcome: string,
   account: string,
-  cutOffTimestamp: number
-): { shares: BigNumber; cashAmount: BigNumber } => {
-  if (!transactions || transactions.length === 0) return { shares: new BN(0), cashAmount: new BN(0) };
-
+  cutOffTimestamp: number,
+  shareFactor: string,
+  outcomeDefaultAvgPrice: string
+): { shares: BigNumber; cashAmount: BigNumber; avgPrice: BigNumber } => {
+  if (!transactions || transactions.length === 0) return { shares: ZERO, cashAmount: ZERO, avgPrice: ZERO };
   const result = transactions
     .filter((t) => isSameAddress(t?.sender?.id, account) && Number(t.timestamp) > cutOffTimestamp)
     .reduce(
       (p, t) => {
-        // todo: need to figure out price for removing liuidity, prob different than add liquidity
-        const shares = t.outcomes && t.outcomes.length > 0 ? new BN(t.outcomes[Number(outcome)]) : new BN(0);
-        const cashValue = new BN(t.collateral);
-        return { shares: p.shares.plus(shares), cashAmount: p.cashAmount.plus(new BN(cashValue)) };
+        const outcomeShares = new BN(t.sharesReturned[Number(outcome)]);
+        let shares = t.sharesReturned && t.sharesReturned.length > 0 ? outcomeShares : ZERO;
+        if (shares.gt(ZERO) && shares.lte(DUST_POSITION_AMOUNT_ON_CHAIN)) {
+          return p;
+        }
+
+        const cashValue = outcomeShares.eq(ZERO)
+          ? ZERO
+          : outcomeShares.div(new BN(shareFactor)).div(new BN(t.sharesReturned.length)).abs();
+        return {
+          shares: p.shares.plus(shares),
+          cashAmount: p.cashAmount.plus(new BN(cashValue)),
+        };
       },
-      { shares: new BN(0), cashAmount: new BN(0) }
+      { shares: ZERO, cashAmount: ZERO }
     );
 
-  return { shares: result.shares, cashAmount: result.cashAmount };
+  return { shares: result.shares, cashAmount: result.cashAmount, avgPrice: new BN(outcomeDefaultAvgPrice) };
 };
 
 export const calculateAmmTotalVolApy = (
@@ -1085,7 +1116,7 @@ export const calculateAmmTotalVolApy = (
   transactions: MarketTransactions = {}
 ): { apy: string; vol: string; vol24hr: string } => {
   const defaultValues = { apy: null, vol: null, vol24hr: null };
-  if (!amm?.id || amm?.totalSupply === "0" || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+  if (!amm?.id || (transactions?.addLiquidity || []).length === 0) return defaultValues;
   const { feeDecimal, liquidityUSD, cash } = amm;
   const timestamp24hr = Math.floor(new Date().getTime() / 1000 - SEC_IN_DAY);
   // calc total volume
@@ -1097,14 +1128,15 @@ export const calculateAmmTotalVolApy = (
   );
   const startTimestamp = Number(sortedAddLiquidity[0].timestamp);
 
-  if (liquidityUSD === 0 || volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
+  if (volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
 
   const totalFeesInUsd = new BN(volumeTotalUSD).times(new BN(feeDecimal));
   const currTimestamp = Math.floor(new Date().getTime() / 1000); // current time in unix timestamp
   const secondsPast = currTimestamp - startTimestamp;
   const pastDays = Math.floor(new BN(secondsPast).div(SEC_IN_DAY).toNumber());
 
-  const tradeFeeLiquidityPerDay = totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
+  const tradeFeeLiquidityPerDay =
+    Number(liquidityUSD || 0) === 0 ? ZERO : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
 
   const tradeFeePerDayInYear = tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
 
@@ -1115,7 +1147,7 @@ const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoff
   const { trades } = transactions;
   const totalCollateral = (trades || []).reduce(
     (p, b) => (b.timestamp > cutoffTimestamp ? p.plus(new BN(b.collateral).abs()) : p),
-    new BN(0)
+    ZERO
   );
   return convertOnChainCashAmountToDisplayCashAmount(totalCollateral, cash.decimals);
 };
@@ -1602,7 +1634,7 @@ const getTotalLiquidity = (prices: string[], balances: string[]) => {
   const outcomeLiquidity = prices.map((p, i) =>
     new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
   );
-  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), new BN(0)).toFixed(4);
+  return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), ZERO).toFixed(4);
 };
 
 const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
@@ -1615,7 +1647,7 @@ const calculatePrices = (ratios: string[] = [], weights: string[] = []): string[
   //price[0] = ratio[0] / sum(ratio)
   const base = ratios.length > 0 ? ratios : weights;
   if (base.length > 0) {
-    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), new BN(0));
+    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), ZERO);
     outcomePrices = base.map((r) => new BN(String(r)).div(sum).toFixed());
   }
   return outcomePrices;

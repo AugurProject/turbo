@@ -22,7 +22,6 @@ import { BigInt } from "@graphprotocol/graph-ts";
 //   address indexed creator,
 //   address lpTokenRecipient
 // );
-
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let entity = new AMMFactory(id);

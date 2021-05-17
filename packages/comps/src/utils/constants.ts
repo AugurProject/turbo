@@ -37,6 +37,7 @@ export const SELL: string = "sell";
 export const ADD_LIQUIDITY: string = "add liquidity";
 export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
 export const DUST_POSITION_AMOUNT = createBigNumber("0.0001");
+export const DUST_POSITION_AMOUNT_ON_CHAIN = DUST_POSITION_AMOUNT.times(createBigNumber(10).pow(18));
 
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;
@@ -182,9 +183,13 @@ export const categoryItems = [
 
 export const TOTAL_VOLUME: string = "Total Volume";
 export const TWENTY_FOUR_HOUR_VOLUME: string = "24hr volume";
-export const ENDING_SOON: string = "ending soon";
+export const STARTS_SOON: string = "starts soon";
 
 export const sortByItems = [
+  {
+    label: STARTS_SOON,
+    value: STARTS_SOON,
+  },
   {
     label: TOTAL_VOLUME,
     value: TOTAL_VOLUME,
@@ -196,10 +201,6 @@ export const sortByItems = [
   {
     label: LIQUIDITY,
     value: LIQUIDITY,
-  },
-  {
-    label: ENDING_SOON,
-    value: ENDING_SOON,
   },
 ];
 

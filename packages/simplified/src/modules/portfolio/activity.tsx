@@ -35,7 +35,7 @@ const ActivityCard = ({ activity, timeFormat }: typeof React.Component) => (
         )}
       </span>
     </MarketLink>
-    {activity.subheader && <div className={Styles.subheader}>{activity.subheader}</div>}
+    <div className={Styles.subheader}>{activity.subheader || ''}</div>
     <div className={Styles.time}>{getTimeFormat(activity.timestamp, timeFormat)}</div>
     {activity.txHash && <ReceiptLink hash={activity.txHash} />}
   </div>

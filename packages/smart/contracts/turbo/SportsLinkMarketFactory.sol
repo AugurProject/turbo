@@ -254,6 +254,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
         uint256[3] memory _ids = events[_eventId];
+        require(_ids[0] != 0 || _ids[1] != 0 || _ids[2] != 0, "Cannot resolve markets that weren't created");
 
         require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
 

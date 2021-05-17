@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { checkIsERC20Approved, checkIsERC1155Approved, checkAllowance } from "./use-approval-callback";
 import { Cash, MarketInfo, TransactionDetails, AmmExchange } from "../types";
 import { PARA_CONFIG } from "./constants";
-import { ETH, TX_STATUS, ApprovalAction, ApprovalState } from "../utils/constants";
+import { ETH, TX_STATUS, ApprovalAction, ApprovalState, MARKET_STATUS } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
 import { getUserBalances } from "../utils/contract-calls";
@@ -34,6 +34,8 @@ export const getRelatedMarkets = (market: MarketInfo, markets: Array<MarketInfo>
   keyedObjToKeyArray(markets)
     .filter((mrkt) => mrkt.includes(market.marketId))
     .map((mid) => markets[mid]);
+
+export const isMarketFinal = (market: MarketInfo) => market.reportingState === MARKET_STATUS.FINALIZED;
 
 export const getCurrentAmms = (market: MarketInfo, markets: Array<MarketInfo>) =>
   getRelatedMarkets(market, markets).map((m) => m.amm.cash.name);

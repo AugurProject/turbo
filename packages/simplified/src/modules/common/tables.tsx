@@ -11,6 +11,7 @@ import {
   SimpleBalance,
   Winnings,
 } from "../types";
+import { getClaimAllMessage } from '../portfolio/portfolio-view';
 import {
   useAppStatusStore,
   useDataStore,
@@ -21,6 +22,7 @@ import {
   Formatter,
   ContractCalls,
   Components,
+  Stores,
 } from "@augurproject/comps";
 import getUSDC from "../../utils/get-usdc";
 const {
@@ -48,6 +50,9 @@ const {
   TABLES,
   TransactionTypes,
 } = Constants;
+const {
+  Utils: { isMarketFinal },
+} = Stores;
 
 interface PositionsTableProps {
   market: MarketInfo;
@@ -170,10 +175,12 @@ export const PositionFooter = ({
     shareToken: ammCash?.sharetoken,
   });
   const isETHClaim = ammCash?.name === ETH;
+  
   const disableClaim =
     pendingClaim ||
     (pendingClaimHash &&
-      Boolean(transactions.find((t) => t.hash === pendingClaimHash && t.status === TX_STATUS.PENDING)));
+      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash)))));
+
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
@@ -398,6 +405,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const {
     actions: { setModal },
   } = useAppStatusStore();
+  const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityFooter}>
       <PrimaryButton
@@ -413,8 +421,9 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
       />
       <SecondaryButton
         text="add liquidity"
+        disabled={isfinal}
         action={() =>
-          setModal({
+          !isfinal && setModal({
             type: MODAL_ADD_LIQUIDITY,
             market,
             currency: market?.amm?.cash?.name,

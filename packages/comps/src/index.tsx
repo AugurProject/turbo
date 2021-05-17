@@ -33,7 +33,7 @@ import _parseQuery from './utils/links/parse-query';
 import _makePath from './utils/links/make-path';
 import _makeQuery from './utils/links/make-query';
 import _parseStringToArray from './utils/links/parse-string-to-array';
-import { CATEGORIES_ICON_MAP as _CATEGORIES_ICON_MAP } from './components/common/category-icons-map';
+import { getCategoryIconLabel, CATEGORIES_ICON_MAP as _CATEGORIES_ICON_MAP } from './components/common/category-icons-map';
 import _GraphDataStore, {
   useGraphDataStore,
   GraphDataStore,
@@ -63,6 +63,7 @@ import {
   arrayToKeyedObject,
   arrayToKeyedObjectByProp,
   useApprovalStatus,
+  isMarketFinal,
 } from './stores/utils';
 import * as _ApprovalHooks from './stores/use-approval-callback';
 import * as _GraphClient from './apollo/client';
@@ -105,6 +106,7 @@ export const Stores = {
     keyedObjToKeyArray,
     arrayToKeyedObject,
     arrayToKeyedObjectByProp,
+    isMarketFinal,
   },
   Constants: _StoreConstants
 };
@@ -137,6 +139,7 @@ export const Utils = {
   logError,
   PathUtils,
   windowRef,
+  getCategoryIconLabel,
   ..._TeamHelpers,
 };
 export const PaginationComps = _Pagination;
@@ -178,6 +181,7 @@ export {
   Links,
   windowRef,
   LinkLogo,
+  getCategoryIconLabel
 };
 export const Components = {
   ButtonComps,

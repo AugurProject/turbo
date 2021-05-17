@@ -11,6 +11,7 @@ import {
   SEO,
   Constants,
   Components,
+  getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 
@@ -36,13 +37,14 @@ const {
   sortByItems,
   TOTAL_VOLUME,
   DEFAULT_MARKET_VIEW_SETTINGS,
-  ENDING_SOON,
+  STARTS_SOON,
   RESOLVED,
   IN_SETTLEMENT,
   LIQUIDITY,
   MARKET_STATUS,
   TWENTY_FOUR_HOUR_VOLUME,
   CREATE,
+  SPORTS,
   MODAL_ADD_LIQUIDITY,
 } = Constants;
 
@@ -51,7 +53,8 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
-  { filter, categories, sortBy, currency, reportingState, showLiquidMarkets },
+  transactions,
+  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -79,17 +82,17 @@ const applyFiltersAndSort = (
     if (showLiquidMarkets && (!market.amm || !market.amm.hasLiquidity)) {
       return false;
     }
-    // if (market.isInvalid) {
-    //   return false;
-    // }
     if (
-      categories !== ALL_MARKETS &&
-      categories !== OTHER &&
-      market.categories[0].toLowerCase() !== categories.toLowerCase()
+      primaryCategory !== ALL_MARKETS &&
+      primaryCategory !== OTHER &&
+      market.categories[0].toLowerCase() !== primaryCategory.toLowerCase()
     ) {
       return false;
     }
-    if (categories === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
+    if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
+      return false;
+    }
+    if (primaryCategory === SPORTS && subCategories.length > 0 && market.categories[market.categories.length - 1].toLowerCase() !== subCategories[subCategories.length - 1].toLowerCase()) {
       return false;
     }
     if (currency !== ALL_CURRENCIES) {
@@ -114,24 +117,25 @@ const applyFiltersAndSort = (
   });
 
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+    const aTransactions = transactions ? transactions[marketA.marketId] : {};
+    const bTransactions = transactions ? transactions[marketB.marketId] : {};
+    const mod = reportingState === RESOLVED ? -1 : 1;
     if (sortBy === TOTAL_VOLUME) {
-      return (marketB?.amm?.volumeTotalUSD || 0) > (marketA?.amm?.volumeTotalUSD || 0) ? 1 : -1;
+      return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
-      return (marketB?.amm?.volume24hrTotalUSD || 0) > (marketA?.amm?.volume24hrTotalUSD || 0) ? 1 : -1;
+      return (bTransactions?.volume24hrTotalUSD || 0) > (aTransactions?.volume24hrTotalUSD || 0) ? 1 : -1;
     } else if (sortBy === LIQUIDITY) {
-      return (marketB?.amm?.liquidityUSD || 0) > (marketA?.amm?.liquidityUSD || 0) ? 1 : -1;
-    } else if (sortBy === ENDING_SOON) {
-      return marketA?.endTimestamp < marketB?.endTimestamp ? 1 : -1;
+      return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
+    } else if (sortBy === STARTS_SOON) {
+      return (marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1) * mod;
     }
     return true;
   });
-  if (sortBy !== ENDING_SOON) {
+  if (sortBy !== STARTS_SOON) {
     const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId))
     ;
     // handle grouping by event Id and resort by liquidity.
-    updatedFilteredMarkets = updatedFilteredMarkets
-      .filter((m) => m?.amm?.id !== null)
-      .concat(sortedIlliquid);
+    updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
 
   setFilteredMarkets(updatedFilteredMarkets);
@@ -148,13 +152,8 @@ const MarketsView = () => {
     settings: { showLiquidMarkets, timeFormat },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
-  const {
-    ammExchanges,
-    markets,
-    transactions,
-    loading: dataLoading
-  } = useDataStore();
-  const { sortBy, categories, reportingState, currency } = marketsViewSettings;
+  const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
+  const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
@@ -168,24 +167,21 @@ const MarketsView = () => {
     if (Object.values(markets).length > 0) {
       setLoading(false);
     }
-    applyFiltersAndSort(
-      Object.values(markets),
-      setFilteredMarkets,
-      {
-        filter,
-        categories,
-        sortBy,
-        currency,
-        reportingState,
-        showLiquidMarkets,
-      },
-    );
+    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, {
+      filter,
+      primaryCategory,
+      subCategories,
+      sortBy,
+      currency,
+      reportingState,
+      showLiquidMarkets,
+    });
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, categories, reportingState, currency, showLiquidMarkets.valueOf()]);
+  }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
   useEffect(() => {
     handleFilterSort();
@@ -236,10 +232,10 @@ const MarketsView = () => {
       <ul>
         <SquareDropdown
           onChange={(value) => {
-            updateMarketsViewSettings({ categories: value });
+            updateMarketsViewSettings({ primaryCategory: value, subCategories: [] });
           }}
           options={categoryItems}
-          defaultValue={categories}
+          defaultValue={primaryCategory}
         />
         <SquareDropdown
           onChange={(value) => {
@@ -278,11 +274,12 @@ const MarketsView = () => {
         clearValue={() => setFilter("")}
         showFilter={showFilter}
       />
+      <SubCategoriesFilter />
       {!isLogged ? (
         <section>
           <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
         </section>
-      ) : (loading && dataLoading) ? (
+      ) : loading && dataLoading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />
@@ -322,3 +319,42 @@ const MarketsView = () => {
 };
 
 export default MarketsView;
+
+export const SubCategoriesFilter = () => {
+  const {
+    marketsViewSettings: { primaryCategory, subCategories },
+    actions: { updateMarketsViewSettings },
+  } = useSimplifiedStore();
+  if (primaryCategory.toLowerCase() !== "sports") return null;
+  const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
+  const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);
+  const { icon: NBAIcon } = getCategoryIconLabel(["Sports", "Basketball", "NBA"]);
+  return (
+    <div className={Styles.SubCategoriesFilter}>
+      <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.length === 0,
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: [] })}
+      >
+        {SportsIcon} All Sports
+      </button>
+      <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.includes("MLB"),
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: ["Baseball", "MLB"] })}
+      >
+        {MLBIcon} MLB
+      </button>
+      <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.includes("NBA"),
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: ["Basketball", "NBA"] })}
+      >
+        {NBAIcon} NBA
+      </button>
+    </div>
+  );
+};
