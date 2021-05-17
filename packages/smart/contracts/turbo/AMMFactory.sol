@@ -70,9 +70,12 @@ contract AMMFactory is BNum {
             _collateral.allowance(msg.sender, address(this)) >= _initialLiquidity,
             "insufficient collateral allowance for initial liquidity"
         );
+
+        uint256 _sets = _marketFactory.calcShares(_initialLiquidity);
+
         _collateral.transferFrom(msg.sender, address(this), _initialLiquidity);
         _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets = _marketFactory.calcShares(_initialLiquidity);
+
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Create pool
@@ -94,7 +97,10 @@ contract AMMFactory is BNum {
         pools[address(_marketFactory)][_marketId] = _pool;
 
         // Pass along LP tokens for initial liquidity
-        uint256 _lpTokenBalance = _pool.balanceOf(address(this));
+        uint256 _lpTokenBalance = _pool.balanceOf(address(this)) - (BONE / 1000);
+
+        // Burn (BONE / 1000) lp tokens to prevent the bpool from locking up. When all liquidity is removed.
+        _pool.transfer(address(0x0), (BONE / 1000));
         _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
         uint256[] memory _balances = new uint256[](_market.shareTokens.length);
@@ -132,9 +138,7 @@ contract AMMFactory is BNum {
         IERC20Full _collateral = _marketFactory.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
         _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets =
-            (_marketFactory.calcShares(_collateralIn) / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
-
+        uint256 _sets = _marketFactory.calcShares(_collateralIn);
         _marketFactory.mintShares(_marketId, _sets, address(this));
 
         // Find poolAmountOut

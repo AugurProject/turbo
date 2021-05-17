@@ -362,4 +362,16 @@ describe("AMMFactory", () => {
       expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
     });
   });
+
+  describe("add, remove and add again", () => {
+    it("should not blowup.", async () => {
+      const collateralIn = usdcBasis.mul(1000);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+
+      const lpTokenBal = await bPool.balanceOf(signer.address);
+      await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokenBal, ZERO, signer.address);
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, signer.address);
+    });
+  });
 });
