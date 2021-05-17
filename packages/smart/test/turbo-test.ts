@@ -23,6 +23,8 @@ import { calcShareFactor, DEAD_ADDRESS } from "../src";
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
+  const BONE = BigNumber.from(10).pow(18);
+  const INITIAL_LP_DUST_BURNT = BONE.div(1000);
 
   before(async () => {
     [signer] = await ethers.getSigners();
@@ -146,7 +148,9 @@ describe("Turbo", () => {
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
     pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     // Don't know why user gets this many LP tokens but it shouldn't matter.
-    expect(await pool.balanceOf(signer.address)).to.equal(initialLiquidity.mul(shareFactor).div(10));
+    expect(await pool.balanceOf(signer.address)).to.equal(
+      initialLiquidity.mul(shareFactor).div(10).sub(INITIAL_LP_DUST_BURNT)
+    );
   });
 
   it("can add more liquidity to the AMM", async () => {
@@ -156,7 +160,7 @@ describe("Turbo", () => {
 
     const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a814e10a73ffcd")); // hardcoded from observation
+    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a4876265ad7fcd")); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
