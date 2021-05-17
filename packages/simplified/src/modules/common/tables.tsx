@@ -178,9 +178,7 @@ export const PositionFooter = ({
   
   const disableClaim =
     pendingClaim ||
-    (pendingClaimHash &&
-      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash)))));
-
+      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
