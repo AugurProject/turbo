@@ -56,6 +56,10 @@ type Liquidity @entity {
   collateral: String!
 
   lpTokens: String!
+
+  sharesReturned: [BigInt!]
+
+  totalSupply: BigInt
 }
 
 type Sender @entity {
@@ -76,6 +80,8 @@ type AddLiquidity @entity {
   timestamp: BigInt!
   collateral: String!
   lpTokens: String!
+  sharesReturned: [BigInt!]
+  totalSupply: BigInt
 }
 
 type Outcomes @entity {
@@ -96,6 +102,8 @@ type RemoveLiquidity @entity {
   outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
   collateral: String!
   lpTokens: String!
+  sharesReturned: [BigInt!]
+  totalSupply: BigInt
 }
 
 type Buy @entity {
