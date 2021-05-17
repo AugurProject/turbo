@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
-import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
+pragma solidity 0.8.4;
+import "@chainlink/contracts/src/v0.8/dev/ChainlinkClient.sol";
 
 contract TheRundownChainlink is ChainlinkClient {
     using Chainlink for Chainlink.Request;

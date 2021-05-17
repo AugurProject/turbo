@@ -41,7 +41,6 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.1.6",
     "async-file": "^2.0.2",
     "@augurproject/smart": "^1.0.0",
     "@augurproject/utils": "^2.2.0",

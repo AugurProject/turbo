@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
-pragma abicoder v2;
+pragma solidity 0.8.4;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
 import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
-import "../libraries/SafeMathInt256.sol";
 
 contract SportsLinkMarketFactory is AbstractMarketFactory {
-    using SafeMathUint256 for uint256;
-    using SafeMathInt256 for int256;
-
     event MarketCreated(
         uint256 id,
         address creator,
@@ -92,7 +87,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             bool _makeTotalScore
         ) = decodeCreation(_payload);
         address _creator = msg.sender;
-        uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
+        uint256 _endTime = _startTimestamp + (60 * 8); // 8 hours
 
         _ids = events[_eventId];
 
@@ -306,7 +301,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         MarketDetails memory _details = marketDetails[_id];
         int256 _targetSpread = _details.value0;
 
-        int256 _actualSpread = int256(_homeScore).sub(int256(_awayScore));
+        int256 _actualSpread = int256(_homeScore) - int256(_awayScore);
 
         OwnedERC20 _winner;
         if (_actualSpread > _targetSpread) {
@@ -329,7 +324,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         MarketDetails memory _details = marketDetails[_id];
         int256 _targetTotal = _details.value0;
 
-        int256 _actualTotal = int256(_homeScore).add(int256(_awayScore));
+        int256 _actualTotal = int256(_homeScore) + int256(_awayScore);
 
         OwnedERC20 _winner;
         if (_actualTotal > _targetTotal) {
@@ -423,19 +418,19 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint8 _creationFlags;
         // prettier-ignore
         {
-            _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                                >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                         >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))                    >> (256 - 32));
-            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))               >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
-            _creationFlags  = uint8 ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
-
-            // Lowest bit is _createSpread.
-            // Second-lowest bit is _createTotal.
-            _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
-            _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
+            _eventId        = uint128     ((_temp >> 128)                                             );
+            _homeTeamId     = uint16      ((_temp << 128)                                >> (256 - 16));
+            _awayTeamId     = uint16      ((_temp << (128 + 16))                         >> (256 - 16));
+            _startTimestamp = uint32      ((_temp << (128 + 16 + 16))                    >> (256 - 32));
+            _homeSpread     = int16(int256((_temp << (128 + 16 + 16 + 32))               >> (256 - 16)));
+            _totalScore     = uint16      ((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
+            _creationFlags  = uint8       ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
         }
+
+        // Lowest bit is _createSpread.
+        // Second-lowest bit is _createTotal.
+        _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
+        _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
     }
 
     function encodeResolution(

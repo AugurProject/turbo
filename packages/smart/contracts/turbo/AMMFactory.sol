@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
-pragma experimental ABIEncoderV2;
+pragma solidity 0.8.4;
 
 import "../balancer/BFactory.sol";
-import "../libraries/SafeMathUint256.sol";
 import "./AbstractMarketFactory.sol";
 import "../balancer/BNum.sol";
 
 contract AMMFactory is BNum {
-    using SafeMathUint256 for uint256;
-
     uint256 private constant MAX_UINT = 2**256 - 1;
 
     BFactory public bFactory;
@@ -58,7 +54,7 @@ contract AMMFactory is BNum {
         uint256[] memory _weights,
         address _lpTokenRecipient
     ) public returns (uint256) {
-        require(pools[address(_marketFactory)][_marketId] == BPool(0), "Pool already created");
+        require(pools[address(_marketFactory)][_marketId] == BPool(address(0)), "Pool already created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
@@ -130,7 +126,7 @@ contract AMMFactory is BNum {
         address _lpTokenRecipient
     ) public returns (uint256 _poolAmountOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        require(_pool != BPool(0), "Pool needs to be created");
+        require(_pool != BPool(address(0)), "Pool needs to be created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
@@ -199,7 +195,7 @@ contract AMMFactory is BNum {
         address _collateralRecipient
     ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        require(_pool != BPool(0), "Pool needs to be created");
+        require(_pool != BPool(address(0)), "Pool needs to be created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
@@ -252,7 +248,7 @@ contract AMMFactory is BNum {
         uint256 _minTokensOut
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        require(_pool != BPool(0), "Pool needs to be created");
+        require(_pool != BPool(address(0)), "Pool needs to be created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
@@ -301,7 +297,7 @@ contract AMMFactory is BNum {
         uint256 _setsOut
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        require(_pool != BPool(0), "Pool needs to be created");
+        require(_pool != BPool(address(0)), "Pool needs to be created");
         uint256 _undesiredTokenOut = _setsOut;
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
         uint256[] memory _inOutRatio = new uint256[](_market.shareTokens.length);
@@ -350,7 +346,7 @@ contract AMMFactory is BNum {
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         // Pool does not exist. Do not want to revert because multicall.
-        if (_pool == BPool(0)) {
+        if (_pool == BPool(address(0))) {
             return new uint256[](0);
         }
 
@@ -372,7 +368,7 @@ contract AMMFactory is BNum {
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         // Pool does not exist. Do not want to revert because multicall.
-        if (_pool == BPool(0)) {
+        if (_pool == BPool(address(0))) {
             return new uint256[](0);
         }
 
@@ -391,7 +387,7 @@ contract AMMFactory is BNum {
     {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         // Pool does not exist. Do not want to revert because multicall.
-        if (_pool == BPool(0)) {
+        if (_pool == BPool(address(0))) {
             return new uint256[](0);
         }
 

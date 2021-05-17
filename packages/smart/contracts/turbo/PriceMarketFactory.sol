@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
-pragma abicoder v2;
+pragma solidity 0.8.4;
 
 import "../balancer/BPool.sol";
 import "./AbstractMarketFactory.sol";
@@ -10,8 +9,6 @@ import "../libraries/IERC20Full.sol";
 // IMPORTANT: This can *ONLY* be used for testing.
 //            The spot price is extremely manipulable.
 contract TestPriceMarketFactory is AbstractMarketFactory {
-    using SafeMathUint256 for uint256;
-
     event MarketCreated(uint256 id, address creator, uint256 endTime, uint256 spotPrice);
     event MarketResolved(uint256 id, address winner);
 

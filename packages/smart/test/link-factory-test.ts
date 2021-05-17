@@ -23,7 +23,7 @@ describe("LinkFactory", () => {
   const eventId = 9001;
   const homeTeamId = 42;
   const awayTeamId = 1881;
-  const homeSpread = 4;
+  const homeSpread = -4;
   const overUnderTotal = 13;
   const sportId = 4;
 
@@ -152,7 +152,7 @@ describe("LinkFactory", () => {
       true,
       true
     );
-    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d03000000");
+    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b5309fffc000d03000000");
 
     const decoded = await marketFactory.decodeCreation(payload);
     expect(decoded._eventId, "_eventId").to.equal(eventId);

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
-pragma abicoder v2;
+pragma solidity 0.8.4;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
@@ -8,8 +7,6 @@ import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
 
 abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
-    using SafeMathUint256 for uint256;
-
     // Should always have ID. Others are optional.
     // event MarketCreated(uint256 id, address settlementAddress, uint256 endTime, ...);
 
@@ -103,7 +100,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     // As a check of market existence, use `endTime != 0` on the returned struct
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id > markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
+            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(address(0)), 0, 0, 0, 0);
         } else {
             return markets[_id];
         }
@@ -148,8 +145,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         }
 
         uint256 _payout = calcCost(_sharesToBurn);
-        uint256 _protocolFee = _payout.mul(_market.protocolFee).div(10**18);
-        _payout = _payout.sub(_protocolFee);
+        uint256 _protocolFee = _payout * _market.protocolFee / (10**18);
+        _payout -= _protocolFee;
 
         accumulatedProtocolFee += _protocolFee;
         collateral.transfer(_receiver, _payout);
@@ -169,9 +166,9 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
         uint256 _payout = calcCost(_winningShares);
-        uint256 _settlementFee = _payout.mul(_market.settlementFee).div(10**18);
-        uint256 _stakerFee = _payout.mul(_market.stakerFee).div(10**18);
-        _payout = _payout.sub(_settlementFee).sub(_stakerFee);
+        uint256 _settlementFee = _payout * _market.settlementFee / (10**18);
+        uint256 _stakerFee = _payout * _market.stakerFee / (10**18);
+        _payout -= _settlementFee - _stakerFee;
 
         accumulatedSettlementFees[_market.settlementAddress] += _settlementFee;
         feePot.depositFees(_stakerFee);
@@ -184,7 +181,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     function claimManyWinnings(uint256[] memory _ids, address _receiver) public returns (uint256) {
         uint256 _totalWinnings = 0;
         for (uint256 i = 0; i < _ids.length; i++) {
-            _totalWinnings = _totalWinnings.add(claimWinnings(_ids[i], _receiver));
+            _totalWinnings += claimWinnings(_ids[i], _receiver);
         }
         return _totalWinnings;
     }
@@ -239,7 +236,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
             _settlementAddress,
             createShareTokens(_names, _symbols, address(this)),
             _endTime,
-            OwnedERC20(0),
+            OwnedERC20(address(0)),
             settlementFee,
             protocolFee,
             stakerFee,
@@ -249,7 +246,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
 
     function isMarketResolved(uint256 _id) public view returns (bool) {
         Market memory _market = markets[_id];
-        return _market.winner != OwnedERC20(0);
+        return _market.winner != OwnedERC20(address(0));
     }
 
     // Only usable off-chain. Gas cost can easily eclipse block limit.

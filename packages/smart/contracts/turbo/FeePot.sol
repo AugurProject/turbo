@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "../libraries/SafeMathUint256.sol";
 import "../libraries/IERC20Full.sol";
 
 contract FeePot is ERC20 {
-    using SafeMathUint256 for uint256;
-
     uint256 internal constant magnitude = 2**128;
 
     IERC20Full public collateral;
@@ -29,32 +26,32 @@ contract FeePot is ERC20 {
         collateral = _collateral;
         reputationToken = _reputationToken;
 
-        require(_collateral != IERC20Full(0));
+        require(_collateral != IERC20Full(address(0)));
     }
 
     function depositFees(uint256 _amount) public returns (bool) {
         collateral.transferFrom(msg.sender, address(this), _amount);
         uint256 _totalSupply = totalSupply(); // after collateral.transferFrom to prevent reentrancy causing stale totalSupply
         if (_totalSupply == 0) {
-            feeReserve = feeReserve.add(_amount);
+            feeReserve += _amount;
             return true;
         }
         if (feeReserve > 0) {
-            _amount = _amount.add(feeReserve);
+            _amount += feeReserve;
             feeReserve = 0;
         }
-        magnifiedFeesPerShare = magnifiedFeesPerShare.add((_amount).mul(magnitude) / _totalSupply);
+        magnifiedFeesPerShare += _amount * magnitude / _totalSupply;
         return true;
     }
 
     function withdrawableFeesOf(address _owner) public view returns (uint256) {
-        return earnedFeesOf(_owner).add(storedFees[_owner]);
+        return earnedFeesOf(_owner) + storedFees[_owner];
     }
 
     function earnedFeesOf(address _owner) public view returns (uint256) {
         uint256 _ownerBalance = balanceOf(_owner);
-        uint256 _magnifiedFees = magnifiedFeesPerShare.mul(_ownerBalance);
-        return _magnifiedFees.sub(magnifiedFeesCorrections[_owner]) / magnitude;
+        uint256 _magnifiedFees = magnifiedFeesPerShare * _ownerBalance;
+        return (_magnifiedFees - magnifiedFeesCorrections[_owner]) / magnitude;
     }
 
     function _transfer(
@@ -62,19 +59,17 @@ contract FeePot is ERC20 {
         address _to,
         uint256 _amount
     ) internal override {
-        storedFees[_from] = storedFees[_from].add(earnedFeesOf(_from));
+        storedFees[_from] += earnedFeesOf(_from);
         super._transfer(_from, _to, _amount);
 
-        magnifiedFeesCorrections[_from] = magnifiedFeesPerShare.mul(balanceOf(_from));
-        magnifiedFeesCorrections[_to] = magnifiedFeesCorrections[_to].add(magnifiedFeesPerShare.mul(_amount));
+        magnifiedFeesCorrections[_from] = magnifiedFeesPerShare * balanceOf(_from);
+        magnifiedFeesCorrections[_to] += magnifiedFeesPerShare * _amount;
     }
 
     function stake(uint256 _amount) external returns (bool) {
         reputationToken.transferFrom(msg.sender, address(this), _amount);
         _mint(msg.sender, _amount);
-        magnifiedFeesCorrections[msg.sender] = magnifiedFeesCorrections[msg.sender].add(
-            magnifiedFeesPerShare.mul(_amount)
-        );
+        magnifiedFeesCorrections[msg.sender] + magnifiedFeesPerShare * _amount;
         return true;
     }
 
@@ -82,13 +77,13 @@ contract FeePot is ERC20 {
         redeemInternal(msg.sender);
         _burn(msg.sender, _amount);
         reputationToken.transfer(msg.sender, _amount);
-        magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare.mul(balanceOf(msg.sender));
+        magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare * balanceOf(msg.sender);
         return true;
     }
 
     function redeem() public returns (bool) {
         redeemInternal(msg.sender);
-        magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare.mul(balanceOf(msg.sender));
+        magnifiedFeesCorrections[msg.sender] = magnifiedFeesPerShare * balanceOf(msg.sender);
         return true;
     }
 
