@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "outDir": "build",
+    "rootDir": "src",
+    "lib": [
+      "es2015",
+      "dom",
+      "webworker",
+      "es2018"
+    ],
+    "target": "es2018",
+    "module": "CommonJS",
+    "jsx": "react",
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "watch": false,
+    "strictNullChecks": false,
+    "alwaysStrict": false,
+    "strict": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src",
+    "moduleResolution": "node",
+    "paths": {
+      "assets/*": [
+        "./assets/*"
+      ],
+      "modules/*": [
+        "./modules/*"
+      ],
+      "services/*": [
+        "./services/*"
+      ],
+      "utils/*": [
+        "./utils/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "resolveJsonModule": false
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "./src/**/*.test.ts"
+  ]
+}
