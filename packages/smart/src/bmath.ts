@@ -181,11 +181,15 @@ function attemptTokenCalc(
   _tokenBalances: BigNumber[],
   _tokenWeights: BigNumber[],
   _swapFee: BigNumber
-): BigNumber {
+): [BigNumber, BigNumber[]] {
   let runningBalance = _tokenBalances[_outcome];
+  const tokensInPerOutcome = [];
   let total = tokenAmountOut;
   for (let i = 0; i < _tokenBalances.length; i++) {
-    if (i === _outcome) continue;
+    if (i === _outcome) {
+      tokensInPerOutcome[i] = tokenAmountOut;
+      continue;
+    }
     const tokensInForToken = calcInGivenOut(
       runningBalance,
       _tokenWeights[_outcome],
@@ -195,13 +199,16 @@ function attemptTokenCalc(
       _swapFee
     );
 
+    tokensInPerOutcome[i] = tokensInForToken;
+
     total = total.add(tokensInForToken);
     runningBalance = runningBalance.add(tokensInForToken);
   }
 
-  return total;
+  return [total, tokensInPerOutcome];
 }
 
+type calculateSellCompleteSetsResult = [setsOut: string, undesirableTokensInPerOutcome: string[]];
 const TOLERANCE = BigNumber.from(10).pow(10);
 
 export async function calcSellCompleteSets(
@@ -211,7 +218,7 @@ export async function calcSellCompleteSets(
   _tokenBalances: string[],
   _tokenWeights: string[],
   _swapFee: string
-): Promise<string> {
+): Promise<calculateSellCompleteSetsResult> {
   return calculateSellCompleteSets(
     BigNumber.from(_shareFactor),
     _outcome,
@@ -229,10 +236,11 @@ export function calculateSellCompleteSets(
   _tokenBalances: BigNumber[],
   _tokenWeights: BigNumber[],
   _swapFee: BigNumber
-): string {
+): calculateSellCompleteSetsResult {
   let lower = BigNumber.from(0);
   let upper = _shareTokensIn;
   let tokenAmountOut = upper.sub(lower).div(2).add(lower);
+  let tokensInPerOutcome: string[] = [];
 
   while (!tokenAmountOut.eq(0)) {
     try {
@@ -242,7 +250,15 @@ export function calculateSellCompleteSets(
       }
 
       // Using the formula total = a_1 + a_2 + ... + c
-      const total = attemptTokenCalc(tokenAmountOut, _outcome, _tokenBalances, _tokenWeights, _swapFee);
+      const [total, _tokensInPerOutcome] = attemptTokenCalc(
+        tokenAmountOut,
+        _outcome,
+        _tokenBalances,
+        _tokenWeights,
+        _swapFee
+      );
+      tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.div(_shareFactor).mul(_shareFactor).toString());
+
       if (_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) {
         break;
       }
@@ -262,7 +278,7 @@ export function calculateSellCompleteSets(
     }
   }
 
-  return tokenAmountOut.div(_shareFactor).mul(_shareFactor).toString();
+  return [tokenAmountOut.div(_shareFactor).mul(_shareFactor).toString(), tokensInPerOutcome];
 }
 
 export async function calculateSellCompleteSetsWithValues(
@@ -271,7 +287,7 @@ export async function calculateSellCompleteSetsWithValues(
   _marketId: string,
   _outcome: number,
   _shareTokensIn: string
-): Promise<string> {
+): Promise<[setsOut: string, undesirableTokensInPerOutcome: string[]]> {
   return calculateSellCompleteSets(
     await _marketFactory.shareFactor(),
     _outcome,
