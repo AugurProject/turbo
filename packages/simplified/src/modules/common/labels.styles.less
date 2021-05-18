@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .AppStats {
   .SimpleBorder;
@@ -191,6 +191,8 @@
   white-space: nowrap;
 
   @media @breakpoint-mobile-tablet {
+    .text-14-semi-bold;
+
     margin-top: 0;
   }
 
@@ -200,5 +202,26 @@
     @media @breakpoint-mobile-tablet {
       margin-bottom: @size-16;
     }
+  }
+}
+
+.WarningBanner {
+  background: var(--simple-warning-15);
+  color: var(--simple-warning);
+  word-break: normal;
+  word-wrap: normal;
+  white-space: normal;
+  display: flex;
+  flex-flow: row nowrap;
+
+  > a {
+    margin-left: @size-4;
+    text-decoration: underline;
+  }
+
+  @media @breakpoint-mobile {
+    display: inline;
+    height: @size-60;
+    max-height: @size-60;
   }
 }
