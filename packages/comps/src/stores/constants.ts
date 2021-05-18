@@ -1,4 +1,4 @@
-import { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../types";
+import type { AppStatusState, GraphDataState, UserState, ParaDeploys } from "../types";
 import { addresses } from "@augurproject/smart";
 
 export const DEFAULT_NETWORK_ID = (process.env.DEFAULT_NETWORK_ID || "80001").toString();
