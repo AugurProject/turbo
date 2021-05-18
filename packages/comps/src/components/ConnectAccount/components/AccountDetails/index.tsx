@@ -199,7 +199,7 @@ export const AccountDetails = ({
         <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} chainName={chainName} />
       </section>
       <section>
-        {chainId && chainId === MATIC_MUMBAI && <TinyButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
+        {!process.env.HIDE_FAUCET && <TinyButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
         <TinyButton action={() => openOptions()} text="Switch Wallet" />
         {connector !== injected && notWalletLink && (
           <TinyButton action={() => (connector as any).disconnect()} text="Sign Out" />
