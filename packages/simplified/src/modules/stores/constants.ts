@@ -1,6 +1,5 @@
 import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
 import { Constants } from "@augurproject/comps";
-import type { ParaDeploys } from "@augurproject/comps/build/types";
 
 export const STUBBED_SIMPLIFIED_ACTIONS = {
   setSidebar: (sidebarType) => {},
