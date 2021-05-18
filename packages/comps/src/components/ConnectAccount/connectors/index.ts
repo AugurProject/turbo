@@ -31,7 +31,7 @@ if (typeof NETWORK_URL === "undefined") {
 }
 
 export const network = new NetworkConnector({
-  urls: { [NETWORK_CHAIN_ID]: NETWORK_URL },
+  urls: { [NETWORK_CHAIN_ID]: NETWORK_URL }
 });
 
 let networkLibrary: Web3Provider | undefined;
@@ -49,7 +49,7 @@ export const walletconnect = new WalletConnectConnector({
 
   bridge: "https://bridge.walletconnect.org",
   qrcode: true,
-  pollingInterval: 15000,
+  pollingInterval: 15000
 });
 
 // export const fortmatic = new FortmaticConnector({
