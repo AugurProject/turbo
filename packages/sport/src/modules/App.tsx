@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router";
 import { HashRouter } from "react-router-dom";
-import Styles from "./App.styles.less";
+// import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
-import TopNav from "./common/top-nav";
+// import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
-import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
-import { Sidebar } from "./sidebar/sidebar";
+// import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
+// import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
-import ModalView from "./modal/modal-view";
-import { usePageView } from "../utils/tracker";
+// import ModalView from "./modal/modal-view";
+// import { usePageView } from "../utils/tracker";
 import {
   Stores,
   useDataStore,
@@ -22,10 +22,9 @@ import {
   useUserStore,
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
-import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
+// import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
-
 
 // const AppBody = () => {
 //   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
@@ -41,7 +40,6 @@ const { parsePath } = PathUtils;
 //   useFinalizeUserTransactions(blocknumber);
 //   usePageView();
 //   const activeWeb3 = useActiveWeb3React();
-
 
 //   useEffect(() => {
 //     const isTurboOrigin = () => window.location.origin.indexOf('turbo.augur.sh') > 0;
@@ -95,7 +93,11 @@ const { parsePath } = PathUtils;
 //   );
 // };
 
-const AppBody = () => (<div id="mainContent">Hey we did it...</div>);
+const AppBody = () => (
+  <div id="mainContent">
+    <Routes />
+  </div>
+);
 
 function App() {
   const {
@@ -110,7 +112,7 @@ function App() {
         <UserProvider>
           <DataProvider>
             <AppStatusProvider>
-                <AppBody />
+              <AppBody />
             </AppStatusProvider>
           </DataProvider>
         </UserProvider>
