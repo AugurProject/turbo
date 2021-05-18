@@ -16,6 +16,8 @@
     "smart": "yarn --silent workspace @augurproject/smart",
     "comps": "yarn --silent workspace @augurproject/comps",
     "simp": "yarn --silent workspace @augurproject/simplified",
+    "sport": "yarn --silent workspace @augurproject/sport",
+    "bet": "yarn simp",
     "subgraph": "yarn --silent workspace @augurproject/subgraph",
     "hardhat": "yarn --silent smart hardhat"
   },
