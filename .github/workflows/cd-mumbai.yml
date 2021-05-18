@@ -6,7 +6,7 @@ name: Deploy
 on:
   # Triggers the workflow on push or pull request events but only for the dev branch
   push:
-    branches: [ turbomatic ]
+    branches: [ dev ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -48,14 +48,14 @@ jobs:
       - run: yarn
       - run: yarn build
       
-      - run: NODE_OPTIONS="--max_old_space_size=6144" yarn simp build
+      - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn simp build
       
       - name: Deploy to AWS
         uses: onramper/action-deploy-aws-static-site@v1
         with:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          domain: turbomatic.augur.sh
+          domain: turbo.augur.sh
           publish_dir: packages/simplified/build
 
 

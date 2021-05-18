@@ -3,7 +3,14 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import { Addresses, Collateral, ConstructorArg } from "../addresses";
+import {
+  Addresses,
+  Collateral,
+  ConstructorArg,
+  graphChainNames,
+  addresses as originalAddresses,
+  ChainId,
+} from "../addresses";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   console.log("Done deploying!");
@@ -29,6 +36,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     decimals,
   };
 
+  // If the AMMFactory was deployed then use its block number.
+  // Else, use the previously recorded block number.
+  // That should exist but if it doesn't then use zero.
+  const uploadBlockNumber =
+    ammFactory.receipt?.blockNumber || originalAddresses[chainId as ChainId]?.info.uploadBlockNumber || 0;
+
   const addresses: Addresses = {
     reputationToken: reputationToken.address,
     balancerFactory: balancerFactory.address,
@@ -48,6 +61,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       },
     },
     sportsLinkProxy: sportsLinkProxy.address,
+    info: {
+      graphName: graphChainNames[chainId],
+      uploadBlockNumber,
+    },
   };
 
   console.log(JSON.stringify(addresses, null, 2));

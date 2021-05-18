@@ -100,7 +100,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     function resolveMarket(uint256 _id) public virtual;
 
     // Returns an empty struct if the market doesn't exist.
-    // As a check of market existence, use `endTime != 0` on the returned struct
+    // Can check market existence before calling this by comparing _id against markets.length.
+    // Can check market existence of the return struct by checking that shareTokens[0] isn't the null address
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id > markets.length) {
             return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
@@ -121,12 +122,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 _shareToMint,
         address _receiver
     ) public {
-        Market memory _market = markets[_id];
-        require(_market.endTime > 0, "No such market");
+        require(markets.length > _id, "No such market");
 
         uint256 _cost = calcCost(_shareToMint);
         collateral.transferFrom(msg.sender, address(this), _cost);
 
+        Market memory _market = markets[_id];
         for (uint256 _i = 0; _i < _market.shareTokens.length; _i++) {
             _market.shareTokens[_i].trustedMint(_receiver, _shareToMint);
         }
@@ -139,9 +140,10 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 _sharesToBurn,
         address _receiver
     ) public returns (uint256) {
-        Market memory _market = markets[_id];
-        require(_market.endTime > 0, "No such market");
+        require(markets.length > _id, "No such market");
+        require(!isMarketResolved(_id), "Cannot burn shares for resolved market");
 
+        Market memory _market = markets[_id];
         for (uint256 _i = 0; _i < _market.shareTokens.length; _i++) {
             // errors if sender doesn't have enough shares
             _market.shareTokens[_i].trustedBurn(msg.sender, _sharesToBurn);
@@ -149,10 +151,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
 
         uint256 _payout = calcCost(_sharesToBurn);
         uint256 _protocolFee = _payout.mul(_market.protocolFee).div(10**18);
-        _payout = _payout.sub(_protocolFee);
+        uint256 _stakerFee = _payout.mul(_market.stakerFee).div(10**18);
+        _payout = _payout.sub(_protocolFee).sub(_stakerFee);
 
         accumulatedProtocolFee += _protocolFee;
         collateral.transfer(_receiver, _payout);
+        feePot.depositFees(_stakerFee);
 
         emit SharesBurned(_id, _sharesToBurn, msg.sender);
         return _payout;
@@ -170,11 +174,9 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
 
         uint256 _payout = calcCost(_winningShares);
         uint256 _settlementFee = _payout.mul(_market.settlementFee).div(10**18);
-        uint256 _stakerFee = _payout.mul(_market.stakerFee).div(10**18);
-        _payout = _payout.sub(_settlementFee).sub(_stakerFee);
+        _payout = _payout.sub(_settlementFee);
 
         accumulatedSettlementFees[_market.settlementAddress] += _settlementFee;
-        feePot.depositFees(_stakerFee);
         collateral.transfer(_receiver, _payout);
 
         emit WinningsClaimed(_id, address(_market.winner), _winningShares, _settlementFee, _payout, _receiver);

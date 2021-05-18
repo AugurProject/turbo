@@ -8,9 +8,13 @@ import ButtonStyles from "../common/buttons.styles.less";
 import { GetWalletIcon } from "../common/get-wallet-icon";
 import { useActiveWeb3React } from "./hooks";
 import { MODAL_CONNECT_WALLET, TX_STATUS } from "../../utils/constants";
-import { MATIC_RPC_DATA } from "../ConnectAccount/constants/index";
-import { tryAutoLogin } from "./utils";
+import { MATIC_MUMBAI, tryAutoLogin } from "./utils";
 import { Spinner } from "../common/spinner";
+import { MATIC_RPC_DATA, MATIC_MUMBAI_RPC_DATA } from "../ConnectAccount/constants/index";
+import { PARA_CONFIG } from "../../stores/constants";
+
+// @ts-ignore
+const ethereum = window.ethereum;
 
 export interface LoginButtonProps {
   action: Function;
@@ -57,28 +61,42 @@ const ConnectAccountButton = ({
   isMobile,
   setModal,
 }) => {
+  const networkId = PARA_CONFIG.networkId;
+  const RPC_DATA = Number(networkId) === MATIC_MUMBAI ? MATIC_MUMBAI_RPC_DATA : MATIC_RPC_DATA;
   const { account, activate, connector, error } = useWeb3React();
   const activeWeb3 = useActiveWeb3React();
   const [initialLogin, setInitalLogin] = useState(false);
+  const [isOnMatic, setIsOnMatic] = useState(true);
   const pendingTransaction = transactions.filter((tx) => tx.status === TX_STATUS.PENDING);
   const hasPendingTransaction = pendingTransaction.length > 0 || false;
 
-  const maticCheck = async () => {
-    // @ts-ignore
-    const ethereum = window.ethereum;
-    // @ts-ignore
-    if (ethereum && ethereum?.chainId !== MATIC_RPC_DATA?.chainId) {
-      // await ethereum.request({method: 'wallet_addEthereumChain', params: MATIC_RPC_DATA });
+  const maticCheck = () => {
+    if (!ethereum || !ethereum.chainId) {
+      return; // No injected MM to check
+    }
+
+    if (ethereum && ethereum?.chainId === RPC_DATA?.chainId) {
+      setIsOnMatic(true);
+    } else {
+      setIsOnMatic(false);
     }
   }
 
-  maticCheck();
+  const connectToMatic = async () => {
+    if (ethereum && ethereum?.chainId !== RPC_DATA?.chainId) {
+      await ethereum.request({method: 'wallet_addEthereumChain', params: [RPC_DATA] });
+      setIsOnMatic(true);
+    }
+  }
 
   useEffect(() => {
+    maticCheck();
     if (autoLogin && !account) {
       if (!initialLogin) {
         setInitalLogin(true);
-        tryAutoLogin(activate);
+        if (isOnMatic) {
+          tryAutoLogin(activate);
+        }
       }
     }
   }, [autoLogin, account, activate]);
@@ -103,7 +121,20 @@ const ConnectAccountButton = ({
     text: "Connect Wallet",
   };
 
-  if (account) {
+  if (!isOnMatic) {
+    buttonProps = {
+      ...buttonProps,
+      action: () => {
+        maticCheck();
+        setTimeout(() => {
+          connectToMatic();
+        });
+      },
+      text: "Connect to Matic",
+      icon: <NetworkIcon />,
+    };
+  }
+  else if (account) {
     buttonProps = {
       ...buttonProps,
       className: hasPendingTransaction ? ButtonStyles.Pending : null,

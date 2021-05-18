@@ -36,8 +36,8 @@ export const SELL: string = "sell";
 
 export const ADD_LIQUIDITY: string = "add liquidity";
 export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
-export const DUST_POSITION_AMOUNT = createBigNumber("0.0001");
-export const DUST_POSITION_AMOUNT_ON_CHAIN = DUST_POSITION_AMOUNT.times(createBigNumber(10).pow(18));
+export const DUST_POSITION_AMOUNT: BigNumber = createBigNumber("0.0001");
+export const DUST_POSITION_AMOUNT_ON_CHAIN: BigNumber = DUST_POSITION_AMOUNT.times(createBigNumber(10).pow(18));
 
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;
@@ -155,30 +155,30 @@ export const categoryItems = [
     label: ALL_MARKETS,
     value: ALL_MARKETS,
   },
-  {
-    label: CRYPTO,
-    value: CRYPTO,
-  },
-  {
-    label: ECONOMICS,
-    value: ECONOMICS,
-  },
-  {
-    label: ENTERTAINMENT,
-    value: ENTERTAINMENT,
-  },
-  {
-    label: MEDICAL,
-    value: MEDICAL,
-  },
+  //{
+  //  label: CRYPTO,
+  //  value: CRYPTO,
+  //},
+  //{
+  //  label: ECONOMICS,
+  //  value: ECONOMICS,
+  //},
+  //{
+  // label: ENTERTAINMENT,
+  //  value: ENTERTAINMENT,
+  //},
+  //{
+  //  label: MEDICAL,
+  //  value: MEDICAL,
+  //},
   {
     label: SPORTS,
     value: SPORTS,
   },
-  {
-    label: OTHER,
-    value: OTHER,
-  },
+  //{
+  //  label: OTHER,
+  //  value: OTHER,
+  //},
 ];
 
 export const TOTAL_VOLUME: string = "Total Volume";

@@ -396,7 +396,8 @@ export class Multicall {
         return '0x53c43764255c17bd724f74c4ef150724ac50a3ed';
       case Networks.mumbai:
         return '0x73f44534C4bCb557FDf03a04A7b25018d6FcacD6';
-      // TODO deploy for Matic Mainnet 137
+      case Networks.matic:
+        return '0x5f42c143026e65e25aa76829dbcd6d4f0c9de8ed';
       default:
         throw new Error(
           `Network - ${network} is not got a contract defined it only supports mainnet, kovan, rinkeby and ropsten`

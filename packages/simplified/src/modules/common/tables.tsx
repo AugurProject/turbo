@@ -34,7 +34,7 @@ const {
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
 const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
-const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent } = Formatter;
+const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
 const { timeSinceTimestamp } = DateUtils;
 const {
   MODAL_ADD_LIQUIDITY,
@@ -178,9 +178,7 @@ export const PositionFooter = ({
   
   const disableClaim =
     pendingClaim ||
-    (pendingClaimHash &&
-      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash)))));
-
+      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
@@ -396,7 +394,7 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
     <ul className={Styles.LiquidityRow}>
       <li>{formatPercent(liquidity.poolPct).full}</li>
       <li>{formatDai(initCostUsd).full}</li>
-      <li>{formatDai(liquidity.usdValue).full}</li>
+      <li>{formatLiquidity(liquidity.usdValue).full}</li>
     </ul>
   );
 };
@@ -409,7 +407,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   return (
     <div className={Styles.LiquidityFooter}>
       <PrimaryButton
-        text="remove liquidity"
+        text="Remove Liquidity"
         action={() =>
           setModal({
             type: MODAL_ADD_LIQUIDITY,
@@ -420,7 +418,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
         }
       />
       <SecondaryButton
-        text="add liquidity"
+        text={isfinal ? "Market Resolved" : "Add Liquidity"}
         disabled={isfinal}
         action={() =>
           !isfinal && setModal({
@@ -470,6 +468,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   const { transactions } = useDataStore();
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
+  const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityTable}>
       {!singleMarket && <MarketTableHeader market={market} ammExchange={ammExchange} />}
@@ -488,8 +487,8 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
                 });
               }
             }}
-            disabled={!isLogged}
-            text="Earn fees as a liquidity provider"
+            disabled={!isLogged || isfinal}
+            text={isfinal ? "Market is resolved" : "Earn fees as a liquidity provider"}
           />
         </span>
       )}

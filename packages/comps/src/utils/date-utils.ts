@@ -119,7 +119,7 @@ const getTimestampTimezoneOffSet = (timestamp: string | number) => {
   const date = new Date(inMilli);
   // timezone offset comes in minutes
   const timezone = date.getTimezoneOffset() / 60;
-  const direction = timezone > 0 ? "+" : "-";
+  const direction = timezone < 0 ? "+" : "-";
   return `(UTC${direction}${Math.abs(timezone)})`;
 };
 
