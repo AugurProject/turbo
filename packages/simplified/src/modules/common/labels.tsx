@@ -13,6 +13,8 @@ import {
   PARA_CONFIG,
   LabelComps,
   Stores,
+  Links,
+  createBigNumber
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 const {
@@ -25,7 +27,9 @@ const {
   MODAL_ADD_LIQUIDITY,
   MARKET,
   ADD,
+  DUST_POSITION_AMOUNT,
 } = Constants;
+const { ExternalLink } = Links;
 const { ValueLabel } = LabelComps;
 const {
   PathUtils: { parsePath },
@@ -122,7 +126,7 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
 
 export const NetworkMismatchBanner = () => {
   const { errors } = useDataStore();
-  const { loginAccount } = useUserStore();
+  const { loginAccount, balances } = useUserStore();
   const { error } = useWeb3React();
   const { networkId } = PARA_CONFIG;
   const location = useLocation();
@@ -139,6 +143,7 @@ export const NetworkMismatchBanner = () => {
       window.scrollTo(0, 1);
     }
   }, [isNetworkMismatch, isGraphError, unsupportedChainIdError]);
+  const needMoreMatic = Boolean(loginAccount?.account) && Boolean(createBigNumber(balances?.ETH?.balance).lte(DUST_POSITION_AMOUNT));
 
   return (
     <>
@@ -160,6 +165,13 @@ export const NetworkMismatchBanner = () => {
           Unable to retrieve market data
         </article>
       )}
+      {needMoreMatic && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://www.augur.net" />
+      </article>}
     </>
   );
 };
