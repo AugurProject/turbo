@@ -170,7 +170,7 @@ export const NetworkMismatchBanner = () => {
             [Styles.Market]: path === MARKET,
           })}
         >
-          You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://www.augur.net" />
+          You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://help.augur.net" />
       </article>}
     </>
   );
