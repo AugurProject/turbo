@@ -87,6 +87,20 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                           )
                         )
                       );
+                    } else if (key === "info") {
+                      return context.factory.createPropertyAssignment(
+                        key,
+                        ts.factory.createObjectLiteralExpression([
+                          context.factory.createPropertyAssignment(
+                            "uploadBlockNumber",
+                            ts.factory.createNumericLiteral(addresses.info.uploadBlockNumber)
+                          ),
+                          context.factory.createPropertyAssignment(
+                            "graphName",
+                            ts.factory.createStringLiteral(addresses.info.graphName || "")
+                          ),
+                        ])
+                      );
                     } else {
                       return context.factory.createPropertyAssignment(`${key}`, ts.factory.createStringLiteral(val));
                     }
