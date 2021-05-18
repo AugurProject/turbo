@@ -70,33 +70,6 @@ export const getTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
   });
 };
 
-export const getDateFormat = (timestamp) => {
-  if (!timestamp) return "N/A";
-  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
-  const date = new Date(inMilli);
-  const language = navigator?.language || "en-us";
-  return date.toLocaleDateString(language, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-export const getDateTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
-  if (!timestamp) return "N/A";
-  const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
-  const date = new Date(inMilli);
-  const language = navigator?.language || "en-us";
-  return date.toLocaleDateString(language, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: format === TWELVE_HOUR_TIME,
-  });
-};
-
 export const getMarketEndtimeDate = (timestamp: string | number) => {
   const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
@@ -119,7 +92,7 @@ const getTimestampTimezoneOffSet = (timestamp: string | number) => {
   const date = new Date(inMilli);
   // timezone offset comes in minutes
   const timezone = date.getTimezoneOffset() / 60;
-  const direction = timezone > 0 ? "+" : "-";
+  const direction = timezone < 0 ? "+" : "-";
   return `(UTC${direction}${Math.abs(timezone)})`;
 };
 
