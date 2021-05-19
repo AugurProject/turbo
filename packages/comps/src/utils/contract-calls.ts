@@ -409,11 +409,11 @@ export const estimateSellTrade = async (
     console.log("error in calc complete sets", e);
   });
 
-  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets));
+  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets[0]), String(breakdownCompleteSets[1]));
 
   if (!breakdownCompleteSets) return null;
 
-  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets); // todo: debugging div 1000 need to fix
+  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets[0]); // todo: debugging div 1000 need to fix
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const displayAmount = new BN(inputDisplayAmount);
@@ -433,6 +433,7 @@ export const estimateSellTrade = async (
     ratePerCash,
     remainingShares: remainingShares.toFixed(6),
     priceImpact,
+    outcomeShareTokensIn: breakdownCompleteSets[1], // just a pass through to sell trade call
   };
 };
 
@@ -445,18 +446,20 @@ export async function doTrade(
   selectedOutcomeId: number,
   account: string,
   cash: Cash,
-  slippage: string
+  slippage: string,
+  outcomeShareTokensIn: string[] = []
 ) {
   if (!provider) return console.error("doTrade: no provider");
   const ammFactoryContract = getAmmFactoryContract(provider, account);
   const { marketFactoryAddress, turboId } = amm;
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+  const minAmountWithSlippage = new BN(1).minus(new BN(slippage).div(100)).times(new BN(minAmount));
+  console.log("minAmount", minAmount, "withSlippage", String(minAmountWithSlippage));
+  let onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(minAmountWithSlippage, cash.decimals)
+  .decimalPlaces(0);
+
+
   if (tradeDirection === TradingDirection.ENTRY) {
-    const minAmountWithSlippage = new BN(1).minus(new BN(slippage).div(100)).times(new BN(minAmount));
-    console.log("minAmount", minAmount, "withSlippage", String(minAmountWithSlippage));
-    const onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(minAmountWithSlippage, cash.decimals)
-      .decimalPlaces(0)
-      .toFixed();
     console.log(
       "address",
       marketFactoryAddress,
@@ -469,7 +472,7 @@ export async function doTrade(
       "min",
       onChainMinShares
     );
-    return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares);
+    return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares.toFixed());
   }
 
   if (tradeDirection === TradingDirection.EXIT) {
@@ -479,9 +482,9 @@ export async function doTrade(
     if (min.lt(0)) {
       min = "0.01"; // set to 1 cent until estimate gets worked out.
     }
-    let onChainMinAmount = sharesDisplayToOnChain(new BN(min)).decimalPlaces(0);
-    if (onChainMinAmount.lt(0)) {
-      onChainMinAmount = ZERO;
+
+    if (onChainMinShares.lt(0)) {
+      onChainMinShares = ZERO;
     }
 
     console.log(
@@ -494,16 +497,18 @@ export async function doTrade(
       "amount",
       String(amount),
       "min amount",
-      onChainMinAmount.toFixed()
+      onChainMinShares.toFixed(),
+      'share tokens in',
+      outcomeShareTokensIn
     );
 
     return ammFactoryContract.sellForCollateral(
       marketFactoryAddress,
       turboId,
       selectedOutcomeId,
-      amount,
-      onChainMinAmount.toFixed()
-      //,{ gasLimit: "800000", gasPrice: "10000000000"}
+      outcomeShareTokensIn,
+      onChainMinShares.toFixed()
+      ,{ gasLimit: "800000", gasPrice: "10000000000"}
     );
   }
 
