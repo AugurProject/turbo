@@ -151,6 +151,6 @@ export const addresses: AddressMapping = {
       },
     },
     sportsLinkProxy: "0x064886d5933593C2C7AF449403635C696A43cD87",
-    info: { uploadBlockNumber: 14692053, graphName: "matic" },
+    info: { uploadBlockNumber: 14500254, graphName: "matic" },
   },
 };
