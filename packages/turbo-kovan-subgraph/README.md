@@ -9,23 +9,25 @@ For more information on how TheGraph works, see the docs on https://thegraph.com
 In order to deploy the graph to Mumbai (Matic/Polygon Testnet), you need to follow these steps from the root of the project:
 
 ```text
-1. yarn smart generate:environments
-2. yarn subgraph prepare:abis
-3. yarn subgraph prepare:mumbai
-4. yarn subgraph codegen
-5. You need to authenticate the access token (need to do this only once)
-6. yarn subgraph deploy:mumbai
+1. yarn smart build
+2. yarn smart generate:environments
+3. yarn subgraph prepare:abis
+4. yarn subgraph prepare:mumbai
+5. yarn subgraph codegen
+6. You need to authenticate the access token (need to do this only once)
+7. yarn subgraph deploy:mumbai
 ```
 
 For Matic/Polygon Mainnet
 
 ```text
-1. yarn smart generate:environments
-2. yarn subgraph prepare:abis
-3. yarn subgraph prepare:matic
-4. yarn subgraph codegen
-5. You need to authenticate the access token (need to do this only once)
-6. yarn subgraph deploy:matic
+1. yarn smart build
+2. yarn smart generate:environments
+3. yarn subgraph prepare:abis
+4. yarn subgraph prepare:matic
+5. yarn subgraph codegen
+6. You need to authenticate the access token (need to do this only once)
+7. yarn subgraph deploy:matic
 ```
 
 ## How to test for errors
