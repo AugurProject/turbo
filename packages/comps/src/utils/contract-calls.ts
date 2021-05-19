@@ -455,9 +455,10 @@ export async function doTrade(
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
   const minAmountWithSlippage = new BN(1).minus(new BN(slippage).div(100)).times(new BN(minAmount));
   console.log("minAmount", minAmount, "withSlippage", String(minAmountWithSlippage));
-  let onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(minAmountWithSlippage, cash.decimals)
-  .decimalPlaces(0);
-
+  let onChainMinShares = convertDisplayShareAmountToOnChainShareAmount(
+    minAmountWithSlippage,
+    cash.decimals
+  ).decimalPlaces(0);
 
   if (tradeDirection === TradingDirection.ENTRY) {
     console.log(
@@ -498,7 +499,7 @@ export async function doTrade(
       String(amount),
       "min amount",
       onChainMinShares.toFixed(),
-      'share tokens in',
+      "share tokens in",
       outcomeShareTokensIn
     );
 
