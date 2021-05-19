@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: Subgraph for Augur Turbo (matic) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
+description: Subgraph for Augur Turbo (mumbai) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
 repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: AMMFactory
-    network: matic
+    network: mumbai
     source:
-      address: '0x54Ea954F4A285f1D3cA8EC05B2bf5e59548d88a4'
+      address: '0x9381D4B5e7bEB89899da34dA60Ed5170D91E032A'
       abi: AMMFactory
-      startBlock: 14634614
+      startBlock: 13971264
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -30,15 +30,15 @@ dataSources:
           handler: handlePoolCreatedEvent
         - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
           handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
+        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256[],uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
     name: AbstractMarketFactory
-    network: matic
+    network: mumbai
     source:
-      address: '0xD5a3A8B14B50D529B3C159bAeB36F1382011E923' # use SportsLinkMarketFactory
+      address: '0x43D9f2d22f1306D012251d032a5B67553FE4aA82' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
-      startBlock: 14634614
+      startBlock: 13971264
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
