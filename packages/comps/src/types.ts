@@ -462,6 +462,7 @@ export interface WindowApp extends Window {
   betslip?: any;
   trading?: any;
   user?: any;
+  sport?: any;
   pendingOrders?: any;
   showIndexedDbSize?: Function;
 }

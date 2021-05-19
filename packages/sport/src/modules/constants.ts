@@ -1,4 +1,5 @@
 import { createBigNumber } from "@augurproject/comps";
+import type { BigNumber } from "bignumber.js";
 
 // # Market Types
 // should not be used, will be refactored out.
@@ -17,15 +18,15 @@ export const SELL = "sell";
 
 export const ADD_LIQUIDITY = "add liquidity";
 
-export const ETHER = createBigNumber(10).pow(18);
-export const TEN = createBigNumber(10, 10);
-export const ZERO = createBigNumber(0);
-export const ONE = createBigNumber(1);
-export const HUNDRED = createBigNumber(100);
-export const THOUSAND = createBigNumber(1000);
-export const MILLION = THOUSAND.times(THOUSAND);
-export const BILLION = MILLION.times(THOUSAND);
-export const TRILLION = BILLION.times(THOUSAND);
+export const ETHER: BigNumber = createBigNumber(10).pow(18);
+export const TEN: BigNumber = createBigNumber(10, 10);
+export const ZERO: BigNumber = createBigNumber(0);
+export const ONE: BigNumber = createBigNumber(1);
+export const HUNDRED: BigNumber = createBigNumber(100);
+export const THOUSAND: BigNumber = createBigNumber(1000);
+export const MILLION: BigNumber = THOUSAND.times(THOUSAND);
+export const BILLION: BigNumber = MILLION.times(THOUSAND);
+export const TRILLION: BigNumber = BILLION.times(THOUSAND);
 
 // # Asset Types
 export const ETH = "ETH";

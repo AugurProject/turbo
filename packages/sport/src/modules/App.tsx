@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router";
 import { HashRouter } from "react-router-dom";
-// import Styles from "./App.styles.less";
+import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
-// import TopNav from "./common/top-nav";
+import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
 // import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
 // import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
-// import ModalView from "./modal/modal-view";
+import ModalView from "./modal/modal-view";
 // import { usePageView } from "../utils/tracker";
 import {
   Stores,
@@ -19,14 +19,16 @@ import {
   PathUtils,
   Constants,
   windowRef,
+  ButtonComps,
   useUserStore,
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
 // import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
+const { PrimaryButton } = ButtonComps;
 
-// const AppBody = () => {
+// // const AppBody = () => {
 //   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
 //   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
 //   const { sidebarType, showTradingForm } = useSimplifiedStore();
@@ -36,10 +38,10 @@ const { parsePath } = PathUtils;
 //   const path = parsePath(location.pathname)[0];
 //   const sidebarOut = sidebarType && isMobile;
 
-//   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
-//   useFinalizeUserTransactions(blocknumber);
-//   usePageView();
-//   const activeWeb3 = useActiveWeb3React();
+  // useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
+  // useFinalizeUserTransactions(blocknumber);
+  // usePageView();
+  // const activeWeb3 = useActiveWeb3React();
 
 //   useEffect(() => {
 //     const isTurboOrigin = () => window.location.origin.indexOf('turbo.augur.sh') > 0;
@@ -93,12 +95,53 @@ const { parsePath } = PathUtils;
 //   );
 // };
 
-const AppBody = () => (
-  <div id="mainContent">
-    <Routes />
-  </div>
-);
+const AppBody = () => {
+  const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
+  const {
+    isMobile,
+    modal,
+    actions: { setModal },
+  } = useAppStatusStore();
+  const {
+    loginAccount,
+    actions: { logout },
+  } = useUserStore();
+  const modalShowing = Object.keys(modal).length !== 0;
 
+  useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
+  useFinalizeUserTransactions(blocknumber);
+  
+  useEffect(() => {
+    const html = windowRef.document.firstElementChild;
+    // @ts-ignore
+    const isHeightUnset = html?.style?.height === "";
+    const eitherOr = modalShowing;
+    if (eitherOr && isHeightUnset) {
+      // @ts-ignore
+      html.style.height = "100%";
+      // @ts-ignore
+      html.style.overflow = "hidden";
+    } else if (!eitherOr && !isHeightUnset) {
+      // @ts-ignore
+      html.style.height = "";
+      // @ts-ignore
+      html.style.overflow = "";
+    }
+  }, [modalShowing]);
+
+  return (
+    <div
+      id="mainContent"
+      className={classNames(Styles.App, {
+        [Styles.ModalShowing]: modalShowing,
+      })}
+    >
+      {modalShowing && <ModalView />}
+      <TopNav />
+      <Routes />
+    </div>
+  );
+};
 function App() {
   const {
     AppStatus: { AppStatusProvider },
