@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { HashRouter } from "react-router-dom";
 // import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
-// import TopNav from "./common/top-nav";
+import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
 // import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
 // import { Sidebar } from "./sidebar/sidebar";
@@ -95,6 +95,7 @@ const { parsePath } = PathUtils;
 
 const AppBody = () => (
   <div id="mainContent">
+    <TopNav />
     <Routes />
   </div>
 );
