@@ -1,5 +1,5 @@
 import { createBigNumber } from "@augurproject/comps";
-import type { BigNumber } from 'bignumber.js';
+import type { BigNumber } from "bignumber.js";
 
 // # Market Types
 // should not be used, will be refactored out.
