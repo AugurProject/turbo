@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { EthIcon, UsdIcon, XIcon } from "./icons";
 import Styles from "./inputs.styles.less";
-import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice, formatDai } from "../../utils/format-number";
+import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice } from "../../utils/format-number";
 import { USDC, ERROR_AMOUNT, SHARES, ETH } from "../../utils/constants";
 import { useAppStatusStore } from "../../stores/app-status";
 import { TinyButton } from "./buttons";
@@ -117,7 +117,7 @@ export const AmountInput = ({
         {isLogged && (
           <>
             <span>balance:</span>{" "}
-            {isBuy ? formatCash(maxValue, ammCash?.name).full : formatSimpleShares(maxValue).formatted}
+            {isBuy ? formatCash(maxValue, ammCash?.name).full : formatSimpleShares(maxValue).roundedFormatted}
           </>
         )}
       </span>
