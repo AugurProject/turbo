@@ -30,7 +30,7 @@ dataSources:
           handler: handlePoolCreatedEvent
         - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
           handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256[],uint256)
+        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
     name: AbstractMarketFactory

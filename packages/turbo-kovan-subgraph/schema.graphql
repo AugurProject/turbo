@@ -115,8 +115,6 @@ type Buy @entity {
   collateral: String!
   shares: String!
   price: BigDecimal!
-
-  inOutRatio: [BigInt!]
 }
 
 type Sell @entity {
@@ -128,8 +126,6 @@ type Sell @entity {
   collateral: String!
   shares: String!
   price: BigDecimal!
-
-  inOutRatio: [BigInt!]
 }
 
 type Trade @entity {
@@ -153,8 +149,6 @@ type Trade @entity {
   transactionHash: String!
 
   timestamp: BigInt!
-
-  inOutRatio: [BigInt!]
 }
 
 type ClaimedProceeds @entity {
