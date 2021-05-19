@@ -49,7 +49,16 @@ jobs:
       - run: yarn build
       
       - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn simp build
-      
+
+      # Graph deploy
+      - run: yarn smart generate:environments
+      - run: yarn subgraph prepare:abis
+      - run: yarn subgraph prepare:mumbai
+      - run: yarn subgraph codegen
+      # You need to authenticate the access token (need to do this only once)
+      # graph auth https://api.thegraph.com/deploy/ ACCESS_TOKEN
+      - run: yarn subgraph deploy:mumbai
+
       - name: Deploy to AWS
         uses: onramper/action-deploy-aws-static-site@v1
         with:
