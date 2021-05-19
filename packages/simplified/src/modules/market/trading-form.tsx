@@ -274,12 +274,13 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
+    const outcomeShareTokensIn = breakdown?.outcomeShareTokensIn;
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
     const outcomeName = outcomes[selectedOutcomeId]?.name;
     setWaitingToSign(true);
     setShowTradingForm(false);
     tradingEvents(isBuy, outcomeName, ammCash?.name, amount, minOutput);
-    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage)
+    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage, outcomeShareTokensIn)
       .then((response) => {
         if (response) {
           const { hash } = response;
