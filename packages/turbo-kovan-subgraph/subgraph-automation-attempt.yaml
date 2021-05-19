@@ -1,5 +1,5 @@
 specVersion: 0.0.2
-description: A subgraph for Augur Turbo on Mumbai
+description: Subgraph for Augur Turbo (mumbai) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
 repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql

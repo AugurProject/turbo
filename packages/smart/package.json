@@ -13,7 +13,8 @@
     "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
     "contracts:deploy": "yarn hardhat deploy",
     "contracts:verify": "hardhat verify",
-    "ethereumNode": "hardhat node --no-deploy"
+    "ethereumNode": "hardhat node --no-deploy",
+    "generate:environments": "ts-node -e 'require(\"./src/utils/environments.ts\").generateJsonEnvironments()'"
   },
   "files": [
     "./contracts",

@@ -1,14 +1,14 @@
 specVersion: 0.0.2
-description: A subgraph for Augur Turbo on Mumbai
+description: A subgraph for Augur Turbo on Polygon Mainnet
 repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: AMMFactory
-    network: mumbai
+    network: matic
     source:
-      address: '0x9381D4B5e7bEB89899da34dA60Ed5170D91E032A'
+      address: '0x54Ea954F4A285f1D3cA8EC05B2bf5e59548d88a4'
       abi: AMMFactory
       startBlock: 13971264
     mapping:
@@ -34,7 +34,7 @@ dataSources:
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
     name: AbstractMarketFactory
-    network: mumbai
+    network: matic
     source:
       address: '0x43D9f2d22f1306D012251d032a5B67553FE4aA82' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory

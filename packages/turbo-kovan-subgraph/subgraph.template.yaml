@@ -1,16 +1,16 @@
 specVersion: 0.0.2
-description: Subgraph for Augur Turbo ({{ network }}) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
+description: Subgraph for Augur Turbo ({{ info.graphName }}) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
 repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: AMMFactory
-    network: {{ ethereum.network }}
+    network: {{ info.graphName }}
     source:
-      address: '{{ addresses.80001.ammFactory }}'
+      address: '{{ ammFactory }}'
       abi: AMMFactory
-      startBlock: {{ uploadBlockNumber }}
+      startBlock: {{ info.uploadBlockNumber }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -34,11 +34,11 @@ dataSources:
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
     name: AbstractMarketFactory
-    network: {{ ethereum.network }}
+    network: {{ info.graphName }}
     source:
-      address: '{{ addresses.sportslink }}' # use SportsLinkMarketFactory
+      address: '{{ marketFactories.sportsball.address }}' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
-      startBlock: {{ uploadBlockNumber }}
+      startBlock: {{ info.uploadBlockNumber }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
