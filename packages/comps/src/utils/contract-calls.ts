@@ -508,7 +508,7 @@ export async function doTrade(
       selectedOutcomeId,
       outcomeShareTokensIn,
       onChainMinShares.toFixed()
-      ,{ gasLimit: "800000", gasPrice: "10000000000"}
+      //,{ gasLimit: "800000", gasPrice: "10000000000"}
     );
   }
 
