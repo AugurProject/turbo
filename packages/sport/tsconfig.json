@@ -44,10 +44,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": false
   },
-  "include": [
-    "./src"
-  ],
-  "exclude": [
-    "./src/**/*.test.ts"
-  ]
+  // "include": [
+  //   "*"
+  // ],
+  // "exclude": [
+  //   "./src/**/*.test.ts"
+  // ]
 }
