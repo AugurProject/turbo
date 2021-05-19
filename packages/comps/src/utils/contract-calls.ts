@@ -419,12 +419,13 @@ export const estimateSellTrade = async (
   const displayAmount = new BN(inputDisplayAmount);
   const averagePrice = new BN(completeSets).div(displayAmount);
   const price = new BN(String(amm.ammOutcomes[selectedOutcomeId].price));
-  const userShares = userBalances ? new BN(userBalances[selectedOutcomeId] || "0") : "0";
+  const userShares = userBalances?.outcomeSharesRaw
+    ? new BN(userBalances?.outcomeSharesRaw?.[selectedOutcomeId] || "0")
+    : "0";
   const priceImpact = averagePrice.minus(price).times(100).toFixed(4);
   const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
   const displayShares = sharesOnChainToDisplay(userShares);
   const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
-
   return {
     outputValue: String(completeSets),
     tradeFees,
