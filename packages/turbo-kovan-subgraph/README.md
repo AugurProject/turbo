@@ -10,22 +10,22 @@ In order to deploy the graph to Mumbai (Matic/Polygon Testnet), you need to foll
 
 ```text
 1. yarn smart generate:environments
-1. yarn subgraph prepare:abis
-2. yarn subgraph prepare:mumbai
-2. yarn subgraph codegen
-3. You need to authenticate the access token
-4. yarn subgraph deploy:mumbai
+2. yarn subgraph prepare:abis
+3. yarn subgraph prepare:mumbai
+4. yarn subgraph codegen
+5. You need to authenticate the access token (need to do this only once)
+6. yarn subgraph deploy:mumbai
 ```
 
 For Matic/Polygon Mainnet
 
 ```text
 1. yarn smart generate:environments
-1. yarn subgraph prepare:abis
-2. yarn subgraph prepare:matic
-2. yarn subgraph codegen
-3. You need to authenticate the access token
-4. yarn subgraph deploy:matic
+2. yarn subgraph prepare:abis
+3. yarn subgraph prepare:matic
+4. yarn subgraph codegen
+5. You need to authenticate the access token (need to do this only once)
+6. yarn subgraph deploy:matic
 ```
 
 ## How to test for errors
