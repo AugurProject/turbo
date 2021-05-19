@@ -115,10 +115,10 @@ const applyFiltersAndSort = (
     }
     return true;
   });
-
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
     const aTransactions = transactions ? transactions[marketA.marketId] : {};
     const bTransactions = transactions ? transactions[marketB.marketId] : {};
+    
     const mod = reportingState === RESOLVED ? -1 : 1;
     if (sortBy === TOTAL_VOLUME) {
       return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
@@ -131,10 +131,12 @@ const applyFiltersAndSort = (
     }
     return true;
   });
+
   if (sortBy !== STARTS_SOON) {
-    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId))
-    ;
-    // handle grouping by event Id and resort by liquidity.
+    // if we aren't doing start time, then move illiquid markets to the back 
+    // half of the list, also sort by start time ascending for those.
+    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
+
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
 
