@@ -107,7 +107,7 @@ describe("AMMFactory", () => {
     const _setsInForCollateral = await secondMarketFactory.calcShares(collateralIn);
     await secondMarketFactory.mintShares(marketId.toString(), _setsInForCollateral, secondSigner.address);
 
-    const setsToBurn = await calculateSellCompleteSetsWithValues(
+    const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactory,
       marketFactory as AbstractMarketFactory,
       marketId.toString(),
@@ -125,12 +125,11 @@ describe("AMMFactory", () => {
       secondMarketFactory.address,
       marketId,
       _outcome,
-      _setsInForCollateral,
-      setsToBurn
+      _shareTokensIn.map((m) => BigNumber.from(m)),
+      BigNumber.from(tokenAmountOut)
     );
 
     const collateralAfter = await secondCollateral.balanceOf(secondSigner.address);
-
     expect(collateralAfter.gt(collateralBefore)).to.be.true;
   });
 
