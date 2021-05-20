@@ -15,7 +15,7 @@ export const DEFAULT_SPORT_STATE = {
     slippage: SETTINGS_SLIPPAGE,
     timeFormat: Constants.TWELVE_HOUR_TIME,
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
-    showLiquidMarkets: true,
+    showLiquidMarkets: false,
   },
 };
 

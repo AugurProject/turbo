@@ -10,6 +10,9 @@ const { SETTINGS, SIDEBAR_TYPE, SHOW_TRADING_FORM } = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
+  // don't set settings, conflicts with simp
+  return;
+  /*
   if (userData) {
     window.localStorage.setItem(
       userAccount,
@@ -27,6 +30,7 @@ const updateLocalStorage = (userAccount, updatedState) => {
       })
     );
   }
+  */
 };
 
 export function SportReducer(state, action) {
@@ -39,7 +43,7 @@ export function SportReducer(state, action) {
     case SET_SHOW_TRADING_FORM: {
       updatedState[SHOW_TRADING_FORM] = action.showTradingForm;
       break;
-    }    
+    }
     case UPDATE_SETTINGS: {
       updatedState[SETTINGS] = {
         ...state[SETTINGS],
