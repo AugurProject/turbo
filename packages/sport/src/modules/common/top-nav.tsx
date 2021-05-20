@@ -3,8 +3,8 @@ import { useLocation } from "react-router";
 import Styles from "./top-nav.styles.less";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-// import { Toasts } from "../toasts/toasts";
-// import { useSimplifiedStore } from "../stores/simplified";
+//import { Toasts } from "../toasts/toasts";
+import { useSportsStore } from "../stores/sport";
 import {
   Icons,
   useAppStatusStore,
@@ -26,16 +26,14 @@ const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR
 const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
-  // const {
-  //   settings: { showLiquidMarkets, timeFormat },
-  //   actions: { updateSettings },
-  // } = useSimplifiedStore();
+  const {
+    settings: { oddsFormat, timeFormat },
+    actions: { updateSettings },
+  } = useSportsStore();
   const { account } = useUserStore();
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
-  // const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
-  const is24hour = false;
-
+  const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
   useEffect(() => {
     const handleWindowOnClick = (event) => {
       if (open && !!event.target && settingsRef.current !== null && !settingsRef?.current?.contains(event.target)) {
@@ -59,26 +57,26 @@ export const SettingsButton = () => {
             <h2>Settings</h2>
           </li>
           <li>
-            <label htmlFor="showLiquidMarkets">Show liquid markets only</label>
-            <ToggleSwitch
-              id="showLiquidMarkets"
-              toggle
-              // toggle={showLiquidMarkets}
-              setToggle={() => {}
-                // updateSettings({ showLiquidMarkets: !showLiquidMarkets }, account)
-              }
-            />
-          </li>
-          <li>
             <label htmlFor="switchTime">Display time in 24hr format</label>
             <ToggleSwitch
               id="switchTime"
               toggle={is24hour}
-              setToggle={() => {}
-                // updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
+              setToggle={() => 
+                updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
               }
             />
           </li>
+          <li>
+            <label htmlFor="oddsFormat">Odds Format</label>
+            <ToggleSwitch
+              id="oddsFormat"
+              toggle={oddsFormat}
+              setToggle={() => 
+                updateSettings({ oddsFormat: Constants.ODDS_TYPE.DECIMAL }, account)
+              }
+            />
+          </li>
+
         </ul>
       )}
     </div>
@@ -94,9 +92,9 @@ export const TopNav = () => {
     isMobile,
     actions: { setModal },
   } = useAppStatusStore();
-  // const {
-  //   actions: { setSidebar },
-  // } = useSimplifiedStore();
+   const {
+     actions: { setSidebar },
+   } = useSportsStore();
   const {
     account,
     loginAccount,
@@ -176,7 +174,7 @@ export const TopNav = () => {
             title="Augur Settings Menu"
             aria-label="Settings"
             onClick={() =>{ 
-              // setSidebar(SIDEBAR_TYPES.NAVIGATION)
+              setSidebar(SIDEBAR_TYPES.NAVIGATION)
             }}
           >
             {ThreeLinesIcon}

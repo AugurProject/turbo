@@ -5,7 +5,7 @@ import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
 import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
-// import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
+import { SportProvider, useSportsStore } from "./stores/sport";
 // import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
@@ -31,7 +31,7 @@ const { PrimaryButton } = ButtonComps;
 // // const AppBody = () => {
 //   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
 //   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
-//   const { sidebarType, showTradingForm } = useSimplifiedStore();
+//   const { sidebarType, showTradingForm } = useSportsStore();
 //   const { loginAccount, actions: { logout }, } = useUserStore();
 //   const modalShowing = Object.keys(modal).length !== 0;
 //   const location = useLocation();
@@ -155,7 +155,9 @@ function App() {
         <UserProvider>
           <DataProvider>
             <AppStatusProvider>
-              <AppBody />
+              <SportProvider>
+                <AppBody />
+              </SportProvider>
             </AppStatusProvider>
           </DataProvider>
         </UserProvider>
