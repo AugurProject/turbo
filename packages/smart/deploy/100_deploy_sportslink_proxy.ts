@@ -11,8 +11,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const marketFactory = (await ethers.getContract("SportsLinkMarketFactory")) as SportsLinkMarketFactory;
   const owner = deployer;
+  const linkNode = deployer;
 
-  const args: Parameters<SportsLinkProxy__factory["deploy"]> = [owner, marketFactory.address];
+  const args: Parameters<SportsLinkProxy__factory["deploy"]> = [owner, marketFactory.address, linkNode];
 
   await deployments.deploy("SportsLinkProxy", {
     from: deployer,
