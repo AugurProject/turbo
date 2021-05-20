@@ -34,8 +34,6 @@ export const SettingsButton = () => {
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
   const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
-
-  console.log('is24hour', is24hour, timeFormat);
   useEffect(() => {
     const handleWindowOnClick = (event) => {
       if (open && !!event.target && settingsRef.current !== null && !settingsRef?.current?.contains(event.target)) {

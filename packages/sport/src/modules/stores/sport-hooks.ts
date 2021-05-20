@@ -31,7 +31,6 @@ const updateLocalStorage = (userAccount, updatedState) => {
 
 export function SportReducer(state, action) {
   const updatedState = { ...state };
-  console.log('sport reducer', action)
   switch (action.type) {
     case SET_SIDEBAR: {
       updatedState[SIDEBAR_TYPE] = action.sidebarType;
@@ -42,7 +41,6 @@ export function SportReducer(state, action) {
       break;
     }    
     case UPDATE_SETTINGS: {
-      console.log('update state', action)
       updatedState[SETTINGS] = {
         ...state[SETTINGS],
         ...action[SETTINGS],

@@ -1,4 +1,4 @@
-import { SETTINGS_SLIPPAGE } from "../constants";
+import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
 import { Constants } from "@augurproject/comps";
 
 export const STUBBED_SPORT_ACTIONS = {
@@ -10,10 +10,12 @@ export const STUBBED_SPORT_ACTIONS = {
 export const DEFAULT_SPORT_STATE = {
   sidebarType: null,
   showTradingForm: false,
+  marketsViewSettings: DEFAULT_MARKET_VIEW_SETTINGS,
   settings: {
     slippage: SETTINGS_SLIPPAGE,
     timeFormat: Constants.TWELVE_HOUR_TIME,
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
+    showLiquidMarkets: true,
   },
 };
 

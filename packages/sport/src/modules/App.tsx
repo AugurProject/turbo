@@ -5,7 +5,7 @@ import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
 import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
-// import { SimplifiedProvider, useSportsStore } from "./stores/simplified";
+import { SportProvider, useSportsStore } from "./stores/sport";
 // import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
@@ -155,7 +155,9 @@ function App() {
         <UserProvider>
           <DataProvider>
             <AppStatusProvider>
-              <AppBody />
+              <SportProvider>
+                <AppBody />
+              </SportProvider>
             </AppStatusProvider>
           </DataProvider>
         </UserProvider>
