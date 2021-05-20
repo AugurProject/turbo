@@ -6,6 +6,7 @@ import * as _Constants from './utils/constants';
 import { createBigNumber } from './utils/create-big-number';
 import * as DateUtils from './utils/date-utils';
 import * as Formatter from './utils/format-number';
+import * as OddsUtils from './utils/format-odds';
 import getPrecision from './utils/get-number-precision';
 import logError from './utils/log-error';
 import { windowRef } from './utils/window-ref';
@@ -134,6 +135,7 @@ export const Utils = {
   addCommasToNumber,
   createBigNumber,
   DateUtils,
+  OddsUtils,
   Formatter,
   getPrecision,
   logError,
@@ -177,6 +179,7 @@ export {
   createBigNumber,
   Formatter,
   DateUtils,
+  OddsUtils,
   PathUtils,
   Links,
   windowRef,
