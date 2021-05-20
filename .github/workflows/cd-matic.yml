@@ -55,9 +55,7 @@ jobs:
       - run: yarn subgraph prepare:abis
       - run: yarn subgraph prepare:matic
       - run: yarn subgraph codegen
-      # You need to authenticate the access token (need to do this only once)
-      # graph auth https://api.thegraph.com/deploy/ ACCESS_TOKEN
-      - run: yarn subgraph deploy:matic
+      - run: yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
 
       - name: Deploy to AWS
         uses: onramper/action-deploy-aws-static-site@v1
