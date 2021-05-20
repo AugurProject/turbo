@@ -9,7 +9,6 @@ import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
 import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
-import { usePageView } from "../utils/tracker";
 import {
   Stores,
   useDataStore,
@@ -39,7 +38,6 @@ const AppBody = () => {
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
-  usePageView();
   const activeWeb3 = useActiveWeb3React();
 
 

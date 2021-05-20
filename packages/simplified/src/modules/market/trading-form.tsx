@@ -14,7 +14,6 @@ import {
   useApprovalStatus,
 } from "@augurproject/comps";
 import type { AmmOutcome, Cash, EstimateTradeResult } from "@augurproject/comps/build/types";
-import { useTrackedEvents } from "../../utils/tracker";
 import { Slippage } from "../common/slippage";
 import getUSDC from "../../utils/get-usdc";
 const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
@@ -160,7 +159,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
   } = useUserStore();
   const [orderType, setOrderType] = useState(BUY);
   const [selectedOutcome, setSelectedOutcome] = useState(initialSelectedOutcome);
-  const { tradingEstimateEvents, tradingEvents } = useTrackedEvents();
   const [breakdown, setBreakdown] = useState<EstimateTradeResult | null>(null);
   const [amount, setAmount] = useState<string>("");
   const [waitingToSign, setWaitingToSign] = useState(false);
@@ -217,12 +215,9 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     let isMounted = true;
 
     const getEstimate = async () => {
-      const outcomeName = outcomes[selectedOutcomeId]?.name;
       const breakdown = isBuy
         ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, ammCash)
         : await estimateSellTrade(amm, loginAccount?.library, amount, selectedOutcomeId, marketShares);
-
-      tradingEstimateEvents(isBuy, outcomeName, ammCash?.name, amount, breakdown?.outputValue || "");
 
       isMounted && setBreakdown(breakdown);
     };
@@ -275,10 +270,8 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     const minOutput = breakdown?.outputValue;
     const outcomeShareTokensIn = breakdown?.outcomeShareTokensIn;
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
-    const outcomeName = outcomes[selectedOutcomeId]?.name;
     setWaitingToSign(true);
     setShowTradingForm(false);
-    tradingEvents(isBuy, outcomeName, ammCash?.name, amount, minOutput);
     doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage, outcomeShareTokensIn)
       .then((response) => {
         if (response) {

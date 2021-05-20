@@ -9,7 +9,6 @@ import { SportProvider, useSportsStore } from "./stores/sport";
 // import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
-// import { usePageView } from "../utils/tracker";
 import {
   Stores,
   useDataStore,
@@ -40,7 +39,6 @@ const { PrimaryButton } = ButtonComps;
 
   // useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   // useFinalizeUserTransactions(blocknumber);
-  // usePageView();
   // const activeWeb3 = useActiveWeb3React();
 
 //   useEffect(() => {
