@@ -4,7 +4,6 @@ pragma solidity 0.7.6;
 import "../libraries/Ownable.sol";
 import "./SportsLinkMarketFactory.sol";
 
-
 // The replay functionality only works under a test env because an owner is needed.
 // In production, the owner can be set to the link node for potential future work.
 contract SportsLinkProxy is Ownable {
@@ -60,7 +59,11 @@ contract SportsLinkProxy is Ownable {
     bytes32[] public creationPayloads;
     bytes32[] public resolutionPayloads;
 
-    constructor(address _owner, SportsLinkMarketFactory _marketFactory, address _linkNode) {
+    constructor(
+        address _owner,
+        SportsLinkMarketFactory _marketFactory,
+        address _linkNode
+    ) {
         owner = _owner; // test controller
         marketFactory = _marketFactory;
         linkNode = _linkNode;
