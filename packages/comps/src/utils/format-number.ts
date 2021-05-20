@@ -17,6 +17,7 @@ import {
   MILLION,
   BILLION,
   TRILLION,
+  DUST_LIQUIDITY_AMOUNT,
 } from "./constants";
 import addCommas from "./add-commas-to-number";
 import getPrecision from "./get-number-precision";
@@ -234,9 +235,11 @@ export function formatDai(num: NumStrBigNumber, opts: FormattedNumberOptions = {
 }
 
 export function formatLiquidity(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
-  return formatNumber(num, {
-    decimals: 0,
-    decimalsRounded: 0,
+  let value = num;
+  if (createBigNumber(value).lt(DUST_LIQUIDITY_AMOUNT)) value = "0.00";
+  return formatNumber(value, {
+    decimals: 2,
+    decimalsRounded: 2,
     denomination: (v) => {
       return `${"$"}${v}`;
     },
