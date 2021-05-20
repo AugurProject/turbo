@@ -394,7 +394,7 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
     <ul className={Styles.LiquidityRow}>
       <li>{formatPercent(liquidity.poolPct).full}</li>
       <li>{formatDai(initCostUsd).full}</li>
-      <li>{formatLiquidity(liquidity.usdValue).full}</li>
+      <li>{formatLiquidity(liquidity.usdValue).roundedFormatted}</li>
     </ul>
   );
 };
