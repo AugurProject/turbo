@@ -170,8 +170,8 @@ const MarketsView = () => {
     currency: "USDC",
   };
   const timeFormat = "12hr";
-  const updateMarketsViewSettings = () => {};
-  const setSidebar = () => {};
+  const updateMarketsViewSettings = (obj: any) => {};
+  const setSidebar = (f: any) => {};
   const showLiquidMarkets = false;
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
@@ -317,7 +317,7 @@ export const SubCategoriesFilter = () => {
   // } = useSimplifiedStore();
   const primaryCategory = "Sports";
   const subCategories = [];
-  const updateMarketsViewSettings = () => {};
+  const updateMarketsViewSettings = (obj: any) => {};
   if (primaryCategory.toLowerCase() !== "sports") return null;
   const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
   const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);

@@ -138,7 +138,7 @@ const MarketView = ({ defaultMarket = null }) => {
   //   actions: { setShowTradingForm },
   // } = useSimplifiedStore();
   const timeFormat = '12hr';
-  const setShowTradingForm = () => {};
+  const setShowTradingForm = (tf: boolean) => {};
   const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
