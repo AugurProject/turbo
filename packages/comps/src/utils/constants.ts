@@ -43,8 +43,10 @@ export const DUST_LIQUIDITY_AMOUNT: BigNumber = createBigNumber("1");
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;
 export const TEN: BigNumber = createBigNumber(10, 10);
+export const NEGATIVE_ONE: BigNumber = createBigNumber(-1);
 export const ZERO: BigNumber = createBigNumber(0);
 export const ONE: BigNumber = createBigNumber(1);
+export const FIFTY: BigNumber = createBigNumber(50);
 export const HUNDRED: BigNumber = createBigNumber(100);
 export const THOUSAND: BigNumber = createBigNumber(1000);
 export const MILLION: BigNumber = THOUSAND.times(THOUSAND);
@@ -54,6 +56,13 @@ export const DAYS_IN_YEAR: BigNumber = createBigNumber(365);
 export const SEC_IN_DAY: BigNumber = createBigNumber(86400);
 export const PORTION_OF_INVALID_POOL_SELL: BigNumber = createBigNumber(0.5);
 export const PORTION_OF_CASH_INVALID_POOL: BigNumber = createBigNumber(0.1);
+
+export const ODDS_TYPE = {
+  AMERICAN: "AMERICAN",
+  DECIMAL: "DECIMAL",
+  FRACTIONAL: "FRACTIONAL",
+  PERCENT: "PERCENT",
+};
 
 // # Asset Types
 export const ETH: string = "ETH";
