@@ -23,6 +23,8 @@ export const SportStore = {
 const useLoadUserSettings = () => {
   const { account } = useUserStore();
   useEffect(() => {
+    SportStore.actions.updateSettings(DEFAULT_SPORT_STATE[SETTINGS]);
+    /*
     if (account) {
       const savedUserSettings = getSavedUserInfo(account)[SETTINGS];
       if (savedUserSettings) {
@@ -31,6 +33,7 @@ const useLoadUserSettings = () => {
     } else {
       SportStore.actions.updateSettings(DEFAULT_SPORT_STATE[SETTINGS]);
     }
+    */
   }, [account]);
 };
 
