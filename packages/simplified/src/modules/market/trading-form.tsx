@@ -23,7 +23,6 @@ const {
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
   ButtonComps: { ApprovalButton, BuySellButton },
-  MarketCardComps: { orderOutcomesForDisplay },
   BuySellToggleSwitch,
 } = Components;
 const { formatCash, formatCashPrice, formatPercent, formatSimpleShares } = Formatter;
@@ -166,7 +165,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
   const [amount, setAmount] = useState<string>("");
   const [waitingToSign, setWaitingToSign] = useState(false);
   const ammCash = getUSDC(cashes);
-  const outcomes = orderOutcomesForDisplay(amm?.ammOutcomes || []);
+  const outcomes = amm?.ammOutcomes || [];
   const isBuy = orderType === BUY;
   const approvalAction = isBuy ? ApprovalAction.ENTER_POSITION : ApprovalAction.EXIT_POSITION;
   const outcomeShareToken = selectedOutcome?.shareToken;

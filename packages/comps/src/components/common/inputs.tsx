@@ -9,6 +9,7 @@ import { TinyButton } from "./buttons";
 import { CurrencyDropdown } from "./selection";
 import { AmmOutcome, Cash } from "../../types";
 import { BigNumber as BN } from "bignumber.js";
+import { orderOutcomesForDisplay } from "../market-card/market-card";
 
 const ENTER_CHAR_CODE = 13;
 
@@ -271,6 +272,7 @@ export const OutcomesGrid = ({
   noClick,
   hasLiquidity,
 }: OutcomesGridProps) => {
+  const sortedOutcomes = orderOutcomesForDisplay(outcomes);
   return (
     <div
       className={classNames(Styles.Outcomes, {
@@ -279,7 +281,7 @@ export const OutcomesGrid = ({
         [Styles.noClick]: noClick,
       })}
     >
-      {outcomes
+      {sortedOutcomes
         .filter((outcome) => (dontFilterInvalid ? true : !outcome?.isInvalid))
         .map((outcome, index) => (
           <Outcome
