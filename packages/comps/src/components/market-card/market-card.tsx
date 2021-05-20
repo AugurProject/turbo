@@ -64,8 +64,8 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
   return newOrder;
 };
 
-export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
-  ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1));
+export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[] = []): AmmOutcome[] =>
+  ammOutcomes.length > 0 && ammOutcomes[0].id === 0 ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1)) : ammOutcomes;
 
 export const unOrderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
   ammOutcomes.slice(-1).concat(ammOutcomes.slice(0, -1));
