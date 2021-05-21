@@ -3,7 +3,7 @@
 .App {
   display: flex;
   flex-flow: column nowrap;
-  grid-gap: @size-16;
+  grid-gap: 0 @size-16;
   flex: 1;
   position: relative;
   
@@ -33,6 +33,10 @@
 
   @media @breakpoint-mobile-tablet {
     background: unset;
+  }
+
+  > footer > div:last-of-type {
+    background: var(--simple-light-bg);
   }
 }
 
