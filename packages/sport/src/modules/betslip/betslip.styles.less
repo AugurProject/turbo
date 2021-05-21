@@ -1,0 +1,16 @@
+@import (reference) '~assets/styles/shared.less';
+
+.Betslip {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1 100%;
+  width: @betslip-column-width;
+  
+  > div {
+    min-height: 440px;
+    border: @size-1 solid var(--simple-border);
+    border-radius: @size-3;
+    margin: @size-32 @size-32 @size-32 @size-8;
+    width: @betslip-width;
+  }
+}

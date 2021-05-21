@@ -1,19 +1,43 @@
 @import (reference) '~assets/styles/shared.less';
 
 .App {
-  display: flex;
-  flex-flow: column nowrap;
-  grid-gap: @size-16;
+  // display: flex;
+  // flex-flow: column nowrap;
+  display: grid;
+  grid-template-columns: 1fr @betslip-column-width;
   flex: 1;
   position: relative;
+
+  // top nav
+  > section:first-of-type {
+    grid-column: span 2;
+    grid-row: 1;
+  }
+
+  > section[class*="Betslip"] {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: @simple-top-bar-height;
+  }
   
   > div {
     // max-width: @desktop-max;
     box-sizing: border-box;
-    margin-top: @simple-top-bar-height;
     width: 100%;
     min-height: 100vh;
     margin: @simple-top-bar-height auto 0;
+    margin-top: @simple-top-bar-height;
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+.MyBets {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > section[class*="Betslip"] {
+    display: none;
   }
 }
 

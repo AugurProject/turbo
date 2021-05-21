@@ -130,7 +130,7 @@ export const TopNav = () => {
   return (
     <section
       className={classNames(Styles.TopNav, {
-        [Styles.TwoTone]: path !== MARKETS,
+        // [Styles.TwoTone]: path !== MARKETS,
         [Styles.OnMarketsView]: path === MARKET,
       })}
     >
