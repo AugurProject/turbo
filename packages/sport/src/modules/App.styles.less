@@ -8,6 +8,11 @@
   flex: 1;
   position: relative;
 
+  @media @breakpoint-mobile-tablet {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
   // top nav
   > section:first-of-type {
     grid-column: span 2;
