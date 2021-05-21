@@ -300,6 +300,16 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       .catch((error) => {
         setWaitingToSign(false);
         console.log("Error when trying to trade: ", error?.message);
+        addTransaction({
+          hash: "trade-failure",
+          chainId: loginAccount.chainId,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          from: loginAccount.account,
+          addedTime: new Date().getTime(),
+          message: `${direction === TradingDirection.ENTRY ? "Buy" : "Sell"} Shares`,
+          marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
+        });
       });
   };
 
