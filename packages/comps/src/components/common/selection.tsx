@@ -10,7 +10,7 @@ import {
   SimpleChevron,
   UsdIcon,
 } from './icons';
-import { USDC, ETH } from '../../utils/constants';
+import { USDC, ETH, COMING_SOON } from '../../utils/constants';
 import { TinyButton } from './buttons';
 import { generateTooltip } from './labels';
 
@@ -153,7 +153,7 @@ export const Dropdown = ({
             <button
               key={`${option.value}${option.label}`}
               value={option.value}
-              title={'Coming Soon'}
+              title={option?.disabled && COMING_SOON}
               onClick={() => !option?.disabled && dropdownSelect(option)}
               className={classNames({
                 [Styles.Selected]: option?.value === selected?.value,
@@ -255,7 +255,7 @@ const RadioBar = ({ key, item, selected, onClick, disabled = false }) => {
       >
       {RadioButton}
       <span>{item.label}</span>
-      {generateTooltip("Coming Soon", key)}
+      {generateTooltip(COMING_SOON, key)}
       </div>
     )
   }

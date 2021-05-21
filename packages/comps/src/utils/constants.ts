@@ -160,6 +160,8 @@ export const MARKET_STATUS = {
   SETTLED: "SETTLED",
 };
 
+export const COMING_SOON = "Coming Soon";
+
 export const categoryItems = [
   {
     label: ALL_MARKETS,
