@@ -10,13 +10,15 @@ import {
   SimpleChevron,
   UsdIcon,
 } from './icons';
-import { USDC, ETH } from '../../utils/constants';
+import { USDC, ETH, COMING_SOON } from '../../utils/constants';
 import { TinyButton } from './buttons';
+import { generateTooltip } from './labels';
 
 export interface NameValuePair {
   label: string;
   value: string | number;
   icon?: any;
+  disabled?: boolean;
 }
 
 export interface DropdownProps {
@@ -151,9 +153,11 @@ export const Dropdown = ({
             <button
               key={`${option.value}${option.label}`}
               value={option.value}
-              onClick={() => dropdownSelect(option)}
+              title={`${option.label}${option?.disabled ? ` - ${COMING_SOON}` : ''}`}
+              disabled={option?.disabled}
+              onClick={() => !option?.disabled && dropdownSelect(option)}
               className={classNames({
-                [Styles.Selected]: option?.value === selected?.value,
+                [Styles.Selected]: option?.value === selected?.value
               })}
             >
               {option.label}
@@ -242,15 +246,29 @@ export const CheckboxGroup = ({ title, items }) => {
   );
 };
 
-const RadioBar = ({ key, item, selected, onClick }) => {
+const RadioBar = ({ key, item, selected, onClick, disabled = false }) => {
+  if (disabled) {
+    return (
+      <div
+        key={key}
+        className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}
+      >
+      {RadioButton}
+      <span>{item.label}</span>
+      {generateTooltip(COMING_SOON, key)}
+      </div>
+    )
+  }
   return (
     <div
     key={key}
       onClick={e => {
-        e.preventDefault();
-        onClick(e);
+        if (!disabled) {
+          e.preventDefault();
+          onClick(e);
+        }
       }}
-      className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}
+      className={classNames(Styles.RadioBar, { [Styles.Selected]: selected, [Styles.Disabled]: disabled })}
     >
       {selected ? CheckedRadioButton : RadioButton}
       <span>{item.label}</span>
@@ -271,6 +289,7 @@ export const RadioBarGroup = ({ title, items, selected, update }) => {
           <RadioBar
             item={item}
             key={item.value}
+            disabled={item.disabled}
             selected={selectedItem === item.value}
             onClick={() => {
               update(item.value);

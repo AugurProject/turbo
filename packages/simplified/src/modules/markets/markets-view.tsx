@@ -3,7 +3,7 @@ import Styles from "./markets-view.styles.less";
 import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
-import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
+import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
@@ -29,7 +29,6 @@ const {
   SIDEBAR_TYPES,
   ALL_CURRENCIES,
   ALL_MARKETS,
-  categoryItems,
   // currencyItems,
   marketStatusItems,
   OPEN,
