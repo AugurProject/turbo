@@ -10,13 +10,12 @@ import {
   Components,
   useAppStatusStore,
 } from '@augurproject/comps';
-import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
+import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { useSimplifiedStore } from '../stores/simplified';
 const {
   MARKETS,
   PORTFOLIO,
   SIDEBAR_TYPES,
-  categoryItems,
   // currencyItems,
   marketStatusItems,
   sortByItems,

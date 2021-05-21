@@ -165,30 +165,34 @@ export const categoryItems = [
     label: ALL_MARKETS,
     value: ALL_MARKETS,
   },
-  //{
-  //  label: CRYPTO,
-  //  value: CRYPTO,
-  //},
-  //{
-  //  label: ECONOMICS,
-  //  value: ECONOMICS,
-  //},
-  //{
-  // label: ENTERTAINMENT,
-  //  value: ENTERTAINMENT,
-  //},
-  //{
-  //  label: MEDICAL,
-  //  value: MEDICAL,
-  //},
+  {
+    label: CRYPTO,
+    value: CRYPTO,
+  },
+  {
+    label: ECONOMICS,
+    value: ECONOMICS,
+  },
+  {
+   label: ENTERTAINMENT,
+    value: ENTERTAINMENT,
+  },
+  {
+    label: MEDICAL,
+    value: MEDICAL,
+  },
+  {
+    label: POLITICS,
+    value: POLITICS,
+  },
   {
     label: SPORTS,
     value: SPORTS,
   },
-  //{
-  //  label: OTHER,
-  //  value: OTHER,
-  //},
+  {
+    label: OTHER,
+    value: OTHER,
+  },
 ];
 
 export const TOTAL_VOLUME: string = "Total Volume";

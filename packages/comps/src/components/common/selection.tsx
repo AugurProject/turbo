@@ -12,6 +12,7 @@ import {
 } from './icons';
 import { USDC, ETH } from '../../utils/constants';
 import { TinyButton } from './buttons';
+import { generateTooltip } from './labels';
 
 export interface NameValuePair {
   label: string;
@@ -242,15 +243,29 @@ export const CheckboxGroup = ({ title, items }) => {
   );
 };
 
-const RadioBar = ({ key, item, selected, onClick }) => {
+const RadioBar = ({ key, item, selected, onClick, disabled = false }) => {
+  if (disabled) {
+    return (
+      <div
+        key={key}
+        className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}
+      >
+      {RadioButton}
+      <span>{item.label}</span>
+      {generateTooltip("Coming Soon", key)}
+      </div>
+    )
+  }
   return (
     <div
     key={key}
       onClick={e => {
-        e.preventDefault();
-        onClick(e);
+        if (!disabled) {
+          e.preventDefault();
+          onClick(e);
+        }
       }}
-      className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}
+      className={classNames(Styles.RadioBar, { [Styles.Selected]: selected, [Styles.Disabled]: disabled })}
     >
       {selected ? CheckedRadioButton : RadioButton}
       <span>{item.label}</span>
@@ -271,6 +286,7 @@ export const RadioBarGroup = ({ title, items, selected, update }) => {
           <RadioBar
             item={item}
             key={item.value}
+            disabled={item.disabled}
             selected={selectedItem === item.value}
             onClick={() => {
               update(item.value);
