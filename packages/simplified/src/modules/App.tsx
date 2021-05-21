@@ -21,6 +21,7 @@ import {
   useUserStore,
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
+import { SimpleFooter } from './common/simple-footer';
 import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
@@ -89,6 +90,7 @@ const AppBody = () => {
       {sidebarOut && <Sidebar />}
       <TopNav />
       <Routes />
+      <SimpleFooter />
     </div>
   );
 };
