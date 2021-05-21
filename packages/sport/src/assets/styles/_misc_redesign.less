@@ -37,6 +37,11 @@
 
 @simple-top-bar-height: @size-72;
 
+@sports-top-nav-height: @size-56;
+@sports-sub-nav-height: @size-37;
+@sports-top-bar-height: calc(@size-56 + @size-37);
+@sports-gutter: @size-32;
+
 @betslip-width: @size-326;
 @betslip-column-width: @size-366;
 
@@ -140,7 +145,7 @@
         padding-left: @size-44;
         padding-right: @size-44;
       }
-      
+
       &:last-of-type {
         max-width: @size-340;
         width: @size-340;
@@ -197,5 +202,5 @@
 .SportsPage {
   display: flex;
   flex-flow: column nowrap;
-  padding: @size-40 @size-32;
+  padding: @size-40 @sports-gutter;
 }

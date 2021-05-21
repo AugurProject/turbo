@@ -6,11 +6,11 @@
   background: transparent;
   border-bottom: @size-1 solid var(--simple-border);
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: center;
-  height: @simple-top-bar-height;
-  min-height: @simple-top-bar-height;
-  max-height: @simple-top-bar-height;
+  height: @sports-top-bar-height;
+  min-height: @sports-top-bar-height;
+  max-height: @sports-top-bar-height;
   width: 100%;
   position: fixed;
   z-index: @above-all-content;
@@ -24,11 +24,14 @@
     flex: 1;
     grid-gap: @size-16;
     width: 100%;
-    height: 100%;
+    // height: 100%;
+    height: @sports-top-nav-height;
+    min-height: @sports-top-nav-height;
+    max-height: @sports-top-nav-height;
 
     &:first-of-type {
       // max-width: @size-912;
-      padding-left: @size-88;
+      padding-left: @sports-gutter;
       grid-template-columns: 0fr 1fr;
       grid-gap: @size-80;
 
@@ -44,8 +47,6 @@
         flex-flow: row nowrap;
         margin: 0;
         padding: 0;
-        min-height: @size-32;
-        height: @size-32;
 
         > li {
           flex: 0 auto;
@@ -83,7 +84,7 @@
 
     &:last-of-type {
       // max-width: @size-528;
-      padding-right: @size-88;
+      padding-right: @sports-gutter;
       grid-gap: @size-8;
       align-items: center;
       justify-content: flex-end;
@@ -96,6 +97,52 @@
 
   &.TwoTone > section:last-of-type {
     background: var(--simple-light-bg);
+  }
+
+  > ol {
+    align-items: center;
+    list-style: none;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 100%;
+    margin: 0;
+    padding: 0;
+    padding-left: @sports-gutter;
+    min-height: @sports-sub-nav-height;
+    height: @sports-sub-nav-height;
+    border-top: @size-1 solid var(--simple-border);
+
+    > li {
+      flex: 0 auto;
+      margin-right: @size-40;
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+
+      > a {
+        .text-20-bold;
+
+        text-decoration: none;
+        color: var(--simple-secondary-text);
+      }
+
+      &:hover {
+        > a {
+          color: var(--simple-primary-text);
+
+          &[disabled] {
+            color: var(--simple-secondary-text);
+          }
+        }
+      }
+
+      &.Active {
+        > a {
+          color: var(--simple-primary-text);
+        }
+      }
+    }
   }
 }
 
