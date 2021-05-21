@@ -271,13 +271,6 @@ export const NULL_ADDRESS: string = "0x0000000000000000000000000000000000000000"
 export const MODAL_ADD_LIQUIDITY: string = "MODAL_ADD_LIQUIDITY";
 export const MODAL_CONNECT_WALLET: string = "MODAL_CONNECT_WALLET";
 
-export const DEFAULT_MARKET_VIEW_SETTINGS = {
-  categories: ALL_MARKETS,
-  reportingState: OPEN,
-  sortBy: TOTAL_VOLUME,
-  currency: ALL_CURRENCIES,
-};
-
 export const CREATE: string = "create";
 
 export const DefaultMarketOutcomes = [
