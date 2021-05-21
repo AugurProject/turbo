@@ -1,6 +1,9 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { expect } from "chai";
+import { expect, use as chaiUse } from "chai";
+
+import chaiAsPromised from "chai-as-promised";
+chaiUse(chaiAsPromised);
 
 import {
   AMMFactory,
@@ -219,6 +222,17 @@ describe("Turbo", () => {
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
     expect(await none.balanceOf(signer.address)).to.equal(0);
+  });
+
+  it("cannot mint sets after market resolution", async () => {
+    const setsToMint = shareFactor.mul(100);
+    const costToMint = setsToMint.div(shareFactor);
+
+    await collateral.faucet(costToMint);
+    await collateral.approve(marketFactory.address, costToMint);
+    await expect(marketFactory.mintShares(marketId, setsToMint, signer.address)).to.be.rejectedWith(
+      "VM Exception while processing transaction: revert Cannot mint shares for resolved market"
+    );
   });
 
   it("can create a test balancer pool", async () => {
