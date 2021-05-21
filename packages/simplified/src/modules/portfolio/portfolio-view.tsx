@@ -95,7 +95,7 @@ const handleClaimAll = (
           hash: 'claim-all-failed',
           chainId,
           seen: false,
-          status: TX_STATUS.PENDING,
+          status: TX_STATUS.FAILURE,
           from,
           addedTime: new Date().getTime(),
           message: getClaimAllMessage(cash),

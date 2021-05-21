@@ -268,7 +268,7 @@ export const PositionFooter = ({
           hash: 'cash-out-failed',
           chainId: loginAccount?.chainId,
           seen: false,
-          status: TX_STATUS.PENDING,
+          status: TX_STATUS.FAILURE,
           from: account,
           addedTime: new Date().getTime(),
           message: `Cashed Out Shares`,
