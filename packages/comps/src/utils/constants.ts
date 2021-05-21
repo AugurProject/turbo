@@ -176,7 +176,7 @@ export const categoryItems = [
     value: ECONOMICS,
   },
   {
-   label: ENTERTAINMENT,
+    label: ENTERTAINMENT,
     value: ENTERTAINMENT,
   },
   {
