@@ -111,7 +111,7 @@
           color: var(--simple-primary-text);
         }
 
-        &.Disabled {
+        &:disabled {
           cursor: not-allowed;
           color: var(--simple-secondary-text)
         }  
@@ -145,10 +145,6 @@
   &.invalidColor {
     color: var(--color-outcome-invalid);
   }
-}
-
-.Disabled {
-  pointer-events: none;
 }
 
 // Used in Trading Page - Outcome selector
@@ -237,10 +233,6 @@
     // arrow
     > svg {
       transform: rotate(180deg);
-
-      > path {
-        //fill: var(--color-primary-text);
-      }
     }
   }
 }
@@ -788,16 +780,10 @@
     margin: 0;
     display: flex;
   }
-
-  &.Disabled {
-    cursor: not-allowed;
-    color: var(--simple-secondary-text)
-  }  
 }
 
 .list {
   display: flex;
-  cursor: not-allowed;
 }
 
 .SmallDropdown {

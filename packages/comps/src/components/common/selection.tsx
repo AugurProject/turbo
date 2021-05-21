@@ -153,11 +153,11 @@ export const Dropdown = ({
             <button
               key={`${option.value}${option.label}`}
               value={option.value}
-              title={option?.disabled && COMING_SOON}
+              title={`${option.label}${option?.disabled ? ` - ${COMING_SOON}` : ''}`}
+              disabled={option?.disabled}
               onClick={() => !option?.disabled && dropdownSelect(option)}
               className={classNames({
-                [Styles.Selected]: option?.value === selected?.value,
-                [Styles.Disabled]: option?.disabled,
+                [Styles.Selected]: option?.value === selected?.value
               })}
             >
               {option.label}
