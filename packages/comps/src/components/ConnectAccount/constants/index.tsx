@@ -33,7 +33,7 @@ export const MATIC_MUMBAI_RPC_DATA = {
 
 export const MATIC_RPC_DATA = {
   chainId: '0x89',
-  chainName: 'Matic',
+  chainName: 'Polygon Network',
   nativeCurrency: {
       name: 'MATIC',
       symbol: 'MATIC',
