@@ -221,7 +221,7 @@ export const PositionFooter = ({
             setPendingClaim(false);
             console.error("Error when trying to claim winnings: ", error?.message);
             addTransaction({
-              has: 'claim-failed',
+              hash: 'claim-failed',
               chainId: loginAccount?.chainId,
               seen: false,
               status: TX_STATUS.FAILURE,
