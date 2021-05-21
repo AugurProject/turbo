@@ -224,6 +224,16 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         })
         .catch((error) => {
           console.log("Error when trying to remove AMM liquidity: ", error?.message);
+          addTransaction({
+            hash: 'remove-liquidity-failed',
+            chainId: loginAccount.chainId,
+            seen: false,
+            status: TX_STATUS.PENDING,
+            from: account,
+            addedTime: new Date().getTime(),
+            message: `Remove Liquidity`,
+            marketDescription: `${market?.title} ${market?.description}`,
+          });
         });
     } else {
       await addLiquidityPool(
@@ -250,6 +260,16 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         })
         .catch((error) => {
           console.log("Error when trying to add AMM liquidity: ", error?.message);
+          addTransaction({
+            hash: 'add-liquidity-failed',
+            chainId: loginAccount.chainId,
+            from: account,
+            seen: false,
+            status: TX_STATUS.PENDING,
+            addedTime: new Date().getTime(),
+            message: `Add Liquidity`,
+            marketDescription: `${market?.title} ${market?.description}`,
+          });
         });
     }
     closeModal();

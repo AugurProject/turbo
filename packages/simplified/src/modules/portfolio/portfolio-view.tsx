@@ -91,6 +91,16 @@ const handleClaimAll = (
       .catch(error => {
         setPendingClaim(false);
         console.log('Error when trying to claim winnings: ', error?.message);
+        addTransaction({
+          hash: 'claim-all-failed',
+          chainId,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          from,
+          addedTime: new Date().getTime(),
+          message: getClaimAllMessage(cash),
+          marketDescription: '',
+        });
       });
   } 
 };
