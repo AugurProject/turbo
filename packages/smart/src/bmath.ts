@@ -211,14 +211,14 @@ function attemptTokenCalc(
 type calculateSellCompleteSetsResult = [setsOut: string, undesirableTokensInPerOutcome: string[]];
 const TOLERANCE = BigNumber.from(10).pow(10);
 
-export async function calcSellCompleteSets(
+export function calcSellCompleteSets(
   _shareFactor: string,
   _outcome: number,
   _shareTokensIn: string,
   _tokenBalances: string[],
   _tokenWeights: string[],
   _swapFee: string
-): Promise<calculateSellCompleteSetsResult> {
+): calculateSellCompleteSetsResult {
   return calculateSellCompleteSets(
     BigNumber.from(_shareFactor),
     _outcome,
