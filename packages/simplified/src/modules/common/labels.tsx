@@ -143,7 +143,7 @@ export const NetworkMismatchBanner = () => {
       window.scrollTo(0, 1);
     }
   }, [isNetworkMismatch, isGraphError, unsupportedChainIdError]);
-  const needMoreMatic = Boolean(loginAccount?.account) && Boolean(createBigNumber(balances?.ETH?.balance).lte(DUST_POSITION_AMOUNT));
+  const needMoreMatic = Boolean(loginAccount?.account) && Boolean(balances?.ETH?.balance) && Boolean(createBigNumber(balances?.ETH?.balance).lte(DUST_POSITION_AMOUNT));
 
   return (
     <>
