@@ -9,7 +9,6 @@ import { SimplifiedProvider, useSimplifiedStore } from "./stores/simplified";
 import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
-import { usePageView } from "../utils/tracker";
 import {
   Stores,
   useDataStore,
@@ -22,6 +21,7 @@ import {
   useUserStore,
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
+import { SimpleFooter } from './common/simple-footer';
 import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
@@ -39,7 +39,6 @@ const AppBody = () => {
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
-  usePageView();
   const activeWeb3 = useActiveWeb3React();
 
 
@@ -91,6 +90,7 @@ const AppBody = () => {
       {sidebarOut && <Sidebar />}
       <TopNav />
       <Routes />
+      <SimpleFooter />
     </div>
   );
 };

@@ -110,6 +110,11 @@
         &.Selected {
           color: var(--simple-primary-text);
         }
+
+        &:disabled {
+          cursor: not-allowed;
+          color: var(--simple-secondary-text)
+        }  
       }
     }
   }
@@ -140,10 +145,6 @@
   &.invalidColor {
     color: var(--color-outcome-invalid);
   }
-}
-
-.Disabled {
-  pointer-events: none;
 }
 
 // Used in Trading Page - Outcome selector
@@ -232,10 +233,6 @@
     // arrow
     > svg {
       transform: rotate(180deg);
-
-      > path {
-        //fill: var(--color-primary-text);
-      }
     }
   }
 }

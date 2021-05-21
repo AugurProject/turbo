@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Styles from "./markets-view.styles.less";
 // import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
-// import { useSimplifiedStore } from "../stores/simplified";
+import { useSportsStore } from "../stores/sport";
 // import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
@@ -14,7 +14,7 @@ import {
   getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-
+import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const {
   SelectionComps: { SquareDropdown },
@@ -36,7 +36,6 @@ const {
   POPULAR_CATEGORIES_ICONS,
   sortByItems,
   TOTAL_VOLUME,
-  DEFAULT_MARKET_VIEW_SETTINGS,
   STARTS_SOON,
   RESOLVED,
   IN_SETTLEMENT,
@@ -156,23 +155,12 @@ const MarketsView = () => {
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
-  // const {
-  //   marketsViewSettings,
-  //   settings: { showLiquidMarkets, timeFormat },
-  //   actions: { setSidebar, updateMarketsViewSettings },
-  // } = useSimplifiedStore();
+   const {
+     marketsViewSettings,
+     settings: { showLiquidMarkets, timeFormat },
+     actions: { setSidebar, updateMarketsViewSettings },
+  } = useSportsStore();
   const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
-  const marketsViewSettings = {
-    subCategories: [],
-    sortBy: STARTS_SOON,
-    primaryCategory: SPORTS,
-    reportingState: OPEN,
-    currency: "USDC",
-  };
-  const timeFormat = "12hr";
-  const updateMarketsViewSettings = (obj: any) => {};
-  const setSidebar = (f: any) => {};
-  const showLiquidMarkets = false;
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);

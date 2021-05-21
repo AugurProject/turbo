@@ -220,6 +220,16 @@ export const PositionFooter = ({
           .catch((error) => {
             setPendingClaim(false);
             console.error("Error when trying to claim winnings: ", error?.message);
+            addTransaction({
+              hash: 'claim-failed',
+              chainId: loginAccount?.chainId,
+              seen: false,
+              status: TX_STATUS.FAILURE,
+              from: account,
+              addedTime: new Date().getTime(),
+              message: `Claim Winnings`,
+              marketDescription: `${title} ${description}`,
+            });
           });
       }
     }
@@ -254,6 +264,16 @@ export const PositionFooter = ({
       .catch((error) => {
         setPendingCashOut(false);
         console.error("Error when trying to claim winnings: ", error?.message);
+        addTransaction({
+          hash: 'cash-out-failed',
+          chainId: loginAccount?.chainId,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          from: account,
+          addedTime: new Date().getTime(),
+          message: `Cashed Out Shares`,
+          marketDescription: `${title} ${description}`,
+        });
       });
   };
   const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares) !== "0";

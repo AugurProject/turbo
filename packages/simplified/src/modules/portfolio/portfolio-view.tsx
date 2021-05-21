@@ -91,6 +91,16 @@ const handleClaimAll = (
       .catch(error => {
         setPendingClaim(false);
         console.log('Error when trying to claim winnings: ', error?.message);
+        addTransaction({
+          hash: 'claim-all-failed',
+          chainId,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          from,
+          addedTime: new Date().getTime(),
+          message: getClaimAllMessage(cash),
+          marketDescription: '',
+        });
       });
   } 
 };
@@ -157,7 +167,7 @@ export const ClaimWinningsSection = () => {
   const USDCTotals = calculateTotalWinnings(claimableMarkets);
   // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
-  const hasClaimableFees = createBigNumber(claimableFees).gt(0);
+  const hasClaimableFees = createBigNumber(claimableFees || "0").gt(0);
   const disableClaimUSDCWins =
   pendingClaim ||
     Boolean(transactions.find((t) => t.message === getClaimAllMessage(usdcCash) && t.status === TX_STATUS.PENDING));

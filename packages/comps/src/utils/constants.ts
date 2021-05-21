@@ -160,35 +160,41 @@ export const MARKET_STATUS = {
   SETTLED: "SETTLED",
 };
 
+export const COMING_SOON = "Coming Soon";
+
 export const categoryItems = [
   {
     label: ALL_MARKETS,
     value: ALL_MARKETS,
   },
-  //{
-  //  label: CRYPTO,
-  //  value: CRYPTO,
-  //},
-  //{
-  //  label: ECONOMICS,
-  //  value: ECONOMICS,
-  //},
-  //{
-  // label: ENTERTAINMENT,
-  //  value: ENTERTAINMENT,
-  //},
-  //{
-  //  label: MEDICAL,
-  //  value: MEDICAL,
-  //},
+  {
+    label: CRYPTO,
+    value: CRYPTO,
+  },
+  {
+    label: ECONOMICS,
+    value: ECONOMICS,
+  },
+  {
+    label: ENTERTAINMENT,
+    value: ENTERTAINMENT,
+  },
+  {
+    label: MEDICAL,
+    value: MEDICAL,
+  },
+  {
+    label: POLITICS,
+    value: POLITICS,
+  },
   {
     label: SPORTS,
     value: SPORTS,
   },
-  //{
-  //  label: OTHER,
-  //  value: OTHER,
-  //},
+  {
+    label: OTHER,
+    value: OTHER,
+  },
 ];
 
 export const TOTAL_VOLUME: string = "Total Volume";
@@ -270,13 +276,6 @@ export const NULL_ADDRESS: string = "0x0000000000000000000000000000000000000000"
 // Modals
 export const MODAL_ADD_LIQUIDITY: string = "MODAL_ADD_LIQUIDITY";
 export const MODAL_CONNECT_WALLET: string = "MODAL_CONNECT_WALLET";
-
-export const DEFAULT_MARKET_VIEW_SETTINGS = {
-  categories: ALL_MARKETS,
-  reportingState: OPEN,
-  sortBy: TOTAL_VOLUME,
-  currency: ALL_CURRENCIES,
-};
 
 export const CREATE: string = "create";
 

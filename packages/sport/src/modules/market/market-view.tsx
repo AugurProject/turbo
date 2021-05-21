@@ -21,7 +21,7 @@ import {
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-// import { useSimplifiedStore } from "../stores/simplified";
+import { useSportsStore } from "../stores/sport";
 import { MARKETS } from "modules/constants";
 import { Link } from "react-router-dom";
 const {
@@ -132,13 +132,11 @@ const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
   const { isMobile, isLogged } = useAppStatusStore();
-  // const {
-  //   settings: { timeFormat },
-  //   showTradingForm,
-  //   actions: { setShowTradingForm },
-  // } = useSimplifiedStore();
-  const timeFormat = '12hr';
-  const setShowTradingForm = (tf: boolean) => {};
+  const {
+    settings: { timeFormat },
+    showTradingForm,
+    actions: { setShowTradingForm },
+  } = useSportsStore();
   const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
