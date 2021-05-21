@@ -14,7 +14,7 @@ import {
   getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-
+import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const {
   SelectionComps: { SquareDropdown },
@@ -36,7 +36,6 @@ const {
   POPULAR_CATEGORIES_ICONS,
   sortByItems,
   TOTAL_VOLUME,
-  DEFAULT_MARKET_VIEW_SETTINGS,
   STARTS_SOON,
   RESOLVED,
   IN_SETTLEMENT,

@@ -3,6 +3,7 @@ import Styles from "./markets-view.styles.less";
 import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
+import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
@@ -36,7 +37,6 @@ const {
   POPULAR_CATEGORIES_ICONS,
   sortByItems,
   TOTAL_VOLUME,
-  DEFAULT_MARKET_VIEW_SETTINGS,
   STARTS_SOON,
   RESOLVED,
   IN_SETTLEMENT,
