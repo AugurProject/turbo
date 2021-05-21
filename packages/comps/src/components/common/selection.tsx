@@ -18,6 +18,7 @@ export interface NameValuePair {
   label: string;
   value: string | number;
   icon?: any;
+  disabled?: boolean;
 }
 
 export interface DropdownProps {
@@ -152,9 +153,11 @@ export const Dropdown = ({
             <button
               key={`${option.value}${option.label}`}
               value={option.value}
-              onClick={() => dropdownSelect(option)}
+              onClick={() => !option?.disabled && dropdownSelect(option)}
+              disabled={option?.disabled}
               className={classNames({
                 [Styles.Selected]: option?.value === selected?.value,
+                [Styles.Disabled]: option?.disabled,
               })}
             >
               {option.label}
