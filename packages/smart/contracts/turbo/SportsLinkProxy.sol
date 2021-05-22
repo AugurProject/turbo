@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
+pragma abicoder v2;
 
 import "../libraries/Ownable.sol";
 import "./SportsLinkMarketFactory.sol";
@@ -17,8 +18,8 @@ contract SportsLinkProxy is Ownable {
         return marketFactory.trustedResolveMarkets(_payload);
     }
 
-    function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
-        return marketFactory.getEventMarkets(_eventId);
+    function getEventDetails(uint256 _eventId) external view returns (SportsLinkMarketFactory.EventDetails memory) {
+        return marketFactory.getEventDetails(_eventId);
     }
 
     function isEventRegistered(uint256 _eventId) public view returns (bool) {

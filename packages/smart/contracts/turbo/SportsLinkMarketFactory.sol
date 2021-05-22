@@ -36,7 +36,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 awayTeamId;
         uint256 estimatedStartTime;
         MarketType marketType;
-        EventStatus eventStatus;
         // This value depends on the marketType.
         // HeadToHead: ignored
         // Spread: the home team spread
@@ -45,11 +44,20 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
-    // EventId => [MarketId]
-    mapping(uint256 => uint256[3]) public events;
+
+    struct EventDetails {
+        uint256[3] markets;
+        uint256 homeScore;
+        uint256 awayScore;
+        EventStatus status;
+        uint256 resolutionTime; // time since last score update
+        bool finalized; // true after event ends and when 2 subsequent score updates are identical after resolutionBuffer has passed
+    }
+    // EventId => EventDetails
+    mapping(uint256 => EventDetails) public events;
 
     address public linkNode;
-    uint256 public sportId;
+    uint256 public resolutionBuffer;
 
     constructor(
         address _owner,
@@ -61,7 +69,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         address _protocol,
         uint256 _protocolFee,
         address _linkNode,
-        uint256 _sportId
+        uint256 _resolutionBuffer
     )
         AbstractMarketFactory(
             _owner,
@@ -75,7 +83,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
-        sportId = _sportId;
+        resolutionBuffer = _resolutionBuffer;
     }
 
     function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
@@ -94,7 +102,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
-        _ids = events[_eventId];
+        events[_eventId].status = EventStatus.Scheduled;
+
+        _ids = events[_eventId].markets;
 
         if (_ids[0] == 0) {
             _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
@@ -126,7 +136,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             );
         }
 
-        events[_eventId] = _ids;
+        events[_eventId].markets = _ids;
     }
 
     function createHeadToHeadMarket(
@@ -150,7 +160,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.HeadToHead,
-            EventStatus.Scheduled,
             0
         );
         emit MarketCreated(
@@ -189,7 +198,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.Spread,
-            EventStatus.Scheduled,
             _homeSpread
         );
         emit MarketCreated(
@@ -228,7 +236,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.OverUnder,
-            EventStatus.Scheduled,
             int256(_overUnderTotal)
         );
         emit MarketCreated(
@@ -253,30 +260,53 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         require(msg.sender == linkNode, "Only link node can resolve markets");
 
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
-        uint256[3] memory _ids = events[_eventId];
-        require(_ids[0] != 0 || _ids[1] != 0 || _ids[2] != 0, "Cannot resolve markets that weren't created");
+        EventDetails storage _event = events[_eventId];
 
-        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
+        require(
+            _event.markets[0] != 0 || _event.markets[1] != 0 || _event.markets[2] != 0,
+            "Cannot resolve markets that weren't created"
+        );
+        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "Cannot resolve SCHEDULED markets");
+        require(!_event.finalized, "Cannot resolve finalized markets");
+
+        bool _resolvedButNotFinalized = _event.resolutionTime != 0;
+        bool _stableScores = _event.homeScore == _homeScore && _event.awayScore == _awayScore;
+
+        // mark event as resolved but not yet finalized
+        if (!_resolvedButNotFinalized || !_stableScores) {
+            _event.resolutionTime = block.timestamp;
+            _event.homeScore = _homeScore;
+            _event.awayScore = _awayScore;
+            return;
+        }
+
+        bool _outOfResolutionBuffer = (block.timestamp - _event.resolutionTime) >= resolutionBuffer;
+        require(_outOfResolutionBuffer, "Cannot finalize market resoltion until resolutionBuffer time has passed");
+
+        // event is ready to be finalized. markets will be resolved
+
+        _event.finalized = true;
+        _event.status = EventStatus(_eventStatus);
 
         // resolve markets as No Contest
         if (EventStatus(_eventStatus) != EventStatus.Final) {
-            for (uint256 i = 0; i < _ids.length; i++) {
-                uint256 _id = _ids[0];
-                if (_id == 0) continue; // skip non-created markets
+            for (uint256 i = 0; i < _event.markets.length; i++) {
+                uint256 _id = _event.markets[i];
+                if (_id == 0) continue; // skip non-created markets, for when head2head exists but spread and overunder do not
                 markets[_id].winner = markets[_id].shareTokens[0];
             }
             return;
         }
 
         // only resolve markets that were created
-        if (_ids[0] != 0) {
-            resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
+        if (_event.markets[0] != 0) {
+            resolveHeadToHeadMarket(_event.markets[0], _homeScore, _awayScore);
         }
-        if (_ids[1] != 0) {
-            resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
+        if (_event.markets[1] != 0) {
+            resolveSpreadMarket(_event.markets[1], _homeScore, _awayScore);
         }
-        if (_ids[2] != 0) {
-            resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
+        if (_event.markets[2] != 0) {
+            resolveOverUnderMarket(_event.markets[2], _homeScore, _awayScore);
         }
     }
 
@@ -353,21 +383,25 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         emit LinkNodeChanged(_newLinkNode);
     }
 
-    function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
-        uint256[3] memory _event = events[_eventId];
+    function setResolutionBuffer(uint256 _buffer) external onlyOwner {
+        resolutionBuffer = _buffer;
+    }
+
+    function getEventDetails(uint256 _eventId) external view returns (EventDetails memory) {
+        EventDetails memory _event = events[_eventId];
         return _event;
     }
 
     // Events can be partially registered, by only creating some markets.
     // This returns true only if an event is fully registered.
     function isEventRegistered(uint256 _eventId) public view returns (bool) {
-        uint256[3] memory _event = events[_eventId];
-        return _event[0] != 0 && _event[1] != 0 && _event[2] != 0;
+        EventDetails memory _event = events[_eventId];
+        return _event.markets[0] != 0 && _event.markets[1] != 0 && _event.markets[2] != 0;
     }
 
     function isEventResolved(uint256 _eventId) public view returns (bool) {
         // check the event's head-to-head market since it will always exist if of the event's markets exist
-        uint256 _marketId = events[_eventId][0];
+        uint256 _marketId = events[_eventId].markets[0];
         return isMarketResolved(_marketId);
     }
 

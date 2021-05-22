@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
@@ -25,7 +25,7 @@ describe("LinkFactory", () => {
   const awayTeamId = 1881;
   const homeSpread = 4;
   const overUnderTotal = 13;
-  const sportId = 4;
+  const resolutionBuffer = 1000; // must be largish to overcome actual passage of time for negative tests
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
@@ -52,7 +52,7 @@ describe("LinkFactory", () => {
       signer.address,
       smallFee,
       signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
+      resolutionBuffer
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -126,9 +126,25 @@ describe("LinkFactory", () => {
   });
 
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 10, 2)
+    const resolveMarkets = async () => {
+      return marketFactory.trustedResolveMarkets(
+        await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 10, 2)
+      );
+    };
+
+    // set initial resolution time and scores
+    await resolveMarkets();
+
+    // once without changing the block time, eliciting failure due to resolutionBuffer
+    await expect(resolveMarkets()).to.be.revertedWith(
+      "VM Exception while processing transaction: revert Cannot finalize market resoltion until resolutionBuffer time has passed"
     );
+
+    // change block time to meet the resolutionBuffer constraint
+    await network.provider.send("evm_increaseTime", [resolutionBuffer]);
+
+    // again to finalize
+    await resolveMarkets();
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]);
