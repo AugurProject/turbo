@@ -407,8 +407,6 @@ export const estimateSellTrade = async (
     amm.feeRaw
   );
 
-  console.log("breakdownWithFeeRaw", String(setsOut), String(undesirableTokensInPerOutcome));
-
   const completeSets = sharesOnChainToDisplay(setsOut); // todo: debugging div 1000 need to fix
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
