@@ -398,22 +398,16 @@ export const estimateSellTrade = async (
     amm.shareFactor
   );
 
-  const breakdownCompleteSets = await calcSellCompleteSets(
+  const [setsOut, undesirableTokensInPerOutcome] = calcSellCompleteSets(
     amm.shareFactor,
     selectedOutcomeId,
     amount,
     amm.balancesRaw,
     amm.weights,
     amm.feeRaw
-  ).catch((e) => {
-    console.log("error in calc complete sets", e);
-  });
+  );
 
-  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets[0]), String(breakdownCompleteSets[1]));
-
-  if (!breakdownCompleteSets) return null;
-
-  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets[0]); // todo: debugging div 1000 need to fix
+  const completeSets = sharesOnChainToDisplay(setsOut); // todo: debugging div 1000 need to fix
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const displayAmount = new BN(inputDisplayAmount);
@@ -434,7 +428,7 @@ export const estimateSellTrade = async (
     ratePerCash,
     remainingShares: remainingShares.toFixed(6),
     priceImpact,
-    outcomeShareTokensIn: breakdownCompleteSets[1], // just a pass through to sell trade call
+    outcomeShareTokensIn: undesirableTokensInPerOutcome, // just a pass through to sell trade call
   };
 };
 
@@ -472,7 +466,7 @@ export async function doTrade(
       "amount",
       amount,
       "min",
-      onChainMinShares
+      String(onChainMinShares)
     );
     return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares.toFixed());
   }
