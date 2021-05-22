@@ -241,7 +241,7 @@ export function calculateSellCompleteSets(
   let upper = _shareTokensIn;
   let tokenAmountOut = upper.sub(lower).div(2).add(lower);
   let tokensInPerOutcome: string[] = [];
-  const limit = 100;
+  const limit = 256;
   let counter = 0;
   while (!tokenAmountOut.eq(0) && counter <= limit) {
 
