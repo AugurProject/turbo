@@ -468,7 +468,7 @@ export async function doTrade(
       "amount",
       amount,
       "min",
-      onChainMinShares
+      String(onChainMinShares)
     );
     return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares.toFixed());
   }

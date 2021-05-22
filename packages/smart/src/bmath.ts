@@ -241,8 +241,10 @@ export function calculateSellCompleteSets(
   let upper = _shareTokensIn;
   let tokenAmountOut = upper.sub(lower).div(2).add(lower);
   let tokensInPerOutcome: string[] = [];
+  const limit = 100;
+  let counter = 0;
+  while (!tokenAmountOut.eq(0) && counter <= limit) {
 
-  while (!tokenAmountOut.eq(0)) {
     try {
       for (let i = 0; i < _tokenBalances.length; i++) {
         if (i === _outcome) continue;
@@ -259,7 +261,7 @@ export function calculateSellCompleteSets(
       );
       tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.div(_shareFactor).mul(_shareFactor).toString());
 
-      if (_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) {
+      if ((_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) || upper.sub(lower).lt(2)) {
         break;
       }
 
@@ -271,11 +273,13 @@ export function calculateSellCompleteSets(
 
       // Find mid-point of the new upper/lower bounds.
       tokenAmountOut = upper.sub(lower).div(2).add(lower);
+
     } catch (e) {
       // On error we go lower.
       upper = tokenAmountOut;
       tokenAmountOut = upper.sub(lower).div(2).add(lower);
     }
+    counter++;
   }
 
   return [tokenAmountOut.div(_shareFactor).mul(_shareFactor).toString(), tokensInPerOutcome];
