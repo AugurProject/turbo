@@ -30,7 +30,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // default to deployer for manual testing
   const linkNode = hre.network.config.deployConfig?.linkNode || owner;
 
-  const sportId = 4;
+  const resolutionBufferSeconds = 60 * 60 * 2; // 2 hours
 
   const args: Parameters<SportsLinkMarketFactory__factory["deploy"]> = [
     owner,
@@ -42,7 +42,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     protocol,
     protocolFee,
     linkNode,
-    sportId,
+    resolutionBufferSeconds,
   ];
 
   await deployments.deploy("SportsLinkMarketFactory", {

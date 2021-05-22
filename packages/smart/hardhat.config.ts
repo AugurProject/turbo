@@ -7,7 +7,7 @@ import "@tenderly/hardhat-tenderly";
 
 import { HardhatUserConfig } from "hardhat/config";
 import "./tasks";
-import { mapOverObject, NULL_ADDRESS } from "./src/";
+import { mapOverObject } from "./src/";
 import { NetworkUserConfig } from "hardhat/types";
 
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";

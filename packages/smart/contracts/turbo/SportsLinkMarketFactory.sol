@@ -28,7 +28,21 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     event LinkNodeChanged(address newLinkNode);
 
     enum MarketType {HeadToHead, Spread, OverUnder}
-    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+    enum HeadToHeadOutcomes {
+        NoContest, // 0
+        Away, // 1
+        Home // 2
+    }
+    enum SpreadOutcomes {
+        NoContest, // 0
+        Away, // 1
+        Home // 2
+    }
+    enum OverUnderOutcomes {
+        NoContest, // 0
+        Over, // 1
+        Under // 2
+    }
 
     struct MarketDetails {
         uint256 eventId;
@@ -36,7 +50,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 awayTeamId;
         uint256 estimatedStartTime;
         MarketType marketType;
-        EventStatus eventStatus;
         // This value depends on the marketType.
         // HeadToHead: ignored
         // Spread: the home team spread
@@ -45,11 +58,29 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
-    // EventId => [MarketId]
-    mapping(uint256 => uint256[3]) public events;
+
+    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+
+    struct EventDetails {
+        uint256[3] markets;
+        uint256 startTime;
+        uint256 homeScore;
+        uint256 awayScore;
+        EventStatus status;
+        // If there is a resolution time then the market is resolved but not necessarily finalized.
+        // A market is finalized when its last two score updates were identical.
+        // Score updates must occur after a period of time spedcified by resolutionBuffer.
+        // This mechanism exists to reduce the risk of bad scores being sent by the API then later corrected.
+        // The downside is slower resolution.
+        uint256 resolutionTime; // time since last score update
+        bool finalized; // true after event resolves and has stable scores
+    }
+
+    // EventId => EventDetails
+    mapping(uint256 => EventDetails) public events;
 
     address public linkNode;
-    uint256 public sportId;
+    uint256 public resolutionBuffer;
 
     constructor(
         address _owner,
@@ -61,7 +92,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         address _protocol,
         uint256 _protocolFee,
         address _linkNode,
-        uint256 _sportId
+        uint256 _resolutionBuffer
     )
         AbstractMarketFactory(
             _owner,
@@ -75,26 +106,28 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
-        sportId = _sportId;
+        resolutionBuffer = _resolutionBuffer;
     }
 
-    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+    function createEvent(
+        uint256 _eventId,
+        uint256 _homeTeamId,
+        uint256 _awayTeamId,
+        uint256 _startTimestamp,
+        int256 _homeSpread,
+        uint256 _totalScore,
+        bool _makeSpread,
+        bool _makeTotalScore
+    ) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
-        (
-            uint256 _eventId,
-            uint256 _homeTeamId,
-            uint256 _awayTeamId,
-            uint256 _startTimestamp,
-            int256 _homeSpread,
-            uint256 _totalScore,
-            bool _makeSpread,
-            bool _makeTotalScore
-        ) = decodeCreation(_payload);
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
-        _ids = events[_eventId];
+        events[_eventId].status = EventStatus.Scheduled;
+        events[_eventId].startTime = _startTimestamp;
+
+        _ids = events[_eventId].markets;
 
         if (_ids[0] == 0) {
             _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
@@ -126,7 +159,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             );
         }
 
-        events[_eventId] = _ids;
+        events[_eventId].markets = _ids;
     }
 
     function createHeadToHeadMarket(
@@ -138,9 +171,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _startTimestamp
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[uint256(HeadToHeadOutcomes.NoContest)] = "No Contest";
+        _outcomes[uint256(HeadToHeadOutcomes.Away)] = "Away";
+        _outcomes[uint256(HeadToHeadOutcomes.Home)] = "Home";
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
@@ -150,7 +183,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.HeadToHead,
-            EventStatus.Scheduled,
             0
         );
         emit MarketCreated(
@@ -177,9 +209,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         int256 _homeSpread
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[uint256(SpreadOutcomes.NoContest)] = "No Contest";
+        _outcomes[uint256(SpreadOutcomes.Away)] = "Away";
+        _outcomes[uint256(SpreadOutcomes.Home)] = "Home";
 
         // The spread is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the spread is a whole number then make it a half point more extreme, to eliminate ties.
@@ -198,7 +230,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.Spread,
-            EventStatus.Scheduled,
             _homeSpread
         );
         emit MarketCreated(
@@ -225,9 +256,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _overUnderTotal
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Over";
-        _outcomes[2] = "Under";
+        _outcomes[uint256(OverUnderOutcomes.NoContest)] = "No Contest";
+        _outcomes[uint256(OverUnderOutcomes.Over)] = "Over";
+        _outcomes[uint256(OverUnderOutcomes.Under)] = "Under";
 
         // The total is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the total is a whole number then make it a half point higher, to eliminate ties.
@@ -244,7 +275,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _awayTeamId,
             _startTimestamp,
             MarketType.OverUnder,
-            EventStatus.Scheduled,
             int256(_overUnderTotal)
         );
         emit MarketCreated(
@@ -262,37 +292,66 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
 
     function resolveMarket(uint256) public pure override {
-        require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
+        require(false, "Only the link node can resolve the market, using resolveEvent");
     }
 
-    function trustedResolveMarkets(bytes32 _payload) public {
+    function resolveEvent(
+        uint256 _eventId,
+        uint256 _eventStatus,
+        uint256 _homeScore,
+        uint256 _awayScore,
+        uint256 _eventTime
+    ) public {
+        EventDetails storage _event = events[_eventId];
+
         require(msg.sender == linkNode, "Only link node can resolve markets");
+        require(
+            _event.markets[0] != 0 || _event.markets[1] != 0 || _event.markets[2] != 0,
+            "Cannot resolve markets that weren't created"
+        );
+        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "Cannot resolve SCHEDULED markets");
+        require(!_event.finalized, "Cannot resolve finalized markets");
 
-        (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
-        uint256[3] memory _ids = events[_eventId];
-        require(_ids[0] != 0 || _ids[1] != 0 || _ids[2] != 0, "Cannot resolve markets that weren't created");
+        bool _resolvedButNotFinalized = _event.resolutionTime != 0;
+        bool _stableScores = _event.homeScore == _homeScore && _event.awayScore == _awayScore;
 
-        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
+        // mark event as resolved but not yet finalized
+        if (!_resolvedButNotFinalized || !_stableScores) {
+            _event.resolutionTime = block.timestamp;
+            _event.homeScore = _homeScore;
+            _event.awayScore = _awayScore;
+            return;
+        }
+
+        bool _outOfResolutionBuffer = eventIsOutOfResolutionBuffer(_event);
+        require(_outOfResolutionBuffer, "Cannot finalize market resolution until resolutionBuffer time has passed");
+
+        // event is ready to be finalized. markets will be resolved
+
+        _event.finalized = true;
+        _event.status = EventStatus(_eventStatus);
+
+        bool _stableTime = _event.startTime == _eventTime;
 
         // resolve markets as No Contest
-        if (EventStatus(_eventStatus) != EventStatus.Final) {
-            for (uint256 i = 0; i < _ids.length; i++) {
-                uint256 _id = _ids[i];
-                if (_id == 0) continue; // skip non-created markets
-                markets[_id].winner = markets[_id].shareTokens[0];
+        if (!_stableTime || EventStatus(_eventStatus) != EventStatus.Final) {
+            for (uint256 i = 0; i < _event.markets.length; i++) {
+                uint256 _id = _event.markets[i];
+                if (_id == 0) continue; // skip non-created markets, for when head2head exists but spread and overunder do not
+                markets[_id].winner = markets[_id].shareTokens[0]; // all NoContest are the same: 0
             }
             return;
         }
 
         // only resolve markets that were created
-        if (_ids[0] != 0) {
-            resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
+        if (_event.markets[0] != 0) {
+            resolveHeadToHeadMarket(_event.markets[0], _homeScore, _awayScore);
         }
-        if (_ids[1] != 0) {
-            resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
+        if (_event.markets[1] != 0) {
+            resolveSpreadMarket(_event.markets[1], _homeScore, _awayScore);
         }
-        if (_ids[2] != 0) {
-            resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
+        if (_event.markets[2] != 0) {
+            resolveOverUnderMarket(_event.markets[2], _homeScore, _awayScore);
         }
     }
 
@@ -303,11 +362,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     ) internal {
         OwnedERC20 _winner;
         if (_homeScore > _awayScore) {
-            _winner = markets[_id].shareTokens[2]; // home team won
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcomes.Home)];
         } else if (_homeScore < _awayScore) {
-            _winner = markets[_id].shareTokens[1]; // away team won
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcomes.Away)];
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcomes.NoContest)];
         }
 
         markets[_id].winner = _winner;
@@ -326,11 +385,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualSpread > _targetSpread) {
-            _winner = markets[_id].shareTokens[2]; // home spread greater
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcomes.Home)];
         } else if (_actualSpread < _targetSpread) {
-            _winner = markets[_id].shareTokens[1]; // home spread lesser
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcomes.Away)];
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcomes.NoContest)];
         }
 
         markets[_id].winner = _winner;
@@ -349,11 +408,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualTotal > _targetTotal) {
-            _winner = markets[_id].shareTokens[1]; // over
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcomes.Over)];
         } else if (_actualTotal < _targetTotal) {
-            _winner = markets[_id].shareTokens[2]; // under
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcomes.Under)];
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcomes.NoContest)];
         }
 
         markets[_id].winner = _winner;
@@ -369,120 +428,86 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         emit LinkNodeChanged(_newLinkNode);
     }
 
-    function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
-        uint256[3] memory _event = events[_eventId];
+    function setResolutionBuffer(uint256 _buffer) external onlyOwner {
+        resolutionBuffer = _buffer;
+    }
+
+    function getEventDetails(uint256 _eventId) external view returns (EventDetails memory) {
+        EventDetails memory _event = events[_eventId];
         return _event;
+    }
+
+    function eventIsOutOfResolutionBuffer(EventDetails memory _event) internal view returns (bool) {
+        return (block.timestamp - _event.resolutionTime) >= resolutionBuffer;
     }
 
     // Events can be partially registered, by only creating some markets.
     // This returns true only if an event is fully registered.
     function isEventRegistered(uint256 _eventId) public view returns (bool) {
-        uint256[3] memory _event = events[_eventId];
-        return _event[0] != 0 && _event[1] != 0 && _event[2] != 0;
+        EventDetails memory _event = events[_eventId];
+        return _event.markets[0] != 0 && _event.markets[1] != 0 && _event.markets[2] != 0;
     }
 
-    function isEventResolved(uint256 _eventId) public view returns (bool) {
-        // check the event's head-to-head market since it will always exist if of the event's markets exist
-        uint256 _marketId = events[_eventId][0];
-        return isMarketResolved(_marketId);
+    // Returns true if a call to resolveEvent is potentially useful.
+    function isEventResolvable(uint256 _eventId) internal view returns (bool) {
+        EventDetails memory _event = events[_eventId];
+
+        bool _readyToFinalize = _event.resolutionTime != 0 && eventIsOutOfResolutionBuffer(_event);
+
+        bool _unresolved = false; // default because non-existing markets aren't resolvable
+        for (uint256 i = 0; i < _event.markets.length; i++) {
+            uint256 _marketId = _event.markets[i];
+            if (_marketId != 0 && !isMarketResolved(_marketId)) {
+                _unresolved = true;
+            }
+        }
+
+        return _readyToFinalize || _unresolved;
     }
 
-    function encodeCreation(
-        uint128 _eventId,
-        uint16 _homeTeamId,
-        uint16 _awayTeamId,
-        uint32 _startTimestamp,
-        int16 _homeSpread,
-        uint16 _totalScore,
-        bool _createSpread,
-        bool _createTotal
-    ) external pure returns (bytes32 _payload) {
-        uint8 _creationFlags;
+    // Only usable off-chain. Gas cost can easily eclipse block limit.
+    // Lists all events that could be resolved with a call to resolveEvent.
+    // Not all will be resolvable because this does not ensure the game ended.
+    function listResolvableEvents() external view returns (uint256[] memory) {
+        uint256[] memory _unresolvedMarkets = listUnresolvedMarkets();
 
-        if (_createSpread) {
-            _creationFlags += 1; // 0b0000000x
-        }
-        if (_createTotal) {
-            _creationFlags += 2; // 0b000000x0
+        uint256 _totalUnresolved = 0;
+        uint256[] memory _allUnresolvedEvents = new uint256[](_unresolvedMarkets.length);
+        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
+            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
+            bool _uniqueEvent = true;
+            for (uint256 j = 0; j < _allUnresolvedEvents.length; j++) {
+                if (_allUnresolvedEvents[j] == _eventId) {
+                    _uniqueEvent = false;
+                    break;
+                }
+            }
+            if (_uniqueEvent && isEventResolvable(_eventId)) {
+                _totalUnresolved++;
+                _allUnresolvedEvents[i] = _eventId;
+            }
         }
 
-        bytes memory _a =
-            abi.encodePacked(
-                _eventId,
-                _homeTeamId,
-                _awayTeamId,
-                _startTimestamp,
-                _homeSpread,
-                _totalScore,
-                _creationFlags
-            );
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
+        uint256[] memory _uniqueUnresolvedEvents = new uint256[](_totalUnresolved);
 
-    function decodeCreation(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint16 _homeTeamId,
-            uint16 _awayTeamId,
-            uint32 _startTimestamp,
-            int16 _homeSpread,
-            uint16 _totalScore,
-            bool _createSpread,
-            bool _createTotal
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        uint8 _creationFlags;
-        // prettier-ignore
-        {
-            _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                                >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                         >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))                    >> (256 - 32));
-            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))               >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
-            _creationFlags  = uint8 ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
+        uint256 n = 0;
+        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
+            if (n >= _totalUnresolved) break;
 
-            // Lowest bit is _createSpread.
-            // Second-lowest bit is _createTotal.
-            _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
-            _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
+            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
+            bool _uniqueEvent = true;
+            for (uint256 j = 0; j < n; j++) {
+                if (_uniqueUnresolvedEvents[j] == _eventId) {
+                    _uniqueEvent = false;
+                    break;
+                }
+            }
+            if (_uniqueEvent && isEventResolvable(_eventId)) {
+                _uniqueUnresolvedEvents[n] = _eventId;
+                n++;
+            }
         }
-    }
 
-    function encodeResolution(
-        uint128 _eventId,
-        uint8 _eventStatus,
-        uint16 _homeScore,
-        uint16 _awayScore
-    ) external pure returns (bytes32 _payload) {
-        bytes memory _a = abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeResolution(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint8 _eventStatus,
-            uint16 _homeScore,
-            uint16 _awayScore
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        // prettier-ignore
-        {
-            _eventId     = uint128(_temp >> 128);
-            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
-            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
-            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
-        }
+        return _uniqueUnresolvedEvents;
     }
 }

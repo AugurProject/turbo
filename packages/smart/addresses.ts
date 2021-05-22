@@ -101,4 +101,17 @@ export const addresses: AddressMapping = {
     },
     info: { uploadBlockNumber: 14853228, graphName: "matic" },
   },
+  42: {
+    reputationToken: "0x5d6d8f561547cf0ff677b2d729fd2127e6d36481",
+    balancerFactory: "0x7757a7589bAC9D0B959B3721363Cf33665Ed2997",
+    ammFactory: "0x9Cb241525d22B139D60b948238169D4fCdf19Fb0",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x831E1E2AEab9332168C9853f92439DA4CdeAd188",
+        collateral: "0x7079f3762805cff9c979a5bdc6f5648bcfee76c8",
+      },
+    },
+    info: { uploadBlockNumber: 25001975, graphName: "kovan" },
+  },
 };

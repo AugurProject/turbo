@@ -216,7 +216,8 @@ describe("AMMFactory", () => {
       });
     };
 
-    const randomValues = [1500, 5000, 100000, 500000, 750000];
+    const randomValues = [1500, 750000];
+    // const randomValues = [1500, 5000, 100000, 500000, 750000]; // TODO make this much faster
     const numberOfValues = randomValues.length;
     for (let i = 0; i < Math.pow(randomValues.length, 3); i++) {
       const s = i.toString(numberOfValues).padStart(3, "0");

@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
@@ -25,7 +25,7 @@ describe("LinkFactory", () => {
   const awayTeamId = 1881;
   const homeSpread = 40;
   const overUnderTotal = 60;
-  const sportId = 4;
+  const resolutionBuffer = 1000; // must be largish to overcome actual passage of time for negative tests
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
@@ -52,7 +52,7 @@ describe("LinkFactory", () => {
       signer.address,
       smallFee,
       signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
+      resolutionBuffer
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -61,17 +61,15 @@ describe("LinkFactory", () => {
   });
 
   it("can create markets", async () => {
-    await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+    await marketFactory.createEvent(
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -131,10 +129,44 @@ describe("LinkFactory", () => {
     expect(details.value0).to.equal(overUnderTotal + 5);
   });
 
+  it("can list unresolved markets", async () => {
+    const unresolvedMarkets = await marketFactory.listUnresolvedMarkets();
+    expect(unresolvedMarkets).to.eql([headToHeadMarketId, spreadMarketId, overUnderMarketId]);
+  });
+
+  it("can list resolvable events", async () => {
+    const unresolvedEvents = await marketFactory.listResolvableEvents();
+    expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
+  });
+
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 100, 20)
+    const resolveMarkets = async () => {
+      return marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, 100, 20, estimatedStartTime);
+    };
+
+    // set initial resolution time and scores
+    await resolveMarkets();
+
+    it("resolved but not finalizable events are not listed", async () => {
+      const unresolvedEvents = await marketFactory.listResolvableEvents();
+      expect(unresolvedEvents).to.eql([]);
+    });
+
+    // once without changing the block time, eliciting failure due to resolutionBuffer
+    await expect(resolveMarkets()).to.be.revertedWith(
+      "VM Exception while processing transaction: revert Cannot finalize market resolution until resolutionBuffer time has passed"
     );
+
+    // change block time to meet the resolutionBuffer constraint
+    await network.provider.send("evm_increaseTime", [resolutionBuffer]);
+
+    it("finalizable events are listed", async () => {
+      const unresolvedEvents = await marketFactory.listResolvableEvents();
+      expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
+    });
+
+    // again to finalize
+    await resolveMarkets();
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
@@ -146,43 +178,14 @@ describe("LinkFactory", () => {
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]); // over
   });
 
-  it("encodes and decodes market creation payload", async () => {
-    const fakeStartTime = 1619743497;
-    const payload = await marketFactory.encodeCreation(
-      eventId,
-      homeTeamId,
-      awayTeamId,
-      fakeStartTime,
-      homeSpread,
-      overUnderTotal,
-      true,
-      true
-    );
-    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090028003c03000000");
-
-    const decoded = await marketFactory.decodeCreation(payload);
-    expect(decoded._eventId, "_eventId").to.equal(eventId);
-    expect(decoded._homeTeamId, "_homeTeamId").to.equal(homeTeamId);
-    expect(decoded._awayTeamId, "_awayTeamId").to.equal(awayTeamId);
-    expect(decoded._startTimestamp, "_startTimestamp").to.equal(fakeStartTime);
-    expect(decoded._homeSpread, "_homeSpread").to.equal(homeSpread);
-    expect(decoded._totalScore, "_totalScore").to.equal(overUnderTotal);
-    expect(decoded._createSpread, "_createSpread").to.equal(true);
-    expect(decoded._createTotal, "_createTotal").to.equal(true);
+  it("can see that the list of unresolved markets excludes resolved markets", async () => {
+    const unresolvedMarkets = await marketFactory.listUnresolvedMarkets();
+    expect(unresolvedMarkets).to.eql([]);
   });
 
-  it("encodes and decodes market resolution payload", async () => {
-    const eventStatus = 2;
-    const homeScore = 12;
-    const awayScore = 4810;
-    const payload = await marketFactory.encodeResolution(eventId, eventStatus, homeScore, awayScore);
-    expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
-
-    const decoded = await marketFactory.decodeResolution(payload);
-    expect(decoded._eventId, "_eventId").to.equal(eventId);
-    expect(decoded._eventStatus, "_eventStatus").to.equal(eventStatus);
-    expect(decoded._homeScore, "_homeScore").to.equal(homeScore);
-    expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
+  it("can see that the list resolvable events excludes resolved events", async () => {
+    const unresolvedEvents = await marketFactory.listResolvableEvents();
+    expect(unresolvedEvents).to.eql([]);
   });
 });
 
@@ -193,7 +196,10 @@ describe("LinkFactory NoContest", () => {
     [signer] = await ethers.getSigners();
   });
 
+  const resolutionBuffer = 1000; // must be largish to overcome actual passage of time for negative tests
   const eventId = 9001;
+  const now = BigNumber.from(Date.now()).div(1000);
+  const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
   let marketFactory: SportsLinkMarketFactory;
 
@@ -204,8 +210,6 @@ describe("LinkFactory NoContest", () => {
     const smallFee = BigNumber.from(10).pow(16);
     const shareFactor = calcShareFactor(await collateral.decimals());
 
-    const now = BigNumber.from(Date.now()).div(1000);
-    const estimatedStartTime = now.add(60 * 60 * 24); // one day
     const homeTeamId = 42;
     const awayTeamId = 1881;
     const homeSpread = 40;
@@ -225,24 +229,22 @@ describe("LinkFactory NoContest", () => {
       sportId
     );
 
-    await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+    await marketFactory.createEvent(
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
   });
 
   it("can resolve markets as No Contest", async () => {
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postpones, 0, 0)
-    );
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postpones, 0, 0, estimatedStartTime);
+    await network.provider.send("evm_increaseTime", [resolutionBuffer]);
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postpones, 0, 0, estimatedStartTime);
 
     const headToHeadMarketId = 1;
     const spreadMarketId = 2;

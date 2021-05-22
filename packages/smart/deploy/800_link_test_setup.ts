@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { SportsLinkMarketFactory, SportsLinkMarketFactory__factory, SportsLinkProxy__factory } from "../typechain";
+import { SportsLinkMarketFactory, SportsLinkMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;

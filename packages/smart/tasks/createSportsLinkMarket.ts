@@ -26,7 +26,8 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const { MarketFactories } = contracts;
       const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
 
-      const payload = await marketFactory.encodeCreation(
+      console.log("Creating market");
+      await marketFactory.createMarket(
         eventId,
         homeTeamId,
         awayTeamId,
@@ -36,7 +37,5 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
         createSpread,
         createTotal
       );
-      console.log("Creating market");
-      await marketFactory.createMarket(payload);
     }
   );
