@@ -244,7 +244,6 @@ export function calculateSellCompleteSets(
   const limit = 256;
   let counter = 0;
   while (!tokenAmountOut.eq(0) && counter <= limit) {
-
     try {
       for (let i = 0; i < _tokenBalances.length; i++) {
         if (i === _outcome) continue;
@@ -273,7 +272,6 @@ export function calculateSellCompleteSets(
 
       // Find mid-point of the new upper/lower bounds.
       tokenAmountOut = upper.sub(lower).div(2).add(lower);
-
     } catch (e) {
       // On error we go lower.
       upper = tokenAmountOut;
