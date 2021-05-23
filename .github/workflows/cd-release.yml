@@ -39,7 +39,7 @@ jobs:
           cwd: ./packages/simplified/
           files: |
             ./build
-          outPath: ${{github.ref}}.tar.gz
+          outPath: release.tar.gz
       - name: Test
         run: cat Release.txt
       - name: Release
@@ -48,6 +48,6 @@ jobs:
           files: |
             Release.txt
             LICENSE
-            ${{github.ref}}.tar.gz
+            release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
