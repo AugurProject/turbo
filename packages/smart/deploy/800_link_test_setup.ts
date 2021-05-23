@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     return; // skip tests and internal deploy. tests can set link node themselves
   }
 
-  const { linkNode } = hre.network.config;
+  const linkNode = hre.network.config.deployConfig?.linkNode;
 
   const marketFactory = SportsLinkMarketFactory__factory.connect(
     (await deployments.get("SportsLinkMarketFactory")).address,
