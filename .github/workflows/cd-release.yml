@@ -46,7 +46,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            Release.txt
             LICENSE
             release.tar.gz
         env:
