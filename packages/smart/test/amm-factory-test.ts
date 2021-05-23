@@ -28,6 +28,7 @@ describe("AMMFactory", () => {
 
   const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
   const ZERO = BigNumber.from(0);
+  const BONE = BigNumber.from(10).pow(18);
 
   let collateral: Contract;
   let shareFactor: BigNumber;
@@ -148,12 +149,25 @@ describe("AMMFactory", () => {
   it("should not be an infinite loop", async () => {
     calculateSellCompleteSets(
       BigNumber.from("1000000000000"),
-      0,
-      BigNumber.from("11000000000000000000"),
+      1,
+      BONE.mul(3941),
       ["9437597515460458265822", "10012000000000000000000", "10012000000000000000000"].map((b) => BigNumber.from(b)),
       ["1000000000000000000", "20000000000000000000", "29000000000000000000"].map((b) => BigNumber.from(b)),
       BigNumber.from("15000000000000000")
     );
+  });
+
+  it.only("should not be an infinite loop part 2", async () => {
+    const result = calculateSellCompleteSets(
+      BigNumber.from("1000000000000"),
+      1,
+      BONE.mul(3941),
+      ["6404637568042191796381", "682774709629804684772", "6404637201061839402829"].map((b) => BigNumber.from(b)),
+      ["1000000000000000000", "25500000000000000000", "23500000000000000000"].map((b) => BigNumber.from(b)),
+      BigNumber.from("15000000000000000")
+    );
+
+    console.log("result", result);
   });
 
   describe("buy", () => {
