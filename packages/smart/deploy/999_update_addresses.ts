@@ -22,7 +22,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const balancerFactory = await deployments.get("BFactory");
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
-  const trustedMarketFactory = await deployments.get("TrustedMarketFactory");
 
   const ammFactory = await deployments.get("AMMFactory");
 
@@ -51,12 +50,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         type: "SportsLink",
         address: sportsLinkMarketFactory.address,
         constructorArgs: sportsLinkMarketFactory.args as ConstructorArg[],
-        collateral: collateralDetails,
-      },
-      trustme: {
-        type: "Trusted",
-        address: trustedMarketFactory.address,
-        constructorArgs: trustedMarketFactory.args as ConstructorArg[],
         collateral: collateralDetails,
       },
     },
