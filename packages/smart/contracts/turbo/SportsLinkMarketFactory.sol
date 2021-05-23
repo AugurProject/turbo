@@ -18,7 +18,7 @@ interface SportsLinkInterface {
         EventStatus status;
         // If there is a resolution time then the market is resolved but not necessarily finalized.
         // A market is finalized when its last two score updates were identical.
-        // Score updates must ocucr after a period of time spedcified by resolutionBuffer.
+        // Score updates must occur after a period of time spedcified by resolutionBuffer.
         // This mechanism exists to reduce the risk of bad scores being sent by the API then later corrected.
         // The downside is slower resolution.
         uint256 resolutionTime; // time since last score update

@@ -148,7 +148,7 @@ describe("LinkFactory", () => {
     it("resolved but not finalizable events are not listed", async () => {
       const unresolvedEvents = await marketFactory.listResolvableEvents();
       expect(unresolvedEvents).to.eql([]);
-    })
+    });
 
     // once without changing the block time, eliciting failure due to resolutionBuffer
     await expect(resolveMarkets()).to.be.revertedWith(
@@ -161,7 +161,7 @@ describe("LinkFactory", () => {
     it("finalizable events are listed", async () => {
       const unresolvedEvents = await marketFactory.listResolvableEvents();
       expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
-    })
+    });
 
     // again to finalize
     await resolveMarkets();
