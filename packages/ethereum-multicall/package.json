@@ -1,6 +1,6 @@
 {
   "name": "@augurproject/ethereum-multicall",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Multicall allows multiple smart contract constant function calls to be grouped into a single call and the results aggregated into a single result",
   "main": "dist/index.js",
   "scripts": {
