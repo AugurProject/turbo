@@ -130,8 +130,8 @@ describe("LinkFactory", () => {
     expect(unresolvedMarkets).to.eql([headToHeadMarketId, spreadMarketId, overUnderMarketId]);
   });
 
-  it("can list unresolved events", async () => {
-    const unresolvedEvents = await marketFactory.listUnresolvedEvents();
+  it("can list resolvable events", async () => {
+    const unresolvedEvents = await marketFactory.listResolvableEvents();
     expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
   });
 
@@ -145,6 +145,11 @@ describe("LinkFactory", () => {
     // set initial resolution time and scores
     await resolveMarkets();
 
+    it("resolved but not finalizable events are not listed", async () => {
+      const unresolvedEvents = await marketFactory.listResolvableEvents();
+      expect(unresolvedEvents).to.eql([]);
+    })
+
     // once without changing the block time, eliciting failure due to resolutionBuffer
     await expect(resolveMarkets()).to.be.revertedWith(
       "VM Exception while processing transaction: revert Cannot finalize market resoltion until resolutionBuffer time has passed"
@@ -152,6 +157,11 @@ describe("LinkFactory", () => {
 
     // change block time to meet the resolutionBuffer constraint
     await network.provider.send("evm_increaseTime", [resolutionBuffer]);
+
+    it("finalizable events are listed", async () => {
+      const unresolvedEvents = await marketFactory.listResolvableEvents();
+      expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
+    })
 
     // again to finalize
     await resolveMarkets();
@@ -171,8 +181,8 @@ describe("LinkFactory", () => {
     expect(unresolvedMarkets).to.eql([]);
   });
 
-  it("can see that the list unresolved events excludes resolved events", async () => {
-    const unresolvedEvents = await marketFactory.listUnresolvedEvents();
+  it("can see that the list resolvable events excludes resolved events", async () => {
+    const unresolvedEvents = await marketFactory.listResolvableEvents();
     expect(unresolvedEvents).to.eql([]);
   });
 

@@ -33,9 +33,9 @@ interface SportsLinkInterface {
 
     function isEventRegistered(uint256 _eventId) external view returns (bool);
 
-    function isEventResolved(uint256 _eventId) external view returns (bool);
+    function isEventResolvable(uint256 _eventId) external view returns (bool);
 
-    function listUnresolvedEvents() external view returns (uint256[] memory);
+    function listResolvableEvents() external view returns (uint256[] memory);
 }
 
 contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
@@ -301,7 +301,7 @@ contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
             return;
         }
 
-        bool _outOfResolutionBuffer = (block.timestamp - _event.resolutionTime) >= resolutionBuffer;
+        bool _outOfResolutionBuffer = eventIsOutOfResolutionBuffer(_event);
         require(_outOfResolutionBuffer, "Cannot finalize market resoltion until resolutionBuffer time has passed");
 
         // event is ready to be finalized. markets will be resolved
@@ -413,6 +413,10 @@ contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
         return _event;
     }
 
+    function eventIsOutOfResolutionBuffer(EventDetails memory _event) internal view returns (bool) {
+        return (block.timestamp - _event.resolutionTime) >= resolutionBuffer;
+    }
+
     // Events can be partially registered, by only creating some markets.
     // This returns true only if an event is fully registered.
     function isEventRegistered(uint256 _eventId) public view override returns (bool) {
@@ -420,13 +424,26 @@ contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
         return _event.markets[0] != 0 && _event.markets[1] != 0 && _event.markets[2] != 0;
     }
 
-    function isEventResolved(uint256 _eventId) public view override returns (bool) {
+    // Returns true if a call to trustedResolveMarkets is useful.
+    function isEventResolvable(uint256 _eventId) public view override returns (bool) {
         EventDetails memory _event = events[_eventId];
-        return _event.resolutionTime != 0;
+
+        bool _readyToFinalize = _event.resolutionTime != 0 && eventIsOutOfResolutionBuffer(_event);
+
+        bool _unresolved = false; // default because non-existing markets aren't resolvable
+        for (uint256 i = 0; i < _event.markets.length; i++) {
+            uint256 _marketId = _event.markets[i];
+            if (_marketId != 0 && !isMarketResolved(_marketId)) {
+                _unresolved = true;
+            }
+        }
+
+        return _readyToFinalize || _unresolved;
     }
 
     // Only usable off-chain. Gas cost can easily eclipse block limit.
-    function listUnresolvedEvents() external view override returns (uint256[] memory) {
+    // Lists all events that could be resolved with a call to trustedResolveMarkets.
+    function listResolvableEvents() external view override returns (uint256[] memory) {
         uint256[] memory _unresolvedMarkets = listUnresolvedMarkets();
 
         uint256 _totalUnresolved = 0;
@@ -440,7 +457,7 @@ contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
                     break;
                 }
             }
-            if (_uniqueEvent) {
+            if (_uniqueEvent && isEventResolvable(_eventId)) {
                 _totalUnresolved++;
                 _allUnresolvedEvents[i] = _eventId;
             }
@@ -460,7 +477,7 @@ contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
                     break;
                 }
             }
-            if (_uniqueEvent) {
+            if (_uniqueEvent && isEventResolvable(_eventId)) {
                 _uniqueUnresolvedEvents[n] = _eventId;
                 n++;
             }

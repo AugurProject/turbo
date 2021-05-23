@@ -26,12 +26,12 @@ contract SportsLinkProxy is SportsLinkInterface, Ownable {
         return marketFactory.isEventRegistered(_eventId);
     }
 
-    function isEventResolved(uint256 _eventId) public view override returns (bool) {
-        return marketFactory.isEventResolved(_eventId);
+    function isEventResolvable(uint256 _eventId) public view override returns (bool) {
+        return marketFactory.isEventResolvable(_eventId);
     }
 
-    function listUnresolvedEvents() external view override returns (uint256[] memory) {
-        return marketFactory.listUnresolvedEvents();
+    function listResolvableEvents() external view override returns (uint256[] memory) {
+        return marketFactory.listResolvableEvents();
     }
 
     // Replay
