@@ -40,8 +40,6 @@ jobs:
           files: |
             ./build
           outPath: release.tar.gz
-      - name: Test
-        run: cat Release.txt
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
