@@ -125,6 +125,16 @@ describe("LinkFactory", () => {
     expect(await over.name()).to.equal("Over");
   });
 
+  it("can list unresolved markets", async () => {
+    const unresolvedMarkets = await marketFactory.listUnresolvedMarkets();
+    expect(unresolvedMarkets).to.eql([headToHeadMarketId, spreadMarketId, overUnderMarketId]);
+  });
+
+  it("can list unresolved events", async () => {
+    const unresolvedEvents = await marketFactory.listUnresolvedEvents();
+    expect(unresolvedEvents).to.eql([BigNumber.from(eventId)]);
+  });
+
   it("can resolve markets", async () => {
     const resolveMarkets = async () => {
       return marketFactory.trustedResolveMarkets(
@@ -154,6 +164,16 @@ describe("LinkFactory", () => {
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]);
+  });
+
+  it("can see that the list of unresolved markets excludes resolved markets", async () => {
+    const unresolvedMarkets = await marketFactory.listUnresolvedMarkets();
+    expect(unresolvedMarkets).to.eql([]);
+  });
+
+  it("can see that the list unresolved events excludes resolved events", async () => {
+    const unresolvedEvents = await marketFactory.listUnresolvedEvents();
+    expect(unresolvedEvents).to.eql([]);
   });
 
   it("encodes and decodes market creation payload", async () => {

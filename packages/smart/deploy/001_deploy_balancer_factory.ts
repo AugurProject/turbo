@@ -11,7 +11,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
 
   if (hre.network.config.deployConfig?.externalAddresses?.balancerFactory) {
-    console.log(`Using external address for balancer factory: "${hre.network.config.deployConfig.externalAddresses.balancerFactory}"`);
+    console.log(
+      `Using external address for balancer factory: "${hre.network.config.deployConfig.externalAddresses.balancerFactory}"`
+    );
   } else {
     await deployments.deploy("BFactory", {
       from: deployer,

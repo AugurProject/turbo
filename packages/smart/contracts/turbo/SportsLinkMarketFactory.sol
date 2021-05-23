@@ -8,7 +8,37 @@ import "./AbstractMarketFactory.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
-contract SportsLinkMarketFactory is AbstractMarketFactory {
+interface SportsLinkInterface {
+    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+
+    struct EventDetails {
+        uint256[3] markets;
+        uint256 homeScore;
+        uint256 awayScore;
+        EventStatus status;
+        // If there is a resolution time then the market is resolved but not necessarily finalized.
+        // A market is finalized when its last two score updates were identical.
+        // Score updates must ocucr after a period of time spedcified by resolutionBuffer.
+        // This mechanism exists to reduce the risk of bad scores being sent by the API then later corrected.
+        // The downside is slower resolution.
+        uint256 resolutionTime; // time since last score update
+        bool finalized; // true after event resolves and has stable scores
+    }
+
+    function createMarket(bytes32 _payload) external returns (uint256[3] memory _ids);
+
+    function trustedResolveMarkets(bytes32 _payload) external;
+
+    function getEventDetails(uint256 _eventId) external view returns (EventDetails memory);
+
+    function isEventRegistered(uint256 _eventId) external view returns (bool);
+
+    function isEventResolved(uint256 _eventId) external view returns (bool);
+
+    function listUnresolvedEvents() external view returns (uint256[] memory);
+}
+
+contract SportsLinkMarketFactory is SportsLinkInterface, AbstractMarketFactory {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -28,7 +58,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     event LinkNodeChanged(address newLinkNode);
 
     enum MarketType {HeadToHead, Spread, OverUnder}
-    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
 
     struct MarketDetails {
         uint256 eventId;
@@ -45,14 +74,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
 
-    struct EventDetails {
-        uint256[3] markets;
-        uint256 homeScore;
-        uint256 awayScore;
-        EventStatus status;
-        uint256 resolutionTime; // time since last score update
-        bool finalized; // true after event ends and when 2 subsequent score updates are identical after resolutionBuffer has passed
-    }
     // EventId => EventDetails
     mapping(uint256 => EventDetails) public events;
 
@@ -86,7 +107,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         resolutionBuffer = _resolutionBuffer;
     }
 
-    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+    function createMarket(bytes32 _payload) public override returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
         (
@@ -256,7 +277,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
     }
 
-    function trustedResolveMarkets(bytes32 _payload) public {
+    function trustedResolveMarkets(bytes32 _payload) public override {
         require(msg.sender == linkNode, "Only link node can resolve markets");
 
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
@@ -387,22 +408,65 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         resolutionBuffer = _buffer;
     }
 
-    function getEventDetails(uint256 _eventId) external view returns (EventDetails memory) {
+    function getEventDetails(uint256 _eventId) external view override returns (EventDetails memory) {
         EventDetails memory _event = events[_eventId];
         return _event;
     }
 
     // Events can be partially registered, by only creating some markets.
     // This returns true only if an event is fully registered.
-    function isEventRegistered(uint256 _eventId) public view returns (bool) {
+    function isEventRegistered(uint256 _eventId) public view override returns (bool) {
         EventDetails memory _event = events[_eventId];
         return _event.markets[0] != 0 && _event.markets[1] != 0 && _event.markets[2] != 0;
     }
 
-    function isEventResolved(uint256 _eventId) public view returns (bool) {
-        // check the event's head-to-head market since it will always exist if of the event's markets exist
-        uint256 _marketId = events[_eventId].markets[0];
-        return isMarketResolved(_marketId);
+    function isEventResolved(uint256 _eventId) public view override returns (bool) {
+        EventDetails memory _event = events[_eventId];
+        return _event.resolutionTime != 0;
+    }
+
+    // Only usable off-chain. Gas cost can easily eclipse block limit.
+    function listUnresolvedEvents() external view override returns (uint256[] memory) {
+        uint256[] memory _unresolvedMarkets = listUnresolvedMarkets();
+
+        uint256 _totalUnresolved = 0;
+        uint256[] memory _allUnresolvedEvents = new uint256[](_unresolvedMarkets.length);
+        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
+            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
+            bool _uniqueEvent = true;
+            for (uint256 j = 0; j < _allUnresolvedEvents.length; j++) {
+                if (_allUnresolvedEvents[j] == _eventId) {
+                    _uniqueEvent = false;
+                    break;
+                }
+            }
+            if (_uniqueEvent) {
+                _totalUnresolved++;
+                _allUnresolvedEvents[i] = _eventId;
+            }
+        }
+
+        uint256[] memory _uniqueUnresolvedEvents = new uint256[](_totalUnresolved);
+
+        uint256 n = 0;
+        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
+            if (n >= _totalUnresolved) break;
+
+            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
+            bool _uniqueEvent = true;
+            for (uint256 j = 0; j < n; j++) {
+                if (_uniqueUnresolvedEvents[j] == _eventId) {
+                    _uniqueEvent = false;
+                    break;
+                }
+            }
+            if (_uniqueEvent) {
+                _uniqueUnresolvedEvents[n] = _eventId;
+                n++;
+            }
+        }
+
+        return _uniqueUnresolvedEvents;
     }
 
     function encodeCreation(

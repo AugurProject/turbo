@@ -11,7 +11,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
 
   if (hre.network.config.deployConfig?.externalAddresses?.usdcToken) {
-    console.log(`Using external address for collateral: "${hre.network.config.deployConfig.externalAddresses.usdcToken}"`);
+    console.log(
+      `Using external address for collateral: "${hre.network.config.deployConfig.externalAddresses.usdcToken}"`
+    );
   } else {
     await deployments.deploy("Collateral", {
       contract: "Cash",
@@ -22,7 +24,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 
   if (hre.network.config.deployConfig?.externalAddresses?.reputationToken) {
-    console.log(`Using external address for reputation token: "${hre.network.config.deployConfig.externalAddresses.reputationToken}"`);
+    console.log(
+      `Using external address for reputation token: "${hre.network.config.deployConfig.externalAddresses.reputationToken}"`
+    );
   } else {
     await deployments.deploy("Reputation", {
       contract: "Cash",

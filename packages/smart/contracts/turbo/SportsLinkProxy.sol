@@ -5,29 +5,33 @@ pragma abicoder v2;
 import "../libraries/Ownable.sol";
 import "./SportsLinkMarketFactory.sol";
 
-contract SportsLinkProxy is Ownable {
+contract SportsLinkProxy is SportsLinkInterface, Ownable {
     // Link API
 
-    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+    function createMarket(bytes32 _payload) public override returns (uint256[3] memory _ids) {
         creationPayloads.push(_payload);
         return marketFactory.createMarket(_payload);
     }
 
-    function trustedResolveMarkets(bytes32 _payload) public {
+    function trustedResolveMarkets(bytes32 _payload) public override {
         resolutionPayloads.push(_payload);
         return marketFactory.trustedResolveMarkets(_payload);
     }
 
-    function getEventDetails(uint256 _eventId) external view returns (SportsLinkMarketFactory.EventDetails memory) {
+    function getEventDetails(uint256 _eventId) external view override returns (EventDetails memory) {
         return marketFactory.getEventDetails(_eventId);
     }
 
-    function isEventRegistered(uint256 _eventId) public view returns (bool) {
+    function isEventRegistered(uint256 _eventId) public view override returns (bool) {
         return marketFactory.isEventRegistered(_eventId);
     }
 
-    function isEventResolved(uint256 _eventId) public view returns (bool) {
+    function isEventResolved(uint256 _eventId) public view override returns (bool) {
         return marketFactory.isEventResolved(_eventId);
+    }
+
+    function listUnresolvedEvents() external view override returns (uint256[] memory) {
+        return marketFactory.listUnresolvedEvents();
     }
 
     // Replay
