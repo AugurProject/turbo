@@ -258,7 +258,7 @@ export function calculateSellCompleteSets(
         _tokenWeights,
         _swapFee
       );
-      tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.div(_shareFactor).mul(_shareFactor).toString());
+      tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.toString());
 
       if ((_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) || upper.sub(lower).lt(2)) {
         break;
