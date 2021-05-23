@@ -55,4 +55,17 @@ export const addresses: AddressMapping = {
     },
     info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
   },
+  137: {
+    reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
+    balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
+    ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x6b53958e2961A30E3Ebbdb6AD03AA7ae88A3C79d",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      },
+    },
+    info: { uploadBlockNumber: 14853228, graphName: "matic" },
+  },
 };

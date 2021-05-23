@@ -29,9 +29,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     );
   } else {
     await deployments.deploy("Reputation", {
-      contract: "Cash",
+      // contract: "Cash",
+      contract: "PlaceholderReputationToken",
       from: deployer,
-      args: ["REPv2", "REPv2", 18],
+      args: ["PlaceholderReputationToken", "PlaceholderReputationToken", 18],
+      // args: ["REPv2", "REPv2", 18],
       log: true,
     });
   }
