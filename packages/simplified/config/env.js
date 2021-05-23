@@ -93,6 +93,7 @@ function getClientEnvironment(publicUrl) {
         // The network we are connecting to
         DEFAULT_NETWORK_ID: process.env.DEFAULT_NETWORK_ID || '80001',
         HIDE_FAUCET: process.env.HIDE_FAUCET === 'true',
+        VERSION: process.env.VERSION
       }
     );
   // Stringify all values so we can feed into webpack DefinePlugin
