@@ -421,12 +421,12 @@ export const estimateSellTrade = async (
   const displayShares = sharesOnChainToDisplay(userShares);
   const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
 
-  const sumUndesirable = (undesirableTokensInPerOutcome || []).reduce((p, u) => p.plus(new BN(u)) ,ZERO);
+  const sumUndesirable = (undesirableTokensInPerOutcome || []).reduce((p, u) => p.plus(new BN(u)), ZERO);
 
   const canSellAll = new BN(amount).minus(sumUndesirable).abs();
-  
+
   if (canSellAll.gte(new BN(amm.shareFactor))) {
-    maxSellAmount = sharesOnChainToDisplay(sumUndesirable).decimalPlaces(4, 1).toFixed()
+    maxSellAmount = sharesOnChainToDisplay(sumUndesirable).decimalPlaces(4, 1).toFixed();
   }
 
   return {
