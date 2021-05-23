@@ -406,7 +406,7 @@ export const estimateSellTrade = async (
     amm.weights,
     amm.feeRaw
   );
-
+  let maxSellAmount = "0";
   const completeSets = sharesOnChainToDisplay(setsOut); // todo: debugging div 1000 need to fix
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
@@ -420,6 +420,15 @@ export const estimateSellTrade = async (
   const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
   const displayShares = sharesOnChainToDisplay(userShares);
   const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
+
+  const sumUndesirable = (undesirableTokensInPerOutcome || []).reduce((p, u) => p.plus(new BN(u)) ,ZERO);
+
+  const canSellAll = new BN(amount).minus(sumUndesirable).abs();
+  
+  if (canSellAll.gte(new BN(amm.shareFactor))) {
+    maxSellAmount = sharesOnChainToDisplay(sumUndesirable).decimalPlaces(4, 1).toFixed()
+  }
+
   return {
     outputValue: String(completeSets),
     tradeFees,
@@ -429,6 +438,7 @@ export const estimateSellTrade = async (
     remainingShares: remainingShares.toFixed(6),
     priceImpact,
     outcomeShareTokensIn: undesirableTokensInPerOutcome, // just a pass through to sell trade call
+    maxSellAmount,
   };
 };
 
