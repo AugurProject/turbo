@@ -26,11 +26,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     },
     {
       name: "Cash",
-      address: deployedAddresses.marketFactories["sportsball"].collateral.address,
-    },
-    {
-      name: "SportsLinkProxy",
-      address: deployedAddresses.sportsLinkProxy,
+      address: deployedAddresses.marketFactories["sportsball"].collateral,
     },
   ]);
 });

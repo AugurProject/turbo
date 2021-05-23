@@ -15,14 +15,6 @@ export function mapOverObject<V1, V2>(
   return o2;
 }
 
-export type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends Array<infer U>
-    ? Array<RecursivePartial<U>>
-    : T[P] extends Record<string, unknown>
-    ? RecursivePartial<T[P]>
-    : T[P];
-};
-
 export async function sleep(milliseconds: number): Promise<void> {
   return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }

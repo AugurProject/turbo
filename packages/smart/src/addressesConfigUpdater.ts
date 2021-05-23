@@ -49,37 +49,8 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                     ts.factory.createStringLiteral(marketFactory.address)
                                   ),
                                   context.factory.createPropertyAssignment(
-                                    "constructorArgs",
-                                    ts.factory.createArrayLiteralExpression(
-                                      marketFactory.constructorArgs.map((value) => {
-                                        if (typeof value === "number") {
-                                          return ts.factory.createNumericLiteral(value);
-                                        } else {
-                                          return ts.factory.createStringLiteral(value);
-                                        }
-                                      })
-                                    )
-                                  ),
-                                  context.factory.createPropertyAssignment(
                                     "collateral",
-                                    ts.factory.createObjectLiteralExpression([
-                                      context.factory.createPropertyAssignment(
-                                        "address",
-                                        ts.factory.createStringLiteral(marketFactory.collateral.address)
-                                      ),
-                                      context.factory.createPropertyAssignment(
-                                        "name",
-                                        ts.factory.createStringLiteral(marketFactory.collateral.name)
-                                      ),
-                                      context.factory.createPropertyAssignment(
-                                        "symbol",
-                                        ts.factory.createStringLiteral(marketFactory.collateral.symbol)
-                                      ),
-                                      context.factory.createPropertyAssignment(
-                                        "decimals",
-                                        ts.factory.createNumericLiteral(marketFactory.collateral.decimals)
-                                      ),
-                                    ])
+                                    ts.factory.createStringLiteral(marketFactory.collateral)
                                   ),
                                 ])
                               );

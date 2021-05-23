@@ -1,7 +1,7 @@
 import { extendConfig, HardhatUserConfig, task } from "hardhat/config";
 import { ethers } from "ethers";
 
-import { EthersFastSubmitWallet, mapOverObject } from "../src";
+import { EthersFastSubmitWallet } from "../src";
 import "hardhat/types/config";
 import {
   HardhatConfig,
@@ -16,58 +16,41 @@ import {
 } from "hardhat/types";
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre, runSuper) => {
-  if (!hre.config.contractDeploy) throw Error(`When deploying you must specify deployConfig in the hardhat config`);
+  if (!isHttpNetworkConfig(hre.network.config)) throw Error(`Can only deploy to HTTP networks`);
 
   await runSuper(args);
 
   // Verify deploy
   if (["kovan", "mainnet"].includes(hre.network.name)) {
-    console.log("Verifying deployment");
+    console.log("Verifying deployment on etherscan");
     await hre.run("etherscan-verify", hre.config.etherscan);
+  } else if (["maticMumbai", "maticMainnet"].includes(hre.network.name)) {
+    console.log("Verifying deployment on tenderly");
+    await hre.run("tenderly:verify:all");
   } else {
     console.log("Skipping verification of deployment");
   }
 });
 
-export type DeployStrategy = "test" | "production";
-
-export type ContractDeployConfig = ContractDeployTestConfig | ContractDeployProductionConfig;
-
-export interface ContractDeployCommonConfig {
-  strategy: DeployStrategy;
+export interface DeployConfig {
+  externalAddresses?: ExternalAddresses;
+  linkNode: string; // address of link node running cron-initiated jobs to create and resolve markets
 }
 
-export interface ContractDeployTestConfig extends ContractDeployCommonConfig {
-  strategy: "test";
-}
-
-export interface ContractDeployProductionConfig extends ContractDeployCommonConfig {
-  strategy: "production";
-  externalAddresses: ContractDeployExternalAddresses;
-}
-
-export interface ContractDeployExternalAddresses {
-  reputationToken: string;
+export interface ExternalAddresses {
+  reputationToken?: string;
+  usdcToken?: string; // address oof USDC collateral. also the test collateral
+  balancerFactory?: string;
 }
 
 declare module "hardhat/types/config" {
-  export interface HardhatUserConfig {
-    contractDeploy?: ContractDeployConfig;
-  }
-
-  export interface HardhatConfig {
-    contractDeploy?: ContractDeployConfig;
-  }
-
   export interface HttpNetworkUserConfig {
-    linkTokenAddress?: string;
-    linkNode?: string;
+    deployConfig: DeployConfig;
     confirmations?: number;
   }
 
   export interface HttpNetworkConfig {
-    linkTokenAddress: string; // address of LINK token
-    linkNode: string; // address of link node running cron-initiated jobs to create and resolve markets
+    deployConfig: DeployConfig; // called `deploy-config` because `deploy` is used by hardhat-deploy
     confirmations: number; // block confirmations before treating a tx as complete. not used in deploy
   }
 }
@@ -75,30 +58,15 @@ declare module "hardhat/types/config" {
 extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
   if (!userConfig.networks) return;
 
-  mapOverObject(userConfig.networks, (name, networkConfig) => {
-    if (isHttpNetworkUserConfig(networkConfig)) {
-      (config.networks[name] as HttpNetworkConfig).linkTokenAddress =
-        networkConfig.linkTokenAddress === undefined
-          ? "0xC89bD4E1632D3A43CB03AAAd5262cbe4038Bc571" // mainnet addr
-          : networkConfig.linkTokenAddress;
-      (config.networks[name] as HttpNetworkConfig).linkNode =
-        networkConfig.linkNode === undefined ? "" : networkConfig.linkNode;
-      (config.networks[name] as HttpNetworkConfig).confirmations =
-        networkConfig.confirmations === undefined ? 0 : networkConfig.confirmations;
+  if (userConfig.networks) {
+    for (const networkName of Object.keys(userConfig.networks)) {
+      const networkConfig = userConfig.networks[networkName];
+      if (isHttpNetworkUserConfig(networkConfig)) {
+        (config.networks[networkName] as HttpNetworkConfig).confirmations = networkConfig.confirmations || 0;
+      }
     }
-    return [name, networkConfig];
-  });
+  }
 });
-
-export function isContractDeployTestConfig(thing?: ContractDeployConfig): thing is ContractDeployTestConfig {
-  return thing?.strategy === "test";
-}
-
-export function isContractDeployProductionConfig(
-  thing?: ContractDeployConfig
-): thing is ContractDeployProductionConfig {
-  return thing?.strategy === "production";
-}
 
 export function isHttpNetworkConfig(networkConfig?: NetworkConfig): networkConfig is HttpNetworkConfig {
   return (networkConfig as HttpNetworkConfig)?.url !== undefined;
