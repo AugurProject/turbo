@@ -27,11 +27,12 @@ const BetslipHeader = () => {
     actions: { toggleSelectedView },
   } = useBetslipStore();
   const counts = [bets.length, active.length];
+  const handleToggle = (type) => selectedView !== type && toggleSelectedView();
   return (
     <header className={Styles.BetslipHeader}>
       <button
         className={classNames({ [Styles.SelectedView]: selectedView === BETSLIP, [Styles.isPopulated]: counts[0] > 0 })}
-        onClick={toggleSelectedView}
+        onClick={() => handleToggle(BETSLIP)}
       >
         {BETSLIP} <span>{counts[0]}</span>
       </button>
@@ -40,7 +41,7 @@ const BetslipHeader = () => {
           [Styles.SelectedView]: selectedView === ACTIVE_BETS,
           [Styles.isPopulated]: counts[1] > 0,
         })}
-        onClick={toggleSelectedView}
+        onClick={() => handleToggle(ACTIVE_BETS)}
       >
         {ACTIVE_BETS} <span>{counts[1]}</span>
       </button>
