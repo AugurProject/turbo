@@ -1,4 +1,4 @@
-import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE } from "../constants";
+import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE, BETSLIP } from "../constants";
 import { Constants } from "@augurproject/comps";
 
 export const STUBBED_SPORT_ACTIONS = {
@@ -37,17 +37,17 @@ export const SPORT_ACTIONS = {
 };
 
 export const DEFAULT_BETSLIP_STATE = {
-
+  selectedView: BETSLIP,
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {
-
+  toggleSelectedView: () => {},
 };
 
 export const BETSLIP_STATE_KEYS = {
-
+  SELECTED_VIEW: "selectedView",
 };
 
 export const BETSLIP_ACTIONS = {
-
+  TOGGLE_SELECTED_VIEW: "TOGGLE_SELECTED_VIEW",
 };

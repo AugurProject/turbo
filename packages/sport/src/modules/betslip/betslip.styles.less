@@ -7,6 +7,8 @@
   width: @betslip-column-width;
   
   > div {
+    .ThemePrimaryBorderRadius;
+
     min-height: 440px;
     border: @size-1 solid var(--simple-border);
     border-radius: @size-3;
@@ -16,5 +18,39 @@
 
   @media @breakpoint-mobile-tablet {
     display: none;
+  }
+}
+
+.BetslipHeader {
+  .ThemePrimaryTopBorderRadius;
+
+  background: black;
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  flex: 1 100%;
+  min-width: 100%;
+  height: @size-48;
+  min-height: @size-48;
+  max-height: @size-48;
+
+  > button {
+    .text-14-semi-bold;
+
+    background: transparent;
+    color: grey;
+    border: none;
+    border-radius: @size-8;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 50%;
+    text-transform: uppercase;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    &.SelectedView {
+      color: white;
+    }
   }
 }

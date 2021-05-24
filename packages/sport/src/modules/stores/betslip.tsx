@@ -28,4 +28,4 @@ export const BetslipProvider = ({ children }: any) => {
   return <BetslipContext.Provider value={state}>{children}</BetslipContext.Provider>;
 };
 
-export const useBetslipsStore = () => React.useContext(BetslipContext);
+export const useBetslipStore = () => React.useContext(BetslipContext);

@@ -23,6 +23,7 @@ import {
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
 import { Betslip } from "./betslip/betslip";
+import { BetslipProvider } from './stores/betslip';
 // import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { PORTFOLIO } = Constants;
 const { parsePath } = PathUtils;
@@ -159,7 +160,9 @@ function App() {
           <DataProvider>
             <AppStatusProvider>
               <SportProvider>
-                <AppBody />
+                <BetslipProvider>
+                  <AppBody />
+                </BetslipProvider>
               </SportProvider>
             </AppStatusProvider>
           </DataProvider>

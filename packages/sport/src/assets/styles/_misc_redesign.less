@@ -204,3 +204,42 @@
   flex-flow: column nowrap;
   padding: @size-40 @sports-gutter;
 }
+:root {
+  --theme-primary-radius: @size-8;
+  --theme-secondary-radius: @size-8;
+}
+
+:root[theme="SPORTS"] {
+  --theme-primary-radius: @size-3;
+  --theme-secondary-radius: @size-6;
+}
+
+.ThemePrimaryTopBorderRadius {
+  border-top-left-radius: var(--theme-primary-radius);
+  border-top-right-radius: var(--theme-primary-radius);
+}
+
+.ThemePrimaryBottomBorderRadius {
+  border-bottom-left-radius: var(--theme-primary-radius);
+  border-bottom-right-radius: var(--theme-primary-radius);
+}
+
+.ThemePrimaryBorderRadius {
+  .ThemePrimaryBottomBorderRadius;
+  .ThemePrimaryTopBorderRadius;
+}
+
+.ThemeSecondaryTopBorderRadius {
+  border-top-left-radius: var(--theme-secondary-radius);
+  border-top-right-radius: var(--theme-secondary-radius);
+}
+
+.ThemeSecondaryBottomBorderRadius {
+  border-bottom-left-radius: var(--theme-secondary-radius);
+  border-bottom-right-radius: var(--theme-secondary-radius);
+}
+
+.ThemeSecondaryBorderRadius {
+  .ThemeSecondaryBottomBorderRadius;
+  .ThemeSecondaryTopBorderRadius;
+}
