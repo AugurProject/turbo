@@ -18,25 +18,22 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     signer
   );
 
+  const owner = await marketFactory.getOwner();
+  const deployerAddress = await signer.getAddress();
+
   if (linkNode) {
     const currentLinkNode = await marketFactory.linkNode();
     if (linkNode === currentLinkNode) {
       console.log(`No need to set link node on market factory because it's already "${currentLinkNode}"`);
+    } else if (owner !== deployerAddress) {
+      console.warn(
+        `Should set link node but can't because owner is "${owner}" but the deployer is "${deployerAddress}"`
+      );
     } else {
       console.log(`Setting market factory "${marketFactory.address}" link node to "${linkNode}"`);
       await marketFactory.setLinkNode(linkNode);
       await marketFactory.setProtocol(linkNode, false); // unnecessary atm but matches intended prod
     }
-  }
-
-  const sportsLinkProxy = SportsLinkProxy__factory.connect((await deployments.get("SportsLinkProxy")).address, signer);
-
-  const currentMarketFactory = await sportsLinkProxy.marketFactory();
-  if (marketFactory.address === currentMarketFactory) {
-    console.log(`No need to redirect link proxy because it already points to "${currentMarketFactory}"`);
-  } else {
-    console.log(`Redirecting link proxy to new market factory "${marketFactory.address}"`);
-    await sportsLinkProxy.setMarketFactory(marketFactory.address);
   }
 };
 

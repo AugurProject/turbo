@@ -7,7 +7,7 @@ import "@tenderly/hardhat-tenderly";
 
 import { HardhatUserConfig } from "hardhat/config";
 import "./tasks";
-import { mapOverObject } from "./src/";
+import { mapOverObject, NULL_ADDRESS } from "./src/";
 import { NetworkUserConfig } from "hardhat/types";
 
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
@@ -78,6 +78,10 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       deployConfig: {
         linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
+        externalAddresses: {
+          usdcToken: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+          // reputationToken: NULL_ADDRESS, // no staking fees yet
+        },
       },
     },
   },
