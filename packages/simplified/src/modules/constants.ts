@@ -86,30 +86,42 @@ export const categoryItems = [
   {
     label: ALL_MARKETS,
     value: ALL_MARKETS,
+    disabled: false,
   },
   {
     label: CRYPTO,
     value: CRYPTO,
+    disabled: true,
   },
   {
     label: ECONOMICS,
     value: ECONOMICS,
+    disabled: true,
   },
   {
     label: ENTERTAINMENT,
     value: ENTERTAINMENT,
+    disabled: true,
   },
   {
     label: MEDICAL,
     value: MEDICAL,
+    disabled: true,
+  },
+  {
+    label: POLITICS,
+    value: POLITICS,
+    disabled: true,
   },
   {
     label: SPORTS,
     value: SPORTS,
+    disabled: false,
   },
   {
     label: OTHER,
     value: OTHER,
+    disabled: true,
   },
 ];
 

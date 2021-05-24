@@ -1,6 +1,6 @@
 {
   "name": "@augurproject/subgraph",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.0",
   "scripts": {
     "smart": "yarn --silent workspace @augurproject/smart",
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",

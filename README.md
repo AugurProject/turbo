@@ -1,6 +1,6 @@
 [![Packages CI](https://github.com/AugurProject/turbo/actions/workflows/node.js.yml/badge.svg)](https://github.com/AugurProject/turbo/actions/workflows/node.js.yml)
 
-# How To Use
+# How Do I Use This?
 
 First get dependencies and build everything.
 (Everything. Contracts, generated files, then finally the typescript itself.)
@@ -44,7 +44,7 @@ ETHERSCAN_API_KEY=$yourEtherscanAPIKeyHere yarn smart contracts:verify --network
 
 (This process will be automated further, to apply to most or all of the deployed contracts without needing to know their constructor arguments.)
 
-# Want To Write Code
+# Want To Write Code?
 
 This repo uses eslint with a few options and prettier with 120 columns.
 Before committing any code, please run prettier:
@@ -58,3 +58,7 @@ Then run the linter:
 ```shell
 yarn lint
 ```
+
+# Documentation
+
+Documentation is available at https://turbo-docs.augur.sh/

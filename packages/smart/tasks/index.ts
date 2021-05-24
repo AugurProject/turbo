@@ -12,6 +12,5 @@ export * from "./getTeams";
 export * from "./tenderlyVerify";
 export * from "./pokeLink";
 export * from "./setSportsLinkNode";
-export * from "./replayLinkProxy";
 export * from "./createSportsLinkMarket";
 export * from "./whoami";

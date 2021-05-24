@@ -200,7 +200,7 @@ export const Components = {
   SEO,
   SelectionComps,
   ToggleSwitch,
-  BuySellToggleSwitch
+  BuySellToggleSwitch,
 };
 export const Modals = {
   ModalConnectWallet

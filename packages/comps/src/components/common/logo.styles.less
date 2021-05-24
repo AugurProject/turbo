@@ -1,5 +1,19 @@
 @import (reference) '~assets/styles/shared';
 
+.LogoBeta {
+  width: @size-120;
+  height: @size-40;
+  align-items: center;
+  display: flex;
+  align-content: center;
+
+  > svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+
 .v2Logo {
   width: @size-96;
   height: @size-32;
@@ -54,6 +68,11 @@
 }
 
 @media @breakpoint-mobile-tablet {
+  .LogoBeta {
+    width: @size-72;
+    height: @size-40;
+  }
+
   .v2Logo {
     > svg {
       width: @size-40;

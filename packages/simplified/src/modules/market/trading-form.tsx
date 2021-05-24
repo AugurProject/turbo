@@ -249,6 +249,11 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : "Share"} Balance`;
       disabled = true;
+    } else if(breakdown?.maxSellAmount && breakdown?.maxSellAmount !== "0") {
+      actionText = INSUFFICIENT_LIQUIDITY;
+      console.log('this is getting called')
+      subText = `Max Shares to Sell ${breakdown?.maxSellAmount}`
+      disabled = true;
     } else if (waitingToSign) {
       actionText = "Waiting for Confirmation";
       disabled = true;
@@ -293,6 +298,16 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       .catch((error) => {
         setWaitingToSign(false);
         console.log("Error when trying to trade: ", error?.message);
+        addTransaction({
+          hash: "trade-failure",
+          chainId: loginAccount.chainId,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          from: loginAccount.account,
+          addedTime: new Date().getTime(),
+          message: `${direction === TradingDirection.ENTRY ? "Buy" : "Sell"} Shares`,
+          marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
+        });
       });
   };
 

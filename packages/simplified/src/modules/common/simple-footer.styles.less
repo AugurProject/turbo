@@ -1,0 +1,66 @@
+@import (reference) "~assets/styles/shared";
+
+.SimpleFooter {
+  .text-12-semi-bold;
+
+  border-top: @size-1 solid var(--simple-border);
+  width: 100%;
+  height: @size-48;
+  min-height: @size-48;
+  max-height: @size-48;
+  display: flex;
+  flex-flow: row nowrap;
+
+  > div {
+    align-items: center;
+    display: grid;
+    grid-gap: @size-16;
+    grid-template-columns: 0fr 0fr 0fr 0fr 0fr;
+    width: 100%;
+    height: @size-48;
+    min-height: @size-48;
+    max-height: @size-48;
+    color: var(--simple-primary-text);
+
+    &:first-of-type {
+      background: var(--light-background-color);
+      max-width: @size-912;
+      padding-left: @size-88;
+      margin-left: auto;
+    }
+
+    &:last-of-type {
+      min-width: 0%;
+      max-width: @size-528;
+      padding-right: @size-88;
+      margin-right: auto;
+    }
+
+    > section {
+      display: block;
+      height: @size-24;
+      width: @size-24;
+
+      > svg {
+        height: @size-24;
+        width: @size-24;
+      }
+    }
+
+    > a {
+      white-space: nowrap;
+    }
+  }
+
+  @media @breakpoint-mobile-tablet {
+    > div {
+      &:first-of-type {
+        padding-left: @size-16;
+      }
+
+      &:last-of-type {
+        display: none;
+      }
+    }
+  }
+}

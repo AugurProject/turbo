@@ -126,6 +126,10 @@ export const CurrencyLabel = ({ name }) => {
   return <span className={Styles.CurrencyLabel}>{content}</span>;
 };
 
+export const VersionLabel = () => {
+  return <div className={Styles.Version}>{ process.env.VERSION || "Beta" }</div>;
+};
+
 export const ReportingStateLabel = ({ reportingState, big = false }) => {
   let content;
   switch (reportingState) {

@@ -10,13 +10,12 @@ import {
   Components,
   useAppStatusStore,
 } from '@augurproject/comps';
+import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
 import { useSimplifiedStore } from '../stores/simplified';
 const {
   MARKETS,
   PORTFOLIO,
   SIDEBAR_TYPES,
-  DEFAULT_MARKET_VIEW_SETTINGS,
-  categoryItems,
   // currencyItems,
   marketStatusItems,
   sortByItems,
@@ -56,7 +55,7 @@ const FilterSideBar = () => {
     JSON.stringify(localSettings) ===
     JSON.stringify(DEFAULT_MARKET_VIEW_SETTINGS);
 
-  return (
+    return (
     <>
       <SideBarHeader header={'filters'} />
       <div className={Styles.Body}>

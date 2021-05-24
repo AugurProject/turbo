@@ -1,28 +1,34 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-import { calcShareFactor } from "../src";
-import { makeSigner } from "../tasks";
-import { Cash, SportsLinkMarketFactory__factory } from "../typechain";
+import { calcShareFactor, NULL_ADDRESS } from "../src";
+import { isHttpNetworkConfig, makeSigner } from "../tasks";
+import { Cash, Cash__factory, SportsLinkMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, ethers } = hre;
 
+  if (!isHttpNetworkConfig(hre.network.config)) {
+    return; // skip tests and internal deploy
+  }
+
   const signer = await makeSigner(hre);
   const deployer = await signer.getAddress();
 
-  const collateral = (await ethers.getContract("Collateral")) as Cash;
+  const collateralAddress =
+    hre.network.config.deployConfig?.externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
+  const collateral = Cash__factory.connect(collateralAddress, signer);
   const shareFactor = calcShareFactor(await collateral.decimals());
 
   const feePot = await deployments.get("FeePot");
   const stakerFee = 0;
-  const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.005%
+  const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.05%
   const protocolFee = 0;
 
-  // These should be specified but they're changeable so setting them to deployer is OK.
-  const owner = deployer;
-  const protocol = deployer;
-  const linkNode = deployer;
+  const owner = NULL_ADDRESS;
+  const protocol = NULL_ADDRESS;
+  // default to deployer for manual testing
+  const linkNode = hre.network.config.deployConfig?.linkNode || owner;
 
   const sportId = 4;
 

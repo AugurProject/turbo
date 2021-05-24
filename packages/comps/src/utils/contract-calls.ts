@@ -398,22 +398,16 @@ export const estimateSellTrade = async (
     amm.shareFactor
   );
 
-  const breakdownCompleteSets = await calcSellCompleteSets(
+  const [setsOut, undesirableTokensInPerOutcome] = calcSellCompleteSets(
     amm.shareFactor,
     selectedOutcomeId,
     amount,
     amm.balancesRaw,
     amm.weights,
     amm.feeRaw
-  ).catch((e) => {
-    console.log("error in calc complete sets", e);
-  });
-
-  console.log("breakdownWithFeeRaw", String(breakdownCompleteSets[0]), String(breakdownCompleteSets[1]));
-
-  if (!breakdownCompleteSets) return null;
-
-  const completeSets = sharesOnChainToDisplay(breakdownCompleteSets[0]); // todo: debugging div 1000 need to fix
+  );
+  let maxSellAmount = "0";
+  const completeSets = sharesOnChainToDisplay(setsOut); // todo: debugging div 1000 need to fix
   const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
 
   const displayAmount = new BN(inputDisplayAmount);
@@ -426,6 +420,15 @@ export const estimateSellTrade = async (
   const ratePerCash = new BN(completeSets).div(displayAmount).toFixed(6);
   const displayShares = sharesOnChainToDisplay(userShares);
   const remainingShares = new BN(displayShares || "0").minus(displayAmount).abs();
+
+  const sumUndesirable = (undesirableTokensInPerOutcome || []).reduce((p, u) => p.plus(new BN(u)), ZERO);
+
+  const canSellAll = new BN(amount).minus(sumUndesirable).abs();
+
+  if (canSellAll.gte(new BN(amm.shareFactor))) {
+    maxSellAmount = sharesOnChainToDisplay(sumUndesirable).decimalPlaces(4, 1).toFixed();
+  }
+
   return {
     outputValue: String(completeSets),
     tradeFees,
@@ -434,7 +437,8 @@ export const estimateSellTrade = async (
     ratePerCash,
     remainingShares: remainingShares.toFixed(6),
     priceImpact,
-    outcomeShareTokensIn: breakdownCompleteSets[1], // just a pass through to sell trade call
+    outcomeShareTokensIn: undesirableTokensInPerOutcome, // just a pass through to sell trade call
+    maxSellAmount,
   };
 };
 
@@ -472,7 +476,7 @@ export async function doTrade(
       "amount",
       amount,
       "min",
-      onChainMinShares
+      String(onChainMinShares)
     );
     return ammFactoryContract.buy(marketFactoryAddress, turboId, selectedOutcomeId, amount, onChainMinShares.toFixed());
   }
@@ -1199,7 +1203,7 @@ const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFact
 
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
-  const usdcContract = marketFactories.sportsball.collateral.address;
+  const usdcContract = marketFactories.sportsball.collateral;
   const amount = ethers.BigNumber.from(10).pow(10); // 10k
   const collateral = Cash__factory.connect(usdcContract, getProviderOrSigner(library, account));
   await collateral.faucet(amount as BigNumberish);

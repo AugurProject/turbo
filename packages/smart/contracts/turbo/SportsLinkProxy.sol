@@ -4,15 +4,19 @@ pragma solidity 0.7.6;
 import "../libraries/Ownable.sol";
 import "./SportsLinkMarketFactory.sol";
 
+// The replay functionality only works under a test env because an owner is needed.
+// In production, the owner can be set to the link node for potential future work.
 contract SportsLinkProxy is Ownable {
     // Link API
 
     function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+        require(msg.sender == linkNode, "Only link node can create markets");
         creationPayloads.push(_payload);
         return marketFactory.createMarket(_payload);
     }
 
     function trustedResolveMarkets(bytes32 _payload) public {
+        require(msg.sender == linkNode, "Only link node can resolve markets");
         resolutionPayloads.push(_payload);
         return marketFactory.trustedResolveMarkets(_payload);
     }
@@ -51,16 +55,26 @@ contract SportsLinkProxy is Ownable {
     // Misc
 
     SportsLinkMarketFactory public marketFactory;
+    address public linkNode;
     bytes32[] public creationPayloads;
     bytes32[] public resolutionPayloads;
 
-    constructor(address _owner, SportsLinkMarketFactory _marketFactory) {
-        owner = _owner;
+    constructor(
+        address _owner,
+        SportsLinkMarketFactory _marketFactory,
+        address _linkNode
+    ) {
+        owner = _owner; // test controller
         marketFactory = _marketFactory;
+        linkNode = _linkNode;
     }
 
     function setMarketFactory(SportsLinkMarketFactory _newAddress) external onlyOwner {
         marketFactory = _newAddress;
+    }
+
+    function setLinkNode(address _newLinkNode) external onlyOwner {
+        linkNode = _newLinkNode;
     }
 
     function onTransferOwnership(address, address) internal override {}

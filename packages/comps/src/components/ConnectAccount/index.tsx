@@ -130,7 +130,7 @@ const ConnectAccountButton = ({
           connectToMatic();
         });
       },
-      text: "Connect to Matic",
+      text: "Connect to Polygon",
       icon: <NetworkIcon />,
     };
   }

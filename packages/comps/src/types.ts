@@ -504,6 +504,7 @@ export interface EstimateTradeResult {
   ratePerCash: string;
   priceImpact: string;
   outcomeShareTokensIn?: string[];
+  maxSellAmount?: string;
 }
 
 export interface PriceTimeSeriesData {

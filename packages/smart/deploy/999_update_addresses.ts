@@ -3,38 +3,26 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import {
-  Addresses,
-  Collateral,
-  ConstructorArg,
-  graphChainNames,
-  addresses as originalAddresses,
-  ChainId,
-} from "../addresses";
+import { Addresses, graphChainNames, addresses as originalAddresses, ChainId } from "../addresses";
+import { isHttpNetworkConfig } from "../tasks";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  console.log("Done deploying!");
+  if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
+  console.log("Done deploying! Writing deploy information to addresses.ts");
+
   const { deployments } = hre;
   const chainId = parseInt(await getChainId());
 
-  const collateral = await deployments.get("Collateral");
-  const reputationToken = await deployments.get("Reputation");
-  const balancerFactory = await deployments.get("BFactory");
+  const collateral =
+    hre.network.config.deployConfig?.externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
+  const reputationToken =
+    hre.network.config.deployConfig?.externalAddresses?.reputationToken ||
+    (await deployments.get("Reputation")).address;
+  const balancerFactory =
+    hre.network.config.deployConfig?.externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
-  const trustedMarketFactory = await deployments.get("TrustedMarketFactory");
-
   const ammFactory = await deployments.get("AMMFactory");
-
-  const sportsLinkProxy = await deployments.get("SportsLinkProxy");
-
-  const [name, symbol, decimals] = collateral.args as [string, string, number];
-  const collateralDetails: Collateral = {
-    address: collateral.address,
-    name,
-    symbol,
-    decimals,
-  };
 
   // If the AMMFactory was deployed then use its block number.
   // Else, use the previously recorded block number.
@@ -43,24 +31,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     ammFactory.receipt?.blockNumber || originalAddresses[chainId as ChainId]?.info.uploadBlockNumber || 0;
 
   const addresses: Addresses = {
-    reputationToken: reputationToken.address,
-    balancerFactory: balancerFactory.address,
+    reputationToken,
+    balancerFactory,
     ammFactory: ammFactory.address,
     marketFactories: {
       sportsball: {
         type: "SportsLink",
         address: sportsLinkMarketFactory.address,
-        constructorArgs: sportsLinkMarketFactory.args as ConstructorArg[],
-        collateral: collateralDetails,
-      },
-      trustme: {
-        type: "Trusted",
-        address: trustedMarketFactory.address,
-        constructorArgs: trustedMarketFactory.args as ConstructorArg[],
-        collateral: collateralDetails,
+        collateral,
       },
     },
-    sportsLinkProxy: sportsLinkProxy.address,
     info: {
       graphName: graphChainNames[chainId],
       uploadBlockNumber,

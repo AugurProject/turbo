@@ -211,14 +211,14 @@ function attemptTokenCalc(
 type calculateSellCompleteSetsResult = [setsOut: string, undesirableTokensInPerOutcome: string[]];
 const TOLERANCE = BigNumber.from(10).pow(10);
 
-export async function calcSellCompleteSets(
+export function calcSellCompleteSets(
   _shareFactor: string,
   _outcome: number,
   _shareTokensIn: string,
   _tokenBalances: string[],
   _tokenWeights: string[],
   _swapFee: string
-): Promise<calculateSellCompleteSetsResult> {
+): calculateSellCompleteSetsResult {
   return calculateSellCompleteSets(
     BigNumber.from(_shareFactor),
     _outcome,
@@ -241,8 +241,9 @@ export function calculateSellCompleteSets(
   let upper = _shareTokensIn;
   let tokenAmountOut = upper.sub(lower).div(2).add(lower);
   let tokensInPerOutcome: string[] = [];
-
-  while (!tokenAmountOut.eq(0)) {
+  const limit = 256;
+  let counter = 0;
+  while (!tokenAmountOut.eq(0) && counter <= limit) {
     try {
       for (let i = 0; i < _tokenBalances.length; i++) {
         if (i === _outcome) continue;
@@ -257,9 +258,9 @@ export function calculateSellCompleteSets(
         _tokenWeights,
         _swapFee
       );
-      tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.div(_shareFactor).mul(_shareFactor).toString());
+      tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.toString());
 
-      if (_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) {
+      if ((_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) || upper.sub(lower).lt(2)) {
         break;
       }
 
@@ -276,6 +277,7 @@ export function calculateSellCompleteSets(
       upper = tokenAmountOut;
       tokenAmountOut = upper.sub(lower).div(2).add(lower);
     }
+    counter++;
   }
 
   return [tokenAmountOut.div(_shareFactor).mul(_shareFactor).toString(), tokensInPerOutcome];
