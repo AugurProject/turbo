@@ -8,5 +8,12 @@ module.exports = {
         'hardhat-tasks',
       ],
     },
+    {
+      type: 'category',
+      label: 'API Documentation',
+      items: [
+        'contract-api'
+      ],
+    },
   ],
 };
