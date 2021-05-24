@@ -29,8 +29,7 @@ jobs:
 
       - run: yarn
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") yarn build
-
-      - run:  NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" yarn simp build
+      - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" yarn simp build
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
