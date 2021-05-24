@@ -22,19 +22,21 @@ import {
   useUserStore,
 } from "@augurproject/comps";
 import { TURBO_NO_ACCESS_MODAL } from "./constants";
+import { Betslip } from "./betslip/betslip";
+import { BetslipProvider } from './stores/betslip';
+
 // import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
-const { MARKETS } = Constants;
+const { PORTFOLIO } = Constants;
 const { parsePath } = PathUtils;
 const { PrimaryButton } = ButtonComps;
-
 // // const AppBody = () => {
 //   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
 //   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
 //   const { sidebarType, showTradingForm } = useSportsStore();
 //   const { loginAccount, actions: { logout }, } = useUserStore();
 //   const modalShowing = Object.keys(modal).length !== 0;
-//   const location = useLocation();
-//   const path = parsePath(location.pathname)[0];
+  // const location = useLocation();
+  // const path = parsePath(location.pathname)[0];
 //   const sidebarOut = sidebarType && isMobile;
 
   // useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
@@ -105,6 +107,8 @@ const AppBody = () => {
     actions: { logout },
   } = useUserStore();
   const modalShowing = Object.keys(modal).length !== 0;
+  const location = useLocation();
+  const path = parsePath(location.pathname)[0];
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
@@ -132,11 +136,13 @@ const AppBody = () => {
       id="mainContent"
       className={classNames(Styles.App, {
         [Styles.ModalShowing]: modalShowing,
+        [Styles.MyBets]: path === PORTFOLIO
       })}
     >
       {modalShowing && <ModalView />}
       <TopNav />
       <Routes />
+      <Betslip />
     </div>
   );
 };
@@ -154,7 +160,9 @@ function App() {
           <DataProvider>
             <AppStatusProvider>
               <SportProvider>
-                <AppBody />
+                <BetslipProvider>
+                  <AppBody />
+                </BetslipProvider>
               </SportProvider>
             </AppStatusProvider>
           </DataProvider>

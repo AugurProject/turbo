@@ -9,5 +9,6 @@ windowRef.appStatus = {};
 windowRef.data = {};
 windowRef.user = {};
 windowRef.sport = {};
+windowRef.betslip = {};
 
 render(<App />, document.getElementById("root"));

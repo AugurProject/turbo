@@ -1,0 +1,120 @@
+@import (reference) '~assets/styles/shared.less';
+
+.Betslip {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1 100%;
+  width: @betslip-column-width;
+  
+  > div {
+    .PrimaryBorderRadius;
+
+    background: white;
+    box-shadow: 0px 0px 4px rgba(14, 14, 33, 0.15);
+    min-height: 440px;
+    border: @size-1 solid var(--simple-border);
+    margin: @size-32 @size-32 @size-32 @size-8;
+    width: @betslip-width;
+  }
+
+  @media @breakpoint-mobile-tablet {
+    display: none;
+  }
+}
+
+.BetslipHeader {
+  .PrimaryTopBorderRadius;
+
+  background: black;
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  flex: 1 100%;
+  min-width: 100%;
+  height: @size-48;
+  min-height: @size-48;
+  max-height: @size-48;
+
+  > button {
+    .text-14-semi-bold;
+
+    background: transparent;
+    color: grey;
+    border: none;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 50%;
+    text-transform: uppercase;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    > span {
+      .text-10;
+      .PrimaryBorderRadius;
+
+      border: @size-1 solid grey;
+      padding: @size-3 @size-5;
+      margin-left: @size-8;
+    }
+
+    &.isPopulated {
+      > span {
+        color: white;
+      }
+    }
+
+    &.SelectedView,
+    &.SelectedView.isPopulated {
+      color: white;
+
+      > span {
+        border: @size-1 solid white;
+        background: white;
+        color: black;
+      }
+    }
+  }
+}
+
+.EmptyBetslip {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+
+  > div {
+    background: lightgrey;
+    border-radius: 50%;
+    margin-top: @size-80;
+    margin-bottom: @size-16;
+    height: @size-80;
+    width: @size-80;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    > svg {
+      height: @size-40;
+      width: @size-40;
+    }
+  }
+
+  > h3 {
+    .text-14-bold;
+
+    color: black;
+    margin: 0;
+  }
+
+  > p {
+    .text-14;
+
+    color: black;
+    margin: 0;
+    margin-top: @size-1;
+    margin-bottom: @size-11;
+  }
+  
+}

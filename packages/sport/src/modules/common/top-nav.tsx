@@ -130,33 +130,12 @@ export const TopNav = () => {
   return (
     <section
       className={classNames(Styles.TopNav, {
-        [Styles.TwoTone]: path !== MARKETS,
+        // [Styles.TwoTone]: path !== MARKETS,
         [Styles.OnMarketsView]: path === MARKET,
       })}
     >
       <section>
         <LinkLogo />
-        {!isMobile && (
-          <ol>
-            <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-              <Link placeholder="Markets" to={makePath(MARKETS)}>
-                Markets
-              </Link>
-            </li>
-            <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
-              <Link
-                onClick={(e) => {
-                  !isLogged && e.preventDefault();
-                }}
-                disabled={!isLogged}
-                to={makePath(PORTFOLIO)}
-                placeholder={isLogged ? "Portfolio" : "Please Login to view Portfolio"}
-              >
-                Portfolio
-              </Link>
-            </li>
-          </ol>
-        )}
       </section>
       <section>
         <ConnectAccount
@@ -184,6 +163,27 @@ export const TopNav = () => {
         )}
         {/* <Toasts /> */}
       </section>
+      {!isMobile && (
+          <ol>
+            <li className={classNames({ [Styles.Active]: path === MARKETS })}>
+              <Link placeholder="Markets" to={makePath(MARKETS)}>
+                Markets
+              </Link>
+            </li>
+            <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
+              <Link
+                onClick={(e) => {
+                  !isLogged && e.preventDefault();
+                }}
+                disabled={!isLogged}
+                to={makePath(PORTFOLIO)}
+                placeholder={isLogged ? "Portfolio" : "Please Login to view Portfolio"}
+              >
+                Portfolio
+              </Link>
+            </li>
+          </ol>
+        )}
     </section>
   );
 };

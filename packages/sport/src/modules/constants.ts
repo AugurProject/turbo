@@ -222,3 +222,6 @@ export const DefaultMarketOutcomes = [
     price: "$0.75",
   },
 ];
+
+export const BETSLIP = "Betslip";
+export const ACTIVE_BETS = "Active Bets";
