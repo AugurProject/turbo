@@ -3,13 +3,14 @@ import { Constants } from "@augurproject/comps";
 
 export const STUBBED_SPORT_ACTIONS = {
   setSidebar: (sidebarType) => {},
-  setShowTradingForm: (showTradingForm) => {},
+  setBetslipMinimized: (betslipMinimized) => {},
   updateSettings: (settings, account = null) => {},
+  updateMarketsViewSettings: (settings) => {},
 };
 
 export const DEFAULT_SPORT_STATE = {
   sidebarType: null,
-  showTradingForm: false,
+  betslipMinimized: false,
   marketsViewSettings: DEFAULT_MARKET_VIEW_SETTINGS,
   settings: {
     slippage: SETTINGS_SLIPPAGE,
@@ -21,15 +22,16 @@ export const DEFAULT_SPORT_STATE = {
 
 export const SPORT_STATE_KEYS = {
   SIDEBAR_TYPE: "sidebarType",
-  SHOW_TRADING_FORM: "showTradingForm",
+  BETSLIP_MINIMIZED: "betslipMinimized",
   SETTINGS: "settings",
   TIME_FORMAT: "timeFormat",
   ODDS_FORMAT: "oddsFormat",
+  MARKETS_VIEW_SETTINGS: 'marketsViewSettings',
 };
 
 export const SPORT_ACTIONS = {
   UPDATE_SETTINGS: "UPDATE_SETTINGS",
   SET_SIDEBAR: "SET_SIDEBAR",
-  SET_SHOW_TRADING_FORM: "SET_SHOW_TRADING_FORM",
+  SET_BETSLIP_MINIMIZED: "SET_BETSLIP_MINIMIZED",
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
 };

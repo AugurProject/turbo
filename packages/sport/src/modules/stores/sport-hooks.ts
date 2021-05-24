@@ -4,9 +4,9 @@ import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware, getSavedUserInfo },
 } = Stores;
-const { UPDATE_SETTINGS, SET_SIDEBAR, SET_SHOW_TRADING_FORM } = SPORT_ACTIONS;
+const { UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
 
-const { SETTINGS, SIDEBAR_TYPE, SHOW_TRADING_FORM } = SPORT_STATE_KEYS;
+const { SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
@@ -40,8 +40,15 @@ export function SportReducer(state, action) {
       updatedState[SIDEBAR_TYPE] = action.sidebarType;
       break;
     }
-    case SET_SHOW_TRADING_FORM: {
-      updatedState[SHOW_TRADING_FORM] = action.showTradingForm;
+    case SET_BETSLIP_MINIMIZED: {
+      updatedState[BETSLIP_MINIMIZED] = action.betslipMinimized;
+      break;
+    }
+    case UPDATE_MARKETS_VIEW_SETTINGS: {
+      updatedState[MARKETS_VIEW_SETTINGS] = {
+        ...updatedState[MARKETS_VIEW_SETTINGS],
+        ...action[MARKETS_VIEW_SETTINGS],
+      };
       break;
     }
     case UPDATE_SETTINGS: {
@@ -69,7 +76,9 @@ export const useSport = (defaultState = DEFAULT_SPORT_STATE) => {
   return {
     ...state,
     actions: {
-      setShowTradingForm: (showTradingForm) => dispatch({ type: SET_SHOW_TRADING_FORM, showTradingForm }),
+      updateMarketsViewSettings: (marketsViewSettings) =>
+        dispatch({ type: UPDATE_MARKETS_VIEW_SETTINGS, marketsViewSettings }),
+      setBetslipMinimized: (betslipMinimized) => dispatch({ type: SET_BETSLIP_MINIMIZED, betslipMinimized }),
       setSidebar: (sidebarType) => dispatch({ type: SET_SIDEBAR, sidebarType }),
       updateSettings: (settings, account = null) => dispatch({ type: UPDATE_SETTINGS, settings, account }),
     },
