@@ -6,7 +6,11 @@ curl -OL "https://github.com/AugurProject/turbo/releases/download/$VERSION/relea
 
 tar -xzf release.tar.gz;
 
-ipfs add -rq build;
+IPFS_HASH_CIDv0=$(ipfs add -rq --silent build | sed '$!d');
+IPFS_HASH_CIDv1=$(ipfs cid base32 $IPFS_HASH_CIDv0);
+
+echo "CIDv0: $IPFS_HASH_CIDv0";
+echo "CIDv1: $IPFS_HASH_CIDv1";
 
 rm -rf build;
 rm release.tar.gz;
