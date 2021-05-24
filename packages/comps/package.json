@@ -1,11 +1,11 @@
 {
   "name": "@augurproject/comps",
-  "version": "0.0.1-alpha.4",
+  "version": "1.0.0-beta.0",
   "private": true,
   "main": "build",
   "types": "build/index.d.ts",
   "dependencies": {
-    "@augurproject/ethereum-multicall": "^0.0.1-alpha.4",
+    "@augurproject/ethereum-multicall": "^1.0.0-beta.0",
     "@uniswap/sdk": "^3.0.3",
     "@web3-react/abstract-connector": "^6.0.7",
     "@web3-react/core": "^6.1.1",
