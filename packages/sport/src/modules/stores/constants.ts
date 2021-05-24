@@ -26,7 +26,7 @@ export const SPORT_STATE_KEYS = {
   SETTINGS: "settings",
   TIME_FORMAT: "timeFormat",
   ODDS_FORMAT: "oddsFormat",
-  MARKETS_VIEW_SETTINGS: 'marketsViewSettings',
+  MARKETS_VIEW_SETTINGS: "marketsViewSettings",
 };
 
 export const SPORT_ACTIONS = {
@@ -38,16 +38,28 @@ export const SPORT_ACTIONS = {
 
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
+  bets: [],
+  active: [],
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {
   toggleSelectedView: () => {},
+  addBet: (bet) => {},
+  removeBet: (betId) => {},
+  updateBet: (bet) => {},
+  updateActive: (active) => {},
 };
 
 export const BETSLIP_STATE_KEYS = {
   SELECTED_VIEW: "selectedView",
+  BETS: "bets",
+  ACTIVE: "active",
 };
 
 export const BETSLIP_ACTIONS = {
   TOGGLE_SELECTED_VIEW: "TOGGLE_SELECTED_VIEW",
+  ADD_BET: "ADD_BET",
+  REMOVE_BET: "REMOVE_BET",
+  UPDATE_BET: "UPDATE_BET",
+  UPDATE_ACTIVE: "UPDATE_ACTIVE",
 };

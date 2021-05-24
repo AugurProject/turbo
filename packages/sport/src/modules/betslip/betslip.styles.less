@@ -7,11 +7,12 @@
   width: @betslip-column-width;
   
   > div {
-    .ThemePrimaryBorderRadius;
+    .PrimaryBorderRadius;
 
+    background: white;
+    box-shadow: 0px 0px 4px rgba(14, 14, 33, 0.15);
     min-height: 440px;
     border: @size-1 solid var(--simple-border);
-    border-radius: @size-3;
     margin: @size-32 @size-32 @size-32 @size-8;
     width: @betslip-width;
   }
@@ -22,7 +23,7 @@
 }
 
 .BetslipHeader {
-  .ThemePrimaryTopBorderRadius;
+  .PrimaryTopBorderRadius;
 
   background: black;
   display: flex;
@@ -40,7 +41,6 @@
     background: transparent;
     color: grey;
     border: none;
-    border-radius: @size-8;
     display: flex;
     flex-flow: row nowrap;
     flex: 1 50%;
@@ -49,8 +49,30 @@
     align-items: center;
     cursor: pointer;
 
-    &.SelectedView {
+    > span {
+      .text-10;
+      .PrimaryBorderRadius;
+
+      border: @size-1 solid grey;
+      padding: @size-3 @size-5;
+      margin-left: @size-8;
+    }
+
+    &.isPopulated {
+      > span {
+        color: white;
+      }
+    }
+
+    &.SelectedView,
+    &.SelectedView.isPopulated {
       color: white;
+
+      > span {
+        border: @size-1 solid white;
+        background: white;
+        color: black;
+      }
     }
   }
 }
