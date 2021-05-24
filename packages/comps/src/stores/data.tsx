@@ -35,36 +35,30 @@ export const DataProvider = ({ children }: any) => {
   delete readableState.actions;
   DataStore.get = () => readableState;
   const networkId = Number(PARA_CONFIG.networkId);
-  console.log('data provider, networkId', networkId)
   useEffect(() => {
-    let isMounted = true;
     const getMarkets = async () => {
-      console.log('have provider', !!provider);
       if (provider) {
-        console.log('calling to get market infos')
         return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+      updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
     });
 
     const intervalId = setInterval(() => {
       getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+        updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
-      isMounted = false;
       clearInterval(intervalId);
     };
   }, [provider, account]);
 
   useEffect(() => {
-    let isMounted = true;
     const fetchTransactions = () =>
-      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions));
+      getAllTransactions(account?.toLowerCase(), (transactions) => updateTransactions(transactions));
 
     fetchTransactions();
 
@@ -72,7 +66,6 @@ export const DataProvider = ({ children }: any) => {
       fetchTransactions();
     }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
-      isMounted = false;
       clearInterval(intervalId);
     };
   }, [account]);

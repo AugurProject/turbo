@@ -6,6 +6,7 @@ import { MATIC_MUMBAI_RPC_DATA, MATIC_RPC_DATA, SUPPORTED_WALLETS } from "../con
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { UnsupportedChainIdError } from "@web3-react/core";
 import { PARA_CONFIG } from "../../../stores/constants";
+import  Web3HttpProvider from "web3-providers-http";
 
 const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   1: "",
@@ -36,7 +37,8 @@ export const getRpcData = () => {
 
 export const getDefaultProvider = () => {
   const rpcData = getRpcData();
-  return new ethers.providers.JsonRpcProvider(rpcData.rpcUrls[0]);
+  const httpProvider = new Web3HttpProvider(rpcData.rpcUrls[0]);
+  return new Web3Provider(httpProvider, 'any');
 }
 
 export const isAddress = (value) => {
@@ -94,9 +96,7 @@ export function getProviderOrSigner(
   library: Web3Provider,
   account: string
 ): Web3Provider | JsonRpcSigner {
-  if (!isAddress(account) || account === AddressZero) {
-    throw Error(`Invalid 'address' parameter '${account}'.`);
-  }
+  if (!account) return library;
   return getSigner(library, account);
 }
 

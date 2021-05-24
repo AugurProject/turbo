@@ -276,11 +276,7 @@ const MarketsView = () => {
         showFilter={showFilter}
       />
       <SubCategoriesFilter />
-      {!isLogged ? (
-        <section>
-          <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
-        </section>
-      ) : loading && dataLoading ? (
+      {loading && dataLoading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />

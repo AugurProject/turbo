@@ -150,13 +150,6 @@ const MarketView = ({ defaultMarket = null }) => {
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
 
-  if ((!market && !loading) || !isLogged)
-    return (
-      <NonexistingMarketView
-        text={!isLogged ? "Please connect a wallet to view market data." : "Market does not exist."}
-        showLink={isLogged}
-      />
-    );
   if (!market) return <EmptyMarketView />;
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
