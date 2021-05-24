@@ -82,8 +82,8 @@ export const getMarketTitle = (
     let underdog = awayTeam;
     // todo: figure out which team is fav and underdog
     if (Number(line) < 0) {
-      underdog = homeTeam;
-      fav = awayTeam;
+      underdog = awayTeam;
+      fav = homeTeam;
     }
     let spread = new BN(line).abs().toNumber();
     if (!Number.isInteger(spread)) {
