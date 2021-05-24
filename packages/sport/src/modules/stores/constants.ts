@@ -35,3 +35,19 @@ export const SPORT_ACTIONS = {
   SET_BETSLIP_MINIMIZED: "SET_BETSLIP_MINIMIZED",
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
 };
+
+export const DEFAULT_BETSLIP_STATE = {
+
+};
+
+export const STUBBED_BETSLIP_ACTIONS = {
+
+};
+
+export const BETSLIP_STATE_KEYS = {
+
+};
+
+export const BETSLIP_ACTIONS = {
+
+};
