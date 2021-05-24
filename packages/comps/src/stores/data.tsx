@@ -4,6 +4,7 @@ import { useData } from "./data-hooks";
 import { useUserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
+import { getDefaultProvider } from "../components/ConnectAccount/utils";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -20,7 +21,8 @@ export const DataProvider = ({ children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account, loginAccount } = useUserStore();
-  const provider = loginAccount?.library ? loginAccount.library : null;
+  const defaultProvider = getDefaultProvider();
+  const provider = loginAccount?.library ? loginAccount.library : defaultProvider;
   const {
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
@@ -32,10 +34,14 @@ export const DataProvider = ({ children }: any) => {
   const readableState = { ...state };
   delete readableState.actions;
   DataStore.get = () => readableState;
+  const networkId = Number(PARA_CONFIG.networkId);
+  console.log('data provider, networkId', networkId)
   useEffect(() => {
     let isMounted = true;
     const getMarkets = async () => {
-      if (provider && account) {
+      console.log('have provider', !!provider);
+      if (provider) {
+        console.log('calling to get market infos')
         return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
@@ -48,7 +54,7 @@ export const DataProvider = ({ children }: any) => {
       getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
         isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
-    }, NETWORK_BLOCK_REFRESH_TIME[42]);
+    }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
@@ -64,7 +70,7 @@ export const DataProvider = ({ children }: any) => {
 
     const intervalId = setInterval(() => {
       fetchTransactions();
-    }, NETWORK_BLOCK_REFRESH_TIME[42]);
+    }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);

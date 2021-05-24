@@ -2,9 +2,10 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { ChainId } from "@uniswap/sdk";
 import { Contract, ethers } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { SUPPORTED_WALLETS } from "../constants";
+import { MATIC_MUMBAI_RPC_DATA, MATIC_RPC_DATA, SUPPORTED_WALLETS } from "../constants";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { UnsupportedChainIdError } from "@web3-react/core";
+import { PARA_CONFIG } from "../../../stores/constants";
 
 const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   1: "",
@@ -26,6 +27,17 @@ export const MATIC_MUMBAI = 80001;
 export const MATIC_CHAINS = [
   MATIC_MAINNET, MATIC_MUMBAI
 ];
+
+export const getRpcData = () => {
+  const networkId = PARA_CONFIG.networkId;
+  const RPC_DATA = Number(networkId) === MATIC_MUMBAI ? MATIC_MUMBAI_RPC_DATA : MATIC_RPC_DATA;
+  return RPC_DATA;
+}
+
+export const getDefaultProvider = () => {
+  const rpcData = getRpcData();
+  return new ethers.providers.JsonRpcProvider(rpcData.rpcUrls[0]);
+}
 
 export const isAddress = (value) => {
   try {
