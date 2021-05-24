@@ -127,7 +127,7 @@ export const CurrencyLabel = ({ name }) => {
 };
 
 export const VersionLabel = () => {
-  return <div>{ process.env.VERSION || "Beta" }</div>;
+  return <div className={Styles.Version}>{ process.env.VERSION || "Beta" }</div>;
 };
 
 export const ReportingStateLabel = ({ reportingState, big = false }) => {
