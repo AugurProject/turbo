@@ -1,3 +1,8 @@
+---
+title: Contract API
+slug: /contract-api
+---
+
 # Augur Turbo - Contract API
 
 Augur Turbo has a relatively simple contract design, consisting of three major components.
