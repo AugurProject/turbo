@@ -1203,7 +1203,7 @@ const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFact
 
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
-  const usdcContract = marketFactories.sportsball.collateral.address;
+  const usdcContract = marketFactories.sportsball.collateral;
   const amount = ethers.BigNumber.from(10).pow(10); // 10k
   const collateral = Cash__factory.connect(usdcContract, getProviderOrSigner(library, account));
   await collateral.faucet(amount as BigNumberish);
