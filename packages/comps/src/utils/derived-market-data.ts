@@ -78,8 +78,8 @@ export const getMarketTitle = (
 
   if (sportsMarketType === 1) {
     // spread
-    let fav = homeTeam;
-    let underdog = awayTeam;
+    let fav = awayTeam;
+    let underdog = homeTeam;
     // todo: figure out which team is fav and underdog
     if (Number(line) < 0) {
       underdog = awayTeam;
