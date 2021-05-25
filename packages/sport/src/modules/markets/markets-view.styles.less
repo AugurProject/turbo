@@ -77,6 +77,22 @@
   }
 }
 
+:root[theme="SPORTS"] {
+  .MarketsView {
+    // search input
+    > ul > div:last-of-type {
+      .PrimaryBorderRadius;
+
+      > div {
+        background: none;
+        border: 0;
+        border-radius: 0;
+        margin-left: 0;
+      }
+    }
+  }
+}
+
 @media @breakpoint-mobile-tiny {
   .MarketsView {
     padding-bottom: @size-40;

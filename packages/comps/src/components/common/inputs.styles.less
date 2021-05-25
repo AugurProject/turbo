@@ -14,6 +14,14 @@
     border: @size-1 solid var(--simple-secondary-text);
   }
 
+  > svg {
+    display: none;
+    height: @size-16;
+    width: @size-16;
+    // input has padding, no need to space svg, instead space from left side.
+    margin-left: @size-8;
+  }
+
   > div {
     border-radius: @size-100;
     background-color: var(--simple-alternate-background);
@@ -41,6 +49,27 @@
       outline: 0;
       border: 0;
     }
+  }
+}
+
+:root[theme="SPORTS"] {
+  .SearchInput {
+    > svg {
+      display: block;
+    }
+
+    > input {
+      .text-14;
+    }
+  }
+
+  .faded {
+    > svg {
+      display: none;
+    }
+    min-width: @size-14;
+    min-height: @size-14;
+    margin-right: @size-12;
   }
 }
 
