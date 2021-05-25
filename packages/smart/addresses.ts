@@ -42,24 +42,6 @@ type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
 export const addresses: AddressMapping = {
-  80001: {
-    reputationToken: "0xD4fB02358d9694539eeD446E6531b1fFbA9b6931",
-    balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
-    ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",
-    marketFactories: {
-      sportsball: {
-        type: "SportsLink",
-        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-      },
-      sportsball2: {
-        type: "SportsLink",
-        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-      },
-    },
-    info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
-  },
   137: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
     balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
@@ -72,5 +54,46 @@ export const addresses: AddressMapping = {
       },
     },
     info: { uploadBlockNumber: 14853228, graphName: "matic" },
+  },
+  31337: {
+    reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    ammFactory: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+        collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      },
+      mma: {
+        type: "SportsLink",
+        address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+        collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      },
+    },
+    info: { uploadBlockNumber: 7, graphName: "" },
+  },
+  80001: {
+    reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
+    balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
+    ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",
+    marketFactories: {
+      sportsball: {
+        type: "SportsLink",
+        address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+      sportsball2: {
+        type: "SportsLink",
+        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+      mma: {
+        type: "SportsLink",
+        address: "0xb2a568C444C6B74D10f7cf66bEcfeAF88a94808a",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+    },
+    info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
   },
 };

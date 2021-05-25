@@ -22,6 +22,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     hre.network.config.deployConfig?.externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
+  const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory");
   const ammFactory = await deployments.get("AMMFactory");
 
   // If the AMMFactory was deployed then use its block number.
@@ -38,6 +39,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       sportsball: {
         type: "SportsLink",
         address: sportsLinkMarketFactory.address,
+        collateral,
+      },
+      mma: {
+        type: "SportsLink",
+        address: mmaLinkMarketFactory.address,
         collateral,
       },
     },
