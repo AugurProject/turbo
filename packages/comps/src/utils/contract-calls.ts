@@ -1286,9 +1286,9 @@ const marketFactories = () => {
  * Code error in sports market over/under
  * Only use over/under markets from new sportsball2
  */
-const MarketFactoryFilterOutTypes = {
-  sportsball: [SPORTS_MARKET_TYPE.OVER_UNDER],
-  sportsball2: [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD],
+const MarketFactoryOnlyIncludeTypes = {
+  sportsball: [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD],
+  sportsball2: [SPORTS_MARKET_TYPE.OVER_UNDER],
 };
 
 const getMarketFactoryFilterOutType = (factoryAddress: string) => {
@@ -1296,7 +1296,7 @@ const getMarketFactoryFilterOutType = (factoryAddress: string) => {
   const name = Object.keys(marketFactories).find((name) =>
     isSameAddress(marketFactories[name].address, factoryAddress)
   );
-  return MarketFactoryFilterOutTypes[name];
+  return MarketFactoryOnlyIncludeTypes[name];
 };
 
 export const getMarketInfos = async (
@@ -1464,7 +1464,7 @@ const retrieveMarkets = async (
       const marketDetails = details[m.marketId];
       const factoryAddress = m.marketFactoryAddress;
       const filterMarketsTypes = getMarketFactoryFilterOutType(factoryAddress);
-      if (filterMarketsTypes.includes(marketDetails.marketType)) {
+      if (!filterMarketsTypes.includes(marketDetails.marketType)) {
         return filteredOutMarketIds.push(m.marketId);
       }
       marketInfos[m.marketId] = decodeMarketDetails(m, marketDetails);
