@@ -15,6 +15,7 @@ import {
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 import { Cash } from '@augurproject/comps/build/types';
+import BigNumber from 'bignumber.js';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -28,30 +29,29 @@ const {
   },
   Utils: { keyedObjToArray },
 } = Stores;
-const { EthIcon, UsdIcon } = Icons;
+const { UsdIcon } = Icons;
 const { PrimaryButton } = ButtonComps;
 
-const calculateTotalWinnings = (claimbleMarketsPerCash) => {
+const calculateTotalWinnings = (claimbleMarketsPerCash): {total: BigNumber, ids: string[], address: string}[] => {
   let total = createBigNumber('0');
-  let ids = [];
-  let factories = [];
-  claimbleMarketsPerCash.forEach(
-    ({
+  const factories = claimbleMarketsPerCash.reduce(
+    (p, {
       ammExchange: { turboId, marketFactoryAddress },
       claimableWinnings: { claimableBalance },
     }) => {
-      total = total.plus(createBigNumber(claimableBalance));
-      // @ts-ignore
-      ids.push(turboId);
-      factories.push(marketFactoryAddress);
-    }
+      const factory = p[marketFactoryAddress] || {};
+      if (factory) {
+        factory.total = total.plus(createBigNumber(claimableBalance));
+        factory.ids.push(turboId);
+      } else {
+        factory.total = createBigNumber(claimableBalance);
+        factory.ids = [turboId];
+        factory.address = marketFactoryAddress;
+      }
+      return {...p, [marketFactoryAddress]: factory}
+    }, {}
   );
-  return {
-    hasWinnings: !total.eq(0),
-    total,
-    ids,
-    factories,
-  };
+  return Object.values(factories);
 };
 
 export const getClaimAllMessage = (cash: Cash): string => `Claim All ${cash?.name} Winnings`;
@@ -61,7 +61,7 @@ const handleClaimAll = (
   loginAccount,
   cash,
   ids,
-  factories,
+  address,
   addTransaction,
   canClaim,
   setPendingClaim
@@ -70,7 +70,7 @@ const handleClaimAll = (
   const chainId = loginAccount?.chainId;
   if (from && canClaim) {
     setPendingClaim(true);
-    claimWinnings(from, loginAccount?.library, ids, factories)
+    claimWinnings(from, loginAccount?.library, ids, address)
       .then(response => {
         // handle transaction response here
         setPendingClaim(false);
@@ -109,7 +109,7 @@ const handleClaimFees = (
   loginAccount,
   cash,
   ids,
-  factories,
+  address,
   addTransaction,
   canClaim,
   setPendingClaimFees
@@ -118,7 +118,7 @@ const handleClaimFees = (
   const chainId = loginAccount?.chainId;
   if (from && canClaim) {
     setPendingClaimFees(true);
-    claimFees(from, loginAccount?.library, factories)
+    claimFees(from, loginAccount?.library, address)
       .then(response => {
         // handle transaction response here
         setPendingClaimFees(false);
@@ -158,15 +158,8 @@ export const ClaimWinningsSection = () => {
     ? keyedObjToArray(marketShares).filter((m) => !!m?.claimableWinnings)
     : [];
   const keyedCash = keyedObjToArray(cashes);
-  const ethCash = keyedCash.find((c) => c?.name === ETH);
   const usdcCash = keyedCash.find((c) => c?.name === USDC);
-  const claimableEthMarkets = claimableMarkets.filter(
-    (m) => m.claimableWinnings.sharetoken === ethCash?.shareToken
-  );
-  const ETHTotals = calculateTotalWinnings(claimableEthMarkets);
-  const USDCTotals = calculateTotalWinnings(claimableMarkets);
-  // const canClaimETH = useCanExitCashPosition(ethCash);
-  const canClaimETH = true;
+  const MarketFactoryTotals = calculateTotalWinnings(claimableMarkets);
   const hasClaimableFees = createBigNumber(claimableFees || "0").gt(0);
   const disableClaimUSDCWins =
   pendingClaim ||
@@ -177,12 +170,13 @@ export const ClaimWinningsSection = () => {
 
   return (
     <div className={Styles.ClaimableWinningsSection}>
-      {isLogged && USDCTotals.hasWinnings && (
+      {isLogged && MarketFactoryTotals.length > 0 && (
+        MarketFactoryTotals.map(factory => (
         <PrimaryButton
           text={
             !pendingClaim
               ? `Claim Winnings (${
-                  formatCash(USDCTotals.total, usdcCash?.name).full
+                  formatCash(factory.total, usdcCash?.name).full
                 })`
               : `Waiting for Confirmation`
           }
@@ -193,35 +187,16 @@ export const ClaimWinningsSection = () => {
             handleClaimAll(
               loginAccount,
               usdcCash,
-              USDCTotals.ids,
-              USDCTotals.factories,
+              factory.ids,
+              factory.address,
               addTransaction,
               true,
               setPendingClaim
             );
           }}
-        />
-      )}
-      {isLogged && ETHTotals.hasWinnings && (
-        <PrimaryButton
-          text={`${canClaimETH ? '' : 'Approve to '}Claim Winnings (${
-            formatCash(ETHTotals.total, ethCash?.name).full
-          })`}
-          icon={EthIcon}
-          action={() => {
-            handleClaimAll(
-              loginAccount,
-              ethCash,
-              ETHTotals.ids,
-              ETHTotals.factories,
-              addTransaction,
-              canClaimETH,
-              setPendingClaim
-            );
-          }}
-        />
-      )}
+        />)))}
       {isLogged && hasClaimableFees && (
+        MarketFactoryTotals.map(factory => (
         <PrimaryButton
           text={!pendingClaimFees ? `Claim Fees (${
             formatCash(claimableFees, USDC).full
@@ -231,15 +206,15 @@ export const ClaimWinningsSection = () => {
             handleClaimFees(
               loginAccount,
               usdcCash,
-              USDCTotals.ids,
-              USDCTotals.factories,
+              factory.ids,
+              factory.address,
               addTransaction,
               true,
               setPendingClaimFees
             );
           }}
         />
-      )}
+        )))}
     </div>
   );
 };

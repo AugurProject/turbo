@@ -65,7 +65,9 @@ import {
   BPool,
   BPool__factory,
   SportsLinkMarketFactory,
+  AbstractMarketFactory,
   SportsLinkMarketFactory__factory,
+  AbstractMarketFactory__factory,
   calcSellCompleteSets,
   estimateBuy,
 } from "@augurproject/smart";
@@ -133,10 +135,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-            outcomeId: i,
-            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-          }))
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -549,20 +551,20 @@ export const claimWinnings = (
   account: string,
   provider: Web3Provider,
   marketIds: string[],
-  factories: string[] // needed for multi market factory
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
 export const claimFees = (
   account: string,
   provider: Web3Provider,
-  factories: string[] // needed for multi market factory
+  factoryAddress: string,
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimFees: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   return marketFactoryContract.claimSettlementFees(account);
 };
 
@@ -572,10 +574,10 @@ export const cashOutAllShares = (
   balancesRaw: string[],
   marketId: string,
   shareFactor: string,
-  factories: string // needed for multi market factory
+  factoryAddress: string,
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("cashOutAllShares: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const shareAmount = BigNumber.min(...balancesRaw);
   const normalizedAmount = shareAmount
     .div(new BN(shareFactor))
@@ -1064,17 +1066,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-        .times(sharesAddLiquidity.shares)
-        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+      .times(sharesAddLiquidity.shares)
+      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(outcomeLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(outcomeLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1245,6 +1247,14 @@ const getMarketFactoryContract = (library: Web3Provider, account?: string): Spor
   return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
+const getAbstractMarketFactoryContract = (
+  library: Web3Provider,
+  address: string,
+  account?: string
+): AbstractMarketFactory => {
+  return AbstractMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
+};
+
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {
   return BPool__factory.connect(address, getProviderOrSigner(library, account));
 };
@@ -1293,13 +1303,37 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const marketFactories = () => {
+  const { marketFactories } = PARA_CONFIG;
+  return [marketFactories.sportsball.address, marketFactories.sportsball2.address];
+}
+
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+
+  const factories = marketFactories();
+  const values = factories.reduce((p, address) => {
+    const { markets: marketInfos, ammExchanges: exchanges, blocknumber } = getFactoryMarketInfo(provider, markets, cashes, account, address);
+    console.log('marketInfos', marketInfos)
+    return { markets: { ...p.markets, ...marketInfos }, ammExchanges: { ...p.ammExchanges, ...exchanges }, blocknumber }
+  }, { markets: {}, ammExchanges: {}, blocknumber: null, loading: false })
+
+  console.log('markets infos', values);
+  return values;
+}
+
+export const getFactoryMarketInfo = async (
+  provider: Web3Provider,
+  markets: MarketInfos,
+  cashes: Cashes,
+  account: string,
+  factoryAddress: string,
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
   let indexes = [];
