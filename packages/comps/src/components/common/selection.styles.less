@@ -260,7 +260,7 @@
   > span {
     .text-14;
 
-    color: var(--color-secondary-text);
+    color: var(--simple-secondary-text);
     display: flex;
     flex-flow: row nowrap;
     white-space: nowrap;
@@ -287,6 +287,10 @@
       .text-14;
 
       border-bottom: @size-1 dotted black;
+
+      &:hover {
+        border-bottom: @size-1 solid black;
+      }
     }
 
     > svg {
