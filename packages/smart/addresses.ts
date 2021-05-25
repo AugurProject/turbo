@@ -52,6 +52,11 @@ export const addresses: AddressMapping = {
         address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
       },
+      sportsball2: {
+        type: "SportsLink",
+        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
     },
     info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
   },
