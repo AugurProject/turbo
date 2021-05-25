@@ -516,6 +516,17 @@ export const ConfirmedCheck = (
   </svg>
 );
 
+export const SimpleCheck = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M12.4701 4.86323C12.7305 5.12358 12.7305 5.54569 12.4701 5.80604L7.13677 11.1394C6.87642 11.3997 6.45431 11.3997 6.19396 11.1394L3.52729 8.47271C3.26694 8.21236 3.26694 7.79025 3.52729 7.5299C3.78764 7.26955 4.20975 7.26955 4.4701 7.5299L6.66536 9.72516L11.5273 4.86323C11.7876 4.60288 12.2098 4.60288 12.4701 4.86323Z"
+      fill="#0E0E21"
+    />
+  </svg>
+);
+
 export const FailedX = (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
     <circle cx="10" cy="10" r="8" stroke="#FF3E13" strokeWidth="2" />

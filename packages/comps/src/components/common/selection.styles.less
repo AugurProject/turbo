@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .Dropdown {
   border: @size-1 solid var(--color-secondary-action-outline);
@@ -78,7 +78,6 @@
 
       background-color: var(--simple-light-bg);
       display: none;
-      margin-top: @size-2;
       overflow-x: hidden;
 
       &.active {
@@ -113,8 +112,12 @@
 
         &:disabled {
           cursor: not-allowed;
-          color: var(--simple-secondary-text)
-        }  
+          color: var(--simple-secondary-text);
+        }
+
+        > svg {
+          margin-left: @size-4;
+        }
       }
     }
   }
@@ -174,7 +177,6 @@
   }
 
   > div {
-
     > div {
       width: 100%;
     }
@@ -251,13 +253,91 @@
   }
 }
 
+.Labeled {
+  display: flex;
+  flex-flow: row nowrap;
+
+  > span {
+    .text-14;
+
+    color: var(--color-secondary-text);
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: @size-4;
+  }
+
+  > button {
+    color: black;
+    border: 0;
+    background: transparent;
+    padding: 0;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:hover {
+      border: 0;
+    }
+
+    > span {
+      .text-14;
+
+      border-bottom: @size-1 dotted black;
+    }
+
+    > svg {
+      margin-left: @size-4;
+      height: @size-5;
+      width: @size-9;
+
+      > path {
+        fill: black;
+      }
+    }
+  }
+
+  > div {
+    > div:first-of-type {
+      padding: @size-12 @size-16;
+    
+      > button {
+        .text-14;
+
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
+        padding: @size-12 0 @size-11;
+        border-bottom: @size-1 solid var(--color-secondary-text);
+
+        &:first-of-type {
+          .PrimaryTopBorderRadius;
+
+          padding-top: 0;
+        }
+
+        &:last-of-type {
+          .PrimaryBottomBorderRadius;
+
+          padding-bottom: 0;
+          border-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
 // Used in outcome selector in order ticket
 .showColor {
   position: relative;
 
   &::before {
     width: @size-2;
-    content: '';
+    content: "";
     position: absolute;
     top: @size-1;
     left: @size-1;
@@ -347,7 +427,7 @@
     > li {
       background: var(--color-module-background);
 
-      &:first-of-type:hover:not([class*='Selected']) {
+      &:first-of-type:hover:not([class*="Selected"]) {
         border-right: 0;
       }
 
@@ -358,7 +438,7 @@
         text-transform: capitalize;
       }
 
-      &[class*='Selected'] {
+      &[class*="Selected"] {
         border: @size-1 solid var(--color-primary-text);
 
         > button {
@@ -373,8 +453,8 @@
   }
 }
 
-:root[theme='BETTING'],
-:root[theme='SPORTS'] {
+:root[theme="BETTING"],
+:root[theme="SPORTS"] {
   .PillSelection {
     > li > button {
       padding: @size-6 @size-8;
@@ -577,8 +657,8 @@
   }
 }
 
-:root[theme='BETTING'],
-:root[theme='SPORTS'] {
+:root[theme="BETTING"],
+:root[theme="SPORTS"] {
   .DotSelection {
     > button {
       > svg {
@@ -626,7 +706,7 @@
 
     &:not(:last-of-type) {
       &::after {
-        content: '';
+        content: "";
         height: 1px;
         background: var(--color-secondary-action-outline);
         width: 100%;
