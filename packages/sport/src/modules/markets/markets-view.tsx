@@ -244,6 +244,7 @@ const MarketsView = () => {
           }}
           options={sortByItems}
           defaultValue={sortBy}
+          preLabel="Sort By"
         />
         <SearchInput
           value={filter}

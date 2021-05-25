@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
-import Styles from './selection.styles.less';
+import React, { useEffect, useRef, useState } from "react";
+import classNames from "classnames";
+import Styles from "./selection.styles.less";
 import {
   CheckedRadioButton,
   EmptyCheckbox,
@@ -9,10 +9,11 @@ import {
   RadioButton,
   SimpleChevron,
   UsdIcon,
-} from './icons';
-import { USDC, ETH, COMING_SOON } from '../../utils/constants';
-import { TinyButton } from './buttons';
-import { generateTooltip } from './labels';
+  SimpleCheck,
+} from "./icons";
+import { USDC, ETH, COMING_SOON } from "../../utils/constants";
+import { TinyButton } from "./buttons";
+import { generateTooltip } from "./labels";
 
 export interface NameValuePair {
   label: string;
@@ -42,7 +43,7 @@ export interface DropdownProps {
 }
 
 function findSelected(options, defaultVal) {
-  const foundOption = options.find(o => o.value === defaultVal);
+  const foundOption = options.find((o) => o.value === defaultVal);
   const defaultValue = defaultVal
     ? {
         label: defaultVal.toString(),
@@ -71,26 +72,22 @@ export const Dropdown = ({
 }: DropdownProps) => {
   const labelRef = useRef(null);
   const refDropdown = useRef(null);
-  const [selected, setSelected] = useState(
-    defaultValue !== null ? findSelected(options, defaultValue) : null
-  );
+  const [selected, setSelected] = useState(defaultValue !== null ? findSelected(options, defaultValue) : null);
 
   useEffect(() => {
-    setSelected(
-      defaultValue !== null ? findSelected(options, defaultValue) : null
-    );
+    setSelected(defaultValue !== null ? findSelected(options, defaultValue) : null);
   }, [defaultValue]);
 
   const handleWindowOnClick = (event: MouseEvent) => {
     if (refDropdown?.current && !refDropdown?.current.contains(event.target)) {
       setShowList(false);
     }
-  }
+  };
 
   useEffect(() => {
-    window.addEventListener('click', handleWindowOnClick);
+    window.addEventListener("click", handleWindowOnClick);
     return () => {
-      window.removeEventListener('click', handleWindowOnClick);
+      window.removeEventListener("click", handleWindowOnClick);
     };
   }, []);
 
@@ -110,7 +107,7 @@ export const Dropdown = ({
   const toggleList = () => {
     setShowList(!showList);
   };
-
+  console.log("selected", selected);
   return (
     <div
       style={sortByStyles}
@@ -122,16 +119,17 @@ export const Dropdown = ({
         [`${activeClassName}`]: showList,
         [Styles.showColor]: showColor,
         [Styles.Disabled]: disabled,
+        [Styles.Labeled]: !!preLabel || preLabelClean,
       })}
       ref={refDropdown}
       role="button"
       tabIndex={0}
       onClick={toggleList}
       data-tip
-      data-for={'dropdown-' + id + staticLabel}
+      data-for={"dropdown-" + id + staticLabel}
       data-iscapture={true}
     >
-      {preLabel && <span>{`${preLabel}${preLabelClean ? '' : ':'}`}</span>}
+      {preLabel && <span>{`${preLabel}${preLabelClean ? "" : ":"}`}</span>}
       <button
         className={classNames(Styles.label, {
           [Styles.SelectedLabel]: selected,
@@ -149,32 +147,33 @@ export const Dropdown = ({
             [`${Styles.active}`]: showList,
           })}
         >
-          {options.map(option => (
+          {options.map(({ label, value, disabled }) => (
             <button
-              key={`${option.value}${option.label}`}
-              value={option.value}
-              title={`${option.label}${option?.disabled ? ` - ${COMING_SOON}` : ''}`}
-              disabled={option?.disabled}
-              onClick={() => !option?.disabled && dropdownSelect(option)}
+              key={`${value}${label}`}
+              value={value}
+              title={`${label}${disabled ? ` - ${COMING_SOON}` : ""}`}
+              disabled={disabled}
+              onClick={() => !disabled && dropdownSelect({ label, value, disabled })}
               className={classNames({
-                [Styles.Selected]: option?.value === selected?.value
+                [Styles.Selected]: value === selected?.value,
               })}
             >
-              {option.label}
+              {label}
+              {value === selected?.value && SimpleCheck}
             </button>
           ))}
         </div>
       </div>
       {selected && (
         <select
-          onChange={e => {
+          onChange={(e) => {
             dropdownSelect(e.target.options[e.target.selectedIndex]);
           }}
           value={selected.value}
         >
-          {options.map(option => (
-            <option key={`${option.value}${option.label}`} value={option.value}>
-              {option.label}
+          {options.map(({ value, label }) => (
+            <option key={`${value}${label}`} value={value}>
+              {label}
             </option>
           ))}
         </select>
@@ -185,9 +184,7 @@ export const Dropdown = ({
 
 export const SquareDropdown = (props: DropdownProps) => <Dropdown {...props} />;
 
-export const SmallDropdown = (props: DropdownProps) => (
-  <Dropdown {...props} className={Styles.SmallDropdown} />
-);
+export const SmallDropdown = (props: DropdownProps) => <Dropdown {...props} className={Styles.SmallDropdown} />;
 
 const currencyValues = [
   { label: USDC, value: USDC, icon: UsdIcon },
@@ -195,11 +192,7 @@ const currencyValues = [
 ];
 
 export const CurrencyDropdown = (props: DropdownProps) => (
-  <Dropdown
-    {...props}
-    options={currencyValues}
-    className={Styles.CurrencyDropdown}
-  />
+  <Dropdown {...props} options={currencyValues} className={Styles.CurrencyDropdown} />
 );
 
 const Checkbox = ({ key, item, initialSelected, updateSelected }) => {
@@ -207,7 +200,7 @@ const Checkbox = ({ key, item, initialSelected, updateSelected }) => {
   return (
     <div
       key={key}
-      onClick={e => {
+      onClick={(e) => {
         e.preventDefault();
         setSelected(!selected);
         updateSelected(!selected);
@@ -238,7 +231,7 @@ export const CheckboxGroup = ({ title, items }) => {
             item={item}
             key={item.value}
             initialSelected={selectedItems[index].selected}
-            updateSelected={selected => updateSelected(selected, index)}
+            updateSelected={(selected) => updateSelected(selected, index)}
           />
         ))}
       </div>
@@ -249,20 +242,17 @@ export const CheckboxGroup = ({ title, items }) => {
 const RadioBar = ({ key, item, selected, onClick, disabled = false }) => {
   if (disabled) {
     return (
-      <div
-        key={key}
-        className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}
-      >
-      {RadioButton}
-      <span>{item.label}</span>
-      {generateTooltip(COMING_SOON, key)}
+      <div key={key} className={classNames(Styles.RadioBar, { [Styles.Selected]: selected })}>
+        {RadioButton}
+        <span>{item.label}</span>
+        {generateTooltip(COMING_SOON, key)}
       </div>
-    )
+    );
   }
   return (
     <div
-    key={key}
-      onClick={e => {
+      key={key}
+      onClick={(e) => {
         if (!disabled) {
           e.preventDefault();
           onClick(e);
@@ -285,7 +275,7 @@ export const RadioBarGroup = ({ title, items, selected, update }) => {
     <div className={Styles.SelectionGroup}>
       <span>{title}</span>
       <div>
-        {items.map(item => (
+        {items.map((item) => (
           <RadioBar
             item={item}
             key={item.value}
@@ -306,11 +296,7 @@ export const MultiButtonSelection = ({ options, selection, setSelection }) => (
   <ul className={Styles.MultiButtonSelection}>
     {options.map(({ id, label }) => (
       <li key={`option-${id}`}>
-        <TinyButton
-          text={label}
-          selected={selection === id}
-          action={() => selection !== id && setSelection(id)}
-        />
+        <TinyButton text={label} selected={selection === id} action={() => selection !== id && setSelection(id)} />
       </li>
     ))}
   </ul>

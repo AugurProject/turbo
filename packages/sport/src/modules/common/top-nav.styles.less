@@ -1,5 +1,5 @@
-@import (reference) '~assets/styles/shared';
-@import (reference) '~modules/common/buttons.styles.less';
+@import (reference) "~assets/styles/shared";
+@import (reference) "~modules/common/buttons.styles.less";
 
 .TopNav {
   align-items: center;
@@ -288,7 +288,7 @@
         align-items: center;
         justify-content: center;
 
-        > input[type='number'] {
+        > input[type="number"] {
           -moz-appearance: textfield;
           .text-12-semi-bold;
 
@@ -319,7 +319,7 @@
           margin-left: @size-4;
         }
 
-        &[class*='Selected'] {
+        &[class*="Selected"] {
           background-color: var(--simple-alternate-background);
           border: @size-1 solid var(--simple-secondary-text);
 
@@ -358,4 +358,33 @@
   min-width: @size-56;
   width: @size-56;
   padding: none;
+}
+
+:root[theme="SPORTS"] {
+  .TopNav {
+    > ol > li {
+      display: flex;
+      flex-flow: column nowrap;
+      height: 100%;
+      min-height: 100%;
+      align-items: center;
+      justify-content: center;
+      border-bottom: @size-2 solid transparent;
+
+      > a {
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+
+      &.Active,
+      &.Active:hover {
+        border-bottom: @size-2 solid var(--color-brand);
+      }
+
+      &:hover {
+        border-bottom: @size-2 solid var(--simple-primary-text);
+      }
+    }
+  }
 }

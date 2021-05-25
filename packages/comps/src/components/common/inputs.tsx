@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { EthIcon, UsdIcon, XIcon } from "./icons";
+import { EthIcon, UsdIcon, XIcon, MagnifyingGlass } from "./icons";
 import Styles from "./inputs.styles.less";
 import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice } from "../../utils/format-number";
 import { USDC, ERROR_AMOUNT, SHARES, ETH, DUST_POSITION_AMOUNT } from "../../utils/constants";
@@ -35,6 +35,7 @@ export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchI
 
   return (
     <div className={Styles.SearchInput}>
+      {MagnifyingGlass}
       <input
         ref={input}
         placeholder="Search for a market"

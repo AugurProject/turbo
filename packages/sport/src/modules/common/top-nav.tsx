@@ -177,9 +177,9 @@ export const TopNav = () => {
                 }}
                 disabled={!isLogged}
                 to={makePath(PORTFOLIO)}
-                placeholder={isLogged ? "Portfolio" : "Please Login to view Portfolio"}
+                placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
               >
-                Portfolio
+                My Bets
               </Link>
             </li>
           </ol>

@@ -248,7 +248,7 @@ export const PortfolioView = () => {
     <div className={Styles.PortfolioView}>
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
-        <h1>Portfolio section... all these components need to be added/worked on but this is the page... yay?</h1>
+        <h1>My Bets section... all these components need to be added/worked on but this is the page... yay?</h1>
         {/* <NetworkMismatchBanner /> */}
         {/* <AppViewStats small /> */}
         <ClaimWinningsSection />
