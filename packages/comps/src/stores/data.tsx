@@ -21,8 +21,6 @@ export const DataProvider = ({ children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account, loginAccount } = useUserStore();
-  const defaultProvider = getDefaultProvider();
-  const provider = loginAccount?.library ? loginAccount.library : defaultProvider;
   const {
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
@@ -35,12 +33,19 @@ export const DataProvider = ({ children }: any) => {
   delete readableState.actions;
   DataStore.get = () => readableState;
   const networkId = Number(PARA_CONFIG.networkId);
+  const library = loginAccount?.library;
+
   useEffect(() => {
+    const defaultProvider = getDefaultProvider();
+    const provider = library ? library : defaultProvider;
     const getMarkets = async () => {
-      if (provider) {
-        return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
-      }
-      return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
+      let data = { markets: {}, ammExchanges: {}, blocknumber: null, loading: true }
+      try {
+        data = await getMarketInfos(provider, DataStore.get().markets, cashes, account);
+      } catch(e) {
+        console.log('error getting market data', e)
+      };
+      return data;
     };
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
       updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
@@ -54,7 +59,7 @@ export const DataProvider = ({ children }: any) => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [provider, account]);
+  }, [account, library]);
 
   useEffect(() => {
     const fetchTransactions = () =>
