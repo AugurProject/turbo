@@ -19,7 +19,7 @@ import BigNumber from 'bignumber.js';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
-const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
+const { ACTIVITY, TABLES, TX_STATUS, USDC } = Constants;
 const {
   Hooks: {
     useDataStore,

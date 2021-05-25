@@ -134,10 +134,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-          outcomeId: i,
-          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-        }))
+            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+            outcomeId: i,
+            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+          }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -537,7 +537,7 @@ export const claimWinnings = (
 export const claimFees = (
   account: string,
   provider: Web3Provider,
-  factoryAddress: string,
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimFees: no provider");
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
@@ -550,7 +550,7 @@ export const cashOutAllShares = (
   balancesRaw: string[],
   marketId: string,
   shareFactor: string,
-  factoryAddress: string,
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("cashOutAllShares: no provider");
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
@@ -1042,17 +1042,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-      .times(sharesAddLiquidity.shares)
-      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-      .times(outcomeLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(outcomeLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1211,10 +1211,11 @@ export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   await collateral.faucet(amount as BigNumberish);
 };
 
-const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
-  const { marketFactories } = PARA_CONFIG;
-  // need to support many markets and get collateral for each market
-  const { address } = marketFactories.sportsball;
+const getMarketFactoryContract = (
+  library: Web3Provider,
+  address: string,
+  account?: string
+): SportsLinkMarketFactory => {
   return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
@@ -1277,7 +1278,25 @@ export const getERC1155ApprovedForAll = async (
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
   return [marketFactories.sportsball.address, marketFactories.sportsball2.address];
-}
+};
+
+/**
+ * Special consideration
+ * Code error in sports market over/under
+ * Only use over/under markets from new sportsball2
+ */
+const MarketFactoryFilterOutTypes = {
+  sportsball: [2],
+  sportsball2: [0, 1],
+};
+
+const getMarketFactoryFilterOutType = (factoryAddress: string) => {
+  const { marketFactories } = PARA_CONFIG;
+  const name = Object.keys(marketFactories).find((name) =>
+    isSameAddress(marketFactories[name].address, factoryAddress)
+  );
+  return MarketFactoryFilterOutTypes[name];
+};
 
 export const getMarketInfos = async (
   provider: Web3Provider,
@@ -1285,24 +1304,31 @@ export const getMarketInfos = async (
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
-
   const factories = marketFactories();
-  const values = factories.reduce((p, address) => {
-    const { markets: marketInfos, ammExchanges: exchanges, blocknumber } = getFactoryMarketInfo(provider, markets, cashes, account, address);
-    console.log('marketInfos', marketInfos)
-    return { markets: { ...p.markets, ...marketInfos }, ammExchanges: { ...p.ammExchanges, ...exchanges }, blocknumber }
-  }, { markets: {}, ammExchanges: {}, blocknumber: null, loading: false })
+  const allMarkets = await Promise.all(
+    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address))
+  );
 
-  console.log('markets infos', values);
-  return values;
-}
+  const marketInfos = allMarkets.reduce(
+    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }) => {
+      return {
+        markets: { ...p.markets, ...marketInfos },
+        ammExchanges: { ...p.ammExchanges, ...exchanges },
+        blocknumber,
+      };
+    },
+    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+  );
+
+  return marketInfos;
+};
 
 export const getFactoryMarketInfo = async (
   provider: Web3Provider,
   markets: MarketInfos,
   cashes: Cashes,
   account: string,
-  factoryAddress: string,
+  factoryAddress: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
@@ -1312,20 +1338,27 @@ export const getFactoryMarketInfo = async (
     indexes.push(i);
   }
 
-  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(indexes, cashes, provider, account);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, loading: false };
+  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+    indexes,
+    cashes,
+    provider,
+    account,
+    factoryAddress
+  );
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
 const retrieveMarkets = async (
   indexes: number[],
   cashes: Cashes,
   provider: Web3Provider,
-  account: string
+  account: string,
+  factoryAddress: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const ammFactory = getAmmFactoryContract(provider, account);
@@ -1424,10 +1457,15 @@ const retrieveMarkets = async (
   }
 
   const marketInfos = {};
-  // populate outcomes share token addresses
+  const filteredOutMarketIds = [];
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketDetails = details[m.marketId];
+      const factoryAddress = m.marketFactoryAddress;
+      const filterMarketsTypes = getMarketFactoryFilterOutType(factoryAddress);
+      if (filterMarketsTypes.includes(marketDetails.marketType)) {
+        return filteredOutMarketIds.push(m.marketId);
+      }
       marketInfos[m.marketId] = decodeMarketDetails(m, marketDetails);
     });
   }
@@ -1435,13 +1473,19 @@ const retrieveMarkets = async (
   const blocknumber = marketsResult.blockNumber;
 
   if (Object.keys(exchanges).length > 0) {
+    const filteredExchanges = Object.keys(exchanges).reduce(
+      (p, exchangeId) =>
+        filteredOutMarketIds.includes(exchangeId) ? p : { ...p, [exchangeId]: exchanges[exchangeId] },
+      {}
+    );
     exchanges = await retrieveExchangeInfos(
-      exchanges,
+      filteredExchanges,
       marketInfos,
       marketFactoryAddress,
       ammFactory,
       provider,
-      account
+      account,
+      factoryAddress
     );
   }
 
@@ -1496,7 +1540,8 @@ const retrieveExchangeInfos = async (
   marketFactoryAddress: string,
   ammFactory: AMMFactory,
   provider: Web3Provider,
-  account: string
+  account: string,
+  factoryAddress: string
 ): Market[] => {
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
 
@@ -1511,7 +1556,7 @@ const retrieveExchangeInfos = async (
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractPricesCall: ContractCallContext[] = existingIndexes.reduce(
     (p, index) => [
