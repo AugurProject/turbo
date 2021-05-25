@@ -36,8 +36,8 @@ export const DataProvider = ({ children }: any) => {
   const library = loginAccount?.library;
 
   useEffect(() => {
-    const defaultProvider = getDefaultProvider();
-    const provider = library ? library : defaultProvider;
+    let isMounted = true;
+    const provider = library ? library : getDefaultProvider();
     const getMarkets = async () => {
       let data = { markets: {}, ammExchanges: {}, blocknumber: null, loading: true }
       try {
@@ -47,16 +47,18 @@ export const DataProvider = ({ children }: any) => {
       };
       return data;
     };
+
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-      updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
     });
 
     const intervalId = setInterval(() => {
       getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-        updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
+      isMounted = false;
       clearInterval(intervalId);
     };
   }, [account, library]);
