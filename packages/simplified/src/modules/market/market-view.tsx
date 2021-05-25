@@ -132,13 +132,13 @@ const NonexistingMarketView = ({ text, showLink }) => {
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile, isLogged } = useAppStatusStore();
+  const { isMobile } = useAppStatusStore();
   const {
     settings: { timeFormat },
     showTradingForm,
     actions: { setShowTradingForm },
   } = useSimplifiedStore();
-  const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
+  const { cashes, markets, ammExchanges, transactions } = useDataStore();
   useScrollToTopOnMount();
   // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
