@@ -37,6 +37,8 @@
   }
 
   > div {
+    .SimpleBorder;
+
     position: absolute;
     z-index: 1;
     display: inline-block;
@@ -44,7 +46,6 @@
     height: @size-25;
     background-color: var(--simple-alternate-background);
     border: @size-1 solid var(--simple-secondary-text);
-    border-radius: @size-8;
     transform: translateX(100%);
     transition: all 0.1s linear 0s;
   }
