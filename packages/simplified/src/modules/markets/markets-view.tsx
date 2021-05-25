@@ -112,6 +112,15 @@ const applyFiltersAndSort = (
       if (market.reportingState !== MARKET_STATUS.FINALIZED && market.reportingState !== MARKET_STATUS.SETTLED)
         return false;
     }
+
+    // Hide these markets for now to account for bug fix 
+    if(market.sportsMarketType === 2) {
+      if (market.reportingState === MARKET_STATUS.FINALIZED) {
+        return transactions[market.marketId]?.volumeTotalUSD > 0;
+      }
+      return false;
+    }
+
     return true;
   });
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
