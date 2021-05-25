@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_REFRESH_TIME } from "./constants";
 import { useData } from "./data-hooks";
-import { useUserStore } from "./user";
+import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
+import { getDefaultProvider } from "../components/ConnectAccount/utils";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -19,8 +20,8 @@ export const DataStore = {
 export const DataProvider = ({ children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
-  const { account, loginAccount } = useUserStore();
-  const provider = loginAccount?.library ? loginAccount.library : null;
+  const { account } = useUserStore();
+  const defaultProvider = useRef(getDefaultProvider());
   const {
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
@@ -32,14 +33,21 @@ export const DataProvider = ({ children }: any) => {
   const readableState = { ...state };
   delete readableState.actions;
   DataStore.get = () => readableState;
+  const networkId = Number(PARA_CONFIG.networkId);
+
   useEffect(() => {
     let isMounted = true;
     const getMarkets = async () => {
-      if (provider && account) {
-        return await getMarketInfos(provider, DataStore.get().markets, cashes, account);
+      try {
+        const { account: userAccount, loginAccount } = UserStore.get();
+        const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
+        return await getMarketInfos(provider, DataStore.get().markets, cashes, userAccount);
+      } catch (e) {
+        console.log("error getting market data", e);
+        return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
       }
-      return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
+
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
       isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
     });
@@ -48,12 +56,12 @@ export const DataProvider = ({ children }: any) => {
       getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
         isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
-    }, NETWORK_BLOCK_REFRESH_TIME[42]);
+    }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [provider, account]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +72,7 @@ export const DataProvider = ({ children }: any) => {
 
     const intervalId = setInterval(() => {
       fetchTransactions();
-    }, NETWORK_BLOCK_REFRESH_TIME[42]);
+    }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);

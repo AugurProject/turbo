@@ -170,4 +170,6 @@ export const NETWORK_BLOCK_REFRESH_TIME = {
   4: 5000,
   5: 5000,
   42: 5000,
+  80001: 5000,
+  137: 5000,
 };
