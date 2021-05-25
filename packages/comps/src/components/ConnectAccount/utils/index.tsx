@@ -35,10 +35,15 @@ export const getRpcData = () => {
   return RPC_DATA;
 }
 
+let defaultProvider = null;
 export const getDefaultProvider = () => {
   const rpcData = getRpcData();
   const httpProvider = new Web3HttpProvider(rpcData.rpcUrls[0]);
-  return new Web3Provider(httpProvider, 'any');
+  if (!defaultProvider){
+    defaultProvider = new Web3Provider(httpProvider, 'any');
+  } 
+  return defaultProvider;
+  
 }
 
 export const isAddress = (value) => {
