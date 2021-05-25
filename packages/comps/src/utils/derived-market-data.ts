@@ -1,11 +1,6 @@
 import { BigNumber as BN } from "bignumber.js";
-import { NO_CONTEST_OUTCOME_ID } from "./constants";
+import { NO_CONTEST_OUTCOME_ID, SPORTS_MARKET_TYPE } from "./constants";
 
-const SPORTS_MARKET_TYPE = {
-  MONEY_LINE: 0,
-  SPREAD: 1,
-  OVER_UNDER: 2,
-};
 const NAMING_TEAM = {
   HOME_TEAM: "HOME_TEAM",
   AWAY_TEAM: "AWAY_TEAM",
