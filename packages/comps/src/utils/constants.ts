@@ -310,3 +310,9 @@ export enum TradingDirection {
   ENTRY = "ENTRY",
   EXIT = "EXIT",
 }
+
+export const SPORTS_MARKET_TYPE = {
+  MONEY_LINE: 0,
+  SPREAD: 1,
+  OVER_UNDER: 2,
+};

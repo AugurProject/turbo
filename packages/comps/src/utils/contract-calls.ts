@@ -51,6 +51,7 @@ import {
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
+  SPORTS_MARKET_TYPE,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1315,8 +1316,8 @@ const marketFactories = () => {
  * Only use over/under markets from new sportsball2
  */
 const MarketFactoryFilterOutTypes = {
-  sportsball: [2],
-  sportsball2: [0, 1],
+  sportsball: [SPORTS_MARKET_TYPE.OVER_UNDER],
+  sportsball2: [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD],
 };
 
 const getMarketFactoryFilterOutType = (factoryAddress: string) => {
