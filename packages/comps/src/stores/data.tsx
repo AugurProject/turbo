@@ -49,12 +49,12 @@ export const DataProvider = ({ children }: any) => {
     };
 
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-      isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+      isMounted && blocknumber && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
     });
 
     const intervalId = setInterval(() => {
       getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-        isMounted && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+        isMounted && blocknumber && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
       });
     }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {

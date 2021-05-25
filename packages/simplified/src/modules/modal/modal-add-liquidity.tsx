@@ -112,7 +112,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
 
-  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(amm.ammOutcomes));
+  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(amm?.ammOutcomes));
   const [showBackView, setShowBackView] = useState(false);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
