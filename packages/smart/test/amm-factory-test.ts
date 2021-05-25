@@ -157,7 +157,7 @@ describe("AMMFactory", () => {
     );
   });
 
-  it.only("should not be an infinite loop part 2", async () => {
+  it("should not be an infinite loop part 2", async () => {
     const result = calculateSellCompleteSets(
       BigNumber.from("1000000000000"),
       1,
