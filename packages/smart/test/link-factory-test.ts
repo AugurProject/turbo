@@ -131,13 +131,13 @@ describe("LinkFactory", () => {
     );
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
-    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]);
+    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
 
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
-    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[2]);
+    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[2]); // home spread greater
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
-    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]);
+    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[2]); // under
   });
 
   it("encodes and decodes market creation payload", async () => {

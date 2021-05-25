@@ -287,11 +287,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     ) internal {
         OwnedERC20 _winner;
         if (_homeScore > _awayScore) {
-            _winner = markets[_id].shareTokens[2];
+            _winner = markets[_id].shareTokens[2]; // home team won
         } else if (_homeScore < _awayScore) {
-            _winner = markets[_id].shareTokens[1];
+            _winner = markets[_id].shareTokens[1]; // away team won
         } else {
-            _winner = markets[_id].shareTokens[0];
+            _winner = markets[_id].shareTokens[0]; // no contest
         }
 
         markets[_id].winner = _winner;
@@ -310,11 +310,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualSpread > _targetSpread) {
-            _winner = markets[_id].shareTokens[2];
+            _winner = markets[_id].shareTokens[2]; // home spread greater
         } else if (_actualSpread < _targetSpread) {
-            _winner = markets[_id].shareTokens[1];
+            _winner = markets[_id].shareTokens[1]; // home spread lesser
         } else {
-            _winner = markets[_id].shareTokens[0];
+            _winner = markets[_id].shareTokens[0]; // no contest
         }
 
         markets[_id].winner = _winner;
@@ -333,11 +333,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualTotal > _targetTotal) {
-            _winner = markets[_id].shareTokens[2];
+            _winner = markets[_id].shareTokens[1]; // over
         } else if (_actualTotal < _targetTotal) {
-            _winner = markets[_id].shareTokens[1];
+            _winner = markets[_id].shareTokens[2]; // under
         } else {
-            _winner = markets[_id].shareTokens[0];
+            _winner = markets[_id].shareTokens[0]; // no contest
         }
 
         markets[_id].winner = _winner;
