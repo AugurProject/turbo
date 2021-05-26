@@ -9,8 +9,8 @@
   > div {
     .PrimaryBorderRadius;
 
-    background: white;
-    box-shadow: 0px 0px 4px rgba(14, 14, 33, 0.15);
+    background: var(--simple-light-bg);
+    box-shadow: var(--theme-box-shadow);
     min-height: 440px;
     border: @size-1 solid var(--simple-border);
     margin: @size-32 @size-32 @size-32 @size-8;
@@ -25,7 +25,7 @@
 .BetslipHeader {
   .PrimaryTopBorderRadius;
 
-  background: black;
+  background: var(--simple-primary-text);
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
@@ -39,7 +39,7 @@
     .text-14-semi-bold;
 
     background: transparent;
-    color: grey;
+    color: var(--simple-tertiary-text);
     border: none;
     display: flex;
     flex-flow: row nowrap;
@@ -53,25 +53,26 @@
       .text-10;
       .PrimaryBorderRadius;
 
-      border: @size-1 solid grey;
+      border: @size-1 solid var(--simple-tertiary-text);
       padding: @size-3 @size-5;
       margin-left: @size-8;
+      color: var(--simple-light-bg);
     }
 
     &.isPopulated {
       > span {
-        color: white;
+        color: var(--simple-light-bg);
       }
     }
 
     &.SelectedView,
     &.SelectedView.isPopulated {
-      color: white;
+      color: var(--simple-light-bg);
 
       > span {
-        border: @size-1 solid white;
-        background: white;
-        color: black;
+        border: @size-1 solid var(--simple-light-bg);
+        background: var(--simple-light-bg);
+        color: var(--simple-primary-text);
       }
     }
   }
@@ -84,7 +85,7 @@
   justify-content: center;
 
   > div {
-    background: lightgrey;
+    background: var(--light-background-color);
     border-radius: 50%;
     margin-top: @size-80;
     margin-bottom: @size-16;
@@ -104,14 +105,14 @@
   > h3 {
     .text-14-bold;
 
-    color: black;
+    color: var(--simple-primary-text);
     margin: 0;
   }
 
   > p {
     .text-14;
 
-    color: black;
+    color: var(--simple-primary-text);
     margin: 0;
     margin-top: @size-1;
     margin-bottom: @size-11;

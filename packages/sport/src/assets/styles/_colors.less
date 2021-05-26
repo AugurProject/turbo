@@ -186,6 +186,80 @@
   --simple-brand: #2AE7A8;
 }
 
+:root[theme="SPORTS"] {
+  // text
+  --simple-primary-text: #0E0E21;
+  --simple-secondary-text: #555577;
+  --simple-tertiary-text: #9C9CB4;
+  --simple-primary-text-40: fade(#0E0E21, 40%);
+  --simple-primary-text-85: fade(#0E0E21, 85%);
+  --simple-secondary-text-50: fade(#555577, 50%);
+
+  --light-background-color: #F5F5F8;
+  --simple-alternate-background: #EDEFF1;
+
+  --simple-border: #D1D1D9;
+  --simple-border-dk: #DEDEE4;
+  --simple-light-bg: #FFFFFF;
+  --simple-light-bg-20: fade(#FFFFFF, 20%);
+  --simple-light-bg-50: fade(#FFFFFF, 50%);
+  --simple-outline-color: #0CCE8D;
+  --simple-outline-color-40: fade(#0CCE8D, 40%);
+  --simple-outline-color-15: fade(#0CCE8D, 15%);
+
+  --simple-yes: #5A8BEE; // outcome 1 (tech 2 in code, 1 in mocks)
+  --simple-yes-15: fade(#5A8BEE, 15%);
+  --simple-yes-30: fade(#5A8BEE, 30%);
+  --simple-no: #EC343F; // outcome 2 (tech 1 in code, 2 in mocks)
+  --simple-no-15: fade(#EC343F, 15%);
+  --simple-invalid: #555577; // outcome 0 / invalid / augur color for icons
+  --simple-invalid-15: fade(#555577, 15%);
+  --simple-chart-color: #c4c4c4;
+  --simple-confirmed: @color-brand;
+  --simple-failed: #FF4E27;
+  --simple-failed-5: fade(#FF4E27, 5%);
+  --simple-failed-10: fade(#FF4E27, 10%);
+  --simple-failed-15: fade(#FF4E27, 15%);
+  --simple-warning: #F59300;
+  --simple-warning-5: fade(#F59300, 5%);
+  --simple-warning-10: fade(#F59300, 10%);
+  --simple-warning-15: fade(#F59300, 15%);
+
+  // backgrounds:
+  // primary bg: #F5F5F8
+  // primary bg 50%: #FAFAFC
+
+  // borders:
+  // primary border: #D1D1D9
+  // secondary border: #DEDEE4
+
+  // actions/interactions
+  // primary action: #0CCE8D
+  // secondary action: #0E0E21
+
+  // Unplaced:
+  // UIWhite #FFFFFF
+
+  // trades
+  // buy: #5A8BEE
+  // sell: #EC343F
+
+  // Status + Outcomes
+  // open: #18C88D
+  // reporting: #F59300
+  // resolved: #FF4E27
+  // neutral: #555577
+
+  // invalid / outcome 0: #FF4E27
+  // outcome 1: #FCBD43
+  // outcome 2: #48EBB5
+  // outcome 3: #FF56B1
+  // outcome 4: #FF8DED
+  // outcome 5: #1B91FF
+  // outcome 6: #09CFE1
+  // outcome 7: #AE5DFF
+}
+
 @outcome-simp-0: #58586B; //--simple-invalid;
 @outcome-simp-1: #05B169; //--simple-yes;
 @outcome-simp-2: #FF7D5E; //--finance-color; 
@@ -205,14 +279,14 @@
   });
 }
 
-@color-outcome-invalid-betting: #FF7E9D;
+@color-outcome-invalid-betting: #FF4E27;
 @color-outcome-one-betting: #FCBD43;
-@color-outcome-two-betting: #F55800;
+@color-outcome-two-betting: #48EBB5;
 @color-outcome-three-betting: #FF56B1;
 @color-outcome-four-betting: #FF8DED;
 @color-outcome-five-betting: #1B91FF;
 @color-outcome-six-betting: #09CFE1;
-@color-outcome-seven-betting: #2AE7A8;
+@color-outcome-seven-betting: #AE5DFF;
 //  Chart / Outcome color helpers
 @color-outcome-list-betting: @color-outcome-invalid-betting @color-outcome-one-betting @color-outcome-two-betting @color-outcome-three-betting @color-outcome-four-betting @color-outcome-five-betting @color-outcome-six-betting @color-outcome-seven-betting;
 

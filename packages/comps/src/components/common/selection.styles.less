@@ -116,6 +116,7 @@
         }
 
         > svg {
+          display: none;
           margin-left: @size-4;
         }
       }
@@ -270,7 +271,7 @@
   }
 
   > button {
-    color: black;
+    color: var(--simple-primary-text);
     border: 0;
     background: transparent;
     padding: 0;
@@ -286,10 +287,10 @@
     > span {
       .text-14;
 
-      border-bottom: @size-1 dotted black;
+      border-bottom: @size-1 dotted var(--simple-primary-text);;
 
       &:hover {
-        border-bottom: @size-1 solid black;
+        border-bottom: @size-1 solid var(--simple-primary-text);;
       }
     }
 
@@ -299,7 +300,7 @@
       width: @size-9;
 
       > path {
-        fill: black;
+        fill: var(--simple-primary-text);;
       }
     }
   }
@@ -317,6 +318,10 @@
         justify-content: space-between;
         padding: @size-12 0 @size-11;
         border-bottom: @size-1 solid var(--color-secondary-text);
+
+        > svg {
+          display: block;
+        }
 
         &:first-of-type {
           .PrimaryTopBorderRadius;
