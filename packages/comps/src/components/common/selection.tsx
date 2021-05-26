@@ -107,7 +107,7 @@ export const Dropdown = ({
   const toggleList = () => {
     setShowList(!showList);
   };
-  
+
   return (
     <div
       style={sortByStyles}

@@ -47,6 +47,7 @@ import {
   TradingDirection,
   DUST_POSITION_AMOUNT,
   DUST_POSITION_AMOUNT_ON_CHAIN,
+  DUST_LIQUIDITY_AMOUNT,
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
@@ -1124,11 +1125,14 @@ const accumLpSharesPrice = (
 
 export const calculateAmmTotalVolApy = (
   amm: AmmExchange,
-  transactions: MarketTransactions = {}
+  transactions: MarketTransactions = {},
+  hasWinner: boolean = false
 ): { apy: string; vol: string; vol24hr: string } => {
-  const defaultValues = { apy: null, vol: null, vol24hr: null };
+  const defaultValues = { apy: undefined, vol: null, vol24hr: null };
   if (!amm?.id || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+
   const { feeDecimal, liquidityUSD, cash } = amm;
+
   const timestamp24hr = Math.floor(new Date().getTime() / 1000 - SEC_IN_DAY);
   // calc total volume
   const volumeTotalUSD = calcTotalVolumeUSD(transactions, cash).toNumber();
@@ -1146,12 +1150,14 @@ export const calculateAmmTotalVolApy = (
   const secondsPast = currTimestamp - startTimestamp;
   const pastDays = Math.floor(new BN(secondsPast).div(SEC_IN_DAY).toNumber());
 
-  const tradeFeeLiquidityPerDay =
-    Number(liquidityUSD || 0) === 0 ? ZERO : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
+  const tradeFeeLiquidityPerDay = new BN(liquidityUSD).lte(DUST_LIQUIDITY_AMOUNT)
+    ? null
+    : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
 
-  const tradeFeePerDayInYear = tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
-
-  return { apy: String(tradeFeePerDayInYear), vol: volumeTotalUSD, vol24hr: volumeTotalUSD24hr };
+  const tradeFeePerDayInYear = hasWinner
+    ? undefined
+    : tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
+  return { apy: tradeFeePerDayInYear, vol: volumeTotalUSD, vol24hr: volumeTotalUSD24hr };
 };
 
 const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoffTimestamp: number = 0) => {
@@ -1731,6 +1737,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
     startTimestamp,
     sportId,
     sportsMarketType,
+    spreadLine: line,
   };
 };
 
