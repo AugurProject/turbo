@@ -80,12 +80,12 @@ export const addresses: AddressMapping = {
     marketFactories: {
       sportsball: {
         type: "SportsLink",
-        address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
+        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
       },
       sportsball2: {
         type: "SportsLink",
-        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
+        address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
       },
       mma: {
