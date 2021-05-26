@@ -20,6 +20,7 @@ const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
 const HOME_TEAM_OUTCOME = 1;
 const AWAY_TEAM_OUTCOME = 2;
+const UNDERDOG_TEAM_OUTCOME = 2;
 
 export const getOutcomeName = (
   outcomeId: number,
@@ -39,13 +40,22 @@ export const getOutcomeName = (
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.SPREAD) {
     // spread
-    let pLine = Number(line) > 0 ? `+${line}` : line;
-    if (outcomeId === AWAY_TEAM_OUTCOME) {
-      const newLine = Number(line) * -1; // invert for away team
-      pLine = newLine > 0 ? `+${newLine}` : `${newLine}`;
+    let fav = awayTeam;
+    let underdog = homeTeam;
+    if (Number(line) < 0) {
+      underdog = awayTeam;
+      fav = homeTeam;
     }
-    const outcomes = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, pLine);
-    return outcomes;
+    // line for home team outcome
+    let displayLine = Number(line) > 0 ? `+${line}` : `${line}`;
+    if (outcomeId === UNDERDOG_TEAM_OUTCOME) {
+      const invertedLine = Number(line) * -1;
+      displayLine = Number(line) < 0 ? `+${Number(line) * -1}` : `${invertedLine}`;
+    }
+
+    const outcome = populateFavUnderdog(marketOutcome, fav, underdog).replace(NAMING_LINE.SPREAD_LINE, displayLine);
+    console.log('spread', line, outcomeId, outcome);
+    return outcome;
   }
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
@@ -80,7 +90,6 @@ export const getMarketTitle = (
     // spread
     let fav = awayTeam;
     let underdog = homeTeam;
-    // todo: figure out which team is fav and underdog
     if (Number(line) < 0) {
       underdog = awayTeam;
       fav = homeTeam;
@@ -105,6 +114,10 @@ export const getMarketTitle = (
 
 const populateHomeAway = (marketTitle: string, homeTeam: string, awayTeam: string): string => {
   return marketTitle.replace(NAMING_TEAM.AWAY_TEAM, awayTeam).replace(NAMING_TEAM.HOME_TEAM, homeTeam);
+};
+
+const populateFavUnderdog = (title: string, fav: string, underdog: string): string => {
+  return title.replace(NAMING_TEAM.UNDERDOG_TEAM, underdog).replace(NAMING_TEAM.FAV_TEAM, fav);
 };
 
 const getSportsTitles = (sportId: string, sportsMarketType: number): { title: string; description: string } => {
@@ -144,8 +157,8 @@ const sportsData = {
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.FAV_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.UNDERDOG_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -168,8 +181,8 @@ const sportsData = {
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.FAV_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.UNDERDOG_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -192,8 +205,8 @@ const sportsData = {
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.FAV_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.UNDERDOG_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
@@ -216,8 +229,8 @@ const sportsData = {
         description: ``,
         outcomes: [
           NO_CONTEST,
-          `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
-          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.FAV_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.UNDERDOG_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
         ],
       },
       [SPORTS_MARKET_TYPE.OVER_UNDER]: {
