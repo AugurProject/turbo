@@ -51,6 +51,7 @@ import {
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
+  SPORTS_MARKET_TYPE,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -65,7 +66,9 @@ import {
   BPool,
   BPool__factory,
   SportsLinkMarketFactory,
+  AbstractMarketFactory,
   SportsLinkMarketFactory__factory,
+  AbstractMarketFactory__factory,
   calcSellCompleteSets,
   estimateBuy,
 } from "@augurproject/smart";
@@ -549,20 +552,20 @@ export const claimWinnings = (
   account: string,
   provider: Web3Provider,
   marketIds: string[],
-  factories: string[] // needed for multi market factory
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimWinnings: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   return marketFactoryContract.claimManyWinnings(marketIds, account);
 };
 
 export const claimFees = (
   account: string,
   provider: Web3Provider,
-  factories: string[] // needed for multi market factory
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("claimFees: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   return marketFactoryContract.claimSettlementFees(account);
 };
 
@@ -572,10 +575,10 @@ export const cashOutAllShares = (
   balancesRaw: string[],
   marketId: string,
   shareFactor: string,
-  factories: string // needed for multi market factory
+  factoryAddress: string
 ): Promise<TransactionResponse | null> => {
   if (!provider) return console.error("cashOutAllShares: no provider");
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const shareAmount = BigNumber.min(...balancesRaw);
   const normalizedAmount = shareAmount
     .div(new BN(shareFactor))
@@ -1238,11 +1241,20 @@ export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   await collateral.faucet(amount as BigNumberish);
 };
 
-const getMarketFactoryContract = (library: Web3Provider, account?: string): SportsLinkMarketFactory => {
-  const { marketFactories } = PARA_CONFIG;
-  // need to support many markets and get collateral for each market
-  const { address } = marketFactories.sportsball;
+const getMarketFactoryContract = (
+  library: Web3Provider,
+  address: string,
+  account?: string
+): SportsLinkMarketFactory => {
   return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
+};
+
+const getAbstractMarketFactoryContract = (
+  library: Web3Provider,
+  address: string,
+  account?: string
+): AbstractMarketFactory => {
+  return AbstractMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {
@@ -1293,13 +1305,81 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const marketFactories = () => {
+  const { marketFactories } = PARA_CONFIG;
+  const marketAddresses = [marketFactories.sportsball.address];
+  // make sure sportsball2 exists in addresses before trying to add
+  if (marketFactories?.sportsball2?.address) {
+    marketAddresses.push(marketFactories.sportsball2.address);
+  }
+  return marketAddresses;
+};
+
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const factories = marketFactories();
+  const allMarkets = await Promise.all(
+    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address))
+  );
+
+  // first market infos get all markets with liquidity
+  const marketInfos = allMarkets.reduce(
+    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }, i) => {
+      // only take liquidity markets from first batch
+      if (i === 0) {
+        const hasLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
+          (p, id) => (exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
+          []
+        );
+        const liquidityMarkets = Object.keys(marketInfos).reduce(
+          (p, id) =>
+            hasLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
+          {}
+        );
+        const liquidityExchanges = Object.keys(exchanges).reduce(
+          (p, id) => (hasLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+          {}
+        );
+        return {
+          markets: { ...p.markets, ...liquidityMarkets },
+          ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
+          blocknumber,
+        };
+      }
+      const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
+      const newMarkets = Object.keys(marketInfos).reduce(
+        (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
+        {}
+      );
+      const newExchanges = Object.keys(exchanges).reduce(
+        (p, id) => (!existingMarkets.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+        {}
+      );
+
+      return {
+        markets: { ...p.markets, ...newMarkets },
+        ammExchanges: { ...p.ammExchanges, ...newExchanges },
+        blocknumber,
+      };
+    },
+    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+  );
+
+  return marketInfos;
+};
+
+export const getFactoryMarketInfo = async (
+  provider: Web3Provider,
+  markets: MarketInfos,
+  cashes: Cashes,
+  account: string,
+  factoryAddress: string
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
+  const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
 
   let indexes = [];
@@ -1307,20 +1387,27 @@ export const getMarketInfos = async (
     indexes.push(i);
   }
 
-  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(indexes, cashes, provider, account);
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, loading: false };
+  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+    indexes,
+    cashes,
+    provider,
+    account,
+    factoryAddress
+  );
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
 const retrieveMarkets = async (
   indexes: number[],
   cashes: Cashes,
   provider: Web3Provider,
-  account: string
+  account: string,
+  factoryAddress: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const ammFactory = getAmmFactoryContract(provider, account);
@@ -1419,7 +1506,6 @@ const retrieveMarkets = async (
   }
 
   const marketInfos = {};
-  // populate outcomes share token addresses
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketDetails = details[m.marketId];
@@ -1436,7 +1522,8 @@ const retrieveMarkets = async (
       marketFactoryAddress,
       ammFactory,
       provider,
-      account
+      account,
+      factoryAddress
     );
   }
 
@@ -1491,7 +1578,8 @@ const retrieveExchangeInfos = async (
   marketFactoryAddress: string,
   ammFactory: AMMFactory,
   provider: Web3Provider,
-  account: string
+  account: string,
+  factoryAddress: string
 ): Market[] => {
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
 
@@ -1506,7 +1594,7 @@ const retrieveExchangeInfos = async (
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
-  const marketFactoryContract = getMarketFactoryContract(provider, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractPricesCall: ContractCallContext[] = existingIndexes.reduce(
     (p, index) => [

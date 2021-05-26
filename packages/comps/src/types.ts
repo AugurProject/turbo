@@ -257,7 +257,7 @@ export interface MarketInfo {
   sportId?: string;
   sportsMarketType?: number;
   marketFactoryAddress: string;
-  turboId: string;
+  turboId: number;
   title: string;
   description?: string;
   endTimestamp: number;
