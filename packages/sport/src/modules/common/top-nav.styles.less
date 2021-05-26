@@ -362,28 +362,57 @@
 
 :root[theme="SPORTS"] {
   .TopNav {
-    > ol > li {
-      display: flex;
-      flex-flow: column nowrap;
-      height: 100%;
-      min-height: 100%;
-      align-items: center;
-      justify-content: center;
-      border-bottom: @size-2 solid transparent;
+    background: var(--simple-primary-text);
 
-      > a {
-        height: 100%;
+    > section {
+      background: var(--simple-primary-text);
+      border-color: var(--simple-secondary-text);
+
+      &:first-of-type {
+        > a > section > svg > g > path:not(:first-of-type) {
+          fill: var(--simple-light-bg);
+        }
+      }
+    }
+    > ol {
+      border-top: @size-1 solid var(--simple-secondary-text);
+
+      > li {
         display: flex;
+        flex-flow: column nowrap;
+        height: 100%;
+        min-height: 100%;
         align-items: center;
-      }
+        justify-content: center;
+        border-bottom: @size-2 solid transparent;
 
-      &.Active,
-      &.Active:hover {
-        border-bottom: @size-2 solid var(--color-brand);
-      }
+        > a {
+          height: 100%;
+          display: flex;
+          align-items: center;
+          color: var(--simple-light-bg);
+        }
 
-      &:hover {
-        border-bottom: @size-2 solid var(--simple-primary-text);
+        &:hover {
+          border-bottom: @size-2 solid var(--simple-light-bg);
+
+          > a {
+            color: var(--simple-light-bg);
+
+            &[disabled] {
+              color: var(--simple-secondary-text);
+            }
+          }
+        }
+
+        &.Active,
+        &.Active:hover {
+          border-bottom: @size-2 solid var(--simple-outline-color);
+
+          > a {
+            color: var(--simple-light-bg);
+          }
+        }
       }
     }
   }
