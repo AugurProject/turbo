@@ -44,8 +44,8 @@ export const DataProvider = ({ children }: any) => {
         return await getMarketInfos(provider, DataStore.get().markets, cashes, userAccount);
       } catch (e) {
         console.log("error getting market data", e);
-        return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
       }
+      return { markets: {}, ammExchanges: {}, blocknumber: null, loading: true };
     };
 
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
