@@ -123,3 +123,17 @@
     }
   }
 }
+
+.PrimaryActionButton {
+  .Button;
+
+  color: var(--simple-light-bg);
+  background-color: var(--simple-outline-color-15);
+  border: @size-1 solid var(--simple-outline-color);
+
+  &:hover {
+    color: var(--simple-primary-text);
+    background-color: var(--simple-light-bg);
+    border: @size-1 solid var(--simple-light-bg);
+  }
+}

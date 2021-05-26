@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useLocation } from "react-router";
 import Styles from "./top-nav.styles.less";
 import { Link } from "react-router-dom";
@@ -16,13 +16,15 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
+  Formatter,
   Components,
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
+const { formatCash } = Formatter;
+const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME, USDC } = Constants;
 const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
@@ -49,8 +51,8 @@ export const SettingsButton = () => {
   });
 
   return (
-    <div className={Styles.SettingsMenuWrapper}>
-      <SecondaryButton label="Settings" action={() => setOpened(!open)} icon={GearIcon} />
+    <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
+      <button onClick={() => setOpened(!open)}>{GearIcon}</button>
       {open && (
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>
@@ -99,6 +101,7 @@ export const TopNav = () => {
     account,
     loginAccount,
     transactions,
+    balances,
     actions: { updateLoginAccount, logout },
   } = useUserStore();
   const [lastUser, setLastUser] = useLocalStorage("lastUser", null);
@@ -127,10 +130,13 @@ export const TopNav = () => {
     }
   };
 
+  const usdValueUSDC = useMemo(() => formatCash(balances?.USDC?.usdValue || 0, USDC, {
+    bigUnitPostfix: true,
+  }).full, [balances?.USDC?.usdValue]);
+
   return (
     <section
       className={classNames(Styles.TopNav, {
-        // [Styles.TwoTone]: path !== MARKETS,
         [Styles.OnMarketsView]: path === MARKET,
       })}
     >
@@ -138,15 +144,18 @@ export const TopNav = () => {
         <LinkLogo />
       </section>
       <section>
-        <ConnectAccount
-          {...{
-            updateLoginAccount: handleAccountUpdate,
-            autoLogin,
-            transactions,
-            setModal,
-            isMobile,
-          }}
-        />
+        <div>
+          {isLogged && <span>{usdValueUSDC}</span>}
+          <ConnectAccount
+            {...{
+              updateLoginAccount: handleAccountUpdate,
+              autoLogin,
+              transactions,
+              setModal,
+              isMobile,
+            }}
+          />
+        </div>
         {isMobile ? (
           <button
             className={Styles.MobileMenuButton}
@@ -161,7 +170,6 @@ export const TopNav = () => {
         ) : (
           <SettingsButton />
         )}
-        {/* <Toasts /> */}
       </section>
       {!isMobile && (
           <ol>
