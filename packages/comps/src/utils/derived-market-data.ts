@@ -18,8 +18,7 @@ const NAMING_LINE = {
 };
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
-const HOME_TEAM_OUTCOME = 1;
-const AWAY_TEAM_OUTCOME = 2;
+const AWAY_TEAM_OUTCOME = 1;
 
 export const getOutcomeName = (
   outcomeId: number,
@@ -39,13 +38,15 @@ export const getOutcomeName = (
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.SPREAD) {
     // spread
-    let pLine = Number(line) > 0 ? `+${line}` : line;
+    // line for home team outcome
+    let displayLine = Number(line) > 0 ? `+${line}` : `${line}`;
     if (outcomeId === AWAY_TEAM_OUTCOME) {
-      const newLine = Number(line) * -1; // invert for away team
-      pLine = newLine > 0 ? `+${newLine}` : `${newLine}`;
+      const invertedLine = Number(line) * -1;
+      displayLine = Number(line) < 0 ? `+${invertedLine}` : `${invertedLine}`;
     }
-    const outcomes = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, pLine);
-    return outcomes;
+
+    const outcome = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, displayLine);
+    return outcome;
   }
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
@@ -80,7 +81,6 @@ export const getMarketTitle = (
     // spread
     let fav = awayTeam;
     let underdog = homeTeam;
-    // todo: figure out which team is fav and underdog
     if (Number(line) < 0) {
       underdog = awayTeam;
       fav = homeTeam;
