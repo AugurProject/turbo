@@ -227,7 +227,8 @@ export async function getRemoveLiquidity(
   provider: Web3Provider,
   lpTokenBalance: string,
   account: string,
-  cash: Cash
+  cash: Cash,
+  hasWinner: boolean = false
 ): Promise<LiquidityBreakdown | null> {
   if (!provider) {
     console.error("getRemoveLiquidity: no provider");
@@ -238,21 +239,39 @@ export async function getRemoveLiquidity(
 
   // balancer lp tokens are 18 decimal places
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
+  let results = null;
+  let minAmounts = null;
+  let minAmountsRaw = null;
+  let collateralOut = "0";
 
-  const results = await ammFactory.callStatic
-    .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
-    .catch((e) => console.log(e));
+  if (!hasWinner) {
+    results = await ammFactory.callStatic
+      .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
+      .catch((e) => console.log(e));
+    const { _balances, _collateralOut } = results;
+    collateralOut = _collateralOut;
+    minAmounts = _balances.map((v, i) => ({
+      amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+      outcomeId: i,
+      hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+    }));
+    minAmountsRaw = _balances.map((v) => new BN(String(v)).toFixed());
+  } else {
+    results = await estimateLPTokenInShares(amm?.id, provider, lpTokenBalance, account, amm?.ammOutcomes).catch((e) =>
+      console.log(e)
+    );
+    const minAmts = amm?.ammOutcomes.map((o, i) => ({
+      amount: results.minAmounts[i],
+      outcomeId: i,
+      hide: new BN(results.minAmounts[i]).lt(DUST_POSITION_AMOUNT),
+    }));
+    minAmounts = minAmts;
+    minAmountsRaw = results.minAmountsRaw;
+  }
 
   if (!results) return null;
-  const { _balances, _collateralOut } = results;
 
-  const minAmounts: string[] = _balances.map((v, i) => ({
-    amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-    outcomeId: i,
-    hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-  }));
-  const minAmountsRaw: string[] = _balances.map((v) => new BN(String(v)).toFixed());
-  const amount = cashOnChainToDisplay(String(_collateralOut), cash.decimals).toFixed();
+  const amount = cashOnChainToDisplay(String(collateralOut), cash.decimals).toFixed();
   const poolPct = lpTokenPercentageAmount(lpTokenBalance, lpTokensOnChainToDisplay(amm?.totalSupply || "1"));
 
   return {
@@ -301,7 +320,8 @@ export function doRemoveLiquidity(
   lpTokenBalance: string,
   amountsRaw: string[],
   account: string,
-  cash: Cash
+  cash: Cash,
+  hasWinner = false
 ): Promise<TransactionResponse | null> {
   if (!provider) {
     console.error("doRemoveLiquidity: no provider");
@@ -310,8 +330,11 @@ export function doRemoveLiquidity(
   const { market } = amm;
   const ammFactory = getAmmFactoryContract(provider, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
+  const balancerPool = getBalancerPoolContract(provider, amm?.id, account);
 
-  return ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
+  return hasWinner
+    ? balancerPool.exitPool(lpBalance, amountsRaw)
+    : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
 export const estimateBuyTrade = async (
