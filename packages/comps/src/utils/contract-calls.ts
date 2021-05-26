@@ -1493,6 +1493,11 @@ const retrieveMarkets = async (
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketDetails = details[m.marketId];
+      const factoryAddress = m.marketFactoryAddress;
+      const filterMarketsTypes = getMarketFactoryFilterOutType(factoryAddress);
+      if (!filterMarketsTypes.includes(marketDetails.marketType)) {
+        return filteredOutMarketIds.push(m.marketId);
+      }
       marketInfos[m.marketId] = decodeMarketDetails(m, marketDetails);
     });
   }
@@ -1500,8 +1505,13 @@ const retrieveMarkets = async (
   const blocknumber = marketsResult.blockNumber;
 
   if (Object.keys(exchanges).length > 0) {
+    const filteredExchanges = Object.keys(exchanges).reduce(
+      (p, exchangeId) =>
+        filteredOutMarketIds.includes(exchangeId) ? p : { ...p, [exchangeId]: exchanges[exchangeId] },
+      {}
+    );
     exchanges = await retrieveExchangeInfos(
-      exchanges,
+      filteredExchanges,
       marketInfos,
       marketFactoryAddress,
       ammFactory,
