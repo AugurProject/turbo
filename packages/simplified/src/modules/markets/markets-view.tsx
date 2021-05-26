@@ -114,7 +114,7 @@ const applyFiltersAndSort = (
     }
 
     // Hide these markets for now to account for bug fix 
-    if(market.sportsMarketType === 2) {
+    if(market.sportsMarketType === 2 || market.sportsMarketType === 1) {
       if (market.reportingState === MARKET_STATUS.FINALIZED) {
         return transactions[market.marketId]?.volumeTotalUSD > 0;
       }
