@@ -7,7 +7,7 @@ import classNames from "classnames";
 import ButtonStyles from "../common/buttons.styles.less";
 import { GetWalletIcon } from "../common/get-wallet-icon";
 import { useActiveWeb3React } from "./hooks";
-import { MODAL_CONNECT_WALLET, TX_STATUS } from "../../utils/constants";
+import { MODAL_CONNECT_WALLET, MODAL_CONNECT_TO_POLYGON, TX_STATUS } from "../../utils/constants";
 import { MATIC_MUMBAI, tryAutoLogin } from "./utils";
 import { Spinner } from "../common/spinner";
 import { MATIC_RPC_DATA, MATIC_MUMBAI_RPC_DATA } from "../ConnectAccount/constants/index";
@@ -84,8 +84,14 @@ const ConnectAccountButton = ({
 
   const connectToMatic = async () => {
     if (ethereum && ethereum?.chainId !== RPC_DATA?.chainId) {
-      await ethereum.request({method: 'wallet_addEthereumChain', params: [RPC_DATA] });
-      setIsOnMatic(true);
+      try {
+        await ethereum.request({method: 'wallet_addEthereumChain', params: [RPC_DATA] });
+        setIsOnMatic(true);
+      } catch(error) {
+        setModal({
+          type: MODAL_CONNECT_TO_POLYGON,
+        });
+      }
     }
   }
 
