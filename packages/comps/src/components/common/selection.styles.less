@@ -116,6 +116,7 @@
         }
 
         > svg {
+          display: none;
           margin-left: @size-4;
         }
       }
@@ -317,6 +318,10 @@
         justify-content: space-between;
         padding: @size-12 0 @size-11;
         border-bottom: @size-1 solid var(--color-secondary-text);
+
+        > svg {
+          display: block;
+        }
 
         &:first-of-type {
           .PrimaryTopBorderRadius;
