@@ -14,8 +14,9 @@ import {
   getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-import { DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
+import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
+import { CategoriesArea } from "../categories/categories";
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryButton },
@@ -155,10 +156,10 @@ const MarketsView = () => {
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
-   const {
-     marketsViewSettings,
-     settings: { showLiquidMarkets, timeFormat },
-     actions: { setSidebar, updateMarketsViewSettings },
+  const {
+    marketsViewSettings,
+    settings: { showLiquidMarkets, timeFormat },
+    actions: { setSidebar, updateMarketsViewSettings },
   } = useSportsStore();
   const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
@@ -218,81 +219,84 @@ const MarketsView = () => {
         [Styles.SearchOpen]: showFilter,
       })}
     >
-      <SEO {...MARKETS_LIST_HEAD_TAGS} />
-      {/* <NetworkMismatchBanner /> */}
-      {/* {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />} */}
-      {isMobile && (
-        <div>
-          <SecondaryButton
-            text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
-            icon={FilterIcon}
-            action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}
-          />
-          <SearchButton
-            action={() => {
-              setFilter("");
-              setShowFilter(!showFilter);
-            }}
-            selected={showFilter}
-          />
-        </div>
-      )}
-      <ul>
-        <SquareDropdown
-          onChange={(value) => {
-            updateMarketsViewSettings({ sortBy: value });
-          }}
-          options={sortByItems}
-          defaultValue={sortBy}
-          preLabel="Sort By"
-        />
-        <SearchInput
-          value={filter}
-          // @ts-ignore
-          onChange={(e) => setFilter(e.target.value)}
-          clearValue={() => setFilter("")}
-          showFilter={showFilter}
-        />
-      </ul>
-      {!isLogged ? (
-        <section>
-          <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
-        </section>
-      ) : loading && dataLoading ? (
-        <section>
-          {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
-            <LoadingMarketCard key={index} />
-          ))}
-        </section>
-      ) : filteredMarkets.length > 0 ? (
-        <section>
-          {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market, index) => (
-            <MarketCard
-              key={`${market.marketId}-${index}`}
-              marketId={market.marketId}
-              markets={markets}
-              ammExchanges={ammExchanges}
-              handleNoLiquidity={handleNoLiquidity}
-              noLiquidityDisabled={!isLogged}
-              timeFormat={timeFormat}
-              marketTransactions={transactions[market.marketId]}
+      <CategoriesArea />
+      <article>
+        <SEO {...MARKETS_LIST_HEAD_TAGS} />
+        {/* <NetworkMismatchBanner /> */}
+        {/* {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />} */}
+        {isMobile && (
+          <div>
+            <SecondaryButton
+              text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
+              icon={FilterIcon}
+              action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}
             />
-          ))}
-        </section>
-      ) : (
-        <span className={Styles.EmptyMarketsMessage}>No markets to show. Try changing the filter options.</span>
-      )}
-      {filteredMarkets.length > 0 && (
-        <Pagination
-          page={page}
-          itemCount={filteredMarkets.length}
-          itemsPerPage={PAGE_LIMIT}
-          action={(page) => {
-            setPage(page);
-          }}
-          updateLimit={null}
-        />
-      )}
+            <SearchButton
+              action={() => {
+                setFilter("");
+                setShowFilter(!showFilter);
+              }}
+              selected={showFilter}
+            />
+          </div>
+        )}
+        <ul>
+          <SquareDropdown
+            onChange={(value) => {
+              updateMarketsViewSettings({ sortBy: value });
+            }}
+            options={sortByItems}
+            defaultValue={sortBy}
+            preLabel="Sort By"
+          />
+          <SearchInput
+            value={filter}
+            // @ts-ignore
+            onChange={(e) => setFilter(e.target.value)}
+            clearValue={() => setFilter("")}
+            showFilter={showFilter}
+          />
+        </ul>
+        {!isLogged ? (
+          <section>
+            <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
+          </section>
+        ) : loading && dataLoading ? (
+          <section>
+            {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
+              <LoadingMarketCard key={index} />
+            ))}
+          </section>
+        ) : filteredMarkets.length > 0 ? (
+          <section>
+            {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market, index) => (
+              <MarketCard
+                key={`${market.marketId}-${index}`}
+                marketId={market.marketId}
+                markets={markets}
+                ammExchanges={ammExchanges}
+                handleNoLiquidity={handleNoLiquidity}
+                noLiquidityDisabled={!isLogged}
+                timeFormat={timeFormat}
+                marketTransactions={transactions[market.marketId]}
+              />
+            ))}
+          </section>
+        ) : (
+          <span className={Styles.EmptyMarketsMessage}>No markets to show. Try changing the filter options.</span>
+        )}
+        {filteredMarkets.length > 0 && (
+          <Pagination
+            page={page}
+            itemCount={filteredMarkets.length}
+            itemsPerPage={PAGE_LIMIT}
+            action={(page) => {
+              setPage(page);
+            }}
+            updateLimit={null}
+          />
+        )}
+      </article>
     </div>
   );
 };
