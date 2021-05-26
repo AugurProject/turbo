@@ -1307,7 +1307,12 @@ export const getERC1155ApprovedForAll = async (
 
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
-  return [marketFactories.sportsball.address, marketFactories.sportsball2.address];
+  const marketAddresses = [marketFactories.sportsball.address];
+  // make sure sportsball2 exists in addresses before trying to add
+  if (marketFactories?.sportsball2?.address) {
+    marketAddresses.push(marketFactories.sportsball2.address);
+  };
+  return marketAddresses;
 };
 
 export const getMarketInfos = async (
