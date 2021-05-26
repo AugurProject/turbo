@@ -1311,7 +1311,7 @@ const marketFactories = () => {
   // make sure sportsball2 exists in addresses before trying to add
   if (marketFactories?.sportsball2?.address) {
     marketAddresses.push(marketFactories.sportsball2.address);
-  };
+  }
   return marketAddresses;
 };
 
@@ -1331,18 +1331,34 @@ export const getMarketInfos = async (
     (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }, i) => {
       // only take liquidity markets from first batch
       if (i === 0) {
-        const hasLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce((p, id) => exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p, []);
-        const liquidityMarkets = Object.keys(marketInfos).reduce((p, id) => hasLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? {...p, [id]: marketInfos[id] } : p , {});
-        const liquidityExchanges = Object.keys(exchanges).reduce((p, id) => hasLiquidityMarketIndexes.includes(exchanges[id].turboId) ? {...p, [id]: exchanges[id] } : p , {});
+        const hasLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
+          (p, id) => (exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
+          []
+        );
+        const liquidityMarkets = Object.keys(marketInfos).reduce(
+          (p, id) =>
+            hasLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
+          {}
+        );
+        const liquidityExchanges = Object.keys(exchanges).reduce(
+          (p, id) => (hasLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+          {}
+        );
         return {
-          markets: {...p.markets, ...liquidityMarkets},
-          ammExchanges: {...p.ammExchanges, ...liquidityExchanges},
-          blocknumber
-        }
+          markets: { ...p.markets, ...liquidityMarkets },
+          ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
+          blocknumber,
+        };
       }
-      const existingMarkets: number[] = Object.keys(p.markets).map(id => p.markets[id]?.turboId);
-      const newMarkets = Object.keys(marketInfos).reduce((p, id) => !existingMarkets.includes(marketInfos[id].turboId) ? {...p, [id]: marketInfos[id] } : p , {});
-      const newExchanges = Object.keys(exchanges).reduce((p, id) => !existingMarkets.includes(exchanges[id].turboId) ? {...p, [id]: exchanges[id] } : p , {});
+      const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
+      const newMarkets = Object.keys(marketInfos).reduce(
+        (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
+        {}
+      );
+      const newExchanges = Object.keys(exchanges).reduce(
+        (p, id) => (!existingMarkets.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+        {}
+      );
 
       return {
         markets: { ...p.markets, ...newMarkets },
@@ -1493,11 +1509,6 @@ const retrieveMarkets = async (
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketDetails = details[m.marketId];
-      const factoryAddress = m.marketFactoryAddress;
-      const filterMarketsTypes = getMarketFactoryFilterOutType(factoryAddress);
-      if (!filterMarketsTypes.includes(marketDetails.marketType)) {
-        return filteredOutMarketIds.push(m.marketId);
-      }
       marketInfos[m.marketId] = decodeMarketDetails(m, marketDetails);
     });
   }
@@ -1505,13 +1516,8 @@ const retrieveMarkets = async (
   const blocknumber = marketsResult.blockNumber;
 
   if (Object.keys(exchanges).length > 0) {
-    const filteredExchanges = Object.keys(exchanges).reduce(
-      (p, exchangeId) =>
-        filteredOutMarketIds.includes(exchangeId) ? p : { ...p, [exchangeId]: exchanges[exchangeId] },
-      {}
-    );
     exchanges = await retrieveExchangeInfos(
-      filteredExchanges,
+      exchanges,
       marketInfos,
       marketFactoryAddress,
       ammFactory,
