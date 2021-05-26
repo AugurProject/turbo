@@ -107,7 +107,7 @@ export const Dropdown = ({
   const toggleList = () => {
     setShowList(!showList);
   };
-  console.log("selected", selected);
+  
   return (
     <div
       style={sortByStyles}
