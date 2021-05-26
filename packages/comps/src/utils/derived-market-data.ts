@@ -18,9 +18,7 @@ const NAMING_LINE = {
 };
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
-const HOME_TEAM_OUTCOME = 1;
 const AWAY_TEAM_OUTCOME = 2;
-const UNDERDOG_TEAM_OUTCOME = 2;
 
 export const getOutcomeName = (
   outcomeId: number,
@@ -48,7 +46,7 @@ export const getOutcomeName = (
     }
     // line for home team outcome
     let displayLine = Number(line) > 0 ? `+${line}` : `${line}`;
-    if (outcomeId === UNDERDOG_TEAM_OUTCOME) {
+    if (outcomeId === AWAY_TEAM_OUTCOME) {
       const invertedLine = Number(line) * -1;
       displayLine = Number(line) < 0 ? `+${invertedLine}` : `${invertedLine}`;
     }
