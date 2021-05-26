@@ -208,7 +208,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       setBreakdown(defaultAddLiquidityBreakdown);
     }
     if (isRemove) {
-      doRemoveLiquidity(amm, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash)
+      doRemoveLiquidity(amm, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash, market?.hasWinner)
         .then((response) => {
           const { hash } = response;
           addTransaction({
@@ -297,7 +297,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     async function getResults() {
       let results: LiquidityBreakdown;
       if (isRemove) {
-        results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash);
+        results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
       } else {
         results = await estimateAddLiquidityPool(
           account,
