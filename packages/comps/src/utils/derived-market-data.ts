@@ -50,11 +50,10 @@ export const getOutcomeName = (
     let displayLine = Number(line) > 0 ? `+${line}` : `${line}`;
     if (outcomeId === UNDERDOG_TEAM_OUTCOME) {
       const invertedLine = Number(line) * -1;
-      displayLine = Number(line) < 0 ? `+${Number(line) * -1}` : `${invertedLine}`;
+      displayLine = Number(line) < 0 ? `+${invertedLine}` : `${invertedLine}`;
     }
 
     const outcome = populateFavUnderdog(marketOutcome, fav, underdog).replace(NAMING_LINE.SPREAD_LINE, displayLine);
-    console.log('spread', line, outcomeId, outcome);
     return outcome;
   }
 
