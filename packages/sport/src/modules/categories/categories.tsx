@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Styles from "./categories.styles.less";
 import classNames from "classnames";
-import { Icons, Constants, Formatter } from "@augurproject/comps";
+import { Icons, Constants, Formatter, useDataStore } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 
 const { SPORTS, POLITICS } = Constants;
@@ -21,18 +21,23 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
     return acc;
   }, {});
 
-const formatCategoryCount = (numCats) => formatNumber(numCats, {
-  decimals: 0,
-  decimalsRounded: 0,
-  zeroStyled: true,
-  blankZero: false,
-  bigUnitPostfix: true,
-}).full;
+const determineCount = (category, markets) =>
+  Object.entries(markets).filter(([marketId, marketInfo]) =>
+    // @ts-ignore
+    marketInfo?.categories.map((c) => c.toLowerCase()).includes(category)
+  ).length;
+
+const formatCategoryCount = (numCats) =>
+  formatNumber(numCats, {
+    decimals: 0,
+    decimalsRounded: 0,
+    zeroStyled: true,
+    blankZero: false,
+    bigUnitPostfix: true,
+  }).full;
 
 export const CategoriesArea = () => {
-  const {
-    marketsViewSettings,
-  } = useSportsStore();
+  const { marketsViewSettings } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
@@ -81,8 +86,7 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
       {subCategories.map((label, index) => {
         const category = index ? subCategories[0] : primaryCategory;
         const updatedSubCategories = index ? subCategories.filter((v) => v !== label) : [];
-        const action = () =>
-          updateMarketsViewSettings({ primaryCategory, subCategories: updatedSubCategories });
+        const action = () => updateMarketsViewSettings({ primaryCategory, subCategories: updatedSubCategories });
         return <RemoveCategoryOption {...{ category, action }} />;
       })}
       {categoryGroups}
@@ -98,18 +102,37 @@ const RemoveCategoryOption = ({ category = DEFAULT_BACK_OPTION, action = () => {
   </button>
 );
 
-const DUMMY_CATEGORIES = ["fake category", "placeholder", "stand in", "testing 123"];
 const CategoryGroup = ({ categoryInfo }) => {
   const {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
   } = useSportsStore();
+  const { markets } = useDataStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const [label, info] = categoryInfo;
   const subOptionList = Object.entries(info?.subOptions);
   const subCategoryList = subCategories.length
     ? subOptionList.filter(([optLabel, optInfo]) => subCategories[0] === optLabel)
     : subOptionList;
+  const sportCount = determineCount(primaryCategory, markets);
+  const secondaryCategory = subCategories[0];
+  const filteredLeaves = useMemo(
+    () =>
+      Object.entries(markets).reduce((acc, [marketId, marketInfo]) => {
+        // @ts-ignore
+        const { categories } = marketInfo;
+        if (
+          secondaryCategory &&
+          categories &&
+          (categories[1] || "").toLowerCase() === secondaryCategory.toLowerCase() &&
+          !acc.includes(categories[2].toLowerCase())
+        ) {
+          acc.push(categories[2].toLowerCase());
+        }
+        return acc;
+      }, []),
+    [subCategories]
+  );
   return (
     <article className={Styles.CategoryGroup}>
       {!subCategories.length && (
@@ -118,7 +141,7 @@ const CategoryGroup = ({ categoryInfo }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>{formatCategoryCount(232100)}</span>
+          <span>{formatCategoryCount(sportCount)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&
@@ -130,12 +153,12 @@ const CategoryGroup = ({ categoryInfo }) => {
             onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
           >
             {/* @ts-ignore */}
-            {subInfo?.icon} {subLabel} <span>{formatCategoryCount(1230)}</span>
+            {subInfo?.icon} {subLabel} <span>{formatCategoryCount(determineCount(subLabel, markets))}</span>
           </button>
         ))}
       {!!subCategories.length && (
         <>
-          {DUMMY_CATEGORIES.map((dumLabel) => (
+          {filteredLeaves.map((dumLabel) => (
             <button
               className={classNames({
                 [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === dumLabel,
@@ -145,7 +168,7 @@ const CategoryGroup = ({ categoryInfo }) => {
               }
             >
               {dumLabel}
-              <span>{formatCategoryCount(115)}</span>
+              <span>{formatCategoryCount(determineCount(dumLabel, markets))}</span>
             </button>
           ))}
         </>

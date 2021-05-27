@@ -95,11 +95,14 @@ const applyFiltersAndSort = (
     }
     if (
       primaryCategory === SPORTS &&
-      subCategories.length > 0 &&
-      market.categories[market.categories.length - 1].toLowerCase() !==
-        subCategories[subCategories.length - 1].toLowerCase()
+      subCategories.length > 0
     ) {
-      return false;
+      // subCategories is always a max 2 length, markets are 3.
+      const indexToCheck = subCategories.length === 1 ? 1 : market.categories.length - 1;
+      if (market.categories[indexToCheck] && market.categories[indexToCheck].toLowerCase() !==
+      subCategories[indexToCheck - 1].toLowerCase()) {
+        return false;
+      }
     }
     if (currency !== ALL_CURRENCIES) {
       if (!market.amm) {
