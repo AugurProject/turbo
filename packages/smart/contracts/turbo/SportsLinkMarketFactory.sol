@@ -232,7 +232,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         // The total is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the total is a whole number then make it a half point higher, to eliminate ties.
         // So 50 becomes 55 and 0 becomes 5.
-        if (_overUnderTotal >= 0 &&_overUnderTotal % 10 == 0) {
+        if (_overUnderTotal >= 0 && _overUnderTotal % 10 == 0) {
             _overUnderTotal += 5;
         }
 
