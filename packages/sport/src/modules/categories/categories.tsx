@@ -17,20 +17,18 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
   categoriesToPull.reduce((acc, category) => {
     const categoryInfo = pullFrom[category.toLowerCase()];
     acc[category] = categoryInfo;
-    // acc[category].subCategories = Object.entries(categoryInfo?.subOptions);
     return acc;
   }, {});
 
 export const CategoriesArea = () => {
   const {
     marketsViewSettings,
-    // actions: { updateMarketsViewSettings },
   } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
     <article className={Styles.CategoriesArea}>
-      <CategoriesAreaTitle text={primaryCategory} />
+      <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
       <NavigationArea selectedCategories={selectedCategories} />
     </article>
   );
@@ -45,7 +43,6 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
   } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const topLevel = handleCategoryMap(CATEGORIES_TO_CARE_ABOUT, CATEGORIES_ICON_MAP);
-  // console.log(topLevel, selectedCategories);
   const categoryGroups = !primaryCategory ? (
     <>
       {Object.entries(topLevel).map((categoryInfo) => (
@@ -123,6 +120,7 @@ const CategoryGroup = ({ categoryInfo }) => {
             })}
             onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
           >
+            {/* @ts-ignore */}
             {subInfo?.icon} {subLabel} <span>0</span>
           </button>
         ))}

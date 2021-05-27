@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .CategoriesArea {
   min-width: 210px;
@@ -11,6 +11,7 @@
     text-transform: uppercase;
     margin: 0;
     margin-bottom: @size-32;
+    white-space: nowrap;
   }
 
   > h3 {
@@ -24,7 +25,7 @@
   > button:not(:first-of-type) {
     margin-top: @size-12;
   }
-  
+
   > article {
     &:first-of-type {
       margin-top: @size-12;
@@ -48,18 +49,18 @@
 
   > span {
     .PrimaryBorderRadius;
-  
+
     background: var(--simple-light-bg);
     border: @size-1 solid var(--simple-tertiary-text);
     height: @size-20;
     width: @size-20;
     margin-right: @size-8;
-    
+
     > svg {
       height: @size-6;
       width: @size-10;
       transform: rotate(90deg);
-    
+
       > path {
         fill: var(--simple-primary-text);
       }
@@ -82,6 +83,7 @@
   height: @size-21;
   min-height: @size-21;
   max-height: @size-21;
+  margin-left: auto;
 }
 
 .CategoryGroup {
@@ -97,21 +99,26 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: @size-12;
     text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
 
-    > svg > path[fill],
-    > svg > g > path[fill] {
-      fill: var(--simple-primary-text);
-    }
+    > svg {
+      height: @size-16;
+      width: @size-16;
+      margin-right: @size-12;
 
-    > svg > line,
-    > svg > path[stroke],
-    > svg > g > path[stroke] {
-      stroke: var(--simple-primary-text);
+      > path[fill],
+      > g > path[fill] {
+        fill: var(--simple-primary-text);
+      }
+
+      > line,
+      > path[stroke],
+      > g > path[stroke] {
+        stroke: var(--simple-primary-text);
+      }
     }
 
     > span {
@@ -133,7 +140,7 @@
   }
 
   > button {
-    padding-left: @size-24;
+    padding-left: @size-30;
     color: var(--simple-secondary-text);
 
     &:hover {
