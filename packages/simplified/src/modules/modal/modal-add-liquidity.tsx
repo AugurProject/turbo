@@ -413,6 +413,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       setFees: false, // set false for version 0
       receiveTitle: "You'll receive",
       actionButtonText: "Add",
+      minimumAmount: "100",
       confirmButtonText: "confirm market liquidity",
       currencyName: `${chosenCash}`,
       footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
@@ -449,11 +450,17 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     },
   };
 
+  if (LIQUIDITY_STRINGS[modalType].minimumAmount && amount) {
+    if (new BN(amount).lt(new BN(LIQUIDITY_STRINGS[modalType].minimumAmount)))
+      buttonError = `$${LIQUIDITY_STRINGS[modalType].minimumAmount} Minimum deposit`
+  }
+
   const setPrices = (price, index) => {
     const newOutcomes = outcomes;
     newOutcomes[index].price = price;
     setOutcomes([...newOutcomes]);
   };
+
   return (
     <section
       className={classNames(Styles.ModalAddLiquidity, {
