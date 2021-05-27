@@ -8,10 +8,6 @@ export interface WalletInfo {
   iconName: string;
   description: string;
   href: string | null;
-  color: string;
-  primary?: true;
-  mobile?: boolean;
-  mobileOnly?: true;
 }
 
 export const MATIC_MUMBAI_RPCS = ['https://rpc-mumbai.maticvigil.com/', 'https://matic-mumbai.chainstacklabs.com', 'https://matic-testnet-archive-rpc.bwarelabs.com'];
@@ -44,24 +40,12 @@ export const MATIC_RPC_DATA = {
 }
 
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
-  INJECTED: {
-    connector: injected,
-    name: "Mobile Web3 provider",
-    iconName: "metamask.png",
-    description: "Injected web3 provider.",
-    href: null,
-    color: "#010101",
-    primary: true,
-    mobile: true,
-    mobileOnly: true,
-  },
   METAMASK: {
     connector: injected,
     name: "MetaMask",
     iconName: "metamask.png",
     description: "Easy-to-use browser extension.",
     href: null,
-    color: "#E8831D",
   },
   // WALLET_CONNECT: {
   //   connector: walletconnect,

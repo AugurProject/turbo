@@ -16,7 +16,7 @@ export function DataReducer(state, action) {
         (key) => !["userAddress", "claimedFees", "claimedProceeds"].includes(key)
       );
       const unKeyedUpdates = marketKeysFromTransactions.map((marketId) => {
-        const hasWinner = updatedState?.markets[marketId]?.winner !== undefined;
+        const hasWinner = updatedState?.markets[marketId]?.hasWinner;
         const marketTransactions = transactions[marketId];
         const amm = state[AMM_EXCHANGES][marketId];
         const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions, hasWinner);

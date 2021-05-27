@@ -43,7 +43,6 @@ export const getDefaultProvider = () => {
     defaultProvider = new Web3Provider(httpProvider, 'any');
   } 
   return defaultProvider;
-  
 }
 
 export const isAddress = (value) => {

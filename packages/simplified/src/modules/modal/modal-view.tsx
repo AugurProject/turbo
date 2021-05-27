@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import ModalAddLiquidity from './modal-add-liquidity';
 import { useHistory } from 'react-router';
 import Styles from './modal.styles.less';
-import { MODAL_ADD_LIQUIDITY, TURBO_NO_ACCESS_MODAL } from '../constants';
-import { Constants, Modals, useUserStore, useAppStatusStore } from '@augurproject/comps';
+import { MODAL_ADD_LIQUIDITY, MODAL_CONNECT_TO_POLYGON } from '../constants';
+import { Constants, Components, Modals, useUserStore, useAppStatusStore } from '@augurproject/comps';
+
 const { ModalConnectWallet } = Modals;
 
 function selectModal(
@@ -16,12 +17,6 @@ function selectModal(
   isMobile
 ) {
   switch (type) {
-    case TURBO_NO_ACCESS_MODAL:
-      return (
-        <section className={Styles.ModalView}>
-          <div className={Styles.FooterText}>Matic/Mainnet access is disabled for https://turbo.augur.sh</div>
-        </section>
-      );
     case MODAL_ADD_LIQUIDITY:
       return <ModalAddLiquidity {...modal} />;
     case Constants.MODAL_CONNECT_WALLET:
@@ -34,6 +29,14 @@ function selectModal(
           isMobile={isMobile}
           removeTransaction={removeTransaction}
         />
+      );
+    case MODAL_CONNECT_TO_POLYGON:
+      return (
+        <section className={Styles.ModalView}>
+          <div className={Styles.FooterText}>
+            Unable to connect to Polygon. <Components.ButtonComps.TextButton href="https://docs.matic.network/docs/develop/metamask/config-matic" text="Please change your network provider to Polygon." />
+          </div>
+        </section>
       );
     default:
       return <div />;

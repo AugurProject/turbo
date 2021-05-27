@@ -156,16 +156,16 @@ const ModalConnectWallet = ({
       setTimeout(() => {
         connector &&
           activate(connector, undefined, true)
+            .then(() => {
+              activate(connector);
+              closeModal();
+            })
             .catch((error) => {
               if (error instanceof UnsupportedChainIdError) {
                 activate(connector); // a little janky...can't use setError because the connector isn't set
               } else {
                 setPendingError(true);
               }
-            })
-            .then(() => {
-              activate(connector);
-              closeModal();
             });
       });
     },
@@ -192,7 +192,7 @@ const ModalConnectWallet = ({
   }, [setWalletView, active, error, connector, activePrevious, connectorPrevious]);
 
   const getWalletButtons = useCallback(() => {
-    const isMetamask = window["ethereum"] && window["ethereum"]["isMetaMask"];
+    const isMetamask = window["ethereum"] && window["ethereum"]["isMetaMask"] || false;
     const isWeb3 = window["web3"] || window["ethereum"];
     const walletButtons = Object.keys(SUPPORTED_WALLETS)
       .filter((wallet) => !(wallet === "PORTIS" && isSafari()))
@@ -208,55 +208,19 @@ const ModalConnectWallet = ({
           text: wallet.name,
         };
 
-        if (isMobile) {
-          if (
-            !window["web3"] &&
-            !window["ethereum"] &&
-            wallet.mobile &&
-            wallet.name !== SUPPORTED_WALLETS["METAMASK"].name &&
-            wallet.name !== SUPPORTED_WALLETS["INJECTED"].name
-            //&& wallet.connector !== portis
-          ) {
-            return commonWalletButtonProps;
-          } else {
-            if (wallet.name === "MetaMask" && !isMetamask) {
-              return null;
-            }
-
-            if (wallet.name === SUPPORTED_WALLETS["INJECTED"].name && !isWeb3) {
-              return null;
-            }
-
-            // if (wallet.mobile && wallet.connector !== portis) {
-            if (wallet.mobile) {
-              return commonWalletButtonProps;
-            }
-          }
-        } else {
-          if (wallet.connector === injected) {
-            if (!(window["web3"] || window["ethereum"])) {
-              if (wallet.name === SUPPORTED_WALLETS["METAMASK"].name) {
-                return {
-                  ...commonWalletButtonProps,
-                  text: "Install Metamask",
-                  href: "https://metamask.io/",
-                  icon: <img src={MetamaskIcon} alt={wallet.name} />,
-                };
-              } else {
-                return null;
-              }
-            } else if (
-              (wallet.name === SUPPORTED_WALLETS["METAMASK"].name && !isMetamask) ||
-              (wallet.name === SUPPORTED_WALLETS["INJECTED"].name && !isMetamask)
-            ) {
-              return null;
-            }
-          }
-          if (!wallet.mobileOnly) {
-            return commonWalletButtonProps;
-          }
+        if (isWeb3) {
+          return {
+            ...commonWalletButtonProps,
+            text: isMetamask ? commonWalletButtonProps.text : 'Injected Web3 provider'
+          };
         }
-        return null;
+
+        return {
+          ...commonWalletButtonProps,
+          text: "Install Metamask",
+          href: "https://metamask.io/",
+          icon: <img src={MetamaskIcon} alt={wallet.name} />,
+        };
       })
       .filter((element) => !!element);
     return walletButtons;
