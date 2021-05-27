@@ -21,18 +21,13 @@
     margin: 0;
   }
 
-  
+  > button:not(:first-of-type) {
+    margin-top: @size-12;
+  }
   
   > article {
     &:first-of-type {
-      margin-top: @size-16;
-    }
-
-    > h4 {
-      .text-12-semi-bold;
-  
-      color: var(--simple-primary-text);
-      text-transform: uppercase;
+      margin-top: @size-12;
     }
   }
 }
@@ -49,6 +44,7 @@
   text-transform: uppercase;
   // to actually get alignment right.
   line-height: @size-14;
+  cursor: pointer;
 
   > span {
     .PrimaryBorderRadius;
@@ -94,36 +90,54 @@
 
   > h4,
   > button {
+    .text-12-semi-bold;
+
+    background: transparent;
+    border: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: @size-12;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+
     > svg > path[fill],
     > svg > g > path[fill] {
-      fill: var(--simple-secondary-text);
+      fill: var(--simple-primary-text);
     }
 
     > svg > line,
     > svg > path[stroke],
     > svg > g > path[stroke] {
-      stroke: var(--simple-secondary-text);
+      stroke: var(--simple-primary-text);
     }
 
     > span {
       .NumberBox;
     }
 
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: @size-16;
-    text-transform: uppercase;
-    cursor: pointer;
+    &.SelectedCategory {
+      color: var(--simple-primary-text);
+
+      > span {
+        border-color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+      }
+    }
+  }
+
+  > h4 {
+    color: var(--simple-primary-text);
   }
 
   > button {
-    .text-12-semi-bold;
-
-    background: transparent;
-    border: 0;
     padding-left: @size-24;
-    white-space: nowrap;
+    color: var(--simple-secondary-text);
+
+    &:hover {
+      color: var(--simple-primary-text);
+    }
   }
 }

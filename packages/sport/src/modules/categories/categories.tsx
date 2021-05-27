@@ -1,5 +1,6 @@
 import React from "react";
 import Styles from "./categories.styles.less";
+import classNames from "classnames";
 import { Icons, Constants } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 
@@ -71,9 +72,11 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
         category={DEFAULT_BACK_OPTION}
         action={() => updateMarketsViewSettings(DEFAULT_CLEAR_ACTION)}
       />
-      {subCategories.map((category) => {
+      {subCategories.map((label, index) => {
+        const category = index ? subCategories[0] : primaryCategory;
+        const updatedSubCategories = index ? subCategories.filter((v) => v !== label) : [];
         const action = () =>
-          updateMarketsViewSettings({ primaryCategory, subCategories: subCategories.filter((v) => v !== category) });
+          updateMarketsViewSettings({ primaryCategory, subCategories: updatedSubCategories });
         return <RemoveCategoryOption {...{ category, action }} />;
       })}
       {categoryGroups}
@@ -89,17 +92,57 @@ const RemoveCategoryOption = ({ category = DEFAULT_BACK_OPTION, action = () => {
   </button>
 );
 
+const DUMMY_CATEGORIES = ["fake category", "placeholder", "stand in", "testing 123"];
 const CategoryGroup = ({ categoryInfo }) => {
+  const {
+    marketsViewSettings,
+    actions: { updateMarketsViewSettings },
+  } = useSportsStore();
+  const { primaryCategory, subCategories } = marketsViewSettings;
   const [label, info] = categoryInfo;
-  const subCategories = Object.entries(info?.subOptions);
-  console.log("catinfo", subCategories);
+  const subOptionList = Object.entries(info?.subOptions);
+  const subCategoryList = subCategories.length
+    ? subOptionList.filter(([optLabel, optInfo]) => subCategories[0] === optLabel)
+    : subOptionList;
   return (
     <article className={Styles.CategoryGroup}>
-      <h4>{label}<span>0</span></h4>
-      {subCategories.map(([label, info]) => (
-        <button onClick={() => console.log(label, info)}>{info?.icon} {label} <span>0</span></button>
-      ))}
+      {!subCategories.length && (
+        <h4
+          className={classNames({ [Styles.SelectedCategory]: primaryCategory === label })}
+          onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
+        >
+          {label}
+          <span>0</span>
+        </h4>
+      )}
+      {subCategories.length < 2 &&
+        subCategoryList.map(([subLabel, subInfo]) => (
+          <button
+            className={classNames({
+              [Styles.SelectedCategory]: subCategories.length > 0 && subCategories[0] === subLabel,
+            })}
+            onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
+          >
+            {subInfo?.icon} {subLabel} <span>0</span>
+          </button>
+        ))}
+      {!!subCategories.length && (
+        <>
+          {DUMMY_CATEGORIES.map((dumLabel) => (
+            <button
+              className={classNames({
+                [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === dumLabel,
+              })}
+              onClick={() =>
+                updateMarketsViewSettings({ primaryCategory: label, subCategories: [subCategories[0], dumLabel] })
+              }
+            >
+              {dumLabel}
+              <span>0</span>
+            </button>
+          ))}
+        </>
+      )}
     </article>
   );
 };
-
