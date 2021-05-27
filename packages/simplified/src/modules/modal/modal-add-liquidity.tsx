@@ -373,7 +373,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       receiveTitle: "You'll receive",
       actionButtonText: "Add",
       confirmButtonText: "confirm add",
-      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before winning outcome is known to prevent any loss of funds.`,
+      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
@@ -415,7 +415,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       actionButtonText: "Add",
       confirmButtonText: "confirm market liquidity",
       currencyName: `${chosenCash}`,
-      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before winning outcome is known to prevent any loss of funds.`,
+      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
