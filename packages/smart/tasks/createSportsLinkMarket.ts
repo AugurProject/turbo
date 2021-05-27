@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 
 import "hardhat/types/config";
-import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory } from "..";
+import { buildContractInterfaces, ContractInterfaces } from "..";
+import { SportsLinkMarketFactory } from "../typechain";
 import { makeSigner } from "./deploy";
 
 task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
@@ -24,7 +25,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const network = await ethers.provider.getNetwork();
       const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
       const { MarketFactories } = contracts;
-      const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+      const marketFactory = MarketFactories["sportsball"].MarketFactory as SportsLinkMarketFactory;
 
       const payload = await marketFactory.encodeCreation(
         eventId,
