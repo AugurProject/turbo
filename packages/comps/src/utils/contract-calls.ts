@@ -1180,7 +1180,7 @@ export const calculateAmmTotalVolApy = (
     ? null
     : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
 
-  const tradeFeePerDayInYear = hasWinner
+  const tradeFeePerDayInYear = hasWinner || !tradeFeeLiquidityPerDay
     ? undefined
     : tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
   return { apy: tradeFeePerDayInYear, vol: volumeTotalUSD, vol24hr: volumeTotalUSD24hr };
