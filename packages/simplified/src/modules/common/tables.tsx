@@ -25,6 +25,7 @@ import {
   Stores,
 } from "@augurproject/comps";
 import getUSDC from "../../utils/get-usdc";
+import { useSimplifiedStore } from "../stores/simplified";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner },
   PaginationComps: { sliceByPage, Pagination },
@@ -35,7 +36,7 @@ const {
 } = Components;
 const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
-const { timeSinceTimestamp } = DateUtils;
+const { timeSinceTimestamp, getMarketEndtimeFull } = DateUtils;
 const {
   MODAL_ADD_LIQUIDITY,
   USDC,
@@ -70,7 +71,8 @@ interface LiquidityTableProps {
 }
 
 const MarketTableHeader = ({
-  market: { title, description, marketId },
+  timeFormat,
+  market: { startTimestamp, title, description, marketId },
   ammExchange,
 }: {
   market: MarketInfo;
@@ -84,6 +86,7 @@ const MarketTableHeader = ({
       </span>
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
     </MarketLink>
+    {!!startTimestamp && <div>{getMarketEndtimeFull(startTimestamp, timeFormat)}</div>}
   </div>
 );
 
@@ -359,6 +362,11 @@ export const PositionTable = ({
     seenPositionWarnings,
     actions: { updateSeenPositionWarning },
   } = useUserStore();
+
+  const {
+    settings: { timeFormat },
+  } = useSimplifiedStore();
+
   const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
@@ -366,7 +374,7 @@ export const PositionTable = ({
   return (
     <>
       <div className={Styles.PositionTable}>
-        {!singleMarket && <MarketTableHeader market={market} ammExchange={ammExchange} />}
+        {!singleMarket && <MarketTableHeader timeFormat={timeFormat} market={market} ammExchange={ammExchange} />}
         <PositionHeader />
         {positions.length === 0 && <span>No positions to show</span>}
         {positions &&
@@ -484,6 +492,10 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
+
+  const {
+    settings: { timeFormat },
+  } = useSimplifiedStore();
   const { account } = useUserStore();
   const { transactions } = useDataStore();
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
@@ -491,7 +503,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityTable}>
-      {!singleMarket && <MarketTableHeader market={market} ammExchange={ammExchange} />}
+      {!singleMarket && <MarketTableHeader timeFormat={timeFormat} market={market} ammExchange={ammExchange} />}
       <LiquidityHeader />
       {!lpTokens && (
         <span>
