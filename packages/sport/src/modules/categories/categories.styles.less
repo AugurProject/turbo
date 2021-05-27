@@ -30,6 +30,10 @@
     &:first-of-type {
       margin-top: @size-12;
     }
+
+    &:last-of-type {
+      border-bottom: @size-1 solid var(--simple-border);
+    }
   }
 }
 
@@ -47,6 +51,14 @@
   line-height: @size-14;
   cursor: pointer;
 
+  &:hover {
+    color: var(--simple-primary-text);
+
+    > span {
+      border-color: var(--simple-primary-text);
+    }
+  }
+
   > span {
     .PrimaryBorderRadius;
 
@@ -55,11 +67,16 @@
     height: @size-20;
     width: @size-20;
     margin-right: @size-8;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
 
     > svg {
-      height: @size-6;
+      height: @size-16;
       width: @size-10;
       transform: rotate(90deg);
+      transform-origin: 50% 50%;
 
       > path {
         fill: var(--simple-primary-text);
@@ -77,6 +94,7 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+  line-height: @size-21;
   justify-content: center;
   padding: @size-4 @size-6;
   min-width: @size-25;
@@ -99,6 +117,7 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+    line-height: @size-21;
     margin-bottom: @size-12;
     text-transform: uppercase;
     cursor: pointer;
@@ -107,7 +126,7 @@
     > svg {
       height: @size-16;
       width: @size-16;
-      margin-right: @size-12;
+      margin-right: @size-8;
 
       > path[fill],
       > g > path[fill] {
@@ -125,6 +144,13 @@
       .NumberBox;
     }
 
+    &:hover {
+      > span {
+        border-color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+      }
+    }
+
     &.SelectedCategory {
       color: var(--simple-primary-text);
 
@@ -140,7 +166,6 @@
   }
 
   > button {
-    padding-left: @size-30;
     color: var(--simple-secondary-text);
 
     &:hover {

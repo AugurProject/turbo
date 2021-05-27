@@ -1,11 +1,12 @@
 import React from "react";
 import Styles from "./categories.styles.less";
 import classNames from "classnames";
-import { Icons, Constants } from "@augurproject/comps";
+import { Icons, Constants, Formatter } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 
 const { SPORTS, POLITICS } = Constants;
 const { CATEGORIES_ICON_MAP, SimpleChevron } = Icons;
+const { formatNumber } = Formatter;
 
 const CATEGORIES_TO_CARE_ABOUT = [SPORTS, POLITICS];
 const DEFAULT_SELECTED_CATEGORY_HEADING = "Popular Markets";
@@ -19,6 +20,14 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
     acc[category] = categoryInfo;
     return acc;
   }, {});
+
+const formatCategoryCount = (numCats) => formatNumber(numCats, {
+  decimals: 0,
+  decimalsRounded: 0,
+  zeroStyled: true,
+  blankZero: false,
+  bigUnitPostfix: true,
+}).full;
 
 export const CategoriesArea = () => {
   const {
@@ -109,7 +118,7 @@ const CategoryGroup = ({ categoryInfo }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>0</span>
+          <span>{formatCategoryCount(232100)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&
@@ -121,7 +130,7 @@ const CategoryGroup = ({ categoryInfo }) => {
             onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
           >
             {/* @ts-ignore */}
-            {subInfo?.icon} {subLabel} <span>0</span>
+            {subInfo?.icon} {subLabel} <span>{formatCategoryCount(1230)}</span>
           </button>
         ))}
       {!!subCategories.length && (
@@ -136,7 +145,7 @@ const CategoryGroup = ({ categoryInfo }) => {
               }
             >
               {dumLabel}
-              <span>0</span>
+              <span>{formatCategoryCount(115)}</span>
             </button>
           ))}
         </>
