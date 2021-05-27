@@ -23,8 +23,8 @@ describe("LinkFactory", () => {
   const eventId = 9001;
   const homeTeamId = 42;
   const awayTeamId = 1881;
-  const homeSpread = 4;
-  const overUnderTotal = 13;
+  const homeSpread = 40;
+  const overUnderTotal = 60;
   const sportId = 4;
 
   const now = BigNumber.from(Date.now()).div(1000);
@@ -110,6 +110,9 @@ describe("LinkFactory", () => {
     expect(await away.name()).to.equal("Away");
     expect(await home.symbol()).to.equal("Home");
     expect(await home.name()).to.equal("Home");
+
+    const details = await marketFactory.getMarketDetails(spreadMarketId);
+    expect(details.value0).to.equal(homeSpread + 5); // add 5 to avoid a round number
   });
 
   it("over under market is correct", async () => {
@@ -123,11 +126,14 @@ describe("LinkFactory", () => {
     expect(await under.name()).to.equal("Under");
     expect(await over.symbol()).to.equal("Over");
     expect(await over.name()).to.equal("Over");
+
+    const details = await marketFactory.getMarketDetails(overUnderMarketId);
+    expect(details.value0).to.equal(overUnderTotal + 5);
   });
 
   it("can resolve markets", async () => {
     await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 10, 2)
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 100, 20)
     );
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
@@ -137,7 +143,7 @@ describe("LinkFactory", () => {
     expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[2]); // home spread greater
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
-    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[2]); // under
+    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]); // over
   });
 
   it("encodes and decodes market creation payload", async () => {
@@ -152,7 +158,7 @@ describe("LinkFactory", () => {
       true,
       true
     );
-    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090004000d03000000");
+    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090028003c03000000");
 
     const decoded = await marketFactory.decodeCreation(payload);
     expect(decoded._eventId, "_eventId").to.equal(eventId);
