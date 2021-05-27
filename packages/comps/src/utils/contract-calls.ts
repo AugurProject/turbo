@@ -1313,6 +1313,12 @@ const marketFactories = () => {
   if (marketFactories?.sportsball2?.address) {
     marketAddresses.push(marketFactories.sportsball2.address);
   }
+  // TODO: add in MMA when there are real mma markets
+  /*
+  if (marketFactories?.mma?.address) {
+    marketAddresses.push(marketFactories.mma.address);
+  }
+  */
   return marketAddresses;
 };
 
