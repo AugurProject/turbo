@@ -319,6 +319,6 @@ export const SPORTS_MARKET_TYPE = {
 
 export const MMA_MARKET_TYPE = {
   MONEY_LINE: 0,
-  SPREAD: 1, // TODO: no spread markets for MMA when real market factory gets created  
+  SPREAD: 1, // TODO: no spread markets for MMA when real market factory gets created
   OVER_UNDER: 1,
 };

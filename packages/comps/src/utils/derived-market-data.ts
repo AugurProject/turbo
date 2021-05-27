@@ -12,7 +12,8 @@ export const getOutcomeName = (
   sportsMarketType: number,
   line: string
 ) => {
-  if (mmaDailiesSportIds.includes(sportId)) return MmaDailies.getOutcomeName(outcomeId, sportId, homeTeam, awayTeam, sportsMarketType, line);
+  if (mmaDailiesSportIds.includes(sportId))
+    return MmaDailies.getOutcomeName(outcomeId, sportId, homeTeam, awayTeam, sportsMarketType, line);
   return SimpleSportsDailies.getOutcomeName(outcomeId, sportId, homeTeam, awayTeam, sportsMarketType, line);
 };
 
@@ -23,7 +24,8 @@ export const getMarketTitle = (
   sportsMarketType: number,
   line: string
 ): { title: string; description: string } => {
-  if (mmaDailiesSportIds.includes(sportId)) return MmaDailies.getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
+  if (mmaDailiesSportIds.includes(sportId))
+    return MmaDailies.getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
   return SimpleSportsDailies.getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
 };
 
