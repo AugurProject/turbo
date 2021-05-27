@@ -52,6 +52,10 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                     "collateral",
                                     ts.factory.createStringLiteral(marketFactory.collateral)
                                   ),
+                                  context.factory.createPropertyAssignment(
+                                    "ammFactory",
+                                    ts.factory.createStringLiteral(marketFactory.ammFactory)
+                                  ),
                                 ])
                               );
                             }
