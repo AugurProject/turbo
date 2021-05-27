@@ -234,6 +234,10 @@
       fill: var(--simple-light-bg);
     }
 
+    &:focus {
+      outline: none;
+    }
+
     &:hover,
     &:hover:not(:disabled) {
       background-color: var(--simple-light-bg);
@@ -289,78 +293,30 @@
       }
     }
 
-    > ul {
-      display: flex;
-      flex-flow: row nowrap;
-      grid-gap: @size-8;
-      align-self: flex-end;
+    > ul.OddsSelection {
+      display: grid;
+      grid-gap: @size-6;
+      grid-template-columns: 1fr 1fr;
 
-      > li > div {
+      > li > button {
         .SimpleBorder;
+        .text-12-semi-bold;
 
-        background-color: transparent;
-        box-sizing: border-box;
-        display: flex;
-        flex-flow: row nowrap;
-        padding: @size-5 @size-8;
-        max-height: @size-25;
-        min-height: @size-25;
-        align-items: center;
-        justify-content: center;
+        height: @size-25;
+        padding: @size-4 @size-6;
+        background: transparent;
+        color: var(--simple-secondary-text);
+        text-transform: capitalize;
+        cursor: pointer;
 
-        > input[type="number"] {
-          -moz-appearance: textfield;
-          .text-12-semi-bold;
-
-          background: transparent;
-          color: var(--simple-secondary-text);
-          padding: 0;
-          text-align: right;
-          outline-style: none;
-          border: none;
-          min-width: @size-45;
-
-          &::-webkit-outer-spin-button,
-          &::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-          }
-
-          &:focus {
-            color: var(--simple-primary-text);
-            outline-style: none;
-            border: none;
-          }
-        }
-
-        > span {
-          .text-12-semi-bold;
-
+        &:hover {
           color: var(--simple-primary-text);
-          margin-left: @size-4;
         }
 
-        &[class*="Selected"] {
-          background-color: var(--simple-alternate-background);
-          border: @size-1 solid var(--simple-secondary-text);
-
-          > input {
-            color: var(--simple-primary-text);
-          }
-
-          &:not(:disabled):not(.Disabled) {
-            &:hover {
-              background-color: var(--simple-alternate-background);
-              border: @size-1 solid var(--simple-secondary-text);
-            }
-
-            &:focus {
-              background-color: var(--simple-alternate-background);
-            }
-
-            &:active {
-              background-color: var(--simple-alternate-background);
-            }
-          }
+        &.Active {
+          border-color: var(--simple-primary-text);
+          color: var(--simple-primary-text);
+          background: var(--simple-alternate-background);
         }
       }
     }

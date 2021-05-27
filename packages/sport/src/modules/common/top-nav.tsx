@@ -49,7 +49,7 @@ export const SettingsButton = () => {
       window.removeEventListener("click", handleWindowOnClick);
     };
   });
-
+  console.log(Constants.ODDS_TYPE, Object.keys(Constants.ODDS_TYPE));
   return (
     <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
       <button onClick={() => setOpened(!open)}>{GearIcon}</button>
@@ -70,13 +70,24 @@ export const SettingsButton = () => {
           </li>
           <li>
             <label htmlFor="oddsFormat">Odds Format</label>
-            <ToggleSwitch
+            <ul className={Styles.OddsSelection} id="oddsFormat">
+              <>
+              {Object.keys(Constants.ODDS_TYPE).map(oddType => (
+                  <li>
+                    <button className={classNames({[Styles.Active]: oddType === oddsFormat })} onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType})}>
+                      {oddType.toLowerCase()}
+                    </button>
+                </li>
+              ))}
+              </>
+            </ul>
+            {/* <ToggleSwitch
               id="oddsFormat"
               toggle={oddsFormat}
               setToggle={() => 
                 updateSettings({ oddsFormat: Constants.ODDS_TYPE.DECIMAL }, account)
               }
-            />
+            /> */}
           </li>
 
         </ul>
