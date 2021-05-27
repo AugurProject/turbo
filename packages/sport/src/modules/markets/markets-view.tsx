@@ -83,6 +83,7 @@ const applyFiltersAndSort = (
       return false;
     }
     if (
+      primaryCategory !== '' &&
       primaryCategory !== ALL_MARKETS &&
       primaryCategory !== OTHER &&
       market.categories[0].toLowerCase() !== primaryCategory.toLowerCase()
