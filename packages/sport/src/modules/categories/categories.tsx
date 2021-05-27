@@ -10,13 +10,13 @@ const CATEGORIES_TO_CARE_ABOUT = [SPORTS, POLITICS];
 const DEFAULT_SELECTED_CATEGORY_HEADING = "Popular Markets";
 const DEFAULT_NAVIGATION_LABEL = "Explore Categories";
 const DEFAULT_BACK_OPTION = "All Categories";
-const DEFAULT_CLEAR_ACTION = { subCategories: [], primaryCategory: null };
+const DEFAULT_CLEAR_ACTION = { subCategories: [], primaryCategory: "" };
 
 const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
   categoriesToPull.reduce((acc, category) => {
     const categoryInfo = pullFrom[category.toLowerCase()];
     acc[category] = categoryInfo;
-    acc[category].subCategories = Object.entries(categoryInfo?.subOptions);
+    // acc[category].subCategories = Object.entries(categoryInfo?.subOptions);
     return acc;
   }, {});
 
@@ -44,23 +44,41 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
   } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const topLevel = handleCategoryMap(CATEGORIES_TO_CARE_ABOUT, CATEGORIES_ICON_MAP);
-  console.log(topLevel, selectedCategories);
-  const content =
-    !primaryCategory ? (
+  // console.log(topLevel, selectedCategories);
+  const categoryGroups = !primaryCategory ? (
+    <>
+      {Object.entries(topLevel).map((categoryInfo) => (
+        <CategoryGroup {...{ categoryInfo }} />
+      ))}
+    </>
+  ) : (
+    <>
+      {Object.entries(topLevel)
+        .filter(([label, info]) => primaryCategory === label)
+        .map((categoryInfo) => (
+          <CategoryGroup {...{ categoryInfo }} />
+        ))}
+    </>
+  );
+  const content = !primaryCategory ? (
+    <>
       <h3>{DEFAULT_NAVIGATION_LABEL}</h3>
-    ) : (
-      <>
-        <RemoveCategoryOption
-          category={DEFAULT_BACK_OPTION}
-          action={() => updateMarketsViewSettings(DEFAULT_CLEAR_ACTION)}
-        />
-        {subCategories.map(category => {
-          const action = () =>
-            updateMarketsViewSettings({ primaryCategory, subCategories: subCategories.filter((v) => v !== category) });
-          return <RemoveCategoryOption {...{ category, action }} />;
-        })}
-      </>
-    );
+      {categoryGroups}
+    </>
+  ) : (
+    <>
+      <RemoveCategoryOption
+        category={DEFAULT_BACK_OPTION}
+        action={() => updateMarketsViewSettings(DEFAULT_CLEAR_ACTION)}
+      />
+      {subCategories.map((category) => {
+        const action = () =>
+          updateMarketsViewSettings({ primaryCategory, subCategories: subCategories.filter((v) => v !== category) });
+        return <RemoveCategoryOption {...{ category, action }} />;
+      })}
+      {categoryGroups}
+    </>
+  );
   return <>{content}</>;
 };
 
@@ -71,6 +89,17 @@ const RemoveCategoryOption = ({ category = DEFAULT_BACK_OPTION, action = () => {
   </button>
 );
 
-const CategoryGroup = ({ }) => {
-  
+const CategoryGroup = ({ categoryInfo }) => {
+  const [label, info] = categoryInfo;
+  const subCategories = Object.entries(info?.subOptions);
+  console.log("catinfo", subCategories);
+  return (
+    <article className={Styles.CategoryGroup}>
+      <h4>{label}<span>0</span></h4>
+      {subCategories.map(([label, info]) => (
+        <button onClick={() => console.log(label, info)}>{info?.icon} {label} <span>0</span></button>
+      ))}
+    </article>
+  );
 };
+

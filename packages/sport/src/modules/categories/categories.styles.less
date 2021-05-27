@@ -21,11 +21,19 @@
     margin: 0;
   }
 
-  h4 {
-    .text-12-semi-bold;
+  
+  
+  > article {
+    &:first-of-type {
+      margin-top: @size-16;
+    }
 
-    color: var(--simple-primary-text);
-    text-transform: uppercase;
+    > h4 {
+      .text-12-semi-bold;
+  
+      color: var(--simple-primary-text);
+      text-transform: uppercase;
+    }
   }
 }
 
@@ -60,5 +68,62 @@
         fill: var(--simple-primary-text);
       }
     }
+  }
+}
+
+.NumberBox {
+  .text-10;
+  .SimpleBorder;
+
+  background: var(--simple-light-bg);
+  color: var(--simple-secondary-text);
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: @size-4 @size-6;
+  min-width: @size-25;
+  height: @size-21;
+  min-height: @size-21;
+  max-height: @size-21;
+}
+
+.CategoryGroup {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > h4,
+  > button {
+    > svg > path[fill],
+    > svg > g > path[fill] {
+      fill: var(--simple-secondary-text);
+    }
+
+    > svg > line,
+    > svg > path[stroke],
+    > svg > g > path[stroke] {
+      stroke: var(--simple-secondary-text);
+    }
+
+    > span {
+      .NumberBox;
+    }
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: @size-16;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  > button {
+    .text-12-semi-bold;
+
+    background: transparent;
+    border: 0;
+    padding-left: @size-24;
+    white-space: nowrap;
   }
 }
