@@ -39,6 +39,7 @@ export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
 export const DUST_POSITION_AMOUNT: BigNumber = createBigNumber("0.0001");
 export const DUST_POSITION_AMOUNT_ON_CHAIN: BigNumber = DUST_POSITION_AMOUNT.times(createBigNumber(10).pow(18));
 export const DUST_LIQUIDITY_AMOUNT: BigNumber = createBigNumber("1");
+export const DUST_CLAIMABLE_AMOUNT_ON_CHAIN: BigNumber = DUST_LIQUIDITY_AMOUNT.times(createBigNumber(10).pow(18));
 
 export const ETHER: BigNumber = createBigNumber(10).pow(18);
 export const GWEI_CONVERSION: number = 1000000000;

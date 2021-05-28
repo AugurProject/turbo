@@ -277,6 +277,8 @@ export interface MarketInfo {
   numTicks: string;
   hasWinner: boolean;
   winner?: number;
+  winningShareToken: string;
+  winnerTotalSupply?: string;
 }
 
 export interface MarketOutcome {

@@ -51,7 +51,7 @@ import {
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
-  SPORTS_MARKET_TYPE,
+  DUST_CLAIMABLE_AMOUNT_ON_CHAIN,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1315,7 +1315,7 @@ const IgnoreFactoryMarkets = {};
 const addToMarketIdIgnoreList = (factoryAddress: string, marketIndex: string | number) => {
   const address = factoryAddress.toUpperCase();
   const factoryList = IgnoreFactoryMarkets[address];
-  if (factoryList && !factoryList.includes(marketId))
+  if (factoryList && !factoryList.includes(marketIndex))
     return (IgnoreFactoryMarkets[address] = IgnoreFactoryMarkets[address] = [
       ...IgnoreFactoryMarkets[address],
       Number(marketIndex),
@@ -1396,12 +1396,21 @@ export const getMarketInfos = async (
   );
 
   const { markets: filterMarkets, ammExchanges } = marketInfos;
-  Object.keys(ammExchanges).forEach(
-    (id) =>
-      !ammExchanges[id]?.hasLiquidity &&
-      filterMarkets[id]?.hasWinner &&
-      addToMarketIdIgnoreList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId)
-  );
+
+  // ignore markets wehre dust claimable shares are in the pool
+  Object.keys(ammExchanges).forEach((id) => {
+    if (!filterMarkets[id]?.hasWinner) return;
+
+    const dustClaimableShares = new BN(filterMarkets[id]?.winnerTotalSupply || "0").lt(DUST_CLAIMABLE_AMOUNT_ON_CHAIN);
+    if (!dustClaimableShares) return;
+
+    const poolBalances = ammExchanges[id]?.balancesRaw;
+    const winningtotal = new BN(filterMarkets[id]?.winnerTotalSupply || "1");
+    const winnerPoolAmount = new BN(poolBalances[Number(filterMarkets[id].winner)] || "0");
+    const poolHasAllWinningShares = winnerPoolAmount.div(winningtotal).gt(new BN(0.99));
+    if (poolHasAllWinningShares)
+      addToMarketIdIgnoreList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId);
+  });
 
   return marketInfos;
 };
@@ -1623,6 +1632,7 @@ const retrieveExchangeInfos = async (
   const GET_FEE = "getSwapFee";
   const GET_SHARE_FACTOR = "shareFactor";
   const GET_POOL_WEIGHTS = "getPoolWeights";
+  const TOTAL_SUPPLY = "totalSupply";
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
   const multicall = new Multicall({ ethersProvider: provider });
@@ -1730,15 +1740,37 @@ const retrieveExchangeInfos = async (
     },
   ];
 
+  const winningShareTokenSupply: ContractCallContext[] = Object.keys(marketInfos)
+    .filter((id) => marketInfos[id]?.hasWinner)
+    .map((id) => ({
+      reference: `${marketInfos[id].winningShareToken}-winner`,
+      contractAddress: marketInfos[id].winningShareToken,
+      abi: ERC20ABI,
+      calls: [
+        {
+          reference: `${marketInfos[id].winningShareToken}-winner`,
+          methodName: TOTAL_SUPPLY,
+          methodParameters: [],
+          context: {
+            index: marketInfos[id].turboId,
+            marketFactoryAddress,
+            winner: marketInfos[id].winningShareToken,
+          },
+        },
+      ],
+    }));
+
   const ratios = {};
   const balances = {};
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
+  const winnerTotalSupply = {};
   const marketsResult: ContractCallResults = await multicall.call([
     ...contractMarketsCall,
     ...shareFactorCalls,
     ...contractPricesCall,
+    ...winningShareTokenSupply,
   ]);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1757,6 +1789,8 @@ const retrieveExchangeInfos = async (
       balances[marketId] = data;
     } else if (method === GET_FEE) {
       fees[marketId] = data;
+    } else if (method === TOTAL_SUPPLY) {
+      winnerTotalSupply[marketId] = data;
     }
   }
 
@@ -1787,6 +1821,7 @@ const retrieveExchangeInfos = async (
     exchange.weights = weights ? weights.map((w) => String(w)) : [];
     exchange.liquidityUSD = getTotalLiquidity(outcomePrices, balancesRaw);
     market.amm = exchange;
+    market.winnerTotalSupply = winnerTotalSupply[marketId] ? String(winnerTotalSupply[marketId]) : "0";
   });
 
   return exchanges;
@@ -1834,6 +1869,7 @@ const decodeMarket = (marketData: any) => {
     numTicks: NUM_TICKS_STANDARD,
     totalStake: "0", //String(marketData["totalStake"]),
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
+    winningShareToken: winner,
     hasWinner,
     reportingState,
     creatorFeeRaw: String(onChainFee),
