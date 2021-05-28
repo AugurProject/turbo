@@ -198,7 +198,7 @@ describe("LinkFactory NoContest", () => {
   let marketFactory: SportsLinkMarketFactory;
 
   before(async () => {
-     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
@@ -225,8 +225,8 @@ describe("LinkFactory NoContest", () => {
       sportId
     );
 
-  await marketFactory.createMarket(
-    await marketFactory.encodeCreation(
+    await marketFactory.createMarket(
+      await marketFactory.encodeCreation(
         eventId,
         homeTeamId,
         awayTeamId,
