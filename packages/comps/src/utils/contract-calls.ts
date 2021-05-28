@@ -136,10 +136,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-            outcomeId: i,
-            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-          }))
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1071,17 +1071,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-        .times(sharesAddLiquidity.shares)
-        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+      .times(sharesAddLiquidity.shares)
+      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(outcomeLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(outcomeLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1310,17 +1310,17 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-// filter out resolved markets that were never traded on, this will reduce calls in multicall and speed up market data processing
-const IgnoreFactoryMarkets = {};
-const addToMarketIdIgnoreList = (factoryAddress: string, marketIndex: string | number) => {
+// stop updating resolved markets
+const IgnoreResolvedMarketsList = {};
+const addResolvedMarketToList = (factoryAddress: string, marketIndex: string | number) => {
   const address = factoryAddress.toUpperCase();
-  const factoryList = IgnoreFactoryMarkets[address];
+  const factoryList = IgnoreResolvedMarketsList[address];
   if (factoryList && !factoryList.includes(marketIndex))
-    return (IgnoreFactoryMarkets[address] = IgnoreFactoryMarkets[address] = [
-      ...IgnoreFactoryMarkets[address],
+    return (IgnoreResolvedMarketsList[address] = IgnoreResolvedMarketsList[address] = [
+      ...IgnoreResolvedMarketsList[address],
       Number(marketIndex),
     ]);
-  IgnoreFactoryMarkets[address] = [marketIndex];
+  IgnoreResolvedMarketsList[address] = [marketIndex];
 };
 
 const marketFactories = () => {
@@ -1341,7 +1341,8 @@ const marketFactories = () => {
 
 export const getMarketInfos = async (
   provider: Web3Provider,
-  markets: MarketInfos,
+  markets: MarketInfos = {},
+  ammExchanges: AmmExchanges = {},
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
@@ -1392,25 +1393,14 @@ export const getMarketInfos = async (
         blocknumber,
       };
     },
-    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+    { markets: markets, ammExchanges: ammExchanges, blocknumber: null, loading: false }
   );
 
-  const { markets: filterMarkets, ammExchanges } = marketInfos;
+  const { markets: filterMarkets } = marketInfos;
 
-  // ignore markets wehre dust claimable shares are in the pool
-  Object.keys(ammExchanges).forEach((id) => {
-    if (!filterMarkets[id]?.hasWinner) return;
-
-    const dustClaimableShares = new BN(filterMarkets[id]?.winnerTotalSupply || "0").lt(DUST_CLAIMABLE_AMOUNT_ON_CHAIN);
-    if (!dustClaimableShares) return;
-
-    const poolBalances = ammExchanges[id]?.balancesRaw;
-    const winningtotal = new BN(filterMarkets[id]?.winnerTotalSupply || "1");
-    const winnerPoolAmount = new BN(poolBalances[Number(filterMarkets[id].winner)] || "0");
-    const poolHasAllWinningShares = winnerPoolAmount.div(winningtotal).gt(new BN(0.99));
-    if (poolHasAllWinningShares)
-      addToMarketIdIgnoreList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId);
-  });
+  // only update open markets after initial load
+  Object.keys(filterMarkets).filter(id => filterMarkets[id]?.hasWinner).forEach(id =>
+    addResolvedMarketToList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId));
 
   return marketInfos;
 };
@@ -1424,7 +1414,7 @@ export const getFactoryMarketInfo = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
-  const ignoreMarketIndexes = IgnoreFactoryMarkets[factoryAddress.toUpperCase()] || [];
+  const ignoreMarketIndexes = IgnoreResolvedMarketsList[factoryAddress.toUpperCase()] || [];
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
@@ -1438,6 +1428,7 @@ export const getFactoryMarketInfo = async (
     account,
     factoryAddress
   );
+
   return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
 };
 
@@ -1458,6 +1449,7 @@ const retrieveMarkets = async (
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
   const multicall = new Multicall({ ethersProvider: provider });
+
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
