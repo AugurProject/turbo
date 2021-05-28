@@ -40,6 +40,28 @@ jobs:
 
     - run: yarn
     - run: yarn build
-    - run: yarn format
-    - run: yarn lint
-    - run: yarn test
+    # Graph deploy
+    - run: yarn smart generate:environments
+#    - run: yarn format
+#    - run: yarn lint
+#    - run: yarn test
+  abischanged:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      abis: ${{ steps.changes.outputs.abis }}
+    steps:
+      # Make sure we have some code to diff.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=abis::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep packages/smart/environments/matic.json | xargs)"
+  deploygraph:
+    runs-on: ubuntu-latest
+    needs: abischanged
+    if: ${{needs.abischanged.outputs.abis}}
+    steps:
+      - run: echo "This will run"
