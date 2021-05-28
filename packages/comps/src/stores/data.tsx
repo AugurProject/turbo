@@ -41,7 +41,7 @@ export const DataProvider = ({ children }: any) => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
         const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
-        return await getMarketInfos(provider, DataStore.get().markets, cashes, userAccount);
+        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount);
       } catch (e) {
         console.log("error getting market data", e);
       }
