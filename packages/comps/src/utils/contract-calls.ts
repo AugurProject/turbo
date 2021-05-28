@@ -1310,6 +1310,19 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+// filter out resolved markets that were never traded on, this will reduce calls in multicall and speed up market data processing
+const IgnoreFactoryMarkets = {};
+const addToMarketIdIgnoreList = (factoryAddress: string, marketIndex: string | number) => {
+  const address = factoryAddress.toUpperCase();
+  const factoryList = IgnoreFactoryMarkets[address];
+  if (factoryList && !factoryList.includes(marketId))
+    return (IgnoreFactoryMarkets[address] = IgnoreFactoryMarkets[address] = [
+      ...IgnoreFactoryMarkets[address],
+      Number(marketIndex),
+    ]);
+  IgnoreFactoryMarkets[address] = [marketIndex];
+};
+
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
   const marketAddresses = [marketFactories.sportsball.address];
@@ -1333,6 +1346,7 @@ export const getMarketInfos = async (
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
+
   const allMarkets = await Promise.all(
     factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address))
   );
@@ -1362,6 +1376,7 @@ export const getMarketInfos = async (
         };
       }
       const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
+
       const newMarkets = Object.keys(marketInfos).reduce(
         (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
         {}
@@ -1380,6 +1395,14 @@ export const getMarketInfos = async (
     { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
   );
 
+  const { markets: filterMarkets, ammExchanges } = marketInfos;
+  Object.keys(ammExchanges).forEach(
+    (id) =>
+      !ammExchanges[id]?.hasLiquidity &&
+      filterMarkets[id]?.hasWinner &&
+      addToMarketIdIgnoreList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId)
+  );
+
   return marketInfos;
 };
 
@@ -1392,10 +1415,11 @@ export const getFactoryMarketInfo = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
+  const ignoreMarketIndexes = IgnoreFactoryMarkets[factoryAddress.toUpperCase()] || [];
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    indexes.push(i);
+    if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
