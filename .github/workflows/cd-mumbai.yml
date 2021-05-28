@@ -52,17 +52,40 @@ jobs:
 
       # Graph deploy
       - run: yarn smart generate:environments
-      - run: yarn subgraph prepare:abis
-      - run: yarn subgraph prepare:mumbai
-      - run: yarn subgraph codegen
-      - run: yarn subgraph deploy:mumbai --access-token ${{ secrets.GRAPH_TOKEN }}
+#      - run: yarn subgraph prepare:abis
+#      - run: yarn subgraph prepare:mumbai
+#      - run: yarn subgraph codegen
+#      - run: yarn subgraph deploy:mumbai --access-token ${{ secrets.GRAPH_TOKEN }}
 
-      - name: Deploy to AWS
-        uses: onramper/action-deploy-aws-static-site@v1
-        with:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          domain: turbo.augur.sh
-          publish_dir: packages/simplified/build
+#      - name: Deploy to AWS
+#        uses: onramper/action-deploy-aws-static-site@v1
+#        with:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          domain: turbo.augur.sh
+#          publish_dir: packages/simplified/build
+  abischanged:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      abis: ${{ steps.changes.outputs.abis }}
+    steps:
+      # Make sure we have some code to diff.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=abis::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep packages/smart/environments/matic.json | xargs)"
+  deploygraph:
+    runs-on: ubuntu-latest
+    needs: abischanged
+    if: ${{needs.abischanged.outputs.abis}}
+    steps:
+      - run: echo "This will run"
+#      - run: yarn subgraph prepare:matic
+#      - run: yarn subgraph codegen
+#      - run: yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
 
 
