@@ -30,6 +30,10 @@ jobs:
       - run: yarn
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") yarn build
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" HIDE_FAUCET="true" yarn simp build
+
+      - run: yarn smart generate:environments
+      - run: yarn subgraph prepare:abis
+
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
@@ -48,3 +52,26 @@ jobs:
             release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  abischanged:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      abis: ${{ steps.changes.outputs.abis }}
+    steps:
+      # Make sure we have some code to diff.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=abis::$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep .ts$ | xargs)"
+  deploygraph:
+    runs-on: ubuntu-latest
+    # require the first job to have ran
+    needs: abischanged
+    # only run there are changed files
+    if: ${{needs.changedfiles.outputs.ts}}
+    steps:
+      - name: echo changed files
+        run: echo ${{needs.changedfiles.outputs.ts}}
