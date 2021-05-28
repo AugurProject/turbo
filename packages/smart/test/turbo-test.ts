@@ -30,8 +30,9 @@ describe("Turbo", () => {
     [signer] = await ethers.getSigners();
   });
 
-  const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
-  const outcomeNames = ["No Contest", "All", "Many", "Few", "None"];
+  const outcomeSymbols = ["NO CONTEST", "MANY", "FEW"];
+  const outcomeNames = ["No Contest", "Many", "Few"];
+  const [OUTCOME_NO_CONTEST, OUTCOME_MANY, OUTCOME_FEW] = [0, 1, 2];
   const basis = BigNumber.from(10).pow(18);
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
@@ -44,10 +45,8 @@ describe("Turbo", () => {
   let marketFactory: TrustedMarketFactory;
   let marketId: BigNumber;
   let noContest: OwnedERC20;
-  let all: OwnedERC20;
   let many: OwnedERC20;
   let few: OwnedERC20;
-  let none: OwnedERC20;
   let bFactory: BFactory;
   let ammFactory: AMMFactory;
   let pool: BPool;
@@ -88,17 +87,13 @@ describe("Turbo", () => {
     expect(marketId).to.equal(1);
 
     const market = await marketFactory.getMarket(marketId);
-    [noContest, all, many, few, none] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
+    [noContest, many, few] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
     expect(await noContest.symbol()).to.equal("NO CONTEST");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await all.symbol()).to.equal("ALL");
-    expect(await all.name()).to.equal("All");
     expect(await many.symbol()).to.equal("MANY");
     expect(await many.name()).to.equal("Many");
     expect(await few.symbol()).to.equal("FEW");
     expect(await few.name()).to.equal("Few");
-    expect(await none.symbol()).to.equal("NONE");
-    expect(await none.name()).to.equal("None");
   });
 
   it("can mint sets", async () => {
@@ -111,10 +106,8 @@ describe("Turbo", () => {
 
     expect(await collateral.balanceOf(signer.address)).to.equal(0);
     expect(await noContest.balanceOf(signer.address)).to.equal(setsToMint);
-    expect(await all.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await many.balanceOf(signer.address)).to.equal(setsToMint);
     expect(await few.balanceOf(signer.address)).to.equal(setsToMint);
-    expect(await none.balanceOf(signer.address)).to.equal(setsToMint);
   });
 
   it("can burn sets", async () => {
@@ -125,10 +118,8 @@ describe("Turbo", () => {
 
     expect(await collateral.balanceOf(signer.address)).to.equal(9);
     expect(await noContest.balanceOf(signer.address)).to.equal(setsLeft);
-    expect(await all.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await many.balanceOf(signer.address)).to.equal(setsLeft);
     expect(await few.balanceOf(signer.address)).to.equal(setsLeft);
-    expect(await none.balanceOf(signer.address)).to.equal(setsLeft);
   });
 
   it("can make an AMM", async () => {
@@ -164,14 +155,14 @@ describe("Turbo", () => {
   });
 
   it("can buy shares from the AMM", async () => {
-    const outcome = 1; // outcome "All"
+    const outcome = OUTCOME_MANY; // outcome "All"
     const collateralIn = usdcBasis; // 1 USDC
 
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
-    expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91).add(1000)); // minted 100 sets, burned 9
+    expect(await many.balanceOf(signer.address)).to.equal(shareFactor.mul(91).add(1000)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
-    expect(await all.balanceOf(signer.address)).to.equal("4112930879157689821"); // hardcoded from observation
+    expect(await many.balanceOf(signer.address)).to.equal("2024275856756886262"); // hardcoded from observation
   });
 
   it("can see the outcome ratios in the AMM", async () => {
@@ -179,10 +170,8 @@ describe("Turbo", () => {
 
     const expectedRatios = [
       BigNumber.from(10).pow(18).toString(), // first is always 10^18
-      "0xa9c295a09ba67ffb",
-      "0xb01d32efab1c052f",
-      "0xb01d32efab1c052f",
-      "0xa911ca7fae814ca8",
+      "0x0159e0451650726046",
+      "0x01592efd6f599d51d7",
     ].map(BigNumber.from);
     ratios.forEach((price, index) => {
       expect(price.toHexString()).to.equal(expectedRatios[index].toHexString());
@@ -191,12 +180,12 @@ describe("Turbo", () => {
 
   it("can read market from factory", async () => {
     const market = await marketFactory.callStatic.getMarket(marketId);
-    expect(market.shareTokens.length).to.equal(5);
+    expect(market.shareTokens.length).to.equal(3);
   });
 
   it("can read market balances", async () => {
     const balances = await ammFactory.getPoolBalances(marketFactory.address, marketId);
-    expect(balances.length).to.equal(5);
+    expect(balances.length).to.equal(3);
   });
 
   it("can claim winnings", async () => {
@@ -204,21 +193,17 @@ describe("Turbo", () => {
     // can burn non-winning shares
     const setsLeft = await noContest.balanceOf(signer.address);
     await noContest.transfer(DEAD_ADDRESS, setsLeft);
-    await many.transfer(DEAD_ADDRESS, setsLeft);
     await few.transfer(DEAD_ADDRESS, setsLeft);
-    await none.transfer(DEAD_ADDRESS, setsLeft);
 
     expect(await collateral.balanceOf(signer.address)).to.equal(9); // previously burnt sets
 
     await marketFactory.claimWinnings(marketId, signer.address);
 
-    const expectedWinnings = BigNumber.from("0x3e71d7"); // hardcoded from observation
+    const expectedWinnings = BigNumber.from("0x1ebbd3"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await noContest.balanceOf(signer.address)).to.equal(0);
-    expect(await all.balanceOf(signer.address)).to.equal(0);
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
-    expect(await none.balanceOf(signer.address)).to.equal(0);
   });
 
   it("can create a test balancer pool", async () => {

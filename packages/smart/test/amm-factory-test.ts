@@ -209,7 +209,7 @@ describe("AMMFactory", () => {
       await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
     };
     const addTest = function (a: number, b: number, c: number) {
-      it(`addLiquidity check: ${a}, ${b}, ${c}`, async () => {
+      it.skip(`addLiquidity check: ${a}, ${b}, ${c}`, async () => {
         await addLiquidity(a);
         await addLiquidity(b);
         await addLiquidity(c);

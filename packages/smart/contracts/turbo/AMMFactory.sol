@@ -54,14 +54,18 @@ contract AMMFactory is BNum {
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
         uint256 _initialLiquidity,
-        uint256[] memory _weights,
+        uint256[] memory _weights, // ignored. delete when ready for ABI change
         address _lpTokenRecipient
     ) public returns (uint256) {
         require(pools[address(_marketFactory)][_marketId] == BPool(0), "Pool already created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        require(_weights.length == _market.shareTokens.length, "Must have one weight for each share token");
+        require(_market.shareTokens.length == 3, "Only markets with exactly 3 outcomes are supported");
+        uint256[] memory _weights = new uint256[](3);
+        _weights[0] = 1e18; // 2%
+        _weights[1] = 24.5e18; // 49%
+        _weights[2] = 24.5e18; // 49%
 
         //  Turn collateral into shares
         IERC20Full _collateral = _marketFactory.collateral();
