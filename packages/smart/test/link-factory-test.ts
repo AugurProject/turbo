@@ -185,3 +185,76 @@ describe("LinkFactory", () => {
     expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
   });
 });
+
+describe("LinkFactory NoContest", () => {
+  let signer: SignerWithAddress;
+
+  before(async () => {
+    [signer] = await ethers.getSigners();
+  });
+
+  const eventId = 9001;
+
+  let marketFactory: SportsLinkMarketFactory;
+
+  before(async () => {
+     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    const smallFee = BigNumber.from(10).pow(16);
+    const shareFactor = calcShareFactor(await collateral.decimals());
+
+    const now = BigNumber.from(Date.now()).div(1000);
+    const estimatedStartTime = now.add(60 * 60 * 24); // one day
+    const homeTeamId = 42;
+    const awayTeamId = 1881;
+    const homeSpread = 40;
+    const overUnderTotal = 60;
+    const sportId = 4;
+
+    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      shareFactor,
+      feePot.address,
+      smallFee,
+      smallFee,
+      signer.address,
+      smallFee,
+      signer.address, // pretending the deployer is a link node for testing purposes
+      sportId
+    );
+
+  await marketFactory.createMarket(
+    await marketFactory.encodeCreation(
+        eventId,
+        homeTeamId,
+        awayTeamId,
+        estimatedStartTime,
+        homeSpread,
+        overUnderTotal,
+        true,
+        true
+      )
+    );
+  });
+
+  it("can resolve markets as No Contest", async () => {
+    await marketFactory.trustedResolveMarkets(
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postpones, 0, 0)
+    );
+
+    const headToHeadMarketId = 1;
+    const spreadMarketId = 2;
+    const overUnderMarketId = 3;
+
+    const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
+    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[0]); // No Contest
+
+    const spreadMarket = await marketFactory.getMarket(spreadMarketId);
+    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[0]); // No Contest
+
+    const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
+    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[0]); // No Contest
+  });
+});
