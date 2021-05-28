@@ -76,14 +76,14 @@ export const addresses: AddressMapping = {
   80001: {
     reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
-    ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",
+    ammFactory: "0x0aF3b660b9BECc8B74C33965e2622502427E54A9",
     marketFactories: {
-      sportsball: {
+      sportsball2: {
         type: "SportsLink",
-        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
+        address: "0x8DeDaaE7e1feF1F8BB0001eDD3700F86DcfaDCbf",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
       },
-      sportsball2: {
+      sportsball: {
         type: "SportsLink",
         address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
@@ -94,6 +94,6 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
       },
     },
-    info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
+    info: { uploadBlockNumber: 14405271, graphName: "mumbai" },
   },
 };
