@@ -261,7 +261,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         // resolve markets as No Contest
         if (EventStatus(_eventStatus) != EventStatus.Final) {
             for (uint256 i = 0; i < _ids.length; i++) {
-                uint256 _id = _ids[1];
+                uint256 _id = _ids[i];
                 if (_id == 0) continue; // skip non-created markets
                 markets[_id].winner = markets[_id].shareTokens[0];
             }
