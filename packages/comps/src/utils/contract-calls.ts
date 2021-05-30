@@ -1326,9 +1326,23 @@ const marketFactories = () => {
   return marketAddresses;
 };
 
+// stop updating resolved markets
+const IgnoreResolvedMarketsList = {};
+const addResolvedMarketToList = (factoryAddress: string, marketIndex: string | number) => {
+  const address = factoryAddress.toUpperCase();
+  const factoryList = IgnoreResolvedMarketsList[address];
+  if (factoryList && !factoryList.includes(marketIndex))
+    return (IgnoreResolvedMarketsList[address] = IgnoreResolvedMarketsList[address] = [
+      ...IgnoreResolvedMarketsList[address],
+      Number(marketIndex),
+    ]);
+  IgnoreResolvedMarketsList[address] = [marketIndex];
+};
+
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
@@ -1377,8 +1391,15 @@ export const getMarketInfos = async (
         blocknumber,
       };
     },
-    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+    { markets, ammExchanges, blocknumber: null, loading: false }
   );
+
+  const { markets: filterMarkets } = marketInfos;
+
+  // only update open markets after initial load
+  Object.keys(filterMarkets)
+    .filter((id) => filterMarkets[id]?.hasWinner)
+    .forEach((id) => addResolvedMarketToList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId));
 
   return marketInfos;
 };
@@ -1395,7 +1416,7 @@ export const getFactoryMarketInfo = async (
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    indexes.push(i);
+    if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
