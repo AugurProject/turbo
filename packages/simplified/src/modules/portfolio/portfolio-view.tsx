@@ -16,6 +16,7 @@ import {
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 import { Cash } from '@augurproject/comps/build/types';
 import BigNumber from 'bignumber.js';
+import { ZERO } from 'modules/constants';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -33,21 +34,15 @@ const { UsdIcon } = Icons;
 const { PrimaryButton } = ButtonComps;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash): {total: BigNumber, ids: string[], address: string}[] => {
-  let total = createBigNumber('0');
   const factories = claimbleMarketsPerCash.reduce(
     (p, {
       ammExchange: { turboId, marketFactoryAddress },
       claimableWinnings: { claimableBalance },
     }) => {
-      const factory = p[marketFactoryAddress] || {};
-      if (factory) {
-        factory.total = total.plus(createBigNumber(claimableBalance));
-        factory.ids.push(turboId);
-      } else {
-        factory.total = createBigNumber(claimableBalance);
-        factory.ids = [turboId];
-        factory.address = marketFactoryAddress;
-      }
+      const factory = p[marketFactoryAddress] || { total: ZERO, ids: []};
+      factory.total = factory.total.plus(createBigNumber(claimableBalance));
+      factory.ids.push(turboId);
+      factory.address = marketFactoryAddress;
       return {...p, [marketFactoryAddress]: factory}
     }, {}
   );
