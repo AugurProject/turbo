@@ -1416,7 +1416,7 @@ export const getFactoryMarketInfo = async (
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
+    if (!IgnoreResolvedMarketsList.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
