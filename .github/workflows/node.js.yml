@@ -40,6 +40,7 @@ jobs:
 
     - run: yarn
     - run: yarn build
+    - run: yarn smart generate:environments
 #    - run: yarn format
 #    - run: yarn lint
 #    - run: yarn test
@@ -52,8 +53,6 @@ jobs:
       # Make sure we have some code to diff.
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Generate new ABIs
-        run: yarn smart generate:environments
       - name: Get changed files
         id: changes
         # Set outputs using the command.
