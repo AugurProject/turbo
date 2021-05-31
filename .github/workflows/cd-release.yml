@@ -37,12 +37,12 @@ jobs:
         with:
          files: packages/smart/environments/matic.json
       - name: Redeploy the subgraph when the environment changes
-       if: steps.verify-changed-files.outputs.files_changed == 'true'
-       run: |
-         yarn subgraph prepare:abis
-         yarn subgraph prepare:matic
-         yarn subgraph codegen
-         yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          yarn subgraph prepare:abis
+          yarn subgraph prepare:matic
+          yarn subgraph codegen
+          yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
