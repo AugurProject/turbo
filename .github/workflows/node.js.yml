@@ -41,6 +41,13 @@ jobs:
     - run: yarn
     - run: yarn build
     - run: yarn smart generate:environments
+    - run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add packages/smart/environments/*
+        git commit -m "Generated environments"
+        git push
+#      packages/smart/environments/*
 #    - run: yarn format
 #    - run: yarn lint
 #    - run: yarn test
