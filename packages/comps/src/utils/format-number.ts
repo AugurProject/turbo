@@ -18,6 +18,7 @@ import {
   BILLION,
   TRILLION,
   DUST_LIQUIDITY_AMOUNT,
+  APY_CUTOFF_AMOUNT,
 } from "./constants";
 import addCommas from "./add-commas-to-number";
 import getPrecision from "./get-number-precision";
@@ -123,6 +124,20 @@ export function formatPercent(num: NumStrBigNumber, opts: FormattedNumberOptions
     decimals: 2,
     decimalsRounded: 0,
     denomination: (v) => `${v}%`,
+    positiveSign: false,
+    zeroStyled: false,
+    blankZero: false,
+    bigUnitPostfix: false,
+    ...opts,
+  });
+}
+
+export function formatApy(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+  return formatNumber(num, {
+    decimals: 2,
+    decimalsRounded: 0,
+    denomination: (v) =>
+      createBigNumber(v.replaceAll(",", "")).gt(APY_CUTOFF_AMOUNT) ? `>${APY_CUTOFF_AMOUNT}%` : `${v}%`,
     positiveSign: false,
     zeroStyled: false,
     blankZero: false,
