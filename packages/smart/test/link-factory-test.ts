@@ -8,7 +8,7 @@ import {
   FeePot__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
-  OwnedERC20__factory,
+  OwnedERC20__factory, FeePot
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, SportsLinkEventStatus } from "../src";
@@ -201,20 +201,24 @@ describe("LinkFactory NoContest", () => {
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
+  let collateral: Cash;
+  let feePot: FeePot;
   let marketFactory: SportsLinkMarketFactory;
 
   before(async () => {
-    const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    const smallFee = BigNumber.from(10).pow(16);
-    const shareFactor = calcShareFactor(await collateral.decimals());
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+  });
 
+  beforeEach(async () => {
     const homeTeamId = 42;
     const awayTeamId = 1881;
     const homeSpread = 40;
     const overUnderTotal = 60;
     const sportId = 4;
+    const shareFactor = calcShareFactor(await collateral.decimals());
+    const smallFee = BigNumber.from(10).pow(16);
 
     marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
       signer.address,
@@ -241,10 +245,29 @@ describe("LinkFactory NoContest", () => {
     );
   });
 
-  it("can resolve markets as No Contest", async () => {
-    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postpones, 0, 0, estimatedStartTime);
+  it("can resolve POSTPONED markets as No Contest", async () => {
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postponed, 0, 0, estimatedStartTime);
     await network.provider.send("evm_increaseTime", [resolutionBuffer]);
-    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postpones, 0, 0, estimatedStartTime);
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postponed, 0, 0, estimatedStartTime);
+
+    const headToHeadMarketId = 1;
+    const spreadMarketId = 2;
+    const overUnderMarketId = 3;
+
+    const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
+    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[0]); // No Contest
+
+    const spreadMarket = await marketFactory.getMarket(spreadMarketId);
+    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[0]); // No Contest
+
+    const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
+    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[0]); // No Contest
+  });
+
+  it("can resolve changed-date markets as No Contest", async () => {
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, 0, 0, estimatedStartTime);
+    await network.provider.send("evm_increaseTime", [resolutionBuffer]);
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, 0, 0, estimatedStartTime.add(1));
 
     const headToHeadMarketId = 1;
     const spreadMarketId = 2;
