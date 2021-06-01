@@ -1356,19 +1356,21 @@ export const getMarketInfos = async (
     (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }, i) => {
       // only take liquidity markets from first batch
       if (i === 0) {
-        const hasLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
-          (p, id) => (exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
+        const noLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
+          (p, id) => (!exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
           []
         );
         const liquidityMarkets = Object.keys(marketInfos).reduce(
           (p, id) =>
-            hasLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
+            !noLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
           {}
         );
         const liquidityExchanges = Object.keys(exchanges).reduce(
-          (p, id) => (hasLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+          (p, id) => (!noLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
           {}
         );
+        // ignore non liquid markets from old market factory
+        noLiquidityMarketIndexes.forEach((id) => addResolvedMarketToList(exchanges[id]?.marketFactoryAddress, id));
         return {
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
@@ -1419,7 +1421,7 @@ export const getFactoryMarketInfo = async (
   for (let i = 1; i < numMarkets; i++) {
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
-
+  console.log('indexes', indexes.length, 'ignore', ignoreMarketIndexes.length);
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
     indexes,
     cashes,
