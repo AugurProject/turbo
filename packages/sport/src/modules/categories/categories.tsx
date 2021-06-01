@@ -24,7 +24,7 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
 const determineCount = (category, markets) =>
   Object.entries(markets).filter(([marketId, marketInfo]) =>
     // @ts-ignore
-    marketInfo?.categories.map((c) => c.toLowerCase()).includes(category)
+    marketInfo?.categories.some(c => c.toLowerCase() === category.toLowerCase())
   ).length;
 
 const formatCategoryCount = (numCats) =>

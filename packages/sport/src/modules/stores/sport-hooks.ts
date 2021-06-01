@@ -2,14 +2,14 @@ import { useReducer } from "react";
 import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS } from "./constants";
 import { windowRef, Stores } from "@augurproject/comps";
 const {
-  Utils: { dispatchMiddleware, getSavedUserInfo },
+  Utils: { dispatchMiddleware },
 } = Stores;
 const { UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
 
 const { SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
-  const userData = getSavedUserInfo(userAccount);
+  // const userData = getSavedUserInfo(userAccount);
   // don't set settings, conflicts with simp
   return;
   /*
