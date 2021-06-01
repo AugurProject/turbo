@@ -113,7 +113,7 @@ const applyFiltersAndSort = (
         return false;
     }
 
-    // Hide these markets for now to account for bug fix 
+    // Hide these markets for now to account for bug fix
     if(market.sportsMarketType === 2 || market.sportsMarketType === 1) {
       if (market.reportingState === MARKET_STATUS.FINALIZED) {
         return transactions[market.marketId]?.volumeTotalUSD > 0;
@@ -148,7 +148,16 @@ const applyFiltersAndSort = (
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
 
-  setFilteredMarkets(updatedFilteredMarkets);
+  // Move games where the start time is < current time
+  const isExpired = (market) => {
+    var startTime = market.startTimestamp * 1000;
+    var twentyFourHoursLater = startTime + 86400000;
+    return Date.now() >= twentyFourHoursLater;
+  }
+
+  const expired = updatedFilteredMarkets.filter(m => isExpired(m));
+  const scheduled = updatedFilteredMarkets.filter(m => !isExpired(m));
+  setFilteredMarkets([...scheduled, ...expired]);
 };
 
 const MarketsView = () => {
