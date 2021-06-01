@@ -49,7 +49,6 @@ export const SettingsButton = () => {
       window.removeEventListener("click", handleWindowOnClick);
     };
   });
-
   return (
     <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
       <button onClick={() => setOpened(!open)}>{GearIcon}</button>
@@ -63,22 +62,28 @@ export const SettingsButton = () => {
             <ToggleSwitch
               id="switchTime"
               toggle={is24hour}
-              setToggle={() => 
+              setToggle={() =>
                 updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
               }
             />
           </li>
           <li>
             <label htmlFor="oddsFormat">Odds Format</label>
-            <ToggleSwitch
-              id="oddsFormat"
-              toggle={oddsFormat}
-              setToggle={() => 
-                updateSettings({ oddsFormat: Constants.ODDS_TYPE.DECIMAL }, account)
-              }
-            />
+            <ul className={Styles.OddsSelection} id="oddsFormat">
+              <>
+                {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
+                  <li>
+                    <button
+                      className={classNames({ [Styles.Active]: oddType === oddsFormat })}
+                      onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType })}
+                    >
+                      {oddType.toLowerCase()}
+                    </button>
+                  </li>
+                ))}
+              </>
+            </ul>
           </li>
-
         </ul>
       )}
     </div>
@@ -94,9 +99,9 @@ export const TopNav = () => {
     isMobile,
     actions: { setModal },
   } = useAppStatusStore();
-   const {
-     actions: { setSidebar },
-   } = useSportsStore();
+  const {
+    actions: { setSidebar },
+  } = useSportsStore();
   const {
     account,
     loginAccount,
@@ -130,9 +135,13 @@ export const TopNav = () => {
     }
   };
 
-  const usdValueUSDC = useMemo(() => formatCash(balances?.USDC?.usdValue || 0, USDC, {
-    bigUnitPostfix: true,
-  }).full, [balances?.USDC?.usdValue]);
+  const usdValueUSDC = useMemo(
+    () =>
+      formatCash(balances?.USDC?.usdValue || 0, USDC, {
+        bigUnitPostfix: true,
+      }).full,
+    [balances?.USDC?.usdValue]
+  );
 
   return (
     <section
@@ -142,6 +151,27 @@ export const TopNav = () => {
     >
       <section>
         <LinkLogo />
+        {!isMobile && (
+        <ol>
+          <li className={classNames({ [Styles.Active]: path === MARKETS })}>
+            <Link placeholder="Markets" to={makePath(MARKETS)}>
+              Markets
+            </Link>
+          </li>
+          <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
+            <Link
+              onClick={(e) => {
+                !isLogged && e.preventDefault();
+              }}
+              disabled={!isLogged}
+              to={makePath(PORTFOLIO)}
+              placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
+            >
+              My Bets
+            </Link>
+          </li>
+        </ol>
+      )}
       </section>
       <section>
         <div>
@@ -161,8 +191,8 @@ export const TopNav = () => {
             className={Styles.MobileMenuButton}
             title="Augur Settings Menu"
             aria-label="Settings"
-            onClick={() =>{ 
-              setSidebar(SIDEBAR_TYPES.NAVIGATION)
+            onClick={() => {
+              setSidebar(SIDEBAR_TYPES.NAVIGATION);
             }}
           >
             {ThreeLinesIcon}
@@ -171,27 +201,6 @@ export const TopNav = () => {
           <SettingsButton />
         )}
       </section>
-      {!isMobile && (
-          <ol>
-            <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-              <Link placeholder="Markets" to={makePath(MARKETS)}>
-                Markets
-              </Link>
-            </li>
-            <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
-              <Link
-                onClick={(e) => {
-                  !isLogged && e.preventDefault();
-                }}
-                disabled={!isLogged}
-                to={makePath(PORTFOLIO)}
-                placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
-              >
-                My Bets
-              </Link>
-            </li>
-          </ol>
-        )}
     </section>
   );
 };

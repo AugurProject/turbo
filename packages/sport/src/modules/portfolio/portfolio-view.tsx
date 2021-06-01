@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Styles from './portfolio-view.styles.less';
 // import Activity from './activity';
 // import { PositionsLiquidityViewSwitcher } from '../common/tables';
@@ -18,7 +18,7 @@ import { Cash } from '@augurproject/comps/build/types';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
-const { ACTIVITY, ETH, TABLES, TX_STATUS, USDC } = Constants;
+const { ETH, TX_STATUS, USDC } = Constants;
 const {
   Hooks: {
     useDataStore,
@@ -235,14 +235,14 @@ export const ClaimWinningsSection = () => {
 };
 
 export const PortfolioView = () => {
-  const { isMobile } = useAppStatusStore();
-  const [view, setView] = useState(TABLES);
+  // const { isMobile } = useAppStatusStore();
+  // const [view, setView] = useState(TABLES);
 
   useScrollToTopOnMount();
 
-  useEffect(() => {
-    if (!isMobile) setView(TABLES);
-  }, [isMobile]);
+  // useEffect(() => {
+  //   if (!isMobile) setView(TABLES);
+  // }, [isMobile]);
 
   return (
     <div className={Styles.PortfolioView}>

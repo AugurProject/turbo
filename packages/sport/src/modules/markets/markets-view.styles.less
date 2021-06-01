@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .EmptyMarketsMessage {
   .EmptyMessage;
@@ -13,63 +13,69 @@
 
 .MarketsView {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   padding: @size-40 @size-32;
 
-  > ul {
-    align-items: center;
-    padding: 0;
-    list-style: none;
+  > article:last-of-type {
     display: flex;
-    flex-flow: row nowrap;
-    width: 100%;
-    margin: @size-40 0 @size-16;
+    flex-flow: column nowrap;
+    flex: 1 100%;
 
-    > div {
-      margin-right: @size-20;
+    > ul {
+      align-items: center;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-flow: row nowrap;
+      width: 100%;
+      margin: @size-40 0 @size-16;
 
-      &:last-of-type {
-        margin-right: 0;
-        height: unset;
+      > div {
+        margin-right: @size-20;
+
+        &:last-of-type {
+          margin-right: 0;
+          height: unset;
+        }
+      }
+
+      > button {
+        margin-left: auto;
       }
     }
 
     > button {
-      margin-left: auto;
+      margin: @size-12 0;
+    }
+
+    > section {
+      display: grid;
+      grid-gap: @size-24;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 0fr);
+      flex: 1;
+      margin-bottom: @size-40;
+      margin-top: @size-24;
+    }
+
+    > span {
+      margin-top: @size-24;
+    }
+
+    > div:last-of-type:not(:first-of-type):not(.SubCategoriesFilter) {
+      justify-content: center;
+    }
+
+    > div[class*="SearchInput"] {
+      overflow: hidden;
+      height: 0px;
+      transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
+      opacity: 0;
     }
   }
 
-  > button {
-    margin: @size-12 0;
-  }
-
-  > section {
-    display: grid;
-    grid-gap: @size-24;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 0fr);
-    flex: 1;
-    margin-bottom: @size-40;
-    margin-top: @size-24;
-  }
-
-  > span {
-    margin-top: @size-24;
-  }
-
-  > div:last-of-type:not(:first-of-type):not(.SubCategoriesFilter) {
-    justify-content: center;
-  }
-
-  > div[class*='SearchInput'] {
-    overflow: hidden;
-    height: 0px;
-    transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
-    opacity: 0;
-  }
-
   &.SearchOpen {
-    > div[class*='SearchInput'] {
+    > article > div[class*="SearchInput"] {
       height: @size-56;
       opacity: 1;
       margin-bottom: @size-16;
@@ -80,7 +86,7 @@
 :root[theme="SPORTS"] {
   .MarketsView {
     // search input
-    > ul > div:last-of-type {
+    > article:last-of-type > ul > div:last-of-type {
       .PrimaryBorderRadius;
 
       > div {
@@ -96,29 +102,30 @@
 @media @breakpoint-mobile-tiny {
   .MarketsView {
     padding-bottom: @size-40;
+    > article:last-of-type {
+      > section {
+        grid-template-columns: 1fr 1fr;
+        grid-gap: @size-16;
+        margin-top: 0;
+      }
 
-    > section {
-      grid-template-columns: 1fr 1fr;
-      grid-gap: @size-16;
-      margin-top: 0;
-    }
+      > span {
+        margin-top: @size-16;
+      }
 
-    > span {
-      margin-top: @size-16;
-    }
+      > div:nth-of-type(2) {
+        display: flex;
+        margin: @size-4 0;
 
-    > div:nth-of-type(2) {
-      display: flex;
-      margin: @size-4 0;
-
-      > button:first-of-type {
-        flex: 1;
-        margin-right: @size-8;
+        > button:first-of-type {
+          flex: 1;
+          margin-right: @size-8;
+        }
       }
     }
 
     &.SearchOpen {
-      > div[class*='SearchInput'] {
+      > article:last-of-type > div[class*="SearchInput"] {
         margin-bottom: @size-16;
       }
     }
@@ -130,25 +137,27 @@
     padding: @size-16;
     padding-bottom: @size-40;
 
-    > div:nth-of-type(2) {
-      display: flex;
-      margin: @size-16 0;
-
-      > button:first-of-type {
-        flex: 1;
-        margin-right: @size-8;
+    > article:last-of-type {
+      > ul {
+        display: none;
       }
-    }
 
-    > ul {
-      display: none;
+      > div:nth-of-type(2) {
+        display: flex;
+        margin: @size-16 0;
+
+        > button:first-of-type {
+          flex: 1;
+          margin-right: @size-8;
+        }
+      }
     }
   }
 }
 
 @media @breakpoint-mobile {
   .MarketsView {
-    > section {
+    > article:last-of-type > section {
       grid-template-columns: 1fr;
     }
   }
@@ -204,7 +213,6 @@
     &:hover {
       border: @size-1 solid var(--sports-color);
     }
-  
 
     > svg {
       > path,
@@ -221,7 +229,7 @@
   }
 }
 
-@media @breakpoint-mobile-tablet { 
+@media @breakpoint-mobile-tablet {
   .SubCategoryFilterButton {
     &:not(:last-of-type) {
       margin-right: @size-8;

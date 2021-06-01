@@ -24,7 +24,6 @@
     flex: 1;
     grid-gap: @size-16;
     width: 100%;
-    // height: 100%;
     height: @sports-top-nav-height;
     min-height: @sports-top-nav-height;
     max-height: @sports-top-nav-height;
@@ -98,52 +97,6 @@
   &.TwoTone > section:last-of-type {
     background: var(--simple-light-bg);
   }
-
-  > ol {
-    align-items: center;
-    list-style: none;
-    display: flex;
-    flex-flow: row nowrap;
-    flex: 1 100%;
-    margin: 0;
-    padding: 0;
-    padding-left: @sports-gutter;
-    min-height: @sports-sub-nav-height;
-    height: @sports-sub-nav-height;
-    border-top: @size-1 solid var(--simple-border);
-
-    > li {
-      flex: 0 auto;
-      margin-right: @size-40;
-
-      &:last-of-type {
-        margin-right: 0;
-      }
-
-      > a {
-        .text-12-bold;
-
-        text-decoration: none;
-        color: var(--simple-secondary-text);
-      }
-
-      &:hover {
-        > a {
-          color: var(--simple-primary-text);
-
-          &[disabled] {
-            color: var(--simple-secondary-text);
-          }
-        }
-      }
-
-      &.Active {
-        > a {
-          color: var(--simple-primary-text);
-        }
-      }
-    }
-  }
 }
 
 @media @breakpoint-tiny {
@@ -196,8 +149,6 @@
 
 .SettingsMenuWrapper {
   position: relative;
-  min-height: 100%;
-  height: 100%;
   grid-column: 1;
   grid-row: 1;
 
@@ -232,6 +183,10 @@
     > svg > path {
       stroke: var(--simple-light-bg);
       fill: var(--simple-light-bg);
+    }
+
+    &:focus {
+      outline: none;
     }
 
     &:hover,
@@ -289,78 +244,30 @@
       }
     }
 
-    > ul {
-      display: flex;
-      flex-flow: row nowrap;
-      grid-gap: @size-8;
-      align-self: flex-end;
+    > ul.OddsSelection {
+      display: grid;
+      grid-gap: @size-6;
+      grid-template-columns: 1fr 1fr;
 
-      > li > div {
+      > li > button {
         .SimpleBorder;
+        .text-12-semi-bold;
 
-        background-color: transparent;
-        box-sizing: border-box;
-        display: flex;
-        flex-flow: row nowrap;
-        padding: @size-5 @size-8;
-        max-height: @size-25;
-        min-height: @size-25;
-        align-items: center;
-        justify-content: center;
+        height: @size-25;
+        padding: @size-4 @size-6;
+        background: transparent;
+        color: var(--simple-secondary-text);
+        text-transform: capitalize;
+        cursor: pointer;
 
-        > input[type="number"] {
-          -moz-appearance: textfield;
-          .text-12-semi-bold;
-
-          background: transparent;
-          color: var(--simple-secondary-text);
-          padding: 0;
-          text-align: right;
-          outline-style: none;
-          border: none;
-          min-width: @size-45;
-
-          &::-webkit-outer-spin-button,
-          &::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-          }
-
-          &:focus {
-            color: var(--simple-primary-text);
-            outline-style: none;
-            border: none;
-          }
-        }
-
-        > span {
-          .text-12-semi-bold;
-
+        &:hover {
           color: var(--simple-primary-text);
-          margin-left: @size-4;
         }
 
-        &[class*="Selected"] {
-          background-color: var(--simple-alternate-background);
-          border: @size-1 solid var(--simple-secondary-text);
-
-          > input {
-            color: var(--simple-primary-text);
-          }
-
-          &:not(:disabled):not(.Disabled) {
-            &:hover {
-              background-color: var(--simple-alternate-background);
-              border: @size-1 solid var(--simple-secondary-text);
-            }
-
-            &:focus {
-              background-color: var(--simple-alternate-background);
-            }
-
-            &:active {
-              background-color: var(--simple-alternate-background);
-            }
-          }
+        &.Active {
+          border-color: var(--simple-primary-text);
+          color: var(--simple-primary-text);
+          background: var(--simple-alternate-background);
         }
       }
     }
@@ -392,13 +299,55 @@
         > a > section > svg > g > path:not(:first-of-type) {
           fill: var(--simple-light-bg);
         }
+
+        > ol {
+          // border-top: @size-1 solid var(--simple-secondary-text);
+    
+          > li {
+            display: flex;
+            flex-flow: column nowrap;
+            height: 100%;
+            min-height: 100%;
+            align-items: center;
+            justify-content: center;
+            // border-bottom: @size-2 solid transparent;
+    
+            > a {
+              height: 100%;
+              display: flex;
+              align-items: center;
+              // color: var(--simple-light-bg);
+            }
+    
+            &:hover {
+              // border-bottom: @size-2 solid var(--simple-light-bg);
+    
+              > a {
+                color: var(--simple-light-bg);
+    
+                &[disabled] {
+                  color: var(--simple-secondary-text);
+                }
+              }
+            }
+    
+            &.Active,
+            &.Active:hover {
+              // border-bottom: @size-2 solid var(--simple-outline-color);
+    
+              > a {
+                color: var(--simple-light-bg);
+              }
+            }
+          }
+        }
       }
 
       &:last-of-type {
         > div:first-of-type {
-          min-height: 100%;
-          height: 100%;
-          max-height: unset;
+          // min-height: 100%;
+          // height: 100%;
+          // max-height: unset;
           grid-column: 2;
           grid-row: 1;
           display: flex;
@@ -422,48 +371,6 @@
               margin-left: 0;
               margin-right: @size-8;
             }
-          }
-        }
-      }
-    }
-    > ol {
-      border-top: @size-1 solid var(--simple-secondary-text);
-
-      > li {
-        display: flex;
-        flex-flow: column nowrap;
-        height: 100%;
-        min-height: 100%;
-        align-items: center;
-        justify-content: center;
-        border-bottom: @size-2 solid transparent;
-
-        > a {
-          height: 100%;
-          display: flex;
-          align-items: center;
-          color: var(--simple-light-bg);
-          text-transform: uppercase;
-        }
-
-        &:hover {
-          border-bottom: @size-2 solid var(--simple-light-bg);
-
-          > a {
-            color: var(--simple-light-bg);
-
-            &[disabled] {
-              color: var(--simple-secondary-text);
-            }
-          }
-        }
-
-        &.Active,
-        &.Active:hover {
-          border-bottom: @size-2 solid var(--simple-outline-color);
-
-          > a {
-            color: var(--simple-light-bg);
           }
         }
       }
