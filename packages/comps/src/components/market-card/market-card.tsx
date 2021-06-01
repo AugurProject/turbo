@@ -139,9 +139,7 @@ export const MarketCardView = ({
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
-  const formattedApy = useMemo(() => marketTransactions?.apy && formatPercent(marketTransactions.apy, {
-    denomination: apyFormatter
-  }).full, [
+  const formattedApy = useMemo(() => marketTransactions?.apy && formatPercent(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
   const formattedVol = useMemo(
