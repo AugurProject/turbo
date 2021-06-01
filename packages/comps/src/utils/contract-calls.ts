@@ -1413,10 +1413,11 @@ export const getFactoryMarketInfo = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
+  const ignoreMarketIndexes = IgnoreResolvedMarketsList[factoryAddress.toUpperCase()] || [];
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    if (!IgnoreResolvedMarketsList.includes(i)) indexes.push(i);
+    if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
