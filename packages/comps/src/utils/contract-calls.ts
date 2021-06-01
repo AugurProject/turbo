@@ -51,7 +51,7 @@ import {
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
-  SPORTS_MARKET_TYPE,
+  APY_CUTOFF_AMOUNT,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
