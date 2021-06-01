@@ -24,7 +24,7 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
 const determineCount = (category, markets) =>
   Object.entries(markets).filter(([marketId, marketInfo]) =>
     // @ts-ignore
-    marketInfo?.categories.some(c => c.toLowerCase() === category.toLowerCase())
+    marketInfo?.categories.some((c) => c.toLowerCase() === category.toLowerCase())
   ).length;
 
 const formatCategoryCount = (numCats) =>
@@ -176,3 +176,16 @@ const CategoryGroup = ({ categoryInfo }) => {
     </article>
   );
 };
+
+export const CategoriesTrail = ({ categories }) => (
+  <span className={Styles.CategoriesTrail}>
+    {categories.map((category, index) => {
+      return (
+        <span>
+          {category}
+          {`${index !== categories.length - 1 ? " / " : ""}`}
+        </span>
+      );
+    })}
+  </span>
+);

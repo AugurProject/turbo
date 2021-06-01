@@ -17,11 +17,12 @@ import type { MarketInfo } from "@augurproject/comps/build/types";
 import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea } from "../categories/categories";
+import { SportsCard } from '../sports-card/sports-card';
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryButton },
   Icons: { FilterIcon },
-  MarketCardComps: { LoadingMarketCard, MarketCard },
+  MarketCardComps: { LoadingMarketCard },
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
 } = Components;
@@ -271,7 +272,7 @@ const MarketsView = () => {
         ) : filteredMarkets.length > 0 ? (
           <section>
             {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market, index) => (
-              <MarketCard
+              <SportsCard
                 key={`${market.marketId}-${index}`}
                 marketId={market.marketId}
                 markets={markets}
