@@ -181,6 +181,15 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         _outcomes[1] = "Away";
         _outcomes[2] = "Home";
 
+        // The spread is a quantity of tenths. So 55 is 5.5 and -6 is -60.
+        // If the spread is a whole number then make it a half point more extreme, to eliminate ties.
+        // So 50 becomes 55, -60 becomes -65, and 0 becomes 5.
+        if (_homeSpread >= 0 && _homeSpread % 10 == 0) {
+            _homeSpread += 5;
+        } else if (_homeSpread < 0 && (-_homeSpread) % 10 == 0) {
+            _homeSpread -= 5;
+        }
+
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
         marketDetails[_id] = MarketDetails(
@@ -219,6 +228,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         _outcomes[0] = "No Contest";
         _outcomes[1] = "Over";
         _outcomes[2] = "Under";
+
+        // The total is a quantity of tenths. So 55 is 5.5 and -6 is -60.
+        // If the total is a whole number then make it a half point higher, to eliminate ties.
+        // So 50 becomes 55 and 0 becomes 5.
+        if (_overUnderTotal >= 0 && _overUnderTotal % 10 == 0) {
+            _overUnderTotal += 5;
+        }
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
@@ -261,7 +277,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         // resolve markets as No Contest
         if (EventStatus(_eventStatus) != EventStatus.Final) {
             for (uint256 i = 0; i < _ids.length; i++) {
-                uint256 _id = _ids[1];
+                uint256 _id = _ids[i];
                 if (_id == 0) continue; // skip non-created markets
                 markets[_id].winner = markets[_id].shareTokens[0];
             }

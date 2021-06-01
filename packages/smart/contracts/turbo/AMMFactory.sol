@@ -218,7 +218,11 @@ contract AMMFactory is BNum {
         // Must be a multiple of share factor.
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
-        _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        if (_marketFactory.isMarketResolved(_marketId)) {
+            _collateralOut = _marketFactory.claimWinnings(_marketId, _collateralRecipient);
+        } else {
+            _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
+        }
         require(_collateralOut > _minCollateralOut, "Amount of collateral returned too low.");
 
         // Transfer the remaining shares back to _collateralRecipient.

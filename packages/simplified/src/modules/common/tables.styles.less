@@ -2,13 +2,12 @@
 
 .MarketTableHeader {
   padding: @size-20 @size-32;
-  display: flex;
+  display: block;
   border-bottom: @size-1 solid var(--simple-border);
-  justify-content: center;
-  align-items: center;
   min-width: @size-320;
 
   > a {
+    align-items: center;
     display: flex;
     flex: 1;
     text-decoration: none;
@@ -41,6 +40,13 @@
   > a > svg {
     width: @size-20;
     height: @size-20;
+  }
+
+  > div:last-child {
+    .text-10-semi-bold;
+
+    color: var(--simple-secondary-text);
+    margin-top: @size-6;
   }
 
   @media @breakpoint-mobile-tablet {

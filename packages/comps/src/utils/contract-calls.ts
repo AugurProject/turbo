@@ -218,6 +218,10 @@ function shapeAddLiquidityPool(amm: AmmExchange, cash: Cash, cashAmount: string,
   };
 }
 
+// TODO: when new ammFactory is done use standard weights.
+// creating weights at mid range for outcomes and 2% for no contest outcome
+// will see if this approach will help against trolling initial LPs
+// const defaultPriceWeights = ["0.02", "0.49", "0.49"];
 const calcWeights = (prices: string[]): string[] => {
   const totalWeight = new BN(50);
   const multiplier = new BN(10).pow(new BN(18));
@@ -1313,12 +1317,32 @@ const marketFactories = () => {
   if (marketFactories?.sportsball2?.address) {
     marketAddresses.push(marketFactories.sportsball2.address);
   }
+  // TODO: add in MMA when there are real mma markets
+  /*
+  if (marketFactories?.mma?.address) {
+    marketAddresses.push(marketFactories.mma.address);
+  }
+  */
   return marketAddresses;
+};
+
+// stop updating resolved markets
+const IgnoreResolvedMarketsList = {};
+const addResolvedMarketToList = (factoryAddress: string, marketIndex: string | number) => {
+  const address = factoryAddress.toUpperCase();
+  const factoryList = IgnoreResolvedMarketsList[address];
+  if (factoryList && !factoryList.includes(marketIndex))
+    return (IgnoreResolvedMarketsList[address] = IgnoreResolvedMarketsList[address] = [
+      ...IgnoreResolvedMarketsList[address],
+      Number(marketIndex),
+    ]);
+  IgnoreResolvedMarketsList[address] = [marketIndex];
 };
 
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   cashes: Cashes,
   account: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
@@ -1367,8 +1391,15 @@ export const getMarketInfos = async (
         blocknumber,
       };
     },
-    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+    { markets, ammExchanges, blocknumber: null, loading: false }
   );
+
+  const { markets: filterMarkets } = marketInfos;
+
+  // only update open markets after initial load
+  Object.keys(filterMarkets)
+    .filter((id) => filterMarkets[id]?.hasWinner)
+    .forEach((id) => addResolvedMarketToList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId));
 
   return marketInfos;
 };
@@ -1385,7 +1416,7 @@ export const getFactoryMarketInfo = async (
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    indexes.push(i);
+    if (!IgnoreResolvedMarketsList.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(

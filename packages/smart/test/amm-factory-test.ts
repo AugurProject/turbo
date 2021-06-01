@@ -2,18 +2,22 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
-import { AbstractMarketFactory, AMMFactory } from "../typechain";
+import {
+  AbstractMarketFactory,
+  AMMFactory,
+  AMMFactory__factory,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
+} from "../typechain";
 import { BigNumber, Contract, ContractFactory } from "ethers";
 import { calcShareFactor } from "../src";
 import { buyWithValues, calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 describe("AMMFactory", () => {
-  let AMMFactory__factory: ContractFactory;
   let BFactory__factory: ContractFactory;
   let BPool__factory: ContractFactory;
   let Cash__factory: ContractFactory;
   let FeePot__factory: ContractFactory;
-  let TrustedMarketFactory__factory: ContractFactory;
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
@@ -32,22 +36,20 @@ describe("AMMFactory", () => {
 
   let collateral: Contract;
   let shareFactor: BigNumber;
-  let marketFactory: Contract;
+  let marketFactory: TrustedMarketFactory;
   const marketId = BigNumber.from(1);
   let bFactory: Contract;
-  let ammFactory: Contract;
+  let ammFactory: AMMFactory;
 
   // These are specific to the one market we are dealing with in the tests below.
   let shareTokens: Contract[];
   let bPool: Contract;
 
   before(async () => {
-    AMMFactory__factory = await ethers.getContractFactory("AMMFactory");
     BFactory__factory = await ethers.getContractFactory("BFactory");
     BPool__factory = await ethers.getContractFactory("BPool");
     Cash__factory = await ethers.getContractFactory("Cash");
     FeePot__factory = await ethers.getContractFactory("FeePot");
-    TrustedMarketFactory__factory = await ethers.getContractFactory("TrustedMarketFactory");
   });
 
   beforeEach(async () => {
@@ -57,7 +59,7 @@ describe("AMMFactory", () => {
     const reputationToken = await Cash__factory.deploy("REPv2", "REPv2", 18);
     const feePot = await FeePot__factory.deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await TrustedMarketFactory__factory.deploy(
+    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -69,7 +71,7 @@ describe("AMMFactory", () => {
     );
 
     bFactory = await BFactory__factory.deploy();
-    ammFactory = await AMMFactory__factory.deploy(bFactory.address, swapFee);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
 
     const endTime = BigNumber.from(Date.now())
       .div(1000)
@@ -110,10 +112,10 @@ describe("AMMFactory", () => {
 
     const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactory,
-      marketFactory as AbstractMarketFactory,
+      (marketFactory as unknown) as AbstractMarketFactory,
       marketId.toString(),
       _outcome,
-      _setsInForCollateral
+      _setsInForCollateral.toString()
     );
 
     await shareTokens[_outcome].approve(secondSignerAMMFactory.address, MAX_APPROVAL);
@@ -188,7 +190,7 @@ describe("AMMFactory", () => {
 
       const result = await buyWithValues(
         ammFactory as AMMFactory,
-        marketFactory as AbstractMarketFactory,
+        (marketFactory as unknown) as AbstractMarketFactory,
         marketId.toNumber(),
         1,
         collateralIn.toString()
@@ -386,5 +388,14 @@ describe("AMMFactory", () => {
       await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokenBal, ZERO, signer.address);
       await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, signer.address);
     });
+  });
+
+  it("removing liquidity after market resolution works", async () => {
+    const winningOutcome = 1;
+    expect(await marketFactory.isMarketResolved(marketId)).to.be.false;
+    await marketFactory.trustedResolveMarket(marketId, winningOutcome);
+    expect(await marketFactory.isMarketResolved(marketId)).to.be.true;
+    const lpTokens = await bPool.balanceOf(signer.address);
+    await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, signer.address);
   });
 });
