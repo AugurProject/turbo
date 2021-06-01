@@ -51,8 +51,8 @@
     > section {
       display: grid;
       grid-gap: @size-24;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 0fr);
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, auto);
       flex: 1;
       margin-bottom: @size-40;
       margin-top: @size-24;
@@ -99,12 +99,19 @@
   }
 }
 
+
+@media @breakpoint-desktop-large {
+  .MarketsView > article:last-of-type > section > {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media @breakpoint-mobile-tiny {
   .MarketsView {
     padding-bottom: @size-40;
     > article:last-of-type {
       > section {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         grid-gap: @size-16;
         margin-top: 0;
       }

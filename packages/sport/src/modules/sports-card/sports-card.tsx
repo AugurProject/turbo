@@ -2,10 +2,11 @@ import React, { useMemo } from "react";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
-
+import { useSportsStore } from "../stores/sport";
 const {
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
+  OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
@@ -16,19 +17,11 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
       <SportsCardTitle {...{ ...market }} />
+      <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
   );
 };
-
-const SportsCardTitle = ({ marketId, title, description }) => (
-  <MarketLink id={marketId} dontGoToMarket={false}>
-    <span>
-      {!!title && <span>{title}</span>}
-      {!!description && <span>{description}</span>}
-    </span>
-  </MarketLink>
-);
 
 const SportsCardTopbar = ({ market, timeFormat }) => (
   <div className={Styles.SportsCardTopbar}>
@@ -37,6 +30,43 @@ const SportsCardTopbar = ({ market, timeFormat }) => (
     <span>{SocialMediaIcon}</span>
   </div>
 );
+
+const SportsCardTitle = ({ marketId, title, description }) => (
+  <MarketLink id={marketId} dontGoToMarket={false}>
+    {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
+  </MarketLink>
+);
+
+const SportsCardOutcomes = ({ title, amm }) => {
+  const outcomes = [].concat(amm?.ammOutcomes || []);
+  const noContest = outcomes.shift();
+  if (noContest) {
+    outcomes.push(noContest);
+  }
+  return (
+    <section className={Styles.SportsCardOutcomes}>
+      <header>{!!title && <span>{title}</span>}</header>
+      <main>
+        {outcomes?.map((outcome) => (
+          <SportsOutcomeButton {...{ ...outcome }} />
+        ))}
+      </main>
+    </section>
+  );
+};
+
+const SportsOutcomeButton = ({ name, price, ...props }) => {
+  const {
+    settings: { oddsFormat },
+  } = useSportsStore();
+  const odds = useMemo(() => (price !== "" ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [price, oddsFormat]);
+  return (
+    <div className={Styles.SportsOutcomeButton}>
+      <label>{name}</label>
+      <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
+    </div>
+  );
+};
 
 const SportsCardFooter = ({ marketTransactions }) => {
   const formattedVol = useMemo(
