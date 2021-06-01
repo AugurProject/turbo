@@ -132,8 +132,17 @@ export function formatPercent(num: NumStrBigNumber, opts: FormattedNumberOptions
   });
 }
 
-export function apyFormatter(value) {
-  return createBigNumber(value.replaceAll(",", "")).gt(APY_CUTOFF_AMOUNT) ? `> ${APY_CUTOFF_AMOUNT}.99%` : `${value}%`;
+export function formatApy(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+  return formatNumber(num, {
+    decimals: 2,
+    decimalsRounded: 0,
+    denomination: (v) => createBigNumber(v.replaceAll(",", "")).gt(APY_CUTOFF_AMOUNT) ? `>${APY_CUTOFF_AMOUNT}.99%` : `${v}%`,
+    positiveSign: false,
+    zeroStyled: false,
+    blankZero: false,
+    bigUnitPostfix: false,
+    ...opts,
+  });
 }
 
 export function formatFractional(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
