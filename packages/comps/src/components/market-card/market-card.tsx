@@ -3,7 +3,7 @@ import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
-import { formatCashPrice, formatDai, formatPercent, getCashFormat } from "../../utils/format-number";
+import { apyFormatter, formatCashPrice, formatDai, formatPercent, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
 import { CategoryIcon, CategoryLabel, CurrencyTipIcon, ReportingStateLabel, ValueLabel } from "../common/labels";
 import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
@@ -139,7 +139,9 @@ export const MarketCardView = ({
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
-  const formattedApy = useMemo(() => marketTransactions?.apy && formatPercent(marketTransactions.apy).full, [
+  const formattedApy = useMemo(() => marketTransactions?.apy && formatPercent(marketTransactions.apy, {
+    denomination: apyFormatter
+  }).full, [
     marketTransactions?.apy,
   ]);
   const formattedVol = useMemo(

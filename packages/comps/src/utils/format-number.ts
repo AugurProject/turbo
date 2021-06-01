@@ -18,6 +18,7 @@ import {
   BILLION,
   TRILLION,
   DUST_LIQUIDITY_AMOUNT,
+  APY_CUTOFF_AMOUNT,
 } from "./constants";
 import addCommas from "./add-commas-to-number";
 import getPrecision from "./get-number-precision";
@@ -129,6 +130,10 @@ export function formatPercent(num: NumStrBigNumber, opts: FormattedNumberOptions
     bigUnitPostfix: false,
     ...opts,
   });
+}
+
+export function apyFormatter(value) {
+  return createBigNumber(value).gt(APY_CUTOFF_AMOUNT) ? `> ${APY_CUTOFF_AMOUNT}` : `${value}%`
 }
 
 export function formatFractional(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
