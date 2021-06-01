@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .EmptyMarketsMessage {
   .EmptyMessage;
@@ -66,7 +66,7 @@
       justify-content: center;
     }
 
-    > div[class*='SearchInput'] {
+    > div[class*="SearchInput"] {
       overflow: hidden;
       height: 0px;
       transition: height 100ms ease-in-out, opacity 100ms ease-in-out;
@@ -74,9 +74,8 @@
     }
   }
 
-
   &.SearchOpen {
-    > article > div[class*='SearchInput'] {
+    > article > div[class*="SearchInput"] {
       height: @size-56;
       opacity: 1;
       margin-bottom: @size-16;
@@ -103,29 +102,30 @@
 @media @breakpoint-mobile-tiny {
   .MarketsView {
     padding-bottom: @size-40;
+    > article:last-of-type {
+      > section {
+        grid-template-columns: 1fr 1fr;
+        grid-gap: @size-16;
+        margin-top: 0;
+      }
 
-    > section {
-      grid-template-columns: 1fr 1fr;
-      grid-gap: @size-16;
-      margin-top: 0;
-    }
+      > span {
+        margin-top: @size-16;
+      }
 
-    > span {
-      margin-top: @size-16;
-    }
+      > div:nth-of-type(2) {
+        display: flex;
+        margin: @size-4 0;
 
-    > div:nth-of-type(2) {
-      display: flex;
-      margin: @size-4 0;
-
-      > button:first-of-type {
-        flex: 1;
-        margin-right: @size-8;
+        > button:first-of-type {
+          flex: 1;
+          margin-right: @size-8;
+        }
       }
     }
 
     &.SearchOpen {
-      > div[class*='SearchInput'] {
+      > article:last-of-type > div[class*="SearchInput"] {
         margin-bottom: @size-16;
       }
     }
@@ -137,25 +137,27 @@
     padding: @size-16;
     padding-bottom: @size-40;
 
-    > div:nth-of-type(2) {
-      display: flex;
-      margin: @size-16 0;
-
-      > button:first-of-type {
-        flex: 1;
-        margin-right: @size-8;
+    > article:last-of-type {
+      > ul {
+        display: none;
       }
-    }
 
-    > ul {
-      display: none;
+      > div:nth-of-type(2) {
+        display: flex;
+        margin: @size-16 0;
+
+        > button:first-of-type {
+          flex: 1;
+          margin-right: @size-8;
+        }
+      }
     }
   }
 }
 
 @media @breakpoint-mobile {
   .MarketsView {
-    > section {
+    > article:last-of-type > section {
       grid-template-columns: 1fr;
     }
   }
@@ -211,7 +213,6 @@
     &:hover {
       border: @size-1 solid var(--sports-color);
     }
-  
 
     > svg {
       > path,
@@ -228,7 +229,7 @@
   }
 }
 
-@media @breakpoint-mobile-tablet { 
+@media @breakpoint-mobile-tablet {
   .SubCategoryFilterButton {
     &:not(:last-of-type) {
       margin-right: @size-8;

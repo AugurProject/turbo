@@ -151,6 +151,27 @@ export const TopNav = () => {
     >
       <section>
         <LinkLogo />
+        {!isMobile && (
+        <ol>
+          <li className={classNames({ [Styles.Active]: path === MARKETS })}>
+            <Link placeholder="Markets" to={makePath(MARKETS)}>
+              Markets
+            </Link>
+          </li>
+          <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
+            <Link
+              onClick={(e) => {
+                !isLogged && e.preventDefault();
+              }}
+              disabled={!isLogged}
+              to={makePath(PORTFOLIO)}
+              placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
+            >
+              My Bets
+            </Link>
+          </li>
+        </ol>
+      )}
       </section>
       <section>
         <div>
@@ -180,27 +201,6 @@ export const TopNav = () => {
           <SettingsButton />
         )}
       </section>
-      {!isMobile && (
-        <ol>
-          <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-            <Link placeholder="Markets" to={makePath(MARKETS)}>
-              Markets
-            </Link>
-          </li>
-          <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
-            <Link
-              onClick={(e) => {
-                !isLogged && e.preventDefault();
-              }}
-              disabled={!isLogged}
-              to={makePath(PORTFOLIO)}
-              placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
-            >
-              My Bets
-            </Link>
-          </li>
-        </ol>
-      )}
     </section>
   );
 };
