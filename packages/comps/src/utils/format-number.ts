@@ -133,7 +133,7 @@ export function formatPercent(num: NumStrBigNumber, opts: FormattedNumberOptions
 }
 
 export function apyFormatter(value) {
-  return createBigNumber(value).gt(APY_CUTOFF_AMOUNT) ? `> ${APY_CUTOFF_AMOUNT}` : `${value}%`
+  return createBigNumber(value).gt(APY_CUTOFF_AMOUNT) ? `> ${APY_CUTOFF_AMOUNT}.99%` : `${value}%`
 }
 
 export function formatFractional(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
