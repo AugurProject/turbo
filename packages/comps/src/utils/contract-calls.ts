@@ -1413,7 +1413,7 @@ export const getFactoryMarketInfo = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
-  const ignoreMarketIndexes = IgnoreResolvedMarketsList[factoryAddress] || [];
+  const ignoreMarketIndexes = IgnoreResolvedMarketsList[factoryAddress.toUpperCase()] || [];
   
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
