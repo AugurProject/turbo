@@ -136,7 +136,7 @@ export function formatApy(num: NumStrBigNumber, opts: FormattedNumberOptions = {
   return formatNumber(num, {
     decimals: 2,
     decimalsRounded: 0,
-    denomination: (v) => createBigNumber(v.replaceAll(",", "")).gt(APY_CUTOFF_AMOUNT) ? `>${APY_CUTOFF_AMOUNT}.99%` : `${v}%`,
+    denomination: (v) => createBigNumber(v.replaceAll(",", "")).gt(APY_CUTOFF_AMOUNT) ? `>${APY_CUTOFF_AMOUNT}%` : `${v}%`,
     positiveSign: false,
     zeroStyled: false,
     blankZero: false,
