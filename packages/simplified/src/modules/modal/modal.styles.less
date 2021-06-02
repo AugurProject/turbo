@@ -49,21 +49,13 @@
   overflow-y: auto;
 
   > main {
-    > button:first-of-type {
-      margin-bottom: @size-8;
-      margin-top: @size-24;
-    }
-
     > button {
-      margin-bottom: @size-8;
+      margin-bottom: @size-16;
+      margin-top: @size-16;
     }
 
     > div:first-of-type {
-      margin-top: @size-24;
-    }
-
-    > button:last-of-type {
-      margin-bottom: 0;
+      margin-top: @size-16;
     }
 
     > span {
@@ -82,10 +74,6 @@
   }
 
   &.Remove {
-    > main > div:first-of-type {
-      margin-top: 0;
-    }
-
     > main > div:nth-of-type(2) {
       margin-top: 0;
     }
@@ -109,10 +97,14 @@
         margin-top: @size-24;
       }
 
-      > section {
+      > section:not([class*="WarningBanner"]) {
         border-bottom: @size-1 solid var(--simple-border);
         margin-bottom: @size-24;
         padding-bottom: @size-24;
+
+        &:first-of-type {
+          margin-top: @size-24;
+        }
 
         > div {
           margin-top: @size-12;
@@ -120,19 +112,30 @@
 
         &:nth-last-child(3) {
           border-bottom: 0;
-          padding-bottom: @size-12;
-          margin-bottom: @size-12;
+          padding-bottom: 0;
         }
       }
 
-      > section:first-of-type {
-        margin-top: @size-24;
+      > section[class*="WarningBanner"] {
+        margin-bottom: 0;
       }
     }
 
     &.Remove {
-      > main > div:first-of-type {
-        margin-top: @size-24;
+      > main {
+        > button:last-of-type,
+        > div:first-of-type {
+          margin-top: 0;
+          
+          &[class*="MarketTitle"] {
+            margin-top: @size-16;
+          }
+        }
+    
+        > div:nth-of-type(2) {
+          margin-top: 0;
+        }
+   
       }
     }
   }
@@ -150,7 +153,6 @@
 
   > span {
     margin-bottom: @size-12;
-    margin-top: @size-24;
   }
 }
 
@@ -178,7 +180,7 @@
 
     > div[class*="FooterText"] {
       margin: 0;
-      margin-top: @size-24;
+      margin-top: @size-8;
     }
 
     > * {
