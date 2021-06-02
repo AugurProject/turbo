@@ -221,7 +221,7 @@ const MarketsView = () => {
         [Styles.SearchOpen]: showFilter,
       })}
     >
-      <CategoriesArea />
+      <CategoriesArea filteredMarkets={filteredMarkets} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
         {/* <NetworkMismatchBanner /> */}

@@ -36,21 +36,21 @@ const formatCategoryCount = (numCats) =>
     bigUnitPostfix: true,
   }).full;
 
-export const CategoriesArea = () => {
+export const CategoriesArea = ({ filteredMarkets }) => {
   const { marketsViewSettings } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
     <article className={Styles.CategoriesArea}>
       <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
-      <NavigationArea selectedCategories={selectedCategories} />
-    </article>
+      <NavigationArea selectedCategories={selectedCategories} markets={filteredMarkets} />
+    </article> 
   );
 };
 
 export const CategoriesAreaTitle = ({ text }) => <h2>{text || DEFAULT_SELECTED_CATEGORY_HEADING}</h2>;
 
-export const NavigationArea = ({ selectedCategories = [] }) => {
+export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
@@ -60,7 +60,7 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
   const categoryGroups = !primaryCategory ? (
     <>
       {Object.entries(topLevel).map((categoryInfo) => (
-        <CategoryGroup {...{ categoryInfo }} />
+        <CategoryGroup {...{ categoryInfo, markets }} />
       ))}
     </>
   ) : (
@@ -68,7 +68,7 @@ export const NavigationArea = ({ selectedCategories = [] }) => {
       {Object.entries(topLevel)
         .filter(([label, info]) => primaryCategory === label)
         .map((categoryInfo) => (
-          <CategoryGroup {...{ categoryInfo }} />
+          <CategoryGroup {...{ categoryInfo, markets }} />
         ))}
     </>
   );
@@ -102,12 +102,11 @@ const RemoveCategoryOption = ({ category = DEFAULT_BACK_OPTION, action = () => {
   </button>
 );
 
-const CategoryGroup = ({ categoryInfo }) => {
+const CategoryGroup = ({ categoryInfo, markets }) => {
   const {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
   } = useSportsStore();
-  const { markets } = useDataStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const [label, info] = categoryInfo;
   const subOptionList = Object.entries(info?.subOptions);
