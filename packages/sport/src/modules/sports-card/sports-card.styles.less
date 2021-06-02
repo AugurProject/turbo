@@ -1,0 +1,173 @@
+@import (reference) '~assets/styles/shared.less';
+
+.SportsMarketCard {
+  .SimpleBorder;
+
+  min-height: 224px;
+  height: min-content;
+  background: var(--simple-light-bg);
+  padding: @size-12;
+  display: grid;
+  grid-gap: @size-8;
+}
+
+.SportsCardTopbar {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  min-height: @size-20;
+  max-height: @size-20;
+  
+  > span {
+    min-height: @size-20;
+    max-height: @size-20;
+    margin-right: @size-12;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+
+    &:first-of-type {
+      margin-right: auto;
+    }
+
+    &:nth-of-type(2) {
+      .text-12-semi-bold;
+
+      color: var(--simple-secondary-text);
+      text-transform: uppercase;  
+    }
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+}
+
+.SportsCardTitle {
+  .text-16-bold;
+
+  color: var(--simple-primary-text);
+}
+
+.SportsCardOutcomes {
+  .SimpleBorder;
+
+  border-color: var(--simple-tertiary-text);
+
+  > header {
+    .PrimaryTopBorderRadius;
+    
+   
+    align-items: center;
+    background: var(--light-background-color);
+    border-bottom: @size-1 solid var(--simple-tertiary-text);
+    display: flex;
+    flex-flow: row nowrap;
+    padding: @size-8;
+    min-height: @size-30;
+    max-height: @size-30;
+
+    > span {
+      .text-10-semi-bold;
+
+      color: var(--simple-secondary-text);
+      text-transform: uppercase;
+    }
+  }
+
+  > main {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: @size-8;
+
+    > div {
+      flex: 1;
+      margin-right: @size-8;
+      
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.SportsOutcomeButton {
+  .SimpleBorder;
+
+  border-color: var(--simple-tertiary-text);
+  background: var(--light-background-color);
+  min-height: @size-66;
+  padding: @size-8;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+
+  > label {
+    .text-14-bold;
+
+    color: var(--simple-primary-text);
+    grid-column: 1;
+    grid-row: span 2;
+  }
+
+  > button {
+    .text-10-semi-bold;
+    .SimpleBorder;
+
+    border-color: var(--simple-yes);
+    background: var(--simple-yes-15);
+    color: var(--simple-primary-text);
+    min-height: @size-36;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    padding: @size-3 @size-12;
+    min-width: @size-90;
+    cursor: pointer;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  > span {
+    .text-10;
+
+    color: var(--simple-primary-text);
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+.SportsCardFooter {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  > span {
+    .text-10-semi-bold;
+
+    align-items: center;
+    color: var(--simple-primary-text);
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+    text-transform: uppercase;
+
+    > svg {
+      margin-right: @size-4;
+    }
+  }
+
+  > div[class*="ValueLabel"] {
+    display: flex;
+    flex-flow: row nowrap;
+
+    > span:first-of-type {
+      margin-right: @size-4;
+    }
+  }
+}
