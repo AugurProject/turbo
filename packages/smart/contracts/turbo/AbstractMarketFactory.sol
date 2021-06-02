@@ -172,7 +172,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
         _winningShares = (_winningShares / shareFactor) * shareFactor; // remove unusable dust
 
-        uint256 _payout = calcCost(_winningShares);
+        uint256 _payout = calcCost(_winningShares); // will fail if there are no winnings to claim
         uint256 _settlementFee = _payout.mul(_market.settlementFee).div(10**18);
         _payout = _payout.sub(_settlementFee);
 
@@ -193,18 +193,22 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
 
     function claimSettlementFees(address _receiver) public returns (uint256) {
         uint256 _fees = accumulatedSettlementFees[msg.sender];
-        accumulatedSettlementFees[msg.sender] = 0;
-        collateral.transfer(_receiver, _fees);
-        emit SettlementFeeClaimed(msg.sender, _fees, _receiver);
+        if (_fees > 0) {
+            accumulatedSettlementFees[msg.sender] = 0;
+            collateral.transfer(_receiver, _fees);
+            emit SettlementFeeClaimed(msg.sender, _fees, _receiver);
+        }
         return _fees;
     }
 
     function claimProtocolFees() public returns (uint256) {
         require(msg.sender == protocol || msg.sender == address(this), "Only protocol can claim protocol fee");
         uint256 _fees = accumulatedProtocolFee;
-        accumulatedProtocolFee = 0;
-        collateral.transfer(protocol, _fees);
-        emit ProtocolFeeClaimed(protocol, _fees);
+        if (_fees > 0) {
+            accumulatedProtocolFee = 0;
+            collateral.transfer(protocol, _fees);
+            emit ProtocolFeeClaimed(protocol, _fees);
+        }
         return _fees;
     }
 
