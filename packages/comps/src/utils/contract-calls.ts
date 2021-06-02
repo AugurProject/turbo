@@ -1310,6 +1310,11 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const isOldMarketFactory = (address) => {
+  const { marketFactories } = PARA_CONFIG;
+  return (marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase());
+}
+
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
   const marketAddresses = [marketFactories.sportsball.address];
@@ -1327,16 +1332,11 @@ const marketFactories = () => {
 };
 
 // stop updating resolved markets
-const IgnoreResolvedMarketsList = {};
-const addResolvedMarketToList = (factoryAddress: string, marketIndex: string | number) => {
+const addResolvedMarketToList = (ignoreList: { [factory: string]: number[] }, factoryAddress: string, marketIndexs: number[] | number) => {
   const address = factoryAddress.toUpperCase();
-  const factoryList = IgnoreResolvedMarketsList[address];
-  if (factoryList && !factoryList.includes(marketIndex))
-    return (IgnoreResolvedMarketsList[address] = IgnoreResolvedMarketsList[address] = [
-      ...IgnoreResolvedMarketsList[address],
-      Number(marketIndex),
-    ]);
-  IgnoreResolvedMarketsList[address] = [marketIndex];
+  const factoryList = ignoreList[address] || [];
+  const filtered = marketIndexs.filter(i => !factoryList.includes(i))
+  ignoreList[address] = [...factoryList, ...filtered]
 };
 
 export const getMarketInfos = async (
@@ -1344,20 +1344,23 @@ export const getMarketInfos = async (
   markets: MarketInfos,
   ammExchanges: AmmExchanges,
   cashes: Cashes,
-  account: string
+  account: string,
+  ignoreList: { [factory: string]: number[] }
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address))
+    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address, ignoreList))
   );
 
   // first market infos get all markets with liquidity
   const marketInfos = allMarkets.reduce(
-    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }, i) => {
+    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress }) => {
       // only take liquidity markets from first batch
-      if (i === 0) {
+      const ignores = ignoreList[factoryAddress.toUpperCase()] || [];
+      const isOld = isOldMarketFactory(factoryAddress);
+      if (isOld && !ignores?.length) {
         const noLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
-          (p, id) => (!exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
+          (p, id) => (!exchanges[id]?.hasLiquidity ? [...p, Number(exchanges[id].turboId)] : p),
           []
         );
         const liquidityMarkets = Object.keys(marketInfos).reduce(
@@ -1369,8 +1372,8 @@ export const getMarketInfos = async (
           (p, id) => (!noLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
           {}
         );
-        // ignore non liquid markets from old market factory
-        noLiquidityMarketIndexes.forEach((id) => addResolvedMarketToList(exchanges[id]?.marketFactoryAddress, id));
+        // ignore non liquid markets from old market factory, grab first of market infos to get factory address
+        addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
         return {
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
@@ -1387,21 +1390,19 @@ export const getMarketInfos = async (
         {}
       );
 
+      // only update open markets after initial load
+      const ids = Object.keys(marketInfos).filter((id) => marketInfos[id]?.hasWinner).map(id => Number(marketInfos[id]?.turboId));
+      addResolvedMarketToList(ignoreList, factoryAddress, ids);
+
       return {
         markets: { ...p.markets, ...newMarkets },
         ammExchanges: { ...p.ammExchanges, ...newExchanges },
         blocknumber,
+        ignoreList
       };
     },
     { markets, ammExchanges, blocknumber: null, loading: false }
   );
-
-  const { markets: filterMarkets } = marketInfos;
-
-  // only update open markets after initial load
-  Object.keys(filterMarkets)
-    .filter((id) => filterMarkets[id]?.hasWinner)
-    .forEach((id) => addResolvedMarketToList(filterMarkets[id]?.marketFactoryAddress, filterMarkets[id]?.turboId));
 
   return marketInfos;
 };
@@ -1411,17 +1412,18 @@ export const getFactoryMarketInfo = async (
   markets: MarketInfos,
   cashes: Cashes,
   account: string,
-  factoryAddress: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
+  factoryAddress: string,
+  ignoreList: { [factory: string]: number[] }
+): { markets: MarketInfos, ammExchanges: AmmExchanges, blocknumber: number, factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
-  const ignoreMarketIndexes = IgnoreResolvedMarketsList[factoryAddress.toUpperCase()] || [];
+  const ignoreMarketIndexes = ignoreList[factoryAddress.toUpperCase()] || [];
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
-  console.log('indexes', indexes.length, 'ignore', ignoreMarketIndexes.length);
+  console.log('fetch', indexes.length, 'ignoreMarketIndexes', ignoreMarketIndexes.length, factoryAddress);
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
     indexes,
     cashes,
@@ -1429,7 +1431,7 @@ export const getFactoryMarketInfo = async (
     account,
     factoryAddress
   );
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
+  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
 
 const retrieveMarkets = async (
