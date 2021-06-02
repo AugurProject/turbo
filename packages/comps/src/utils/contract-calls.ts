@@ -136,10 +136,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-            outcomeId: i,
-            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-          }))
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1071,17 +1071,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-        .times(sharesAddLiquidity.shares)
-        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+      .times(sharesAddLiquidity.shares)
+      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(outcomeLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(outcomeLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1384,25 +1384,16 @@ export const getMarketInfos = async (
           blocknumber,
         };
       }
-      const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
-      const newMarkets = Object.keys(marketInfos).reduce(
-        (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
-        {}
-      );
-      const newExchanges = Object.keys(exchanges).reduce(
-        (p, id) => (!existingMarkets.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
-        {}
-      );
 
       // only update open markets after initial load
       const ids = Object.keys(marketInfos)
-        .filter((id) => marketInfos[id]?.hasWinner)
+        .filter((id) => marketInfos[id]?.hasWinner && !isOld)
         .map((id) => Number(marketInfos[id]?.turboId));
       addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
       return {
-        markets: { ...p.markets, ...newMarkets },
-        ammExchanges: { ...p.ammExchanges, ...newExchanges },
+        markets: { ...p.markets, ...marketInfos },
+        ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber,
         ignoreList,
       };
@@ -1437,7 +1428,7 @@ export const getFactoryMarketInfo = async (
     account,
     factoryAddress
   );
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, factoryAddress };
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
 
 const retrieveMarkets = async (
