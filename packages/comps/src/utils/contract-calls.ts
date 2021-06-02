@@ -1312,8 +1312,8 @@ export const getERC1155ApprovedForAll = async (
 
 const isOldMarketFactory = (address) => {
   const { marketFactories } = PARA_CONFIG;
-  return (marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase());
-}
+  return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
+};
 
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
@@ -1332,11 +1332,15 @@ const marketFactories = () => {
 };
 
 // stop updating resolved markets
-const addResolvedMarketToList = (ignoreList: { [factory: string]: number[] }, factoryAddress: string, marketIndexs: number[] | number) => {
+const addResolvedMarketToList = (
+  ignoreList: { [factory: string]: number[] },
+  factoryAddress: string,
+  marketIndexs: number[] | number
+) => {
   const address = factoryAddress.toUpperCase();
   const factoryList = ignoreList[address] || [];
-  const filtered = marketIndexs.filter(i => !factoryList.includes(i))
-  ignoreList[address] = [...factoryList, ...filtered]
+  const filtered = marketIndexs.filter((i) => !factoryList.includes(i));
+  ignoreList[address] = [...factoryList, ...filtered];
 };
 
 export const getMarketInfos = async (
@@ -1391,14 +1395,16 @@ export const getMarketInfos = async (
       );
 
       // only update open markets after initial load
-      const ids = Object.keys(marketInfos).filter((id) => marketInfos[id]?.hasWinner).map(id => Number(marketInfos[id]?.turboId));
+      const ids = Object.keys(marketInfos)
+        .filter((id) => marketInfos[id]?.hasWinner)
+        .map((id) => Number(marketInfos[id]?.turboId));
       addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
       return {
         markets: { ...p.markets, ...newMarkets },
         ammExchanges: { ...p.ammExchanges, ...newExchanges },
         blocknumber,
-        ignoreList
+        ignoreList,
       };
     },
     { markets, ammExchanges, blocknumber: null, loading: false }
@@ -1414,7 +1420,7 @@ export const getFactoryMarketInfo = async (
   account: string,
   factoryAddress: string,
   ignoreList: { [factory: string]: number[] }
-): { markets: MarketInfos, ammExchanges: AmmExchanges, blocknumber: number, factoryAddress: string } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
   const ignoreMarketIndexes = ignoreList[factoryAddress.toUpperCase()] || [];
@@ -1423,7 +1429,7 @@ export const getFactoryMarketInfo = async (
   for (let i = 1; i < numMarkets; i++) {
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
-  console.log('fetch', indexes.length, 'ignoreMarketIndexes', ignoreMarketIndexes.length, factoryAddress);
+
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
     indexes,
     cashes,

@@ -176,4 +176,4 @@ export const NETWORK_BLOCK_REFRESH_TIME = {
 
 // used to store markets to ignore, in format
 // { [marketfactory]: [market_indexes] }
-export const MARKET_IGNORE_LIST = { }
+export const MARKET_IGNORE_LIST = {};
