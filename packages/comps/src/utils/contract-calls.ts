@@ -1387,7 +1387,7 @@ export const getMarketInfos = async (
 
       // only update open markets after initial load
       const ids = Object.keys(marketInfos)
-        .filter((id) => marketInfos[id]?.hasWinner && !isOld)
+        .filter((id) => marketInfos[id]?.hasWinner)
         .map((id) => Number(marketInfos[id]?.turboId));
       addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
