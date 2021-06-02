@@ -107,13 +107,13 @@ export const EmptyBetslip = () => {
   );
 };
 
-const EditableBet = ({ heading, name, wager, odds }) => {
+const EditableBet = ({ heading, name, wager, price }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  const initialOdds = useRef(odds);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: odds }), oddsFormat).full;
-  const hasOddsChanged = initialOdds.current !== odds;
+  const initialOdds = useRef(price);
+  const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const hasOddsChanged = initialOdds.current !== price;
   return (
     <article className={Styles.EditableBet}>
       <header>{heading}</header>

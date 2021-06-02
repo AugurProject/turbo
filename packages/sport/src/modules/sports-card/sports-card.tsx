@@ -3,6 +3,7 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
+import { useBetslipStore } from "modules/stores/betslip";
 const {
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
@@ -37,7 +38,7 @@ const SportsCardTitle = ({ marketId, title, description }) => (
   </MarketLink>
 );
 
-const SportsCardOutcomes = ({ title, amm }) => {
+const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
   const outcomes = [].concat(amm?.ammOutcomes || []);
   const noContest = outcomes.shift();
   if (noContest) {
@@ -48,22 +49,32 @@ const SportsCardOutcomes = ({ title, amm }) => {
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ ...outcome }} />
+          <SportsOutcomeButton {...{ outcome, marketId, title, description }} />
         ))}
       </main>
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ name, price, ...props }) => {
+const SportsOutcomeButton = ({ outcome, marketId, title, description}) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  const odds = useMemo(() => (price !== "" ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [price, oddsFormat]);
+  const { 
+    actions: { addBet }
+  } = useBetslipStore();
+  const { price, name } = outcome;
+  const hasPrice = price !== "";
+  const odds = useMemo(() => (hasPrice ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [price, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
-      <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
+      <button onClick={() => hasPrice && addBet({
+        ...outcome,
+        marketId,
+        heading: `${title}, ${description}`,
+        wager: '0',
+      })}>{odds}</button>
     </div>
   );
 };
