@@ -31,7 +31,7 @@ const {
   ButtonComps: { ApprovalButton, BuySellButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
-  LabelComps: { generateTooltip },
+  LabelComps: { generateTooltip, WarningBanner },
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
 } = Components;
 const {
@@ -373,7 +373,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       receiveTitle: "You'll receive",
       actionButtonText: "Add",
       confirmButtonText: "confirm add",
-      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
+      footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
+      footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
@@ -416,7 +417,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       minimumAmount: "100",
       confirmButtonText: "confirm market liquidity",
       currencyName: `${chosenCash}`,
-      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity. Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
+      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
+      footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
       breakdown: getCreateBreakdown(),
       approvalButtonText: `approve ${chosenCash}`,
       confirmOverview: {
@@ -567,7 +569,9 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   : null
               }
             />
-            <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
+            <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}
+            {LIQUIDITY_STRINGS[modalType].footerEmphasize && <span>{LIQUIDITY_STRINGS[modalType].footerEmphasize}</span>}
+            </div>
           </main>
         </>
       ) : (
@@ -598,8 +602,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                 <InfoNumbers infoNumbers={LIQUIDITY_STRINGS[modalType].marketLiquidityDetails.breakdown} />
               </section>
             )}
+            {liquidityModalType !== REMOVE && <WarningBanner
+              className={Styles.MarginTop}
+              title="Remove liquidity before winning outcome is known to prevent loss of funds."
+              subtitle={
+                "Impermanent loss occurs when you provide liquidity to a liquidity pool, and the price of your deposited assets changes compared to when you deposited them. The bigger this change is, the more exposed you are to impermanent loss. To mitigate this risk, it is recommended that you remove your liquidity before the final outcome is known."
+              }
+            />}
             <BuySellButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} />
-            {LIQUIDITY_STRINGS[modalType].footerText && (
+            {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
             )}
           </main>

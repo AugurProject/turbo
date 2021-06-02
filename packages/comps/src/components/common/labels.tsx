@@ -226,7 +226,7 @@ export const WarningBanner = ({ title, subtitle, className, onClose }: WarningBa
         <span>{title}</span>
         <span>{subtitle}</span>
       </div>
-      <div onClick={() => onClose()}>{XIcon}</div>
+      {onClose && <div onClick={() => onClose()}>{XIcon}</div>}
     </section>
   );
 };
