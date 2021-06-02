@@ -118,5 +118,168 @@
     margin-top: @size-1;
     margin-bottom: @size-11;
   }
+}
+
+.BetslipContent {
+  display: grid;
+  grid-gap: @size-8;
+  padding: @size-12;
+  grid-template-columns: 1fr;
+}
+
+.EditableBet {
+  .SimpleBorder;
+  .SecondaryBorderRadius;
+
+  > header {
+    .text-12-bold;
+    .SecondaryTopBorderRadius;
+
+    min-height: @size-30;
+    background: var(--light-background-color);
+    color: var(--simple-primary-text);
+    border-bottom: @size-1 solid var(--simple-border);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: @size-8 @size-12;
+  }
+
+  > main {
+    .SecondaryBottomBorderRadius;
+
+    background: var(--simple-light-bg);
+    padding: @size-12;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: @size-8;
+
+    // heading area of content
+    > div:first-of-type {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      > h6 {
+        .text-12-bold;
+
+        color: var(--simple-primary-text);
+        margin: 0;
+        padding: 0;
+      }
+
+      > span {
+        .text-12-bold;
   
+        color: var(--simple-primary-text);
+        padding: @size-1 @size-2;
+        margin-left: auto;
+      }
+
+      > button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        margin-left: @size-8;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+
+        > svg {
+          height: @size-16;
+          width: @size-15;
+
+          > path {
+            stroke: var(--simple-secondary-text);
+          }
+        }
+
+        &:hover {
+          > svg > path {
+            stroke: var(--simple-primary-text);
+          }
+        }
+      }
+    }
+  }
+}
+
+.EditableArea {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: @size-8;
+  margin-top: @size-6;
+  align-items: center;
+  justify-content: center;
+
+  > span:last-of-type {
+    .text-12;
+
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 0;
+    margin: 0;
+    grid-column: span 2;
+    color: var(--simple-failed);
+  }
+}
+
+.LabeledInput {
+  .SimpleBorder;
+
+  border-color: var(--simple-border-dk);
+  background: var(--simple-light-bg);
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  > span {
+    .text-10-semi-bold;
+
+    text-transform: uppercase;
+    color: var(--simple-secondary-text);
+    padding: 0 @size-4;
+    background: var(--simple-light-bg);
+    position: absolute;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    top: -@size-6;
+    min-height: @size-12;
+    height: @size-12;
+    max-height: @size-12;
+  }
+
+  > input {
+    .text-14;
+    .PrimaryBorderRadius;
+
+    border: 0;
+    background: transparent;
+    color: var(--simple-primary-text);
+    text-align: center;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.Invalid {
+  border-color: var(--simple-failed);
+
+  > span {
+    color: var(--simple-failed);
+  }
+}
+
+.OddsChange {
+  background: var(--simple-warning-30);
 }

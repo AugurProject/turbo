@@ -38,7 +38,13 @@ export const SPORT_ACTIONS = {
 
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
-  bets: [],
+  bets: [{
+    heading: 'Who will win? JD vs Life, Over Under',
+    marketId: '0xdeadbeef-0',
+    name: 'Life, +12.5',
+    odds: '0.25',
+    wager: '0',
+  }],
   active: [],
 };
 
