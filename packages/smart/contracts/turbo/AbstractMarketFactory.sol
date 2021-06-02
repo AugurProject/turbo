@@ -103,7 +103,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     // Can check market existence before calling this by comparing _id against markets.length.
     // Can check market existence of the return struct by checking that shareTokens[0] isn't the null address
     function getMarket(uint256 _id) public view returns (Market memory) {
-        if (_id > markets.length) {
+        if (_id >= markets.length) {
             return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
         } else {
             return markets[_id];
