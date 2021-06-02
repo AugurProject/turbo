@@ -67,7 +67,6 @@ export const EmptyBetslip = () => {
   const content = isLogged ? (
     <>
       <p>Need help placing a bet?</p>
-      <SecondaryButton text="View Tutorial" action={() => alert("Tutorial Not Yet Implemented. \n\n TODO: Build a Tutorial!")} />
     </>
   ) : (
     <>

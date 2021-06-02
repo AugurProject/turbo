@@ -28,8 +28,9 @@
       list-style: none;
       display: flex;
       flex-flow: row nowrap;
+      justify-content: flex-end;
       width: 100%;
-      margin: @size-40 0 @size-16;
+      margin: 0;
 
       > div {
         margin-right: @size-20;
@@ -37,6 +38,13 @@
         &:last-of-type {
           margin-right: 0;
           height: unset;
+          transition: .2s flex ease-in-out;
+          min-width: @size-269;
+
+          &:focus-within {
+            flex: 1;
+            transition: .33s flex ease-in-out;
+          }
         }
       }
 
