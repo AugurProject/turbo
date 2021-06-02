@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_REFRESH_TIME } from "./constants";
+import { DEFAULT_DATA_STATE, STUBBED_DATA_ACTIONS, PARA_CONFIG, NETWORK_BLOCK_REFRESH_TIME, MARKET_IGNORE_LIST } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
@@ -34,14 +34,14 @@ export const DataProvider = ({ children }: any) => {
   delete readableState.actions;
   DataStore.get = () => readableState;
   const networkId = Number(PARA_CONFIG.networkId);
-
   useEffect(() => {
     let isMounted = true;
+    let intervalId = null;
     const getMarkets = async () => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
         const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
-        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount);
+        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount, MARKET_IGNORE_LIST);
       } catch (e) {
         console.log("error getting market data", e);
       }
@@ -50,13 +50,13 @@ export const DataProvider = ({ children }: any) => {
 
     getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
       isMounted && !loading && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+      intervalId = setInterval(() => {
+        getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
+          isMounted && !loading && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
+        });
+      }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     });
 
-    const intervalId = setInterval(() => {
-      getMarkets().then(({ markets, ammExchanges, blocknumber, loading }) => {
-        isMounted && !loading && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null, loading);
-      });
-    }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     return () => {
       isMounted = false;
       clearInterval(intervalId);
