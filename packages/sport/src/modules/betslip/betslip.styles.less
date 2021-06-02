@@ -16,10 +16,51 @@
     margin: @size-32 @size-32 @size-32 @size-8;
     width: @betslip-width;
     position: fixed;
+    display: flex;
+    flex-flow: column nowrap;
+  
+    > main:not(.EmptyBetslip) {
+      flex: 1;
+    }
+
+    > footer {
+      border-top: @size-1 solid var(--simple-border);
+      background: var(--light-background-color);
+      padding: @size-12;
+      display: grid;
+      grid-gap: @size-12 @size-8;
+      grid-template-columns: 1fr 1fr;
+      
+      > p {
+        .text-12;
+
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+
+        > b {
+          .text-12-bold;
+          margin: 0 @size-4;
+        }
+      }
+    }
+
+    > :last-child {
+      .PrimaryBottomBorderRadius
+    }
   }
 
   @media @breakpoint-mobile-tablet {
     display: none;
+  }
+}
+
+button.FlipContent {
+  flex-flow: row-reverse nowrap;
+
+  > svg:first-of-type,
+  > div {
+    margin-left: 0;
+    margin-right: @size-4;
   }
 }
 

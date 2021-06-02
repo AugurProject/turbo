@@ -16,6 +16,7 @@ export const Betslip = () => {
       <div>
         <BetslipHeader />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
+        <BetslipFooter />
       </div>
     </section>
   );
@@ -52,9 +53,8 @@ const BetslipHeader = () => {
 };
 
 export const BetslipMain = () => {
-  const { bets } = useBetslipStore();
-  const count = bets.length;
-  return count > 0 ? (
+  const { bets, selectedCount } = useBetslipStore();
+  return selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {bets.map((bet) => (
         <EditableBet {...{ ...bet, key: `${bet.marketId}-editable-bet` }} />
@@ -66,9 +66,10 @@ export const BetslipMain = () => {
 };
 
 export const ActiveBetsMain = () => {
-  const { active } = useBetslipStore();
-  const count = active.length;
-  return count > 0 ? <main>active bets</main> : <EmptyBetslip />;
+  const { active, selectedCount } = useBetslipStore();
+  return selectedCount > 0 ? <main>
+    {active.map((active) => <span>active bet here</span>)}
+  </main> : <EmptyBetslip />;
 };
 
 export const EmptyBetslip = () => {
@@ -123,7 +124,7 @@ const EditableBet = ({ heading, name, wager, odds }) => {
           <button onClick={() => {}}>{TrashIcon}</button>
         </div>
         <div className={Styles.EditableArea}>
-          <LabeledInput label="wager" onEdit={(e) => console.log('edit wager', e.target.value)} value="$0.00" />
+          <LabeledInput label="wager" onEdit={(e) => console.log("edit wager", e.target.value)} value="$0.00" />
           <LabeledInput label="to win" value={null} disabled />
           {/* <span>Your bet exceeds the max available for this odds</span> */}
         </div>
@@ -134,14 +135,32 @@ const EditableBet = ({ heading, name, wager, odds }) => {
 
 const LabeledInput = ({ label, value = null, onEdit = (e) => {}, isInvalid = false, disabled = false }) => {
   return (
-    <div className={classNames(Styles.LabeledInput, {
-      [Styles.Invalid]: isInvalid,
-    })}>
+    <div
+      className={classNames(Styles.LabeledInput, {
+        [Styles.Invalid]: isInvalid,
+      })}
+    >
       <span>{label}</span>
       <input type="text" value={value} placeholder="" onChange={onEdit} disabled={disabled} />
     </div>
-  )
-}
+  );
+};
+
+const BetslipFooter = ({}) => {
+  const { selectedCount, actions: { cancelAllBets } } = useBetslipStore();
+  if (selectedCount === 0) {
+    return null;
+  }
+  return (
+    <footer>
+      <p>
+        Lets get our footing... <b>LOL</b>
+      </p>
+      <SecondaryButton className={Styles.FlipContent} text="Cancel All" icon={TrashIcon} action={() => cancelAllBets()} />
+      <PrimaryButton text="Place Bets" action={() => {}} />
+    </footer>
+  );
+};
 
 export const EmptyBetslipIcon = (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

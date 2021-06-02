@@ -29,6 +29,7 @@ export interface ButtonProps {
   pending?: boolean;
   key?: string;
   label?: string;
+  flipContent?: boolean;
 }
 
 const Button = ({
@@ -46,7 +47,7 @@ const Button = ({
   target = '_blank',
   rel = 'noopener noreferrer',
   pending,
-  label
+  label,
 }: ButtonProps) => {
   return href ? (
     <a
