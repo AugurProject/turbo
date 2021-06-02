@@ -12,6 +12,7 @@
     background: var(--simple-light-bg);
     box-shadow: var(--theme-box-shadow);
     min-height: 440px;
+    max-height: 75vh;
     border: @size-1 solid var(--simple-border);
     margin: @size-32 @size-32 @size-32 @size-8;
     width: @betslip-width;
@@ -162,10 +163,19 @@ button.FlipContent {
 }
 
 .BetslipContent {
-  display: grid;
-  grid-gap: @size-8;
+  // display: grid;
+  // grid-gap: @size-8;
   padding: @size-12;
-  grid-template-columns: 1fr;
+  // grid-template-columns: 1fr;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: stretch;
+  overflow-y: auto;
+
+  > article:not(:last-of-type) {
+    margin-bottom: @size-8;
+  }
 }
 
 .EditableBet {
