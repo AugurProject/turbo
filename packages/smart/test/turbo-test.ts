@@ -194,6 +194,16 @@ describe("Turbo", () => {
     expect(market.shareTokens.length).to.equal(5);
   });
 
+  it("can read empty markets from factory", async () => {
+    const marketCount = await marketFactory.marketCount();
+
+    let market = await marketFactory.callStatic.getMarket(marketCount);
+    expect(market.shareTokens.length).to.equal(0);
+
+    market = await marketFactory.callStatic.getMarket(marketCount.add(1));
+    expect(market.shareTokens.length).to.equal(0);
+  });
+
   it("can read market balances", async () => {
     const balances = await ammFactory.getPoolBalances(marketFactory.address, marketId);
     expect(balances.length).to.equal(5);
