@@ -118,10 +118,10 @@
           margin-top: @size-12;
         }
 
-        &:last-of-type {
+        &:nth-last-child(3) {
           border-bottom: 0;
-          padding-bottom: 0;
-          margin-bottom: 0;
+          padding-bottom: @size-12;
+          margin-bottom: @size-12;
         }
       }
 
@@ -274,6 +274,7 @@
   > span:first-of-type {
     margin-bottom: @size-12;
     display: flex;
+    font-weight: 600;
   }
 }
 
