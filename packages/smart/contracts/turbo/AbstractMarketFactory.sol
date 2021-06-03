@@ -123,6 +123,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         address _receiver
     ) public {
         require(markets.length > _id, "No such market");
+        require(!isMarketResolved(_id), "Cannot mint shares for resolved market");
 
         uint256 _cost = calcCost(_shareToMint);
         collateral.transferFrom(msg.sender, address(this), _cost);
