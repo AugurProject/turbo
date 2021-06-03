@@ -113,7 +113,7 @@ export const EmptyBetslip = () => {
     </main>
   );
 };
-
+const LOW_AMOUNT_ERROR = 'Your bet must be greater than 0.00';
 const EditableBet = ({ betId, bet }) => {
   const {
     settings: { oddsFormat },
@@ -128,6 +128,13 @@ const EditableBet = ({ betId, bet }) => {
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
+  const checkErrors = (test) => {
+    let returnError = null;
+    if (test !== '' && (isNaN(test) || Number(test) === 0 || Number(test) < 0)) {
+      returnError = LOW_AMOUNT_ERROR;
+    }
+    return returnError;
+  }
   return (
     <article className={Styles.EditableBet}>
       <header>{heading}</header>
@@ -142,6 +149,13 @@ const EditableBet = ({ betId, bet }) => {
             label="wager"
             onEdit={(e) => {
               setValue(e.target.value);
+              if (error) {
+                const newError = checkErrors(e.target.value);
+                setError(newError);
+                if (!newError) {
+                  console.log("calc toWin", bet);
+                }
+              }
               // VALIDATION:
               // aggressive when invalid true
               // check for errors only if isInvalid is true.
@@ -151,6 +165,13 @@ const EditableBet = ({ betId, bet }) => {
               // VALIDATION:
               // lazy otherwise
               // check for errors here
+              const error = checkErrors(fmtValue);
+              setError(error);
+              if (!error) {
+                console.log("calc toWin", bet);
+                // setToWin(createBigNumber(fmtValue))
+              }
+              setValue(fmtValue);
               updateBet({
                 ...bet,
                 wager: fmtValue,
