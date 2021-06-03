@@ -3,7 +3,10 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
+<<<<<<< HEAD
 import { AmmExchange } from "@augurproject/comps/build/types";
+=======
+>>>>>>> Add sized price estimates (#698)
 import { getSizedPrice, SizedPrice } from "modules/utils";
 const {
   Formatter: { formatDai },
