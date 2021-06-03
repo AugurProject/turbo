@@ -1384,15 +1384,6 @@ export const getMarketInfos = async (
           blocknumber,
         };
       }
-      const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
-      const newMarkets = Object.keys(marketInfos).reduce(
-        (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
-        {}
-      );
-      const newExchanges = Object.keys(exchanges).reduce(
-        (p, id) => (!existingMarkets.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
-        {}
-      );
 
       // only update open markets after initial load
       const ids = Object.keys(marketInfos)
@@ -1401,8 +1392,8 @@ export const getMarketInfos = async (
       addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
       return {
-        markets: { ...p.markets, ...newMarkets },
-        ammExchanges: { ...p.ammExchanges, ...newExchanges },
+        markets: { ...p.markets, ...marketInfos },
+        ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber,
         ignoreList,
       };
@@ -1437,7 +1428,7 @@ export const getFactoryMarketInfo = async (
     account,
     factoryAddress
   );
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber, factoryAddress };
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
 
 const retrieveMarkets = async (
