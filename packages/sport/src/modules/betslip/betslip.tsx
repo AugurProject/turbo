@@ -3,10 +3,21 @@ import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { useBetslipStore } from "../stores/betslip";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
-import { ButtonComps, useAppStatusStore, useUserStore, Constants, OddsUtils, Formatter } from "@augurproject/comps";
+import {
+  ButtonComps,
+  useAppStatusStore,
+  useUserStore,
+  Constants,
+  OddsUtils,
+  Formatter,
+  DateUtils,
+  Icons,
+} from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 const { PrimaryButton, SecondaryButton } = ButtonComps;
-const { MODAL_CONNECT_WALLET } = Constants;
+const { MODAL_CONNECT_WALLET, TX_STATUS } = Constants;
+const { SimpleCheck } = Icons;
+const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
 
@@ -69,9 +80,9 @@ export const BetslipMain = () => {
 export const ActiveBetsMain = () => {
   const { active, selectedCount } = useBetslipStore();
   return selectedCount > 0 ? (
-    <main>
-      {active.map((active) => (
-        <span>active bet here</span>
+    <main className={Styles.BetslipContent}>
+      {Object.entries(active).map(([tx_hash, bet]) => (
+        <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
       ))}
     </main>
   ) : (
@@ -113,7 +124,9 @@ export const EmptyBetslip = () => {
     </main>
   );
 };
-const LOW_AMOUNT_ERROR = 'Your bet must be greater than 0.00';
+
+const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
+
 const EditableBet = ({ betId, bet }) => {
   const {
     settings: { oddsFormat },
@@ -130,11 +143,11 @@ const EditableBet = ({ betId, bet }) => {
   const hasOddsChanged = initialOdds.current !== price;
   const checkErrors = (test) => {
     let returnError = null;
-    if (test !== '' && (isNaN(test) || Number(test) === 0 || Number(test) < 0)) {
+    if (test !== "" && (isNaN(test) || Number(test) === 0 || Number(test) < 0)) {
       returnError = LOW_AMOUNT_ERROR;
     }
     return returnError;
-  }
+  };
   return (
     <article className={Styles.EditableBet}>
       <header>{heading}</header>
@@ -212,6 +225,92 @@ const LabeledInput = ({
       <span>{label}</span>
       <input type="number" min={0} value={value} placeholder="" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
     </div>
+  );
+};
+
+const BetReciept = ({ tx_hash, bet }) => {
+  const {
+    settings: { oddsFormat, timeFormat },
+  } = useSportsStore();
+  const { price, name, heading, status } = bet;
+  const txStatus = {
+    message: null,
+    icon: SimpleCheck,
+    class: { [Styles.Confirmed]: true },
+    action: () => console.log("nothing happens"),
+  };
+  switch (status) {
+    case TX_STATUS.PENDING: {
+      txStatus.class = { [Styles.Pending]: true };
+      txStatus.icon = TrashIcon;
+
+      break;
+    }
+    case TX_STATUS.FAILURE: {
+      txStatus.class = { [Styles.Failed]: true };
+      txStatus.icon = TrashIcon;
+      txStatus.message = "Order Failed.";
+      txStatus.action = () => console.log("Would Clear Order -- remove from active bets");
+      break;
+    }
+    default:
+      break;
+  }
+  const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+
+  return (
+    <article className={classNames(Styles.BetReceipt, txStatus.class)}>
+      <header>{heading}</header>
+      <main>
+        <div>
+          <h6>{name}</h6>
+          <span>{displayOdds}</span>
+          <button onClick={txStatus.action}>{txStatus.icon}</button>
+        </div>
+        <TicketBreakdown bet={bet} timeFormat={timeFormat} />
+        {txStatus.message && (
+          <span>
+            {txStatus.message}
+            <button onClick={() => console.log("retry tx")}>Retry.</button>
+          </span>
+        )}
+      </main>
+    </article>
+  );
+};
+
+export const DashlineNormal = () => (
+  <svg width="100%" height="1">
+    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.Dashline} />
+  </svg>
+);
+
+export const DashlineLong = () => (
+  <svg width="100%" height="1">
+    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.DashlineLong} />
+  </svg>
+);
+
+const TicketBreakdown = ({ bet, timeFormat }) => {
+  const { wager, toWin, timestamp } = bet;
+  return (
+    <ul className={Styles.TicketBreakdown}>
+      <li>
+        <span>Wager</span>
+        <DashlineNormal />
+        <span>{`$${wager}`}</span>
+      </li>
+      <li>
+        <span>To Win</span>
+        <DashlineNormal />
+        <span>{`$${toWin}`}</span>
+      </li>
+      <li>
+        <span>Date</span>
+        <DashlineNormal />
+        <span>{getDateTimeFormat(timestamp, timeFormat)}</span>
+      </li>
+    </ul>
   );
 };
 

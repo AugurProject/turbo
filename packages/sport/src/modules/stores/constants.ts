@@ -36,6 +36,10 @@ export const SPORT_ACTIONS = {
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
 };
 
+const { TX_STATUS } = Constants;
+
+const date = new Date();
+const now = Math.floor(date.getTime() / 1000);
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 1,
@@ -49,7 +53,41 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: null,
     },
   },
-  active: {},
+  active: {
+    '0xtxHash03': {
+      heading: 'Who will win? JD vs Life, Over Under',
+      marketId: '0xdeadbeef-0',
+      id: 2,
+      name: "Life, +12.5",
+      price: "0.3",
+      wager: "500.00",
+      toWin: "1337.00",
+      timestamp: now,
+      status: TX_STATUS.PENDING,
+    },
+    '0xtxHash02': {
+      heading: 'Who will win? JD vs Life, Over Under',
+      marketId: '0xdeadbeef-0',
+      id: 2,
+      name: "Life, +12.5",
+      price: "0.35",
+      wager: "200.00",
+      toWin: "325.00",
+      timestamp: now,
+      status: TX_STATUS.CONFIRMED,
+    },
+    '0xtxHash01': {
+      heading: 'Who will win? JD vs Life, Over Under',
+      marketId: '0xdeadbeef-0',
+      id: 2,
+      name: "Life, +12.5",
+      price: "0.55",
+      wager: "10.00",
+      toWin: "9.00",
+      timestamp: now,
+      status: TX_STATUS.FAILURE,
+    }
+  },
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {

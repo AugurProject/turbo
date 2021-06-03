@@ -163,10 +163,7 @@ button.FlipContent {
 }
 
 .BetslipContent {
-  // display: grid;
-  // grid-gap: @size-8;
   padding: @size-12;
-  // grid-template-columns: 1fr;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -181,6 +178,8 @@ button.FlipContent {
 .EditableBet {
   .SimpleBorder;
   .SecondaryBorderRadius;
+
+  width: 100%;
 
   > header {
     .text-12-bold;
@@ -298,7 +297,7 @@ button.FlipContent {
     .text-14;
 
     color: var(--simple-primary-text);
-    content: '$';
+    content: "$";
     position: absolute;
     left: @size-4;
   }
@@ -364,4 +363,92 @@ button.FlipContent {
 
 .OddsChange {
   background: var(--simple-warning-30);
+}
+
+.BetReceipt {
+  .EditableBet;
+
+  &.Confirmed {
+    > main > div > button > svg {
+      width: @size-16;
+      height: @size-16;
+
+      > path {
+        stroke: unset;
+        fill: var(--simple-primary-action);
+      }
+    }
+  }
+
+  &.Failed {
+    > main {
+      background: var(--simple-failed-10);
+
+      > div > button > svg {
+        > path {
+          stroke: var(--simple-failed);
+        }
+      }
+
+      > span {
+        .text-12;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        color: var(--simple-failed);
+
+        > button {
+          .text-12-bold;
+
+          border: none;
+          background: none;
+          color: var(--simple-failed);
+          margin-left: @size-4;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+.TicketBreakdown {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  > li {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: baseline;
+
+    > span {
+      white-space: nowrap;
+
+      &:first-of-type {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        text-transform: uppercase;
+      }
+
+      &:last-of-type {
+        .text-12;
+
+        color: var(--simple-primary-text);
+      }
+    }
+
+    > svg {
+      margin: 0 @size-8;
+
+      > line {
+        .dashline-normal;
+      }
+    }
+  }
 }
