@@ -51,14 +51,14 @@ const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ outcome, marketId, title, description, sizedPrice: sizedPrices?.[outcome?.id] }} />
+          <SportsOutcomeButton {...{ outcome, marketId, title, description, amm }} />
         ))}
       </main>
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ outcome, marketId, title, description, sizedPrice = null }) => {
+const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
@@ -67,14 +67,14 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, sizedPrice
     actions: { addBet },
   } = useBetslipStore();
   const { id, name } = outcome;
-  const hasPrice = !!sizedPrice;
-  const odds = useMemo(() => (hasPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
+  const sizedPrice = useMemo(() => getSizedPrice(amm, id), [outcome.balance]);
+  const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
       <button
         onClick={() =>
-          hasPrice &&
+          sizedPrice &&
           !bets[`${marketId}-${id}`] &&
           addBet({
             ...outcome,
