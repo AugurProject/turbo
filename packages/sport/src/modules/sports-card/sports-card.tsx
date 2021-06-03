@@ -61,7 +61,7 @@ const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : { price };
+  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : undefined;
   const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
