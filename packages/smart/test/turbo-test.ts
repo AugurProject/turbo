@@ -1,6 +1,9 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { expect } from "chai";
+import { expect, use as chaiUse } from "chai";
+
+import chaiAsPromised from "chai-as-promised";
+chaiUse(chaiAsPromised);
 
 import {
   AMMFactory,
@@ -25,6 +28,7 @@ describe("Turbo", () => {
   let signer: SignerWithAddress;
   const BONE = BigNumber.from(10).pow(18);
   const INITIAL_LP_DUST_BURNT = BONE.div(1000);
+  const FAKE_ADDRESS = "0xFA0E00000000000000000000000000000000FA0E";
 
   before(async () => {
     [signer] = await ethers.getSigners();
@@ -209,8 +213,18 @@ describe("Turbo", () => {
     expect(balances.length).to.equal(5);
   });
 
-  it("can claim winnings", async () => {
+  it("can resolve markets", async () => {
     await marketFactory.trustedResolveMarket(marketId, 1);
+  });
+
+  it("can remove liquidity", async () => {
+    const lpTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
+    await pool.approve(ammFactory.address, lpTokens);
+    await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, FAKE_ADDRESS);
+    expect(await collateral.balanceOf(FAKE_ADDRESS)).to.equal(1001842805); // hardcoded from observation
+  });
+
+  it("can claim winnings", async () => {
     // can burn non-winning shares
     const setsLeft = await noContest.balanceOf(signer.address);
     await noContest.transfer(DEAD_ADDRESS, setsLeft);
@@ -229,6 +243,17 @@ describe("Turbo", () => {
     expect(await many.balanceOf(signer.address)).to.equal(0);
     expect(await few.balanceOf(signer.address)).to.equal(0);
     expect(await none.balanceOf(signer.address)).to.equal(0);
+  });
+
+  it("cannot mint sets after market resolution", async () => {
+    const setsToMint = shareFactor.mul(100);
+    const costToMint = setsToMint.div(shareFactor);
+
+    await collateral.faucet(costToMint);
+    await collateral.approve(marketFactory.address, costToMint);
+    await expect(marketFactory.mintShares(marketId, setsToMint, signer.address)).to.be.rejectedWith(
+      "VM Exception while processing transaction: revert Cannot mint shares for resolved market"
+    );
   });
 
   it("can create a test balancer pool", async () => {

@@ -344,35 +344,16 @@ export function doRemoveLiquidity(
     : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
-export const estimateBuyTrade = async (
+export const estimateBuyTrade = (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   cash: Cash
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("doRemoveLiquidity: no provider");
-    return null;
-  }
-  const { marketFactoryAddress, turboId } = amm;
-
+): EstimateTradeResult | null => {
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
-  console.log(
-    "estimate buy",
-    "address",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    0
-  );
   let result = null;
   try {
-    result = await estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
+    result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
   } catch (e) {
     console.log("error in estimate buy", e);
   }
@@ -386,7 +367,6 @@ export const estimateBuyTrade = async (
   const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
   const priceImpact = price.minus(averagePrice).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
-  console.log("est shares", String(estimatedShares), "avg price", String(averagePrice), "outcome price", String(price));
 
   return {
     outputValue: trimDecimalValue(estimatedShares),
@@ -398,36 +378,13 @@ export const estimateBuyTrade = async (
   };
 };
 
-export const estimateSellTrade = async (
+export const estimateSellTrade = (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   userBalances: string[]
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("estimateSellTrade: no provider");
-    return null;
-  }
-  const { marketFactoryAddress, turboId } = amm;
+): EstimateTradeResult | null => {
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-  console.log(
-    "estimate sell",
-    "factory",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome id",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    "inputDisplayAmount",
-    inputDisplayAmount,
-    "shareTokens",
-    amm.ammOutcomes,
-    "share factor",
-    amm.shareFactor
-  );
 
   const [setsOut, undesirableTokensInPerOutcome] = calcSellCompleteSets(
     amm.shareFactor,
@@ -590,10 +547,12 @@ export const cashOutAllShares = (
     .times(new BN(shareFactor))
     .decimalPlaces(0, 1);
   console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
-  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, {
-    gasLimit: "800000",
-    gasPrice: "10000000000",
-  });
+  return marketFactoryContract.burnShares(
+    marketId,
+    normalizedAmount.toFixed(),
+    account
+    //{ gasLimit: "800000", gasPrice: "10000000000",}
+  );
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
@@ -1766,13 +1725,12 @@ const retrieveExchangeInfos = async (
     const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
     const balancesRaw = balances[marketId];
     const weights = poolWeights[marketId];
-    const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
       ratioRaw: exchange.id ? getArrayValue(ratios[marketId], i) : "",
       ratio: exchange.id ? toDisplayRatio(getArrayValue(ratios[marketId], i)) : "",
       balanceRaw: exchange.id ? getArrayValue(balances[marketId], i) : "",
-      balance: exchange.id ? toDisplayBalance(getArrayValue(balances[marketId], i), numTicks) : "",
+      balance: exchange.id ? String(sharesOnChainToDisplay(getArrayValue(balances[marketId], i))) : "",
       ...o,
     }));
     // create cross reference
@@ -1910,12 +1868,6 @@ const decodeOutcomes = (
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
   // todo: need to use cash to get decimals
   return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18).toFixed();
-};
-
-const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
-  // todo: need to use cash to get decimals
-  const MULTIPLIER = new BN(10).pow(18);
-  return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
 };
 
 const toDisplayLiquidity = (onChainBalance: string = "0"): string => {

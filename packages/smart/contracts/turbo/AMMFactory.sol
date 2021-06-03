@@ -204,9 +204,12 @@ contract AMMFactory is BNum {
 
         _pool.transferFrom(msg.sender, address(this), _lpTokensIn);
 
-        uint256[] memory minAmountsOut = new uint256[](_market.shareTokens.length);
-        uint256[] memory exitPoolEstimate = _pool.calcExitPool(_lpTokensIn, minAmountsOut);
-        _pool.exitPool(_lpTokensIn, minAmountsOut);
+        uint256[] memory exitPoolEstimate;
+        {
+            uint256[] memory minAmountsOut = new uint256[](_market.shareTokens.length);
+            exitPoolEstimate = _pool.calcExitPool(_lpTokensIn, minAmountsOut);
+            _pool.exitPool(_lpTokensIn, minAmountsOut);
+        }
 
         // Find the number of sets to sell.
         uint256 _setsToSell = MAX_UINT;
@@ -218,7 +221,8 @@ contract AMMFactory is BNum {
         // Must be a multiple of share factor.
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
-        if (_marketFactory.isMarketResolved(_marketId)) {
+        bool _resolved = _marketFactory.isMarketResolved(_marketId);
+        if (_resolved) {
             _collateralOut = _marketFactory.claimWinnings(_marketId, _collateralRecipient);
         } else {
             _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, _collateralRecipient);
@@ -228,9 +232,9 @@ contract AMMFactory is BNum {
         // Transfer the remaining shares back to _collateralRecipient.
         _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            uint256 _acquiredTokenBalance = exitPoolEstimate[i];
             OwnedERC20 _token = _market.shareTokens[i];
-            _balances[i] = _acquiredTokenBalance - _setsToSell;
+            if (_resolved && _token == _market.winner) continue; // all winning shares claimed when market is resolved
+            _balances[i] = exitPoolEstimate[i] - _setsToSell;
             if (_balances[i] > 0) {
                 _token.transfer(_collateralRecipient, _balances[i]);
             }
