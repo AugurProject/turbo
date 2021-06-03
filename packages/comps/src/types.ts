@@ -232,7 +232,6 @@ export interface AmmExchange {
   symbols: string[];
   shareFactor: string;
   balancesRaw: string[];
-  balances: string[];
   weights: string[];
   marketFactoryAddress: string;
 }
