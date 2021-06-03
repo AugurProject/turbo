@@ -14,12 +14,11 @@ const { MarketLink } = Links;
 
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
   const market = markets?.[marketId];
-  const sizedPrices = getSizedPrice(market);
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
       <SportsCardTitle {...{ ...market }} />
-      <SportsCardOutcomes {...{ ...market, sizedPrices }} />
+      <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
   );
@@ -39,12 +38,13 @@ const SportsCardTitle = ({ marketId, title, description }) => (
   </MarketLink>
 );
 
-const SportsCardOutcomes = ({ title, amm, sizedPrices }) => {
+const SportsCardOutcomes = ({ title, amm }) => {
   const outcomes = [].concat(amm?.ammOutcomes || []);
   const noContest = outcomes.shift();
   if (noContest) {
     outcomes.push(noContest);
   }
+  const sizedPrices = getSizedPrice(amm);
   return (
     <section className={Styles.SportsCardOutcomes}>
       <header>{!!title && <span>{title}</span>}</header>
@@ -61,13 +61,13 @@ const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : {};
-  const odds = useMemo(() => (sizedPrice !== "" ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
+  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : { price };
+  const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
       <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
-      {sizedPrice?.size && <label>{formatDai(sizedPrice?.size).full}</label>}
+      {sizedPrice?.size && <span>{formatDai(sizedPrice?.size).full}</span>}
     </div>
   );
 };

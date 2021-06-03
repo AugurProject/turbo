@@ -1,5 +1,5 @@
 import { BigNumber as BN } from "bignumber.js";
-import { MarketInfo } from "@augurproject/comps/build/types";
+import { AmmExchange } from "@augurproject/comps/build/types";
 import { ContractCalls } from "@augurproject/comps";
 const { estimateBuyTrade } = ContractCalls;
 
@@ -7,9 +7,8 @@ export interface SizedPrice {
   [outcomeId: number]: { size: string; price: string };
 }
 
-export const getSizedPrice = (marketInfo: MarketInfo, liquidityPortion: number = 0.05): SizedPrice => {
-  if (!marketInfo) return null;
-  const { amm } = marketInfo;
+export const getSizedPrice = (amm: AmmExchange, liquidityPortion: number = 0.05): SizedPrice => {
+  if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
 
   const outcomePrices = Object.keys(amm.ammOutcomes).reduce((p, id) => {
