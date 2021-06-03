@@ -350,21 +350,7 @@ export const estimateBuyTrade = (
   selectedOutcomeId: number,
   cash: Cash
 ): EstimateTradeResult | null => {
-  const { marketFactoryAddress, turboId } = amm;
-
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
-  console.log(
-    "estimate buy",
-    "address",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    0
-  );
   let result = null;
   try {
     result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
@@ -561,8 +547,11 @@ export const cashOutAllShares = (
     .times(new BN(shareFactor))
     .decimalPlaces(0, 1);
   console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
-  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, 
-  //{ gasLimit: "800000", gasPrice: "10000000000",}
+  return marketFactoryContract.burnShares(
+    marketId,
+    normalizedAmount.toFixed(),
+    account
+    //{ gasLimit: "800000", gasPrice: "10000000000",}
   );
 };
 
@@ -1736,13 +1725,12 @@ const retrieveExchangeInfos = async (
     const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
     const balancesRaw = balances[marketId];
     const weights = poolWeights[marketId];
-    const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
       ratioRaw: exchange.id ? getArrayValue(ratios[marketId], i) : "",
       ratio: exchange.id ? toDisplayRatio(getArrayValue(ratios[marketId], i)) : "",
       balanceRaw: exchange.id ? getArrayValue(balances[marketId], i) : "",
-      balance: exchange.id ? toDisplayBalance(getArrayValue(balances[marketId], i), numTicks) : "",
+      balance: exchange.id ? String(sharesOnChainToDisplay(getArrayValue(balances[marketId], i))) : "",
       ...o,
     }));
     // create cross reference
@@ -1752,7 +1740,6 @@ const retrieveExchangeInfos = async (
     exchange.feeInPercent = fee ? feeDecimal.times(100).toFixed() : "0";
     exchange.feeRaw = fee;
     exchange.balancesRaw = balancesRaw ? balancesRaw.map((b) => String(b)) : [];
-    exchange.balances = balancesRaw ? balancesRaw.map((b) => String(sharesOnChainToDisplay(b))) : [];
     exchange.shareFactor = new BN(String(shareFactors[market.marketFactoryAddress])).toFixed();
     exchange.weights = weights ? weights.map((w) => String(w)) : [];
     exchange.liquidityUSD = getTotalLiquidity(outcomePrices, balancesRaw);
@@ -1881,12 +1868,6 @@ const decodeOutcomes = (
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
   // todo: need to use cash to get decimals
   return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18).toFixed();
-};
-
-const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
-  // todo: need to use cash to get decimals
-  const MULTIPLIER = new BN(10).pow(18);
-  return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
 };
 
 const toDisplayLiquidity = (onChainBalance: string = "0"): string => {

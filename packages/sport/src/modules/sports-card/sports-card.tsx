@@ -61,14 +61,13 @@ const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  let sizedPrice = sizedPrices ? sizedPrices[id]?.price : price;
-  let size = sizedPrice ? sizedPrices[id]?.size : undefined;
-  const odds = useMemo(() => (sizedPrice !== "" ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
+  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : {};
+  const odds = useMemo(() => (sizedPrice !== "" ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
       <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
-      {size && <label>{formatDai(size).full}</label>}
+      {sizedPrice?.size && <label>{formatDai(sizedPrice?.size).full}</label>}
     </div>
   );
 };
