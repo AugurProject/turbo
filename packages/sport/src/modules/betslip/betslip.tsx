@@ -8,14 +8,17 @@ import {
   ButtonComps,
   useAppStatusStore,
   useUserStore,
+  useDataStore,
   Constants,
   OddsUtils,
   Formatter,
   DateUtils,
   Icons,
   PathUtils,
+  createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
+import { getSizedPrice } from "modules/utils";
 const { PrimaryButton, SecondaryButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO } = Constants;
@@ -139,10 +142,12 @@ const EditableBet = ({ betId, bet }) => {
   const {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
-  const { heading, name, price, wager } = bet;
+  const { markets } = useDataStore();
+  const { id, marketId, heading, name, price, wager, toWin } = bet;
+  const market = markets[marketId];
+  const amm = market?.amm;
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
-  const [toWin, setToWin] = useState("0.00");
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
@@ -170,29 +175,23 @@ const EditableBet = ({ betId, bet }) => {
               if (error) {
                 const newError = checkErrors(e.target.value);
                 setError(newError);
-                if (!newError) {
-                  console.log("calc toWin", bet);
-                }
               }
-              // VALIDATION:
-              // aggressive when invalid true
-              // check for errors only if isInvalid is true.
             }}
             onBlur={(e) => {
               const fmtValue = formatDai(value).formatted;
-              // VALIDATION:
-              // lazy otherwise
-              // check for errors here
               const error = checkErrors(fmtValue);
+              let updatedToWin = toWin;
               setError(error);
               if (!error) {
-                console.log("calc toWin", bet);
-                // setToWin(createBigNumber(fmtValue))
+                const sizeOfPool = getSizedPrice(amm, id);
+                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool.price));
+                updatedToWin = formatDai(priceOffset.times(fmtValue)).full;
               }
               setValue(fmtValue);
               updateBet({
                 ...bet,
                 wager: fmtValue,
+                toWin: updatedToWin,
               });
             }}
             isInvalid={!!error}
@@ -248,7 +247,6 @@ const BetReciept = ({ tx_hash, bet }) => {
     case TX_STATUS.PENDING: {
       txStatus.class = { [Styles.Pending]: true };
       txStatus.icon = TrashIcon;
-
       break;
     }
     case TX_STATUS.FAILURE: {

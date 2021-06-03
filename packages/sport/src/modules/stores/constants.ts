@@ -51,6 +51,7 @@ export const DEFAULT_BETSLIP_STATE = {
       name: "Life, +12.5",
       price: "0.25",
       wager: null,
+      toWin: null,
     },
   },
   active: {

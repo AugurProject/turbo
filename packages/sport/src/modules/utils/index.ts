@@ -11,7 +11,6 @@ export interface SizedPrice {
 export const getSizedPrice = (
   amm: AmmExchange,
   id: number,
-  amount = null,
   liquidityPortion: number = 0.05
 ): SizedPrice => {
   if (!amm) return null;
@@ -19,7 +18,7 @@ export const getSizedPrice = (
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
   if (!outcome) return null;
-  const shareAmount = new BN(amount || outcome.balance || "0")
+  const shareAmount = new BN(outcome.balance || "0")
     .times(new BN(liquidityPortion))
     .decimalPlaces(0, 1)
     .toFixed();
