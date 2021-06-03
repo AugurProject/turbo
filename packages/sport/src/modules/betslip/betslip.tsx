@@ -21,7 +21,7 @@ import { useSportsStore } from "modules/stores/sport";
 import { getSizedPrice } from "modules/utils";
 const { PrimaryButton, SecondaryButton } = ButtonComps;
 const { makePath } = PathUtils;
-const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO } = Constants;
+const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
 const { SimpleCheck, SimpleChevron } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
@@ -185,7 +185,7 @@ const EditableBet = ({ betId, bet }) => {
               if (!error) {
                 const sizeOfPool = getSizedPrice(amm, id);
                 const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool.price));
-                updatedToWin = formatDai(priceOffset.times(fmtValue)).full;
+                updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
               }
               setValue(fmtValue);
               updateBet({
@@ -236,6 +236,11 @@ const BetReciept = ({ tx_hash, bet }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
+  const {
+    actions: { 
+      removeActive,
+    },
+  } = useBetslipStore();
   const { price, name, heading, status } = bet;
   const txStatus = {
     message: null,
@@ -253,7 +258,7 @@ const BetReciept = ({ tx_hash, bet }) => {
       txStatus.class = { [Styles.Failed]: true };
       txStatus.icon = TrashIcon;
       txStatus.message = "Order Failed.";
-      txStatus.action = () => console.log("Would Clear Order -- remove from active bets");
+      txStatus.action = () => removeActive(tx_hash);
       break;
     }
     default:
@@ -317,23 +322,41 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
   );
 };
 
-const BetslipFooter = ({}) => {
+const determineBetTotals = (bets) => {
+  let totalWager = ZERO;
+  let totalToWin = ZERO;
+  Object.entries(bets).forEach(([betId, bet]) => {
+    totalWager = totalWager.plus(bet?.wager || "0");
+    totalToWin = totalWager.plus(bet?.toWin || "0");
+  });
+  return { totalWager, totalToWin };
+};
+
+const BetslipFooter = () => {
   const { isLogged } = useAppStatusStore();
   const {
     selectedView,
     selectedCount,
+    bets,
     actions: { cancelAllBets },
   } = useBetslipStore();
   if (!isLogged || selectedCount === 0) {
     return null;
   }
   const onBetslip = selectedView === BETSLIP;
+  const { totalWager, totalToWin } = onBetslip
+    ? determineBetTotals(bets)
+    : {
+        totalWager: ZERO,
+        totalToWin: ZERO,
+      };
   return (
     <footer>
       {onBetslip ? (
         <>
           <p>
-            Lets get our footing... <b>LOL</b>
+            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
+            win
           </p>
           <SecondaryButton
             className={Styles.FlipContent}

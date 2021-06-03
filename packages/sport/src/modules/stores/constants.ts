@@ -96,6 +96,8 @@ export const STUBBED_BETSLIP_ACTIONS = {
   addBet: (bet) => {},
   removeBet: (betId) => {},
   updateBet: (bet) => {},
+  addActive: (tx_hash) => {},
+  removeActive: (tx_hash) => {},
   updateActive: (active) => {},
   cancelAllBets: () => {},
 };
@@ -112,6 +114,8 @@ export const BETSLIP_ACTIONS = {
   ADD_BET: "ADD_BET",
   REMOVE_BET: "REMOVE_BET",
   UPDATE_BET: "UPDATE_BET",
+  ADD_ACTIVE: "ADD_ACTIVE",
+  REMOVE_ACTIVE: "REMOVE_ACTIVE",
   UPDATE_ACTIVE: "UPDATE_ACTIVE",
   CANCEL_ALL_BETS: "CANCEL_ALL_BETS",
 };

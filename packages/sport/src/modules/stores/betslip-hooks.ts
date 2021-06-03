@@ -5,7 +5,16 @@ import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
 } = Stores;
-const { TOGGLE_SELECTED_VIEW, ADD_BET, REMOVE_BET, UPDATE_BET, UPDATE_ACTIVE, CANCEL_ALL_BETS } = BETSLIP_ACTIONS;
+const {
+  TOGGLE_SELECTED_VIEW,
+  ADD_BET,
+  REMOVE_BET,
+  UPDATE_BET,
+  UPDATE_ACTIVE,
+  CANCEL_ALL_BETS,
+  ADD_ACTIVE,
+  REMOVE_ACTIVE,
+} = BETSLIP_ACTIONS;
 const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT } = BETSLIP_STATE_KEYS;
 
 export function BetslipReducer(state, action) {
@@ -34,6 +43,10 @@ export function BetslipReducer(state, action) {
         ...updatedState[BETS][betId],
         ...action.bet,
       };
+      break;
+    }
+    case REMOVE_ACTIVE: {
+      delete updatedState[ACTIVE][action.tx_hash];
       break;
     }
     case UPDATE_ACTIVE: {
@@ -67,6 +80,8 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       addBet: (bet) => dispatch({ type: ADD_BET, bet }),
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
       updateBet: (bet) => dispatch({ type: UPDATE_BET, bet }),
+      addActive: (bet) => dispatch({ type: ADD_ACTIVE, bet }),
+      removeActive: (tx_hash) => dispatch({ type: REMOVE_ACTIVE, tx_hash }),
       cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
       updateActive: (active) => dispatch({ type: UPDATE_ACTIVE, active }),
     },
