@@ -3,6 +3,7 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
+import { getSizedPrice, SizedPrice } from "modules/utils";
 const {
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
@@ -43,27 +44,30 @@ const SportsCardOutcomes = ({ title, amm }) => {
   if (noContest) {
     outcomes.push(noContest);
   }
+  const sizedPrices = getSizedPrice(amm);
   return (
     <section className={Styles.SportsCardOutcomes}>
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ ...outcome }} />
+          <SportsOutcomeButton {...{ ...outcome, sizedPrices }} />
         ))}
       </main>
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ name, price, ...props }) => {
+const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name: string, price: string, sizedPrices: SizedPrice}) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  const odds = useMemo(() => (price !== "" ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [price, oddsFormat]);
+  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : undefined;
+  const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
       <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
+      {sizedPrice?.size && <span>{formatDai(sizedPrice?.size).full}</span>}
     </div>
   );
 };
