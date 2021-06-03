@@ -3,6 +3,7 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
+import { AmmExchange } from "@augurproject/comps/build/types";
 import { getSizedPrice, SizedPrice } from "modules/utils";
 const {
   Formatter: { formatDai },
@@ -44,24 +45,23 @@ const SportsCardOutcomes = ({ title, amm }) => {
   if (noContest) {
     outcomes.push(noContest);
   }
-  const sizedPrices = getSizedPrice(amm);
   return (
     <section className={Styles.SportsCardOutcomes}>
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ ...outcome, sizedPrices }} />
+          <SportsOutcomeButton {...{ ...outcome, amm }} />
         ))}
       </main>
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name: string, price: string, sizedPrices: SizedPrice}) => {
+const SportsOutcomeButton = ({ amm, id, name, balance }: {amm: AmmExchange, id: number, name: string, balance: string, sizedPrices: SizedPrice}) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : undefined;
+  const sizedPrice = useMemo(() => getSizedPrice(amm, id), [balance]);
   const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
