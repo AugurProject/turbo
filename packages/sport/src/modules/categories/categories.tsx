@@ -113,7 +113,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
   const subCategoryList = subCategories.length
     ? subOptionList.filter(([optLabel, optInfo]) => subCategories[0] === optLabel)
     : subOptionList;
-  const sportCount = determineCount(primaryCategory, markets);
+  const secondaryCount = determineCount(primaryCategory, markets);
   const secondaryCategory = subCategories[0];
   const filteredLeaves = useMemo(
     () =>
@@ -140,7 +140,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>{formatCategoryCount(sportCount)}</span>
+          <span>{formatCategoryCount(secondaryCount)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&
@@ -157,17 +157,17 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
         ))}
       {!!subCategories.length && (
         <>
-          {filteredLeaves.map((dumLabel) => (
+          {filteredLeaves.map((tertiaryLabel) => (
             <button
               className={classNames({
-                [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === dumLabel,
+                [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === tertiaryLabel
               })}
               onClick={() =>
-                updateMarketsViewSettings({ primaryCategory: label, subCategories: [subCategories[0], dumLabel] })
+                updateMarketsViewSettings({ primaryCategory: label, subCategories: [subCategories[0], tertiaryLabel] })
               }
             >
-              {dumLabel}
-              <span>{formatCategoryCount(determineCount(dumLabel, markets))}</span>
+              {tertiaryLabel}
+              <span>{formatCategoryCount(determineCount(tertiaryLabel, markets))}</span>
             </button>
           ))}
         </>

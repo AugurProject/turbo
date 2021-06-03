@@ -3,7 +3,8 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
-import { getSizedPrice, SizedPrice } from "modules/utils";
+import { useBetslipStore } from "modules/stores/betslip";
+import { getSizedPrice } from "modules/utils";
 const {
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
@@ -32,13 +33,13 @@ const SportsCardTopbar = ({ market, timeFormat }) => (
   </div>
 );
 
-const SportsCardTitle = ({ marketId, title, description }) => (
+const SportsCardTitle = ({ marketId, description }) => (
   <MarketLink id={marketId} dontGoToMarket={false}>
     {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
   </MarketLink>
 );
 
-const SportsCardOutcomes = ({ title, amm }) => {
+const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
   const outcomes = [].concat(amm?.ammOutcomes || []);
   const noContest = outcomes.shift();
   if (noContest) {
@@ -50,23 +51,41 @@ const SportsCardOutcomes = ({ title, amm }) => {
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ ...outcome, sizedPrices }} />
+          <SportsOutcomeButton {...{ outcome, marketId, title, description, sizedPrice: sizedPrices?.[outcome?.id] }} />
         ))}
       </main>
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ id, name, price, sizedPrices }: {id: number, name: string, price: string, sizedPrices: SizedPrice}) => {
+const SportsOutcomeButton = ({ outcome, marketId, title, description, sizedPrice = null }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  let sizedPrice = sizedPrices ? { price: sizedPrices[id]?.price, size: sizedPrices[id]?.size } : undefined;
-  const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
+  const {
+    bets,
+    actions: { addBet },
+  } = useBetslipStore();
+  const { id, name } = outcome;
+  const hasPrice = !!sizedPrice;
+  const odds = useMemo(() => (hasPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
-      <button onClick={() => console.log(`NOT YET IMPLEMTED, TODO: Add a bet to buy "${name}" at ${odds} odds to the betslip when this is clicked.`)}>{odds}</button>
+      <button
+        onClick={() =>
+          hasPrice &&
+          !bets[`${marketId}-${id}`] &&
+          addBet({
+            ...outcome,
+            marketId,
+            heading: `${title}, ${description}`,
+            wager: "0",
+          })
+        }
+      >
+        {odds}
+      </button>
       {sizedPrice?.size && <span>{formatDai(sizedPrice?.size).full}</span>}
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Styles from './portfolio-view.styles.less';
-// import Activity from './activity';
+import Activity from './activity';
 // import { PositionsLiquidityViewSwitcher } from '../common/tables';
 // import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
 import {
@@ -261,9 +261,9 @@ export const PortfolioView = () => {
         /> */}
         {/* {view === ACTIVITY && <Activity />} */}
       </section>
-      {/* <section>
+      <section>
         <Activity />
-      </section> */}
+      </section>
     </div>
   );
 };
