@@ -216,8 +216,8 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
 
     const getEstimate = async () => {
       const breakdown = isBuy
-        ? await estimateBuyTrade(amm, loginAccount?.library, amount, selectedOutcomeId, ammCash)
-        : await estimateSellTrade(amm, loginAccount?.library, amount, selectedOutcomeId, marketShares);
+        ? estimateBuyTrade(amm, amount, selectedOutcomeId, ammCash)
+        : estimateSellTrade(amm, amount, selectedOutcomeId, marketShares);
 
       isMounted && setBreakdown(breakdown);
     };

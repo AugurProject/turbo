@@ -3,6 +3,7 @@ import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
 import { LabelComps, Links, Utils } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
+import { getSizedPrice } from "modules/utils";
 const {
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
@@ -13,11 +14,12 @@ const { MarketLink } = Links;
 
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
   const market = markets?.[marketId];
+  const sizedPrices = getSizedPrice(market);
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
       <SportsCardTitle {...{ ...market }} />
-      <SportsCardOutcomes {...{ ...market }} />
+      <SportsCardOutcomes {...{ ...market, sizedPrices }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
   );
@@ -37,12 +39,13 @@ const SportsCardTitle = ({ marketId, title, description }) => (
   </MarketLink>
 );
 
-const SportsCardOutcomes = ({ title, amm }) => {
+const SportsCardOutcomes = ({ title, amm, sizedPrices }) => {
   const outcomes = [].concat(amm?.ammOutcomes || []);
   const noContest = outcomes.shift();
   if (noContest) {
     outcomes.push(noContest);
   }
+  console.log('sizedPrices', sizedPrices)
   return (
     <section className={Styles.SportsCardOutcomes}>
       <header>{!!title && <span>{title}</span>}</header>

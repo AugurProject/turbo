@@ -346,15 +346,10 @@ export function doRemoveLiquidity(
 
 export const estimateBuyTrade = async (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   cash: Cash
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("doRemoveLiquidity: no provider");
-    return null;
-  }
+): EstimateTradeResult | null => {
   const { marketFactoryAddress, turboId } = amm;
 
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
@@ -372,7 +367,7 @@ export const estimateBuyTrade = async (
   );
   let result = null;
   try {
-    result = await estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
+    result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
   } catch (e) {
     console.log("error in estimate buy", e);
   }
@@ -386,7 +381,6 @@ export const estimateBuyTrade = async (
   const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
   const priceImpact = price.minus(averagePrice).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
-  console.log("est shares", String(estimatedShares), "avg price", String(averagePrice), "outcome price", String(price));
 
   return {
     outputValue: trimDecimalValue(estimatedShares),
@@ -400,15 +394,10 @@ export const estimateBuyTrade = async (
 
 export const estimateSellTrade = async (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   userBalances: string[]
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("estimateSellTrade: no provider");
-    return null;
-  }
+): EstimateTradeResult | null => {
   const { marketFactoryAddress, turboId } = amm;
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
   console.log(
@@ -590,10 +579,9 @@ export const cashOutAllShares = (
     .times(new BN(shareFactor))
     .decimalPlaces(0, 1);
   console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
-  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, {
-    gasLimit: "800000",
-    gasPrice: "10000000000",
-  });
+  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, 
+  //{ gasLimit: "800000", gasPrice: "10000000000",}
+  );
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
@@ -1782,6 +1770,7 @@ const retrieveExchangeInfos = async (
     exchange.feeInPercent = fee ? feeDecimal.times(100).toFixed() : "0";
     exchange.feeRaw = fee;
     exchange.balancesRaw = balancesRaw ? balancesRaw.map((b) => String(b)) : [];
+    exchange.balances = balancesRaw ? balancesRaw.map((b) => String(sharesOnChainToDisplay(b))) : [];
     exchange.shareFactor = new BN(String(shareFactors[market.marketFactoryAddress])).toFixed();
     exchange.weights = weights ? weights.map((w) => String(w)) : [];
     exchange.liquidityUSD = getTotalLiquidity(outcomePrices, balancesRaw);
