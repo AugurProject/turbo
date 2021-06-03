@@ -28,8 +28,10 @@ export function BetslipReducer(state, action) {
       break;
     }
     case UPDATE_BET: {
-      updatedState[BETS][action.bet.betId] = {
-        ...updatedState[BETS][action.bet.betId],
+      const { bet } = action;
+      const betId = `${bet.marketId}-${bet.id}`;
+      updatedState[BETS][betId] = {
+        ...updatedState[BETS][betId],
         ...action.bet,
       };
       break;

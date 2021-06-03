@@ -1,12 +1,13 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { useBetslipStore } from "../stores/betslip";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
-import { ButtonComps, useAppStatusStore, useUserStore, Constants, OddsUtils } from "@augurproject/comps";
+import { ButtonComps, useAppStatusStore, useUserStore, Constants, OddsUtils, Formatter } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 const { PrimaryButton, SecondaryButton } = ButtonComps;
 const { MODAL_CONNECT_WALLET } = Constants;
+const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
 
 export const Betslip = () => {
@@ -57,7 +58,7 @@ export const BetslipMain = () => {
   return selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]) => (
-        <EditableBet {...{ ...bet, betId, key: `${betId}-editable-bet` }} />
+        <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
     </main>
   ) : (
@@ -67,9 +68,15 @@ export const BetslipMain = () => {
 
 export const ActiveBetsMain = () => {
   const { active, selectedCount } = useBetslipStore();
-  return selectedCount > 0 ? <main>
-    {active.map((active) => <span>active bet here</span>)}
-  </main> : <EmptyBetslip />;
+  return selectedCount > 0 ? (
+    <main>
+      {active.map((active) => (
+        <span>active bet here</span>
+      ))}
+    </main>
+  ) : (
+    <EmptyBetslip />
+  );
 };
 
 export const EmptyBetslip = () => {
@@ -107,11 +114,17 @@ export const EmptyBetslip = () => {
   );
 };
 
-const EditableBet = ({ betId, heading, name, wager, price }) => {
+const EditableBet = ({ betId, bet }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  const { actions: { removeBet }} = useBetslipStore();
+  const {
+    actions: { removeBet, updateBet },
+  } = useBetslipStore();
+  const { heading, name, price, wager } = bet;
+  const [error, setError] = useState(null);
+  const [value, setValue] = useState(wager);
+  const [toWin, setToWin] = useState("0.00");
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
@@ -125,16 +138,50 @@ const EditableBet = ({ betId, heading, name, wager, price }) => {
           <button onClick={() => removeBet(betId)}>{TrashIcon}</button>
         </div>
         <div className={Styles.EditableArea}>
-          <LabeledInput label="wager" onEdit={(e) => console.log("edit wager", e.target.value)} value="$0.00" />
-          <LabeledInput label="to win" value={null} disabled />
-          {/* <span>Your bet exceeds the max available for this odds</span> */}
+          <LabeledInput
+            label="wager"
+            onEdit={(e) => {
+              setValue(e.target.value);
+              // VALIDATION:
+              // aggressive when invalid true
+              // check for errors only if isInvalid is true.
+            }}
+            onBlur={(e) => {
+              const fmtValue = formatDai(value).formatted;
+              // VALIDATION:
+              // lazy otherwise
+              // check for errors here
+              updateBet({
+                ...bet,
+                wager: fmtValue,
+              });
+            }}
+            isInvalid={!!error}
+            value={value}
+          />
+          <div
+            className={classNames(Styles.LabeledInput, {
+              [Styles.Invalid]: !!error,
+            })}
+          >
+            <span>to Win</span>
+            <div>{toWin}</div>
+          </div>
+          {error && <span>{error}</span>}
         </div>
       </main>
     </article>
   );
 };
 
-const LabeledInput = ({ label, value = null, onEdit = (e) => {}, isInvalid = false, disabled = false }) => {
+const LabeledInput = ({
+  label,
+  value = null,
+  onEdit = (e) => {},
+  onBlur = (e) => {},
+  isInvalid = false,
+  disabled = false,
+}) => {
   return (
     <div
       className={classNames(Styles.LabeledInput, {
@@ -142,13 +189,16 @@ const LabeledInput = ({ label, value = null, onEdit = (e) => {}, isInvalid = fal
       })}
     >
       <span>{label}</span>
-      <input type="text" value={value} placeholder="" onChange={onEdit} disabled={disabled} />
+      <input type="number" min={0} value={value} placeholder="0.00" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
     </div>
   );
 };
 
 const BetslipFooter = ({}) => {
-  const { selectedCount, actions: { cancelAllBets } } = useBetslipStore();
+  const {
+    selectedCount,
+    actions: { cancelAllBets },
+  } = useBetslipStore();
   if (selectedCount === 0) {
     return null;
   }
@@ -157,7 +207,12 @@ const BetslipFooter = ({}) => {
       <p>
         Lets get our footing... <b>LOL</b>
       </p>
-      <SecondaryButton className={Styles.FlipContent} text="Cancel All" icon={TrashIcon} action={() => cancelAllBets()} />
+      <SecondaryButton
+        className={Styles.FlipContent}
+        text="Cancel All"
+        icon={TrashIcon}
+        action={() => cancelAllBets()}
+      />
       <PrimaryButton text="Place Bets" action={() => {}} />
     </footer>
   );

@@ -43,10 +43,10 @@ export const DEFAULT_BETSLIP_STATE = {
     "0xdeadbeef-0-2": {
       heading: "Who will win? JD vs Life, Over Under",
       marketId: "0xdeadbeef-0",
-      outcomeId: 2,
+      id: 2,
       name: "Life, +12.5",
       price: "0.25",
-      wager: "0",
+      wager: null,
     },
   },
   active: {},

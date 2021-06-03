@@ -1,11 +1,11 @@
-@import (reference) '~assets/styles/shared.less';
+@import (reference) "~assets/styles/shared.less";
 
 .Betslip {
   display: flex;
   flex-flow: column nowrap;
   flex: 1 100%;
   width: @betslip-column-width;
-  
+
   > div {
     .PrimaryBorderRadius;
 
@@ -19,7 +19,7 @@
     position: fixed;
     display: flex;
     flex-flow: column nowrap;
-  
+
     > main:not(.EmptyBetslip) {
       flex: 1;
     }
@@ -31,7 +31,7 @@
       display: grid;
       grid-gap: @size-12 @size-8;
       grid-template-columns: 1fr 1fr;
-      
+
       > p {
         .text-12;
 
@@ -46,7 +46,7 @@
     }
 
     > :last-child {
-      .PrimaryBottomBorderRadius
+      .PrimaryBottomBorderRadius;
     }
   }
 
@@ -221,7 +221,7 @@ button.FlipContent {
 
       > span {
         .text-12-bold;
-  
+
         color: var(--simple-primary-text);
         padding: @size-1 @size-2;
         margin-left: auto;
@@ -289,6 +289,19 @@ button.FlipContent {
   align-items: center;
   justify-content: center;
   position: relative;
+  min-height: @size-36;
+  height: @size-36;
+  max-height: @size-36;
+  position: relative;
+
+  &:before {
+    .text-14;
+
+    color: var(--simple-primary-text);
+    content: '$';
+    position: absolute;
+    left: @size-4;
+  }
 
   > span {
     .text-10-semi-bold;
@@ -308,6 +321,7 @@ button.FlipContent {
     max-height: @size-12;
   }
 
+  > div,
   > input {
     .text-14;
     .PrimaryBorderRadius;
@@ -316,6 +330,14 @@ button.FlipContent {
     background: transparent;
     color: var(--simple-primary-text);
     text-align: center;
+    padding: @size-8 @size-12;
+    min-height: @size-36;
+    height: @size-36;
+    max-height: @size-36;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:focus {
       outline: none;
@@ -325,6 +347,15 @@ button.FlipContent {
 
 .Invalid {
   border-color: var(--simple-failed);
+
+  &:before {
+    color: var(--simple-failed);
+  }
+
+  > div,
+  > input:not(:focus) {
+    color: var(--simple-failed);
+  }
 
   > span {
     color: var(--simple-failed);
