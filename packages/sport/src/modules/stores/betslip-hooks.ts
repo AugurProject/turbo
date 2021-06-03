@@ -5,8 +5,8 @@ import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
 } = Stores;
-const { TOGGLE_SELECTED_VIEW, ADD_BET, REMOVE_BET, UPDATE_BET, UPDATE_ACTIVE } = BETSLIP_ACTIONS;
-const { SELECTED_VIEW, BETS, ACTIVE } = BETSLIP_STATE_KEYS;
+const { TOGGLE_SELECTED_VIEW, ADD_BET, REMOVE_BET, UPDATE_BET, UPDATE_ACTIVE, CANCEL_ALL_BETS } = BETSLIP_ACTIONS;
+const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT } = BETSLIP_STATE_KEYS;
 
 export function BetslipReducer(state, action) {
   const updatedState = { ...state };
@@ -16,7 +16,11 @@ export function BetslipReducer(state, action) {
       break;
     }
     case ADD_BET: {
-      updatedState[BETS] = updatedState[BETS].concat(action.bet);
+      const { bet } = action;
+      updatedState[BETS] = {
+        ...updatedState[BETS],
+        [`${bet.marketId}-${bet.id}`]: bet,
+      };
       break;
     }
     case REMOVE_BET: {
@@ -24,8 +28,10 @@ export function BetslipReducer(state, action) {
       break;
     }
     case UPDATE_BET: {
-      updatedState[BETS][action.bet.betId] = {
-        ...updatedState[BETS][action.bet.betId],
+      const { bet } = action;
+      const betId = `${bet.marketId}-${bet.id}`;
+      updatedState[BETS][betId] = {
+        ...updatedState[BETS][betId],
         ...action.bet,
       };
       break;
@@ -34,9 +40,17 @@ export function BetslipReducer(state, action) {
       updatedState[ACTIVE] = action.active;
       break;
     }
+    case CANCEL_ALL_BETS: {
+      updatedState[BETS] = [];
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
+  // finally always update the active count on any updates to betslip.
+  updatedState[SELECTED_COUNT] = Object.keys(
+    updatedState[updatedState[SELECTED_VIEW] === BETSLIP ? BETS : ACTIVE] || {}
+  ).length;
   windowRef.betslip = updatedState;
 
   return updatedState;
@@ -53,6 +67,7 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       addBet: (bet) => dispatch({ type: ADD_BET, bet }),
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
       updateBet: (bet) => dispatch({ type: UPDATE_BET, bet }),
+      cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
       updateActive: (active) => dispatch({ type: UPDATE_ACTIVE, active }),
     },
   };
