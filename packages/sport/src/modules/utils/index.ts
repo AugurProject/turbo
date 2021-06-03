@@ -8,7 +8,12 @@ export interface SizedPrice {
   price: string;
 }
 
-export const getSizedPrice = (amm: AmmExchange, id: number, amount = null, liquidityPortion: number = 0.05): SizedPrice => {
+export const getSizedPrice = (
+  amm: AmmExchange,
+  id: number,
+  amount = null,
+  liquidityPortion: number = 0.05
+): SizedPrice => {
   if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
 
