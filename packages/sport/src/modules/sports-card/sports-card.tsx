@@ -45,7 +45,7 @@ const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
   if (noContest) {
     outcomes.push(noContest);
   }
-  const sizedPrices = getSizedPrice(amm);
+
   return (
     <section className={Styles.SportsCardOutcomes}>
       <header>{!!title && <span>{title}</span>}</header>
