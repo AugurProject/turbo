@@ -16,7 +16,11 @@ export function BetslipReducer(state, action) {
       break;
     }
     case ADD_BET: {
-      updatedState[BETS] = updatedState[BETS].concat(action.bet);
+      const { bet } = action;
+      updatedState[BETS] = {
+        ...updatedState[BETS],
+        [`${bet.marketId}-${bet.id}`]: bet,
+      };
       break;
     }
     case REMOVE_BET: {
@@ -42,7 +46,9 @@ export function BetslipReducer(state, action) {
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
   // finally always update the active count on any updates to betslip.
-  updatedState[SELECTED_COUNT] = updatedState[SELECTED_VIEW] === BETSLIP ? updatedState[BETS].length : updatedState[ACTIVE].length;
+  updatedState[SELECTED_COUNT] = Object.keys(
+    updatedState[updatedState[SELECTED_VIEW] === BETSLIP ? BETS : ACTIVE] || {}
+  ).length;
   windowRef.betslip = updatedState;
 
   return updatedState;

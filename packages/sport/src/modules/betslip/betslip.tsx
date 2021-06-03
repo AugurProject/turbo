@@ -29,7 +29,7 @@ const BetslipHeader = () => {
     bets,
     actions: { toggleSelectedView },
   } = useBetslipStore();
-  const counts = [bets.length, active.length];
+  const counts = [Object.keys(bets).length, Object.keys(active).length];
   const handleToggle = (type) => selectedView !== type && toggleSelectedView();
   return (
     <header className={Styles.BetslipHeader}>
@@ -56,8 +56,8 @@ export const BetslipMain = () => {
   const { bets, selectedCount } = useBetslipStore();
   return selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {bets.map((bet) => (
-        <EditableBet {...{ ...bet, key: `${bet.marketId}-editable-bet` }} />
+      {Object.entries(bets).map(([betId, bet]) => (
+        <EditableBet {...{ ...bet, betId, key: `${betId}-editable-bet` }} />
       ))}
     </main>
   ) : (
@@ -107,10 +107,11 @@ export const EmptyBetslip = () => {
   );
 };
 
-const EditableBet = ({ heading, name, wager, price }) => {
+const EditableBet = ({ betId, heading, name, wager, price }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
+  const { actions: { removeBet }} = useBetslipStore();
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
@@ -121,7 +122,7 @@ const EditableBet = ({ heading, name, wager, price }) => {
         <div>
           <h6>{name}</h6>
           <span className={classNames({ [Styles.OddsChange]: hasOddsChanged })}>{displayOdds}</span>
-          <button onClick={() => {}}>{TrashIcon}</button>
+          <button onClick={() => removeBet(betId)}>{TrashIcon}</button>
         </div>
         <div className={Styles.EditableArea}>
           <LabeledInput label="wager" onEdit={(e) => console.log("edit wager", e.target.value)} value="$0.00" />

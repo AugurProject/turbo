@@ -56,25 +56,37 @@ const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
   );
 };
 
-const SportsOutcomeButton = ({ outcome, marketId, title, description}) => {
+const SportsOutcomeButton = ({ outcome, marketId, title, description }) => {
   const {
     settings: { oddsFormat },
   } = useSportsStore();
-  const { 
-    actions: { addBet }
+  const {
+    bets,
+    actions: { addBet },
   } = useBetslipStore();
   const { price, name } = outcome;
   const hasPrice = price !== "";
-  const odds = useMemo(() => (hasPrice ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [price, oddsFormat]);
+  const odds = useMemo(() => (hasPrice ? convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full : "-"), [
+    price,
+    oddsFormat,
+  ]);
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
-      <button onClick={() => hasPrice && addBet({
-        ...outcome,
-        marketId,
-        heading: `${title}, ${description}`,
-        wager: '0',
-      })}>{odds}</button>
+      <button
+        onClick={() =>
+          hasPrice &&
+          !bets[`${marketId}-${outcome.id}`] &&
+          addBet({
+            ...outcome,
+            marketId,
+            heading: `${title}, ${description}`,
+            wager: "0",
+          })
+        }
+      >
+        {odds}
+      </button>
     </div>
   );
 };

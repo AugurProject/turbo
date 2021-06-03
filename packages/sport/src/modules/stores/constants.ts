@@ -39,14 +39,17 @@ export const SPORT_ACTIONS = {
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 1,
-  bets: [{
-    heading: 'Who will win? JD vs Life, Over Under',
-    marketId: '0xdeadbeef-0',
-    name: 'Life, +12.5',
-    price: '0.25',
-    wager: '0',
-  }],
-  active: [],
+  bets: {
+    "0xdeadbeef-0-2": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      outcomeId: 2,
+      name: "Life, +12.5",
+      price: "0.25",
+      wager: "0",
+    },
+  },
+  active: {},
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {
@@ -60,7 +63,7 @@ export const STUBBED_BETSLIP_ACTIONS = {
 
 export const BETSLIP_STATE_KEYS = {
   SELECTED_VIEW: "selectedView",
-  SELECTED_COUNT: 'selectedCount',
+  SELECTED_COUNT: "selectedCount",
   BETS: "bets",
   ACTIVE: "active",
 };
