@@ -5,23 +5,23 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: AMMFactory
+    name: AmmFactory
     network: {{ info.graphName }}
     source:
       address: '{{ ammFactory }}'
-      abi: AMMFactory
+      abi: AmmFactory
       startBlock: {{ info.uploadBlockNumber }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/AMMFactory.ts
+      file: ./src/mappings/AMMFactory.ts
       entities:
         - PoolCreated
         - LiquidityChanged
         - SharesSwapped
       abis:
-        - name: AMMFactory
+        - name: AmmFactory
           file: ./abis/AMMFactory.json
         - name: BPool
           file: ./abis/BPool.json
@@ -43,7 +43,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/AbstractMarketFactory.ts
+      file: ./src/mappings/AbstractMarketFactory.ts
       entities:
         - WinningsClaimed
         - SettlementFeeClaimed
