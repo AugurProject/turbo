@@ -68,8 +68,9 @@ const BetslipHeader = () => {
 };
 
 export const BetslipMain = () => {
+  const { isLogged } = useAppStatusStore();
   const { bets, selectedCount } = useBetslipStore();
-  return selectedCount > 0 ? (
+  return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
@@ -81,8 +82,9 @@ export const BetslipMain = () => {
 };
 
 export const ActiveBetsMain = () => {
+  const { isLogged } = useAppStatusStore();
   const { active, selectedCount } = useBetslipStore();
-  return selectedCount > 0 ? (
+  return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(active).map(([tx_hash, bet]) => (
         <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
@@ -318,12 +320,13 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
 };
 
 const BetslipFooter = ({}) => {
+  const { isLogged } = useAppStatusStore();
   const {
     selectedView,
     selectedCount,
     actions: { cancelAllBets },
   } = useBetslipStore();
-  if (selectedCount === 0) {
+  if (!isLogged || selectedCount === 0) {
     return null;
   }
   const onBetslip = selectedView === BETSLIP;
