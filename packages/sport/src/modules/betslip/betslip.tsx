@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
+import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
 import {
@@ -12,11 +13,13 @@ import {
   Formatter,
   DateUtils,
   Icons,
+  PathUtils,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 const { PrimaryButton, SecondaryButton } = ButtonComps;
-const { MODAL_CONNECT_WALLET, TX_STATUS } = Constants;
-const { SimpleCheck } = Icons;
+const { makePath } = PathUtils;
+const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO } = Constants;
+const { SimpleCheck, SimpleChevron } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
@@ -316,24 +319,34 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
 
 const BetslipFooter = ({}) => {
   const {
+    selectedView,
     selectedCount,
     actions: { cancelAllBets },
   } = useBetslipStore();
   if (selectedCount === 0) {
     return null;
   }
+  const onBetslip = selectedView === BETSLIP;
   return (
     <footer>
-      <p>
-        Lets get our footing... <b>LOL</b>
-      </p>
-      <SecondaryButton
-        className={Styles.FlipContent}
-        text="Cancel All"
-        icon={TrashIcon}
-        action={() => cancelAllBets()}
-      />
-      <PrimaryButton text="Place Bets" action={() => {}} />
+      {onBetslip ? (
+        <>
+          <p>
+            Lets get our footing... <b>LOL</b>
+          </p>
+          <SecondaryButton
+            className={Styles.FlipContent}
+            text="Cancel All"
+            icon={TrashIcon}
+            action={() => cancelAllBets()}
+          />
+          <PrimaryButton text="Place Bets" action={() => {}} />
+        </>
+      ) : (
+        <>
+          <Link to={makePath(PORTFOLIO)}>{SimpleChevron} View All Bets</Link>
+        </>
+      )}
     </footer>
   );
 };

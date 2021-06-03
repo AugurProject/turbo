@@ -27,7 +27,7 @@
     > footer {
       border-top: @size-1 solid var(--simple-border);
       background: var(--light-background-color);
-      padding: @size-12;
+      padding: @size-10 @size-12;
       display: grid;
       grid-gap: @size-12 @size-8;
       grid-template-columns: 1fr 1fr;
@@ -41,6 +41,30 @@
         > b {
           .text-12-bold;
           margin: 0 @size-4;
+        }
+      }
+
+      > a {
+        .text-10-semi-bold;
+
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        text-transform: uppercase;
+        width: 100%;
+
+        > svg {
+          height: @size-16;
+          width: @size-10;
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+          margin-right: @size-8;
+
+          > path {
+            fill: var(--simple-primary-text);
+          }
         }
       }
     }
@@ -414,7 +438,6 @@ button.FlipContent {
     }
   }
 }
-
 
 .TicketBreakdown {
   display: flex;
