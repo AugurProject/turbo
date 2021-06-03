@@ -210,7 +210,7 @@ const LabeledInput = ({
       })}
     >
       <span>{label}</span>
-      <input type="number" min={0} value={value} placeholder="0.00" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
+      <input type="number" min={0} value={value} placeholder="" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
     </div>
   );
 };
