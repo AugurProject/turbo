@@ -344,7 +344,7 @@ export function doRemoveLiquidity(
     : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
-export const estimateBuyTrade = async (
+export const estimateBuyTrade = (
   amm: AmmExchange,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
@@ -392,31 +392,13 @@ export const estimateBuyTrade = async (
   };
 };
 
-export const estimateSellTrade = async (
+export const estimateSellTrade = (
   amm: AmmExchange,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   userBalances: string[]
 ): EstimateTradeResult | null => {
-  const { marketFactoryAddress, turboId } = amm;
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-  console.log(
-    "estimate sell",
-    "factory",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome id",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    "inputDisplayAmount",
-    inputDisplayAmount,
-    "shareTokens",
-    amm.ammOutcomes,
-    "share factor",
-    amm.shareFactor
-  );
 
   const [setsOut, undesirableTokensInPerOutcome] = calcSellCompleteSets(
     amm.shareFactor,

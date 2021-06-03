@@ -15,7 +15,6 @@ export const getSizedPrice = (marketInfo: MarketInfo, liquidityPortion: number =
     const outcomePrices = Object.keys(amm.ammOutcomes).reduce((p, id) => {
         const shareAmount = new BN(amm.balances[id]).times(new BN(liquidityPortion)).decimalPlaces(0, 1).toFixed();
         const est = estimateBuyTrade(amm, shareAmount, Number(id), amm?.cash);
-        console.log('est', est);
         const size = new BN(est?.averagePrice).times(new BN(shareAmount)).toFixed();
         return { ...p, [id]: { size, price: est?.averagePrice } }
     }, {})
