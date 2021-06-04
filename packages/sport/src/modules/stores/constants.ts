@@ -55,9 +55,9 @@ export const DEFAULT_BETSLIP_STATE = {
     },
   },
   active: {
-    '0xtxHash05': {
-      heading: 'Who will win? JD vs Life, Over Under',
-      marketId: '0xdeadbeef-0',
+    "0xtxHash05": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
       id: 5,
       name: "Life, +12.5",
       price: "0.3",
@@ -68,9 +68,9 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: false,
     },
-    '0xtxHash04': {
-      heading: 'Who will win? JD vs Life, Over Under',
-      marketId: '0xdeadbeef-0',
+    "0xtxHash04": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
       id: 4,
       name: "Life, +12.5",
       price: "0.35",
@@ -81,9 +81,9 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: true,
       hasCashedOut: false,
     },
-    '0xtxHash03': {
-      heading: 'Who will win? JD vs Life, Over Under',
-      marketId: '0xdeadbeef-0',
+    "0xtxHash03": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
       id: 3,
       name: "Life, +12.5",
       price: "0.35",
@@ -94,9 +94,9 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: true,
       hasCashedOut: false,
     },
-    '0xtxHash02': {
-      heading: 'Who will win? JD vs Life, Over Under',
-      marketId: '0xdeadbeef-0',
+    "0xtxHash02": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
       id: 2,
       name: "Life, +12.5",
       price: "0.35",
@@ -107,9 +107,9 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: true,
     },
-    '0xtxHash01': {
-      heading: 'Who will win? JD vs Life, Over Under',
-      marketId: '0xdeadbeef-0',
+    "0xtxHash01": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
       id: 2,
       name: "Life, +12.5",
       price: "0.55",
@@ -119,7 +119,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.FAILURE,
       canCashOut: false,
       hasCashedOut: false,
-    }
+    },
   },
 };
 
