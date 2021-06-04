@@ -23,6 +23,8 @@ import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSportsStore } from "../stores/sport";
 import { MARKETS } from "modules/constants";
+import { SportsCardOutcomes } from '../sports-card/sports-card';
+
 import { Link } from "react-router-dom";
 const {
   SEO,
@@ -199,18 +201,7 @@ const MarketView = ({ defaultMarket = null }) => {
             <span>{endTimeDate}</span>
           </li> */}
         </ul>
-        <OutcomesGrid
-          outcomes={amm?.ammOutcomes}
-          selectedOutcome={amm?.ammOutcomes[2]}
-          showAllHighlighted
-          setSelectedOutcome={() => null}
-          marketType={YES_NO}
-          orderType={BUY}
-          ammCash={amm?.cash}
-          dontFilterInvalid
-          noClick
-          hasLiquidity={amm?.hasLiquidity}
-        />
+        <SportsCardOutcomes {...{ ...market }} />
         {/* <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} /> */}
         {/* <PositionsLiquidityViewSwitcher ammExchange={amm} /> */}
         <article className={Styles.MobileLiquidSection}>

@@ -17,7 +17,7 @@
 
       > h1,
       > h2 {
-        .text-30-bold;
+        .text-36-bold;
 
         color: var(--simple-primary-text);
         margin: 0;
@@ -29,7 +29,7 @@
       }
 
       > span:first-of-type {
-        .text-16-semi-bold;
+        .text-16-bold;
 
         color: var(--simple-secondary-text);
         margin-top: @size-12;
@@ -46,6 +46,16 @@
       > article,
       > section {
         margin-bottom: @size-40;
+      }
+
+      > section[class*="Outcomes"] {
+        > header {
+          display: none;
+        }
+
+        > main {
+          background: var(--simple-light-bg);
+        }
       }
     }
 
@@ -242,6 +252,7 @@
 .StatsRow {
   .SimpleBorder;
 
+  background: var(--simple-light-bg);
   display: flex;
   flex-flow: row nowrap;
   width: 100%;

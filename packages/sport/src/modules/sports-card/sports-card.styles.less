@@ -53,15 +53,13 @@
 .SportsCardOutcomes {
   .SimpleBorder;
 
-  border-color: var(--simple-tertiary-text);
-
   > header {
     .PrimaryTopBorderRadius;
     
    
     align-items: center;
     background: var(--light-background-color);
-    border-bottom: @size-1 solid var(--simple-tertiary-text);
+    border-bottom: @size-1 solid var(--simple-border);
     display: flex;
     flex-flow: row nowrap;
     padding: @size-8;
@@ -92,12 +90,42 @@
       }
     }
   }
+
+  > footer {
+    .text-14;
+
+    min-height: @size-40;
+    max-height: @size-40;
+    height: @size-40;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: @size-8;
+    background: var(--simple-light-bg);
+    border-top: @size-1 solid var(--simple-border);
+
+    > span {
+      .text-14-bold;
+
+      font-style: italic;
+      margin: 0 @size-4;
+    }
+
+    > svg {
+      height: @size-24;
+      width: @size-24;
+    }
+  }
+
+  > :last-child {
+    .PrimaryBottomBorderRadius;
+  }
 }
 
 .SportsOutcomeButton {
   .SimpleBorder;
 
-  border-color: var(--simple-tertiary-text);
+  border-color: var(--simple-border);
   background: var(--light-background-color);
   min-height: @size-66;
   padding: @size-8;

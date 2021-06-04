@@ -1,15 +1,18 @@
 import React, { useMemo } from "react";
+import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
-import { LabelComps, Links, Utils } from "@augurproject/comps";
+import { LabelComps, Links, Utils, Constants } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
 import { getSizedPrice } from "modules/utils";
 const {
+  PathUtils: { parsePath },
   Formatter: { formatDai },
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
+const { MARKET } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
@@ -39,7 +42,10 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
+export const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
+  const location = useLocation();
+  const path = parsePath(location.pathname)[0];
+  const isMarketPage = path === MARKET;
   const outcomes = [].concat(amm?.ammOutcomes || []);
   const noContest = outcomes.shift();
   if (noContest) {
@@ -54,6 +60,12 @@ const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
           <SportsOutcomeButton {...{ outcome, marketId, title, description, amm }} />
         ))}
       </main>
+      {isMarketPage && (
+        <footer>
+          {FingersCrossedIcon}
+          <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
+        </footer>
+      )}
     </section>
   );
 };
@@ -68,7 +80,10 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => 
   } = useBetslipStore();
   const { id, name } = outcome;
   const sizedPrice = useMemo(() => getSizedPrice(amm, id), [outcome.balance]);
-  const odds = useMemo(() => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"), [sizedPrice, oddsFormat]);
+  const odds = useMemo(
+    () => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"),
+    [sizedPrice, oddsFormat]
+  );
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
@@ -131,5 +146,34 @@ const RulesIcon = (
         <rect width="16" height="16" fill="white" transform="translate(0.25 0.5)" />
       </clipPath>
     </defs>
+  </svg>
+);
+
+const FingersCrossedIcon = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M17.0435 1.60011C16.8597 1.5285 16.6635 1.49384 16.4663 1.49814C16.269 1.50244 16.0746 1.54561 15.8941 1.62517C15.7135 1.70473 15.5505 1.81912 15.4142 1.96179C15.278 2.10447 15.1712 2.27262 15.1 2.45661L12.363 9.50011H10C9.6791 9.49972 9.36528 9.59452 9.09828 9.77253C8.83127 9.95053 8.62306 10.2037 8.5 10.5001H7.5C7.10218 10.5001 6.72064 10.6581 6.43934 10.9395C6.15804 11.2208 6 11.6023 6 12.0001V17.5001C6.0009 18.1616 6.18926 18.8093 6.54324 19.3682C6.89721 19.927 7.40232 20.3741 8 20.6576V23.0001C8 23.1327 8.05268 23.2599 8.14645 23.3537C8.24021 23.4474 8.36739 23.5001 8.5 23.5001H15.5C15.6326 23.5001 15.7598 23.4474 15.8536 23.3537C15.9473 23.2599 16 23.1327 16 23.0001V20.3681C16.4627 20.0464 16.8408 19.6176 17.1019 19.1182C17.3631 18.6188 17.4997 18.0637 17.5 17.5001V12.0001L15.08 10.7901L17.9 3.54361C17.9716 3.35979 18.0063 3.16364 18.002 2.9664C17.9977 2.76916 17.9545 2.57471 17.8749 2.39418C17.7954 2.21364 17.681 2.05058 17.5383 1.91432C17.3956 1.77807 17.2275 1.67129 17.0435 1.60011Z"
+      fill="#FFD764"
+    />
+    <path
+      d="M11 14C10.8674 14 10.7402 13.9473 10.6464 13.8536C10.5527 13.7598 10.5 13.6326 10.5 13.5V10C10.5 9.86739 10.5527 9.74021 10.6464 9.64645C10.7402 9.55268 10.8674 9.5 11 9.5C11.1326 9.5 11.2598 9.55268 11.3536 9.64645C11.4473 9.74021 11.5 9.86739 11.5 10V13.5C11.5 13.6326 11.4473 13.7598 11.3536 13.8536C11.2598 13.9473 11.1326 14 11 14Z"
+      fill="#E2AC4B"
+    />
+    <path
+      d="M8.5 14.3125C8.36739 14.3125 8.24021 14.2598 8.14645 14.1661C8.05268 14.0723 8 13.9451 8 13.8125V11C8 10.8674 8.05268 10.7402 8.14645 10.6464C8.24021 10.5527 8.36739 10.5 8.5 10.5C8.63261 10.5 8.75979 10.5527 8.85355 10.6464C8.94732 10.7402 9 10.8674 9 11V13.8125C9 13.9451 8.94732 14.0723 8.85355 14.1661C8.75979 14.2598 8.63261 14.3125 8.5 14.3125Z"
+      fill="#E2AC4B"
+    />
+    <path
+      d="M9.5 14H17.5V13H9.5C8.96957 13 8.46086 13.2107 8.08579 13.5858C7.71071 13.9609 7.5 14.4696 7.5 15C7.5 15.5304 7.71071 16.0391 8.08579 16.4142C8.46086 16.7893 8.96957 17 9.5 17H12.5V19C12.5 19.1326 12.5527 19.2598 12.6464 19.3536C12.7402 19.4473 12.8674 19.5 13 19.5C13.1326 19.5 13.2598 19.4473 13.3536 19.3536C13.4473 19.2598 13.5 19.1326 13.5 19V16.5C13.5 16.3674 13.4473 16.2402 13.3536 16.1464C13.2598 16.0527 13.1326 16 13 16H9.5C9.23478 16 8.98043 15.8946 8.79289 15.7071C8.60536 15.5196 8.5 15.2652 8.5 15C8.5 14.7348 8.60536 14.4804 8.79289 14.2929C8.98043 14.1054 9.23478 14 9.5 14Z"
+      fill="#E2AC4B"
+    />
+    <path
+      d="M15.5818 9.50039L16.9538 5.97289C16.2948 4.22889 15.6173 2.71039 15.3268 2.07689C15.2335 2.19172 15.1579 2.31979 15.1023 2.45689L12.3633 9.50039L14.5003 10.5004L15.5818 9.50039Z"
+      fill="#E2AC4B"
+    />
+    <path
+      d="M14.362 2.37148C14.1953 2.01026 13.892 1.73004 13.5187 1.59249C13.1454 1.45493 12.7327 1.47129 12.3715 1.63798C12.0103 1.80467 11.7301 2.10803 11.5925 2.48132C11.455 2.85461 11.4713 3.26726 11.638 3.62848C12.7445 6.02598 14.5 10.4185 14.5 12V13H17.5V12C17.5 9.24998 14.683 3.06748 14.362 2.37148Z"
+      fill="#FFD764"
+    />
   </svg>
 );
