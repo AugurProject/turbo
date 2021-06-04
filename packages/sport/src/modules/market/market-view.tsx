@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
 import classNames from "classnames";
-// import SimpleChartSection from "../common/charts";
+import SportsChartSection from "../charts/charts";
 // eslint-disable-next-line
 // import { AddLiquidity, NetworkMismatchBanner } from "../common/labels";
 // eslint-disable-next-line
@@ -177,10 +177,6 @@ const MarketView = ({ defaultMarket = null }) => {
         <div className={Styles.topRow}>
           <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>
           <CategoriesTrail {...{ ...market }} />
-          {/* <CategoryIcon big categories={categories} />
-          <CategoryLabel big categories={categories} />
-          {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <CurrencyLabel name={amm?.cash?.name} /> */}
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
@@ -199,13 +195,9 @@ const MarketView = ({ defaultMarket = null }) => {
             <span>Liquidity</span>
             <span>{formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
           </li>
-          {/* <li>
-            <span>Expires</span>
-            <span>{endTimeDate}</span>
-          </li> */}
         </ul>
         <SportsCardOutcomes {...{ ...market }} />
-        {/* <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} /> */}
+        <SportsChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions }} />
         <article className={Styles.MobileLiquidSection}>
           {/* {!isFinalized && <AddLiquidity market={market} />} */}
         </article>
