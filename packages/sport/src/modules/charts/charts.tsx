@@ -7,19 +7,21 @@ import type { MarketInfo } from "@augurproject/comps/build/types";
 import {
   Constants,
   createBigNumber,
-  Formatter,
   Icons,
   SelectionComps,
   MarketCardComps,
-  DateUtils,
+  Utils,
 } from "@augurproject/comps";
-import { SportStore } from "modules/stores/sport";
+import { SportStore, useSportsStore } from "modules/stores/sport";
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
-const { formatCashPrice, getCashFormat } = Formatter;
+const {
+  OddsUtils: { convertToNormalizedPrice, convertToOdds },
+  Formatter: { formatCashPrice },
+  DateUtils: { getDayFormat, getTimeFormat },
+} = Utils;
 const { Checkbox } = Icons;
 const { TransactionTypes } = Constants;
-const { getDayFormat, getTimeFormat } = DateUtils;
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
 const ONE_MIN = 60;
@@ -59,39 +61,39 @@ const RANGE_OPTIONS = [
   },
 ];
 
-const SERIES_COLORS = ["#58586B", "#05B169", "#FF7D5E", "#73D2DE", "#218380", "#FFBC42", "#D81159", "#1F71B5"];
+const SERIES_COLORS = ["#FF4E27", "#FCBD43", "#48EBB5", "#FF56B1", "#FF8DED", "#1B91FF", "#09CFE1", "#AE5DFF"];
 const SERIES_GRADIENTS = [
   [
-    [0, "rgba(88, 88, 107, .15)"],
-    [1, "rgba(88, 88, 107, 0)"],
+    [0, "rgba(255, 78, 39, .15)"],
+    [1, "rgba(255, 78, 39, 0)"],
   ],
   [
-    [0, "rgba(5, 177, 105, .15)"],
-    [1, "rgba(5, 177, 105, 0)"],
+    [0, "rgba(252, 189, 67, .15)"],
+    [1, "rgba(252, 189, 67, 0)"],
   ],
   [
-    [0, "rgba(255, 125, 94, .15)"],
-    [1, "rgba(255, 125, 94, 0)"],
+    [0, "rgba(72, 235, 181,, .15)"],
+    [1, "rgba(72, 235, 181,, 0)"],
   ],
   [
-    [0, "rgba(​115, ​210, ​222, 0.15)"],
-    [1, "rgba(​115, ​210, ​222, 0)"],
+    [0, "rgba(255, 86, 177, 0.15)"],
+    [1, "rgba(255, 86, 177, 0)"],
   ],
   [
-    [0, "rgba(​33, ​131, 128, 0.15)"],
-    [1, "rgba(​33, ​131, 128, 0)"],
+    [0, "rgba(255, 141, 237, 0.15)"],
+    [1, "rgba(255, 141, 237, 0)"],
   ],
   [
-    [0, "rgba(​255, ​188, ​66, 0.15)"],
-    [1, "rgba(​255, ​188, ​66, 0)"],
+    [0, "rgba(27, 145, 255, 0.15)"],
+    [1, "rgba(27, 145, 255, 0)"],
   ],
   [
-    [0, "rgba(​216, 17, 89, 0.15)"],
-    [1, "rgba(​216, 17, 89, 0)"],
+    [0, "rgba(9, 207, 225, 0.15)"],
+    [1, "rgba(9, 207, 225, 0)"],
   ],
   [
-    [0, "rgba(​31, 113, ​181, 0.15)"],
-    [1, "rgba(​31, 113, ​181, 0)"],
+    [0, "rgba(​174, 93, 255, 0.15)"],
+    [1, "rgba(​174, 93, 255, 0)"],
   ],
 ];
 
@@ -242,10 +244,11 @@ export const SelectOutcomeButton = ({
   cash,
   disabled = false,
 }: typeof React.Component) => {
+  const { settings: { oddsFormat } } = useSportsStore();
   const OutcomePrice =
     isNaN(Number(lastPrice)) || Number(lastPrice) <= 0
-      ? `${getCashFormat(cash?.name)?.symbol} -`
-      : formatCashPrice(createBigNumber(lastPrice), cash?.name).full;
+      ? `-`
+      : convertToOdds(convertToNormalizedPrice({ price: lastPrice }), oddsFormat).full 
   return (
     <button
       className={classNames(Styles.SelectOutcomeButton, {
@@ -420,15 +423,17 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
     useHTML: true,
     formatter() {
       const {
-        settings: { timeFormat },
+        settings: { timeFormat, oddsFormat },
       } = SportStore.get();
       // @ts-ignore
       const date = `${getDayFormat(this.x)}, ${getTimeFormat(this.x, timeFormat)}`;
       let out = `<h5>${date}</h5><ul>`;
+      
       // @ts-ignore
       this.points.forEach((point) => {
+        const odds = convertToOdds(convertToNormalizedPrice({ price: point.y }), oddsFormat).full;
         out += `<li><span style="color:${point.color}">&#9679;</span><b>${point.series.name}</b><span>${
-          formatCashPrice(createBigNumber(point.y), cash?.name).full
+          odds.includes('Infinity') ? '-' : odds
         }</span></li>`;
       });
       out += "</ul>";

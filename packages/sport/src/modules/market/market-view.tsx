@@ -197,10 +197,6 @@ const MarketView = ({ defaultMarket = null }) => {
           </li>
         </ul>
         <SportsCardOutcomes {...{ ...market }} />
-        <SportsChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions }} />
-        <article className={Styles.MobileLiquidSection}>
-          {/* {!isFinalized && <AddLiquidity market={market} />} */}
-        </article>
         <div
           className={classNames(Styles.Details, {
             [Styles.isClosed]: !showMoreDetails,
@@ -217,6 +213,7 @@ const MarketView = ({ defaultMarket = null }) => {
           )}
           {details.length === 0 && <p>There are no additional details for this Market.</p>}
         </div>
+        <SportsChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions }} />
         <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>
     </div>
