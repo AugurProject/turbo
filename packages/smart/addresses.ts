@@ -60,29 +60,6 @@ export const addresses: AddressMapping = {
     },
     info: { uploadBlockNumber: 7, graphName: "" },
   },
-  80001: {
-    reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
-    balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
-    ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",
-    marketFactories: {
-      sportsball: {
-        type: "SportsLink",
-        address: "0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-      },
-      sportsball2: {
-        type: "SportsLink",
-        address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-      },
-      mma: {
-        type: "SportsLink",
-        address: "0xb2a568C444C6B74D10f7cf66bEcfeAF88a94808a",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-      },
-    },
-    info: { uploadBlockNumber: 13994149, graphName: "mumbai" },
-  },
   137: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
     balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
@@ -100,5 +77,28 @@ export const addresses: AddressMapping = {
       },
     },
     info: { uploadBlockNumber: 14853228, graphName: "matic" },
+  },
+  80001: {
+    reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
+    balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
+    ammFactory: "0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD",
+    marketFactories: {
+      sportsball2: {
+        type: "SportsLink",
+        address: "0x4225c4fe9A02706C7beC927A3DB25f29E273b3d1",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+      sportsball: {
+        type: "SportsLink",
+        address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+      mma: {
+        type: "SportsLink",
+        address: "0x44043E4B5B8633d0915822ddc86e6Df962D126b2",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+      },
+    },
+    info: { uploadBlockNumber: 14691785, graphName: "mumbai" },
   },
 };
