@@ -61,6 +61,21 @@ const RANGE_OPTIONS = [
   },
 ];
 
+const EVENT_MARKET_OPTIONS = [
+  {
+    id: 0,
+    label: 'Spread',
+  },
+  {
+    id: 1,
+    label: 'Moneyline',
+  },
+  {
+    id: 2,
+    label: 'Over / Under',
+  }
+]
+
 const SERIES_COLORS = ["#FF4E27", "#FCBD43", "#48EBB5", "#FF56B1", "#FF8DED", "#1B91FF", "#09CFE1", "#AE5DFF"];
 const SERIES_GRADIENTS = [
   [
@@ -268,6 +283,7 @@ export const SportsChartSection = ({ market, cash, transactions }) => {
   const formattedOutcomes = getFormattedOutcomes({ market });
   const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));
   const [rangeSelection, setRangeSelection] = useState(3);
+  const [marketOptionSelection, setMarketOptionSelection] = useState(1);
 
   const toggleOutcome = (id) => {
     const updates: boolean[] = [].concat(selectedOutcomes);
@@ -277,11 +293,18 @@ export const SportsChartSection = ({ market, cash, transactions }) => {
 
   return (
     <section className={Styles.SimpleChartSection}>
-      <MultiButtonSelection
-        options={RANGE_OPTIONS}
-        selection={rangeSelection}
-        setSelection={(id) => setRangeSelection(id)}
-      />
+      <div>
+        <MultiButtonSelection
+          options={EVENT_MARKET_OPTIONS}
+          selection={marketOptionSelection}
+          setSelection={(id) => setMarketOptionSelection(id)}
+        />
+        <MultiButtonSelection
+          options={RANGE_OPTIONS}
+          selection={rangeSelection}
+          setSelection={(id) => setRangeSelection(id)}
+        />
+      </div>
       <PriceHistoryChart
         {...{
           market,

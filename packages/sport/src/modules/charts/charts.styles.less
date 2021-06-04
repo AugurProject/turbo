@@ -1,9 +1,10 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .PriceHistoryChart {
-  .SimpleBorder;
-  .SecondaryBorderRadius;
+  .SecondaryBottomBorderRadius;
 
+  border: @size-1 solid var(--simple-border);
+  border-top: 0;
   display: flex;
   flex-flow: column nowrap;
   grid-gap: @size-24;
@@ -256,16 +257,11 @@
   display: flex;
   flex-flow: column nowrap;
 
-  > div,
-  > ul {
-    margin-bottom: @size-16;
-  }
-
   > section {
     margin-bottom: @size-8;
   }
 
-  > div {
+  > div:last-of-type {
     display: flex;
     flex-flow: row wrap;
     margin-bottom: 0;
@@ -275,8 +271,44 @@
     }
   }
 
-  > ul {
-    align-self: flex-end;
+  > div:first-of-type {
+    .SecondaryTopBorderRadius;
+
+    border: @size-1 solid var(--simple-border);
+    border-bottom: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--simple-light-bg);
+    padding: @size-16;
+
+    > ul {
+      grid-gap: 0;
+
+      > li {
+        &:first-of-type > button {
+          border-radius: 0;
+
+          .PrimaryLeftBorderRadius;
+        }
+        &:last-of-type > button {
+          border-radius: 0;
+
+          .PrimaryRightBorderRadius;
+        }
+
+        > button {
+          border-radius: 0;
+          text-transform: uppercase;
+
+          &[class*="Selected"] {
+            background: transparent !important;
+          }
+        }
+      }
+    }
   }
 
   @media @breakpoint-mobile-tablet {
@@ -302,7 +334,7 @@
   &:disabled,
   &:disabled:hover {
     cursor: not-allowed;
-    opacity: .5;
+    opacity: 0.5;
     background: transparent;
   }
 
@@ -383,8 +415,8 @@
 }
 
 .isSelected_2 {
-   border-color: var(--theme-outcome-2);
-  
+  border-color: var(--theme-outcome-2);
+
   > span {
     background: var(--theme-outcome-2);
   }
@@ -392,7 +424,7 @@
 
 .isSelected_3 {
   border-color: var(--theme-outcome-3);
-  
+
   > span {
     background: var(--theme-outcome-3);
   }
@@ -400,7 +432,7 @@
 
 .isSelected_4 {
   border-color: var(--theme-outcome-4);
-  
+
   > span {
     background: var(--theme-outcome-4);
   }
@@ -408,7 +440,7 @@
 
 .isSelected_5 {
   border-color: var(--theme-outcome-5);
-  
+
   > span {
     background: var(--theme-outcome-5);
   }
@@ -416,7 +448,7 @@
 
 .isSelected_6 {
   border-color: var(--theme-outcome-6);
-  
+
   > span {
     background: var(--theme-outcome-6);
   }
@@ -424,7 +456,7 @@
 
 .isSelected_7 {
   border-color: var(--theme-outcome-7);
-  
+
   > span {
     background: var(--theme-outcome-7);
   }
