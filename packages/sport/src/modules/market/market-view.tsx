@@ -18,25 +18,29 @@ import {
   DerivedMarketData,
   ProcessData,
   Stores,
+  Links,
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSportsStore } from "../stores/sport";
 import { MARKETS } from "modules/constants";
-import { SportsCardOutcomes } from '../sports-card/sports-card';
-
+import { SportsCardOutcomes } from "../sports-card/sports-card";
+import { CategoriesTrail } from "../categories/categories";
 import { Link } from "react-router-dom";
 const {
   SEO,
   LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
-  Icons: { ConfirmedCheck },
+  Icons: { ConfirmedCheck, SimpleChevron },
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
 } = Components;
+const { MarketsLink } = Links;
 const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
-const { Utils: { isMarketFinal } } = Stores;
+const {
+  Utils: { isMarketFinal },
+} = Stores;
 const {
   DateUtils: { getMarketEndtimeFull },
   Formatter: { formatDai, formatLiquidity },
@@ -136,7 +140,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const { isMobile, isLogged } = useAppStatusStore();
   const {
     settings: { timeFormat },
-    showTradingForm,
     actions: { setShowTradingForm },
   } = useSportsStore();
   const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
@@ -172,17 +175,17 @@ const MarketView = ({ defaultMarket = null }) => {
         {/* <NetworkMismatchBanner /> */}
         {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
-          <CategoryIcon big categories={categories} />
+          <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>
+          <CategoriesTrail {...{ ...market }} />
+          {/* <CategoryIcon big categories={categories} />
           <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <CurrencyLabel name={amm?.cash?.name} />
+          <CurrencyLabel name={amm?.cash?.name} /> */}
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
         {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
-        {isFinalized && winningOutcome && (
-          <WinningOutcomeLabel winningOutcome={winningOutcome} />
-        )}
+        {isFinalized && winningOutcome && <WinningOutcomeLabel winningOutcome={winningOutcome} />}
         <ul className={Styles.StatsRow}>
           <li>
             <span>24hr Volume</span>
@@ -203,9 +206,8 @@ const MarketView = ({ defaultMarket = null }) => {
         </ul>
         <SportsCardOutcomes {...{ ...market }} />
         {/* <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} /> */}
-        {/* <PositionsLiquidityViewSwitcher ammExchange={amm} /> */}
         <article className={Styles.MobileLiquidSection}>
-        {/* {!isFinalized && <AddLiquidity market={market} />} */}
+          {/* {!isFinalized && <AddLiquidity market={market} />} */}
         </article>
         <div
           className={classNames(Styles.Details, {
@@ -222,10 +224,6 @@ const MarketView = ({ defaultMarket = null }) => {
             </button>
           )}
           {details.length === 0 && <p>There are no additional details for this Market.</p>}
-        </div>
-        <div className={Styles.TransactionsTable}>
-          <span>Transactions</span>
-          {/* <TransactionsTable transactions={marketTransactions} /> */}
         </div>
         <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>

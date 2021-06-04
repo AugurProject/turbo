@@ -40,7 +40,7 @@
         display: none;
       }
 
-      > div,
+      > div:not(.topRow),
       > ul,
       > span,
       > article,
@@ -186,25 +186,39 @@
   flex-flow: row nowrap;
   width: 100%;
   align-items: center;
-  height: @size-44;
+  height: @size-20;
+  max-height: @size-20;
+  margin-bottom: @size-24;
 
-  @media @breakpoint-mobile-tablet {
-    margin-bottom: @size-16;
-    height: @size-32;
+  > a {
+    .TertiaryBorderRadius;
+
+    border: @size-1 solid var(--simple-tertiary-text);
+    height: @size-20;
+    width: @size-20;
+    background: var(--simple-light-bg);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: @size-8;
+
+    > svg {
+      height: @size-16;
+      width: @size-10;
+      transform: rotate(90deg);
+      transform-origin: 50% 50%;
+
+      > path {
+        fill: var(--simple-primary-text);
+      }
+    }
+
+    &:hover {
+      border-color: var(--simple-primary-text);
+    }
   }
 
-  > div[class*='CategoryLabel'] {
-    margin-left: @size-8;
-    margin-right: auto;
-  }
-
-  > span[class*='CurrencyLabel'] {
-    margin-left: @size-8;
-  }
-
-  > span[class*='InvalidFlagTipIcon'] {
-    margin-left: @size-8;
-  }
 }
 
 .WinningOutcomeLabel {
