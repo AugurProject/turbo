@@ -354,7 +354,9 @@ export const LIQUIDITIES = gql`
       collateral
       lpTokens
       marketFactory
-      user
+      sender {
+        id
+      }
       recipient
     }
   }

@@ -1,0 +1,192 @@
+@import (reference) "~assets/styles/shared";
+
+.CategoriesArea {
+  min-width: 210px;
+  margin-right: @size-40;
+
+  > h2 {
+    .text-20-bold;
+
+    color: var(--simple-primary-text);
+    text-transform: uppercase;
+    margin: 0;
+    margin-bottom: @size-32;
+    white-space: nowrap;
+  }
+
+  > h3 {
+    .text-14-bold;
+
+    color: var(--simple-primary-text);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  > button:not(:first-of-type) {
+    margin-top: @size-12;
+  }
+
+  > article {
+    &:first-of-type {
+      margin-top: @size-12;
+    }
+
+    &:last-of-type {
+      border-bottom: @size-1 solid var(--simple-border);
+    }
+  }
+}
+
+.RemoveCategoryButton {
+  .text-12-semi-bold;
+
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  background: transparent;
+  border: 0;
+  color: var(--simple-secondary-text);
+  text-transform: uppercase;
+  // to actually get alignment right.
+  line-height: @size-14;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--simple-primary-text);
+
+    > span {
+      border-color: var(--simple-primary-text);
+    }
+  }
+
+  > span {
+    .PrimaryBorderRadius;
+
+    background: var(--simple-light-bg);
+    border: @size-1 solid var(--simple-tertiary-text);
+    height: @size-20;
+    width: @size-20;
+    margin-right: @size-8;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+
+    > svg {
+      height: @size-16;
+      width: @size-10;
+      transform: rotate(90deg);
+      transform-origin: 50% 50%;
+
+      > path {
+        fill: var(--simple-primary-text);
+      }
+    }
+  }
+}
+
+.NumberBox {
+  .text-10;
+  .SimpleBorder;
+
+  background: var(--simple-light-bg);
+  color: var(--simple-secondary-text);
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  line-height: @size-21;
+  justify-content: center;
+  padding: @size-4 @size-6;
+  min-width: @size-25;
+  height: @size-21;
+  min-height: @size-21;
+  max-height: @size-21;
+  margin-left: auto;
+}
+
+.CategoryGroup {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > h4,
+  > button {
+    .text-12-semi-bold;
+
+    background: transparent;
+    border: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    line-height: @size-21;
+    margin-bottom: @size-12;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+
+    > svg {
+      height: @size-16;
+      width: @size-16;
+      margin-right: @size-8;
+
+      > path[fill],
+      > g > path[fill] {
+        fill: var(--simple-primary-text);
+      }
+
+      > line,
+      > path[stroke],
+      > g > path[stroke] {
+        stroke: var(--simple-primary-text);
+      }
+    }
+
+    > span {
+      .NumberBox;
+    }
+
+    &:hover {
+      > span {
+        border-color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+      }
+    }
+
+    &.SelectedCategory {
+      color: var(--simple-primary-text);
+
+      > span {
+        border-color: var(--simple-primary-text);
+        color: var(--simple-primary-text);
+      }
+    }
+  }
+
+  > h4 {
+    color: var(--simple-primary-text);
+  }
+
+  > button {
+    color: var(--simple-secondary-text);
+
+    &:hover {
+      color: var(--simple-primary-text);
+    }
+  }
+}
+
+.CategoriesTrail {
+  .text-10-semi-bold;
+
+  color: var(--simple-secondary-text);
+  text-transform: uppercase;
+
+  > span:not(:last-of-type) {
+    margin-right: @size-4;
+  }
+}
+
+@media @breakpoint-mobile-tiny {
+  .CategoriesArea {
+    display: none;
+  }
+}

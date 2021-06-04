@@ -1,24 +1,90 @@
-@import (reference) '~assets/styles/shared.less';
+@import (reference) "~assets/styles/shared.less";
 
 .Betslip {
   display: flex;
   flex-flow: column nowrap;
   flex: 1 100%;
   width: @betslip-column-width;
-  
+
   > div {
     .PrimaryBorderRadius;
 
     background: var(--simple-light-bg);
     box-shadow: var(--theme-box-shadow);
     min-height: 440px;
+    max-height: 85vh;
     border: @size-1 solid var(--simple-border);
     margin: @size-32 @size-32 @size-32 @size-8;
     width: @betslip-width;
+    position: fixed;
+    display: flex;
+    flex-flow: column nowrap;
+
+    > main:not(.EmptyBetslip) {
+      flex: 1;
+    }
+
+    > footer {
+      border-top: @size-1 solid var(--simple-border);
+      background: var(--light-background-color);
+      padding: @size-10 @size-12;
+      display: grid;
+      grid-gap: @size-12 @size-8;
+      grid-template-columns: 1fr 1fr;
+
+      > p {
+        .text-12;
+
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+
+        > b {
+          .text-12-bold;
+        }
+      }
+
+      > a {
+        .text-10-semi-bold;
+
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        text-transform: uppercase;
+        width: 100%;
+
+        > svg {
+          height: @size-16;
+          width: @size-10;
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+          margin-right: @size-8;
+
+          > path {
+            fill: var(--simple-primary-text);
+          }
+        }
+      }
+    }
+
+    > :last-child {
+      .PrimaryBottomBorderRadius;
+    }
   }
 
   @media @breakpoint-mobile-tablet {
     display: none;
+  }
+}
+
+button.FlipContent {
+  flex-flow: row-reverse nowrap;
+
+  > svg:first-of-type,
+  > div {
+    margin-left: 0;
+    margin-right: @size-4;
   }
 }
 
@@ -117,5 +183,415 @@
     margin-top: @size-1;
     margin-bottom: @size-11;
   }
-  
+}
+
+.BetslipContent {
+  padding: @size-12;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: stretch;
+  overflow-y: auto;
+
+  > article:not(:last-of-type) {
+    margin-bottom: @size-8;
+  }
+}
+
+.EditableBet {
+  .SimpleBorder;
+  .SecondaryBorderRadius;
+
+  width: 100%;
+
+  > header {
+    .text-12-bold;
+    .SecondaryTopBorderRadius;
+
+    min-height: @size-30;
+    background: var(--light-background-color);
+    color: var(--simple-primary-text);
+    border-bottom: @size-1 solid var(--simple-border);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: @size-8 @size-12;
+  }
+
+  > main {
+    .SecondaryBottomBorderRadius;
+
+    background: var(--simple-light-bg);
+    padding: @size-12;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: @size-8;
+
+    // heading area of content
+    > div:first-of-type {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      > h6 {
+        .text-12-bold;
+
+        color: var(--simple-primary-text);
+        margin: 0;
+        padding: 0;
+      }
+
+      > span {
+        .text-12-bold;
+
+        color: var(--simple-primary-text);
+        padding: @size-1 @size-2;
+        margin-left: auto;
+      }
+
+      > button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        margin-left: @size-8;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+
+        > svg {
+          height: @size-16;
+          width: @size-15;
+
+          > path {
+            stroke: var(--simple-secondary-text);
+          }
+        }
+
+        &:hover {
+          > svg > path {
+            stroke: var(--simple-primary-text);
+          }
+        }
+      }
+    }
+  }
+}
+
+.EditableArea {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: @size-8;
+  margin-top: @size-6;
+  align-items: center;
+  justify-content: center;
+
+  > span:last-of-type {
+    .text-12;
+
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 0;
+    margin: 0;
+    grid-column: span 2;
+    color: var(--simple-failed);
+  }
+}
+
+.LabeledInput {
+  .SimpleBorder;
+
+  border-color: var(--simple-border-dk);
+  background: var(--simple-light-bg);
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: @size-36;
+  height: @size-36;
+  max-height: @size-36;
+  position: relative;
+
+  &:before {
+    .text-14;
+
+    color: var(--simple-primary-text);
+    content: "$";
+    position: absolute;
+    left: @size-4;
+  }
+
+  > span {
+    .text-10-semi-bold;
+
+    text-transform: uppercase;
+    color: var(--simple-secondary-text);
+    padding: 0 @size-4;
+    background: var(--simple-light-bg);
+    position: absolute;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    top: -@size-6;
+    min-height: @size-12;
+    height: @size-12;
+    max-height: @size-12;
+  }
+
+  > div,
+  > input {
+    .text-14;
+    .PrimaryBorderRadius;
+
+    border: 0;
+    background: transparent;
+    color: var(--simple-primary-text);
+    text-align: center;
+    padding: @size-8 @size-12;
+    min-height: @size-36;
+    height: @size-36;
+    max-height: @size-36;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.Invalid {
+  border-color: var(--simple-failed);
+
+  &:before {
+    color: var(--simple-failed);
+  }
+
+  > div,
+  > input:not(:focus) {
+    color: var(--simple-failed);
+  }
+
+  > span {
+    color: var(--simple-failed);
+  }
+}
+
+.OddsChange {
+  background: var(--simple-warning-30);
+}
+
+.BetReceipt {
+  .EditableBet;
+
+  &.Pending {
+    > main > div:first-of-type > button {
+      > svg {
+        height: @size-16;
+        width: @size-16;
+
+        > path {
+          stroke: var(--simple-warning);
+        }
+      }
+
+      &:hover > svg > path {
+        stroke: var(--simple-warning);
+      }
+    }
+  }
+
+  &.Confirmed {
+    > main > div:first-of-type > button {
+      cursor: default;
+
+      > svg {
+        width: @size-16;
+        height: @size-16;
+
+        > path {
+          stroke: unset;
+          fill: var(--simple-primary-action);
+        }
+      }
+
+      &:hover {
+        > svg > path {
+          stroke: unset;
+        }
+      }
+    }
+  }
+
+  &.Failed {
+    > main {
+      background: var(--simple-failed-10);
+
+      > div:first-of-type > button {
+        > svg > path {
+          stroke: var(--simple-failed);
+        }
+
+        &:hover > svg > path {
+          stroke: var(--simple-failed);
+          stroke-width: 2px;
+        }
+      }
+
+      > span {
+        .text-12;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        color: var(--simple-failed);
+
+        > button {
+          .text-12-bold;
+
+          border: none;
+          background: none;
+          color: var(--simple-failed);
+          margin-left: @size-4;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.TicketBreakdown {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  > li {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: baseline;
+
+    > span {
+      white-space: nowrap;
+
+      &:first-of-type {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        text-transform: uppercase;
+      }
+
+      &:last-of-type {
+        .text-12;
+
+        color: var(--simple-primary-text);
+      }
+    }
+
+    > svg {
+      margin: 0 @size-8;
+
+      > line {
+        .dashline-normal;
+      }
+    }
+  }
+}
+
+.Cashout {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  > a {
+    .text-10-semi-bold;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: auto;
+    color: var(--simple-primary-text);
+    height: @size-20;
+    min-height: @size-20;
+    max-height: @size-20;
+
+    > svg {
+      height: @size-14;
+      width: @size-14;
+      margin-right: @size-4;
+
+      > path {
+        fill: var(--simple-primary-text);
+      }
+    }
+  }
+
+  > button {
+    .SimpleBorder;
+    .text-10-semi-bold;
+
+    background: transparent;
+    padding: @size-3 @size-6;
+    min-height: @size-20;
+    max-height: @size-20;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--simple-primary-text);
+      background: var(--simple-primary-text);
+      color: var(--simple-light-bg);
+    }
+
+    &:disabled {
+      opacity: 0.25;
+    }
+  }
+}
+
+.HasCashedOut {
+  > main {
+    background: var(--light-background-color);
+  }
+
+  > button:last-of-type:last-child {
+    background: var(--simple-primary-action-15);
+    border-color: var(--simple-primary-action-15);
+    cursor: default;
+    color: var(--simple-secondary-text);
+
+    &:hover {
+      color: var(--simple-primary-text);
+    }
+  }
+}
+
+.animate {
+  & :local {
+    animation: move 2s linear infinite;
+  }
+}
+
+@keyframes move {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -28,6 +28,22 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     event LinkNodeChanged(address newLinkNode);
 
     enum MarketType {HeadToHead, Spread, OverUnder}
+    enum HeadToHeadOutcome {
+        NoContest, // 0
+        Away, // 1
+        Home // 2
+    }
+    enum SpreadOutcome {
+        NoContest, // 0
+        Away, // 1
+        Home // 2
+    }
+    enum OverUnderOutcome {
+        NoContest, // 0
+        Over, // 1
+        Under // 2
+    }
+
     enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
 
     struct MarketDetails {
@@ -138,9 +154,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _startTimestamp
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[uint256(HeadToHeadOutcome.NoContest)] = "No Contest";
+        _outcomes[uint256(HeadToHeadOutcome.Away)] = "Away";
+        _outcomes[uint256(HeadToHeadOutcome.Home)] = "Home";
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
@@ -177,9 +193,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         int256 _homeSpread
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[uint256(SpreadOutcome.NoContest)] = "No Contest";
+        _outcomes[uint256(SpreadOutcome.Away)] = "Away";
+        _outcomes[uint256(SpreadOutcome.Home)] = "Home";
 
         // The spread is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the spread is a whole number then make it a half point more extreme, to eliminate ties.
@@ -225,9 +241,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _overUnderTotal
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Over";
-        _outcomes[2] = "Under";
+        _outcomes[uint256(OverUnderOutcome.NoContest)] = "No Contest";
+        _outcomes[uint256(OverUnderOutcome.Over)] = "Over";
+        _outcomes[uint256(OverUnderOutcome.Under)] = "Under";
 
         // The total is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the total is a whole number then make it a half point higher, to eliminate ties.
@@ -279,7 +295,9 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             for (uint256 i = 0; i < _ids.length; i++) {
                 uint256 _id = _ids[i];
                 if (_id == 0) continue; // skip non-created markets
-                markets[_id].winner = markets[_id].shareTokens[0];
+                OwnedERC20 _winner = markets[_id].shareTokens[0]; // 0th outcome is No Contest for all market types
+                markets[_id].winner = _winner;
+                emit MarketResolved(_id, address(_winner));
             }
             return;
         }
@@ -303,11 +321,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     ) internal {
         OwnedERC20 _winner;
         if (_homeScore > _awayScore) {
-            _winner = markets[_id].shareTokens[2]; // home team won
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcome.Home)]; // home team won
         } else if (_homeScore < _awayScore) {
-            _winner = markets[_id].shareTokens[1]; // away team won
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcome.Away)]; // away team won
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(HeadToHeadOutcome.NoContest)]; // no contest
         }
 
         markets[_id].winner = _winner;
@@ -326,11 +344,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualSpread > _targetSpread) {
-            _winner = markets[_id].shareTokens[2]; // home spread greater
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcome.Home)]; // home spread greater
         } else if (_actualSpread < _targetSpread) {
-            _winner = markets[_id].shareTokens[1]; // home spread lesser
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcome.Away)]; // home spread lesser
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(SpreadOutcome.NoContest)]; // no contest
         }
 
         markets[_id].winner = _winner;
@@ -349,11 +367,11 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         OwnedERC20 _winner;
         if (_actualTotal > _targetTotal) {
-            _winner = markets[_id].shareTokens[1]; // over
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcome.Over)]; // over
         } else if (_actualTotal < _targetTotal) {
-            _winner = markets[_id].shareTokens[2]; // under
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcome.Under)]; // under
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            _winner = markets[_id].shareTokens[uint256(OverUnderOutcome.NoContest)]; // no contest
         }
 
         markets[_id].winner = _winner;

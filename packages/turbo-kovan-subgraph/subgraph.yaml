@@ -5,23 +5,23 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: AMMFactory
+    name: AmmFactory
     network: mumbai
     source:
       address: '0x8860542771F787dD8B2c8f9134662751DE2F664f'
-      abi: AMMFactory
+      abi: AmmFactory
       startBlock: 13994149
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/AMMFactory.ts
+      file: ./src/mappings/AMMFactory.ts
       entities:
         - PoolCreated
         - LiquidityChanged
         - SharesSwapped
       abis:
-        - name: AMMFactory
+        - name: AmmFactory
           file: ./abis/AMMFactory.json
         - name: BPool
           file: ./abis/BPool.json
@@ -36,14 +36,14 @@ dataSources:
     name: AbstractMarketFactory
     network: mumbai
     source:
-      address: '0x43D9f2d22f1306D012251d032a5B67553FE4aA82' # use SportsLinkMarketFactory
+      address: '0xBC8C695dd045FBfe81C353Fd88E3bedE45C2855D' # use SportsLinkMarketFactory
       abi: AbstractMarketFactory
       startBlock: 13994149
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/AbstractMarketFactory.ts
+      file: ./src/mappings/AbstractMarketFactory.ts
       entities:
         - WinningsClaimed
         - SettlementFeeClaimed

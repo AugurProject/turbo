@@ -344,35 +344,16 @@ export function doRemoveLiquidity(
     : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
 }
 
-export const estimateBuyTrade = async (
+export const estimateBuyTrade = (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   cash: Cash
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("doRemoveLiquidity: no provider");
-    return null;
-  }
-  const { marketFactoryAddress, turboId } = amm;
-
+): EstimateTradeResult | null => {
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
-  console.log(
-    "estimate buy",
-    "address",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    0
-  );
   let result = null;
   try {
-    result = await estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
+    result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
   } catch (e) {
     console.log("error in estimate buy", e);
   }
@@ -386,7 +367,6 @@ export const estimateBuyTrade = async (
   const price = new BN(amm.ammOutcomes[selectedOutcomeId]?.price);
   const priceImpact = price.minus(averagePrice).times(100).toFixed(4);
   const ratePerCash = new BN(estimatedShares).div(new BN(inputDisplayAmount)).toFixed(6);
-  console.log("est shares", String(estimatedShares), "avg price", String(averagePrice), "outcome price", String(price));
 
   return {
     outputValue: trimDecimalValue(estimatedShares),
@@ -398,36 +378,13 @@ export const estimateBuyTrade = async (
   };
 };
 
-export const estimateSellTrade = async (
+export const estimateSellTrade = (
   amm: AmmExchange,
-  provider: Web3Provider,
   inputDisplayAmount: string,
   selectedOutcomeId: number,
   userBalances: string[]
-): Promise<EstimateTradeResult | null> => {
-  if (!provider) {
-    console.error("estimateSellTrade: no provider");
-    return null;
-  }
-  const { marketFactoryAddress, turboId } = amm;
+): EstimateTradeResult | null => {
   const amount = sharesDisplayToOnChain(inputDisplayAmount).toFixed();
-  console.log(
-    "estimate sell",
-    "factory",
-    marketFactoryAddress,
-    "turboId",
-    turboId,
-    "outcome id",
-    selectedOutcomeId,
-    "amount",
-    amount,
-    "inputDisplayAmount",
-    inputDisplayAmount,
-    "shareTokens",
-    amm.ammOutcomes,
-    "share factor",
-    amm.shareFactor
-  );
 
   const [setsOut, undesirableTokensInPerOutcome] = calcSellCompleteSets(
     amm.shareFactor,
@@ -590,10 +547,12 @@ export const cashOutAllShares = (
     .times(new BN(shareFactor))
     .decimalPlaces(0, 1);
   console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
-  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, {
-    gasLimit: "800000",
-    gasPrice: "10000000000",
-  });
+  return marketFactoryContract.burnShares(
+    marketId,
+    normalizedAmount.toFixed(),
+    account
+    //{ gasLimit: "800000", gasPrice: "10000000000",}
+  );
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
@@ -1310,6 +1269,11 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const isOldMarketFactory = (address) => {
+  const { marketFactories } = PARA_CONFIG;
+  return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
+};
+
 const marketFactories = () => {
   const { marketFactories } = PARA_CONFIG;
   const marketAddresses = [marketFactories.sportsball.address];
@@ -1326,58 +1290,74 @@ const marketFactories = () => {
   return marketAddresses;
 };
 
+// stop updating resolved markets
+const addResolvedMarketToList = (
+  ignoreList: { [factory: string]: number[] },
+  factoryAddress: string,
+  marketIndexs: number[] | number
+) => {
+  const address = factoryAddress.toUpperCase();
+  const factoryList = ignoreList[address] || [];
+  const filtered = marketIndexs.filter((i) => !factoryList.includes(i));
+  ignoreList[address] = [...factoryList, ...filtered];
+};
+
 export const getMarketInfos = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   cashes: Cashes,
-  account: string
+  account: string,
+  ignoreList: { [factory: string]: number[] }
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address))
+    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address, ignoreList))
   );
 
   // first market infos get all markets with liquidity
   const marketInfos = allMarkets.reduce(
-    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber }, i) => {
+    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress }) => {
       // only take liquidity markets from first batch
-      if (i === 0) {
-        const hasLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
-          (p, id) => (exchanges[id]?.hasLiquidity ? [...p, exchanges[id].turboId] : p),
+      const ignores = ignoreList[factoryAddress.toUpperCase()] || [];
+      const isOld = isOldMarketFactory(factoryAddress);
+      if (isOld && !ignores?.length) {
+        const noLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
+          (p, id) => (!exchanges[id]?.hasLiquidity ? [...p, Number(exchanges[id].turboId)] : p),
           []
         );
         const liquidityMarkets = Object.keys(marketInfos).reduce(
           (p, id) =>
-            hasLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
+            !noLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
           {}
         );
         const liquidityExchanges = Object.keys(exchanges).reduce(
-          (p, id) => (hasLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
+          (p, id) => (!noLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
           {}
         );
+        // ignore non liquid markets from old market factory, grab first of market infos to get factory address
+        addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
         return {
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
           blocknumber,
         };
       }
-      const existingMarkets: number[] = Object.keys(p.markets).map((id) => p.markets[id]?.turboId);
-      const newMarkets = Object.keys(marketInfos).reduce(
-        (p, id) => (!existingMarkets.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p),
-        {}
-      );
-      const newExchanges = Object.keys(exchanges).reduce(
-        (p, id) => (!existingMarkets.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
-        {}
-      );
+
+      // only update open markets after initial load
+      const ids = Object.keys(marketInfos)
+        .filter((id) => marketInfos[id]?.hasWinner)
+        .map((id) => Number(marketInfos[id]?.turboId));
+      addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
       return {
-        markets: { ...p.markets, ...newMarkets },
-        ammExchanges: { ...p.ammExchanges, ...newExchanges },
+        markets: { ...p.markets, ...marketInfos },
+        ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber,
+        ignoreList,
       };
     },
-    { markets: {}, ammExchanges: {}, blocknumber: null, loading: false }
+    { markets, ammExchanges, blocknumber: null, loading: false }
   );
 
   return marketInfos;
@@ -1388,14 +1368,16 @@ export const getFactoryMarketInfo = async (
   markets: MarketInfos,
   cashes: Cashes,
   account: string,
-  factoryAddress: string
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
+  factoryAddress: string,
+  ignoreList: { [factory: string]: number[] }
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
+  const ignoreMarketIndexes = ignoreList[factoryAddress.toUpperCase()] || [];
 
   let indexes = [];
   for (let i = 1; i < numMarkets; i++) {
-    indexes.push(i);
+    if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
@@ -1405,7 +1387,7 @@ export const getFactoryMarketInfo = async (
     account,
     factoryAddress
   );
-  return { markets: { ...markets, ...marketInfos }, ammExchanges: exchanges, blocknumber };
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
 
 const retrieveMarkets = async (
@@ -1743,13 +1725,12 @@ const retrieveExchangeInfos = async (
     const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
     const balancesRaw = balances[marketId];
     const weights = poolWeights[marketId];
-    const { numTicks } = market;
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
       ratioRaw: exchange.id ? getArrayValue(ratios[marketId], i) : "",
       ratio: exchange.id ? toDisplayRatio(getArrayValue(ratios[marketId], i)) : "",
       balanceRaw: exchange.id ? getArrayValue(balances[marketId], i) : "",
-      balance: exchange.id ? toDisplayBalance(getArrayValue(balances[marketId], i), numTicks) : "",
+      balance: exchange.id ? String(sharesOnChainToDisplay(getArrayValue(balances[marketId], i))) : "",
       ...o,
     }));
     // create cross reference
@@ -1887,12 +1868,6 @@ const decodeOutcomes = (
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
   // todo: need to use cash to get decimals
   return convertOnChainCashAmountToDisplayCashAmount(onChainRatio, 18).toFixed();
-};
-
-const toDisplayBalance = (onChainBalance: string = "0", numTick: string = "1000"): string => {
-  // todo: need to use cash to get decimals
-  const MULTIPLIER = new BN(10).pow(18);
-  return new BN(onChainBalance).times(new BN(numTick)).div(MULTIPLIER).toFixed();
 };
 
 const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
