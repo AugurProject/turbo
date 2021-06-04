@@ -5,6 +5,7 @@ import makePath from "./make-path";
 import makeQuery from "./make-query";
 import { MARKET, MARKETS, MARKET_ID_PARAM_NAME } from "../constants";
 import { PARA_CONFIG } from "../../stores/constants";
+import { LinkIcon } from "../../components/common/icons";
 
 interface MarketLinkProps {
   id: string;
@@ -71,22 +72,24 @@ export const MarketLink = ({ id, dontGoToMarket, children }: MarketLinkProps) =>
 interface ExternalLinkProps {
   URL: string;
   label: string;
+  icon?: boolean;
 }
 
-export const ExternalLink = ({ URL, label }: ExternalLinkProps) => (
+export const ExternalLink = ({ URL, label, icon = false }: ExternalLinkProps) => (
   <a key={`${URL}-${label}`} href={URL} target="_blank" rel="noopener noreferrer">
-    {label}
+    {icon && LinkIcon} {label}
   </a>
 );
 
 interface ReceiptLinkProps {
   hash: string;
   label?: string;
+  icon?: boolean;
 }
 
-export const ReceiptLink = ({ hash, label = "View Txn" }: ReceiptLinkProps) => {
+export const ReceiptLink = ({ hash, label = "View Txn", icon = false }: ReceiptLinkProps) => {
   const URL = `${RECEIPT_LINKS[PARA_CONFIG.networkId] || RECEIPT_LINKS[1]}${hash}`;
-  return <ExternalLink {...{ URL, label }} />;
+  return <ExternalLink {...{ URL, label, icon }} />;
 };
 
 interface AccountLinkProps {

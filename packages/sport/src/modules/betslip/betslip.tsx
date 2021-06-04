@@ -16,6 +16,7 @@ import {
   Icons,
   PathUtils,
   createBigNumber,
+  Links,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 import { getSizedPrice } from "modules/utils";
@@ -26,6 +27,7 @@ const { SimpleCheck, SimpleChevron } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
+const { ReceiptLink } = Links;
 
 export const Betslip = () => {
   const { selectedView } = useBetslipStore();
@@ -239,17 +241,25 @@ const BetReciept = ({ tx_hash, bet }) => {
   const {
     actions: { removeActive },
   } = useBetslipStore();
-  const { price, name, heading, status } = bet;
+  const { price, name, heading, status, canCashOut, hasCashedOut } = bet;
   const txStatus = {
     message: null,
-    icon: SimpleCheck,
-    class: { [Styles.Confirmed]: true },
+    icon: PendingIcon,
+    class: { [Styles.Pending]: true },
     action: () => console.log("nothing happens"),
   };
+  let disableCashout = false;
+  //TODO: do this for real, this is just for mocks stake
+  if (tx_hash === '0xtxHash03') {
+    disableCashout = true;
+  }
   switch (status) {
-    case TX_STATUS.PENDING: {
-      txStatus.class = { [Styles.Pending]: true };
-      txStatus.icon = PendingIcon;
+    case TX_STATUS.CONFIRMED: {
+      txStatus.class = {
+        [Styles.Confirmed]: true,
+        [Styles.HasCashedOut]: hasCashedOut,
+      };
+      txStatus.icon = SimpleCheck;
       break;
     }
     case TX_STATUS.FAILURE: {
@@ -279,6 +289,12 @@ const BetReciept = ({ tx_hash, bet }) => {
             {txStatus.message}
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
+        )}
+        {(canCashOut || hasCashedOut) && (
+          <div className={classNames(Styles.Cashout, txStatus.class)}>
+            {hasCashedOut && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
+            <button disabled={disableCashout}>{disableCashout ? 'Cashout not available' : `cash${hasCashedOut ? 'ed' : ''} out: $${bet.toWin}`}</button>
+          </div>
         )}
       </main>
     </article>

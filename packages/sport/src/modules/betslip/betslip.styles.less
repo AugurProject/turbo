@@ -392,7 +392,7 @@ button.FlipContent {
   .EditableBet;
 
   &.Pending {
-    > main > div > button {
+    > main > div:first-of-type > button {
       > svg {
         height: @size-16;
         width: @size-16;
@@ -409,7 +409,7 @@ button.FlipContent {
   }
 
   &.Confirmed {
-    > main > div > button {
+    > main > div:first-of-type > button {
       cursor: default;
 
       > svg {
@@ -434,7 +434,7 @@ button.FlipContent {
     > main {
       background: var(--simple-failed-10);
 
-      > div > button {
+      > div:first-of-type > button {
         > svg > path {
           stroke: var(--simple-failed);
         }
@@ -503,6 +503,80 @@ button.FlipContent {
       > line {
         .dashline-normal;
       }
+    }
+  }
+}
+
+.Cashout {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  > a {
+    .text-10-semi-bold;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: auto;
+    color: var(--simple-primary-text);
+    height: @size-20;
+    min-height: @size-20;
+    max-height: @size-20;
+
+    > svg {
+      height: @size-14;
+      width: @size-14;
+      margin-right: @size-4;
+
+      > path {
+        fill: var(--simple-primary-text);
+      }
+    }
+  }
+
+  > button {
+    .SimpleBorder;
+    .text-10-semi-bold;
+
+    background: transparent;
+    padding: @size-3 @size-6;
+    min-height: @size-20;
+    max-height: @size-20;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--simple-primary-text);
+      background: var(--simple-primary-text);
+      color: var(--simple-light-bg);
+    }
+
+    &:disabled {
+      opacity: 0.25;
+    }
+  }
+}
+
+.HasCashedOut {
+  > main {
+    background: var(--light-background-color);
+  }
+
+  > button:last-of-type:last-child {
+    background: var(--simple-primary-action-15);
+    border-color: var(--simple-primary-action-15);
+    cursor: default;
+    color: var(--simple-secondary-text);
+
+    &:hover {
+      color: var(--simple-primary-text);
     }
   }
 }
