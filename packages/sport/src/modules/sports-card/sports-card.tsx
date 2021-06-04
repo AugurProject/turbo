@@ -80,7 +80,8 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => 
             ...outcome,
             marketId,
             heading: `${title}, ${description}`,
-            wager: "0",
+            wager: null,
+            toWin: null,
           })
         }
       >

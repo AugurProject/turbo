@@ -27,7 +27,7 @@
     > footer {
       border-top: @size-1 solid var(--simple-border);
       background: var(--light-background-color);
-      padding: @size-12;
+      padding: @size-10 @size-12;
       display: grid;
       grid-gap: @size-12 @size-8;
       grid-template-columns: 1fr 1fr;
@@ -40,7 +40,30 @@
 
         > b {
           .text-12-bold;
-          margin: 0 @size-4;
+        }
+      }
+
+      > a {
+        .text-10-semi-bold;
+
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        text-transform: uppercase;
+        width: 100%;
+
+        > svg {
+          height: @size-16;
+          width: @size-10;
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+          margin-right: @size-8;
+
+          > path {
+            fill: var(--simple-primary-text);
+          }
         }
       }
     }
@@ -163,10 +186,7 @@ button.FlipContent {
 }
 
 .BetslipContent {
-  // display: grid;
-  // grid-gap: @size-8;
   padding: @size-12;
-  // grid-template-columns: 1fr;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -181,6 +201,8 @@ button.FlipContent {
 .EditableBet {
   .SimpleBorder;
   .SecondaryBorderRadius;
+
+  width: 100%;
 
   > header {
     .text-12-bold;
@@ -298,7 +320,7 @@ button.FlipContent {
     .text-14;
 
     color: var(--simple-primary-text);
-    content: '$';
+    content: "$";
     position: absolute;
     left: @size-4;
   }
@@ -364,4 +386,212 @@ button.FlipContent {
 
 .OddsChange {
   background: var(--simple-warning-30);
+}
+
+.BetReceipt {
+  .EditableBet;
+
+  &.Pending {
+    > main > div:first-of-type > button {
+      > svg {
+        height: @size-16;
+        width: @size-16;
+
+        > path {
+          stroke: var(--simple-warning);
+        }
+      }
+
+      &:hover > svg > path {
+        stroke: var(--simple-warning);
+      }
+    }
+  }
+
+  &.Confirmed {
+    > main > div:first-of-type > button {
+      cursor: default;
+
+      > svg {
+        width: @size-16;
+        height: @size-16;
+
+        > path {
+          stroke: unset;
+          fill: var(--simple-primary-action);
+        }
+      }
+
+      &:hover {
+        > svg > path {
+          stroke: unset;
+        }
+      }
+    }
+  }
+
+  &.Failed {
+    > main {
+      background: var(--simple-failed-10);
+
+      > div:first-of-type > button {
+        > svg > path {
+          stroke: var(--simple-failed);
+        }
+
+        &:hover > svg > path {
+          stroke: var(--simple-failed);
+          stroke-width: 2px;
+        }
+      }
+
+      > span {
+        .text-12;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        color: var(--simple-failed);
+
+        > button {
+          .text-12-bold;
+
+          border: none;
+          background: none;
+          color: var(--simple-failed);
+          margin-left: @size-4;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.TicketBreakdown {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  > li {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: baseline;
+
+    > span {
+      white-space: nowrap;
+
+      &:first-of-type {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        text-transform: uppercase;
+      }
+
+      &:last-of-type {
+        .text-12;
+
+        color: var(--simple-primary-text);
+      }
+    }
+
+    > svg {
+      margin: 0 @size-8;
+
+      > line {
+        .dashline-normal;
+      }
+    }
+  }
+}
+
+.Cashout {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  > a {
+    .text-10-semi-bold;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: auto;
+    color: var(--simple-primary-text);
+    height: @size-20;
+    min-height: @size-20;
+    max-height: @size-20;
+
+    > svg {
+      height: @size-14;
+      width: @size-14;
+      margin-right: @size-4;
+
+      > path {
+        fill: var(--simple-primary-text);
+      }
+    }
+  }
+
+  > button {
+    .SimpleBorder;
+    .text-10-semi-bold;
+
+    background: transparent;
+    padding: @size-3 @size-6;
+    min-height: @size-20;
+    max-height: @size-20;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--simple-primary-text);
+      background: var(--simple-primary-text);
+      color: var(--simple-light-bg);
+    }
+
+    &:disabled {
+      opacity: 0.25;
+    }
+  }
+}
+
+.HasCashedOut {
+  > main {
+    background: var(--light-background-color);
+  }
+
+  > button:last-of-type:last-child {
+    background: var(--simple-primary-action-15);
+    border-color: var(--simple-primary-action-15);
+    cursor: default;
+    color: var(--simple-secondary-text);
+
+    &:hover {
+      color: var(--simple-primary-text);
+    }
+  }
+}
+
+.animate {
+  & :local {
+    animation: move 2s linear infinite;
+  }
+}
+
+@keyframes move {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

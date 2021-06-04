@@ -36,6 +36,10 @@ export const SPORT_ACTIONS = {
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
 };
 
+const { TX_STATUS } = Constants;
+
+const date = new Date();
+const now = Math.floor(date.getTime() / 1000);
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 1,
@@ -47,9 +51,76 @@ export const DEFAULT_BETSLIP_STATE = {
       name: "Life, +12.5",
       price: "0.25",
       wager: null,
+      toWin: null,
     },
   },
-  active: {},
+  active: {
+    "0xtxHash05": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      id: 5,
+      name: "Life, +12.5",
+      price: "0.3",
+      wager: "500.00",
+      toWin: "1337.00",
+      timestamp: now,
+      status: TX_STATUS.PENDING,
+      canCashOut: false,
+      hasCashedOut: false,
+    },
+    "0xtxHash04": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      id: 4,
+      name: "Life, +12.5",
+      price: "0.35",
+      wager: "200.00",
+      toWin: "325.00",
+      timestamp: now,
+      status: TX_STATUS.CONFIRMED,
+      canCashOut: true,
+      hasCashedOut: false,
+    },
+    "0xtxHash03": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      id: 3,
+      name: "Life, +12.5",
+      price: "0.35",
+      wager: "200.00",
+      toWin: "325.00",
+      timestamp: now,
+      status: TX_STATUS.CONFIRMED,
+      canCashOut: true,
+      hasCashedOut: false,
+    },
+    "0xtxHash02": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      id: 2,
+      name: "Life, +12.5",
+      price: "0.35",
+      wager: "200.00",
+      toWin: "325.00",
+      timestamp: now,
+      status: TX_STATUS.CONFIRMED,
+      canCashOut: false,
+      hasCashedOut: true,
+    },
+    "0xtxHash01": {
+      heading: "Who will win? JD vs Life, Over Under",
+      marketId: "0xdeadbeef-0",
+      id: 2,
+      name: "Life, +12.5",
+      price: "0.55",
+      wager: "10.00",
+      toWin: "9.00",
+      timestamp: now,
+      status: TX_STATUS.FAILURE,
+      canCashOut: false,
+      hasCashedOut: false,
+    },
+  },
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {
@@ -57,6 +128,8 @@ export const STUBBED_BETSLIP_ACTIONS = {
   addBet: (bet) => {},
   removeBet: (betId) => {},
   updateBet: (bet) => {},
+  addActive: (tx_hash) => {},
+  removeActive: (tx_hash) => {},
   updateActive: (active) => {},
   cancelAllBets: () => {},
 };
@@ -73,6 +146,8 @@ export const BETSLIP_ACTIONS = {
   ADD_BET: "ADD_BET",
   REMOVE_BET: "REMOVE_BET",
   UPDATE_BET: "UPDATE_BET",
+  ADD_ACTIVE: "ADD_ACTIVE",
+  REMOVE_ACTIVE: "REMOVE_ACTIVE",
   UPDATE_ACTIVE: "UPDATE_ACTIVE",
   CANCEL_ALL_BETS: "CANCEL_ALL_BETS",
 };
