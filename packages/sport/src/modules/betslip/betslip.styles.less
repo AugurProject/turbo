@@ -391,14 +391,41 @@ button.FlipContent {
 .BetReceipt {
   .EditableBet;
 
-  &.Confirmed {
-    > main > div > button > svg {
-      width: @size-16;
-      height: @size-16;
+  &.Pending {
+    > main > div > button {
+      > svg {
+        height: @size-16;
+        width: @size-16;
 
-      > path {
-        stroke: unset;
-        fill: var(--simple-primary-action);
+        > path {
+          stroke: var(--simple-warning);
+        }
+      }
+
+      &:hover > svg > path {
+        stroke: var(--simple-warning);
+      }
+    }
+  }
+
+  &.Confirmed {
+    > main > div > button {
+      cursor: default;
+
+      > svg {
+        width: @size-16;
+        height: @size-16;
+
+        > path {
+          stroke: unset;
+          fill: var(--simple-primary-action);
+        }
+      }
+
+      &:hover {
+        > svg > path {
+          stroke: unset;
+        }
       }
     }
   }
@@ -407,9 +434,14 @@ button.FlipContent {
     > main {
       background: var(--simple-failed-10);
 
-      > div > button > svg {
-        > path {
+      > div > button {
+        > svg > path {
           stroke: var(--simple-failed);
+        }
+
+        &:hover > svg > path {
+          stroke: var(--simple-failed);
+          stroke-width: 2px;
         }
       }
 
@@ -472,5 +504,20 @@ button.FlipContent {
         .dashline-normal;
       }
     }
+  }
+}
+
+.animate {
+  & :local {
+    animation: move 2s linear infinite;
+  }
+}
+
+@keyframes move {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

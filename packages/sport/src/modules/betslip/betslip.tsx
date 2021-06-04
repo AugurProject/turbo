@@ -237,9 +237,7 @@ const BetReciept = ({ tx_hash, bet }) => {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
   const {
-    actions: { 
-      removeActive,
-    },
+    actions: { removeActive },
   } = useBetslipStore();
   const { price, name, heading, status } = bet;
   const txStatus = {
@@ -251,7 +249,7 @@ const BetReciept = ({ tx_hash, bet }) => {
   switch (status) {
     case TX_STATUS.PENDING: {
       txStatus.class = { [Styles.Pending]: true };
-      txStatus.icon = TrashIcon;
+      txStatus.icon = PendingIcon;
       break;
     }
     case TX_STATUS.FAILURE: {
@@ -398,6 +396,18 @@ export const TrashIcon = (
     <path
       d="M7 6.5H7.5V6V4C7.5 3.17157 8.17157 2.5 9 2.5H15C15.8284 2.5 16.5 3.17157 16.5 4V6V6.5H17H20.5V7.5H18.0357L18 8.49873L18.5343 8.53688L18.499 9.03214L17.6323 19.1704L17.6322 19.1704L17.6317 19.1775C17.5386 20.486 16.4499 21.5 15.138 21.5H8.86202C7.55012 21.5 6.4614 20.486 6.36828 19.1777L6.36832 19.1777L6.36778 19.1713L5.47205 8.53643L5.99995 8.49873L5.96434 7.5H3.5V6.5H7ZM15 6.5H15.5V6V4V3.5H15H9H8.5V4V6V6.5H9H15ZM6.93114 7.5H6.39417L6.43241 8.03561L6.49873 8.96439L6.49868 8.96439L6.49928 8.97136L7.36602 19.1104C7.42377 19.8936 8.07617 20.5 8.86201 20.5H15.138C15.924 20.5 16.5764 19.8934 16.634 19.1098L17.5662 8.04196L17.6119 7.5H17.068H6.93114Z"
       stroke="#0E0E21"
+    />
+  </svg>
+);
+
+export const PendingIcon = (
+  <svg viewBox="0 0 24 24" fill="none" className={Styles.animate}>
+    <path
+      d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 9.27455 20.9097 6.80375 19.1414 5"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      stroke="#F59300"
     />
   </svg>
 );
