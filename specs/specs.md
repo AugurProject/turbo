@@ -28,159 +28,29 @@ Run two cron jobs: creation and resolution.
 
 These are the values to get from the API.
 
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+| Value                  | Rundown API Path                                            | Use                                             |
+| ---------------------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| `eventId`              | `event.event_id`                                            | referencing the event                           |
+| `homeTeamId`           | `event.teams_normalized[].team_id where .is_home == true`   | UI maps to team name                            |
+| `awayTeamId`           | `event.teams_normalized[].team_id where .is_away == true`   | UI maps to team name                            |
+| `startTimestamp`       | `Date.parse(event.event_date)`                              | UI shows date                                   |
+| `moneylineHome`        | `event.lines[9].moneyline.moneyline_home`                   | initial odds for head-to-head market            |
+| `moneylineAway`        | `event.lines[9].moneyline.moneyline_away`                   | initial odds for head-to-head market            |
+| `homeSpread`           | `event.lines[9].spread.points_spread_home`                  | target score for spread market resolution       |
+| `totalScore`           | `event.lines[9].total.total_over`                           | target score for over-under market resolution   |
+| `homeScore`            | `event.score.score_home`                                    | resolving markets                               |
+| `awayScore`            | `event.score.score_away`                                    | resolving markets                               |
+| `eventStatus`          | `event.score.event_status`                                  | resolving markets                               |
+| `eventStatusDetails`   | `event.score.event_status_details`                          | if TBD then do not create markets               |
 
+| API Status         | Contract Enum Value |
+|--------------------|---------------------|
+| `<unused>`         | `0`                 |                                                                                                                                                      
+| `STATUS_SCHEDULED` | `1`                 |                                                                                                                                                      
+| `STATUS_FINAL`     | `2`                 |                                                                                                                                                      
+| `STATUS_POSTPONED` | `3`                 |                                                                                                                                                      
+| `STATUS_CANCELED`  | `4`                 |
 
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">Value</th>
-<th scope="col" class="org-left">Rundown API Path</th>
-<th scope="col" class="org-left">Use</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td class="org-left">`eventId`</td>
-<td class="org-left">`event.event_id`</td>
-<td class="org-left">referencing the event</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`homeTeamId`</td>
-<td class="org-left">`event.teams_normalized[].team_id where .is_home == true`</td>
-<td class="org-left">UI maps to team name</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`awayTeamId`</td>
-<td class="org-left">`event.teams_normalized[].team_id where .is_away == true`</td>
-<td class="org-left">UI maps to team name</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`startTimestamp`</td>
-<td class="org-left">`Date.parse(event.event_date)`</td>
-<td class="org-left">UI shows date</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`moneylineHome`</td>
-<td class="org-left">`event.lines[9].moneyline.moneyline_home`</td>
-<td class="org-left">initial odds for head-to-head market</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`moneylineAway`</td>
-<td class="org-left">`event.lines[9].moneyline.moneyline_away`</td>
-<td class="org-left">initial odds for head-to-head market</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`homeSpread`</td>
-<td class="org-left">`event.lines[9].spread.points_spread_home`</td>
-<td class="org-left">target score for spread market resolution</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`totalScore`</td>
-<td class="org-left">`event.lines[9].total.total_over`</td>
-<td class="org-left">target score for over-under market resolution</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`homeScore`</td>
-<td class="org-left">`event.score.score_home`</td>
-<td class="org-left">resolving markets</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`awayScore`</td>
-<td class="org-left">`event.score.score_away`</td>
-<td class="org-left">resolving markets</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`eventStatus`</td>
-<td class="org-left">`event.score.event_status`</td>
-<td class="org-left">resolving markets</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`eventStatusDetails`</td>
-<td class="org-left">`event.score.event_status_details`</td>
-<td class="org-left">if TBD then do not create markets</td>
-</tr>
-</tbody>
-</table>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">API Status</th>
-<th scope="col" class="org-left">Contract Enum Value</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td class="org-left">`<unused>`</td>
-<td class="org-left">`0`</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`STATUS_SCHEDULED`</td>
-<td class="org-left">`1`</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`STATUS_FINAL`</td>
-<td class="org-left">`2`</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`STATUS_POSTPONED`</td>
-<td class="org-left">`3`</td>
-</tr>
-
-
-<tr>
-<td class="org-left">`STATUS_CANCELED`</td>
-<td class="org-left">`4`</td>
-</tr>
-</tbody>
-</table>
-
-
-<a id="orgf112b83"></a>
 
 ### Market Creation
 
