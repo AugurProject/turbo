@@ -88,12 +88,14 @@
 :root {
   --theme-primary-radius: @size-8;
   --theme-secondary-radius: @size-8;
+  --theme-tertiary-radius: @size-8;
   --theme-box-shadow: 0 @size-8 @size-40 var(--simple-shadow-10);
 }
 
 :root[theme="SPORTS"] {
   --theme-primary-radius: @size-3;
   --theme-secondary-radius: @size-6;
+  --theme-tertiary-radius: @size-4;
   --theme-box-shadow: 0 0 @size-4 rgba(14, 14, 33, 0.15);
 }
 
@@ -218,15 +220,24 @@
   padding: @size-40 @sports-gutter;
 }
 
-
 .PrimaryTopBorderRadius {
   border-top-left-radius: var(--theme-primary-radius);
+  border-top-right-radius: var(--theme-primary-radius);
+}
+
+.PrimaryRightBorderRadius {
+  border-bottom-right-radius: var(--theme-primary-radius);
   border-top-right-radius: var(--theme-primary-radius);
 }
 
 .PrimaryBottomBorderRadius {
   border-bottom-left-radius: var(--theme-primary-radius);
   border-bottom-right-radius: var(--theme-primary-radius);
+}
+
+.PrimaryLeftBorderRadius {
+  border-bottom-left-radius: var(--theme-primary-radius);
+  border-top-left-radius: var(--theme-primary-radius);
 }
 
 .PrimaryBorderRadius {
@@ -239,12 +250,47 @@
   border-top-right-radius: var(--theme-secondary-radius);
 }
 
+.SecondaryRightBorderRadius {
+  border-bottom-right-radius: var(--theme-secondary-radius);
+  border-top-right-radius: var(--theme-secondary-radius);
+}
+
 .SecondaryBottomBorderRadius {
   border-bottom-left-radius: var(--theme-secondary-radius);
   border-bottom-right-radius: var(--theme-secondary-radius);
 }
 
+.SecondaryLeftBorderRadius {
+  border-bottom-left-radius: var(--theme-secondary-radius);
+  border-top-left-radius: var(--theme-secondary-radius);
+}
+
 .SecondaryBorderRadius {
   .SecondaryBottomBorderRadius;
   .SecondaryTopBorderRadius;
+}
+
+.TertiaryTopBorderRadius {
+  border-top-left-radius: var(--theme-tertiary-radius);
+  border-top-right-radius: var(--theme-tertiary-radius);
+}
+
+.TertiaryRightBorderRadius {
+  border-bottom-right-radius: var(--theme-tertiary-radius);
+  border-top-right-radius: var(--theme-tertiary-radius);
+}
+
+.TertiaryBottomBorderRadius {
+  border-bottom-left-radius: var(--theme-tertiary-radius);
+  border-bottom-right-radius: var(--theme-tertiary-radius);
+}
+
+.TertiaryLeftBorderRadius {
+  border-bottom-left-radius: var(--theme-tertiary-radius);
+  border-top-left-radius: var(--theme-tertiary-radius);
+}
+
+.TertiaryBorderRadius {
+  .TertiaryBottomBorderRadius;
+  .TertiaryTopBorderRadius;
 }
