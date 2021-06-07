@@ -2,20 +2,34 @@ import React from "react";
 import classNames from "classnames";
 import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
-import { Utils } from "@augurproject/comps";
+import { Utils, PaginationComps } from "@augurproject/comps";
 
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
+const { sliceByPage, Pagination } = PaginationComps;
+
 export const EventBetsSection = ({ EventPositionData = {} }) => {
   if (!Object.keys(EventPositionData).length) return null;
-
+  const EventDataEntries = Object.entries(EventPositionData);
   return (
     <section className={Styles.EventBetsSection}>
-      {Object.entries(EventPositionData).map(([EventId, Event]) => (
+      {EventDataEntries.map(([EventId, Event]) => (
         <EventBetsTable {...{ Event }} />
       ))}
+      {EventDataEntries.length > 0 && (
+          <Pagination
+            page={1}
+            itemCount={EventDataEntries.length}
+            itemsPerPage={10}
+            action={(page) => {
+              // setPage(page);
+              console.log('set page', page);
+            }}
+            updateLimit={null}
+          />
+        )}
     </section>
   );
 };

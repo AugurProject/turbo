@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .PortfolioView {
   // .TwoTonePage;
@@ -9,8 +9,44 @@
     flex-flow: column nowrap;
     padding-right: @size-40;
 
-    > div[class*="PositionsLiquidityViewSwitcher"] {
-      margin-top: @size-64;
+    > ul {
+      align-items: center;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-end;
+      width: 100%;
+      margin-bottom: @size-24;
+
+      > div {
+        margin-right: @size-20;
+
+        &:last-of-type {
+          .PrimaryBorderRadius;
+
+          margin-right: 0;
+          height: unset;
+          transition: 0.2s flex ease-in-out;
+          min-width: @size-269;
+
+          > div {
+            background: none;
+            border: 0;
+            border-radius: 0;
+            margin-left: 0;
+          }
+
+          &:focus-within {
+            flex: 1;
+            transition: 0.33s flex ease-in-out;
+          }
+        }
+      }
+
+      > button {
+        margin-left: auto;
+      }
     }
 
     > div[class*="Activity"] {
@@ -28,7 +64,7 @@
       display: none;
     }
 
-    > section:first-of-type  {
+    > section:first-of-type {
       padding: @size-16 @size-16 @size-40;
       max-width: 100%;
 
@@ -64,7 +100,6 @@
         display: flex;
       }
     }
-
   }
 }
 
@@ -153,7 +188,6 @@
 
     > b {
       .text-12-semi-bold;
-
     }
   }
 }

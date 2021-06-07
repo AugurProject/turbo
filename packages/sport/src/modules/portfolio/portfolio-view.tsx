@@ -3,29 +3,25 @@ import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
 // import { PositionsLiquidityViewSwitcher } from '../common/tables';
 // import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
-import {
-  ContractCalls,
-  Formatter,
-  Icons,
-  Constants,
-  createBigNumber,
-  Stores,
-  SEO,
-  ButtonComps,
-} from "@augurproject/comps";
+import { ContractCalls, Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
-const { ETH, TX_STATUS, USDC } = Constants;
+const { ETH, TX_STATUS, USDC, marketStatusItems,  OPEN, IN_SETTLEMENT, RESOLVED } = Constants;
 const {
   Hooks: { useDataStore, useAppStatusStore, useScrollToTopOnMount, useUserStore },
   Utils: { keyedObjToArray },
 } = Stores;
-const { EthIcon, UsdIcon, WinnerMedal } = Icons;
-const { PrimaryButton } = ButtonComps;
+const {
+  SelectionComps: { SquareDropdown },
+  ButtonComps: { PrimaryButton },
+  Icons: { WinnerMedal },
+  PaginationComps: { sliceByPage, Pagination },
+  InputComps: { SearchInput },
+} = Components;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash) => {
   let total = createBigNumber("0");
@@ -232,12 +228,28 @@ export const ClaimWinningsSection = () => {
 
 export const PortfolioView = () => {
   useScrollToTopOnMount();
-
+  const [filter, setFilter] = useState("");
+  const [soryBy, setSortBy] = useState(OPEN);
   return (
     <div className={Styles.PortfolioView}>
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
-        <h1>My Bets section... all these components need to be added/worked on but this is the page... yay?</h1>
+        <ul>
+          <SquareDropdown
+            onChange={(value) => {
+              setSortBy(value);
+            }}
+            options={marketStatusItems}
+            defaultValue={soryBy}
+            preLabel="Market Status"
+          />
+          <SearchInput
+            value={filter}
+            // @ts-ignore
+            onChange={(e) => setFilter(e.target.value)}
+            clearValue={() => setFilter("")}
+          />
+        </ul>
         <EventBetsSection EventPositionData={MOCK_EVENT_POSITIONS_DATA} />
       </section>
       <section>
