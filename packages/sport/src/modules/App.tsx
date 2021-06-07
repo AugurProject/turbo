@@ -5,7 +5,7 @@ import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
 import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
-import { SportProvider, useSportsStore } from "./stores/sport";
+import { SportProvider } from "./stores/sport";
 // import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
@@ -18,17 +18,17 @@ import {
   PathUtils,
   Constants,
   windowRef,
-  ButtonComps,
-  useUserStore,
+  // ButtonComps,
+  // useUserStore,
 } from "@augurproject/comps";
-import { TURBO_NO_ACCESS_MODAL } from "./constants";
+// import { TURBO_NO_ACCESS_MODAL } from "./constants";
 import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 
 // import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { PORTFOLIO } = Constants;
 const { parsePath } = PathUtils;
-const { PrimaryButton } = ButtonComps;
+// const { PrimaryButton } = ButtonComps;
 // // const AppBody = () => {
 //   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
 //   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
@@ -98,14 +98,8 @@ const { PrimaryButton } = ButtonComps;
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
   const {
-    isMobile,
     modal,
-    actions: { setModal },
   } = useAppStatusStore();
-  const {
-    loginAccount,
-    actions: { logout },
-  } = useUserStore();
   const modalShowing = Object.keys(modal).length !== 0;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];

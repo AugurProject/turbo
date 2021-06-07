@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
+import { BetType } from "../stores/constants";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
 import {
   ButtonComps,
@@ -17,9 +18,11 @@ import {
   PathUtils,
   createBigNumber,
   Links,
+  windowRef,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 import { getSizedPrice } from "modules/utils";
+
 const { PrimaryButton, SecondaryButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
@@ -28,6 +31,9 @@ const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
 const { ReceiptLink } = Links;
+
+export const MOCK_PROMPT_SIGNATURE = ({ name = "404 NAME NOT FOUND", action = "to place order for" }) =>
+  windowRef.confirm(`Mock Sign a transaction ${action} ${name}?`);
 
 export const Betslip = () => {
   const { selectedView } = useBetslipStore();
@@ -86,12 +92,14 @@ export const BetslipMain = () => {
   );
 };
 
+const RECENT_UPDATES_TOP = (a, b) => b[1].timestamp - a[1].timestamp;
+
 export const ActiveBetsMain = () => {
   const { isLogged } = useAppStatusStore();
   const { active, selectedCount } = useBetslipStore();
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(active).map(([tx_hash, bet]) => (
+      {Object.entries(active).sort(RECENT_UPDATES_TOP).map(([tx_hash, bet]) => (
         <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
       ))}
     </main>
@@ -186,7 +194,7 @@ const EditableBet = ({ betId, bet }) => {
               setError(error);
               if (!error) {
                 const sizeOfPool = getSizedPrice(amm, id);
-                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool.price));
+                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool?.price || "1"));
                 updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
               }
               setValue(fmtValue);
@@ -250,7 +258,7 @@ const BetReciept = ({ tx_hash, bet }) => {
   };
   let disableCashout = false;
   //TODO: do this for real, this is just for mocks stake
-  if (tx_hash === '0xtxHash03') {
+  if (tx_hash === "0xtxHash03") {
     disableCashout = true;
   }
   switch (status) {
@@ -293,7 +301,9 @@ const BetReciept = ({ tx_hash, bet }) => {
         {(canCashOut || hasCashedOut) && (
           <div className={classNames(Styles.Cashout, txStatus.class)}>
             {hasCashedOut && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-            <button disabled={disableCashout}>{disableCashout ? 'Cashout not available' : `cash${hasCashedOut ? 'ed' : ''} out: $${bet.toWin}`}</button>
+            <button disabled={disableCashout}>
+              {disableCashout ? "Cashout not available" : `cash${hasCashedOut ? "ed" : ""} out: $${bet.toWin}`}
+            </button>
           </div>
         )}
       </main>
@@ -303,13 +313,13 @@ const BetReciept = ({ tx_hash, bet }) => {
 
 export const DashlineNormal = () => (
   <svg width="100%" height="1">
-    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.Dashline} />
+    <line x1="0" x2="100%" y1="0" y2="0" />
   </svg>
 );
 
 export const DashlineLong = () => (
   <svg width="100%" height="1">
-    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.DashlineLong} />
+    <line x1="0" x2="100%" y1="0" y2="0" />
   </svg>
 );
 
@@ -336,7 +346,7 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
   );
 };
 
-const determineBetTotals = (bets) => {
+const determineBetTotals = (bets: Array<BetType>) => {
   let totalWager = ZERO;
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
@@ -352,7 +362,7 @@ const BetslipFooter = () => {
     selectedView,
     selectedCount,
     bets,
-    actions: { cancelAllBets },
+    actions: { cancelAllBets, addActive },
   } = useBetslipStore();
   if (!isLogged || selectedCount === 0) {
     return null;
@@ -378,7 +388,23 @@ const BetslipFooter = () => {
             icon={TrashIcon}
             action={() => cancelAllBets()}
           />
-          <PrimaryButton text="Place Bets" action={() => {}} />
+          <PrimaryButton
+            text="Place Bets"
+            action={() => {
+              console.log("place bets hit", bets, bets.length);
+              for (const betId in bets) {
+                const bet = bets[betId];
+                console.log(bet, betId);
+                const signed = MOCK_PROMPT_SIGNATURE({ name: `$${bet.wager} on ${bet.name}` });
+                if (signed) {
+                  addActive({
+                    ...bet,
+                    hash: `0xFakeHash-${bet.betId}-${Math.round(Math.random() * 99999999999)}`
+                  });
+                }
+              }
+            }}
+          />
         </>
       ) : (
         <>

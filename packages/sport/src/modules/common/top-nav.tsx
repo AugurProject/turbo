@@ -11,7 +11,7 @@ import {
   useUserStore,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
-  ButtonComps,
+  // ButtonComps,
   PathUtils,
   PARA_CONFIG,
   Constants,
@@ -21,7 +21,7 @@ import {
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
-const { SecondaryButton } = ButtonComps;
+// const { SecondaryButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
 const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME, USDC } = Constants;

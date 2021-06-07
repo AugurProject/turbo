@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS } from "../stores/constants";
-import { useSport } from "../stores/sport-hooks";
-import { useUserStore, Stores } from "@augurproject/comps";
+import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS } from "./constants";
+import { useSport } from "./sport-hooks";
+import { useUserStore } from "@augurproject/comps";
 
-const {
-  Utils: { getSavedUserInfo },
-} = Stores;
+// const {
+//  Utils: { getSavedUserInfo },
+// } = Stores;
 
 const { SETTINGS } = SPORT_STATE_KEYS;
 

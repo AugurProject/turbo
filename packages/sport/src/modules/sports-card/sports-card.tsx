@@ -42,7 +42,7 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, description, amm }) => {
+export const SportsCardOutcomes = ({ marketId, title, description = '', amm }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
@@ -95,8 +95,6 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => 
             ...outcome,
             marketId,
             heading: `${title}, ${description}`,
-            wager: null,
-            toWin: null,
           })
         }
       >
