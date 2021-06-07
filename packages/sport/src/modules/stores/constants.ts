@@ -50,7 +50,7 @@ export interface BetType {
   name: string;
   betId: string;
   marketId: string;
-};
+}
 
 export interface ActiveBetType {
   id: number;
@@ -70,13 +70,13 @@ export interface ActiveBetType {
 export const DEFAULT_BET = {
   wager: null,
   toWin: null,
-}
+};
 
 export const DEFAULT_ACTIVE_BET = {
   status: TX_STATUS.PENDING,
   canCashOut: false,
   hasCashedOut: false,
-}
+};
 
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
@@ -91,7 +91,7 @@ export const DEFAULT_BETSLIP_STATE = {
       timestamp: now,
       wager: null,
       toWin: null,
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
   },
   active: {
@@ -108,7 +108,7 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: false,
       hash: "0xtxHash05",
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
     "0xtxHash04": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -123,7 +123,7 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: true,
       hasCashedOut: false,
       hash: "0xtxHash04",
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
     "0xtxHash03": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -138,7 +138,7 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: true,
       hasCashedOut: false,
       hash: "0xtxHash03",
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
     "0xtxHash02": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -153,7 +153,7 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: true,
       hash: "0xtxHash02",
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
     "0xtxHash01": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -168,7 +168,7 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: false,
       hash: "0xtxHash01",
-      betId: '0xdeadbeef-0-2',
+      betId: "0xdeadbeef-0-2",
     },
   },
 };
