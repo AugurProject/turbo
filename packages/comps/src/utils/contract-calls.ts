@@ -1336,7 +1336,7 @@ export const getMarketInfos = async (
           (p, id) => (!noLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
           {}
         );
-        existingEvents = Object.keys(liquidityMarkets).map(id => liquidityMarkets[id].eventId);
+        existingEvents = Object.keys(liquidityMarkets).map((id) => liquidityMarkets[id].eventId);
         // ignore non liquid markets from old market factory, grab first of market infos to get factory address
         addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
         return {
