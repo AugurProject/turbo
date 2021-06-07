@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import { Addresses, graphChainNames, addresses as originalAddresses, ChainId } from "../addresses";
+import { Addresses, graphChainNames, addresses as originalAddresses, ChainId, MarketFactory } from "../addresses";
 import { isHttpNetworkConfig } from "../tasks";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -31,23 +31,38 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const uploadBlockNumber =
     ammFactory.receipt?.blockNumber || originalAddresses[chainId as ChainId]?.info.uploadBlockNumber || 0;
 
+  // const version = process.env.npm_package_version; // uses old version unfortunately. need the post-lerna call version
+  const version = "FILL THIS OUT";
+
+  // Add new market factories. Only new ones.
+  const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];
+
+
+  if (!hasFactory(marketFactories, sportsLinkMarketFactory.address)) {
+    marketFactories.unshift({
+      version,
+      description: "mlb and nba",
+      type: "SportsLink",
+      address: sportsLinkMarketFactory.address,
+      collateral,
+      ammFactory: ammFactory.address,
+    });
+  }
+  if (!hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
+    marketFactories.unshift({
+      version,
+      description: "mma placeholder",
+      type: "SportsLink",
+      address: mmaLinkMarketFactory.address,
+      collateral,
+      ammFactory: ammFactory.address,
+    });
+  }
+
   const addresses: Addresses = {
     reputationToken,
     balancerFactory,
-    marketFactories: {
-      sportsball: {
-        type: "SportsLink",
-        address: sportsLinkMarketFactory.address,
-        collateral,
-        ammFactory: ammFactory.address
-      },
-      mma: {
-        type: "SportsLink",
-        address: mmaLinkMarketFactory.address,
-        collateral,
-        ammFactory: ammFactory.address
-      },
-    },
+    marketFactories,
     info: {
       graphName: graphChainNames[chainId],
       uploadBlockNumber,
@@ -59,6 +74,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const addressFilePath = path.resolve(__dirname, "../addresses.ts");
   updateAddressConfig(addressFilePath, chainId, addresses);
 };
+
+function hasFactory(marketFactories: MarketFactory[], address: string): boolean {
+  return marketFactories.filter(f => f.address === address).length !== 0;
+}
 
 func.runAtTheEnd = true;
 

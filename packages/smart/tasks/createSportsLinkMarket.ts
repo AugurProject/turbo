@@ -13,9 +13,11 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
   .addParam("totalScore", undefined, undefined, types.string)
   .addParam("createSpread", undefined, undefined, types.boolean)
   .addParam("createTotal", undefined, undefined, types.boolean)
+  .addParam("index", "index of market factory to use, in addresses.ts", 0, types.int)
+
   .setAction(
     async (
-      { eventId, homeTeamId, awayTeamId, startTimestamp, homeSpread, totalScore, createSpread, createTotal },
+      { eventId, homeTeamId, awayTeamId, startTimestamp, homeSpread, totalScore, createSpread, createTotal, index },
       hre
     ) => {
       const { ethers } = hre;
@@ -24,7 +26,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const network = await ethers.provider.getNetwork();
       const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
       const { MarketFactories } = contracts;
-      const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
+      const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
 
       const payload = await marketFactory.encodeCreation(
         eventId,

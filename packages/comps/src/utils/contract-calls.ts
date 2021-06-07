@@ -71,6 +71,7 @@ import {
   AbstractMarketFactory__factory,
   calcSellCompleteSets,
   estimateBuy,
+  MarketFactory,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle } from "./derived-market-data";
@@ -1198,7 +1199,7 @@ const getAmmFactoryContract = (library: Web3Provider, address: string, account?:
 
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
-  const usdcContract = marketFactories.sportsball.collateral;
+  const usdcContract = marketFactories[0].collateral;
   const amount = ethers.BigNumber.from(10).pow(10); // 10k
   const collateral = Cash__factory.connect(usdcContract, getProviderOrSigner(library, account));
   await collateral.faucet(amount as BigNumberish);
@@ -1269,24 +1270,13 @@ export const getERC1155ApprovedForAll = async (
 };
 
 const isOldMarketFactory = (address) => {
-  const { marketFactories } = PARA_CONFIG;
-  return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
+  const factories = marketFactories();
+  const newest = factories[0];
+  return address.toUpperCase() !== newest.address.toUpperCase();
 };
 
-const marketFactories = (): {address: string, ammFactory: string}[] => {
-  const { marketFactories } = PARA_CONFIG;
-  const marketAddresses = [{ address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory }];
-  // make sure sportsball2 exists in addresses before trying to add
-  if (marketFactories?.sportsball2?.address) {
-    marketAddresses.push({address: marketFactories.sportsball2.address, ammFactory: marketFactories.sportsball2.ammFactory });
-  }
-  // TODO: add in MMA when there are real mma markets
-  /*
-  if (marketFactories?.mma?.address) {
-    marketAddresses.push(marketFactories.mma.address);
-  }
-  */
-  return marketAddresses;
+const marketFactories = (): MarketFactory[] => {
+  return PARA_CONFIG.marketFactories;
 };
 
 // stop updating resolved markets
@@ -1311,7 +1301,9 @@ export const getMarketInfos = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map(({ address, ammFactory }) => getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList))
+    factories.map(({ address, ammFactory }) =>
+      getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList)
+    )
   );
 
   let existingEvents = [];
@@ -1404,7 +1396,7 @@ const retrieveMarkets = async (
   provider: Web3Provider,
   account: string,
   factoryAddress: string,
-  ammFactory: string,
+  ammFactory: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";

@@ -10,7 +10,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
   await hre.tenderly.verify([
     {
       name: "AMMFactory",
-      address: deployedAddresses.marketFactories["sportsball"].ammFactory,
+      address: deployedAddresses.marketFactories[0].ammFactory,
     },
     {
       name: "BFactory",
@@ -22,11 +22,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     },
     {
       name: "SportsLinkMarketFactory",
-      address: deployedAddresses.marketFactories["sportsball"].address,
+      address: deployedAddresses.marketFactories[0].address,
     },
-    // {
-    //   name: "Cash",
-    //   address: deployedAddresses.marketFactories["sportsball"].collateral,
-    // },
   ]);
 });
