@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .PortfolioView {
   // .TwoTonePage;
@@ -7,9 +7,56 @@
 
   > section:first-of-type {
     flex-flow: column nowrap;
+    padding-right: @size-40;
 
-    > div[class*="PositionsLiquidityViewSwitcher"] {
-      margin-top: @size-64;
+    > ul {
+      align-items: center;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-end;
+      width: 100%;
+      margin-bottom: @size-24;
+
+      > div {
+        max-height: @size-40;
+        margin-right: @size-20;
+
+        > input {
+          max-height: @size-38;
+        }
+
+        &:last-of-type {
+          .PrimaryBorderRadius;
+
+          margin-right: 0;
+          height: unset;
+          transition: 0.2s flex ease-in-out;
+          min-width: @size-269;
+          margin-left: @size-20;
+
+          > div {
+            background: none;
+            border: 0;
+            border-radius: 0;
+            margin-left: 0;
+          }
+
+          &:focus-within {
+            flex: 1;
+            transition: 0.33s flex ease-in-out;
+          }
+        }
+      }
+
+      > article {
+        margin-right: auto;
+      }
+
+      > button {
+        margin-left: auto;
+      }
     }
 
     > div[class*="Activity"] {
@@ -27,7 +74,7 @@
       display: none;
     }
 
-    > section:first-of-type  {
+    > section:first-of-type {
       padding: @size-16 @size-16 @size-40;
       max-width: 100%;
 
@@ -63,16 +110,39 @@
         display: flex;
       }
     }
-
   }
 }
 
 .ClaimableWinningsSection {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
+  margin-bottom: @size-24;
+  max-width: @size-326;
+
+  > div {
+    .SimpleBorder;
+    .text-12-semi-bold;
+
+    flex: 1;
+    color: var(--simple-secondary-text);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    min-height: @size-40;
+    max-height: @size-40;
+
+    > svg {
+      margin-right: @size-8;
+    }
+  }
+
+  > section {
+    margin-top: @size-8;
+  }
 
   > button {
-    margin-top: @size-16;
+    margin-top: @size-8;
     flex: 1;
 
     &:first-of-type:not(:last-of-type) {
@@ -93,6 +163,41 @@
       &:first-of-type:not(:last-of-type) {
         margin-right: 0;
       }
+    }
+  }
+}
+
+.ClaimableTicket {
+  .SimpleBorder;
+
+  border-color: var(--simple-success);
+  background: var(--simple-light-bg);
+  min-height: @size-64;
+  max-height: @size-64;
+  display: flex;
+  flex-flow: row nowrap;
+  padding: @size-8;
+  align-items: center;
+
+  > svg {
+    margin-right: @size-4;
+    min-height: @size-24;
+    min-width: @size-24;
+  }
+
+  > button {
+    .text-10-semi-bold;
+  }
+
+  > p {
+    .text-12;
+
+    color: var(--simple-primary-text);
+    margin-right: @size-8;
+    flex: 1 100%;
+
+    > b {
+      .text-12-semi-bold;
     }
   }
 }

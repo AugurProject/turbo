@@ -44,7 +44,7 @@ export const CategoriesArea = ({ filteredMarkets }) => {
     <article className={Styles.CategoriesArea}>
       <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
       <NavigationArea selectedCategories={selectedCategories} markets={filteredMarkets} />
-    </article> 
+    </article>
   );
 };
 
@@ -160,7 +160,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
           {filteredLeaves.map((tertiaryLabel) => (
             <button
               className={classNames({
-                [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === tertiaryLabel
+                [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === tertiaryLabel,
               })}
               onClick={() =>
                 updateMarketsViewSettings({ primaryCategory: label, subCategories: [subCategories[0], tertiaryLabel] })
@@ -188,3 +188,30 @@ export const CategoriesTrail = ({ categories }) => (
     })}
   </span>
 );
+
+const EVENT_TYPE_OPTIONS = [
+  {
+    id: 0,
+    label: "Daily",
+  },
+  {
+    id: 1,
+    label: "Futures",
+  },
+];
+
+export const DailyFutureSwitch = ({ selection, setSelection }) => {
+  return (
+    <article className={Styles.DailyFutureSwitch}>
+      {EVENT_TYPE_OPTIONS.map(({ id, label }) => (
+        <button
+          key={`${label}-${id}`}
+          onClick={() => setSelection(id)}
+          className={classNames({ [Styles.Selected]: id === selection })}
+        >
+          {label}
+        </button>
+      ))}
+    </article>
+  );
+};
