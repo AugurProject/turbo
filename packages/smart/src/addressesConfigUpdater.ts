@@ -2,7 +2,7 @@ import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
 import prettier from "prettier";
-import { Addresses, MarketFactories, MarketFactory } from "../addresses";
+import { Addresses, MarketFactory } from "../addresses";
 
 const printer = ts.createPrinter();
 
@@ -34,28 +34,44 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                     if (key === "marketFactories") {
                       return context.factory.createPropertyAssignment(
                         `${key}`,
-                        ts.factory.createObjectLiteralExpression(
-                          Object.entries(val as MarketFactories).map(
-                            ([name, marketFactory]: [name: string, marketFactory: MarketFactory]) => {
-                              return context.factory.createPropertyAssignment(
-                                name,
-                                ts.factory.createObjectLiteralExpression([
-                                  context.factory.createPropertyAssignment(
-                                    "type",
-                                    ts.factory.createStringLiteral(marketFactory.type)
-                                  ),
-                                  context.factory.createPropertyAssignment(
-                                    "address",
-                                    ts.factory.createStringLiteral(marketFactory.address)
-                                  ),
-                                  context.factory.createPropertyAssignment(
-                                    "collateral",
-                                    ts.factory.createStringLiteral(marketFactory.collateral)
-                                  ),
-                                ])
+                        ts.factory.createArrayLiteralExpression(
+                          (val as MarketFactory[]).map((marketFactory) => {
+                            const fields = [
+                              context.factory.createPropertyAssignment(
+                                "type",
+                                ts.factory.createStringLiteral(marketFactory.type)
+                              ),
+                              context.factory.createPropertyAssignment(
+                                "address",
+                                ts.factory.createStringLiteral(marketFactory.address)
+                              ),
+                              context.factory.createPropertyAssignment(
+                                "collateral",
+                                ts.factory.createStringLiteral(marketFactory.collateral)
+                              ),
+                              context.factory.createPropertyAssignment(
+                                "ammFactory",
+                                ts.factory.createStringLiteral(marketFactory.ammFactory)
+                              ),
+                            ];
+                            if (marketFactory.description) {
+                              fields.push(
+                                context.factory.createPropertyAssignment(
+                                  "description",
+                                  ts.factory.createStringLiteral(marketFactory.description)
+                                )
                               );
                             }
-                          )
+                            if (marketFactory.version) {
+                              fields.push(
+                                context.factory.createPropertyAssignment(
+                                  "version",
+                                  ts.factory.createStringLiteral(marketFactory.version)
+                                )
+                              );
+                            }
+                            return ts.factory.createObjectLiteralExpression(fields);
+                          })
                         )
                       );
                     } else if (key === "info") {
