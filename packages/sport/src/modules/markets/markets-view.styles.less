@@ -35,6 +35,10 @@
       > div {
         margin-right: @size-20;
 
+        &:first-of-type {
+          margin-left: auto;
+        }
+
         &:last-of-type {
           margin-right: 0;
           height: unset;
@@ -46,6 +50,10 @@
             transition: .33s flex ease-in-out;
           }
         }
+      }
+
+      > article {
+        margin-right: @size-8;
       }
 
       > button {

@@ -16,7 +16,7 @@ import {
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-import { CategoriesArea } from "../categories/categories";
+import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { SportsCard } from '../sports-card/sports-card';
 const {
   SelectionComps: { SquareDropdown },
@@ -52,7 +52,7 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets }
+  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -149,6 +149,11 @@ const applyFiltersAndSort = (
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
 
+  // TODO: Strip out futures/dailes:
+  if (subCategories.length > 0) {
+    // here we should filter based on `eventTypeFilter` (0 = Daily, 1 = Futures)
+  }
+
   setFilteredMarkets(updatedFilteredMarkets);
 };
 
@@ -165,6 +170,7 @@ const MarketsView = () => {
   } = useSportsStore();
   const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
+  const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
@@ -186,13 +192,14 @@ const MarketsView = () => {
       currency,
       reportingState,
       showLiquidMarkets,
+      eventTypeFilter,
     });
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf()]);
+  }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf(), eventTypeFilter]);
 
   useEffect(() => {
     handleFilterSort();
@@ -243,6 +250,10 @@ const MarketsView = () => {
           </div>
         )}
         <ul>
+          {subCategories.length > 0 && <DailyFutureSwitch
+           selection={eventTypeFilter}
+           setSelection={(id) => setEventTypeFilter(id)} 
+          />}
           <SquareDropdown
             onChange={(value) => {
               updateMarketsViewSettings({ sortBy: value });
