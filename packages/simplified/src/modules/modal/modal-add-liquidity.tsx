@@ -261,7 +261,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         .catch((error) => {
           console.log("Error when trying to add AMM liquidity: ", error?.message);
           addTransaction({
-            hash: 'add-liquidity-failed',
+            hash: `add-liquidity-failed${Date.now()}`,
             chainId: loginAccount.chainId,
             from: account,
             seen: false,

@@ -87,7 +87,7 @@ const handleClaimAll = (
         setPendingClaim(false);
         console.log('Error when trying to claim winnings: ', error?.message);
         addTransaction({
-          hash: 'claim-all-failed',
+          hash: `claim-all-failed${Date.now()}`,
           chainId,
           seen: false,
           status: TX_STATUS.FAILURE,

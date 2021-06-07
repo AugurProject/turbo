@@ -224,7 +224,7 @@ export const PositionFooter = ({
             setPendingClaim(false);
             console.error("Error when trying to claim winnings: ", error?.message);
             addTransaction({
-              hash: 'claim-failed',
+              hash: `claim-failed${Date.now()}`,
               chainId: loginAccount?.chainId,
               seen: false,
               status: TX_STATUS.FAILURE,
@@ -268,7 +268,7 @@ export const PositionFooter = ({
         setPendingCashOut(false);
         console.error("Error when trying to claim winnings: ", error?.message);
         addTransaction({
-          hash: 'cash-out-failed',
+          hash: `cash-out-failed${Date.now()}`,
           chainId: loginAccount?.chainId,
           seen: false,
           status: TX_STATUS.FAILURE,

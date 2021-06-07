@@ -299,7 +299,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
         setWaitingToSign(false);
         console.log("Error when trying to trade: ", error?.message);
         addTransaction({
-          hash: "trade-failure",
+          hash: `trade-failure${Date.now()}`,
           chainId: loginAccount.chainId,
           seen: false,
           status: TX_STATUS.FAILURE,

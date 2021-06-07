@@ -12,7 +12,7 @@ import { Spinner } from "../../../common/spinner";
 import { GetWalletIcon } from "../../../common/get-wallet-icon";
 import { AbstractConnector } from "@web3-react/abstract-connector";
 import { TX_STATUS } from "../../../../utils/constants";
-import { LinkIcon } from "../../../common/icons";
+import { LinkIcon, CloseIcon } from "../../../common/icons";
 import { ChainId } from "@uniswap/sdk";
 import { useUserStore } from '../../../../stores/user';
 import { faucetUSDC } from "../../../../utils/contract-calls";
@@ -70,7 +70,7 @@ const GetStatusIcon = (transactionStatus: string) => {
   }
 };
 
-const Transaction = ({ label, link, status, chainId }: typeof React.Component) => (
+const Transaction = ({ label, link, status, chainId, showClear, clear }: typeof React.Component) => (
   <div key={link}>
     <span>{label}</span>
     {link && (
@@ -78,6 +78,7 @@ const Transaction = ({ label, link, status, chainId }: typeof React.Component) =
         {LinkIcon}
       </a>
     )}
+    {showClear && <span className={Styles.TransactionClear} onClick={() => clear()}>{CloseIcon}</span>}
     {!link && <div />}
     {GetStatusIcon(status)}
   </div>
@@ -115,6 +116,24 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
   const canClear =
     userTransactions.filter((tx) => [TX_STATUS.CONFIRMED, TX_STATUS.FAILURE].includes(tx.status)).length > 0;
 
+  const clearHash = (hash) => {
+    const transactionToRemove = transactions
+      .filter((tx) => tx.hash === hash)
+      .map((tx) => tx.hash);
+
+    setUserTransactions(
+      userTransactions
+        .filter((tx) => !transactionToRemove.includes(tx.hash))
+        .sort((a, b) => b.timestamp - a.timestamp)
+    );
+    if (transactionToRemove) {
+      transactionToRemove.forEach((tx) => {
+        removeTransaction(tx);
+      });
+      setClear(false);
+    }
+  };
+
   return userTransactions.length === 0 ? (
     <span>Your Transactions will appear here</span>
   ) : (
@@ -125,7 +144,7 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
       </div>
       <div className={Styles.TransactionList}>
         {userTransactions.map(({ message, hash, status }, index) => (
-          <Transaction key={hash} label={message} link={hash} status={status} chainId={chainId} />
+          <Transaction key={hash} label={message} link={hash} status={status} chainId={chainId} clear={() => clearHash(hash)} showClear={status === TX_STATUS.PENDING } />
         ))}
       </div>
     </div>
