@@ -87,7 +87,7 @@ export const DEFAULT_BETSLIP_STATE = {
       marketId: "0xdeadbeef-0",
       id: 2,
       name: "Life, +12.5",
-      price: "0.25",
+      price: "0.125",
       timestamp: now,
       wager: null,
       toWin: null,

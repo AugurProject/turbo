@@ -15,6 +15,7 @@ import {
 } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
+import { EventBetsTable } from '../common/tables';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -230,20 +231,14 @@ export const ClaimWinningsSection = () => {
 };
 
 export const PortfolioView = () => {
-  // const { isMobile } = useAppStatusStore();
-  // const [view, setView] = useState(TABLES);
-
   useScrollToTopOnMount();
-
-  // useEffect(() => {
-  //   if (!isMobile) setView(TABLES);
-  // }, [isMobile]);
 
   return (
     <div className={Styles.PortfolioView}>
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
         <h1>My Bets section... all these components need to be added/worked on but this is the page... yay?</h1>
+        <EventBetsTable EventPositionData={MOCK_EVENT_POSITIONS_DATA} />
       </section>
       <section>
         <ClaimWinningsSection />
@@ -254,3 +249,59 @@ export const PortfolioView = () => {
 };
 
 export default PortfolioView;
+
+const date = new Date();
+const now = Math.floor(date.getTime() / 1000);
+const MET = {
+  ML: 'MoneyLine',
+  SP: 'Spread',
+  OU: 'Over / Under',
+};
+const MOCK_EVENT_POSITIONS_DATA = {
+  "0xdeadbeef-0": {
+    eventId: '0xdeadbeef-0',
+    eventTitle: 'River Plate vs Boca Juniors',
+    eventStartTime: now,
+    bets: {
+      '0xfaketxhash01': {
+        marketId: '0xfakeMarket01',
+        marketEventType: MET.SP,
+        name: 'River Plate, +2',
+        id: 1,
+        wager: '10.00',
+        price: '0.125',
+        toWin: '70.00',
+        date: now - 2000,
+        cashoutAmount: '0.00',
+        canCashOut: true,
+        hasCashedOut: false,
+      },
+      '0xfaketxhash02': {
+        marketId: '0xfakeMarket01',
+        marketEventType: MET.ML,
+        name: 'River Plate, +2',
+        id: 1,
+        wager: '10.00',
+        price: '0.125',
+        toWin: null,
+        date: now - 2500,
+        cashoutAmount: '5.60',
+        canCashOut: false,
+        hasCashedOut: true,
+      },
+      '0xfaketxhash03': {
+        marketId: '0xfakeMarket01',
+        marketEventType: MET.SP,
+        name: 'River Plate, +2',
+        id: 1,
+        wager: '10.00',
+        price: '0.125',
+        toWin: '70.00',
+        date: now - 3050,
+        cashoutAmount: '0.00',
+        canCashOut: true,
+        hasCashedOut: false,
+      }
+    }
+  }
+}
