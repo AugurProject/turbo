@@ -229,11 +229,12 @@ export interface AmmExchange {
   isAmmMarketInvalid: boolean;
   invalidPool: InvalidPool;
   swapInvalidForCashInETH?: string;
-  symbols: string[];
+  symbols: string[];  
   shareFactor: string;
   balancesRaw: string[];
   weights: string[];
   marketFactoryAddress: string;
+  ammFactoryAddress: string;
 }
 
 export interface Cashes {

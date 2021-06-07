@@ -113,7 +113,7 @@ export async function estimateAddLiquidityPool(
   outcomes: AmmOutcome[]
 ): Promise<LiquidityBreakdown> {
   if (!provider) console.error("provider is null");
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
 
@@ -170,7 +170,7 @@ export async function addLiquidityPool(
   outcomes: AmmOutcome[]
 ): Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
@@ -242,7 +242,7 @@ export async function getRemoveLiquidity(
     return null;
   }
   const { market } = amm;
-  const ammFactory = getAmmFactoryContract(provider, account);
+  const ammFactory = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
 
   // balancer lp tokens are 18 decimal places
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
@@ -335,7 +335,7 @@ export function doRemoveLiquidity(
     return null;
   }
   const { market } = amm;
-  const ammFactory = getAmmFactoryContract(provider, account);
+  const ammFactory = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
   const balancerPool = getBalancerPoolContract(provider, amm?.id, account);
 
@@ -443,7 +443,7 @@ export async function doTrade(
   outcomeShareTokensIn: string[] = []
 ) {
   if (!provider) return console.error("doTrade: no provider");
-  const ammFactoryContract = getAmmFactoryContract(provider, account);
+  const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const { marketFactoryAddress, turboId } = amm;
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
   const minAmountWithSlippage = new BN(1).minus(new BN(slippage).div(100)).times(new BN(minAmount));
@@ -1192,9 +1192,8 @@ export const getContract = (tokenAddress: string, ABI: any, library: Web3Provide
   return new Contract(tokenAddress, ABI, getProviderOrSigner(library, account) as any);
 };
 
-const getAmmFactoryContract = (library: Web3Provider, account?: string): AMMFactory => {
-  const { ammFactory } = PARA_CONFIG;
-  return AMMFactory__factory.connect(ammFactory, getProviderOrSigner(library, account));
+const getAmmFactoryContract = (library: Web3Provider, address: string, account?: string): AMMFactory => {
+  return AMMFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
@@ -1274,12 +1273,12 @@ const isOldMarketFactory = (address) => {
   return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
 };
 
-const marketFactories = () => {
+const marketFactories = (): {address: string, ammFactory: string}[] => {
   const { marketFactories } = PARA_CONFIG;
-  const marketAddresses = [marketFactories.sportsball.address];
+  const marketAddresses = [{ address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory }];
   // make sure sportsball2 exists in addresses before trying to add
   if (marketFactories?.sportsball2?.address) {
-    marketAddresses.push(marketFactories.sportsball2.address);
+    marketAddresses.push({address: marketFactories.sportsball2.address, ammFactory: marketFactories.sportsball2.ammFactory });
   }
   // TODO: add in MMA when there are real mma markets
   /*
@@ -1312,7 +1311,7 @@ export const getMarketInfos = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map((address) => getFactoryMarketInfo(provider, markets, cashes, account, address, ignoreList))
+    factories.map(({ address, ammFactory }) => getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList))
   );
 
   // first market infos get all markets with liquidity
@@ -1372,6 +1371,7 @@ export const getFactoryMarketInfo = async (
   cashes: Cashes,
   account: string,
   factoryAddress: string,
+  ammFactory: string,
   ignoreList: { [factory: string]: number[] }
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
@@ -1388,7 +1388,8 @@ export const getFactoryMarketInfo = async (
     cashes,
     provider,
     account,
-    factoryAddress
+    factoryAddress,
+    ammFactory
   );
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
@@ -1398,7 +1399,8 @@ const retrieveMarkets = async (
   cashes: Cashes,
   provider: Web3Provider,
   account: string,
-  factoryAddress: string
+  factoryAddress: string,
+  ammFactory: string,
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
@@ -1406,9 +1408,9 @@ const retrieveMarkets = async (
   const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
-  const ammFactory = getAmmFactoryContract(provider, account);
-  const ammFactoryAddress = ammFactory.address;
-  const ammFactoryAbi = extractABI(ammFactory);
+  const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
+  const ammFactoryAddress = ammFactoryContract.address;
+  const ammFactoryAbi = extractABI(ammFactoryContract);
   const multicall = new Multicall({ ethersProvider: provider });
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
@@ -1491,6 +1493,7 @@ const retrieveMarkets = async (
         transactions: [], // to be filled in the future
         trades: {}, // to be filled in the future
         cash,
+        ammFactoryAddress,
       };
     } else {
       const market = decodeMarket(data);
@@ -1516,7 +1519,7 @@ const retrieveMarkets = async (
       exchanges,
       marketInfos,
       marketFactoryAddress,
-      ammFactory,
+      ammFactoryContract,
       provider,
       account,
       factoryAddress
