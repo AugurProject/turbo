@@ -13,7 +13,7 @@ task("setSportsLinkNode", "Set linkNode for SportsLinkMarketFactory")
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
 
     console.log(`Setting link node to "${address}"`);
     await marketFactory.setLinkNode(address);

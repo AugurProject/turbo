@@ -12,7 +12,7 @@ task("pokeLinkCreateMLB", "create MLB markets").setAction(async (args, hre: Hard
 
   const { MarketFactories } = contracts;
 
-  const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+  const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
 
   console.log("Poking sports market factory to create new markets for MLB");
   const response = await marketFactory.pokeMarketCreatorMLB();

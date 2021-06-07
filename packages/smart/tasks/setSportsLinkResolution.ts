@@ -17,7 +17,7 @@ task("setSportsLinkResolution", "Set market resolution for the SportsLinkMarketF
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
     await marketFactory.trustedResolveMarkets(
       await marketFactory.encodeResolution(eventid, SportsLinkEventStatus.Final, homescore, awayscore)
     );
