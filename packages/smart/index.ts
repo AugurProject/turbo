@@ -25,9 +25,9 @@ export interface ContractInterfaces {
   ReputationToken: Cash;
   MarketFactories: {
     [name: string]: {
-      marketFactory: MarketFactoryContract,
-      ammFactory: AMMFactory
-    }
+      marketFactory: MarketFactoryContract;
+      ammFactory: AMMFactory;
+    };
   };
 }
 export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | TestPriceMarketFactory;
@@ -38,22 +38,25 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
 
   console.log(contractAddresses.marketFactories);
 
-  const MarketFactories = mapOverObject(contractAddresses.marketFactories, (name, { type, address, ammFactory: ammFactoryAddress }) => {
-    let marketFactory: MarketFactoryContract;
-    switch (type) {
-      case "SportsLink":
-        marketFactory = SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
-        break;
-      case "Trusted":
-        marketFactory = TrustedMarketFactory__factory.connect(address, signerOrProvider);
-        break;
-      case "Price":
-        marketFactory = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
-        break;
+  const MarketFactories = mapOverObject(
+    contractAddresses.marketFactories,
+    (name, { type, address, ammFactory: ammFactoryAddress }) => {
+      let marketFactory: MarketFactoryContract;
+      switch (type) {
+        case "SportsLink":
+          marketFactory = SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
+          break;
+        case "Trusted":
+          marketFactory = TrustedMarketFactory__factory.connect(address, signerOrProvider);
+          break;
+        case "Price":
+          marketFactory = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
+          break;
+      }
+      const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+      return [name, { marketFactory, ammFactory }];
     }
-    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
-    return [name, {marketFactory, ammFactory}];
-  });
+  );
 
   return {
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
