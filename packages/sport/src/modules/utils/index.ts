@@ -1,7 +1,7 @@
 import { BigNumber as BN } from "bignumber.js";
-import { AmmExchange } from "@augurproject/comps/build/types";
+import { AmmExchange, PositionBalance } from "@augurproject/comps/build/types";
 import { ContractCalls } from "@augurproject/comps";
-const { estimateBuyTrade } = ContractCalls;
+const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 
 export interface SizedPrice {
   size: string;
@@ -18,4 +18,11 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
   const est = estimateBuyTrade(amm, shareAmount, Number(id), amm?.cash);
   const size = new BN(est?.averagePrice).times(new BN(shareAmount)).toFixed();
   return { size, price: est?.averagePrice };
+};
+
+export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): string => {
+  if (!amm || !amm?.hasLiquidity || !position) return null;
+  const shareAmount = position.quantity;
+  const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
+  return est.maxSellAmount;
 };
