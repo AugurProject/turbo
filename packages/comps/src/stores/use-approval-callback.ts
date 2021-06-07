@@ -219,12 +219,11 @@ export const useApproveCallbackForTrade = (
   ammExchange: AmmExchange,
   isEnter: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const { ammFactory } = PARA_CONFIG;
   const { cash } = ammExchange;
   const { shareToken } = cash;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
-
+  const ammFactory = ammExchange.ammFactoryAddress;
   const [approveShareFactoryStatus, approveShareFactory] = useApproveERC1155Callback(
     shareToken,
     approvingName,
@@ -244,7 +243,7 @@ export const useApproveCallbackForLiquidity = (
   ammExchange: AmmExchange,
   isAdd: boolean
 ): [ApprovalState, () => Promise<void>] => {
-  const { ammFactory } = PARA_CONFIG;
+  const ammFactory = ammExchange.ammFactoryAddress;
   const { cash } = ammExchange;
   const approvingName = cash.name;
   const isETH = cash.name === ETH;
