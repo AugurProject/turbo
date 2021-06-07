@@ -7,6 +7,7 @@ import { ContractCalls, Formatter, Constants, createBigNumber, Stores, SEO, Comp
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
+import { DailyFutureSwitch } from "../categories/categories";
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -19,7 +20,6 @@ const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { PrimaryButton },
   Icons: { WinnerMedal },
-  PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
 } = Components;
 
@@ -230,6 +230,7 @@ export const PortfolioView = () => {
   useScrollToTopOnMount();
   const [filter, setFilter] = useState("");
   const [soryBy, setSortBy] = useState(OPEN);
+  const [eventTypeFilter, setEventTypeFilter] = useState(0);
   return (
     <div className={Styles.PortfolioView}>
       <SEO {...PORTFOLIO_HEAD_TAGS} />
@@ -242,6 +243,10 @@ export const PortfolioView = () => {
             options={marketStatusItems}
             defaultValue={soryBy}
             preLabel="Market Status"
+          />
+          <DailyFutureSwitch
+           selection={eventTypeFilter}
+           setSelection={(id) => setEventTypeFilter(id)} 
           />
           <SearchInput
             value={filter}

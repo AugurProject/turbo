@@ -196,3 +196,44 @@
     display: none;
   }
 }
+
+.DailyFutureSwitch {
+  .PrimaryBorderRadius;
+
+  display: flex;
+  flex-flow: row nowrap;
+  min-height: @size-40;
+  max-height: @size-40;
+  align-items: center;
+  justify-content: center;
+  background: var(--simple-primary-text);
+
+  > button {
+    .text-14-bold;
+
+    border: @size-1 solid var(--simple-border);
+    background: var(--simple-light-bg);
+    color: var(--simple-secondary-text);
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    padding: @size-12 @size-24;
+    min-height: @size-40;
+    max-height: @size-40;
+    cursor: pointer;
+
+    &.Selected {
+      border-color: var(--simple-primary-text);
+      color: var(--simple-primary-text);
+    }
+
+    &:first-of-type {
+      .PrimaryLeftBorderRadius;
+    }
+
+    &:last-of-type {
+      .PrimaryRightBorderRadius;
+    }
+  }
+}

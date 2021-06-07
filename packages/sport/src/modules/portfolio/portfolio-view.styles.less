@@ -20,7 +20,12 @@
       margin-bottom: @size-24;
 
       > div {
+        max-height: @size-40;
         margin-right: @size-20;
+
+        > input {
+          max-height: @size-38;
+        }
 
         &:last-of-type {
           .PrimaryBorderRadius;
@@ -29,6 +34,7 @@
           height: unset;
           transition: 0.2s flex ease-in-out;
           min-width: @size-269;
+          margin-left: @size-20;
 
           > div {
             background: none;
@@ -42,6 +48,10 @@
             transition: 0.33s flex ease-in-out;
           }
         }
+      }
+
+      > article {
+        margin-right: auto;
       }
 
       > button {
