@@ -1314,10 +1314,10 @@ export const getMarketInfos = async (
     factories.map(({ address, ammFactory }) => getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList))
   );
 
+  let existingEvents = [];
   // first market infos get all markets with liquidity
   const marketInfos = allMarkets.reduce(
     (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress }) => {
-      let existingEvents = [];
       // only take liquidity markets from first batch
       const ignores = ignoreList[factoryAddress.toUpperCase()] || [];
       const isOld = isOldMarketFactory(factoryAddress);
@@ -1352,8 +1352,12 @@ export const getMarketInfos = async (
         .map((id) => Number(marketInfos[id]?.turboId));
       addResolvedMarketToList(ignoreList, factoryAddress, ids);
 
+      const filteredMarketIds = Object.keys(marketInfos).reduce(
+        (p, id) => (existingEvents.includes(marketInfos[id]?.eventId) ? p : { ...p, [id]: marketInfos[id] }),
+        {}
+      );
       return {
-        markets: { ...p.markets, ...marketInfos },
+        markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber,
         ignoreList,
