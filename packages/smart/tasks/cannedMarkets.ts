@@ -19,6 +19,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
     { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -30, ou: 300 },
     { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 10, ou: 500 },
     { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -30, ou: 30 },
+    { eventId: "0x12f001", homeId: 0x67, awayId: 0x68, spread: 0, ou: 10 },
   ];
 
   for (const { eventId, homeId, awayId, spread, ou } of markets) {
