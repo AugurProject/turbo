@@ -15,7 +15,7 @@ import {
 } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
-import { EventBetsSection } from '../common/tables';
+import { EventBetsSection } from "../common/tables";
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -253,55 +253,121 @@ export default PortfolioView;
 const date = new Date();
 const now = Math.floor(date.getTime() / 1000);
 const MET = {
-  ML: 'MoneyLine',
-  SP: 'Spread',
-  OU: 'Over / Under',
+  ML: "MoneyLine",
+  SP: "Spread",
+  OU: "Over / Under",
 };
 const MOCK_EVENT_POSITIONS_DATA = {
   "0xdeadbeef-0": {
-    eventId: '0xdeadbeef-0',
-    eventTitle: 'River Plate vs Boca Juniors',
+    eventId: "0xdeadbeef-0",
+    eventTitle: "River Plate vs Boca Juniors",
     eventStartTime: now,
     bets: {
-      '0xfaketxhash01': {
-        marketId: '0xfakeMarket01',
+      "0xfaketxhash01": {
+        marketId: "0xfakeMarket01",
         marketEventType: MET.SP,
-        name: 'River Plate, +2',
+        name: "River Plate, +2",
         id: 1,
-        wager: '10.00',
-        price: '0.125',
-        toWin: '70.00',
+        wager: "10.00",
+        price: "0.125",
+        toWin: "70.00",
         date: now - 2000,
-        cashoutAmount: '0.00',
+        cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
       },
-      '0xfaketxhash02': {
-        marketId: '0xfakeMarket01',
+      "0xfaketxhash02": {
+        marketId: "0xfakeMarket02",
         marketEventType: MET.ML,
-        name: 'River Plate',
+        name: "River Plate",
         id: 1,
-        wager: '10.00',
-        price: '0.125',
+        wager: "10.00",
+        price: "0.125",
         toWin: null,
         date: now - 2500,
-        cashoutAmount: '5.60',
+        cashoutAmount: "5.60",
         canCashOut: false,
         hasCashedOut: true,
       },
-      '0xfaketxhash03': {
-        marketId: '0xfakeMarket01',
+      "0xfaketxhash03": {
+        marketId: "0xfakeMarket03",
         marketEventType: MET.SP,
-        name: 'Event Canceled',
-        id: 1,
-        wager: '10.00',
-        price: '0.125',
-        toWin: '70.00',
+        name: "Event Canceled",
+        id: 0,
+        wager: "10.00",
+        price: "0.125",
+        toWin: "70.00",
         date: now - 3050,
-        cashoutAmount: '0.00',
+        cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
-      }
-    }
-  }
-}
+      },
+    },
+  },
+  "0xdeadbeef-1": {
+    eventId: "0xdeadbeef-1",
+    eventTitle: "Dallas Mavericks Vs. Houston Rockets",
+    eventStartTime: now - 1000,
+    bets: {
+      "0xfaketxhash04": {
+        marketId: "0xfakeMarket4",
+        marketEventType: MET.ML,
+        name: "Dallas Mavericks",
+        id: 1,
+        wager: "10.00",
+        price: "0.125",
+        toWin: "70.00",
+        date: now - 2000,
+        cashoutAmount: "0.00",
+        canCashOut: true,
+        hasCashedOut: false,
+      },
+    },
+  },
+  "0xdeadbeef-2": {
+    eventId: "0xdeadbeef-2",
+    eventTitle: "Chicago Bulls Vs. Brooklyn Nets",
+    eventStartTime: now - 5000,
+    bets: {
+      "0xfaketxhash05": {
+        marketId: "0xfakeMarket05",
+        marketEventType: MET.SP,
+        name: "Chicago Bulls, +5",
+        id: 1,
+        wager: "10.00",
+        price: "0.125",
+        toWin: "70.00",
+        date: now - 7000,
+        cashoutAmount: "0.00",
+        canCashOut: true,
+        hasCashedOut: false,
+      },
+      "0xfaketxhash06": {
+        marketId: "0xfakeMarket06",
+        marketEventType: `${MET.OU} 220.5`,
+        name: "Chicago Bulls, Over 220.5",
+        id: 1,
+        wager: "10.00",
+        price: "0.125",
+        toWin: null,
+        date: now - 7500,
+        cashoutAmount: "5.60",
+        canCashOut: false,
+        hasCashedOut: true,
+      },
+      "0xfaketxhash07": {
+        marketId: "0xfakeMarket07",
+        marketEventType: MET.ML,
+        name: "Chicago Bulls",
+        id: 1,
+        wager: "10.00",
+        price: "0.125",
+        toWin: "70.00",
+        date: now - 8050,
+        cashoutAmount: "0.00",
+        canCashOut: false,
+        hasCashedOut: false,
+      },
+    },
+  },
+};

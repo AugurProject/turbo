@@ -1,6 +1,13 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
-.EventBetsSection {}
+.EventBetsSection {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > article {
+    margin-bottom: @size-24;
+  }
+}
 
 .EventBetTable {
   .SimpleBorder;
@@ -38,15 +45,80 @@
 .EventTableMain {
   .SecondaryBottomBorderRadius;
 
-
   > ul {
     align-items: center;
     display: grid;
-    grid-template-columns: 2fr .33fr .33fr .33fr 1fr 1fr;
+    grid-template-columns: 2fr 0.33fr 0.33fr 0.33fr 1fr 1fr;
     grid-gap: @size-4;
     border-top: @size-1 solid var(--simple-border);
     min-height: @size-64;
     padding: 0 @size-16;
+
+    > li {
+      .text-12;
+
+      color: var(--simple-primary-text);
+      text-align: right;
+      align-items: flex-end;
+
+      &:first-of-type {
+        text-align: left;
+        align-items: flex-start;
+
+        display: flex;
+        flex-flow: column nowrap;
+
+        > span:first-of-type {
+          .text-14-bold;
+
+          color: var(--simple-primary-text);
+          margin-bottom: @size-4;
+        }
+
+        > span:last-of-type {
+          .text-12;
+
+          color: var(--simple-secondary-text);
+        }
+      }
+
+      &:last-of-type {
+        text-align: center;
+        align-items: center;
+
+        > button {
+          .SimpleBorder;
+          .text-10-semi-bold;
+
+          background: transparent;
+          padding: @size-3 @size-6;
+          min-height: @size-20;
+          max-height: @size-20;
+          text-transform: uppercase;
+          cursor: pointer;
+
+          &:not(.CanCashOut):not(.HasCashedOut):disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+          }
+
+          &.CanCashOut {
+            &:hover:not(:disabled) {
+              border-color: var(--simple-primary-text);
+              background: var(--simple-primary-text);
+              color: var(--simple-light-bg);
+            }
+          }
+
+          &.HasCashedOut {
+            background: var(--simple-primary-action-15);
+            border-color: var(--simple-primary-action-15);
+            cursor: default;
+            color: var(--simple-secondary-text);
+          }
+        }
+      }
+    }
 
     &:first-of-type {
       min-height: @size-40;

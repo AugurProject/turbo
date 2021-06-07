@@ -1,5 +1,5 @@
 import React from "react";
-import classNames from 'classnames';
+import classNames from "classnames";
 import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
 import { Utils } from "@augurproject/comps";
@@ -11,7 +11,6 @@ const {
 export const EventBetsSection = ({ EventPositionData = {} }) => {
   if (!Object.keys(EventPositionData).length) return null;
 
-  console.log(EventPositionData);
   return (
     <section className={Styles.EventBetsSection}>
       {Object.entries(EventPositionData).map(([EventId, Event]) => (
@@ -20,8 +19,6 @@ export const EventBetsSection = ({ EventPositionData = {} }) => {
     </section>
   );
 };
-
-
 
 const EventBetsTable = ({ Event }) => {
   return (
@@ -43,31 +40,14 @@ const EventTableHeading = ({ Event }) => {
   );
 };
 
-
-// "0xdeadbeef-0": {
-//   eventId: '0xdeadbeef-0',
-//   eventTitle: 'River Plate vs Boca Juniors',
-//   eventStartTime: now,
-//   bets: {
-//     '0xfaketxhash01': {
-//       marketId: '0xfakeMarket01',
-//       marketEventType: MET.SP,
-//       name: 'River Plate, +2',
-//       id: 1,
-//       wager: '10.00',
-//       price: '0.125',
-//       toWin: '70.00',
-//       date: now - 2000,
-//       cashoutAmount: '0.00',
-//       canCashOut: true,
-//       hasCashedOut: false,
-//     },
 const EventTableMain = ({ bets }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
-  const determineClasses = ({ canCashOut, hasCashedOut }) => 
-  ({ [Styles.CanCashOut]: canCashOut, [Styles.hasCashedOut]: hasCashedOut });
+  const determineClasses = ({ canCashOut, hasCashedOut }) => ({
+    [Styles.CanCashOut]: canCashOut,
+    [Styles.hasCashedOut]: hasCashedOut,
+  });
   return (
     <main className={Styles.EventTableMain}>
       <ul>
@@ -87,11 +67,19 @@ const EventTableMain = ({ bets }) => {
             </li>
             <li>${bet.wager}</li>
             <li>{convertToOdds(convertToNormalizedPrice({ price: bet.price }), oddsFormat).full}</li>
-            <li>${bet.toWin}</li>
+            <li>{bet.toWin && bet.toWin !== "0" ? `$${bet.toWin}` : "-"}</li>
             <li>{getMarketEndtimeFull(bet.date, timeFormat)}</li>
             <li>
-              <button className={classNames(determineClasses(bet))}>
-                {bet.hasCashedOut ? `WON: $${bet.cashoutAmount}` : `CASHOUT: $${bet.cashoutAmount}`}
+              <button
+                className={classNames(determineClasses(bet))}
+                onClick={() => {}}
+                disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
+              >
+                {!bet.hasCashedOut && !bet.canCashOut
+                  ? "CASHOUT NOT AVAILABLE"
+                  : bet.hasCashedOut
+                  ? `WON: $${bet.cashoutAmount}`
+                  : `CASHOUT: $${bet.cashoutAmount}`}
               </button>
             </li>
           </ul>
