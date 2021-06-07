@@ -24,5 +24,6 @@ export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): s
   if (!amm || !amm?.hasLiquidity || !position) return null;
   const shareAmount = position.quantity;
   const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
-  return est.maxSellAmount;
+  // can sell all position or none
+  return est.maxSellAmount === "0" ? null : est.outputValue;
 };
