@@ -17,7 +17,7 @@ const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
 const {
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
-  Formatter: { formatCashPrice },
+  // Formatter: { formatCashPrice },
   DateUtils: { getDayFormat, getTimeFormat },
 } = Utils;
 const { Checkbox } = Icons;

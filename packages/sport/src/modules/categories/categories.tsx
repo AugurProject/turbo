@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import Styles from "./categories.styles.less";
 import classNames from "classnames";
-import { Icons, Constants, Formatter, useDataStore } from "@augurproject/comps";
+import { Icons, Constants, Formatter } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 
 const { SPORTS, POLITICS } = Constants;

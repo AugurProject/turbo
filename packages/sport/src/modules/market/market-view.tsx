@@ -29,15 +29,17 @@ import { CategoriesTrail } from "../categories/categories";
 import { Link } from "react-router-dom";
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
+  LabelComps: { 
+    // CategoryIcon, CategoryLabel, CurrencyLabel, 
+    ReportingStateLabel },
   Icons: { ConfirmedCheck, SimpleChevron },
   ButtonComps: { BuySellButton },
-  InputComps: { OutcomesGrid },
+  // InputComps: { OutcomesGrid },
 } = Components;
 const { MarketsLink } = Links;
 const { getSportsResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
-const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
+const { MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
   Utils: { isMarketFinal },
 } = Stores;
@@ -148,7 +150,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
   // const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
-  const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
+  // const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
   // add end time data full to market details when design is ready
   // const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
@@ -163,7 +165,7 @@ const MarketView = ({ defaultMarket = null }) => {
     );
   if (!market) return <EmptyMarketView />;
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
-  const { reportingState, title, description, startTimestamp, categories, winner } = market;
+  const { reportingState, title, description, startTimestamp, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
   const { volume24hrTotalUSD = null, volumeTotalUSD = null } = transactions[marketId] || {};

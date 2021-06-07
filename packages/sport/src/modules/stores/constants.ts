@@ -40,6 +40,42 @@ const { TX_STATUS } = Constants;
 
 const date = new Date();
 const now = Math.floor(date.getTime() / 1000);
+
+export interface BetType {
+  id: number;
+  heading?: string;
+  wager: string | null;
+  toWin: string | null;
+  price: string;
+  name: string;
+  marketId: string;
+};
+
+export interface ActiveBetType {
+  id: number;
+  heading: string;
+  wager: string;
+  toWin: string;
+  price: string;
+  name: string;
+  marketId: string;
+  status: string;
+  canCashOut: boolean;
+  hasCashedOut: boolean;
+  hash: string;
+}
+
+export const DEFAULT_BET = {
+  wager: null,
+  toWin: null,
+}
+
+export const DEFAULT_ACTIVE_BET = {
+  status: TX_STATUS.PENDING,
+  canCashOut: false,
+  hasCashedOut: false,
+}
+
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 1,
@@ -50,6 +86,7 @@ export const DEFAULT_BETSLIP_STATE = {
       id: 2,
       name: "Life, +12.5",
       price: "0.25",
+      timestamp: now,
       wager: null,
       toWin: null,
     },
@@ -67,6 +104,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.PENDING,
       canCashOut: false,
       hasCashedOut: false,
+      hash: "0xtxHash05",
     },
     "0xtxHash04": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -80,6 +118,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hasCashedOut: false,
+      hash: "0xtxHash04",
     },
     "0xtxHash03": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -93,6 +132,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hasCashedOut: false,
+      hash: "0xtxHash03",
     },
     "0xtxHash02": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -106,6 +146,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.CONFIRMED,
       canCashOut: false,
       hasCashedOut: true,
+      hash: "0xtxHash02",
     },
     "0xtxHash01": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -119,6 +160,7 @@ export const DEFAULT_BETSLIP_STATE = {
       status: TX_STATUS.FAILURE,
       canCashOut: false,
       hasCashedOut: false,
+      hash: "0xtxHash01",
     },
   },
 };
@@ -128,9 +170,9 @@ export const STUBBED_BETSLIP_ACTIONS = {
   addBet: (bet) => {},
   removeBet: (betId) => {},
   updateBet: (bet) => {},
-  addActive: (tx_hash) => {},
-  removeActive: (tx_hash) => {},
-  updateActive: (active) => {},
+  addActive: (bet) => {},
+  removeActive: (hash) => {},
+  updateActive: (bet) => {},
   cancelAllBets: () => {},
 };
 

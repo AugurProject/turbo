@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
+import { BetType } from '../stores/constants';
 import { BETSLIP, ACTIVE_BETS } from "../constants";
 import {
   ButtonComps,
@@ -186,7 +187,7 @@ const EditableBet = ({ betId, bet }) => {
               setError(error);
               if (!error) {
                 const sizeOfPool = getSizedPrice(amm, id);
-                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool.price));
+                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool?.price || '1'));
                 updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
               }
               setValue(fmtValue);
@@ -303,15 +304,17 @@ const BetReciept = ({ tx_hash, bet }) => {
 
 export const DashlineNormal = () => (
   <svg width="100%" height="1">
-    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.Dashline} />
+    <line x1="0" x2="100%" y1="0" y2="0" />
   </svg>
 );
 
 export const DashlineLong = () => (
   <svg width="100%" height="1">
-    <line x1="0" x2="100%" y1="0" y2="0" className={Styles.DashlineLong} />
+    <line x1="0" x2="100%" y1="0" y2="0" />
   </svg>
 );
+
+
 
 const TicketBreakdown = ({ bet, timeFormat }) => {
   const { wager, toWin, timestamp } = bet;
@@ -336,7 +339,7 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
   );
 };
 
-const determineBetTotals = (bets) => {
+const determineBetTotals = (bets: Array<BetType>) => {
   let totalWager = ZERO;
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
