@@ -37,7 +37,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // Add new market factories. Only new ones.
   const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];
 
-
   if (!hasFactory(marketFactories, sportsLinkMarketFactory.address)) {
     marketFactories.unshift({
       version,
@@ -76,7 +75,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 function hasFactory(marketFactories: MarketFactory[], address: string): boolean {
-  return marketFactories.filter(f => f.address === address).length !== 0;
+  return marketFactories.filter((f) => f.address === address).length !== 0;
 }
 
 func.runAtTheEnd = true;
