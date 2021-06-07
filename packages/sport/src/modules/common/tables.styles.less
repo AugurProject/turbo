@@ -1,1 +1,66 @@
 @import (reference) '~assets/styles/shared';
+
+.EventBetsSection {}
+
+.EventBetTable {
+  .SimpleBorder;
+  .SecondaryBorderRadius;
+
+  background: var(--simple-light-bg);
+
+  > header {
+    .SecondaryTopBorderRadius;
+
+    display: flex;
+    flex-flow: row nowrap;
+    min-height: @size-72;
+    padding: @size-16;
+
+    > h4 {
+      .text-16-bold;
+
+      color: var(--simple-primary-text);
+      flex: 1;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
+
+    > span {
+      .text-12-semi-bold;
+
+      color: var(--simple-secondary-text);
+      text-transform: uppercase;
+    }
+  }
+}
+
+.EventTableMain {
+  .SecondaryBottomBorderRadius;
+
+
+  > ul {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 2fr .33fr .33fr .33fr 1fr 1fr;
+    grid-gap: @size-4;
+    border-top: @size-1 solid var(--simple-border);
+    min-height: @size-64;
+    padding: 0 @size-16;
+
+    &:first-of-type {
+      min-height: @size-40;
+      background: var(--simple-alternate-background);
+
+      > li {
+        .text-10-semi-bold;
+
+        color: var(--simple-secondary-text);
+        text-transform: uppercase;
+      }
+    }
+  }
+  &:last-child {
+    .SecondaryBottomBorderRadius;
+  }
+}

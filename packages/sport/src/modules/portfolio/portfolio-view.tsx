@@ -15,7 +15,7 @@ import {
 } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
-import { EventBetsTable } from '../common/tables';
+import { EventBetsSection } from '../common/tables';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -238,7 +238,7 @@ export const PortfolioView = () => {
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
         <h1>My Bets section... all these components need to be added/worked on but this is the page... yay?</h1>
-        <EventBetsTable EventPositionData={MOCK_EVENT_POSITIONS_DATA} />
+        <EventBetsSection EventPositionData={MOCK_EVENT_POSITIONS_DATA} />
       </section>
       <section>
         <ClaimWinningsSection />
@@ -279,7 +279,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
       '0xfaketxhash02': {
         marketId: '0xfakeMarket01',
         marketEventType: MET.ML,
-        name: 'River Plate, +2',
+        name: 'River Plate',
         id: 1,
         wager: '10.00',
         price: '0.125',
@@ -292,7 +292,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
       '0xfaketxhash03': {
         marketId: '0xfakeMarket01',
         marketEventType: MET.SP,
-        name: 'River Plate, +2',
+        name: 'Event Canceled',
         id: 1,
         wager: '10.00',
         price: '0.125',
