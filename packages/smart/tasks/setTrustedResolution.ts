@@ -17,7 +17,7 @@ task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
     await marketFactory.trustedSetResolution(marketId, outcomes);
     await sleep(10000);
     const market = await marketFactory.getMarket(marketId);

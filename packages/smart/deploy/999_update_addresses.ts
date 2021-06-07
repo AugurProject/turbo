@@ -34,17 +34,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const addresses: Addresses = {
     reputationToken,
     balancerFactory,
-    ammFactory: ammFactory.address,
     marketFactories: {
       sportsball: {
         type: "SportsLink",
         address: sportsLinkMarketFactory.address,
         collateral,
+        ammFactory: ammFactory.address
       },
       mma: {
         type: "SportsLink",
         address: mmaLinkMarketFactory.address,
         collateral,
+        ammFactory: ammFactory.address
       },
     },
     info: {

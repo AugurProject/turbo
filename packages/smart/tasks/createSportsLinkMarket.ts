@@ -24,7 +24,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const network = await ethers.provider.getNetwork();
       const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
       const { MarketFactories } = contracts;
-      const marketFactory = MarketFactories["sportsball"] as SportsLinkMarketFactory;
+      const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
 
       const payload = await marketFactory.encodeCreation(
         eventId,

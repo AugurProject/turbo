@@ -22,12 +22,13 @@ export { calcSellCompleteSets, estimateBuy } from "./src/bmath";
 export { mapOverObject } from "./src/utils/common-functions"; // TODO this shouldn't live in this package
 
 export interface ContractInterfaces {
-  AMMFactory: AMMFactory;
   ReputationToken: Cash;
   MarketFactories: {
-    [name: string]: MarketFactoryContract;
+    [name: string]: {
+      marketFactory: MarketFactoryContract,
+      ammFactory: AMMFactory
+    }
   };
-  // TheRundownChainlink: TheRundownChainlink;
 }
 export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | TestPriceMarketFactory;
 
@@ -37,24 +38,24 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
 
   console.log(contractAddresses.marketFactories);
 
-  const MarketFactories = mapOverObject(contractAddresses.marketFactories, (name, { type, address }) => {
-    let contract: MarketFactoryContract;
+  const MarketFactories = mapOverObject(contractAddresses.marketFactories, (name, { type, address, ammFactory: ammFactoryAddress }) => {
+    let marketFactory: MarketFactoryContract;
     switch (type) {
       case "SportsLink":
-        contract = SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
+        marketFactory = SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
         break;
       case "Trusted":
-        contract = TrustedMarketFactory__factory.connect(address, signerOrProvider);
+        marketFactory = TrustedMarketFactory__factory.connect(address, signerOrProvider);
         break;
       case "Price":
-        contract = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
+        marketFactory = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
         break;
     }
-    return [name, contract];
+    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+    return [name, {marketFactory, ammFactory}];
   });
 
   return {
-    AMMFactory: AMMFactory__factory.connect(contractAddresses.ammFactory, signerOrProvider),
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
     MarketFactories,
     // TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
