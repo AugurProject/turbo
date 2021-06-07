@@ -48,6 +48,7 @@ export interface BetType {
   toWin: string | null;
   price: string;
   name: string;
+  betId: string;
   marketId: string;
 };
 
@@ -57,6 +58,7 @@ export interface ActiveBetType {
   wager: string;
   toWin: string;
   price: string;
+  betId: string;
   name: string;
   marketId: string;
   status: string;
@@ -89,13 +91,14 @@ export const DEFAULT_BETSLIP_STATE = {
       timestamp: now,
       wager: null,
       toWin: null,
+      betId: '0xdeadbeef-0-2',
     },
   },
   active: {
     "0xtxHash05": {
       heading: "Who will win? JD vs Life, Over Under",
       marketId: "0xdeadbeef-0",
-      id: 5,
+      id: 2,
       name: "Life, +12.5",
       price: "0.3",
       wager: "500.00",
@@ -105,34 +108,37 @@ export const DEFAULT_BETSLIP_STATE = {
       canCashOut: false,
       hasCashedOut: false,
       hash: "0xtxHash05",
+      betId: '0xdeadbeef-0-2',
     },
     "0xtxHash04": {
       heading: "Who will win? JD vs Life, Over Under",
       marketId: "0xdeadbeef-0",
-      id: 4,
+      id: 2,
       name: "Life, +12.5",
       price: "0.35",
       wager: "200.00",
       toWin: "325.00",
-      timestamp: now,
+      timestamp: now - 100,
       status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hasCashedOut: false,
       hash: "0xtxHash04",
+      betId: '0xdeadbeef-0-2',
     },
     "0xtxHash03": {
       heading: "Who will win? JD vs Life, Over Under",
       marketId: "0xdeadbeef-0",
-      id: 3,
+      id: 2,
       name: "Life, +12.5",
       price: "0.35",
       wager: "200.00",
       toWin: "325.00",
-      timestamp: now,
+      timestamp: now - 200,
       status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hasCashedOut: false,
       hash: "0xtxHash03",
+      betId: '0xdeadbeef-0-2',
     },
     "0xtxHash02": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -142,11 +148,12 @@ export const DEFAULT_BETSLIP_STATE = {
       price: "0.35",
       wager: "200.00",
       toWin: "325.00",
-      timestamp: now,
+      timestamp: now - 300,
       status: TX_STATUS.CONFIRMED,
       canCashOut: false,
       hasCashedOut: true,
       hash: "0xtxHash02",
+      betId: '0xdeadbeef-0-2',
     },
     "0xtxHash01": {
       heading: "Who will win? JD vs Life, Over Under",
@@ -156,11 +163,12 @@ export const DEFAULT_BETSLIP_STATE = {
       price: "0.55",
       wager: "10.00",
       toWin: "9.00",
-      timestamp: now,
+      timestamp: now - 400,
       status: TX_STATUS.FAILURE,
       canCashOut: false,
       hasCashedOut: false,
       hash: "0xtxHash01",
+      betId: '0xdeadbeef-0-2',
     },
   },
 };
