@@ -73,7 +73,7 @@ import {
   estimateBuy,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
-import { getOutcomeName, getMarketTitle } from "./derived-market-data";
+import { getOutcomeName, getMarketTitle, isIgnoredMarket } from "./derived-market-data";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).toFixed(6);
 interface LiquidityProperties {
@@ -136,10 +136,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-            outcomeId: i,
-            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-          }))
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1030,17 +1030,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-        .times(sharesAddLiquidity.shares)
-        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+      .times(sharesAddLiquidity.shares)
+      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(outcomeLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(outcomeLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1357,12 +1357,17 @@ export const getMarketInfos = async (
         .filter((id) => marketInfos[id]?.hasWinner)
         .map((id) => Number(marketInfos[id]?.turboId));
 
+      // hide mlb spread and over/under markets
+      const hiddenMarketsIds = Object.keys(marketInfos)
+        .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
+        .map((id) => Number(marketInfos[id]?.turboId));
+
       // filter out dup eventIds
       const existingEventIds = Object.keys(marketInfos)
         .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
         .map((id) => Number(marketInfos[id]?.turboId));
 
-      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...existingEventIds]);
+      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...hiddenMarketsIds, ...existingEventIds]);
 
       const filteredMarketIds = Object.keys(marketInfos).reduce(
         (p, id) => (existingEvents.includes(marketInfos[id]?.eventId) ? p : { ...p, [id]: marketInfos[id] }),
