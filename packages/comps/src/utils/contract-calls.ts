@@ -1348,7 +1348,6 @@ export const getMarketInfos = async (
       // only update open markets after initial load
       const ids = Object.keys(marketInfos)
         .filter((id) => marketInfos[id]?.hasWinner)
-        .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
         .map((id) => Number(marketInfos[id]?.turboId));
 
       // filter out dup eventIds
