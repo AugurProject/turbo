@@ -1,23 +1,10 @@
-@import (reference) '~assets/styles/shared.less';
+@import (reference) "~assets/styles/shared.less";
 
 .App {
   display: flex;
   flex-flow: column nowrap;
-  // display: grid;
-  // grid-template-columns: 1fr @betslip-column-width;
   flex: 1;
   position: relative;
-
-  // @media @breakpoint-mobile-tablet {
-  //   display: flex;
-  //   flex-flow: column nowrap;
-  // }
-
-  // top nav
-  // > section:first-of-type {
-  //   grid-column: span 2;
-  //   grid-row: 1;
-  // }
 
   > main {
     display: grid;
@@ -46,11 +33,13 @@
 }
 
 .MyBets {
-  display: flex;
-  flex-flow: column nowrap;
-
-  > section[class*="Betslip"] {
-    display: none;
+  > main {
+    display: flex;
+    flex-flow: column nowrap;
+  
+    > section[class*="Betslip"] {
+      display: none;
+    }
   }
 }
 
@@ -65,14 +54,19 @@
   }
 }
 
-.TwoToneContent { 
-  background: linear-gradient(to right, var(--light-background-color), var(--light-background-color) 50%, var(--simple-light-bg) 51%, var(--simple-light-bg));
+.TwoToneContent {
+  background: linear-gradient(
+    to right,
+    var(--light-background-color),
+    var(--light-background-color) 50%,
+    var(--simple-light-bg) 51%,
+    var(--simple-light-bg)
+  );
 
   @media @breakpoint-mobile-tablet {
     background: unset;
   }
 }
-
 
 body {
   @media @breakpoint-mobile-tablet {
