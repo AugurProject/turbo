@@ -110,11 +110,12 @@ export const getMarketEndtimeFull = (timestamp: string | number, format = TWENTY
   // use existing to make sure to be consistent
   const monthDayYear = getMarketEndtimeDate(timestamp);
   const timeHour = getTimeFormat(timestamp, format);
-  const offset = getTimestampTimezoneOffSet(timestamp);
-  return `${monthDayYear} ${timeHour} ${offset}`;
+
+  const zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
+  return `${monthDayYear} ${timeHour} (${zone})`;
 };
 
-const getTimestampTimezoneOffSet = (timestamp: string | number) => {
+export const getTimestampTimezoneOffSet = (timestamp: string | number) => {
   const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   // timezone offset comes in minutes
