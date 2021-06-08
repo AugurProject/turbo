@@ -11,7 +11,7 @@ import { DailyFutureSwitch } from "../categories/categories";
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
-const { ETH, TX_STATUS, USDC, marketStatusItems,  OPEN, IN_SETTLEMENT, RESOLVED } = Constants;
+const { ETH, TX_STATUS, USDC, marketStatusItems, OPEN } = Constants;
 const {
   Hooks: { useDataStore, useAppStatusStore, useScrollToTopOnMount, useUserStore },
   Utils: { keyedObjToArray },
@@ -244,10 +244,7 @@ export const PortfolioView = () => {
             defaultValue={soryBy}
             preLabel="Market Status"
           />
-          <DailyFutureSwitch
-           selection={eventTypeFilter}
-           setSelection={(id) => setEventTypeFilter(id)} 
-          />
+          <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           <SearchInput
             value={filter}
             // @ts-ignore

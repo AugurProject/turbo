@@ -17,7 +17,7 @@ export interface SearchInputProps {
   value: string;
   onChange: React.ChangeEventHandler;
   clearValue: React.MouseEventHandler;
-  showFilter: boolean;
+  showFilter?: boolean;
 }
 
 export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchInputProps) => {
