@@ -135,8 +135,10 @@ const AppBody = () => {
     >
       {modalShowing && <ModalView />}
       <TopNav />
-      <Routes />
-      <Betslip />
+      <main>
+        <Routes />
+        <Betslip />
+      </main>
     </div>
   );
 };

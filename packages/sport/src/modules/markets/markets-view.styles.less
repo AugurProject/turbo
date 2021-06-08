@@ -15,7 +15,7 @@
 .MarketsView {
   display: flex;
   flex-flow: row nowrap;
-  padding: @size-40 @size-32;
+  padding: @size-40 @size-40 @size-40 @size-32;
 
   > article:last-of-type {
     display: flex;
@@ -117,11 +117,11 @@
 }
 
 
-@media @breakpoint-desktop-large {
-  .MarketsView > article:last-of-type > section > {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+// @media @breakpoint-desktop-large {
+//   .MarketsView > article:last-of-type > section > {
+//     grid-template-columns: repeat(2, 1fr);
+//   }
+// }
 
 @media @breakpoint-mobile-tiny {
   .MarketsView {
