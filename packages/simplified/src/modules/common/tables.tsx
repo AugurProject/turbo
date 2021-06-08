@@ -173,12 +173,11 @@ export const PositionFooter = ({
   const [pendingCashOutHash, setPendingCashOutHash] = useState(null);
   const [pendingClaimHash, setPendingClaimHash] = useState(null);
   const ammCash = getUSDC(cashes);
-  const canClaimETH = useCanExitCashPosition({
-    name: ammCash?.name,
-    shareToken: ammCash?.sharetoken,
-  });
-  const isETHClaim = ammCash?.name === ETH;
-  
+  const canClaim = useCanExitCashPosition(
+    ammCash?.name,
+    amm?.ammFactoryAddress,
+  );
+ 
   const disableClaim =
     pendingClaim ||
       Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
@@ -199,7 +198,7 @@ export const PositionFooter = ({
 
   const claim = async () => {
     if (amm && account) {
-      if (canClaimETH || !isETHClaim) {
+      if (canClaim) {
         setPendingClaim(true);
         claimWinnings(account, loginAccount?.library, [turboId], marketFactoryAddress)
           .then((response) => {
@@ -302,7 +301,7 @@ export const PositionFooter = ({
           <PrimaryButton
             text={
               !pendingClaim
-                ? `${isETHClaim && !canClaimETH ? "Approve to " : ""}Claim Winnings (${
+                ? `${isETHClaim && !canClaim ? "Approve to " : ""}Claim Winnings (${
                     formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
                   })`
                 : AWAITING_CONFIRM

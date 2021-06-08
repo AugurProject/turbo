@@ -75,11 +75,10 @@ export function useHandleResize() {
   }, []);
 }
 
-export function useCanExitCashPosition(cash: Cash, refresh: any = null) {
+export function useCanExitCashPosition(cash: Cash, ammFactory: string, refresh: any = null) {
   const { account, loginAccount } = useUserStore();
   const approvedAccount = useRef(null);
   const [canExitPosition, setCanExitPosition] = useState(false);
-  const { ammFactory } = PARA_CONFIG;
   useEffect(() => {
     const checkApproval = async ({ name, shareToken }: Cash) => {
       if (!name || !shareToken || !account) return setCanExitPosition(false);
@@ -98,11 +97,10 @@ export function useCanExitCashPosition(cash: Cash, refresh: any = null) {
   return canExitPosition;
 }
 
-export function useCanEnterCashPosition({ name, address }: Cash, refresh: any = null) {
+export function useCanEnterCashPosition({ name, address }: Cash, ammFactory: string, refresh: any = null) {
   const { account, loginAccount } = useUserStore();
   const approvedAccount = useRef(null);
   const [canEnterPosition, setCanEnterPosition] = useState(name === ETH);
-  const { ammFactory } = PARA_CONFIG;
 
   useEffect(() => {
     const checkApproval = async (address: string) => {
@@ -196,7 +194,7 @@ export function useApprovalStatus({
   const { account, loginAccount, transactions } = useUserStore();
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
-  const { ammFactory } = PARA_CONFIG;
+  const ammFactory = amm.ammFactoryAddress;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;

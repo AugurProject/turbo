@@ -234,6 +234,7 @@ export interface AmmExchange {
   balancesRaw: string[];
   weights: string[];
   marketFactoryAddress: string;
+  ammFactoryAddress: string;
 }
 
 export interface Cashes {
