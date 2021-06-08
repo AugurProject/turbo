@@ -1,0 +1,43 @@
+@import (reference) '~assets/styles/shared';
+
+.SportsFooter {
+  align-items: center;
+  display: flex;
+  flex-flow: row wrap;
+  background: var(--simple-light-bg);
+  min-height: @size-40;
+  max-height: @size-40;
+  border-top: @size-1 solid var(--simple-border);
+  padding: @size-14 @size-16;
+
+  > span {
+    .text-12;
+
+    color: var(--simple-primary-text);
+    // version prepend label
+    margin-right: @size-4;
+  }
+
+  > div {
+    .text-12;
+    
+    color: var(--simple-secondary-text);
+    // version #
+    margin-right: @size-16;
+  }
+
+  > a {
+    .text-12-semi-bold;
+    // links
+    color: var(--simple-primary-text);
+    padding: 0 @size-8;
+    text-decoration: underline;
+    text-underline-offset: @size-3;
+    text-decoration-style: dashed;
+    text-decoration-thickness: @size-1;
+
+    &:not(:last-of-type) {
+      border-right: @size-1 solid var(--simple-border);
+    }
+  }
+}
