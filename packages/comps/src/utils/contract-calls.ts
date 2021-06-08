@@ -136,10 +136,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-          outcomeId: i,
-          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-        }))
+            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+            outcomeId: i,
+            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+          }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1030,17 +1030,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-      .times(sharesAddLiquidity.shares)
-      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-      .times(outcomeLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(outcomeLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   return {
@@ -1273,12 +1273,17 @@ const isOldMarketFactory = (address) => {
   return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
 };
 
-const marketFactories = (): { address: string, ammFactory: string }[] => {
+const marketFactories = (): { address: string; ammFactory: string }[] => {
   const { marketFactories } = PARA_CONFIG;
-  const marketAddresses = [{ address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory }];
+  const marketAddresses = [
+    { address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory },
+  ];
   // make sure sportsball2 exists in addresses before trying to add
   if (marketFactories?.sportsball2?.address) {
-    marketAddresses.push({ address: marketFactories.sportsball2.address, ammFactory: marketFactories.sportsball2.ammFactory });
+    marketAddresses.push({
+      address: marketFactories.sportsball2.address,
+      ammFactory: marketFactories.sportsball2.ammFactory,
+    });
   }
   // TODO: add in MMA when there are real mma markets
   /*
@@ -1311,7 +1316,9 @@ export const getMarketInfos = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map(({ address, ammFactory }) => getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList))
+    factories.map(({ address, ammFactory }) =>
+      getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList)
+    )
   );
 
   let existingEvents = [];
@@ -1409,7 +1416,7 @@ const retrieveMarkets = async (
   provider: Web3Provider,
   account: string,
   factoryAddress: string,
-  ammFactory: string,
+  ammFactory: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";

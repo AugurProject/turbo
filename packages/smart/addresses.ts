@@ -51,7 +51,6 @@ export const addresses: AddressMapping = {
         address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-
       },
       mma: {
         type: "SportsLink",
@@ -76,13 +75,13 @@ export const addresses: AddressMapping = {
         type: "SportsLink",
         address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f"
+        ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",
       },
       mma: {
         type: "SportsLink",
         address: "0x44043E4B5B8633d0915822ddc86e6Df962D126b2",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD"
+        ammFactory: "0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD",
       },
     },
     info: { uploadBlockNumber: 14691785, graphName: "mumbai" },
@@ -101,7 +100,7 @@ export const addresses: AddressMapping = {
         type: "SportsLink",
         address: "0xd9AD92f448bf89eF1Fe1b2BcF0aBE7221Bb79652",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4"
+        ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
       },
       mma: {
         type: "SportsLink",
