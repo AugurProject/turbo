@@ -162,8 +162,8 @@ export const MARKET_STATUS = {
 };
 
 export const TIME_TYPE = {
-  TWELVE_HOUR_TIME: '12hr',
-  TWENTY_FOUR_HOUR_TIME: '24hr',
+  TWELVE_HOUR_TIME: "12hr",
+  TWENTY_FOUR_HOUR_TIME: "24hr",
 };
 
 export const COMING_SOON = "Coming Soon";
