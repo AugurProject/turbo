@@ -80,6 +80,13 @@ export const DEFAULT_ACTIVE_BET = {
 
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
+  selectedCount: 0,
+  bets: {},
+  active: {}
+}
+/*
+export const DEFAULT_BETSLIP_STATE = {
+  selectedView: BETSLIP,
   selectedCount: 1,
   bets: {
     "0xdeadbeef-0-2": {
@@ -172,7 +179,7 @@ export const DEFAULT_BETSLIP_STATE = {
     },
   },
 };
-
+*/
 export const STUBBED_BETSLIP_ACTIONS = {
   toggleSelectedView: () => {},
   addBet: (bet) => {},
