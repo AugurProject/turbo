@@ -111,7 +111,7 @@ export const getMarketEndtimeFull = (timestamp: string | number, format = TWENTY
   const monthDayYear = getMarketEndtimeDate(timestamp);
   const timeHour = getTimeFormat(timestamp, format);
 
-  const zone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
+  const zone = new Date().toLocaleTimeString("en-us", { timeZoneName: "short" }).split(" ")[2];
   return `${monthDayYear} ${timeHour} (${zone})`;
 };
 
