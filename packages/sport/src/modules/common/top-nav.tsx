@@ -3,7 +3,6 @@ import { useLocation } from "react-router";
 import Styles from "./top-nav.styles.less";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-//import { Toasts } from "../toasts/toasts";
 import { useSportsStore } from "../stores/sport";
 import {
   Icons,
@@ -11,21 +10,18 @@ import {
   useUserStore,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
-  // ButtonComps,
   PathUtils,
   PARA_CONFIG,
   Constants,
   LinkLogo,
   Formatter,
-  Components,
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
-// const { SecondaryButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME, USDC } = Constants;
-const { ToggleSwitch } = Components;
+const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC } = Constants;
+
 
 export const SettingsButton = () => {
   const {
@@ -35,7 +31,7 @@ export const SettingsButton = () => {
   const { account } = useUserStore();
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
-  const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
+
   useEffect(() => {
     const handleWindowOnClick = (event) => {
       if (open && !!event.target && settingsRef.current !== null && !settingsRef?.current?.contains(event.target)) {
@@ -63,7 +59,7 @@ export const SettingsButton = () => {
                   <li>
                     <button
                       className={classNames({ [Styles.Active]: timeType === timeFormat })}
-                      onClick={() => timeType !== timeFormat && updateSettings({ timeFormat: timeType })}
+                      onClick={() => timeType !== timeFormat && updateSettings({ timeFormat: timeType }, account)}
                     >
                       {timeType === TWELVE_HOUR_TIME ? "AM / PM" : "24hr"}
                       {SimpleCheck}
@@ -81,7 +77,7 @@ export const SettingsButton = () => {
                   <li>
                     <button
                       className={classNames({ [Styles.Active]: oddType === oddsFormat })}
-                      onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType })}
+                      onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType }, account)}
                     >
                       {oddType.toLowerCase()}
                       {SimpleCheck}

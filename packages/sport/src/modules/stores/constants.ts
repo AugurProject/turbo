@@ -20,6 +20,8 @@ export const DEFAULT_SPORT_STATE = {
   },
 };
 
+export const LOCAL_STORAGE_SETTINGS_THEME = 'sports_settings';
+
 export const SPORT_STATE_KEYS = {
   SIDEBAR_TYPE: "sidebarType",
   BETSLIP_MINIMIZED: "betslipMinimized",
