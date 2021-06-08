@@ -3,12 +3,12 @@ import classNames from "classnames";
 import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
 import { Utils, PaginationComps } from "@augurproject/comps";
-
+import { ActiveBetType } from "../stores/constants";
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { sliceByPage, Pagination } = PaginationComps;
+const { Pagination } = PaginationComps;
 
 export const EventBetsSection = ({ EventPositionData = {} }) => {
   if (!Object.keys(EventPositionData).length) return null;
@@ -19,17 +19,17 @@ export const EventBetsSection = ({ EventPositionData = {} }) => {
         <EventBetsTable {...{ Event }} />
       ))}
       {EventDataEntries.length > 0 && (
-          <Pagination
-            page={1}
-            itemCount={EventDataEntries.length}
-            itemsPerPage={10}
-            action={(page) => {
-              // setPage(page);
-              console.log('set page', page);
-            }}
-            updateLimit={null}
-          />
-        )}
+        <Pagination
+          page={1}
+          itemCount={EventDataEntries.length}
+          itemsPerPage={10}
+          action={(page) => {
+            // setPage(page);
+            console.log("set page", page);
+          }}
+          updateLimit={null}
+        />
+      )}
     </section>
   );
 };
@@ -54,7 +54,7 @@ const EventTableHeading = ({ Event }) => {
   );
 };
 
-const EventTableMain = ({ bets }) => {
+const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();

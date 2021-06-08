@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS } from "./constants";
+import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME } from "./constants";
 import { useSport } from "./sport-hooks";
-import { useUserStore } from "@augurproject/comps";
+import { useUserStore, Stores } from "@augurproject/comps";
 
-// const {
-//  Utils: { getSavedUserInfo },
-// } = Stores;
+const {
+ Utils: { getSavedUserInfo },
+} = Stores;
 
 const { SETTINGS } = SPORT_STATE_KEYS;
 
@@ -23,17 +23,15 @@ export const SportStore = {
 const useLoadUserSettings = () => {
   const { account } = useUserStore();
   useEffect(() => {
-    SportStore.actions.updateSettings(DEFAULT_SPORT_STATE[SETTINGS]);
-    /*
     if (account) {
-      const savedUserSettings = getSavedUserInfo(account)[SETTINGS];
+      const savedUserSettings = getSavedUserInfo(account)[LOCAL_STORAGE_SETTINGS_THEME];
+      console.log("account", account, savedUserSettings, getSavedUserInfo(account));
       if (savedUserSettings) {
         SportStore.actions.updateSettings(savedUserSettings);
       }
     } else {
       SportStore.actions.updateSettings(DEFAULT_SPORT_STATE[SETTINGS]);
     }
-    */
   }, [account]);
 };
 

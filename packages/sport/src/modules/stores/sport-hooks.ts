@@ -1,24 +1,22 @@
 import { useReducer } from "react";
-import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS } from "./constants";
+import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME } from "./constants";
 import { windowRef, Stores } from "@augurproject/comps";
 const {
-  Utils: { dispatchMiddleware },
+  Utils: { dispatchMiddleware, getSavedUserInfo },
 } = Stores;
 const { UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
 
 const { SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
-  // const userData = getSavedUserInfo(userAccount);
-  // don't set settings, conflicts with simp
-  return;
-  /*
+  const userData = getSavedUserInfo(userAccount);
+  console.log("update local storage in sport hooks", userAccount, userData);
   if (userData) {
     window.localStorage.setItem(
       userAccount,
       JSON.stringify({
         ...userData,
-        settings: updatedState[SETTINGS],
+        [LOCAL_STORAGE_SETTINGS_THEME]: updatedState[SETTINGS],
       })
     );
   } else if (!!userAccount) {
@@ -26,11 +24,10 @@ const updateLocalStorage = (userAccount, updatedState) => {
       userAccount,
       JSON.stringify({
         account: userAccount,
-        settings: updatedState[SETTINGS],
+        [LOCAL_STORAGE_SETTINGS_THEME]: updatedState[SETTINGS],
       })
     );
   }
-  */
 };
 
 export function SportReducer(state, action) {

@@ -161,6 +161,11 @@ export const MARKET_STATUS = {
   SETTLED: "SETTLED",
 };
 
+export const TIME_TYPE = {
+  TWELVE_HOUR_TIME: "12hr",
+  TWENTY_FOUR_HOUR_TIME: "24hr",
+};
+
 export const COMING_SOON = "Coming Soon";
 
 export const categoryItems = [

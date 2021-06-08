@@ -1,48 +1,45 @@
-@import (reference) '~assets/styles/shared.less';
+@import (reference) "~assets/styles/shared.less";
 
 .App {
-  // display: flex;
-  // flex-flow: column nowrap;
-  display: grid;
-  grid-template-columns: 1fr @betslip-column-width;
+  display: flex;
+  flex-flow: column nowrap;
   flex: 1;
   position: relative;
 
-  @media @breakpoint-mobile-tablet {
-    display: flex;
-    flex-flow: column nowrap;
-  }
-
-  // top nav
-  > section:first-of-type {
-    grid-column: span 2;
-    grid-row: 1;
-  }
-
-  > section[class*="Betslip"] {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: @sports-top-bar-height;
-  }
-  
-  > div {
-    // max-width: @desktop-max;
-    box-sizing: border-box;
+  > main {
+    display: grid;
+    grid-template-columns: 1fr @betslip-column-width;
+    max-width: @desktop-max;
     width: 100%;
-    min-height: 100vh;
-    margin: @sports-top-bar-height auto 0;
-    margin-top: @sports-top-bar-height;
-    grid-column: 1;
-    grid-row: 2;
+    margin: 0 auto;
+
+    > section[class*="Betslip"] {
+      grid-column: 2;
+      grid-row: 2;
+      margin-top: @sports-top-bar-height;
+    }
+
+    > div {
+      // max-width: @desktop-max;
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 100vh;
+      margin: @sports-top-bar-height auto 0;
+      margin-top: @sports-top-bar-height;
+      grid-column: 1;
+      grid-row: 2;
+    }
   }
 }
 
 .MyBets {
-  display: flex;
-  flex-flow: column nowrap;
-
-  > section[class*="Betslip"] {
-    display: none;
+  > main {
+    display: flex;
+    flex-flow: column nowrap;
+  
+    > section[class*="Betslip"] {
+      display: none;
+    }
   }
 }
 
@@ -57,14 +54,19 @@
   }
 }
 
-.TwoToneContent { 
-  background: linear-gradient(to right, var(--light-background-color), var(--light-background-color) 50%, var(--simple-light-bg) 51%, var(--simple-light-bg));
+.TwoToneContent {
+  background: linear-gradient(
+    to right,
+    var(--light-background-color),
+    var(--light-background-color) 50%,
+    var(--simple-light-bg) 51%,
+    var(--simple-light-bg)
+  );
 
   @media @breakpoint-mobile-tablet {
     background: unset;
   }
 }
-
 
 body {
   @media @breakpoint-mobile-tablet {

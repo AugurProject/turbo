@@ -154,21 +154,18 @@
 
   &.Open {
     > button {
-      border-top: @size-3 solid var(--simple-outline-color);
-      background-color: var(--simple-light-bg);
-  
       > svg > path {
-        stroke: var(--simple-primary-text);
-        fill: var(--simple-primary-text);
+        stroke: var(--simple-tertiary-text);
+        fill: var(--simple-tertiary-text);
       }
     }
-  } 
+  }
 
   > button {
     background-color: transparent;
     border: @size-1 solid var(--simple-secondary-text);
     border-bottom: 0;
-    border-top: @size-3 solid transparent;
+    border-top: 0;
     border-radius: 0;
     display: flex;
     flex-flow: row nowrap;
@@ -191,30 +188,27 @@
 
     &:hover,
     &:hover:not(:disabled) {
-      background-color: var(--simple-light-bg);
-
       > svg > path {
-        stroke: var(--simple-primary-text);
-        fill: var(--simple-primary-text);
+        stroke: var(--simple-tertiary-text);
+        fill: var(--simple-tertiary-text);
       }
     }
   }
 }
 
 .SettingsMenu {
-  .SimpleBorder;
   .FixedBoxShadow;
+  .SimpleBorder;
+  .SecondaryBorderRadius;
 
   background: var(--simple-light-bg);
   position: absolute;
   right: 0;
-  display: grid;
-  padding: @size-24;
-  grid-gap: @size-24;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto;
-  max-width: 261px;
-  min-width: 261px;
+  top: @size-68;
+  max-width: @size-240;
+  min-width: @size-240;
+  display: flex;
+  flex-flow: column nowrap;
 
   @media @breakpoint-mobile-tablet {
     top: auto;
@@ -223,53 +217,98 @@
   }
 
   > li {
-    > h2 {
-      .text-16-bold;
+    > label {
+      .text-12-semi-bold;
 
       color: var(--simple-primary-text);
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      background: var(--light-background-color);
+      padding: @size-12 @size-14;
+      text-transform: uppercase;
       margin: 0;
     }
 
-    > label {
-      .text-14;
+    &:not(:first-of-type) > label {
+      border-top: @size-1 solid var(--simple-border);
+    }
 
-      color: var(--simple-primary-text);
-      margin-bottom: @size-12;
+    > ul {
       display: flex;
-      align-items: center;
-      line-height: @size-22;
+      flex-flow: column nowrap;
+      border-top: @size-1 solid var(--simple-border);
 
-      > span {
-        margin-left: @size-5;
+      > li {
+        padding: 0 @size-12;
+
+        > button {
+          .text-14;
+
+          color: var(--simple-secondary-text);
+          border: 0;
+          background: transparent;
+          text-transform: capitalize;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+          align-items: center;
+          min-height: @size-44;
+          max-height: @size-44;
+          width: 100%;
+          cursor: pointer;
+
+          > svg {
+            display: none;
+          }
+
+          &.Active {
+            color: var(--simple-primary-text);
+
+            > svg {
+              display: block;
+            }
+          }
+        }
+
+        &:not(:last-of-type) > button {
+          border-bottom: @size-1 solid var(--simple-border);
+        }
       }
     }
 
-    > ul.OddsSelection {
+    > div {
+      border-top: @size-1 solid var(--simple-border);
+      min-height: @size-44;
+      max-height: @size-44;
       display: grid;
-      grid-gap: @size-6;
-      grid-template-columns: 1fr 1fr;
-
-      > li > button {
-        .SimpleBorder;
+      grid-template-columns: auto auto auto;
+      grid-gap: @size-4;
+      padding: @size-8 @size-16;
+      
+      > button {
         .text-12-semi-bold;
-
-        height: @size-25;
-        padding: @size-4 @size-6;
+        .SimpleBorder;
+      
         background: transparent;
         color: var(--simple-secondary-text);
-        text-transform: capitalize;
-        cursor: pointer;
-
-        &:hover {
-          color: var(--simple-primary-text);
-        }
-
-        &.Active {
-          border-color: var(--simple-primary-text);
-          color: var(--simple-primary-text);
-          background: var(--simple-alternate-background);
-        }
       }
+    }
+  }
+
+  & > :first-child {
+    .SecondaryTopBorderRadius;
+
+    & > :first-child {
+      .SecondaryTopBorderRadius;
+    }
+  }
+
+  & > :last-child {
+    .SecondaryBottomBorderRadius;
+
+    & > :last-child {
+      .SecondaryBottomBorderRadius;
     }
   }
 }
@@ -302,7 +341,7 @@
 
         > ol {
           // border-top: @size-1 solid var(--simple-secondary-text);
-    
+
           > li {
             display: flex;
             flex-flow: column nowrap;
@@ -311,30 +350,30 @@
             align-items: center;
             justify-content: center;
             // border-bottom: @size-2 solid transparent;
-    
+
             > a {
               height: 100%;
               display: flex;
               align-items: center;
               // color: var(--simple-light-bg);
             }
-    
+
             &:hover {
               // border-bottom: @size-2 solid var(--simple-light-bg);
-    
+
               > a {
                 color: var(--simple-light-bg);
-    
+
                 &[disabled] {
                   color: var(--simple-secondary-text);
                 }
               }
             }
-    
+
             &.Active,
             &.Active:hover {
               // border-bottom: @size-2 solid var(--simple-outline-color);
-    
+
               > a {
                 color: var(--simple-light-bg);
               }

@@ -24,6 +24,7 @@ import {
 // import { TURBO_NO_ACCESS_MODAL } from "./constants";
 import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
+import { SportsFooter } from './common/sports-footer';
 
 // import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { PORTFOLIO } = Constants;
@@ -135,8 +136,11 @@ const AppBody = () => {
     >
       {modalShowing && <ModalView />}
       <TopNav />
-      <Routes />
-      <Betslip />
+      <main>
+        <Routes />
+        <Betslip />
+      </main>
+      <SportsFooter />
     </div>
   );
 };
