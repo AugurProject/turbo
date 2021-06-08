@@ -36,12 +36,12 @@ export const getSportsResolutionRules = (sportId: string, sportsMarketType: numb
 };
 
 const IgnoreMarkets = {
-  "3": [SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER]
-}
+  "3": [SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER],
+};
 
 export const isIgnoredMarket = (sportId: string, sportsMarketType: number): boolean => {
   // ignore MLB spread and over/under
-  const sport = IgnoreMarkets[sportId]
+  const sport = IgnoreMarkets[sportId];
   if (!sport) return false;
   return sport.includes(sportsMarketType);
-}
+};
