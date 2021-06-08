@@ -21,7 +21,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getSizedPrice } from "modules/utils";
+import { getBuyAmount } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -158,8 +158,9 @@ const EditableBet = ({ betId, bet }) => {
   const amm = market?.amm;
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
+  const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
   const checkErrors = (test) => {
     let returnError = null;
@@ -193,9 +194,10 @@ const EditableBet = ({ betId, bet }) => {
               let updatedToWin = toWin;
               setError(error);
               if (!error) {
-                const sizeOfPool = getSizedPrice(amm, id);
-                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool?.price || "1"));
-                updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
+                const buyAmount = getBuyAmount(amm, id, value);
+                console.log('buyAmount', buyAmount)
+                setUpdatedPrice(buyAmount?.price)
+                updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
               }
               setValue(fmtValue);
               updateBet({
