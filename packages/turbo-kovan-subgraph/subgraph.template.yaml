@@ -5,7 +5,7 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: AmmFactory1
+    name: AmmFactory
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball.ammFactory }}'
@@ -33,7 +33,7 @@ dataSources:
         - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
-    name: AbstractMarketFactory1
+    name: AbstractMarketFactory
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball.address }}' # use SportsLinkMarketFactory
