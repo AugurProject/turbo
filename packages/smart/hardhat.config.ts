@@ -7,10 +7,12 @@ import "@tenderly/hardhat-tenderly";
 
 import { HardhatUserConfig } from "hardhat/config";
 import "./tasks";
-import { mapOverObject, NULL_ADDRESS } from "./src/";
+import { mapOverObject } from "./src/";
 import { NetworkUserConfig } from "hardhat/types";
 
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
+
+export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -49,18 +51,14 @@ const config: HardhatUserConfig = {
     kovan: {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
       gas: 9000000, // to fit createPool calls, which fails to estimate gas correctly
-      deployConfig: {
-        linkNode: "", // TODO need a real value
-      },
+      deployConfig: {},
     },
     arbitrumKovan4: {
       url: "https://kovan4.arbitrum.io/rpc",
       chainId: 212984383488152,
       gas: 200000000, // arbitrum has as higher gas limit and cost for contract deploys from contracts
       gasPrice: 1,
-      deployConfig: {
-        linkNode: "", // TODO need a real value
-      },
+      deployConfig: {},
     },
     maticMumbai: {
       url: "https://rpc-mumbai.maticvigil.com/v1/d955b11199dbfd5871c21bdc750c994edfa52abd",
@@ -78,6 +76,8 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       deployConfig: {
         linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
+        owner: NULL_ADDRESS,
+        protocol: NULL_ADDRESS,
         externalAddresses: {
           usdcToken: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
           // reputationToken: NULL_ADDRESS, // no staking fees yet
