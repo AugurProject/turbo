@@ -34,7 +34,11 @@ task("deploy", "Deploy Turbo").setAction(async (args, hre, runSuper) => {
 
 export interface DeployConfig {
   externalAddresses?: ExternalAddresses;
-  linkNode: string; // address of link node running cron-initiated jobs to create and resolve markets
+
+  // On deploy, these default to deployer. They can be changed later.
+  linkNode?: string; // address of link node running cron-initiated jobs to create and resolve markets
+  owner?: string; // address which will own (control fees etc) the market factory
+  protocol?: string; // address that receives protocol fees
 }
 
 export interface ExternalAddresses {

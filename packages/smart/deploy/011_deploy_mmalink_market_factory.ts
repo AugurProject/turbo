@@ -25,12 +25,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.05%
   const protocolFee = 0;
 
-  const owner = NULL_ADDRESS;
-  const protocol = NULL_ADDRESS;
-  // default to deployer for manual testing
-  const linkNode = hre.network.config.deployConfig?.linkNode || owner;
+  const owner = hre.network.config.deployConfig?.owner || deployer;
+  const protocol = hre.network.config.deployConfig?.protocol || deployer;
+  const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const sportId = 4;
+  const sportId = 7;
 
   const args: Parameters<MMALinkMarketFactory__factory["deploy"]> = [
     owner,
