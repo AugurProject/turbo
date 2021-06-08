@@ -1370,9 +1370,14 @@ export const getMarketInfos = async (
       addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...hiddenMarketsIds, ...existingEventIds]);
 
       const filteredMarketIds = Object.keys(marketInfos).reduce(
-        (p, id) => (existingEvents.includes(marketInfos[id]?.eventId) ? p : { ...p, [id]: marketInfos[id] }),
+        (p, id) =>
+          existingEvents.includes(marketInfos[id]?.eventId) ||
+          isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType)
+            ? p
+            : { ...p, [id]: marketInfos[id] },
         {}
       );
+
       return {
         markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
