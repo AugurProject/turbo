@@ -5,7 +5,7 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: AmmFactory
+    name: AmmFactory1
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball.ammFactory }}'
@@ -33,7 +33,7 @@ dataSources:
         - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
-    name: AbstractMarketFactory
+    name: AbstractMarketFactory1
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball.address }}' # use SportsLinkMarketFactory
@@ -56,7 +56,7 @@ dataSources:
         - event: SettlementFeeClaimed(address,uint256,indexed address)
           handler: handleSettlementFeeClaimedEvent
   - kind: ethereum/contract
-    name: AmmFactory
+    name: AmmFactory2
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball2.ammFactory }}'
@@ -84,7 +84,7 @@ dataSources:
         - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
-    name: AbstractMarketFactory
+    name: AbstractMarketFactory2
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.sportsball2.address }}' # use SportsLinkMarketFactory
@@ -107,7 +107,7 @@ dataSources:
         - event: SettlementFeeClaimed(address,uint256,indexed address)
           handler: handleSettlementFeeClaimedEvent
   - kind: ethereum/contract
-    name: AmmFactory
+    name: AmmFactory3
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.mma.ammFactory }}'
@@ -135,7 +135,7 @@ dataSources:
         - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
           handler: handleSharesSwappedEvent
   - kind: ethereum/contract
-    name: AbstractMarketFactory
+    name: AbstractMarketFactory3
     network: {{ info.graphName }}
     source:
       address: '{{ marketFactories.mma.address }}' # use SportsLinkMarketFactory
