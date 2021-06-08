@@ -73,7 +73,7 @@ import {
   estimateBuy,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
-import { getOutcomeName, getMarketTitle } from "./derived-market-data";
+import { getOutcomeName, getMarketTitle, isIgnoredMarket } from "./derived-market-data";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).toFixed(6);
 interface LiquidityProperties {
@@ -1357,17 +1357,27 @@ export const getMarketInfos = async (
         .filter((id) => marketInfos[id]?.hasWinner)
         .map((id) => Number(marketInfos[id]?.turboId));
 
+      // hide mlb spread and over/under markets
+      const hiddenMarketsIds = Object.keys(marketInfos)
+        .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
+        .map((id) => Number(marketInfos[id]?.turboId));
+
       // filter out dup eventIds
       const existingEventIds = Object.keys(marketInfos)
         .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
         .map((id) => Number(marketInfos[id]?.turboId));
 
-      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...existingEventIds]);
+      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...hiddenMarketsIds, ...existingEventIds]);
 
       const filteredMarketIds = Object.keys(marketInfos).reduce(
-        (p, id) => (existingEvents.includes(marketInfos[id]?.eventId) ? p : { ...p, [id]: marketInfos[id] }),
+        (p, id) =>
+          existingEvents.includes(marketInfos[id]?.eventId) ||
+          isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType)
+            ? p
+            : { ...p, [id]: marketInfos[id] },
         {}
       );
+
       return {
         markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
