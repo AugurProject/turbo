@@ -39,13 +39,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         type: "SportsLink",
         address: sportsLinkMarketFactory.address,
         collateral,
-        ammFactory: ammFactory.address
+        ammFactory: ammFactory.address,
       },
       mma: {
         type: "SportsLink",
         address: mmaLinkMarketFactory.address,
         collateral,
-        ammFactory: ammFactory.address
+        ammFactory: ammFactory.address,
       },
     },
     info: {

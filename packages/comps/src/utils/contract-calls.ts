@@ -1273,12 +1273,17 @@ const isOldMarketFactory = (address) => {
   return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
 };
 
-const marketFactories = (): {address: string, ammFactory: string}[] => {
+const marketFactories = (): { address: string; ammFactory: string }[] => {
   const { marketFactories } = PARA_CONFIG;
-  const marketAddresses = [{ address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory }];
+  const marketAddresses = [
+    { address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory },
+  ];
   // make sure sportsball2 exists in addresses before trying to add
   if (marketFactories?.sportsball2?.address) {
-    marketAddresses.push({address: marketFactories.sportsball2.address, ammFactory: marketFactories.sportsball2.ammFactory });
+    marketAddresses.push({
+      address: marketFactories.sportsball2.address,
+      ammFactory: marketFactories.sportsball2.ammFactory,
+    });
   }
   // TODO: add in MMA when there are real mma markets
   /*
@@ -1311,7 +1316,9 @@ export const getMarketInfos = async (
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
-    factories.map(({ address, ammFactory }) => getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList))
+    factories.map(({ address, ammFactory }) =>
+      getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList)
+    )
   );
 
   let existingEvents = [];
@@ -1348,9 +1355,14 @@ export const getMarketInfos = async (
       // only update open markets after initial load
       const ids = Object.keys(marketInfos)
         .filter((id) => marketInfos[id]?.hasWinner)
-        .filter((id) => !existingEvents.includes(marketInfos[id]?.eventId))
         .map((id) => Number(marketInfos[id]?.turboId));
-      addResolvedMarketToList(ignoreList, factoryAddress, ids);
+
+      // filter out dup eventIds
+      const existingEventIds = Object.keys(marketInfos)
+        .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
+        .map((id) => Number(marketInfos[id]?.turboId));
+
+      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...existingEventIds]);
 
       const filteredMarketIds = Object.keys(marketInfos).reduce(
         (p, id) => (existingEvents.includes(marketInfos[id]?.eventId) ? p : { ...p, [id]: marketInfos[id] }),
@@ -1404,7 +1416,7 @@ const retrieveMarkets = async (
   provider: Web3Provider,
   account: string,
   factoryAddress: string,
-  ammFactory: string,
+  ammFactory: string
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
