@@ -19,7 +19,7 @@ import {
   Formatter,
   Components,
 } from "@augurproject/comps";
-const { GearIcon, ThreeLinesIcon } = Icons;
+const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 // const { SecondaryButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
@@ -49,27 +49,33 @@ export const SettingsButton = () => {
       window.removeEventListener("click", handleWindowOnClick);
     };
   });
+
   return (
     <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
       <button onClick={() => setOpened(!open)}>{GearIcon}</button>
       {open && (
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>
-            <h2>Settings</h2>
-          </li>
-          <li>
-            <label htmlFor="switchTime">Display time in 24hr format</label>
-            <ToggleSwitch
-              id="switchTime"
-              toggle={is24hour}
-              setToggle={() =>
-                updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
-              }
-            />
+            <label htmlFor="timeFormat">Time Format</label>
+            <ul className={Styles.OptionsSection} id="timeFormat">
+              <>
+                {Object.entries(Constants.TIME_TYPE).map(([timeName, timeType]) => (
+                  <li>
+                    <button
+                      className={classNames({ [Styles.Active]: timeType === timeFormat })}
+                      onClick={() => timeType !== timeFormat && updateSettings({ timeFormat: timeType })}
+                    >
+                      {timeType === TWELVE_HOUR_TIME ? "AM / PM" : "24hr"}
+                      {SimpleCheck}
+                    </button>
+                  </li>
+                ))}
+              </>
+            </ul>
           </li>
           <li>
             <label htmlFor="oddsFormat">Odds Format</label>
-            <ul className={Styles.OddsSelection} id="oddsFormat">
+            <ul className={Styles.OptionsSection} id="oddsFormat">
               <>
                 {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
                   <li>
@@ -78,11 +84,20 @@ export const SettingsButton = () => {
                       onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType })}
                     >
                       {oddType.toLowerCase()}
+                      {SimpleCheck}
                     </button>
                   </li>
                 ))}
               </>
             </ul>
+          </li>
+          <li>
+            <label htmlFor="betSize">Bet Size to odds display</label>
+            <div>
+              <button onClick={() => {}}>5%</button>
+              <button onClick={() => {}}>10%</button>
+              <button onClick={() => {}}>15%</button>
+            </div>
           </li>
         </ul>
       )}
@@ -152,26 +167,26 @@ export const TopNav = () => {
       <section>
         <LinkLogo />
         {!isMobile && (
-        <ol>
-          <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-            <Link placeholder="Markets" to={makePath(MARKETS)}>
-              Markets
-            </Link>
-          </li>
-          <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
-            <Link
-              onClick={(e) => {
-                !isLogged && e.preventDefault();
-              }}
-              disabled={!isLogged}
-              to={makePath(PORTFOLIO)}
-              placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
-            >
-              My Bets
-            </Link>
-          </li>
-        </ol>
-      )}
+          <ol>
+            <li className={classNames({ [Styles.Active]: path === MARKETS })}>
+              <Link placeholder="Markets" to={makePath(MARKETS)}>
+                Markets
+              </Link>
+            </li>
+            <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
+              <Link
+                onClick={(e) => {
+                  !isLogged && e.preventDefault();
+                }}
+                disabled={!isLogged}
+                to={makePath(PORTFOLIO)}
+                placeholder={isLogged ? "My Bets" : "Please Login to view your bets"}
+              >
+                My Bets
+              </Link>
+            </li>
+          </ol>
+        )}
       </section>
       <section>
         <div>
