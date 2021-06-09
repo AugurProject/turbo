@@ -87,7 +87,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>
               <TinyThemeButton
                 customClass={determineClasses(bet)}
-                onClick={() => {}}
+                action={() => {}}
                 disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
                 text={
                   !bet.hasCashedOut && !bet.canCashOut
