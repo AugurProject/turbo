@@ -10,7 +10,6 @@ const { SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPO
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
-  console.log("update local storage in sport hooks", userAccount, userData);
   if (userData) {
     window.localStorage.setItem(
       userAccount,

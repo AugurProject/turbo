@@ -25,7 +25,6 @@ const useLoadUserSettings = () => {
   useEffect(() => {
     if (account) {
       const savedUserSettings = getSavedUserInfo(account)[LOCAL_STORAGE_SETTINGS_THEME];
-      console.log("account", account, savedUserSettings, getSavedUserInfo(account));
       if (savedUserSettings) {
         SportStore.actions.updateSettings(savedUserSettings);
       }

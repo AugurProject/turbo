@@ -22,10 +22,9 @@ const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
 const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC } = Constants;
 
-
 export const SettingsButton = () => {
   const {
-    settings: { oddsFormat, timeFormat },
+    settings: { oddsFormat, timeFormat, betSizeToOdds },
     actions: { updateSettings },
   } = useSportsStore();
   const { account } = useUserStore();
@@ -53,7 +52,7 @@ export const SettingsButton = () => {
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>
             <label htmlFor="timeFormat">Time Format</label>
-            <ul className={Styles.OptionsSection} id="timeFormat">
+            <ul id="timeFormat">
               <>
                 {Object.entries(Constants.TIME_TYPE).map(([timeName, timeType]) => (
                   <li>
@@ -71,7 +70,7 @@ export const SettingsButton = () => {
           </li>
           <li>
             <label htmlFor="oddsFormat">Odds Format</label>
-            <ul className={Styles.OptionsSection} id="oddsFormat">
+            <ul id="oddsFormat">
               <>
                 {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
                   <li>
@@ -90,9 +89,24 @@ export const SettingsButton = () => {
           <li>
             <label htmlFor="betSize">Bet Size to odds display</label>
             <div>
-              <button onClick={() => {}}>5%</button>
-              <button onClick={() => {}}>10%</button>
-              <button onClick={() => {}}>15%</button>
+              <button
+                className={classNames({ [Styles.Active]: "5" === betSizeToOdds })}
+                onClick={() => betSizeToOdds !== "5" && updateSettings({ betSizeToOdds: "5" }, account)}
+              >
+                5%
+              </button>
+              <button
+                className={classNames({ [Styles.Active]: "10" === betSizeToOdds })}
+                onClick={() => betSizeToOdds !== "10" && updateSettings({ betSizeToOdds: "10" }, account)}
+              >
+                10%
+              </button>
+              <button
+                className={classNames({ [Styles.Active]: "15" === betSizeToOdds })}
+                onClick={() => betSizeToOdds !== "15" && updateSettings({ betSizeToOdds: "15" }, account)}
+              >
+                15%
+              </button>
             </div>
           </li>
         </ul>
