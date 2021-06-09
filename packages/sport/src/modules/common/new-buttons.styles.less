@@ -17,7 +17,7 @@
   --primary-button-text-color: var(--dark-button-theme-color);
 
   --primary-button-background-hover: var(--inverted-primary-button-theme-background-color);
-  --primary-button-border-color-hover: var(--dark-button-theme-color);
+  --primary-button-border-color-hover: var(--primary-button-theme-color);
   --primary-button-border-hover: @size-1 solid var(--primary-button-border-color-hover);
   --primary-button-text-color-hover: var(--dark-button-theme-color);
 
@@ -27,7 +27,7 @@
   --primary-button-text-color-focus: var(--dark-button-theme-color);
 
   --primary-button-background-pressed: var(--inverted-primary-button-theme-background-color);
-  --primary-button-border-color-pressed: var(--dark-button-theme-color);
+  --primary-button-border-color-pressed: var(--primary-button-theme-color);
   --primary-button-border-pressed: @size-1 solid var(--primary-button-border-color-pressed);
   --primary-button-text-color-pressed: var(--dark-button-theme-color);
 
@@ -60,7 +60,7 @@
   --secondary-button-background-hover: var(--inverted-secondary-button-theme-background-color);
   --secondary-button-border-color-hover: var(--tiny-light-button-theme-color);
   --secondary-button-border-hover: @size-1 solid var(--secondary-button-border-color-hover);
-  --secondary-button-text-color-hover: var(--light-button-theme-color);
+  --secondary-button-text-color-hover: var(--dark-button-theme-color);
 
   --secondary-button-background-focus: var(--secondary-button-theme-background-color);
   --secondary-button-border-color-focus: var(--theme-focus-border-color);
@@ -70,7 +70,7 @@
   --secondary-button-background-pressed: var(--inverted-secondary-button-theme-background-color);
   --secondary-button-border-color-pressed: var(--tiny-light-button-theme-color);
   --secondary-button-border-pressed: @size-1 solid var(--secondary-button-border-color-pressed);
-  --secondary-button-text-color-pressed: var(--light-button-theme-color);
+  --secondary-button-text-color-pressed: var(--dark-button-theme-color);
 
   --inverted-secondary-button-background: transparent;
   --inverted-secondary-button-border-color: var(--light-button-theme-color);
@@ -330,6 +330,7 @@
 .BaseNormalButton {
   .text-default;
 
+  border-radius: var(--theme-button-border-radius);
   min-height: var(--normal-button-height);
   height: var(--normal-button-height);
   max-height: var(--normal-button-height);
@@ -409,8 +410,6 @@
 }
 
 .Primary {
-  .PrimaryBorderRadius;
-
   background: var(--primary-button-background);
   border: var(--primary-button-border);
   color: var(--primary-button-text-color);
@@ -567,8 +566,6 @@
 }
 
 .Secondary {
-  .PrimaryBorderRadius;
-
   background: var(--secondary-button-background);
   border: var(--secondary-button-border);
   color: var(--secondary-button-text-color);
@@ -726,8 +723,6 @@
 }
 
 .Tiny {
-  .PrimaryBorderRadius;
-
   background: var(--tiny-button-background);
   border: var(--tiny-button-border);
   color: var(--tiny-button-text-color);

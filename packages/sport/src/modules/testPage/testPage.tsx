@@ -31,28 +31,28 @@ export const TestPage = () => {
       <TinyThemeButton text="tiny button Icon" icon={CopyIcon} />
       <TinyThemeButton text="tiny button Icon Reversed" reverseContent icon={CopyIcon} />
       <div>
-        <PrimaryThemeButton text="inverted primary" invert />
-        <PrimaryThemeButton text="inverted primary disabled" disabled invert />
-        <PrimaryThemeButton text="inverted primary Icon" icon={SimpleCheck} invert />
-        <PrimaryThemeButton text="inverted primary Icon Reversed" reverseContent icon={SimpleCheck} invert />
-        <PrimaryThemeButton text="inverted primary small" small invert />
-        <PrimaryThemeButton text="inverted primary small disabled" small disabled invert />
-        <PrimaryThemeButton text="inverted primary small Icon" small icon={SimpleCheck} invert />
-        <PrimaryThemeButton text="inverted primary small Icon Reversed" small reverseContent icon={SimpleCheck} invert />
+        <PrimaryThemeButton text="primary" invert />
+        <PrimaryThemeButton text="primary disabled" disabled invert />
+        <PrimaryThemeButton text="primary Icon" icon={SimpleCheck} invert />
+        <PrimaryThemeButton text="primary Icon Reversed" reverseContent icon={SimpleCheck} invert />
+        <PrimaryThemeButton text="primary small" small invert />
+        <PrimaryThemeButton text="primary small disabled" small disabled invert />
+        <PrimaryThemeButton text="primary small Icon" small icon={SimpleCheck} invert />
+        <PrimaryThemeButton text="primary small Icon Reversed" small reverseContent icon={SimpleCheck} invert />
 
-        <SecondaryThemeButton text="inverted secondary" invert />
-        <SecondaryThemeButton text="inverted secondary disabled" disabled invert />
-        <SecondaryThemeButton text="inverted secondary Icon" icon={TrashIcon} invert />
-        <SecondaryThemeButton text="inverted secondary Icon Reversed" reverseContent icon={TrashIcon} invert />
-        <SecondaryThemeButton text="inverted secondary small" small invert />
-        <SecondaryThemeButton text="inverted secondary small disabled" small disabled invert />
-        <SecondaryThemeButton text="inverted secondary small Icon" small icon={TrashIcon} invert />
-        <SecondaryThemeButton text="inverted secondary small Icon Reversed" small reverseContent icon={TrashIcon} invert />
+        <SecondaryThemeButton text="secondary" invert />
+        <SecondaryThemeButton text="secondary disabled" disabled invert />
+        <SecondaryThemeButton text="secondary Icon" icon={TrashIcon} invert />
+        <SecondaryThemeButton text="secondary Icon Reversed" reverseContent icon={TrashIcon} invert />
+        <SecondaryThemeButton text="secondary small" small invert />
+        <SecondaryThemeButton text="secondary small disabled" small disabled invert />
+        <SecondaryThemeButton text="secondary small Icon" small icon={TrashIcon} invert />
+        <SecondaryThemeButton text="secondary small Icon Reversed" small reverseContent icon={TrashIcon} invert />
 
-        <TinyThemeButton text="inverted tiny" invert />
-        <TinyThemeButton text="inverted tiny disabled" disabled invert />
-        <TinyThemeButton text="inverted tiny Icon" icon={CopyIcon} invert />
-        <TinyThemeButton text="inverted tiny Icon Reversed" reverseContent icon={CopyIcon} invert />
+        <TinyThemeButton text="tiny" invert />
+        <TinyThemeButton text="tiny disabled" disabled invert />
+        <TinyThemeButton text="tiny Icon" icon={CopyIcon} invert />
+        <TinyThemeButton text="tiny Icon Reversed" reverseContent icon={CopyIcon} invert />
       </div>
     </div>
   );
