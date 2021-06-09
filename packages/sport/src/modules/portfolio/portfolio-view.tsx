@@ -18,7 +18,7 @@ const {
 } = Stores;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { PrimaryButton },
+  ButtonComps: { PrimaryThemeButton },
   Icons: { WinnerMedal },
   InputComps: { SearchInput },
 } = Components;
@@ -151,16 +151,16 @@ export const ClaimWinningsSection = () => {
       {isLogged && !hasFees && <div>{WinnerMedal} Any winnings will show here</div>}
       {isLogged && hasFees && (
         <>
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
         </>
       )}
       {isLogged && USDCTotals.hasWinnings && (
         <ClaimableTicket
           amount={formatCash(USDCTotals.total, usdcCash?.name).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
               subText={pendingClaim && `(Confirm this transaction in your wallet)`}
               disabled={disableClaimUSDCWins}
@@ -183,7 +183,7 @@ export const ClaimWinningsSection = () => {
         <ClaimableTicket
           amount={formatCash(ETHTotals.total, ethCash?.name).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text="Claim Winnings"
               action={() => {
                 handleClaimAll(
@@ -204,7 +204,7 @@ export const ClaimWinningsSection = () => {
         <ClaimableTicket
           amount={formatCash(claimableFees, USDC).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text={!pendingClaimFees ? `Claim Fees` : `Awaiting Signature`}
               disabled={disableClaimUSDCFees}
               action={() => {

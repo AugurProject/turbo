@@ -23,7 +23,7 @@ import {
 import { useSportsStore } from "modules/stores/sport";
 import { getSizedPrice } from "modules/utils";
 
-const { PrimaryButton, SecondaryButton } = ButtonComps;
+const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
 const { SimpleCheck, SimpleChevron } = Icons;
@@ -121,7 +121,7 @@ export const EmptyBetslip = () => {
   ) : (
     <>
       <p>You need to sign in to start betting!</p>
-      <PrimaryButton
+      <PrimaryThemeButton
         text="Sign Up"
         action={() =>
           setModal({
@@ -382,13 +382,13 @@ const BetslipFooter = () => {
             You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
             win
           </p>
-          <SecondaryButton
-            className={Styles.FlipContent}
+          <SecondaryThemeButton
             text="Cancel All"
             icon={TrashIcon}
+            reverseContent
             action={() => cancelAllBets()}
           />
-          <PrimaryButton
+          <PrimaryThemeButton
             text="Place Bets"
             action={() => {
               console.log("place bets hit", bets, bets.length);
