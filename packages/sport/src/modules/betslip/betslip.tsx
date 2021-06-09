@@ -21,7 +21,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getSizedPrice } from "modules/utils";
+import { getBuyAmount, makeBet } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -158,8 +158,9 @@ const EditableBet = ({ betId, bet }) => {
   const amm = market?.amm;
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
+  const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
   const checkErrors = (test) => {
     let returnError = null;
@@ -193,9 +194,9 @@ const EditableBet = ({ betId, bet }) => {
               let updatedToWin = toWin;
               setError(error);
               if (!error) {
-                const sizeOfPool = getSizedPrice(amm, id);
-                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool?.price || "1"));
-                updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
+                const buyAmount = getBuyAmount(amm, id, value);
+                setUpdatedPrice(buyAmount?.price)
+                updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
               }
               setValue(fmtValue);
               updateBet({
@@ -249,7 +250,9 @@ const BetReciept = ({ tx_hash, bet }) => {
   const {
     actions: { removeActive },
   } = useBetslipStore();
-  const { price, name, heading, status, canCashOut, hasCashedOut } = bet;
+  const { transactions } = useUserStore();
+  const { price, name, heading, canCashOut, hasCashedOut } = bet;
+  const status = transactions.find(t => t.hash === tx_hash)?.status || bet.status;
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -357,6 +360,12 @@ const determineBetTotals = (bets: Array<BetType>) => {
 };
 
 const BetslipFooter = () => {
+  const {
+    account,
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const { markets } = useDataStore();
   const { isLogged } = useAppStatusStore();
   const {
     selectedView,
@@ -390,17 +399,17 @@ const BetslipFooter = () => {
           />
           <PrimaryThemeButton
             text="Place Bets"
-            action={() => {
-              console.log("place bets hit", bets, bets.length);
+            action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
-                console.log(bet, betId);
-                const signed = MOCK_PROMPT_SIGNATURE({ name: `$${bet.wager} on ${bet.name}` });
-                if (signed) {
+                const { amm } = markets[bet.marketId];
+                const txDetails = await makeBet(loginAccount, amm, bet.id, bet.wager, account, amm.cash);
+                if (txDetails.hash) {
                   addActive({
                     ...bet,
-                    hash: `0xFakeHash-${bet.betId}-${Math.round(Math.random() * 99999999999)}`
+                    ...txDetails
                   });
+                  addTransaction(txDetails);
                 }
               }
             }}
