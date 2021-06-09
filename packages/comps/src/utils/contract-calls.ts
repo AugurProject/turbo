@@ -1272,7 +1272,7 @@ export const getERC1155ApprovedForAll = async (
 const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
 const isOldMarketFactory = (address) => {
   const factories = marketFactories();
-  const oldest = factories.find(f => f.version === OLDEST_MARKET_FACTORY_VER);
+  const oldest = factories.find((f) => f.version === OLDEST_MARKET_FACTORY_VER);
   return address.toUpperCase() === oldest.address.toUpperCase();
 };
 
