@@ -443,7 +443,6 @@ export async function doTrade(
   outcomeShareTokensIn: string[] = []
 ) {
   if (!provider) return console.error("doTrade: no provider");
-  console.log('cash', cash);
   const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const { marketFactoryAddress, turboId } = amm;
   const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();

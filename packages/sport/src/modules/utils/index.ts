@@ -1,10 +1,10 @@
 import { BigNumber as BN } from "bignumber.js";
-import { AmmExchange, Cash, PositionBalance } from "@augurproject/comps/build/types";
+import { AmmExchange, Cash, LoginAccount, PositionBalance, TransactionDetails } from "@augurproject/comps/build/types";
 import { ContractCalls } from "@augurproject/comps";
 import { TransactionReceipt } from 'web3-core'
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import Web3 from 'web3'
-import { TradingDirection } from "@augurproject/comps/build/utils/constants";
+import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 
@@ -50,12 +50,13 @@ export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): s
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
-export const makeBet = async (provider: Web3Provider, amm: AmmExchange, id: number, amount: string, account: string, cash: Cash): Promise<string> => {
+export const makeBet = async (loginAccount: LoginAccount, amm: AmmExchange, id: number, amount: string, account: string, cash: Cash): Promise<TransactionDetails> => {
   const defaultSlippage = "1";
-  const minAmount = "0";
+  const est = estimateBuyTrade(amm, amount, Number(id), amm?.cash);
+  const minAmount = est.outputValue;
   const response = await doTrade(
     TradingDirection.ENTRY,
-    provider,
+    loginAccount?.library,
     amm,
     minAmount,
     amount,
@@ -65,5 +66,13 @@ export const makeBet = async (provider: Web3Provider, amm: AmmExchange, id: numb
     defaultSlippage,
     []
   );
-  return response?.hash;
+  return {
+    hash: response?.hash,
+    chainId: String(loginAccount.chainId),
+    seen: false,
+    status: TX_STATUS.PENDING,
+    from: account,
+    addedTime: new Date().getTime(),
+    marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
+  }
 }

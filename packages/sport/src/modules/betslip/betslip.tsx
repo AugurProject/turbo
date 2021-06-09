@@ -250,7 +250,9 @@ const BetReciept = ({ tx_hash, bet }) => {
   const {
     actions: { removeActive },
   } = useBetslipStore();
-  const { price, name, heading, status, canCashOut, hasCashedOut } = bet;
+  const { transactions } = useUserStore();
+  const { price, name, heading, canCashOut, hasCashedOut } = bet;
+  const status = transactions.find(t => t.hash === tx_hash)?.status || bet.status;
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -401,12 +403,13 @@ const BetslipFooter = () => {
               for (const betId in bets) {
                 const bet = bets[betId];
                 const { amm } = markets[bet.marketId];
-                const txHash = await makeBet(loginAccount?.library, amm, bet.id, bet.wager, account, amm.cash);
-                if (txHash) {
+                const txDetails = await makeBet(loginAccount, amm, bet.id, bet.wager, account, amm.cash);
+                if (txDetails.hash) {
                   addActive({
                     ...bet,
-                    hash: txHash
+                    ...txDetails
                   });
+                  addTransaction(txDetails);
                 }
               }
             }}
