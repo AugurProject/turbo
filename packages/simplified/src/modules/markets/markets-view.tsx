@@ -62,6 +62,14 @@ const applyFiltersAndSort = (
     (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
   );
 
+  // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
+  // Filter out spread markets whose "value" (target home spread) is exactly 5,  Since this is identical to a head-to-head market.
+  const SPORTS_MARKET_TYPE_SPREAD = 1;
+  updatedFilteredMarkets = updatedFilteredMarkets.filter(market => {
+    return market.sportsMarketType !== SPORTS_MARKET_TYPE_SPREAD ||
+           market.sportsMarketType === SPORTS_MARKET_TYPE_SPREAD && market.spreadLine !== 5;
+  });
+
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
       const { title, description, categories, outcomes } = market;
@@ -118,7 +126,7 @@ const applyFiltersAndSort = (
   updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
     const aTransactions = transactions ? transactions[marketA.marketId] : {};
     const bTransactions = transactions ? transactions[marketB.marketId] : {};
-    
+
     const mod = reportingState === RESOLVED ? -1 : 1;
     if (sortBy === TOTAL_VOLUME) {
       return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
@@ -133,7 +141,7 @@ const applyFiltersAndSort = (
   });
 
   if (sortBy !== STARTS_SOON) {
-    // if we aren't doing start time, then move illiquid markets to the back 
+    // if we aren't doing start time, then move illiquid markets to the back
     // half of the list, also sort by start time ascending for those.
     const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
 
