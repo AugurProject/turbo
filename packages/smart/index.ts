@@ -3,12 +3,10 @@ import {
   AMMFactory__factory,
   Cash,
   Cash__factory,
-  TestPriceMarketFactory,
-  TestPriceMarketFactory__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
   TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  TrustedMarketFactory__factory, CryptoMarketFactory__factory, CryptoMarketFactory
 } from "./typechain";
 import { addresses, ChainId, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -26,7 +24,7 @@ export interface ContractInterfaces {
     ammFactory: AMMFactory;
   }[];
 }
-export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | TestPriceMarketFactory;
+export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | CryptoMarketFactory;
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
   const contractAddresses = addresses[chainId];
@@ -56,7 +54,7 @@ function instantiateMarketFactory(
       return SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
     case "Trusted":
       return TrustedMarketFactory__factory.connect(address, signerOrProvider);
-    case "Price":
-      return TestPriceMarketFactory__factory.connect(address, signerOrProvider);
+    case "Crypto":
+      return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   }
 }

@@ -17,7 +17,7 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-export type MarketFactoryType = "SportsLink" | "Trusted" | "Price";
+export type MarketFactoryType = "SportsLink" | "Trusted" | "Crypto";
 export enum ChainId {
   Mainnet = 1,
   Ropsten = 3,
