@@ -1,4 +1,4 @@
-import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE, BETSLIP } from "../constants";
+import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE, BETSLIP, BETSIZE_TO_ODDS } from "../constants";
 import { Constants } from "@augurproject/comps";
 
 export const STUBBED_SPORT_ACTIONS = {
@@ -13,10 +13,11 @@ export const DEFAULT_SPORT_STATE = {
   betslipMinimized: false,
   marketsViewSettings: DEFAULT_MARKET_VIEW_SETTINGS,
   settings: {
+    betSizeToOdds: BETSIZE_TO_ODDS,
     slippage: SETTINGS_SLIPPAGE,
     timeFormat: Constants.TWELVE_HOUR_TIME,
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
-    showLiquidMarkets: false,
+    showLiquidMarkets: true,
   },
 };
 
