@@ -301,7 +301,7 @@ export const PositionFooter = ({
           <PrimaryButton
             text={
               !pendingClaim
-                ? `${isETHClaim && !canClaim ? "Approve to " : ""}Claim Winnings (${
+                ? `${!canClaim ? "Approve to " : ""}Claim Winnings (${
                     formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
                   })`
                 : AWAITING_CONFIRM
