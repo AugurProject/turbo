@@ -1,9 +1,6 @@
 import { BigNumber as BN } from "bignumber.js";
 import { AmmExchange, Cash, LoginAccount, PositionBalance, TransactionDetails } from "@augurproject/comps/build/types";
 import { ContractCalls } from "@augurproject/comps";
-import { TransactionReceipt } from 'web3-core'
-import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
-import Web3 from 'web3'
 import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
