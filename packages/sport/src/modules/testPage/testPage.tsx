@@ -4,9 +4,12 @@ import { Icons, ButtonComps } from "@augurproject/comps";
 import { TrashIcon } from "../betslip/betslip";
 const { SimpleCheck, CopyIcon } = Icons;
 const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
+
+//TODO: Delete this page before launch.
 export const TestPage = () => {
   return (
     <div className={Styles.TestPage}>
+      <h1>!! This page is only visible on Development Environments and should be deleted before launching sportsbook. !!</h1>
       <PrimaryThemeButton text="primary button" />
       <PrimaryThemeButton text="primary button disabled" disabled />
       <PrimaryThemeButton text="primary button Icon" icon={SimpleCheck} />
@@ -30,6 +33,7 @@ export const TestPage = () => {
       <TinyThemeButton text="tiny button Icon" icon={CopyIcon} />
       <TinyThemeButton text="tiny button Icon Reversed" reverseContent icon={CopyIcon} />
       <div>
+        <h2>Inverted versions of all buttons</h2>
         <PrimaryThemeButton text="primary" invert />
         <PrimaryThemeButton text="primary disabled" disabled invert />
         <PrimaryThemeButton text="primary Icon" icon={SimpleCheck} invert />
