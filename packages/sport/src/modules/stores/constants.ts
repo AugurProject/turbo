@@ -85,8 +85,8 @@ export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 0,
   bets: {},
-  active: {}
-}
+  active: {},
+};
 /*
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,

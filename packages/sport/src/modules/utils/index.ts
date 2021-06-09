@@ -15,7 +15,7 @@ export interface BuyAmount {
   maxProfit: string;
 }
 
-export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number = 0.10): SizedPrice => {
+export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number = 0.1): SizedPrice => {
   if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
 
@@ -35,7 +35,7 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
   const est = estimateBuyTrade(amm, amount, Number(id), amm?.cash);
   return {
     price: est?.averagePrice,
-    maxProfit: est?.maxProfit
+    maxProfit: est?.maxProfit,
   };
 };
 
@@ -47,7 +47,14 @@ export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): s
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
-export const makeBet = async (loginAccount: LoginAccount, amm: AmmExchange, id: number, amount: string, account: string, cash: Cash): Promise<TransactionDetails> => {
+export const makeBet = async (
+  loginAccount: LoginAccount,
+  amm: AmmExchange,
+  id: number,
+  amount: string,
+  account: string,
+  cash: Cash
+): Promise<TransactionDetails> => {
   const defaultSlippage = "1";
   const est = estimateBuyTrade(amm, amount, Number(id), amm?.cash);
   const minAmount = est.outputValue;
@@ -71,5 +78,5 @@ export const makeBet = async (loginAccount: LoginAccount, amm: AmmExchange, id: 
     from: account,
     addedTime: new Date().getTime(),
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
-  }
-}
+  };
+};
