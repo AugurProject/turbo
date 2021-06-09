@@ -8,6 +8,7 @@ import {
   Icons,
   useAppStatusStore,
   useUserStore,
+  ButtonComps,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
   PathUtils,
@@ -17,6 +18,7 @@ import {
   Formatter,
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
+const { TinyThemeButton } = ButtonComps;
 const { ConnectAccount } = CompsConnectAccount;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
@@ -89,24 +91,21 @@ export const SettingsButton = () => {
           <li>
             <label htmlFor="betSize">Bet Size to odds display</label>
             <div>
-              <button
-                className={classNames({ [Styles.Active]: "5" === betSizeToOdds })}
-                onClick={() => betSizeToOdds !== "5" && updateSettings({ betSizeToOdds: "5" }, account)}
-              >
-                5%
-              </button>
-              <button
-                className={classNames({ [Styles.Active]: "10" === betSizeToOdds })}
-                onClick={() => betSizeToOdds !== "10" && updateSettings({ betSizeToOdds: "10" }, account)}
-              >
-                10%
-              </button>
-              <button
-                className={classNames({ [Styles.Active]: "15" === betSizeToOdds })}
-                onClick={() => betSizeToOdds !== "15" && updateSettings({ betSizeToOdds: "15" }, account)}
-              >
-                15%
-              </button>
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: "5" === betSizeToOdds }}
+                action={() => betSizeToOdds !== "5" && updateSettings({ betSizeToOdds: "5" }, account)}
+                text="5%"
+              />
+               <TinyThemeButton
+                customClass={{ [Styles.Active]: "10" === betSizeToOdds }}
+                action={() => betSizeToOdds !== "10" && updateSettings({ betSizeToOdds: "10" }, account)}
+                text="10%"
+              />
+               <TinyThemeButton
+                customClass={{ [Styles.Active]: "15" === betSizeToOdds }}
+                action={() => betSizeToOdds !== "15" && updateSettings({ betSizeToOdds: "15" }, account)}
+                text="15%"
+              />
             </div>
           </li>
         </ul>
@@ -195,6 +194,13 @@ export const TopNav = () => {
                 My Bets
               </Link>
             </li>
+            {process.env.NODE_ENV === "development" && (
+              <li className={classNames({ [Styles.Active]: path === "TEST" })}>
+                <Link to={makePath("TEST")} placeholder="Test Page">
+                  Test Page
+                </Link>
+              </li>
+            )}
           </ol>
         )}
       </section>

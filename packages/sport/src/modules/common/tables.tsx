@@ -2,13 +2,14 @@ import React from "react";
 import classNames from "classnames";
 import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
-import { Utils, PaginationComps } from "@augurproject/comps";
+import { Utils, PaginationComps, ButtonComps } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
 const { Pagination } = PaginationComps;
+const { TinyThemeButton } = ButtonComps;
 
 export const EventBetsSection = ({ EventPositionData = {} }) => {
   if (!Object.keys(EventPositionData).length) return null;
@@ -84,17 +85,18 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{bet.toWin && bet.toWin !== "0" ? `$${bet.toWin}` : "-"}</li>
             <li>{getMarketEndtimeFull(bet.date, timeFormat)}</li>
             <li>
-              <button
-                className={classNames(determineClasses(bet))}
-                onClick={() => {}}
+              <TinyThemeButton
+                customClass={determineClasses(bet)}
+                action={() => {}}
                 disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
-              >
-                {!bet.hasCashedOut && !bet.canCashOut
-                  ? "CASHOUT NOT AVAILABLE"
-                  : bet.hasCashedOut
-                  ? `WON: $${bet.cashoutAmount}`
-                  : `CASHOUT: $${bet.cashoutAmount}`}
-              </button>
+                text={
+                  !bet.hasCashedOut && !bet.canCashOut
+                    ? "CASHOUT NOT AVAILABLE"
+                    : bet.hasCashedOut
+                    ? `WON: $${bet.cashoutAmount}`
+                    : `CASHOUT: $${bet.cashoutAmount}`
+                }
+              />
             </li>
           </ul>
         );

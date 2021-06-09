@@ -1,0 +1,32 @@
+@import (reference) "~assets/styles/shared";
+
+.TestPage {
+  padding: @size-16;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: @size-44;
+  grid-gap: @size-8;
+
+  > h1 {
+    grid-column: span 4;
+    grid-row: span 2;
+  }
+
+  > div {
+    grid-column: span 4;
+    grid-row: span 7;
+    background: black;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: @size-44;
+    grid-gap: @size-8;
+    padding: @size-8;
+
+    > h2 {
+      grid-column: span 4;
+      grid-row: 1;
+      color: white;
+      text-align: center;
+    }
+  }
+}
