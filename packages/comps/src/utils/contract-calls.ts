@@ -1269,10 +1269,11 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
 const isOldMarketFactory = (address) => {
   const factories = marketFactories();
-  const newest = factories[0];
-  return address.toUpperCase() !== newest.address.toUpperCase();
+  const oldest = factories.find(f => f.version === OLDEST_MARKET_FACTORY_VER);
+  return address.toUpperCase() === oldest.address.toUpperCase();
 };
 
 const marketFactories = (): MarketFactory[] => {

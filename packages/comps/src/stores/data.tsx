@@ -94,7 +94,7 @@ const output = {
 const getCashesInfo = (): any[] => {
   // @ts-ignore
   const { marketFactories } = PARA_CONFIG;
-  const { collateral: usdcCollateral } = marketFactories.sportsball;
+  const { collateral: usdcCollateral } = marketFactories[0];
   // todo: need to grab all collaterals per market factory
 
   const cashes = [
