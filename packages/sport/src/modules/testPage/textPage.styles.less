@@ -2,10 +2,9 @@
 
 .TestPage {
   padding: @size-16;
-
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 0fr;
+  grid-template-rows: repeat(10, @size-44);
   grid-gap: @size-8;
 
   > div {

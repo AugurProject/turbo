@@ -8,7 +8,7 @@ export enum BUTTON_TYPES {
   TINY = "Tiny",
 }
 
-export interface BaseButtonProps {
+export interface BaseThemeButtonProps {
   id?: string;
   text?: string;
   action?: Function;
@@ -24,7 +24,7 @@ export interface BaseButtonProps {
   small?: boolean;
 }
 
-export const BaseButton = ({
+export const BaseThemeButton = ({
   id,
   customContent = null,
   customClass = null,
@@ -38,7 +38,7 @@ export const BaseButton = ({
   invert = false,
   reverseContent = false,
   small = false,
-}: BaseButtonProps) => {
+}: BaseThemeButtonProps) => {
   const content = customContent ? (
     customContent
   ) : (
@@ -70,9 +70,9 @@ export const BaseButton = ({
   );
 };
 
-export const PrimaryThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />;
+export const PrimaryThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />;
 
-export const SecondaryThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.SECONDARY, ...props }} />;
+export const SecondaryThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.SECONDARY, ...props }} />;
 
-export const TinyThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.TINY, ...props }} />;
+export const TinyThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.TINY, ...props }} />;
 

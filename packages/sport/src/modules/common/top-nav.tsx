@@ -195,14 +195,13 @@ export const TopNav = () => {
                 My Bets
               </Link>
             </li>
-            <li className={classNames({ [Styles.Active]: path === 'TEST' })}>
-              <Link
-                to={makePath('TEST')}
-                placeholder='Test Page'
-              >
-                Test Page
-              </Link>
-            </li>
+            {process.env.NODE_ENV === "development" && (
+              <li className={classNames({ [Styles.Active]: path === "TEST" })}>
+                <Link to={makePath("TEST")} placeholder="Test Page">
+                  Test Page
+                </Link>
+              </li>
+            )}
           </ol>
         )}
       </section>

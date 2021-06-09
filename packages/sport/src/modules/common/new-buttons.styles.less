@@ -1,128 +1,136 @@
 @import (reference) "~assets/styles/shared";
 
 :root {
+  --dark-button-theme-color: #0e0e21;
+  --light-button-theme-color: #ffffff;
+  --tiny-dark-button-theme-color: #555577;
+  --tiny-light-button-theme-color: #d1d1d9;
+  --theme-focus-border-color: #1b91ff;
+  --primary-button-theme-color: #0cce8d;
+  --primary-button-theme-background-color: rgba(12, 206, 141, 0.15);
+  --inverted-primary-button-theme-background-color: rgba(12, 206, 141, 0.3);
   // This example is going to assume sportsbook values for now.
-  --primary-button-background: rgba(12, 206, 141, 0.15);
-  --primary-button-border-color: #0cce8d;
+  --primary-button-background: var(--primary-button-theme-background-color);
+  --primary-button-border-color: var(--primary-button-theme-color);
   --primary-button-border: @size-1 solid var(--primary-button-border-color);
-  --primary-button-text-color: #0e0e21;
+  --primary-button-text-color: var(--dark-button-theme-color);
 
-  --primary-button-background-hover: #0e0e21;
-  --primary-button-border-color-hover: #0e0e21;
+  --primary-button-background-hover: var(--dark-button-theme-color);
+  --primary-button-border-color-hover: var(--dark-button-theme-color);
   --primary-button-border-hover: @size-1 solid var(--primary-button-border-color-hover);
-  --primary-button-text-color-hover: #ffffff;
+  --primary-button-text-color-hover: var(--light-button-theme-color);
 
-  --primary-button-background-focus: rgba(12, 206, 141, 0.15);
-  --primary-button-border-color-focus: #1b91ff;
+  --primary-button-background-focus: var(--primary-button-theme-background-color);
+  --primary-button-border-color-focus: var(--theme-focus-border-color);
   --primary-button-border-focus: @size-2 solid var(--primary-button-border-color-focus);
-  --primary-button-text-color-focus: #0e0e21;
+  --primary-button-text-color-focus: var(--dark-button-theme-color);
 
-  --primary-button-background-pressed: #0e0e21;
-  --primary-button-border-color-pressed: #0e0e21;
+  --primary-button-background-pressed: var(--dark-button-theme-color);
+  --primary-button-border-color-pressed: var(--dark-button-theme-color);
   --primary-button-border-pressed: @size-1 solid var(--primary-button-border-color-pressed);
-  --primary-button-text-color-pressed: #ffffff;
+  --primary-button-text-color-pressed: var(--light-button-theme-color);
 
-  --inverted-primary-button-background: rgba(12, 206, 141, 0.3);
-  --inverted-primary-button-border-color: #0cce8d;
+  --inverted-primary-button-background: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color: var(--primary-button-theme-color);
   --inverted-primary-button-border: @size-1 solid var(--inverted-primary-button-border-color);
-  --inverted-primary-button-text-color: #ffffff;
+  --inverted-primary-button-text-color: var(--light-button-theme-color);
 
-  --inverted-primary-button-background-hover: #ffffff;
-  --inverted-primary-button-border-color-hover: #ffffff;
+  --inverted-primary-button-background-hover: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-hover: var(--light-button-theme-color);
   --inverted-primary-button-border-hover: @size-1 solid var(--inverted-primary-button-border-color-hover);
-  --inverted-primary-button-text-color-hover: #0e0e21;
+  --inverted-primary-button-text-color-hover: var(--dark-button-theme-color);
 
-  --inverted-primary-button-background-focus: rgba(12, 206, 141, 0.3);
-  --inverted-primary-button-border-color-focus: #1b91ff;
+  --inverted-primary-button-background-focus: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color-focus: var(--theme-focus-border-color);
   --inverted-primary-button-border-focus: @size-2 solid var(--inverted-primary-button-border-color-focus);
-  --inverted-primary-button-text-color-focus: #fffffff;
+  --inverted-primary-button-text-color-focus: var(--light-button-theme-color) f;
 
-  --inverted-primary-button-background-pressed: #ffffff;
-  --inverted-primary-button-border-color-pressed: #ffffff;
+  --inverted-primary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-pressed: var(--light-button-theme-color);
   --inverted-primary-button-border-pressed: @size-1 solid var(--inverted-primary-button-border-color-pressed);
-  --inverted-primary-button-text-color-pressed: #0e0e21;
+  --inverted-primary-button-text-color-pressed: var(--dark-button-theme-color);
 
   // This example is going to assume sportsbook values for now.
   --secondary-button-background: transparent;
-  --secondary-button-border-color: #0e0e21;
+  --secondary-button-border-color: var(--dark-button-theme-color);
   --secondary-button-border: @size-1 solid var(--secondary-button-border-color);
-  --secondary-button-text-color: #0e0e21;
+  --secondary-button-text-color: var(--dark-button-theme-color);
 
-  --secondary-button-background-hover: #0e0e21;
-  --secondary-button-border-color-hover: #0e0e21;
+  --secondary-button-background-hover: var(--dark-button-theme-color);
+  --secondary-button-border-color-hover: var(--dark-button-theme-color);
   --secondary-button-border-hover: @size-1 solid var(--secondary-button-border-color-hover);
-  --secondary-button-text-color-hover: #ffffff;
+  --secondary-button-text-color-hover: var(--light-button-theme-color);
 
   --secondary-button-background-focus: transparent;
-  --secondary-button-border-color-focus: #1b91ff;
+  --secondary-button-border-color-focus: var(--theme-focus-border-color);
   --secondary-button-border-focus: @size-2 solid var(--secondary-button-border-color-focus);
-  --secondary-button-text-color-focus: #0e0e21;
+  --secondary-button-text-color-focus: var(--dark-button-theme-color);
 
-  --secondary-button-background-pressed: #0e0e21;
-  --secondary-button-border-color-pressed: #0e0e21;
+  --secondary-button-background-pressed: var(--dark-button-theme-color);
+  --secondary-button-border-color-pressed: var(--dark-button-theme-color);
   --secondary-button-border-pressed: @size-1 solid var(--secondary-button-border-color-pressed);
-  --secondary-button-text-color-pressed: #ffffff;
+  --secondary-button-text-color-pressed: var(--light-button-theme-color);
 
   --inverted-secondary-button-background: transparent;
-  --inverted-secondary-button-border-color: #ffffff;
+  --inverted-secondary-button-border-color: var(--light-button-theme-color);
   --inverted-secondary-button-border: @size-1 solid var(--inverted-secondary-button-border-color);
-  --inverted-secondary-button-text-color: #ffffff;
+  --inverted-secondary-button-text-color: var(--light-button-theme-color);
 
-  --inverted-secondary-button-background-hover: #ffffff;
-  --inverted-secondary-button-border-color-hover: #ffffff;
+  --inverted-secondary-button-background-hover: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-hover: var(--light-button-theme-color);
   --inverted-secondary-button-border-hover: @size-1 solid var(--inverted-secondary-button-border-color-hover);
-  --inverted-secondary-button-text-color-hover: #0e0e21;
+  --inverted-secondary-button-text-color-hover: var(--dark-button-theme-color);
 
   --inverted-secondary-button-background-focus: transparent;
-  --inverted-secondary-button-border-color-focus: #1b91ff;
+  --inverted-secondary-button-border-color-focus: var(--theme-focus-border-color);
   --inverted-secondary-button-border-focus: @size-2 solid var(--inverted-secondary-button-border-color-focus);
-  --inverted-secondary-button-text-color-focus: #ffffff;
+  --inverted-secondary-button-text-color-focus: var(--light-button-theme-color);
 
-  --inverted-secondary-button-background-pressed: #ffffff;
-  --inverted-secondary-button-border-color-pressed: #ffffff;
+  --inverted-secondary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-pressed: var(--light-button-theme-color);
   --inverted-secondary-button-border-pressed: @size-1 solid var(--inverted-secondary-button-border-color-pressed);
-  --inverted-secondary-button-text-color-pressed: #0e0e21;
+  --inverted-secondary-button-text-color-pressed: var(--dark-button-theme-color);
 
   // This example is going to assume sportsbook values for now.
-  --tiny-button-background: #ffffff;
-  --tiny-button-border-color: #d1d1d9;
+  --tiny-button-background: var(--light-button-theme-color);
+  --tiny-button-border-color: var(--tiny-light-button-theme-color);
   --tiny-button-border: @size-1 solid var(--tiny-button-border-color);
-  --tiny-button-text-color: #555577;
+  --tiny-button-text-color: var(--tiny-dark-button-theme-color);
 
-  --tiny-button-background-hover: #ffffff;
-  --tiny-button-border-color-hover: #0e0e21;
+  --tiny-button-background-hover: var(--light-button-theme-color);
+  --tiny-button-border-color-hover: var(--dark-button-theme-color);
   --tiny-button-border-hover: @size-1 solid var(--tiny-button-border-color-hover);
-  --tiny-button-text-color-hover: #555577;
+  --tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
 
-  --tiny-button-background-focus: #ffffff;
-  --tiny-button-border-color-focus: #1b91ff;
+  --tiny-button-background-focus: var(--light-button-theme-color);
+  --tiny-button-border-color-focus: var(--theme-focus-border-color);
   --tiny-button-border-focus: @size-2 solid var(--tiny-button-border-color-focus);
-  --tiny-button-text-color-focus: #555577;
+  --tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
 
-  --tiny-button-background-pressed: #0e0e21;
-  --tiny-button-border-color-pressed: #0e0e21;
+  --tiny-button-background-pressed: var(--dark-button-theme-color);
+  --tiny-button-border-color-pressed: var(--dark-button-theme-color);
   --tiny-button-border-pressed: @size-1 solid var(--tiny-button-border-color-pressed);
-  --tiny-button-text-color-pressed: #ffffff;
+  --tiny-button-text-color-pressed: var(--light-button-theme-color);
 
-  --inverted-tiny-button-background: #ffffff;
-  --inverted-tiny-button-border-color: #d1d1d9;
+  --inverted-tiny-button-background: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color: var(--tiny-light-button-theme-color);
   --inverted-tiny-button-border: @size-1 solid var(--inverted-tiny-button-border-color);
-  --inverted-tiny-button-text-color: #555577;
+  --inverted-tiny-button-text-color: var(--tiny-dark-button-theme-color);
 
-  --inverted-tiny-button-background-hover: #ffffff;
-  --inverted-tiny-button-border-color-hover: #0e0e21;
+  --inverted-tiny-button-background-hover: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-hover: var(--dark-button-theme-color);
   --inverted-tiny-button-border-hover: @size-1 solid var(--inverted-tiny-button-border-color-hover);
-  --inverted-tiny-button-text-color-hover: #555577;
+  --inverted-tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
 
-  --inverted-tiny-button-background-focus: #ffffff;
-  --inverted-tiny-button-border-color-focus: #1b91ff;
+  --inverted-tiny-button-background-focus: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-focus: var(--theme-focus-border-color);
   --inverted-tiny-button-border-focus: @size-2 solid var(--inverted-tiny-button-border-color-focus);
-  --inverted-tiny-button-text-color-focus: #555577;
+  --inverted-tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
 
-  --inverted-tiny-button-background-pressed: #0e0e21;
-  --inverted-tiny-button-border-color-pressed: #0e0e21;
+  --inverted-tiny-button-background-pressed: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-color-pressed: var(--dark-button-theme-color);
   --inverted-tiny-button-border-pressed: @size-1 solid var(--inverted-tiny-button-border-color-pressed);
-  --inverted-tiny-button-text-color-pressed: #ffffff;
+  --inverted-tiny-button-text-color-pressed: var(--light-button-theme-color);
 
   --button-disabled-opacity: 0.5;
 
