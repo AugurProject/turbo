@@ -463,3 +463,482 @@
   }
 
 }
+
+.ThemeButtonRadius {
+  border-radius: var(--theme-button-border-radius);
+}
+
+.BaseNormalButton {
+  .text-default;
+
+  border-radius: var(--theme-button-border-radius);
+  min-height: var(--normal-button-height);
+  height: var(--normal-button-height);
+  max-height: var(--normal-button-height);
+  padding: var(--normal-button-padding);
+  text-transform: capitalize;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--normal-button-font-size);
+  font-weight: var(--normal-button-font-weight);
+
+  > span {
+    white-space: nowrap;
+  }
+
+  > svg {
+    height: var(--normal-button-svg-height);
+    width: var(--normal-button-svg-width);
+    margin-left: @size-4;
+  }
+
+  &:not(:disabled):not(:active):focus {
+    padding: var(--normal-button-padding-focus);
+  }
+
+  &:disabled {
+    opacity: var(--button-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  &.Reversed {
+    flex-flow: row-reverse nowrap;
+
+    > svg {
+      margin-left: 0;
+      margin-right: @size-4;
+    }
+  }
+
+  &.Small {
+    min-height: var(--small-button-height);
+    height: var(--small-button-height);
+    max-height: var(--small-button-height);
+    padding: var(--small-button-padding);
+    font-size: var(--small-button-font-size);
+    font-weight: var(--small-button-font-weight);
+
+    > svg {
+      height: var(--small-button-svg-height);
+      width: var(--small-button-svg-width);
+    }
+
+    &:not(:disabled):not(:active):focus {
+      padding: var(--small-button-padding-focus);
+    }
+  }
+
+  &.Tiny {
+    min-height: var(--tiny-button-height);
+    height: var(--tiny-button-height);
+    max-height: var(--tiny-button-height);
+    padding: var(--tiny-button-padding);
+    font-size: var(--tiny-button-font-size);
+    font-weight: var(--tiny-button-font-weight);
+
+    > svg {
+      height: var(--tiny-button-svg-height);
+      width: var(--tiny-button-svg-width);
+    }
+
+    &:not(:disabled):not(:active):focus {
+      padding: var(--tiny-button-padding-focus);
+    }
+  }
+}
+
+.Primary {
+  background: var(--primary-button-background);
+  border: var(--primary-button-border);
+  color: var(--primary-button-text-color);
+
+  > svg {
+    > path[fill],
+    > g > path[fill] {
+      fill: var(--primary-button-text-color);
+    }
+
+    > line,
+    > path[stroke],
+    > g > path[stroke] {
+      stroke: var(--primary-button-text-color);
+    }
+  }
+
+  &:not(:disabled) {
+    // in here we will do hover/focused/pressed/etc
+    &:hover {
+      background: var(--primary-button-background-hover);
+      border: var(--primary-button-border-hover);
+      color: var(--primary-button-text-color-hover);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--primary-button-text-color-hover);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--primary-button-text-color-hover);
+        }
+      }
+    }
+
+    &:focus {
+      background: var(--primary-button-background-focus);
+      border: var(--primary-button-border-focus);
+      color: var(--primary-button-text-color-focus);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--primary-button-text-color-focus);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--primary-button-text-color-focus);
+        }
+      }
+    }
+
+    &:active {
+      background: var(--primary-button-background-pressed);
+      border: var(--primary-button-border-pressed);
+      color: var(--primary-button-text-color-pressed);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--primary-button-text-color-pressed);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--primary-button-text-color-pressed);
+        }
+      }
+    }
+  }
+
+  &.Inverted {
+    background: var(--inverted-primary-button-background);
+    border: var(--inverted-primary-button-border);
+    color: var(--inverted-primary-button-text-color);
+
+    > svg {
+      > path[fill],
+      > g > path[fill] {
+        fill: var(--inverted-primary-button-text-color);
+      }
+
+      > line,
+      > path[stroke],
+      > g > path[stroke] {
+        stroke: var(--inverted-primary-button-text-color);
+      }
+    }
+    &:not(:disabled) {
+      &:hover {
+        background: var(--inverted-primary-button-background-hover);
+        border: var(--inverted-primary-button-border-hover);
+        color: var(--inverted-primary-button-text-color-hover);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-primary-button-text-color-hover);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-primary-button-text-color-hover);
+          }
+        }
+      }
+
+      &:focus {
+        background: var(--inverted-primary-button-background-focus);
+        border: var(--inverted-primary-button-border-focus);
+        color: var(--inverted-primary-button-text-color-focus);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-primary-button-text-color-focus);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-primary-button-text-color-focus);
+          }
+        }
+      }
+
+      &:active {
+        background: var(--inverted-primary-button-background-pressed);
+        border: var(--inverted-primary-button-border-pressed);
+        color: var(--inverted-primary-button-text-color-pressed);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-primary-button-text-color-pressed);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-primary-button-text-color-pressed);
+          }
+        }
+      }
+    }
+  }
+}
+
+.Secondary {
+  background: var(--secondary-button-background);
+  border: var(--secondary-button-border);
+  color: var(--secondary-button-text-color);
+
+  > svg {
+    > path[fill],
+    > g > path[fill] {
+      fill: var(--secondary-button-text-color);
+    }
+
+    > line,
+    > path[stroke],
+    > g > path[stroke] {
+      stroke: var(--secondary-button-text-color);
+    }
+  }
+
+  &:not(:disabled) {
+    // in here we will do hover/focused/pressed/etc
+    &:hover {
+      background: var(--secondary-button-background-hover);
+      border: var(--secondary-button-border-hover);
+      color: var(--secondary-button-text-color-hover);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--secondary-button-text-color-hover);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--secondary-button-text-color-hover);
+        }
+      }
+    }
+
+    &:focus {
+      background: var(--secondary-button-background-focus);
+      border: var(--secondary-button-border-focus);
+      color: var(--secondary-button-text-color-focus);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--secondary-button-text-color-focus);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--secondary-button-text-color-focus);
+        }
+      }
+    }
+
+    &:active {
+      background: var(--secondary-button-background-pressed);
+      border: var(--secondary-button-border-pressed);
+      color: var(--secondary-button-text-color-pressed);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--secondary-button-text-color-pressed);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--secondary-button-text-color-pressed);
+        }
+      }
+    }
+  }
+
+  &.Inverted {
+    background: var(--inverted-secondary-button-background);
+    border: var(--inverted-secondary-button-border);
+    color: var(--inverted-secondary-button-text-color);
+
+    > svg {
+      > path[fill],
+      > g > path[fill] {
+        fill: var(--inverted-secondary-button-text-color);
+      }
+
+      > line,
+      > path[stroke],
+      > g > path[stroke] {
+        stroke: var(--inverted-secondary-button-text-color);
+      }
+    }
+
+    &:not(:disabled) {
+      &:hover {
+        background: var(--inverted-secondary-button-background-hover);
+        border: var(--inverted-secondary-button-border-hover);
+        color: var(--inverted-secondary-button-text-color-hover);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-secondary-button-text-color-hover);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-secondary-button-text-color-hover);
+          }
+        }
+      }
+
+      &:focus {
+        background: var(--inverted-secondary-button-background-focus);
+        border: var(--inverted-secondary-button-border-focus);
+        color: var(--inverted-secondary-button-text-color-focus);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-secondary-button-text-color-focus);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-secondary-button-text-color-focus);
+          }
+        }
+      }
+
+      &:active {
+        background: var(--inverted-secondary-button-background-pressed);
+        border: var(--inverted-secondary-button-border-pressed);
+        color: var(--inverted-secondary-button-text-color-pressed);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--inverted-secondary-button-text-color-pressed);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--inverted-secondary-button-text-color-pressed);
+          }
+        }
+      }
+    }
+  }
+}
+
+.Tiny {
+  background: var(--tiny-button-background);
+  border: var(--tiny-button-border);
+  color: var(--tiny-button-text-color);
+  text-transform: uppercase;
+
+  > svg {
+    > path[fill],
+    > g > path[fill] {
+      fill: var(--tiny-button-text-color);
+    }
+
+    > line,
+    > path[stroke],
+    > g > path[stroke] {
+      stroke: var(--tiny-button-text-color);
+    }
+  }
+
+  &:not(:disabled) {
+    // in here we will do hover/focused/pressed/etc
+    &:hover {
+      background: var(--tiny-button-background-hover);
+      border: var(--tiny-button-border-hover);
+      color: var(--tiny-button-text-color-hover);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--tiny-button-text-color-hover);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--tiny-button-text-color-hover);
+        }
+      }
+    }
+
+    &:focus {
+      background: var(--tiny-button-background-focus);
+      border: var(--tiny-button-border-focus);
+      color: var(--tiny-button-text-color-focus);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--tiny-button-text-color-focus);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--tiny-button-text-color-focus);
+        }
+      }
+    }
+
+    &:active {
+      background: var(--tiny-button-background-pressed);
+      border: var(--tiny-button-border-pressed);
+      color: var(--tiny-button-text-color-pressed);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--tiny-button-text-color-pressed);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--tiny-button-text-color-pressed);
+        }
+      }
+    }
+  }
+}

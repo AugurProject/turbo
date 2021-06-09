@@ -1,10 +1,9 @@
 import React from "react";
 import Styles from "./textPage.styles.less";
-import { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } from "../common/new-buttons";
-import { Icons } from "@augurproject/comps";
+import { Icons, ButtonComps } from "@augurproject/comps";
 import { TrashIcon } from "../betslip/betslip";
 const { SimpleCheck, CopyIcon } = Icons;
-
+const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
 export const TestPage = () => {
   return (
     <div className={Styles.TestPage}>
