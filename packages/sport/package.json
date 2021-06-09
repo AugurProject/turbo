@@ -1,9 +1,9 @@
 {
   "name": "@augurproject/sport",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "dependencies": {
-    "@augurproject/comps": "^1.0.1",
+    "@augurproject/comps": "^1.0.2",
     "@babel/core": "7.12.3",
     "@ethersproject/experimental": "5.0.7",
     "@ethersproject/solidity": "^5.0.7",
