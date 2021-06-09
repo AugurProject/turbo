@@ -19,7 +19,9 @@ export interface BaseButtonProps {
   disabled?: boolean;
   title?: string;
   buttonType?: BUTTON_TYPES;
-  reversed?: boolean;
+  invert?: boolean;
+  reverseContent?: boolean;
+  small?: boolean;
 }
 
 export const BaseButton = ({
@@ -33,7 +35,9 @@ export const BaseButton = ({
   disabled = false,
   title,
   buttonType,
-  reversed = false,
+  invert = false,
+  reverseContent = false,
+  small = false,
 }: BaseButtonProps) => {
   const content = customContent ? (
     customContent
@@ -51,10 +55,12 @@ export const BaseButton = ({
       title={title}
       onClick={action}
       className={classNames(
-        Styles.BaseButton,
+        Styles.BaseNormalButton,
         {
           [Styles[buttonType]]: true,
-          [Styles.Reversed]: reversed,
+          [Styles.Inverted]: invert,
+          [Styles.Reversed]: reverseContent,
+          [Styles.Small]: small,
         },
         customClass
       )}
@@ -63,3 +69,10 @@ export const BaseButton = ({
     </button>
   );
 };
+
+export const PrimaryThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />;
+
+export const SecondaryThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.SECONDARY, ...props }} />;
+
+export const TinyThemeButton = (props: BaseButtonProps) => <BaseButton {...{ buttonType: BUTTON_TYPES.TINY, ...props }} />;
+

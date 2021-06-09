@@ -5,7 +5,6 @@ import { Arrow, SearchIcon, ViewIcon } from './icons';
 import { Spinner } from './spinner';
 import { ApprovalAction, ApprovalState } from '../../utils/constants';
 import { AmmExchange, Cash } from '../../types';
-import { PARA_CONFIG } from '../../stores/constants';
 import { useUserStore } from '../../stores/user';
 import {
   approveERC20Contract,

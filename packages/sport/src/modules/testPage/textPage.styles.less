@@ -1,5 +1,21 @@
 @import (reference) "~assets/styles/shared";
 
 .TestPage {
-  .SportsPage;
+  padding: @size-16;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 0fr;
+  grid-gap: @size-8;
+
+  > div {
+    grid-column: span 4;
+    grid-row: span 5;
+    background: black;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    grid-gap: @size-8;
+    padding: @size-8;
+  }
 }
