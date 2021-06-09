@@ -173,14 +173,10 @@ export const PositionFooter = ({
   const [pendingCashOutHash, setPendingCashOutHash] = useState(null);
   const [pendingClaimHash, setPendingClaimHash] = useState(null);
   const ammCash = getUSDC(cashes);
-  const canClaim = useCanExitCashPosition(
-    ammCash?.name,
-    amm?.ammFactoryAddress,
-  );
- 
+
   const disableClaim =
     pendingClaim ||
-      Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
+    Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
@@ -198,42 +194,40 @@ export const PositionFooter = ({
 
   const claim = async () => {
     if (amm && account) {
-      if (canClaim) {
-        setPendingClaim(true);
-        claimWinnings(account, loginAccount?.library, [turboId], marketFactoryAddress)
-          .then((response) => {
-            // handle transaction response here
-            setPendingClaim(false);
-            if (response) {
-              const { hash } = response;
-              addTransaction({
-                hash,
-                chainId: loginAccount?.chainId,
-                seen: false,
-                status: TX_STATUS.PENDING,
-                from: account,
-                addedTime: new Date().getTime(),
-                message: `Claim Winnings`,
-                marketDescription: `${title} ${description}`,
-              });
-              setPendingClaimHash(hash);
-            }
-          })
-          .catch((error) => {
-            setPendingClaim(false);
-            console.error("Error when trying to claim winnings: ", error?.message);
+      setPendingClaim(true);
+      claimWinnings(account, loginAccount?.library, [turboId], marketFactoryAddress)
+        .then((response) => {
+          // handle transaction response here
+          setPendingClaim(false);
+          if (response) {
+            const { hash } = response;
             addTransaction({
-              hash: `claim-failed${Date.now()}`,
+              hash,
               chainId: loginAccount?.chainId,
               seen: false,
-              status: TX_STATUS.FAILURE,
+              status: TX_STATUS.PENDING,
               from: account,
               addedTime: new Date().getTime(),
               message: `Claim Winnings`,
               marketDescription: `${title} ${description}`,
             });
+            setPendingClaimHash(hash);
+          }
+        })
+        .catch((error) => {
+          setPendingClaim(false);
+          console.error("Error when trying to claim winnings: ", error?.message);
+          addTransaction({
+            hash: `claim-failed${Date.now()}`,
+            chainId: loginAccount?.chainId,
+            seen: false,
+            status: TX_STATUS.FAILURE,
+            from: account,
+            addedTime: new Date().getTime(),
+            message: `Claim Winnings`,
+            marketDescription: `${title} ${description}`,
           });
-      }
+        });
     }
   };
 
@@ -301,9 +295,8 @@ export const PositionFooter = ({
           <PrimaryButton
             text={
               !pendingClaim
-                ? `${!canClaim ? "Approve to " : ""}Claim Winnings (${
-                    formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
-                  })`
+                ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
+                })`
                 : AWAITING_CONFIRM
             }
             subText={pendingClaim && AWAITING_CONFIRM_SUBTEXT}
@@ -327,10 +320,10 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   } = useUserStore();
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[])
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[])
     : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
@@ -467,10 +460,10 @@ export const AllLiquidityTable = ({ page }) => {
   const { ammExchanges, markets } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
-        ammExchange: ammExchanges[ammId],
-        market: markets[ammId],
-        lpTokens: lpTokens[ammId],
-      }))
+      ammExchange: ammExchanges[ammId],
+      market: markets[ammId],
+      lpTokens: lpTokens[ammId],
+    }))
     : [];
   const liquiditiesViz = sliceByPage(liquidities, page, POSITIONS_LIQUIDITY_LIMIT).map((liquidity) => {
     return (
@@ -567,17 +560,17 @@ export const PositionsLiquidityViewSwitcher = ({
 
   const positions = marketShares
     ? ((Object.values(marketShares) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[])
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[])
     : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-        ammExchange: ammExchanges[marketId],
-        market: markets[marketId],
-        lpTokens: lpTokens[marketId],
-      }))
+      ammExchange: ammExchanges[marketId],
+      market: markets[marketId],
+      lpTokens: lpTokens[marketId],
+    }))
     : [];
 
   const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
