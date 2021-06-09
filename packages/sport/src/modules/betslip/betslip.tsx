@@ -21,7 +21,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getBuyAmount } from "modules/utils";
+import { getBuyAmount, makeBet } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -195,7 +195,6 @@ const EditableBet = ({ betId, bet }) => {
               setError(error);
               if (!error) {
                 const buyAmount = getBuyAmount(amm, id, value);
-                console.log('buyAmount', buyAmount)
                 setUpdatedPrice(buyAmount?.price)
                 updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
               }
@@ -359,6 +358,12 @@ const determineBetTotals = (bets: Array<BetType>) => {
 };
 
 const BetslipFooter = () => {
+  const {
+    account,
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const { markets } = useDataStore();
   const { isLogged } = useAppStatusStore();
   const {
     selectedView,
@@ -392,16 +397,15 @@ const BetslipFooter = () => {
           />
           <PrimaryThemeButton
             text="Place Bets"
-            action={() => {
-              console.log("place bets hit", bets, bets.length);
+            action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
-                console.log(bet, betId);
-                const signed = MOCK_PROMPT_SIGNATURE({ name: `$${bet.wager} on ${bet.name}` });
-                if (signed) {
+                const { amm } = markets[bet.marketId];
+                const txHash = await makeBet(loginAccount?.library, amm, bet.id, bet.wager, account, amm.cash);
+                if (txHash) {
                   addActive({
                     ...bet,
-                    hash: `0xFakeHash-${bet.betId}-${Math.round(Math.random() * 99999999999)}`
+                    hash: txHash
                   });
                 }
               }

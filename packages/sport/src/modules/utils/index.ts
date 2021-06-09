@@ -1,5 +1,5 @@
 import { BigNumber as BN } from "bignumber.js";
-import { AmmExchange, PositionBalance } from "@augurproject/comps/build/types";
+import { AmmExchange, Cash, PositionBalance } from "@augurproject/comps/build/types";
 import { ContractCalls } from "@augurproject/comps";
 import { TransactionReceipt } from 'web3-core'
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
@@ -24,9 +24,8 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
   if (!outcome) return null;
-  const shareAmount = new BN(outcome.balance || "0").times(new BN(liquidityPortion)).decimalPlaces(0, 1).toFixed();
-  const est = estimateBuyTrade(amm, shareAmount, Number(id), amm?.cash);
-  const size = new BN(est?.averagePrice).times(new BN(shareAmount)).toFixed();
+  const size = new BN(outcome.balance || "0").times(new BN(liquidityPortion)).decimalPlaces(0, 1).toFixed();
+  const est = estimateBuyTrade(amm, size, Number(id), amm?.cash);
   return { size, price: est?.averagePrice };
 };
 
@@ -51,14 +50,10 @@ export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): s
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
-const sleep = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-export const makeBet = (provider: Web3Provider, amm: AmmExchange, id: number, amount: string, account: string, onTxHash: Function): boolean => {
+export const makeBet = async (provider: Web3Provider, amm: AmmExchange, id: number, amount: string, account: string, cash: Cash): Promise<string> => {
   const defaultSlippage = "1";
   const minAmount = "0";
-  doTrade(
+  const response = await doTrade(
     TradingDirection.ENTRY,
     provider,
     amm,
@@ -66,29 +61,9 @@ export const makeBet = (provider: Web3Provider, amm: AmmExchange, id: number, am
     amount,
     id,
     account,
-    null,
+    cash,
     defaultSlippage,
     []
-  ).then(async response => {
-    const { hash } = response;
-    if (onTxHash) {
-      onTxHash(hash)
-    }
-    const status = await waitTransaction(provider, hash);
-    if (!status) {
-      console.log("transaction failed.")
-      return false
-    }
-    return true
-  })
-}
-
-export const waitTransaction = async (provider: Web3Provider, txHash: string) => {
-  let txReceipt: TransactionReceipt | null = null
-  while (txReceipt === null) {
-    const r = await provider.getTransactionReceipt(txHash)
-    txReceipt = r
-    await sleep(2000)
-  }
-  return (txReceipt.status)
+  );
+  return response?.hash;
 }
