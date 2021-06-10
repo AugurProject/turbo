@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, XCircle } from "react-feather";
 import CopyHelper from "./CopyHelper";
-import { CHAIN_ID_NAMES, getEtherscanLink, MATIC_MUMBAI, shortenAddress } from "../../utils";
+import { CHAIN_ID_NAMES, getChainExplorerLink, MATIC_CHAINS, shortenAddress } from "../../utils";
 import { injected } from "../../connectors";
 import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
@@ -39,7 +39,11 @@ const AccountCard = ({ account, connector, connectorName, chainId, chainName }: 
       <div>
         {account && <CopyHelper toCopy={account} copyText="Copy Address" />}
         {chainId && account && (
-          <TinyButton href={getEtherscanLink(chainId, account, "address")} icon={LinkIcon} text="View on Etherscan" />
+          <TinyButton
+            href={getChainExplorerLink(chainId, account, "address")}
+            icon={LinkIcon}
+            text={`View on ${MATIC_CHAINS.includes(chainId) ? 'PolygonScan' : 'Etherscan'}`}
+          />
         )}
       </div>
     </div>
@@ -74,7 +78,7 @@ const Transaction = ({ label, link, status, chainId, showClear, clear }: typeof 
   <div key={link}>
     <span>{label}</span>
     {link && (
-      <a href={getEtherscanLink(chainId, link, "transaction")} target="_blank" rel="noopener noreferrer">
+      <a href={getChainExplorerLink(chainId, link, "transaction")} target="_blank" rel="noopener noreferrer">
         {LinkIcon}
       </a>
     )}
