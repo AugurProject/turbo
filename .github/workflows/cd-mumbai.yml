@@ -50,6 +50,8 @@ jobs:
       
       - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn simp build
 
+       - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn sport build
+
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v6.2
         id: verify-changed-files
@@ -71,4 +73,11 @@ jobs:
           domain: turbo.augur.sh
           publish_dir: packages/simplified/build
 
+      - name: Deploy to AWS for Sports
+        uses: onramper/action-deploy-aws-static-site@v1
+        with:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          domain: sports.augur.sh
+          publish_dir: packages/sport/build
 
