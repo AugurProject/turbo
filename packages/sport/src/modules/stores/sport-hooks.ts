@@ -1,10 +1,22 @@
 import { useReducer } from "react";
-import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME, MarketEvents } from "./constants";
+import {
+  SPORT_ACTIONS,
+  DEFAULT_SPORT_STATE,
+  SPORT_STATE_KEYS,
+  LOCAL_STORAGE_SETTINGS_THEME,
+  MarketEvents,
+} from "./constants";
 import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware, getSavedUserInfo },
 } = Stores;
-const { UPDATE_MARKET_EVENTS, UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
+const {
+  UPDATE_MARKET_EVENTS,
+  UPDATE_SETTINGS,
+  SET_SIDEBAR,
+  SET_BETSLIP_MINIMIZED,
+  UPDATE_MARKETS_VIEW_SETTINGS,
+} = SPORT_ACTIONS;
 
 const { MARKET_EVENTS, SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
 
@@ -84,7 +96,7 @@ export const useSport = (defaultState = DEFAULT_SPORT_STATE) => {
       setBetslipMinimized: (betslipMinimized) => dispatch({ type: SET_BETSLIP_MINIMIZED, betslipMinimized }),
       setSidebar: (sidebarType) => dispatch({ type: SET_SIDEBAR, sidebarType }),
       updateSettings: (settings, account = null) => dispatch({ type: UPDATE_SETTINGS, settings, account }),
-      updateMarketEvents: (marketEvents: MarketEvents) => dispatch({ type: UPDATE_MARKET_EVENTS, marketEvents}),
+      updateMarketEvents: (marketEvents: MarketEvents) => dispatch({ type: UPDATE_MARKET_EVENTS, marketEvents }),
     },
   };
 };
