@@ -16,7 +16,6 @@ import {
   DateUtils,
   Icons,
   PathUtils,
-  createBigNumber,
   Links,
   windowRef,
 } from "@augurproject/comps";

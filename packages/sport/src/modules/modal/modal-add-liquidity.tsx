@@ -1,4 +1,3 @@
-// // @ts-nocheck
 // import React, { useEffect, useMemo, useState } from "react";
 // import Styles from "./modal.styles.less";
 // import { Header } from "./common";

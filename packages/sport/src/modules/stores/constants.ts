@@ -39,11 +39,6 @@ export const SPORT_ACTIONS = {
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
 };
 
-const { TX_STATUS } = Constants;
-
-const date = new Date();
-const now = Math.floor(date.getTime() / 1000);
-
 export interface BetType {
   id: number;
   heading?: string;
@@ -70,6 +65,8 @@ export interface ActiveBetType {
   hash: string;
 }
 
+const { TX_STATUS } = Constants;
+
 export const DEFAULT_BET = {
   wager: null,
   toWin: null,
@@ -88,6 +85,9 @@ export const DEFAULT_BETSLIP_STATE = {
   active: {},
 };
 /*
+const date = new Date();
+const now = Math.floor(date.getTime() / 1000);
+
 export const DEFAULT_BETSLIP_STATE = {
   selectedView: BETSLIP,
   selectedCount: 1,
