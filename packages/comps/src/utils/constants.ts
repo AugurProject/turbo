@@ -331,5 +331,5 @@ export const MMA_MARKET_TYPE = {
 
 export const MARKET_LOAD_TYPE = {
   SIMPLIFIED: "SIMPLIFIED",
-  SPORT:  "SPORT"
-}
+  SPORT: "SPORT",
+};
