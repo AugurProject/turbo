@@ -49,8 +49,7 @@ jobs:
       - run: yarn build
       
       - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn simp build
-
-       - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn sport build
+      - run: NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="80001" yarn sport build
 
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v6.2
