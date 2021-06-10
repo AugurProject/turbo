@@ -51,7 +51,7 @@ import {
   DAYS_IN_YEAR,
   SEC_IN_DAY,
   ZERO,
-  APY_CUTOFF_AMOUNT,
+  MARKET_LOAD_TYPE,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1312,7 +1312,8 @@ export const getMarketInfos = async (
   ammExchanges: AmmExchanges,
   cashes: Cashes,
   account: string,
-  ignoreList: { [factory: string]: number[] }
+  ignoreList: { [factory: string]: number[] },
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories();
   const allMarkets = await Promise.all(
@@ -1358,9 +1359,12 @@ export const getMarketInfos = async (
         .map((id) => Number(marketInfos[id]?.turboId));
 
       // hide mlb spread and over/under markets
-      const hiddenMarketsIds = Object.keys(marketInfos)
-        .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
-        .map((id) => Number(marketInfos[id]?.turboId));
+      const hiddenMarketsIds =
+        loadtype === MARKET_LOAD_TYPE.SPORT
+          ? []
+          : Object.keys(marketInfos)
+              .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
+              .map((id) => Number(marketInfos[id]?.turboId));
 
       // filter out dup eventIds
       const existingEventIds = Object.keys(marketInfos)
@@ -1372,7 +1376,8 @@ export const getMarketInfos = async (
       const filteredMarketIds = Object.keys(marketInfos).reduce(
         (p, id) =>
           existingEvents.includes(marketInfos[id]?.eventId) ||
-          isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType)
+          (loadtype !== MARKET_LOAD_TYPE.SPORT &&
+            isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
             ? p
             : { ...p, [id]: marketInfos[id] },
         {}

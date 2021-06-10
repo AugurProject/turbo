@@ -22,7 +22,7 @@ import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
 
-const { PORTFOLIO } = Constants;
+const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
 const { parsePath } = PathUtils;
 
 const AppBody = () => {
@@ -79,7 +79,7 @@ function App() {
     <HashRouter hashType="hashbang">
       <ConnectAccountProvider>
         <UserProvider>
-          <DataProvider>
+          <DataProvider loadType={MARKET_LOAD_TYPE.SPORT}>
             <AppStatusProvider>
               <SportProvider>
                 <BetslipProvider>

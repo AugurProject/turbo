@@ -17,7 +17,7 @@ export const DataStore = {
   actions: STUBBED_DATA_ACTIONS,
 };
 
-export const DataProvider = ({ children }: any) => {
+export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account } = useUserStore();
@@ -41,7 +41,7 @@ export const DataProvider = ({ children }: any) => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
         const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
-        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount, MARKET_IGNORE_LIST);
+        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount, MARKET_IGNORE_LIST, loadType);
       } catch (e) {
         console.log("error getting market data", e);
       }

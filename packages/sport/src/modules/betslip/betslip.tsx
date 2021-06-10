@@ -143,6 +143,7 @@ export const EmptyBetslip = () => {
 };
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
+const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
 
 const EditableBet = ({ betId, bet }) => {
   const {
@@ -161,9 +162,10 @@ const EditableBet = ({ betId, bet }) => {
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
-  const checkErrors = (test) => {
+  const checkErrors = (value: string) => {
     let returnError = null;
-    if (test !== "" && (isNaN(test) || Number(test) === 0 || Number(test) < 0)) {
+    const test = value.split(',').join('');
+    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) < 0)) {
       returnError = LOW_AMOUNT_ERROR;
     }
     return returnError;
@@ -194,8 +196,12 @@ const EditableBet = ({ betId, bet }) => {
               setError(error);
               if (!error) {
                 const buyAmount = getBuyAmount(amm, id, value);
-                setUpdatedPrice(buyAmount?.price)
-                updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
+                if (!buyAmount) {
+                  setError(HIGH_AMOUNT_ERROR);
+                } else {
+                  setUpdatedPrice(buyAmount?.price)
+                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;  
+                }
               }
               setValue(fmtValue);
               updateBet({
