@@ -2,13 +2,17 @@ import React from "react";
 import Styles from "./textPage.styles.less";
 import { Icons, ButtonComps } from "@augurproject/comps";
 import { TrashIcon } from "../betslip/betslip";
+import { SportsCardComboOutcomes } from '../sports-card/sports-card';
+
 const { SimpleCheck, CopyIcon } = Icons;
 const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
+
 
 //TODO: Delete this page before launch.
 export const TestPage = () => {
   return (
     <div className={Styles.TestPage}>
+      <SportsCardComboOutcomes />
       <h1>!! This page is only visible on Development Environments and should be deleted before launching sportsbook. !!</h1>
       <PrimaryThemeButton text="primary button" />
       <PrimaryThemeButton text="primary button disabled" disabled />

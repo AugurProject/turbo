@@ -201,3 +201,108 @@
     }
   }
 }
+
+.SportsCardComboOutcomes {
+  .SimpleBorder;
+
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  background: var(--light-background-color);
+
+  > header {
+    .PrimaryTopBorderRadius;
+
+    background: var(--alternate-background-color);
+    min-height: @size-30;
+    max-height: @size-30;
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 10.5% 10.5% 10.5%;
+    grid-gap: @size-2 @size-8;
+
+    > span {
+      .text-10-semi-bold;
+
+      color: var(--simple-secondary-text);
+      white-space: nowrap;
+      text-align: center;
+    }
+  }
+
+  > main {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+
+    > article {
+      border-top: @size-1 solid var(--simple-border);
+      display: grid;
+      grid-gap: @size-2 @size-8;
+      grid-template-columns: 1fr 10.5% 10.5% 10.5%;
+      grid-template-rows: auto @size-13;
+      padding: @size-8;
+      min-height: @size-65;
+      max-height: @size-65;
+
+      > label {
+        .text-14-bold;
+
+        color: var(--simple-primary-text);
+        grid-column: 1;
+        grid-row: span 2;
+        margin-bottom: 0;
+      }
+
+      > button {
+        .SimpleBorder;
+
+        align-items: center;
+        border-color: var(--simple-yes);
+        background: var(--simple-yes-15);
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        min-height: @size-36;
+        max-height: @size-36;
+        cursor: pointer;
+
+        > span:first-of-type {
+          .text-12;
+
+          color: var(--simple-primary-text);
+
+          > b {
+            .text-12-bold;
+
+            color: var(--simple-secondary-text);
+            margin-right: @size-4;
+          }
+        }
+
+        > span:last-of-type {
+          .text-10-semi-bold;
+
+          color: var(--simple-primary-text);
+        }
+      }
+
+      > span {
+        .text-10;
+
+        color: var(--simple-primary-text);
+        text-align: center;
+      }
+    }
+
+    &:last-child {
+      > article:last-of-type {
+        .PrimaryBottomBorderRadius;
+      }
+    }
+  }
+
+  > :last-child {
+    .PrimaryBottomBorderRadius;
+  }
+}
