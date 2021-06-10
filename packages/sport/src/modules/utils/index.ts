@@ -26,13 +26,14 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
   return { size, price: est?.averagePrice };
 };
 
-export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyAmount => {
+export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyAmount | null => {
   if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
   if (!outcome) return null;
   const est = estimateBuyTrade(amm, amount, Number(id), amm?.cash);
+  if (!est) return null;
   return {
     price: est?.averagePrice,
     maxProfit: est?.maxProfit,
