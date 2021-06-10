@@ -322,6 +322,7 @@ export interface BaseThemeButtonProps {
   invert?: boolean;
   reverseContent?: boolean;
   small?: boolean;
+  ariaLabel?: string;
 }
 
 export const BaseThemeButton = ({
@@ -338,6 +339,7 @@ export const BaseThemeButton = ({
   invert = false,
   reverseContent = false,
   small = false,
+  ariaLabel,
 }: BaseThemeButtonProps) => {
   const content = customContent ? (
     customContent
@@ -354,6 +356,7 @@ export const BaseThemeButton = ({
       disabled={disabled}
       title={title}
       onClick={action}
+      aria-label={ariaLabel}
       className={classNames(
         Styles.BaseNormalButton,
         {

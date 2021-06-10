@@ -495,6 +495,11 @@
     margin-left: @size-4;
   }
 
+  > div {
+    // sometimes a div is used to house a svg
+    margin-left: @size-4;
+  }
+
   &:not(:disabled):not(:active):focus {
     padding: var(--normal-button-padding-focus);
   }
@@ -508,6 +513,12 @@
     flex-flow: row-reverse nowrap;
 
     > svg {
+      margin-left: 0;
+      margin-right: @size-4;
+    }
+
+    > div {
+      // sometimes a div is used to house a svg
       margin-left: 0;
       margin-right: @size-4;
     }

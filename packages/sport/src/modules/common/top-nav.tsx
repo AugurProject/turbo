@@ -214,6 +214,9 @@ export const TopNav = () => {
               transactions,
               setModal,
               isMobile,
+              buttonOptions: {
+                invert: true,
+              }
             }}
           />
         </div>
