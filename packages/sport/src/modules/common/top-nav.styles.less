@@ -241,6 +241,27 @@
       > li {
         padding: 0 @size-12;
 
+        &:not(:last-of-type):focus-within,
+        &:focus-within {
+
+          padding: 0;
+
+          > button {
+            border: @size-1 solid var(--theme-focus-border-color);
+            border-bottom: @size-1 solid var(--theme-focus-border-color);
+            padding: 0 @size-12;
+          }
+          
+        }
+
+        &:hover {
+          background: var(--light-background-color);
+
+          > button {
+            color: var(--simple-primary-text);
+          }
+        }
+
         > button {
           .text-14;
 
