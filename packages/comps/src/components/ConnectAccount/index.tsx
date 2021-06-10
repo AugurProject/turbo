@@ -2,8 +2,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import { Activity as NetworkIcon } from "react-feather";
 import { ethers } from "ethers";
-import { SecondaryButton } from "../common/buttons";
-import classNames from "classnames";
+import { SecondaryThemeButton } from "../common/buttons";
 import ButtonStyles from "../common/buttons.styles.less";
 import { GetWalletIcon } from "../common/get-wallet-icon";
 import { useActiveWeb3React } from "./hooks";
@@ -22,19 +21,16 @@ export interface LoginButtonProps {
   icon: ReactElement;
   darkMode: boolean;
   className: string;
+  buttonOptions?: any;
 }
-const LoginButton = ({ action, text, icon, darkMode, className }: LoginButtonProps) => (
-  <SecondaryButton
+const LoginButton = ({ action, text, icon, darkMode, className, buttonOptions }: LoginButtonProps) => (
+  <SecondaryThemeButton
     action={action}
     text={text}
     icon={icon}
-    label={`account info button, account: ${text}`}
-    className={classNames(
-      {
-        "dark-mode": darkMode,
-      },
-      className
-    )}
+    ariaLabel={`account info button, account: ${text}`}
+    customClass={className}
+    {...{...buttonOptions}}
   />
 );
 
@@ -60,6 +56,7 @@ const ConnectAccountButton = ({
   transactions,
   isMobile,
   setModal,
+  buttonOptions = null,
 }) => {
   const networkId = PARA_CONFIG.networkId;
   const RPC_DATA = Number(networkId) === MATIC_MUMBAI ? MATIC_MUMBAI_RPC_DATA : MATIC_RPC_DATA;
@@ -80,20 +77,20 @@ const ConnectAccountButton = ({
     } else {
       setIsOnMatic(false);
     }
-  }
+  };
 
   const connectToMatic = async () => {
     if (ethereum && ethereum?.chainId !== RPC_DATA?.chainId) {
       try {
-        await ethereum.request({method: 'wallet_addEthereumChain', params: [RPC_DATA] });
+        await ethereum.request({ method: "wallet_addEthereumChain", params: [RPC_DATA] });
         setIsOnMatic(true);
-      } catch(error) {
+      } catch (error) {
         setModal({
           type: MODAL_CONNECT_TO_POLYGON,
         });
       }
     }
-  }
+  };
 
   useEffect(() => {
     maticCheck();
@@ -125,6 +122,7 @@ const ConnectAccountButton = ({
     darkMode,
     icon: null,
     text: "Connect Wallet",
+    buttonOptions,
   };
 
   if (!isOnMatic) {
@@ -139,8 +137,7 @@ const ConnectAccountButton = ({
       text: "Connect to Polygon",
       icon: <NetworkIcon />,
     };
-  }
-  else if (account) {
+  } else if (account) {
     buttonProps = {
       ...buttonProps,
       className: hasPendingTransaction ? ButtonStyles.Pending : null,
@@ -174,6 +171,7 @@ export const ConnectAccount = ({
   transactions,
   isMobile,
   setModal,
+  buttonOptions = null,
 }) => (
   <ConnectAccountButton
     autoLogin={autoLogin}
@@ -182,5 +180,6 @@ export const ConnectAccount = ({
     transactions={transactions}
     isMobile={isMobile}
     setModal={setModal}
+    buttonOptions={buttonOptions}
   />
 );

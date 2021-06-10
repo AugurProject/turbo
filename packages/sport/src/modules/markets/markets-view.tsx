@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Styles from "./markets-view.styles.less";
-// import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
 import { useSportsStore } from "../stores/sport";
-// import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
   useDataStore,
@@ -231,8 +229,6 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredMarkets} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
-        {/* <NetworkMismatchBanner /> */}
-        {/* {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />} */}
         {isMobile && (
           <div>
             <SecondaryButton
@@ -264,7 +260,6 @@ const MarketsView = () => {
           />
           <SearchInput
             value={filter}
-            // @ts-ignore
             onChange={(e) => setFilter(e.target.value)}
             clearValue={() => setFilter("")}
             showFilter={showFilter}
@@ -317,10 +312,6 @@ const MarketsView = () => {
 export default MarketsView;
 
 export const SubCategoriesFilter = () => {
-  // const {
-  //   marketsViewSettings: { primaryCategory, subCategories },
-  //   actions: { updateMarketsViewSettings },
-  // } = useSimplifiedStore();
   const primaryCategory = "Sports";
   const subCategories = [];
   const updateMarketsViewSettings = (obj: any) => {};

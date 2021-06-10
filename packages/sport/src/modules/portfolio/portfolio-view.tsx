@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
-// import { PositionsLiquidityViewSwitcher } from '../common/tables';
-// import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
 import { ContractCalls, Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
@@ -134,7 +132,6 @@ export const ClaimWinningsSection = () => {
   const claimableEthMarkets = claimableMarkets.filter((m) => m.claimableWinnings.sharetoken === ethCash?.shareToken);
   const ETHTotals = calculateTotalWinnings(claimableEthMarkets);
   const USDCTotals = calculateTotalWinnings(claimableMarkets);
-  // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
   const hasClaimableFees = createBigNumber(claimableFees || "0").gt(0);
   const disableClaimUSDCWins =

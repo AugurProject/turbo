@@ -1,5 +1,4 @@
 @import (reference) "~assets/styles/shared";
-@import (reference) "~modules/common/buttons.styles.less";
 
 .TopNav {
   align-items: center;
@@ -242,6 +241,27 @@
       > li {
         padding: 0 @size-12;
 
+        &:not(:last-of-type):focus-within,
+        &:focus-within {
+
+          padding: 0;
+
+          > button {
+            border: @size-1 solid var(--theme-focus-border-color);
+            border-bottom: @size-1 solid var(--theme-focus-border-color);
+            padding: 0 @size-12;
+          }
+          
+        }
+
+        &:hover {
+          background: var(--light-background-color);
+
+          > button {
+            color: var(--simple-primary-text);
+          }
+        }
+
         > button {
           .text-14;
 
@@ -323,8 +343,6 @@
 }
 
 .MobileMenuButton {
-  .Button;
-
   max-width: @size-56;
   min-width: @size-56;
   width: @size-56;
@@ -399,22 +417,11 @@
           align-items: center;
 
           > span {
-            .text-12-semi-bold;
+            .text-16-bold;
 
             color: var(--simple-light-bg);
             margin-right: @size-16;
             margin-left: @size-24;
-          }
-
-          > button {
-            .PrimaryActionButton;
-
-            flex-flow: row-reverse nowrap;
-
-            > div {
-              margin-left: 0;
-              margin-right: @size-8;
-            }
           }
         }
       }
