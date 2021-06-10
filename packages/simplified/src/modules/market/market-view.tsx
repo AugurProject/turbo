@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
 import classNames from "classnames";
@@ -131,6 +131,7 @@ const NonexistingMarketView = ({ text, showLink }) => {
 
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
+  const [marketNotFound, setMarketNotFound] = useState(false);
   const marketId = useMarketQueryId();
   const { isMobile } = useAppStatusStore();
   const {
@@ -149,14 +150,26 @@ const MarketView = ({ defaultMarket = null }) => {
   // const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
   // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
-  if (!market && marketId) {
-    return (
-      <NonexistingMarketView
-        text={"Market does not exist."}
-        showLink={false}
-      />
-    );
-  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!market && marketId) {
+        setMarketNotFound(true);
+      }
+    }, 60 * 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    }
+  }, [marketId]);
+
+  if (marketNotFound) return (
+    <NonexistingMarketView
+      text={"Market does not exist."}
+      showLink={false}
+    />
+  );
+
   if (!market) return <EmptyMarketView />;
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
