@@ -1,12 +1,12 @@
 import { useReducer } from "react";
-import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME } from "./constants";
+import { SPORT_ACTIONS, DEFAULT_SPORT_STATE, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME, MarketEvents } from "./constants";
 import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware, getSavedUserInfo },
 } = Stores;
-const { UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
+const { UPDATE_MARKET_EVENTS, UPDATE_SETTINGS, SET_SIDEBAR, SET_BETSLIP_MINIMIZED, UPDATE_MARKETS_VIEW_SETTINGS } = SPORT_ACTIONS;
 
-const { SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
+const { MARKET_EVENTS, SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
@@ -57,6 +57,13 @@ export function SportReducer(state, action) {
       }
       break;
     }
+    case UPDATE_MARKET_EVENTS: {
+      updatedState[MARKET_EVENTS] = {
+        ...state[MARKET_EVENTS],
+        ...action[MARKET_EVENTS],
+      };
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
@@ -77,6 +84,7 @@ export const useSport = (defaultState = DEFAULT_SPORT_STATE) => {
       setBetslipMinimized: (betslipMinimized) => dispatch({ type: SET_BETSLIP_MINIMIZED, betslipMinimized }),
       setSidebar: (sidebarType) => dispatch({ type: SET_SIDEBAR, sidebarType }),
       updateSettings: (settings, account = null) => dispatch({ type: UPDATE_SETTINGS, settings, account }),
+      updateMarketEvents: (marketEvents: MarketEvents) => dispatch({ type: UPDATE_MARKET_EVENTS, marketEvents}),
     },
   };
 };
