@@ -16,7 +16,6 @@ import {
   useAppStatusStore,
   useDataStore,
   useUserStore,
-  useCanExitCashPosition,
   Constants,
   DateUtils,
   Formatter,
@@ -174,6 +173,7 @@ export const PositionFooter = ({
   const [pendingClaimHash, setPendingClaimHash] = useState(null);
   const ammCash = getUSDC(cashes);
 
+  const hasWinner = amm?.market?.hasWinner;
   const disableClaim =
     pendingClaim ||
     Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
@@ -238,7 +238,8 @@ export const PositionFooter = ({
       loginAccount?.library,
       balances?.marketShares[marketId]?.outcomeSharesRaw,
       turboId,
-      amm?.shareFactor
+      amm?.shareFactor,
+      amm?.marketFactoryAddress
     )
       .then((res) => {
         setPendingCashOut(false);
@@ -282,7 +283,7 @@ export const PositionFooter = ({
         {claimableWinnings && <p>{`${formatPercent(settlementFee).full} fee charged on settlement`}</p>}
         {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
       </span>
-      {hasCompleteSets && (
+      {hasCompleteSets && !hasWinner && (
         <PrimaryButton
           text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
           action={cashOut}

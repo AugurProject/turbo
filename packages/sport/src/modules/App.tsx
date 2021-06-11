@@ -6,7 +6,6 @@ import Routes from "./routes/routes";
 import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
 import { SportProvider } from "./stores/sport";
-// import { Sidebar } from "./sidebar/sidebar";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
 import {
@@ -18,83 +17,13 @@ import {
   PathUtils,
   Constants,
   windowRef,
-  // ButtonComps,
-  // useUserStore,
 } from "@augurproject/comps";
-// import { TURBO_NO_ACCESS_MODAL } from "./constants";
 import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
 
-// import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
-const { PORTFOLIO } = Constants;
+const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
 const { parsePath } = PathUtils;
-// const { PrimaryButton } = ButtonComps;
-// // const AppBody = () => {
-//   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
-//   const { isMobile, modal, actions: { setModal }, } = useAppStatusStore();
-//   const { sidebarType, showTradingForm } = useSportsStore();
-//   const { loginAccount, actions: { logout }, } = useUserStore();
-//   const modalShowing = Object.keys(modal).length !== 0;
-  // const location = useLocation();
-  // const path = parsePath(location.pathname)[0];
-//   const sidebarOut = sidebarType && isMobile;
-
-  // useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
-  // useFinalizeUserTransactions(blocknumber);
-  // const activeWeb3 = useActiveWeb3React();
-
-//   useEffect(() => {
-//     const isTurboOrigin = () => window.location.origin.indexOf('turbo.augur.sh') > 0;
-//     if (!!loginAccount && isTurboOrigin()) {
-//       const isMainnetOrMatic = () => {
-//                 // "1" 	  Mainnet             // "137" 	Matic Mainnet
-//         return (loginAccount.chainId === 1 || loginAccount.chainId === 137);
-//       }
-//       if (modal.type !== TURBO_NO_ACCESS_MODAL && isMainnetOrMatic()) {
-//         logout();
-//         activeWeb3.deactivate();
-//         setModal({
-//           type: TURBO_NO_ACCESS_MODAL,
-//         });
-//       }
-//     }
-//   }, [loginAccount]);
-
-//   useEffect(() => {
-//     const html = windowRef.document.firstElementChild;
-//     // @ts-ignore
-//     const isHeightUnset = html?.style?.height === "";
-//     const eitherOr = modalShowing || showTradingForm;
-//     if (eitherOr && isHeightUnset) {
-//       // @ts-ignore
-//       html.style.height = "100%";
-//       // @ts-ignore
-//       html.style.overflow = "hidden";
-//     } else if (!eitherOr && !isHeightUnset) {
-//       // @ts-ignore
-//       html.style.height = "";
-//       // @ts-ignore
-//       html.style.overflow = "";
-//     }
-//   }, [modalShowing, showTradingForm]);
-
-//   return (
-//     <div
-//       id="mainContent"
-//       className={classNames(Styles.App, {
-//         [Styles.SidebarOut]: sidebarOut,
-//         [Styles.TwoToneContent]: path !== MARKETS,
-//         [Styles.ModalShowing]: modalShowing || showTradingForm,
-//       })}
-//     >
-//       {modalShowing && <ModalView />}
-//       {sidebarOut && <Sidebar />}
-//       <TopNav />
-//       <Routes />
-//     </div>
-//   );
-// };
 
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
@@ -109,19 +38,14 @@ const AppBody = () => {
   useFinalizeUserTransactions(blocknumber);
   
   useEffect(() => {
-    const html = windowRef.document.firstElementChild;
-    // @ts-ignore
+    const html: any = windowRef.document.firstElementChild;
     const isHeightUnset = html?.style?.height === "";
     const eitherOr = modalShowing;
     if (eitherOr && isHeightUnset) {
-      // @ts-ignore
       html.style.height = "100%";
-      // @ts-ignore
       html.style.overflow = "hidden";
     } else if (!eitherOr && !isHeightUnset) {
-      // @ts-ignore
       html.style.height = "";
-      // @ts-ignore
       html.style.overflow = "";
     }
   }, [modalShowing]);
@@ -155,7 +79,7 @@ function App() {
     <HashRouter hashType="hashbang">
       <ConnectAccountProvider>
         <UserProvider>
-          <DataProvider>
+          <DataProvider loadType={MARKET_LOAD_TYPE.SPORT}>
             <AppStatusProvider>
               <SportProvider>
                 <BetslipProvider>

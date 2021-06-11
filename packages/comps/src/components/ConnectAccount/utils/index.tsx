@@ -41,7 +41,7 @@ export const getDefaultProvider = () => {
   const httpProvider = new Web3HttpProvider(rpcData.rpcUrls[0]);
   if (!defaultProvider){
     defaultProvider = new Web3Provider(httpProvider, 'any');
-  } 
+  }
   return defaultProvider;
 }
 
@@ -53,16 +53,20 @@ export const isAddress = (value) => {
   }
 };
 
-export function getEtherscanLink(
+export function getChainExplorerLink(
   chainId: ChainId,
   data: string,
   type: "transaction" | "market" | "address" | "block"
 ): string {
-  let prefix = `https://${ETHERSCAN_PREFIXES[chainId] || ETHERSCAN_PREFIXES[1]}etherscan.io`;
+  let prefix;
 
-  // TODO remove when etherscan supports Matic
-  if (MATIC_CHAINS.includes(chainId)) {
-    prefix = `https://explorer-${chainId === MATIC_MAINNET ? 'mainnet' : 'mumbai'}.maticvigil.com`;
+  if (chainId === MATIC_MAINNET) {
+    prefix = "https://polygonscan.com"
+  } else if (chainId == MATIC_MUMBAI) {
+    // TODO can replace with polygonscan once mumbai support comes
+    prefix = "https://explorer-mumbai.maticvigil.com";
+  } else {
+    prefix = `https://${ETHERSCAN_PREFIXES[chainId] || ETHERSCAN_PREFIXES[1]}etherscan.io`;
   }
 
   switch (type) {

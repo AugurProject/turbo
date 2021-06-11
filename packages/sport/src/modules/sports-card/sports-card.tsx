@@ -42,7 +42,7 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, description = '', amm }) => {
+export const SportsCardOutcomes = ({ marketId, title, description = "", amm }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
@@ -59,6 +59,89 @@ export const SportsCardOutcomes = ({ marketId, title, description = '', amm }) =
         {outcomes?.map((outcome) => (
           <SportsOutcomeButton {...{ outcome, marketId, title, description, amm }} />
         ))}
+      </main>
+      {isMarketPage && (
+        <footer>
+          {FingersCrossedIcon}
+          <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
+        </footer>
+      )}
+    </section>
+  );
+};
+
+export const SportsCardComboOutcomes = ({ event = null }) => {
+  const location = useLocation();
+  const path = parsePath(location.pathname)[0];
+  const isMarketPage = path === MARKET;
+  return (
+    <section className={Styles.SportsCardComboOutcomes}>
+      <header>
+        <span />
+        <span>SPREAD</span>
+        <span>MONEY LINE</span>
+        <span>OVER / UNDER</span>
+      </header>
+      <main>
+        <article>
+          <label>San Francisco 49ers</label>
+          <button onClick={() => {}}>
+            <span>+1.5</span>
+            <span>-110</span>
+          </button>
+          <button onClick={() => {}}>
+            <span></span>
+            <span>+132</span>
+          </button>
+          <button onClick={() => {}}>
+            <span>
+              <b>O</b>10.5
+            </span>
+            <span>-105</span>
+          </button>
+          <span>$5,000.43</span>
+          <span>$6,500.12</span>
+          <span>$2,542.00</span>
+        </article>
+        <article>
+          <label>Kansas City Chiefs</label>
+          <button onClick={() => {}}>
+            <span>-1.5</span>
+            <span>-105</span>
+          </button>
+          <button onClick={() => {}}>
+            <span></span>
+            <span>-128</span>
+          </button>
+          <button onClick={() => {}}>
+            <span>
+              <b>U</b>54.5
+            </span>
+            <span>-115</span>
+          </button>
+          <span>$6,093.50</span>
+          <span>$10,000.54</span>
+          <span>$5,000.18</span>
+        </article>
+        <article>
+          <label>No Contest</label>
+          <button onClick={() => {}}>
+            <span></span>
+            <span>-105</span>
+          </button>
+          <button onClick={() => {}}>
+            <span></span>
+            <span>-128</span>
+          </button>
+          <button onClick={() => {}}>
+            <span>
+            </span>
+            <span>-115</span>
+          </button>
+          <span>$100.43</span>
+          <span>$100.43</span>
+          <span>$100.43</span>
+        </article>
       </main>
       {isMarketPage && (
         <footer>

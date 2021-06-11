@@ -89,19 +89,17 @@
       }
 
       &:last-of-type {
-        text-align: center;
         align-items: center;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
 
         > button {
-          .SimpleBorder;
           .text-10-semi-bold;
 
-          background: transparent;
           padding: @size-3 @size-6;
           min-height: @size-20;
           max-height: @size-20;
-          text-transform: uppercase;
-          cursor: pointer;
 
           &:not(.CanCashOut):not(.HasCashedOut):disabled {
             opacity: 0.75;

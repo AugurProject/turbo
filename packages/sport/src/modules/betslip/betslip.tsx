@@ -16,14 +16,13 @@ import {
   DateUtils,
   Icons,
   PathUtils,
-  createBigNumber,
   Links,
   windowRef,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getSizedPrice } from "modules/utils";
+import { getBuyAmount, makeBet } from "modules/utils";
 
-const { PrimaryButton, SecondaryButton } = ButtonComps;
+const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
 const { SimpleCheck, SimpleChevron } = Icons;
@@ -121,7 +120,7 @@ export const EmptyBetslip = () => {
   ) : (
     <>
       <p>You need to sign in to start betting!</p>
-      <PrimaryButton
+      <PrimaryThemeButton
         text="Sign Up"
         action={() =>
           setModal({
@@ -144,6 +143,7 @@ export const EmptyBetslip = () => {
 };
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
+const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
 
 const EditableBet = ({ betId, bet }) => {
   const {
@@ -158,12 +158,14 @@ const EditableBet = ({ betId, bet }) => {
   const amm = market?.amm;
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
+  const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
   const hasOddsChanged = initialOdds.current !== price;
-  const checkErrors = (test) => {
+  const checkErrors = (value: string) => {
     let returnError = null;
-    if (test !== "" && (isNaN(test) || Number(test) === 0 || Number(test) < 0)) {
+    const test = value.split(',').join('');
+    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) < 0)) {
       returnError = LOW_AMOUNT_ERROR;
     }
     return returnError;
@@ -193,9 +195,13 @@ const EditableBet = ({ betId, bet }) => {
               let updatedToWin = toWin;
               setError(error);
               if (!error) {
-                const sizeOfPool = getSizedPrice(amm, id);
-                const priceOffset = createBigNumber(1).minus(createBigNumber(sizeOfPool?.price || "1"));
-                updatedToWin = formatDai(priceOffset.times(fmtValue)).formatted;
+                const buyAmount = getBuyAmount(amm, id, value);
+                if (!buyAmount) {
+                  setError(HIGH_AMOUNT_ERROR);
+                } else {
+                  setUpdatedPrice(buyAmount?.price)
+                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;  
+                }
               }
               setValue(fmtValue);
               updateBet({
@@ -249,7 +255,9 @@ const BetReciept = ({ tx_hash, bet }) => {
   const {
     actions: { removeActive },
   } = useBetslipStore();
-  const { price, name, heading, status, canCashOut, hasCashedOut } = bet;
+  const { transactions } = useUserStore();
+  const { price, name, heading, canCashOut, hasCashedOut } = bet;
+  const status = transactions.find(t => t.hash === tx_hash)?.status || bet.status;
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -357,6 +365,12 @@ const determineBetTotals = (bets: Array<BetType>) => {
 };
 
 const BetslipFooter = () => {
+  const {
+    account,
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const { markets } = useDataStore();
   const { isLogged } = useAppStatusStore();
   const {
     selectedView,
@@ -382,25 +396,25 @@ const BetslipFooter = () => {
             You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
             win
           </p>
-          <SecondaryButton
-            className={Styles.FlipContent}
+          <SecondaryThemeButton
             text="Cancel All"
             icon={TrashIcon}
+            reverseContent
             action={() => cancelAllBets()}
           />
-          <PrimaryButton
+          <PrimaryThemeButton
             text="Place Bets"
-            action={() => {
-              console.log("place bets hit", bets, bets.length);
+            action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
-                console.log(bet, betId);
-                const signed = MOCK_PROMPT_SIGNATURE({ name: `$${bet.wager} on ${bet.name}` });
-                if (signed) {
+                const { amm } = markets[bet.marketId];
+                const txDetails = await makeBet(loginAccount, amm, bet.id, bet.wager, account, amm.cash);
+                if (txDetails.hash) {
                   addActive({
                     ...bet,
-                    hash: `0xFakeHash-${bet.betId}-${Math.round(Math.random() * 99999999999)}`
+                    ...txDetails
                   });
+                  addTransaction(txDetails);
                 }
               }
             }}

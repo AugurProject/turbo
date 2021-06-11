@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
-// import { PositionsLiquidityViewSwitcher } from '../common/tables';
-// import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
 import { ContractCalls, Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
@@ -18,7 +16,7 @@ const {
 } = Stores;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { PrimaryButton },
+  ButtonComps: { PrimaryThemeButton },
   Icons: { WinnerMedal },
   InputComps: { SearchInput },
 } = Components;
@@ -134,7 +132,6 @@ export const ClaimWinningsSection = () => {
   const claimableEthMarkets = claimableMarkets.filter((m) => m.claimableWinnings.sharetoken === ethCash?.shareToken);
   const ETHTotals = calculateTotalWinnings(claimableEthMarkets);
   const USDCTotals = calculateTotalWinnings(claimableMarkets);
-  // const canClaimETH = useCanExitCashPosition(ethCash);
   const canClaimETH = true;
   const hasClaimableFees = createBigNumber(claimableFees || "0").gt(0);
   const disableClaimUSDCWins =
@@ -151,16 +148,16 @@ export const ClaimWinningsSection = () => {
       {isLogged && !hasFees && <div>{WinnerMedal} Any winnings will show here</div>}
       {isLogged && hasFees && (
         <>
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
-          <ClaimableTicket amount="$200" button={<PrimaryButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
+          <ClaimableTicket amount="$200" button={<PrimaryThemeButton text="CLAIM WINNINGS" action={() => {}} />} />
         </>
       )}
       {isLogged && USDCTotals.hasWinnings && (
         <ClaimableTicket
           amount={formatCash(USDCTotals.total, usdcCash?.name).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
               subText={pendingClaim && `(Confirm this transaction in your wallet)`}
               disabled={disableClaimUSDCWins}
@@ -183,7 +180,7 @@ export const ClaimWinningsSection = () => {
         <ClaimableTicket
           amount={formatCash(ETHTotals.total, ethCash?.name).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text="Claim Winnings"
               action={() => {
                 handleClaimAll(
@@ -204,7 +201,7 @@ export const ClaimWinningsSection = () => {
         <ClaimableTicket
           amount={formatCash(claimableFees, USDC).full}
           button={
-            <PrimaryButton
+            <PrimaryThemeButton
               text={!pendingClaimFees ? `Claim Fees` : `Awaiting Signature`}
               disabled={disableClaimUSDCFees}
               action={() => {
