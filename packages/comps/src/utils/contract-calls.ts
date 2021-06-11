@@ -20,6 +20,7 @@ import {
   AddRemoveLiquidity,
   ClaimWinningsTransactions,
   UserClaimTransactions,
+  MarketInfo,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
@@ -551,7 +552,7 @@ export const cashOutAllShares = (
     marketId,
     normalizedAmount.toFixed(),
     account
-    //{ gasLimit: "800000", gasPrice: "10000000000",}
+    //, { gasLimit: "800000", gasPrice: "10000000000", }
   );
 };
 
@@ -1757,10 +1758,10 @@ const retrieveExchangeInfos = async (
 
   Object.keys(exchanges).forEach((marketId) => {
     const exchange = exchanges[marketId];
-    const outcomePrices = calculatePrices(ratios[marketId], poolWeights[marketId]);
     const market = marketInfos[marketId];
+    const outcomePrices = calculatePrices(market, ratios[marketId], poolWeights[marketId]);
     const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
-    const balancesRaw = balances[marketId];
+    const balancesRaw = balances[marketId] || [];
     const weights = poolWeights[marketId];
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
@@ -1789,7 +1790,7 @@ const retrieveExchangeInfos = async (
 const getTotalLiquidity = (prices: string[], balances: string[]) => {
   if (prices.length === 0) return "0";
   const outcomeLiquidity = prices.map((p, i) =>
-    new BN(p).times(new BN(toDisplayLiquidity(String(balances[i])))).toFixed()
+    new BN(p).times(new BN(toDisplayLiquidity(String(balances ? balances[i] : "0")))).toFixed()
   );
   return outcomeLiquidity.reduce((p, r) => p.plus(new BN(r)), ZERO).toFixed(4);
 };
@@ -1799,8 +1800,13 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   if (!ratios[outcomeId]) return "0";
   return String(ratios[outcomeId]);
 };
-const calculatePrices = (ratios: string[] = [], weights: string[] = []): string[] => {
+
+const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: string[] = []): string[] => {
   let outcomePrices = [];
+  const { outcomes, hasWinner } = market;
+  if (hasWinner) {
+    return outcomes.map((outcome) => (outcome.isWinner ? "1" : "0"));
+  }
   //price[0] = ratio[0] / sum(ratio)
   const base = ratios.length > 0 ? ratios : weights;
   if (base.length > 0) {
@@ -1862,7 +1868,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
   const sportId = getSportId(homeTeamId) || "4"; // TODO: need to add team so we get correct sportsId
 
   const { shareTokens } = market;
-  const outcomes = decodeOutcomes(shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
+  const outcomes = decodeOutcomes(market, shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
   const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line, startTimestamp);
 
   return {
@@ -1882,6 +1888,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
 };
 
 const decodeOutcomes = (
+  market: MarketInfo,
   shareTokens: string[],
   sportId: string,
   homeTeam: string,
@@ -1895,7 +1902,7 @@ const decodeOutcomes = (
       name: getOutcomeName(i, sportId, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
       symbol: shareToken,
       isInvalid: i === NO_CONTEST_OUTCOME_ID,
-      isWinner: false, // need to get based on winning payout hash
+      isWinner: market.hasWinner & (i === market.winner) ? true : false,
       isFinalNumerator: false, // need to translate final numerator payout hash to outcome
       shareToken,
     };
