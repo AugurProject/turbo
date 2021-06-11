@@ -548,10 +548,12 @@ export const cashOutAllShares = (
     .times(new BN(shareFactor))
     .decimalPlaces(0, 1);
   console.log("share to cash out", shareAmount.toFixed(), marketId, normalizedAmount.toFixed(), account);
-  return marketFactoryContract.burnShares(marketId, normalizedAmount.toFixed(), account, {
-    gasLimit: "800000",
-    gasPrice: "10000000000",
-  });
+  return marketFactoryContract.burnShares(
+    marketId,
+    normalizedAmount.toFixed(),
+    account
+    //, { gasLimit: "800000", gasPrice: "10000000000", }
+  );
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
