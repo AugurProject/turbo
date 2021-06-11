@@ -6,6 +6,7 @@ export const STUBBED_SPORT_ACTIONS = {
   setBetslipMinimized: (betslipMinimized) => {},
   updateSettings: (settings, account = null) => {},
   updateMarketsViewSettings: (settings) => {},
+  updateMarketEvents: (marketEvents: MarketEvents) => {},
 };
 
 export const DEFAULT_SPORT_STATE = {
@@ -19,6 +20,7 @@ export const DEFAULT_SPORT_STATE = {
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
     showLiquidMarkets: true,
   },
+  marketEvents: {},
 };
 
 export const LOCAL_STORAGE_SETTINGS_THEME = "sports_settings";
@@ -30,6 +32,7 @@ export const SPORT_STATE_KEYS = {
   TIME_FORMAT: "timeFormat",
   ODDS_FORMAT: "oddsFormat",
   MARKETS_VIEW_SETTINGS: "marketsViewSettings",
+  MARKET_EVENTS: "marketEvents",
 };
 
 export const SPORT_ACTIONS = {
@@ -37,8 +40,21 @@ export const SPORT_ACTIONS = {
   SET_SIDEBAR: "SET_SIDEBAR",
   SET_BETSLIP_MINIMIZED: "SET_BETSLIP_MINIMIZED",
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
+  UPDATE_MARKET_EVENTS: "UPDATE_MARKET_EVENTS",
 };
 
+export interface MarketEvent {
+  eventId: string;
+  description: string;
+  startTimestamp: number;
+  categories: string[];
+  hasWinner: boolean;
+  marketIds: string[];
+}
+
+export interface MarketEvents {
+  [eventId: string]: MarketEvent;
+}
 export interface BetType {
   id: number;
   heading?: string;
