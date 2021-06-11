@@ -37,6 +37,7 @@ const {
   SELL,
   YES_NO,
   TradingDirection,
+  RESOLVED_MARKET,
 } = Constants;
 
 const AVG_PRICE_TIP = "The difference between the market price and estimated price due to trade size.";
@@ -178,7 +179,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
   const { hasLiquidity } = amm;
   const selectedOutcomeId = selectedOutcome?.id;
   const marketShares = balances?.marketShares && balances?.marketShares[amm?.marketId];
-
+  const hasWinner = amm?.market;
   const outcomeSharesRaw = JSON.stringify(marketShares?.outcomeSharesRaw);
   const amountError = amount !== "" && (isNaN(Number(amount)) || Number(amount) === 0 || Number(amount) < 0);
   const buttonError = amountError ? ERROR_AMOUNT : "";
@@ -240,6 +241,9 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     if (!isLogged) {
       actionText = "Connect Wallet";
       disabled = true;
+    } else if (hasWinner) {
+      actionText = RESOLVED_MARKET;
+      disabled = true;
     } else if (!hasLiquidity) {
       actionText = "Liquidity Depleted";
       disabled = true;
@@ -262,14 +266,14 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       // todo: need better way to determine if there is liquidity
       actionText = INSUFFICIENT_LIQUIDITY;
       disabled = true;
-    }
+    } 
 
     return {
       disabled,
       actionText,
       subText,
     };
-  }, [orderType, amount, buttonError, breakdown, userBalance, hasLiquidity, waitingToSign]);
+  }, [orderType, amount, buttonError, breakdown, userBalance, hasLiquidity, waitingToSign, hasWinner]);
 
   const makeTrade = () => {
     const minOutput = breakdown?.outputValue;
@@ -384,7 +388,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           error={amountError}
           maxValue={userBalance}
           ammCash={ammCash}
-          disabled={!hasLiquidity}
+          disabled={!hasLiquidity || hasWinner}
           rate={getRate()}
           isBuy={orderType === BUY}
         />
