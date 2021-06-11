@@ -179,7 +179,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
   const { hasLiquidity } = amm;
   const selectedOutcomeId = selectedOutcome?.id;
   const marketShares = balances?.marketShares && balances?.marketShares[amm?.marketId];
-  const hasWinner = amm?.market;
+  const hasWinner = amm?.market.hasWinner;
   const outcomeSharesRaw = JSON.stringify(marketShares?.outcomeSharesRaw);
   const amountError = amount !== "" && (isNaN(Number(amount)) || Number(amount) === 0 || Number(amount) < 0);
   const buttonError = amountError ? ERROR_AMOUNT : "";
