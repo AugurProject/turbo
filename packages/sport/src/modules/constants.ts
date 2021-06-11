@@ -230,5 +230,5 @@ export const ACTIVE_BETS = "Active Bets";
 export const MarketTypeLabel = {
   0: "Money Line",
   1: "Spread",
-  2: "Over/Under"
-}
+  2: "Over/Under",
+};

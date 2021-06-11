@@ -53,7 +53,8 @@ export const makeCashOut = async (
   amm: AmmExchange,
   position: PositionBalance,
   account: string,
-  cash: Cash): Promise<TransactionDetails> => {
+  cash: Cash
+): Promise<TransactionDetails> => {
   if (!amm || !amm?.hasLiquidity || !position) return null;
   const shareAmount = position.quantity;
   const defaultSlippage = "1";
@@ -70,7 +71,7 @@ export const makeCashOut = async (
     account,
     cash,
     defaultSlippage,
-    est?.outcomeShareTokensIn,
+    est?.outcomeShareTokensIn
   );
   return {
     hash: response?.hash,
