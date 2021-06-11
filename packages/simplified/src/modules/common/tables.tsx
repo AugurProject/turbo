@@ -172,6 +172,7 @@ export const PositionFooter = ({
   const [pendingCashOutHash, setPendingCashOutHash] = useState(null);
   const [pendingClaimHash, setPendingClaimHash] = useState(null);
   const ammCash = getUSDC(cashes);
+
   const hasWinner = amm?.market?.hasWinner;
   const disableClaim =
     pendingClaim ||
