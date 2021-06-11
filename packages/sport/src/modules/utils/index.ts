@@ -48,6 +48,42 @@ export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): s
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
+export const makeCashOut = async (
+  loginAccount: LoginAccount,
+  amm: AmmExchange,
+  position: PositionBalance,
+  account: string,
+  cash: Cash
+): Promise<TransactionDetails> => {
+  if (!amm || !amm?.hasLiquidity || !position) return null;
+  const shareAmount = position.quantity;
+  const defaultSlippage = "1";
+  const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
+  // can sell all position or none
+  if (est.maxSellAmount !== "0") return null;
+  const response = await doTrade(
+    TradingDirection.EXIT,
+    loginAccount?.library,
+    amm,
+    est.outputValue,
+    shareAmount,
+    position.outcomeId,
+    account,
+    cash,
+    defaultSlippage,
+    est?.outcomeShareTokensIn
+  );
+  return {
+    hash: response?.hash,
+    chainId: String(loginAccount.chainId),
+    seen: false,
+    status: TX_STATUS.PENDING,
+    from: account,
+    addedTime: new Date().getTime(),
+    marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
+  };
+};
+
 export const makeBet = async (
   loginAccount: LoginAccount,
   amm: AmmExchange,
