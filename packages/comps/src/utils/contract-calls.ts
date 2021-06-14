@@ -768,7 +768,7 @@ export const getUserBalances = async (
 
   const userPositions = getTotalPositions(userBalances.marketShares);
   let openMarketShares = {};
-  Object.keys(userBalances.marketShares).map(marketId => {
+  Object.keys(userBalances.marketShares).forEach((marketId) => {
     if (userBalances.marketShares[marketId]?.ammExchange?.market?.winner === null) {
       openMarketShares[marketId] = userBalances.marketShares[marketId];
     }
@@ -783,9 +783,16 @@ export const getUserBalances = async (
     change24hrPositionUsdOpenOnly: userOpenPositions.change24hrPositionUsd,
     total24hrPositionUsdOpenOnly: userOpenPositions.total24hrPositionUsd,
     totalPositionUsdOpenOnly: userOpenPositions.totalPositionUsd,
-  }
+  };
 
-  return { ...userBalances, ...userPositions, ...userOpenPositionsOpenOnly, totalAccountValueOpenOnly, totalAccountValue, availableFundsUsd };
+  return {
+    ...userBalances,
+    ...userPositions,
+    ...userOpenPositionsOpenOnly,
+    totalAccountValueOpenOnly,
+    totalAccountValue,
+    availableFundsUsd,
+  };
 };
 
 const populateClaimableWinnings = (
