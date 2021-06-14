@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
-import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME } from "./constants";
+import { DEFAULT_SPORT_STATE, STUBBED_SPORT_ACTIONS, SPORT_STATE_KEYS, LOCAL_STORAGE_SETTINGS_THEME, MarketEvent } from "./constants";
 import { useSport } from "./sport-hooks";
 import { useUserStore, Stores, useDataStore } from "@augurproject/comps";
+import { SPORTS_MARKET_TYPE } from "@augurproject/comps/build/utils/constants";
+import { MarketInfo } from "@augurproject/comps/build/types";
 
 const {
   Utils: { getSavedUserInfo },
@@ -53,7 +55,7 @@ const useMarketEvents = () => {
             ...p,
             [eventId]: {
               eventId,
-              description: description.replace('?',''),
+              description: description.replace('?', ''),
               startTimestamp,
               categories,
               hasWinner,
@@ -63,7 +65,27 @@ const useMarketEvents = () => {
       }, {});
 
       if (marketEvents) {
-        SportStore.actions.updateMarketEvents(marketEvents);
+        const populatedMarketEvents = Object.keys(marketEvents).reduce((p, id) => {
+          const event: MarketEvent = marketEvents[id];
+          const moneylineMarketId = event.marketIds.find(id => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE);
+          if (moneylineMarketId) {
+            const moneyline: MarketInfo = markets[moneylineMarketId];
+            event.description = moneyline.outcomes.length !== 0 ? `${moneyline.outcomes[1].name} vs ${moneyline.outcomes[2].name}` : event.description;
+            event.outcomeNames = moneyline.outcomes.length !== 0 ? moneyline.outcomes.map(o => o.name) : [];
+          }
+          if (event.marketIds.length > 1) {
+            const spreadMarketId = event.marketIds.find(id => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.SPREAD);
+            if (spreadMarketId) {
+              event.spreadLine = markets[spreadMarketId].spreadOuLine;
+            }
+            const overUnderMarketId = event.marketIds.find(id => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER);
+            if (overUnderMarketId) {
+              event.overUnderLine = markets[overUnderMarketId].spreadOuLine;
+            }
+          }
+          return { ...p, [id]: event }
+        }, {})
+        SportStore.actions.updateMarketEvents(populatedMarketEvents);
       }
     }
   }, [eventIds.length, numMarkets]);

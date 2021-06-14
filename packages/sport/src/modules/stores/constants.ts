@@ -50,6 +50,9 @@ export interface MarketEvent {
   categories: string[];
   hasWinner: boolean;
   marketIds: string[];
+  spreadLine: number;
+  overUnderLine: number;
+  outcomeNames: string[];
 }
 
 export interface MarketEvents {
