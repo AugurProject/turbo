@@ -6,7 +6,9 @@ import {
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
   TrustedMarketFactory,
-  TrustedMarketFactory__factory, CryptoMarketFactory__factory, CryptoMarketFactory
+  TrustedMarketFactory__factory,
+  CryptoMarketFactory__factory,
+  CryptoMarketFactory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";

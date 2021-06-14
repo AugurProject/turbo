@@ -56,7 +56,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       address: cryptoMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
-    })
+    });
   }
   if (!hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
     marketFactories.unshift({

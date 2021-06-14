@@ -67,15 +67,15 @@ function getUpcomingFriday4pmEst(): Date {
   d.setUTCDate(d.getUTCDate() + dateAdjustment); // Date.setDate rolls over to the next month if needed
 
   // set hour
-  const thisHour = d.getUTCHours()
+  const thisHour = d.getUTCHours();
   let hoursAdjustment = FOUR_PM_EST - thisHour;
   if (hoursAdjustment < 0) hoursAdjustment += 24;
   d.setUTCHours(thisHour + hoursAdjustment);
 
   // set minutes etc
   d.setUTCMinutes(0);
-  d.setUTCSeconds(0)
-  d.setUTCMilliseconds(0)
+  d.setUTCSeconds(0);
+  d.setUTCMilliseconds(0);
 
   return d;
 }

@@ -170,7 +170,7 @@ describe("CryptoFactory", () => {
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
     expect(market.endTime).to.equal(nextResolutionTime);
-    expect(market.winner).to.equal(NULL_ADDRESS)
+    expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
     expect(marketDetails.price).to.equal(ethPrice);
@@ -187,7 +187,7 @@ describe("CryptoFactory", () => {
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
     expect(market.endTime).to.equal(nextResolutionTime);
-    expect(market.winner).to.equal(NULL_ADDRESS)
+    expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.BTC);
     expect(marketDetails.price).to.equal(btcPrice);
@@ -227,7 +227,7 @@ describe("CryptoFactory", () => {
     expect(ethCoin.currentMarkets[0]).to.equal(ethPriceMarketId);
 
     expect(market.endTime).to.equal(nextResolutionTime);
-    expect(market.winner).to.equal(NULL_ADDRESS)
+    expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
     expect(marketDetails.price).to.equal(ethPrice);
@@ -237,5 +237,4 @@ describe("CryptoFactory", () => {
     expect(await notAbove.symbol()).to.equal("Not Above");
     expect(await notAbove.name()).to.equal("Not Above");
   });
-
 });

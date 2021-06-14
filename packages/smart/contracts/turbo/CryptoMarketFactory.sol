@@ -180,8 +180,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     }
 
     function getPrice(AggregatorV3Interface _priceFeed) internal view returns (uint256) {
-        (, int256 _price,,,) =
-            _priceFeed.latestRoundData();
+        (, int256 _price, , , ) = _priceFeed.latestRoundData();
         require(_price >= 0, "Price from feed is negative");
         return uint256(_price);
     }
