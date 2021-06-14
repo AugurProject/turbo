@@ -53,6 +53,7 @@ import {
   SEC_IN_DAY,
   ZERO,
   MARKET_LOAD_TYPE,
+  SPORTS_MARKET_TYPE,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1847,8 +1848,9 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
   let categories = getSportCategories(homeTeamId);
   if (!categories) categories = ["Unknown", "Unknown", "Unknown"];
-  const line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
+  let line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
+  if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
   const homeTeam = getFullTeamName(homeTeamId);
   const awayTeam = getFullTeamName(awayTeamId);
   const sportId = getSportId(homeTeamId) || "4"; // TODO: need to add team so we get correct sportsId
@@ -1869,7 +1871,7 @@ const decodeMarketDetails = (market: MarketInfo, marketData: any) => {
     startTimestamp,
     sportId,
     sportsMarketType,
-    spreadLine: line,
+    spreadOuLine: line,
   };
 };
 
