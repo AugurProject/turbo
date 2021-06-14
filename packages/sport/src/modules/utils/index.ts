@@ -1,6 +1,6 @@
 import { BigNumber as BN } from "bignumber.js";
 import { AmmExchange, Cash, LoginAccount, PositionBalance, TransactionDetails } from "@augurproject/comps/build/types";
-import { ContractCalls } from "@augurproject/comps";
+import { ContractCalls, createBigNumber } from "@augurproject/comps";
 import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
@@ -16,7 +16,6 @@ export interface BuyAmount {
 }
 
 export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number = 0.1): SizedPrice => {
-  if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
@@ -27,8 +26,8 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
 };
 
 export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyAmount | null => {
-  if (!amm) return null;
   if (!amm?.hasLiquidity) return null;
+  if (!amount || createBigNumber(amount).eq(0)) return null;
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
   if (!outcome) return null;
@@ -41,7 +40,7 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
 };
 
 export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): string => {
-  if (!amm || !amm?.hasLiquidity || !position) return null;
+  if (!amm?.hasLiquidity || !position) return null;
   const shareAmount = position.quantity;
   const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
   // can sell all position or none
@@ -55,7 +54,7 @@ export const makeCashOut = async (
   account: string,
   cash: Cash
 ): Promise<TransactionDetails> => {
-  if (!amm || !amm?.hasLiquidity || !position) return null;
+  if (!amm?.hasLiquidity || !position) return null;
   const shareAmount = position.quantity;
   const defaultSlippage = "1";
   const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);

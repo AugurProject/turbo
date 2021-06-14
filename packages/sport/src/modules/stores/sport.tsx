@@ -53,7 +53,7 @@ const useMarketEvents = () => {
             ...p,
             [eventId]: {
               eventId,
-              description,
+              description: description.replace('?',''),
               startTimestamp,
               categories,
               hasWinner,

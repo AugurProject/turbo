@@ -98,9 +98,11 @@ export const ActiveBetsMain = () => {
   const { active, selectedCount } = useBetslipStore();
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(active).sort(RECENT_UPDATES_TOP).map(([tx_hash, bet]) => (
-        <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
-      ))}
+      {Object.entries(active)
+        .sort(RECENT_UPDATES_TOP)
+        .map(([tx_hash, bet]) => (
+          <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
+        ))}
     </main>
   ) : (
     <EmptyBetslip />
@@ -144,6 +146,7 @@ export const EmptyBetslip = () => {
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
 const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
+const ONLY_NUMBER_VALUES_REGEX = /(?:\d{1,3}(?:,\d+)*|\d+)(?:\.\d+)?$/;
 
 const EditableBet = ({ betId, bet }) => {
   const {
@@ -152,10 +155,9 @@ const EditableBet = ({ betId, bet }) => {
   const {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
-  const { markets } = useDataStore();
+  const { ammExchanges } = useDataStore();
   const { id, marketId, heading, name, price, wager, toWin } = bet;
-  const market = markets[marketId];
-  const amm = market?.amm;
+  const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
@@ -164,8 +166,8 @@ const EditableBet = ({ betId, bet }) => {
   const hasOddsChanged = initialOdds.current !== price;
   const checkErrors = (value: string) => {
     let returnError = null;
-    const test = value.split(',').join('');
-    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) < 0)) {
+    const test = value.split(",").join("");
+    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) <= 0)) {
       returnError = LOW_AMOUNT_ERROR;
     }
     return returnError;
@@ -183,32 +185,61 @@ const EditableBet = ({ betId, bet }) => {
           <LabeledInput
             label="wager"
             onEdit={(e) => {
-              setValue(e.target.value);
-              if (error) {
-                const newError = checkErrors(e.target.value);
-                setError(newError);
-              }
-            }}
-            onBlur={(e) => {
-              const fmtValue = formatDai(value).formatted;
-              const error = checkErrors(fmtValue);
-              let updatedToWin = toWin;
-              setError(error);
-              if (!error) {
-                const buyAmount = getBuyAmount(amm, id, value);
-                if (!buyAmount) {
-                  setError(HIGH_AMOUNT_ERROR);
-                } else {
-                  setUpdatedPrice(buyAmount?.price)
-                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;  
+              const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
+              if (newValue === "") {
+                setError(null);
+                setUpdatedPrice(price);
+                updateBet({
+                  ...bet,
+                  wager: null,
+                  toWin: null,
+                });
+              } else {
+                const fmtNewValue = formatDai(newValue).formatted;
+                const nextBuyAmount = getBuyAmount(amm, id, newValue);
+                if (error) {
+                  const newError = checkErrors(newValue || '');
+                  setError(newError);
+                }
+                if (nextBuyAmount?.maxProfit) {
+                  setUpdatedPrice(nextBuyAmount.price);
+                  updateBet({
+                    ...bet,
+                    wager: fmtNewValue,
+                    toWin: formatDai(nextBuyAmount.maxProfit).formatted,
+                  });
                 }
               }
+
+              setValue(newValue);
+            }}
+            onBlur={(e) => {
+              const CleanValue = (value || '').split(",").join("");
+              const fmtValue = formatDai(CleanValue).formatted;
+              const buyAmount = getBuyAmount(amm, id, CleanValue);
+              const errorCheck = checkErrors(fmtValue);
+              const error = errorCheck ? errorCheck : !buyAmount ? HIGH_AMOUNT_ERROR : null;
+              setError(error);
               setValue(fmtValue);
-              updateBet({
-                ...bet,
-                wager: fmtValue,
-                toWin: updatedToWin,
-              });
+
+              if (Number(CleanValue) === 0) {
+                updateBet({
+                  ...bet,
+                  wager: fmtValue,
+                  toWin: null,
+                });
+              } else {
+                let updatedToWin = toWin;
+                if (!error && buyAmount) {
+                  setUpdatedPrice(buyAmount?.price);
+                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
+                }
+                updateBet({
+                  ...bet,
+                  wager: fmtValue,
+                  toWin: updatedToWin,
+                });
+              }
             }}
             isInvalid={!!error}
             value={value}
@@ -243,7 +274,23 @@ const LabeledInput = ({
       })}
     >
       <span>{label}</span>
-      <input type="number" min={0} value={value} placeholder="" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
+      <input
+        type="text"
+        min={0}
+        step={0.01}
+        value={value}
+        inputMode="numeric"
+        pattern="\d*"
+        placeholder=""
+        onChange={onEdit}
+        onBlur={onBlur}
+        disabled={disabled}
+        onKeyDown={(e) => {
+          // stop passing values to onChange if they aren't valid keystrokes of // 0-9 | , | . | Backspace (for clearing input)
+          const nums = /^(?:\d|\.|,)*$/;
+          if(!nums.test(e.key) && e.key !== "Backspace") e.preventDefault();
+        }}
+      />
     </div>
   );
 };
@@ -257,7 +304,7 @@ const BetReciept = ({ tx_hash, bet }) => {
   } = useBetslipStore();
   const { transactions } = useUserStore();
   const { price, name, heading, canCashOut, hasCashedOut } = bet;
-  const status = transactions.find(t => t.hash === tx_hash)?.status || bet.status;
+  const status = transactions.find((t) => t.hash === tx_hash)?.status || bet.status;
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -358,8 +405,8 @@ const determineBetTotals = (bets: Array<BetType>) => {
   let totalWager = ZERO;
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
-    totalWager = totalWager.plus(bet?.wager || "0");
-    totalToWin = totalWager.plus(bet?.toWin || "0");
+    totalWager = totalWager.plus(bet?.wager?.split(",").join("") || "0");
+    totalToWin = totalWager.plus(bet?.toWin?.split(",").join("") || "0");
   });
   return { totalWager, totalToWin };
 };
@@ -396,12 +443,7 @@ const BetslipFooter = () => {
             You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
             win
           </p>
-          <SecondaryThemeButton
-            text="Cancel All"
-            icon={TrashIcon}
-            reverseContent
-            action={() => cancelAllBets()}
-          />
+          <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
             action={async () => {
@@ -412,7 +454,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
-                    ...txDetails
+                    ...txDetails,
                   });
                   addTransaction(txDetails);
                 }
