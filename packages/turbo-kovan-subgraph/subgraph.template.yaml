@@ -4,156 +4,56 @@ repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum/contract
-    name: AmmFactory
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.sportsball.ammFactory }}'
-      abi: AmmFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AmmFactory.ts
-      entities:
-        - PoolCreated
-        - LiquidityChanged
-        - SharesSwapped
-      abis:
-        - name: AmmFactory
-          file: ./abis/AMMFactory.json
-        - name: BPool
-          file: ./abis/BPool.json
-      eventHandlers:
-        - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-          handler: handlePoolCreatedEvent
-        - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-          handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-          handler: handleSharesSwappedEvent
-  - kind: ethereum/contract
-    name: AbstractMarketFactory
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.sportsball.address }}' # use SportsLinkMarketFactory
-      abi: AbstractMarketFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AbstractMarketFactory.ts
-      entities:
-        - WinningsClaimed
-        - SettlementFeeClaimed
-      abis:
-        - name: AbstractMarketFactory
-          file: ./abis/AbstractMarketFactory.json
-      eventHandlers:
-        - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-          handler: handleWinningsClaimedEvent
-        - event: SettlementFeeClaimed(address,uint256,indexed address)
-          handler: handleSettlementFeeClaimedEvent
-  - kind: ethereum/contract
-    name: AmmFactory2
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.sportsball2.ammFactory }}'
-      abi: AmmFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AmmFactory.ts
-      entities:
-        - PoolCreated
-        - LiquidityChanged
-        - SharesSwapped
-      abis:
-        - name: AmmFactory
-          file: ./abis/AMMFactory.json
-        - name: BPool
-          file: ./abis/BPool.json
-      eventHandlers:
-        - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-          handler: handlePoolCreatedEvent
-        - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-          handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-          handler: handleSharesSwappedEvent
-  - kind: ethereum/contract
-    name: AbstractMarketFactory2
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.sportsball2.address }}' # use SportsLinkMarketFactory
-      abi: AbstractMarketFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AbstractMarketFactory.ts
-      entities:
-        - WinningsClaimed
-        - SettlementFeeClaimed
-      abis:
-        - name: AbstractMarketFactory
-          file: ./abis/AbstractMarketFactory.json
-      eventHandlers:
-        - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-          handler: handleWinningsClaimedEvent
-        - event: SettlementFeeClaimed(address,uint256,indexed address)
-          handler: handleSettlementFeeClaimedEvent
-  - kind: ethereum/contract
-    name: AmmFactory3
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.mma.ammFactory }}'
-      abi: AmmFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AmmFactory.ts
-      entities:
-        - PoolCreated
-        - LiquidityChanged
-        - SharesSwapped
-      abis:
-        - name: AmmFactory
-          file: ./abis/AMMFactory.json
-        - name: BPool
-          file: ./abis/BPool.json
-      eventHandlers:
-        - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-          handler: handlePoolCreatedEvent
-        - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-          handler: handleLiquidityChangedEvent
-        - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-          handler: handleSharesSwappedEvent
-  - kind: ethereum/contract
-    name: AbstractMarketFactory3
-    network: {{ info.graphName }}
-    source:
-      address: '{{ marketFactories.mma.address }}' # use SportsLinkMarketFactory
-      abi: AbstractMarketFactory
-      startBlock: {{ info.uploadBlockNumber }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/AbstractMarketFactory.ts
-      entities:
-        - WinningsClaimed
-        - SettlementFeeClaimed
-      abis:
-        - name: AbstractMarketFactory
-          file: ./abis/AbstractMarketFactory.json
-      eventHandlers:
-        - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-          handler: handleWinningsClaimedEvent
-        - event: SettlementFeeClaimed(address,uint256,indexed address)
-          handler: handleSettlementFeeClaimedEvent
+  {{#marketFactories}}
+    - kind: ethereum/contract
+      name: {{ ammFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ ammFactory }}'
+        abi: AmmFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/AmmFactory.ts
+        entities:
+          - PoolCreated
+          - LiquidityChanged
+          - SharesSwapped
+        abis:
+          - name: AmmFactory
+            file: ./abis/AMMFactory.json
+          - name: BPool
+            file: ./abis/BPool.json
+        eventHandlers:
+          - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
+            handler: handlePoolCreatedEvent
+          - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
+            handler: handleLiquidityChangedEvent
+          - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
+            handler: handleSharesSwappedEvent
+    - kind: ethereum/contract
+      name: {{ abstractMarketFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ address }}' # use SportsLinkMarketFactory
+        abi: AbstractMarketFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/AbstractMarketFactory.ts
+        entities:
+          - WinningsClaimed
+          - SettlementFeeClaimed
+        abis:
+          - name: AbstractMarketFactory
+            file: ./abis/AbstractMarketFactory.json
+        eventHandlers:
+          - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
+          - event: SettlementFeeClaimed(address,uint256,indexed address)
+            handler: handleSettlementFeeClaimedEvent
+  {{/marketFactories}}

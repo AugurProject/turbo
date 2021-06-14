@@ -72,6 +72,7 @@ import {
   AbstractMarketFactory__factory,
   calcSellCompleteSets,
   estimateBuy,
+  MarketFactory,
 } from "@augurproject/smart";
 import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 import { getOutcomeName, getMarketTitle, isIgnoredMarket } from "./derived-market-data";
@@ -1199,7 +1200,7 @@ const getAmmFactoryContract = (library: Web3Provider, address: string, account?:
 
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
-  const usdcContract = marketFactories.sportsball.collateral;
+  const usdcContract = marketFactories[0].collateral;
   const amount = ethers.BigNumber.from(10).pow(10); // 10k
   const collateral = Cash__factory.connect(usdcContract, getProviderOrSigner(library, account));
   await collateral.faucet(amount as BigNumberish);
@@ -1269,30 +1270,15 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
 const isOldMarketFactory = (address) => {
-  const { marketFactories } = PARA_CONFIG;
-  return marketFactories?.sportsball?.address?.toUpperCase() === address.toUpperCase();
+  const factories = marketFactories();
+  const oldest = factories.find((f) => f.version === OLDEST_MARKET_FACTORY_VER);
+  return address.toUpperCase() === oldest.address.toUpperCase();
 };
 
-const marketFactories = (): { address: string; ammFactory: string }[] => {
-  const { marketFactories } = PARA_CONFIG;
-  const marketAddresses = [
-    { address: marketFactories.sportsball.address, ammFactory: marketFactories.sportsball.ammFactory },
-  ];
-  // make sure sportsball2 exists in addresses before trying to add
-  if (marketFactories?.sportsball2?.address) {
-    marketAddresses.push({
-      address: marketFactories.sportsball2.address,
-      ammFactory: marketFactories.sportsball2.ammFactory,
-    });
-  }
-  // TODO: add in MMA when there are real mma markets
-  /*
-  if (marketFactories?.mma?.address) {
-    marketAddresses.push(marketFactories.mma.address);
-  }
-  */
-  return marketAddresses;
+const marketFactories = (): MarketFactory[] => {
+  return PARA_CONFIG.marketFactories;
 };
 
 // stop updating resolved markets

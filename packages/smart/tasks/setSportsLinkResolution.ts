@@ -10,14 +10,15 @@ task("setSportsLinkResolution", "Set market resolution for the SportsLinkMarketF
   .addParam("eventid", undefined, undefined, types.string)
   .addParam("homescore", undefined, undefined, types.int)
   .addParam("awayscore", undefined, undefined, types.int)
-  .setAction(async ({ marketid, eventid, homescore, awayscore }, hre) => {
+  .addParam("index", "index of market factory to use, in addresses.ts", 0, types.int)
+  .setAction(async ({ marketid, eventid, homescore, awayscore, index }, hre) => {
     const { ethers } = hre;
 
     const signer = await makeSigner(hre);
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories["sportsball"].marketFactory as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
     await marketFactory.trustedResolveMarkets(
       await marketFactory.encodeResolution(eventid, SportsLinkEventStatus.Final, homescore, awayscore)
     );

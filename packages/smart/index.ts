@@ -10,25 +10,21 @@ import {
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
 } from "./typechain";
-import { addresses, ChainId } from "./addresses";
+import { addresses, ChainId, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import { mapOverObject } from "./src";
 
 export * from "./typechain";
 export * from "./addresses";
 export { calcSellCompleteSets, estimateBuy } from "./src/bmath";
-
-export { mapOverObject } from "./src/utils/common-functions"; // TODO this shouldn't live in this package
+export { mapOverObject } from "./src/utils/common-functions";
 
 export interface ContractInterfaces {
   ReputationToken: Cash;
   MarketFactories: {
-    [name: string]: {
-      marketFactory: MarketFactoryContract;
-      ammFactory: AMMFactory;
-    };
-  };
+    marketFactory: MarketFactoryContract;
+    ammFactory: AMMFactory;
+  }[];
 }
 export type MarketFactoryContract = SportsLinkMarketFactory | TrustedMarketFactory | TestPriceMarketFactory;
 
@@ -38,29 +34,29 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
 
   console.log(contractAddresses.marketFactories);
 
-  const MarketFactories = mapOverObject(
-    contractAddresses.marketFactories,
-    (name, { type, address, ammFactory: ammFactoryAddress }) => {
-      let marketFactory: MarketFactoryContract;
-      switch (type) {
-        case "SportsLink":
-          marketFactory = SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
-          break;
-        case "Trusted":
-          marketFactory = TrustedMarketFactory__factory.connect(address, signerOrProvider);
-          break;
-        case "Price":
-          marketFactory = TestPriceMarketFactory__factory.connect(address, signerOrProvider);
-          break;
-      }
-      const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
-      return [name, { marketFactory, ammFactory }];
-    }
-  );
+  const MarketFactories = contractAddresses.marketFactories.map(({ type, address, ammFactory: ammFactoryAddress }) => {
+    const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, address, signerOrProvider);
+    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+    return { marketFactory, ammFactory };
+  });
 
   return {
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
     MarketFactories,
-    // TheRundownChainlink: TheRundownChainlink__factory.connect(contractAddresses.theRundownChainlink, signerOrProvider),
   };
+}
+
+function instantiateMarketFactory(
+  type: MarketFactoryType,
+  address: string,
+  signerOrProvider: Signer | Provider
+): MarketFactoryContract {
+  switch (type) {
+    case "SportsLink":
+      return SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
+    case "Trusted":
+      return TrustedMarketFactory__factory.connect(address, signerOrProvider);
+    case "Price":
+      return TestPriceMarketFactory__factory.connect(address, signerOrProvider);
+  }
 }
