@@ -98,9 +98,11 @@ export const ActiveBetsMain = () => {
   const { active, selectedCount } = useBetslipStore();
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(active).sort(RECENT_UPDATES_TOP).map(([tx_hash, bet]) => (
-        <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
-      ))}
+      {Object.entries(active)
+        .sort(RECENT_UPDATES_TOP)
+        .map(([tx_hash, bet]) => (
+          <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
+        ))}
     </main>
   ) : (
     <EmptyBetslip />
@@ -152,10 +154,9 @@ const EditableBet = ({ betId, bet }) => {
   const {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
-  const { markets } = useDataStore();
+  const { ammExchanges } = useDataStore();
   const { id, marketId, heading, name, price, wager, toWin } = bet;
-  const market = markets[marketId];
-  const amm = market?.amm;
+  const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
@@ -164,8 +165,8 @@ const EditableBet = ({ betId, bet }) => {
   const hasOddsChanged = initialOdds.current !== price;
   const checkErrors = (value: string) => {
     let returnError = null;
-    const test = value.split(',').join('');
-    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) < 0)) {
+    const test = value.split(",").join("");
+    if (test !== "" && (isNaN(Number(test)) || Number(test) === 0 || Number(test) <= 0)) {
       returnError = LOW_AMOUNT_ERROR;
     }
     return returnError;
@@ -183,32 +184,60 @@ const EditableBet = ({ betId, bet }) => {
           <LabeledInput
             label="wager"
             onEdit={(e) => {
-              setValue(e.target.value);
-              if (error) {
-                const newError = checkErrors(e.target.value);
-                setError(newError);
+              const newValue = e.target.value;
+              if (newValue === "") {
+                setError(null);
+                setUpdatedPrice(price);
+                updateBet({
+                  ...bet,
+                  wager: null,
+                  toWin: null,
+                });
+              } else {
+                const fmtNewValue = formatDai(newValue).formatted;
+                const nextBuyAmount = getBuyAmount(amm, id, newValue);
+                if (error) {
+                  const newError = checkErrors(newValue);
+                  setError(newError);
+                }
+                if (nextBuyAmount?.maxProfit) {
+                  setUpdatedPrice(nextBuyAmount.price);
+                  updateBet({
+                    ...bet,
+                    wager: fmtNewValue,
+                    toWin: formatDai(nextBuyAmount.maxProfit).formatted,
+                  });
+                }
               }
+
+              setValue(e.target.value);
             }}
             onBlur={(e) => {
               const fmtValue = formatDai(value).formatted;
-              const error = checkErrors(fmtValue);
-              let updatedToWin = toWin;
+              const buyAmount = getBuyAmount(amm, id, value);
+              const errorCheck = checkErrors(fmtValue);
+              const error = errorCheck ? errorCheck : !buyAmount ? HIGH_AMOUNT_ERROR : null;
               setError(error);
-              if (!error) {
-                const buyAmount = getBuyAmount(amm, id, value);
-                if (!buyAmount) {
-                  setError(HIGH_AMOUNT_ERROR);
-                } else {
-                  setUpdatedPrice(buyAmount?.price)
-                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;  
-                }
-              }
               setValue(fmtValue);
-              updateBet({
-                ...bet,
-                wager: fmtValue,
-                toWin: updatedToWin,
-              });
+
+              if (Number(value) === 0) {
+                updateBet({
+                  ...bet,
+                  wager: fmtValue,
+                  toWin: null,
+                });
+              } else {
+                let updatedToWin = toWin;
+                if (!error && buyAmount) {
+                  setUpdatedPrice(buyAmount?.price);
+                  updatedToWin = formatDai(buyAmount?.maxProfit).formatted;
+                }
+                updateBet({
+                  ...bet,
+                  wager: fmtValue,
+                  toWin: updatedToWin,
+                });
+              }
             }}
             isInvalid={!!error}
             value={value}
@@ -257,7 +286,7 @@ const BetReciept = ({ tx_hash, bet }) => {
   } = useBetslipStore();
   const { transactions } = useUserStore();
   const { price, name, heading, canCashOut, hasCashedOut } = bet;
-  const status = transactions.find(t => t.hash === tx_hash)?.status || bet.status;
+  const status = transactions.find((t) => t.hash === tx_hash)?.status || bet.status;
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -396,12 +425,7 @@ const BetslipFooter = () => {
             You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
             win
           </p>
-          <SecondaryThemeButton
-            text="Cancel All"
-            icon={TrashIcon}
-            reverseContent
-            action={() => cancelAllBets()}
-          />
+          <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
             action={async () => {
@@ -412,7 +436,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
-                    ...txDetails
+                    ...txDetails,
                   });
                   addTransaction(txDetails);
                 }

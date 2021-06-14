@@ -180,7 +180,7 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm, event
           addBet({
             ...outcome,
             marketId,
-            heading: `${marketEvents?.[eventId]?.description || description}, ${title}`,
+            heading: `${marketEvents?.[eventId]?.description || description}: ${title}`,
           })
         }
       >
