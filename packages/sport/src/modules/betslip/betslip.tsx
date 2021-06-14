@@ -185,7 +185,6 @@ const EditableBet = ({ betId, bet }) => {
           <LabeledInput
             label="wager"
             onEdit={(e) => {
-              
               const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
               if (newValue === "") {
                 setError(null);
@@ -197,7 +196,6 @@ const EditableBet = ({ betId, bet }) => {
                 });
               } else {
                 const fmtNewValue = formatDai(newValue).formatted;
-                console.log("formattedValue without .formatted", formatDai(newValue));
                 const nextBuyAmount = getBuyAmount(amm, id, newValue);
                 if (error) {
                   const newError = checkErrors(newValue || '');
