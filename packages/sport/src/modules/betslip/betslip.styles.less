@@ -367,7 +367,8 @@ button.FlipContent {
   }
 }
 
-.Invalid {
+// only make wager red on error
+.Invalid:not(:last-of-type) {
   border-color: var(--simple-failed);
 
   &:before {
