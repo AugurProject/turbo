@@ -17,11 +17,13 @@ const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
+  const { marketEvents } = useSportsStore();
   const market = markets?.[marketId];
+  const { description } = marketEvents[market.eventId];
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
-      <SportsCardTitle {...{ ...market }} />
+      <SportsCardTitle {...{ ...market, description }} />
       <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
@@ -42,7 +44,7 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, description = "", amm }) => {
+export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eventId }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
@@ -57,7 +59,7 @@ export const SportsCardOutcomes = ({ marketId, title, description = "", amm }) =
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ outcome, marketId, title, description, amm }} />
+          <SportsOutcomeButton {...{ outcome, marketId, title, description, amm, eventId }} />
         ))}
       </main>
       {isMarketPage && (
@@ -153,8 +155,9 @@ export const SportsCardComboOutcomes = ({ event = null }) => {
   );
 };
 
-const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => {
+const SportsOutcomeButton = ({ outcome, marketId, title, description, amm, eventId }) => {
   const {
+    marketEvents,
     settings: { oddsFormat },
   } = useSportsStore();
   const {
@@ -177,7 +180,7 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm }) => 
           addBet({
             ...outcome,
             marketId,
-            heading: `${title}, ${description}`,
+            heading: `${marketEvents?.[eventId]?.description || description}, ${title}`,
           })
         }
       >
