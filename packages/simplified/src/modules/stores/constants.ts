@@ -15,6 +15,7 @@ export const DEFAULT_SIMPLIFIED_STATE = {
   settings: {
     slippage: SETTINGS_SLIPPAGE,
     showLiquidMarkets: false,
+    showResolvedPositions: true,
     timeFormat: Constants.TWELVE_HOUR_TIME,
   },
 };

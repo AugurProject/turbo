@@ -27,7 +27,7 @@ const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
   const {
-    settings: { showLiquidMarkets, timeFormat },
+    settings: { showResolvedPositions, showLiquidMarkets, timeFormat },
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
@@ -63,6 +63,16 @@ export const SettingsButton = () => {
               id="showLiquidMarkets"
               toggle={showLiquidMarkets}
               setToggle={() => updateSettings({ showLiquidMarkets: !showLiquidMarkets }, account)}
+            />
+          </li>
+          <li>
+            <label htmlFor="showResolvedPositions">Show resolved positions in portfolio</label>
+            <ToggleSwitch
+              id="showResolvedPositions"
+              toggle={showResolvedPositions}
+              setToggle={() =>
+                updateSettings({ showResolvedPositions: !showResolvedPositions }, account)
+              }
             />
           </li>
           <li>
