@@ -146,6 +146,7 @@ export const EmptyBetslip = () => {
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
 const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
+const ONLY_NUMBER_VALUES_REGEX = /(?:\d{1,3}(?:,\d+)*|\d+)(?:\.\d+)?$/;
 
 const EditableBet = ({ betId, bet }) => {
   const {
@@ -184,7 +185,8 @@ const EditableBet = ({ betId, bet }) => {
           <LabeledInput
             label="wager"
             onEdit={(e) => {
-              const newValue = e.target.value;
+              
+              const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
               if (newValue === "") {
                 setError(null);
                 setUpdatedPrice(price);
@@ -195,9 +197,10 @@ const EditableBet = ({ betId, bet }) => {
                 });
               } else {
                 const fmtNewValue = formatDai(newValue).formatted;
+                console.log("formattedValue without .formatted", formatDai(newValue));
                 const nextBuyAmount = getBuyAmount(amm, id, newValue);
                 if (error) {
-                  const newError = checkErrors(newValue);
+                  const newError = checkErrors(newValue || '');
                   setError(newError);
                 }
                 if (nextBuyAmount?.maxProfit) {
@@ -210,17 +213,18 @@ const EditableBet = ({ betId, bet }) => {
                 }
               }
 
-              setValue(e.target.value);
+              setValue(newValue);
             }}
             onBlur={(e) => {
-              const fmtValue = formatDai(value).formatted;
-              const buyAmount = getBuyAmount(amm, id, value);
+              const CleanValue = (value || '').split(",").join("");
+              const fmtValue = formatDai(CleanValue).formatted;
+              const buyAmount = getBuyAmount(amm, id, CleanValue);
               const errorCheck = checkErrors(fmtValue);
               const error = errorCheck ? errorCheck : !buyAmount ? HIGH_AMOUNT_ERROR : null;
               setError(error);
               setValue(fmtValue);
 
-              if (Number(value) === 0) {
+              if (Number(CleanValue) === 0) {
                 updateBet({
                   ...bet,
                   wager: fmtValue,
@@ -272,7 +276,23 @@ const LabeledInput = ({
       })}
     >
       <span>{label}</span>
-      <input type="number" min={0} value={value} placeholder="" onChange={onEdit} onBlur={onBlur} disabled={disabled} />
+      <input
+        type="text"
+        min={0}
+        step={0.01}
+        value={value}
+        inputMode="numeric"
+        pattern="\d*"
+        placeholder=""
+        onChange={onEdit}
+        onBlur={onBlur}
+        disabled={disabled}
+        onKeyDown={(e) => {
+          // stop passing values to onChange if they aren't valid keystrokes of // 0-9 | , | . | Backspace (for clearing input)
+          const nums = /^(?:\d|\.|,)*$/;
+          if(!nums.test(e.key) && e.key !== "Backspace") e.preventDefault();
+        }}
+      />
     </div>
   );
 };
@@ -387,8 +407,8 @@ const determineBetTotals = (bets: Array<BetType>) => {
   let totalWager = ZERO;
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
-    totalWager = totalWager.plus(bet?.wager || "0");
-    totalToWin = totalWager.plus(bet?.toWin || "0");
+    totalWager = totalWager.plus(bet?.wager?.split(",").join("") || "0");
+    totalToWin = totalWager.plus(bet?.toWin?.split(",").join("") || "0");
   });
   return { totalWager, totalToWin };
 };
