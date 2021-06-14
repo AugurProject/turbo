@@ -35,7 +35,7 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
   console.log(contractAddresses.marketFactories);
 
   const MarketFactories = contractAddresses.marketFactories.map(({ type, address, ammFactory: ammFactoryAddress }) => {
-    let marketFactory: MarketFactoryContract = instantiateMarketFactory(type, address, signerOrProvider);
+    const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, address, signerOrProvider);
     const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
     return { marketFactory, ammFactory };
   });
