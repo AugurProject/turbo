@@ -182,7 +182,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
-  const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
+  
   const isFinalized = isMarketFinal(market);
   return (
     <div className={Styles.MarketView}>
@@ -229,7 +229,7 @@ const MarketView = ({ defaultMarket = null }) => {
           )}
           {details.length === 0 && <p>There are no additional details for this Market.</p>}
         </div>
-        <SportsChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions }} />
+        <SportsChartSection {...{ ...market }} />
         <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>
     </div>

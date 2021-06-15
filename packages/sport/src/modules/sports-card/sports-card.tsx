@@ -13,15 +13,11 @@ const {
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { MARKET, SPORTS_MARKET_TYPE } = Constants;
+const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
-const SPORTS_MARKET_TYPE_LABELS = {
-  [SPORTS_MARKET_TYPE.SPREAD]: 'Spread',
-  [SPORTS_MARKET_TYPE.MONEY_LINE]: 'Money Line',
-  [SPORTS_MARKET_TYPE.OVER_UNDER]: 'Over / Under',
-}
+
 
 export const EventCard = ({ marketEvent, ...props }) => {
   const {
