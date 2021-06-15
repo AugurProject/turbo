@@ -21,14 +21,21 @@ export const EventCard = ({ marketEvent, ...props }) => {
     settings: { timeFormat },
   } = useSportsStore();
   const { markets, transactions } = useDataStore();
-  const firstMarket = markets[marketEvent.markets[0]];
-  const firstMarketTransactions = transactions[firstMarket.marketId];
+  const firstMarket = markets[marketEvent?.marketIds[0]];
+  const totalTransactionsVolume = marketEvent.marketIds.reduce((acc, marketId) => {
+    const output = { ...acc };
+    const marketTransactions = transactions[marketId];
+    if (marketTransactions?.volumeTotalUSD) {
+      output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
+    }
+    return output;
+  }, { volumeTotalUSD: 0 });
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
       <SportsCardTitle {...{ ...marketEvent }} />
       <SportsCardOutcomes {...{ ...firstMarket }} />
-      <SportsCardFooter {...{ marketTransactions: firstMarketTransactions }} />
+      <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume }} />
     </article>
   );
 }

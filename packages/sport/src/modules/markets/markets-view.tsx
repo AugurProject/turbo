@@ -48,7 +48,7 @@ const PAGE_LIMIT = 21;
 
 const applyFiltersAndSort = (
   passedInMarkets,
-  passInMarketEvents,
+  passedInMarketEvents,
   { setFilteredMarkets, setFilteredEvents },
   transactions,
   { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
@@ -154,8 +154,8 @@ const applyFiltersAndSort = (
   const updatedEvents = updatedFilteredMarkets.reduce((acc, market) => {
     const output = [].concat(acc);
     const { eventId } = market;
-    const event = passInMarketEvents[eventId];
-    if (!output.find((event) => event?.eventId === eventId)) {
+    const event = passedInMarketEvents[eventId];
+    if (eventId && event && !output.find((event) => event?.eventId === eventId)) {
       output.push(event);
     }
     return output;
@@ -302,11 +302,11 @@ const MarketsView = () => {
               <LoadingMarketCard key={index} />
             ))}
           </section>
-        ) : filteredMarkets.length > 0 ? (
+        ) : filteredEvents.length > 0 ? (
           <section>
             {sliceByPage(filteredEvents, page, PAGE_LIMIT).map((marketEvent, index) => (
               <EventCard
-                key={`${marketEvent.eventId}-${index}`}
+                key={`${marketEvent?.eventId}-${index}`}
                 marketEvent={marketEvent}
                 handleNoLiquidity={handleNoLiquidity}
                 noLiquidityDisabled={!isLogged}
