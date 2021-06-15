@@ -220,6 +220,7 @@
     display: grid;
     grid-template-columns: 1fr 10.5% 10.5% 10.5%;
     grid-gap: @size-2 @size-8;
+    padding: @size-8;
 
     > span {
       .text-10-semi-bold;
@@ -266,6 +267,11 @@
         min-height: @size-36;
         max-height: @size-36;
         cursor: pointer;
+
+        &:disabled {
+          opacity: .5;
+          cursor: not-allowed;
+        }
 
         > span:first-of-type {
           .text-12;

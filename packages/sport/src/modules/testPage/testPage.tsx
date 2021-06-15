@@ -12,7 +12,7 @@ const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComp
 export const TestPage = () => {
   return (
     <div className={Styles.TestPage}>
-      <SportsCardComboOutcomes />
+      {/* <SportsCardComboOutcomes /> */}
       <h1>!! This page is only visible on Development Environments and should be deleted before launching sportsbook. !!</h1>
       <PrimaryThemeButton text="primary button" />
       <PrimaryThemeButton text="primary button disabled" disabled />

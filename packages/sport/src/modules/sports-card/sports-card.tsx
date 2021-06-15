@@ -12,7 +12,7 @@ const {
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { MARKET } = Constants;
+const { MARKET, SPORTS_MARKET_TYPE } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
@@ -21,24 +21,33 @@ export const EventCard = ({ marketEvent, ...props }) => {
     settings: { timeFormat },
   } = useSportsStore();
   const { markets, transactions } = useDataStore();
-  const firstMarket = markets[marketEvent?.marketIds[0]];
-  const totalTransactionsVolume = marketEvent.marketIds.reduce((acc, marketId) => {
-    const output = { ...acc };
-    const marketTransactions = transactions[marketId];
-    if (marketTransactions?.volumeTotalUSD) {
-      output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
-    }
-    return output;
-  }, { volumeTotalUSD: 0 });
+  const totalTransactionsVolume = marketEvent.marketIds.reduce(
+    (acc, marketId) => {
+      const output = { ...acc };
+      const marketTransactions = transactions[marketId];
+      if (marketTransactions?.volumeTotalUSD) {
+        output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
+      }
+      return output;
+    },
+    { volumeTotalUSD: 0 }
+  );
+  const OutcomeContent =
+    marketEvent.marketIds.length > 1 ? (
+      <SportsCardComboOutcomes {...{ marketEvent }} />
+    ) : (
+      <SportsCardOutcomes {...{ ...markets[marketEvent.marketIds[0]] }} />
+    );
+
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
       <SportsCardTitle {...{ ...marketEvent }} />
-      <SportsCardOutcomes {...{ ...firstMarket }} />
+      {OutcomeContent}
       <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume }} />
     </article>
   );
-}
+};
 
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
   const { marketEvents } = useSportsStore();
@@ -96,10 +105,35 @@ export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eve
   );
 };
 
-export const SportsCardComboOutcomes = ({ event = null }) => {
+export const SportsCardComboOutcomes = ({ marketEvent }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
+  const { markets } = useDataStore();
+  const eventMarkets = marketEvent.marketIds.reduce((acc, marketId) => {
+    const out = { ...acc };
+    const market = markets[marketId];
+    switch (market.sportsMarketType) {
+      case SPORTS_MARKET_TYPE.MONEY_LINE: {
+        out[SPORTS_MARKET_TYPE.MONEY_LINE] = market;
+        break;
+      }
+      case SPORTS_MARKET_TYPE.SPREAD: {
+        out[SPORTS_MARKET_TYPE.SPREAD] = market;
+        break;
+      }
+      case SPORTS_MARKET_TYPE.OVER_UNDER: {
+        out[SPORTS_MARKET_TYPE.OVER_UNDER] = market;
+        break;
+      }
+      default:
+        break;
+    }
+    return out;
+  }, {});
+  const marketOutcomesOrderedForDisplay = []
+    .concat(marketEvent.outcomes)
+    .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
   return (
     <section className={Styles.SportsCardComboOutcomes}>
       <header>
@@ -109,65 +143,11 @@ export const SportsCardComboOutcomes = ({ event = null }) => {
         <span>OVER / UNDER</span>
       </header>
       <main>
-        <article>
-          <label>San Francisco 49ers</label>
-          <button onClick={() => {}}>
-            <span>+1.5</span>
-            <span>-110</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>+132</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-              <b>O</b>10.5
-            </span>
-            <span>-105</span>
-          </button>
-          <span>$5,000.43</span>
-          <span>$6,500.12</span>
-          <span>$2,542.00</span>
-        </article>
-        <article>
-          <label>Kansas City Chiefs</label>
-          <button onClick={() => {}}>
-            <span>-1.5</span>
-            <span>-105</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-128</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-              <b>U</b>54.5
-            </span>
-            <span>-115</span>
-          </button>
-          <span>$6,093.50</span>
-          <span>$10,000.54</span>
-          <span>$5,000.18</span>
-        </article>
-        <article>
-          <label>No Contest</label>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-105</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-128</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-            </span>
-            <span>-115</span>
-          </button>
-          <span>$100.43</span>
-          <span>$100.43</span>
-          <span>$100.43</span>
-        </article>
+        {marketOutcomesOrderedForDisplay.map((eventOutcome) => (
+          <ComboOutcomeRow
+            {...{ eventMarkets, eventOutcome, marketEvent, key: `${marketEvent.eventId}-${eventOutcome.id}-comboRow` }}
+          />
+        ))}
       </main>
       {isMarketPage && (
         <footer>
@@ -176,6 +156,72 @@ export const SportsCardComboOutcomes = ({ event = null }) => {
         </footer>
       )}
     </section>
+  );
+};
+
+const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) => {
+  const {
+    settings: { oddsFormat },
+  } = useSportsStore();
+  const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
+  const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
+  const { spreadLine, overUnderLine } = marketEvent;
+  console.log(spreadMarket, eventMarkets);
+  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, spreadMarket.marketId), [
+    spreadMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const spreadOdds = useMemo(
+    () =>
+      spreadSizePrice
+        ? convertToOdds(convertToNormalizedPrice({ price: spreadSizePrice.price }), oddsFormat).full
+        : "-",
+    [spreadSizePrice, oddsFormat]
+  );
+  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket.amm, moneyLineMarket.marketId), [
+    moneyLineMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const moneyLineOdds = useMemo(
+    () =>
+      moneyLineSizePrice
+        ? convertToOdds(convertToNormalizedPrice({ price: moneyLineSizePrice.price }), oddsFormat).full
+        : "-",
+    [moneyLineSizePrice, oddsFormat]
+  );
+  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket.amm, OUMarket.marketId), [
+    OUMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const OUOdds = useMemo(
+    () => (OUSizePrice ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
+    [OUSizePrice, oddsFormat]
+  );
+  const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
+  const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
+  return (
+    <article>
+      <label>{eventOutcomeName}</label>
+      <button onClick={() => console.log("spread click")} disabled={spreadOdds === "-"}>
+        {spreadLine && spreadOdds !== "-" ? <span>{spreadLine > 0 ? `+${spreadLine}` : spreadLine}</span> : <span />}
+        <span>{spreadOdds}</span>
+      </button>
+      <button onClick={() => console.log("moneyline click")} disabled={moneyLineOdds === "-"}>
+        <span />
+        <span>{moneyLineOdds}</span>
+      </button>
+      <button onClick={() => console.log("OU click")} disabled={OUOdds === "-"}>
+        {OUOdds !== "-" ? (
+          <span>
+            {overUnderLetter && <b>{overUnderLetter}</b>}
+            {overUnderLine}
+          </span>
+        ) : (
+          <span />
+        )}
+        <span>{OUOdds}</span>
+      </button>
+      <span>{spreadSizePrice?.size && <span>{formatDai(spreadSizePrice?.size).full}</span>}</span>
+      <span>{moneyLineSizePrice?.size && <span>{formatDai(moneyLineSizePrice?.size).full}</span>}</span>
+      <span>{OUSizePrice?.size && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
+    </article>
   );
 };
 
