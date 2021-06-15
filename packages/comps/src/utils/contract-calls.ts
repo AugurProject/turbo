@@ -1598,7 +1598,7 @@ const retrieveMarkets = async (
   let marketInfosNoZeroSpread = marketInfos;
   let exchangesNoZeroSpread = exchanges;
 
-  Object.keys(marketInfos).forEach(market => {
+  Object.keys(marketInfos).forEach((market) => {
     if (marketInfos[market].sportsMarketType === SPORTS_MARKET_TYPE_SPREAD && marketInfos[market].spreadLine === 5) {
       delete marketInfosNoZeroSpread[market];
       delete exchangesNoZeroSpread[market];
