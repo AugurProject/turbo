@@ -72,7 +72,7 @@ const useMarketEvents = () => {
           const moneylineMarketId = event.marketIds.find(id => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE);
           if (moneylineMarketId) {
             const moneyline: MarketInfo = markets[moneylineMarketId];
-            event.description = moneyline.outcomes.length !== 0 ? `${moneyline.outcomes[1].name} vs ${moneyline.outcomes[2].name}` : event.description;
+            event.description = moneyline.outcomes.length !== 0 ? `${moneyline.outcomes[1].name} vs ${moneyline.outcomes[2].name}` : event.description.replace('?', '');
             event.outcomeNames = moneyline.outcomes.length !== 0 ? moneyline.outcomes.map(o => o.name) : [];
           }
           if (event.marketIds.length > 1) {

@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
-import { LabelComps, Links, Utils, Constants } from "@augurproject/comps";
+import { LabelComps, Links, Utils, Constants, useDataStore } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
 import { getSizedPrice } from "modules/utils";
@@ -16,10 +16,27 @@ const { MARKET } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
+export const EventCard = ({ marketEvent, ...props }) => {
+  const {
+    settings: { timeFormat },
+  } = useSportsStore();
+  const { markets, transactions } = useDataStore();
+  const firstMarket = markets[marketEvent.markets[0]];
+  const firstMarketTransactions = transactions[firstMarket.marketId];
+  return (
+    <article className={Styles.SportsMarketCard}>
+      <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
+      <SportsCardTitle {...{ ...marketEvent }} />
+      <SportsCardOutcomes {...{ ...firstMarket }} />
+      <SportsCardFooter {...{ marketTransactions: firstMarketTransactions }} />
+    </article>
+  );
+}
+
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
   const { marketEvents } = useSportsStore();
   const market = markets?.[marketId];
-  const { description } = marketEvents[market.eventId];
+  const { description } = marketEvents?.[market?.eventId];
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
