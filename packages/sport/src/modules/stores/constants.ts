@@ -50,9 +50,9 @@ export interface MarketEvent {
   categories: string[];
   hasWinner: boolean;
   marketIds: string[];
-  spreadLine: number;
-  overUnderLine: number;
-  outcomeNames: string[];
+  spreadLine: number | null;
+  overUnderLine: number | null;
+  outcomes: Array<{ id: number; name: string }>;
 }
 
 export interface MarketEvents {
@@ -61,6 +61,7 @@ export interface MarketEvents {
 export interface BetType {
   id: number;
   heading?: string;
+  subHeading?: string;
   wager: string | null;
   toWin: string | null;
   price: string;

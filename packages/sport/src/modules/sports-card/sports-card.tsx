@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
+import classNames from "classnames";
 import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
-import { LabelComps, Links, Utils, Constants } from "@augurproject/comps";
+import { LabelComps, Links, Utils, Constants, useDataStore } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
 import { getSizedPrice } from "modules/utils";
@@ -12,14 +13,47 @@ const {
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { MARKET } = Constants;
+const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
+
+export const EventCard = ({ marketEvent, ...props }) => {
+  const {
+    settings: { timeFormat },
+  } = useSportsStore();
+  const { markets, transactions } = useDataStore();
+  const totalTransactionsVolume = marketEvent.marketIds.reduce(
+    (acc, marketId) => {
+      const output = { ...acc };
+      const marketTransactions = transactions[marketId];
+      if (marketTransactions?.volumeTotalUSD) {
+        output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
+      }
+      return output;
+    },
+    { volumeTotalUSD: 0 }
+  );
+  const outcomeContent =
+    marketEvent.marketIds.length > 1 ? (
+      <SportsCardComboOutcomes {...{ marketEvent }} />
+    ) : (
+      <SportsCardOutcomes {...{ ...markets[marketEvent.marketIds[0]] }} />
+    );
+
+  return (
+    <article className={Styles.SportsMarketCard}>
+      <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
+      <SportsCardTitle {...{ ...marketEvent, marketId: marketEvent.marketIds[0] }} />
+      {outcomeContent}
+      <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume }} />
+    </article>
+  );
+};
 
 export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, marketTransactions, ...props }) => {
   const { marketEvents } = useSportsStore();
   const market = markets?.[marketId];
-  const { description } = marketEvents[market.eventId];
+  const { description } = marketEvents?.[market?.eventId];
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
@@ -44,7 +78,14 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eventId }) => {
+export const SportsCardOutcomes = ({
+  marketId,
+  title,
+  sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE,
+  description = "",
+  amm,
+  eventId,
+}) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
@@ -59,11 +100,11 @@ export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eve
       <header>{!!title && <span>{title}</span>}</header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ outcome, marketId, title, description, amm, eventId }} />
+          <SportsOutcomeButton {...{ outcome, marketId, sportsMarketType, description, amm, eventId }} />
         ))}
       </main>
       {isMarketPage && (
-        <footer>
+        <footer className={Styles.SportsCardOutcomesFooter}>
           {FingersCrossedIcon}
           <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
         </footer>
@@ -72,12 +113,37 @@ export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eve
   );
 };
 
-export const SportsCardComboOutcomes = ({ event = null }) => {
+export const SportsCardComboOutcomes = ({ marketEvent }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
+  const { markets } = useDataStore();
+  const eventMarkets = marketEvent.marketIds.reduce((acc, marketId) => {
+    const out = { ...acc };
+    const market = markets[marketId];
+    switch (market.sportsMarketType) {
+      case SPORTS_MARKET_TYPE.MONEY_LINE: {
+        out[SPORTS_MARKET_TYPE.MONEY_LINE] = market;
+        break;
+      }
+      case SPORTS_MARKET_TYPE.SPREAD: {
+        out[SPORTS_MARKET_TYPE.SPREAD] = market;
+        break;
+      }
+      case SPORTS_MARKET_TYPE.OVER_UNDER: {
+        out[SPORTS_MARKET_TYPE.OVER_UNDER] = market;
+        break;
+      }
+      default:
+        break;
+    }
+    return out;
+  }, {});
+  const marketOutcomesOrderedForDisplay = []
+    .concat(marketEvent.outcomes)
+    .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
   return (
-    <section className={Styles.SportsCardComboOutcomes}>
+    <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
       <header>
         <span />
         <span>SPREAD</span>
@@ -85,77 +151,122 @@ export const SportsCardComboOutcomes = ({ event = null }) => {
         <span>OVER / UNDER</span>
       </header>
       <main>
-        <article>
-          <label>San Francisco 49ers</label>
-          <button onClick={() => {}}>
-            <span>+1.5</span>
-            <span>-110</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>+132</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-              <b>O</b>10.5
-            </span>
-            <span>-105</span>
-          </button>
-          <span>$5,000.43</span>
-          <span>$6,500.12</span>
-          <span>$2,542.00</span>
-        </article>
-        <article>
-          <label>Kansas City Chiefs</label>
-          <button onClick={() => {}}>
-            <span>-1.5</span>
-            <span>-105</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-128</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-              <b>U</b>54.5
-            </span>
-            <span>-115</span>
-          </button>
-          <span>$6,093.50</span>
-          <span>$10,000.54</span>
-          <span>$5,000.18</span>
-        </article>
-        <article>
-          <label>No Contest</label>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-105</span>
-          </button>
-          <button onClick={() => {}}>
-            <span></span>
-            <span>-128</span>
-          </button>
-          <button onClick={() => {}}>
-            <span>
-            </span>
-            <span>-115</span>
-          </button>
-          <span>$100.43</span>
-          <span>$100.43</span>
-          <span>$100.43</span>
-        </article>
+        {marketOutcomesOrderedForDisplay.map((eventOutcome) => (
+          <ComboOutcomeRow
+            {...{ eventMarkets, eventOutcome, marketEvent, key: `${marketEvent.eventId}-${eventOutcome.id}-comboRow` }}
+          />
+        ))}
       </main>
-      {isMarketPage && (
-        <footer>
-          {FingersCrossedIcon}
-          <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
-        </footer>
-      )}
     </section>
   );
 };
 
-const SportsOutcomeButton = ({ outcome, marketId, title, description, amm, eventId }) => {
+const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) => {
+  const {
+    settings: { oddsFormat },
+  } = useSportsStore();
+  const {
+    bets,
+    actions: { addBet },
+  } = useBetslipStore();
+  const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
+  const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
+  const { spreadLine, overUnderLine } = marketEvent;
+  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, eventOutcomeId), [
+    spreadMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const spreadOdds = useMemo(
+    () =>
+      spreadSizePrice
+        ? convertToOdds(convertToNormalizedPrice({ price: spreadSizePrice.price }), oddsFormat).full
+        : "-",
+    [spreadSizePrice, oddsFormat]
+  );
+  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket.amm, eventOutcomeId), [
+    moneyLineMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const moneyLineOdds = useMemo(
+    () =>
+      moneyLineSizePrice
+        ? convertToOdds(convertToNormalizedPrice({ price: moneyLineSizePrice.price }), oddsFormat).full
+        : "-",
+    [moneyLineSizePrice, oddsFormat]
+  );
+  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket.amm, eventOutcomeId), [
+    OUMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  ]);
+  const OUOdds = useMemo(
+    () => (OUSizePrice ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
+    [OUSizePrice, oddsFormat]
+  );
+  const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
+  const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
+  return (
+    <article>
+      <label>{eventOutcomeName}</label>
+      <button
+        onClick={() => {
+          spreadSizePrice &&
+            !bets[`${spreadMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...spreadMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: spreadMarket.marketId,
+              heading: `${marketEvent.description || spreadMarket.description}:`,
+              subHeading: `${SPORTS_MARKET_TYPE_LABELS[spreadMarket.sportsMarketType]}`,
+            });
+        }}
+        disabled={spreadOdds === "-"}
+      >
+        {spreadLine && spreadOdds !== "-" ? <span>{spreadLine > 0 ? `+${spreadLine}` : spreadLine}</span> : <span />}
+        <span>{spreadOdds}</span>
+      </button>
+      <button
+        onClick={() => {
+          moneyLineSizePrice &&
+            !bets[`${moneyLineMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...moneyLineMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: moneyLineMarket.marketId,
+              heading: `${marketEvent.description || moneyLineMarket.description}:`,
+              subHeading: `${SPORTS_MARKET_TYPE_LABELS[moneyLineMarket.sportsMarketType]}`,
+            });
+        }}
+        disabled={moneyLineOdds === "-"}
+      >
+        <span />
+        <span>{moneyLineOdds}</span>
+      </button>
+      <button
+        onClick={() => {
+          OUSizePrice &&
+            !bets[`${OUMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...OUMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: OUMarket.marketId,
+              heading: `${marketEvent.description || OUMarket.description}:`,
+              subHeading: `${SPORTS_MARKET_TYPE_LABELS[OUMarket.sportsMarketType]}`,
+            });
+        }}
+        disabled={OUOdds === "-"}
+      >
+        {OUOdds !== "-" ? (
+          <span>
+            {overUnderLetter && <b>{overUnderLetter}</b>}
+            {overUnderLine}
+          </span>
+        ) : (
+          <span />
+        )}
+        <span>{OUOdds}</span>
+      </button>
+      <span>{spreadSizePrice?.size && <span>{formatDai(spreadSizePrice?.size).full}</span>}</span>
+      <span>{moneyLineSizePrice?.size && <span>{formatDai(moneyLineSizePrice?.size).full}</span>}</span>
+      <span>{OUSizePrice?.size && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
+    </article>
+  );
+};
+
+const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, sportsMarketType }) => {
   const {
     marketEvents,
     settings: { oddsFormat },
@@ -180,9 +291,11 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm, event
           addBet({
             ...outcome,
             marketId,
-            heading: `${marketEvents?.[eventId]?.description || description}: ${title}`,
+            heading: `${marketEvents?.[eventId]?.description || description}:`,
+            subHeading: `${SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}`,
           })
         }
+        disabled={odds === "-"}
       >
         {odds}
       </button>

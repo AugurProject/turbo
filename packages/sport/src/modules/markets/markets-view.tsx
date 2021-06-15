@@ -15,7 +15,7 @@ import type { MarketInfo } from "@augurproject/comps/build/types";
 import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
-import { SportsCard } from '../sports-card/sports-card';
+import { EventCard } from "../sports-card/sports-card";
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryButton },
@@ -48,9 +48,10 @@ const PAGE_LIMIT = 21;
 
 const applyFiltersAndSort = (
   passedInMarkets,
-  setFilteredMarkets,
+  passedInMarketEvents,
+  { setFilteredMarkets, setFilteredEvents },
   transactions,
-  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter }
+  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -79,7 +80,7 @@ const applyFiltersAndSort = (
       return false;
     }
     if (
-      primaryCategory !== '' &&
+      primaryCategory !== "" &&
       primaryCategory !== ALL_MARKETS &&
       primaryCategory !== OTHER &&
       market.categories[0].toLowerCase() !== primaryCategory.toLowerCase()
@@ -89,14 +90,13 @@ const applyFiltersAndSort = (
     if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
       return false;
     }
-    if (
-      primaryCategory === SPORTS &&
-      subCategories.length > 0
-    ) {
+    if (primaryCategory === SPORTS && subCategories.length > 0) {
       // subCategories is always a max 2 length, markets are 3.
       const indexToCheck = subCategories.length === 1 ? 1 : market.categories.length - 1;
-      if (market.categories[indexToCheck] && market.categories[indexToCheck].toLowerCase() !==
-      subCategories[indexToCheck - 1].toLowerCase()) {
+      if (
+        market.categories[indexToCheck] &&
+        market.categories[indexToCheck].toLowerCase() !== subCategories[indexToCheck - 1].toLowerCase()
+      ) {
         return false;
       }
     }
@@ -151,8 +151,18 @@ const applyFiltersAndSort = (
   if (subCategories.length > 0) {
     // here we should filter based on `eventTypeFilter` (0 = Daily, 1 = Futures)
   }
+  const updatedEvents = updatedFilteredMarkets.reduce((acc, market) => {
+    const output = [].concat(acc);
+    const { eventId } = market;
+    const event = passedInMarketEvents[eventId];
+    if (eventId && event && !output.find((event) => event?.eventId === eventId)) {
+      output.push(event);
+    }
+    return output;
+  }, []);
 
   setFilteredMarkets(updatedFilteredMarkets);
+  setFilteredEvents(updatedEvents);
 };
 
 const MarketsView = () => {
@@ -162,16 +172,18 @@ const MarketsView = () => {
     actions: { setModal },
   } = useAppStatusStore();
   const {
+    marketEvents,
     marketsViewSettings,
-    settings: { showLiquidMarkets, timeFormat },
+    settings: { showLiquidMarkets },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSportsStore();
-  const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
+  const { markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [filter, setFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const marketKeys = Object.keys(markets);
@@ -182,26 +194,41 @@ const MarketsView = () => {
     if (Object.values(markets).length > 0) {
       setLoading(false);
     }
-    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, {
-      filter,
-      primaryCategory,
-      subCategories,
-      sortBy,
-      currency,
-      reportingState,
-      showLiquidMarkets,
-      eventTypeFilter,
-    });
+    applyFiltersAndSort(
+      Object.values(markets),
+      marketEvents,
+      { setFilteredMarkets, setFilteredEvents },
+      transactions,
+      {
+        filter,
+        primaryCategory,
+        subCategories,
+        sortBy,
+        currency,
+        reportingState,
+        showLiquidMarkets,
+        eventTypeFilter,
+      }
+    );
   };
 
   useEffect(() => {
     setPage(1);
     handleFilterSort();
-  }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf(), eventTypeFilter]);
+  }, [
+    sortBy,
+    filter,
+    primaryCategory,
+    subCategories,
+    reportingState,
+    currency,
+    showLiquidMarkets.valueOf(),
+    eventTypeFilter
+  ]);
 
   useEffect(() => {
     handleFilterSort();
-  }, [marketKeys.length]);
+  }, [marketKeys.length, Object.keys(marketEvents).length]);
 
   let changedFilters = 0;
 
@@ -220,6 +247,7 @@ const MarketsView = () => {
       });
     }
   };
+
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -246,10 +274,9 @@ const MarketsView = () => {
           </div>
         )}
         <ul>
-          {subCategories.length > 0 && <DailyFutureSwitch
-           selection={eventTypeFilter}
-           setSelection={(id) => setEventTypeFilter(id)} 
-          />}
+          {subCategories.length > 0 && (
+            <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+          )}
           <SquareDropdown
             onChange={(value) => {
               updateMarketsViewSettings({ sortBy: value });
@@ -275,18 +302,14 @@ const MarketsView = () => {
               <LoadingMarketCard key={index} />
             ))}
           </section>
-        ) : filteredMarkets.length > 0 ? (
+        ) : filteredEvents.length > 0 ? (
           <section>
-            {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market, index) => (
-              <SportsCard
-                key={`${market.marketId}-${index}`}
-                marketId={market.marketId}
-                markets={markets}
-                ammExchanges={ammExchanges}
+            {sliceByPage(filteredEvents, page, PAGE_LIMIT).map((marketEvent, index) => (
+              <EventCard
+                key={`${marketEvent?.eventId}-${index}`}
+                marketEvent={marketEvent}
                 handleNoLiquidity={handleNoLiquidity}
                 noLiquidityDisabled={!isLogged}
-                timeFormat={timeFormat}
-                marketTransactions={transactions[market.marketId]}
               />
             ))}
           </section>

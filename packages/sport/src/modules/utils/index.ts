@@ -14,7 +14,7 @@ export interface BuyAmount {
   price: string;
   maxProfit: string;
 }
-
+// id = outcome ID
 export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number = 0.1): SizedPrice => {
   if (!amm?.hasLiquidity) return null;
 
