@@ -59,7 +59,9 @@ const useMarketEvents = () => {
               startTimestamp,
               categories,
               hasWinner,
-              marketIds: [marketId]
+              marketIds: [marketId],
+              overUnderLine: null,
+              spreadLine: null,
             }
           }
       }, {});
