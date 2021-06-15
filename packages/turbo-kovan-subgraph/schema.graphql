@@ -45,6 +45,9 @@ type Sender @entity {
   removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "sender")
   claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "sender")
   claimedFees: [ClaimedFees!] @derivedFrom(field: "sender")
+  trade: [Trade!] @derivedFrom(field: "sender")
+  "From the perspective of the user. E.g. totalLiquidity is negative when adding liquidity."
+  totalLiquidity: BigInt
 }
 
 type AddLiquidity @entity {
@@ -84,6 +87,7 @@ type Trade @entity {
   marketId: Market!
   marketFactory: String!
   user: String!
+  sender: Sender!
   outcome: String!
   "From the perspective of the user. E.g. collateral is negative when buying."
   collateral: String!
