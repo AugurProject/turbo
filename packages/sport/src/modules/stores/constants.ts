@@ -61,6 +61,7 @@ export interface MarketEvents {
 export interface BetType {
   id: number;
   heading?: string;
+  subHeading?: string;
   wager: string | null;
   toWin: string | null;
   price: string;

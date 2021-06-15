@@ -156,7 +156,7 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const { id, marketId, heading, name, price, wager, toWin } = bet;
+  const { id, marketId, heading, subHeading, name, price, wager, toWin } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
@@ -174,7 +174,15 @@ const EditableBet = ({ betId, bet }) => {
   };
   return (
     <article className={Styles.EditableBet}>
-      <header>{heading}</header>
+      <header>
+        {heading}
+        {subHeading && (
+          <>
+            <br />
+            {subHeading}
+          </>
+        )}
+      </header>
       <main>
         <div>
           <h6>{name}</h6>
@@ -198,7 +206,7 @@ const EditableBet = ({ betId, bet }) => {
                 const fmtNewValue = formatDai(newValue).formatted;
                 const nextBuyAmount = getBuyAmount(amm, id, newValue);
                 if (error) {
-                  const newError = checkErrors(newValue || '');
+                  const newError = checkErrors(newValue || "");
                   setError(newError);
                 }
                 if (nextBuyAmount?.maxProfit) {
@@ -214,7 +222,7 @@ const EditableBet = ({ betId, bet }) => {
               setValue(newValue);
             }}
             onBlur={(e) => {
-              const CleanValue = (value || '').split(",").join("");
+              const CleanValue = (value || "").split(",").join("");
               const fmtValue = formatDai(CleanValue).formatted;
               const buyAmount = getBuyAmount(amm, id, CleanValue);
               const errorCheck = checkErrors(fmtValue);
@@ -288,7 +296,7 @@ const LabeledInput = ({
         onKeyDown={(e) => {
           // stop passing values to onChange if they aren't valid keystrokes of // 0-9 | , | . | Backspace (for clearing input)
           const nums = /^(?:\d|\.|,)*$/;
-          if(!nums.test(e.key) && e.key !== "Backspace") e.preventDefault();
+          if (!nums.test(e.key) && e.key !== "Backspace") e.preventDefault();
         }}
       />
     </div>

@@ -23,11 +23,10 @@ import { MARKETS } from "modules/constants";
 import { SportsCardOutcomes, SportsCardComboOutcomes } from "../sports-card/sports-card";
 import { CategoriesTrail } from "../categories/categories";
 import { Link } from "react-router-dom";
-import { MarketEvent } from '../stores/constants';
+import { MarketEvent } from "../stores/constants";
 const {
   SEO,
-  LabelComps: { 
-    ReportingStateLabel },
+  LabelComps: { ReportingStateLabel },
   Icons: { ConfirmedCheck, SimpleChevron },
   ButtonComps: { BuySellButton },
 } = Components;
@@ -152,30 +151,32 @@ const MarketView = ({ defaultMarket = null }) => {
       />
     );
   if (!market) return <EmptyMarketView />;
-  const marketEvent: MarketEvent = marketEvents[market?.eventId];
-  const totalEventStats = marketEvent.marketIds.reduce(
-    (acc, marketId) => {
-      const output = { ...acc };
-      const marketTransactions = transactions[marketId];
-      const ammLiquidityUSD = markets[marketId].amm.liquidityUSD;
-      if (marketTransactions?.volumeTotalUSD) {
-        output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
-      }
-      if (marketTransactions?.volume24hrTotalUSD) {
-        output.volume24hrTotalUSD = output.volume24hrTotalUSD + marketTransactions.volume24hrTotalUSD;
-      }
-      if (ammLiquidityUSD) {
-        output.liquidityUSD = createBigNumber(output.liquidityUSD).plus(ammLiquidityUSD).toFixed();
-      }
-      return output;
-    },
-    { volumeTotalUSD: 0, volume24hrTotalUSD: 0, liquidityUSD: "0" }
-  );
+  const marketEvent: MarketEvent = marketEvents?.[market?.eventId];
+  const totalEventStats = marketEvent?.marketIds
+    ? marketEvent?.marketIds?.reduce(
+        (acc, marketId) => {
+          const output = { ...acc };
+          const marketTransactions = transactions[marketId];
+          const ammLiquidityUSD = markets[marketId].amm.liquidityUSD;
+          if (marketTransactions?.volumeTotalUSD) {
+            output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
+          }
+          if (marketTransactions?.volume24hrTotalUSD) {
+            output.volume24hrTotalUSD = output.volume24hrTotalUSD + marketTransactions.volume24hrTotalUSD;
+          }
+          if (ammLiquidityUSD && ammLiquidityUSD !== "NaN") {
+            output.liquidityUSD = createBigNumber(output.liquidityUSD).plus(ammLiquidityUSD).toFixed();
+          }
+          return output;
+        },
+        { volumeTotalUSD: 0, volume24hrTotalUSD: 0, liquidityUSD: "0" }
+      )
+    : transactions[marketId] || { volumeTotalUSD: null, volume24hrTotalUSD: null, liquidityUSD: amm?.liquidityUSD };
   const outcomeContent =
-    marketEvent.marketIds.length > 1 ? (
+  marketEvent?.marketIds && marketEvent?.marketIds?.length > 1 ? (
       <SportsCardComboOutcomes {...{ marketEvent }} />
     ) : (
-      <SportsCardOutcomes {...{ ...markets[marketEvent.marketIds[0]] }} />
+      <SportsCardOutcomes {...{ ...market }} />
     );
 
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
