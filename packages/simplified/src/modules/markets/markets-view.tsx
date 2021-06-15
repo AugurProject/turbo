@@ -62,14 +62,6 @@ const applyFiltersAndSort = (
     (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
   );
 
-  // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
-  // Filter out spread markets whose "value" (target home spread) is exactly 5,  Since this is identical to a head-to-head market.
-  const SPORTS_MARKET_TYPE_SPREAD = 1;
-  updatedFilteredMarkets = updatedFilteredMarkets.filter(market => {
-    return market.sportsMarketType !== SPORTS_MARKET_TYPE_SPREAD ||
-           market.sportsMarketType === SPORTS_MARKET_TYPE_SPREAD && market.spreadLine !== 5;
-  });
-
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
       const { title, description, categories, outcomes } = market;

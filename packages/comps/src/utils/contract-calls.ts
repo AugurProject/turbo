@@ -1592,7 +1592,20 @@ const retrieveMarkets = async (
     );
   }
 
-  return { marketInfos, exchanges, blocknumber };
+  // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
+  // Filter out spread markets whose "value" (target home spread) is exactly 5,  Since this is identical to a head-to-head market.
+  const SPORTS_MARKET_TYPE_SPREAD = 1;
+  let marketInfosNoZeroSpread = marketInfos;
+  let exchangesNoZeroSpread = exchanges;
+
+  Object.keys(marketInfos).forEach(market => {
+    if (marketInfos[market].sportsMarketType === SPORTS_MARKET_TYPE_SPREAD && marketInfos[market].spreadLine === 5) {
+      delete marketInfosNoZeroSpread[market];
+      delete exchangesNoZeroSpread[market];
+    }
+  });
+
+  return { marketInfos: marketInfosNoZeroSpread, exchanges: exchangesNoZeroSpread, blocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
