@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import classNames from "classnames";
 import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
@@ -32,7 +33,7 @@ export const EventCard = ({ marketEvent, ...props }) => {
     },
     { volumeTotalUSD: 0 }
   );
-  const OutcomeContent =
+  const outcomeContent =
     marketEvent.marketIds.length > 1 ? (
       <SportsCardComboOutcomes {...{ marketEvent }} />
     ) : (
@@ -42,8 +43,8 @@ export const EventCard = ({ marketEvent, ...props }) => {
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
-      <SportsCardTitle {...{ ...marketEvent }} />
-      {OutcomeContent}
+      <SportsCardTitle {...{ ...marketEvent, marketId: marketEvent.marketIds[0] }} />
+      {outcomeContent}
       <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume }} />
     </article>
   );
@@ -96,7 +97,7 @@ export const SportsCardOutcomes = ({ marketId, title, description = "", amm, eve
         ))}
       </main>
       {isMarketPage && (
-        <footer>
+        <footer className={Styles.SportsCardOutcomesFooter}>
           {FingersCrossedIcon}
           <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
         </footer>
@@ -135,7 +136,7 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
     .concat(marketEvent.outcomes)
     .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
   return (
-    <section className={Styles.SportsCardComboOutcomes}>
+    <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
       <header>
         <span />
         <span>SPREAD</span>
@@ -150,7 +151,7 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
         ))}
       </main>
       {isMarketPage && (
-        <footer>
+        <footer className={Styles.SportsCardOutcomesFooter}>
           {FingersCrossedIcon}
           <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
         </footer>
@@ -163,10 +164,13 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   const {
     settings: { oddsFormat },
   } = useSportsStore();
+  const {
+    bets,
+    actions: { addBet },
+  } = useBetslipStore();
   const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
   const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
   const { spreadLine, overUnderLine } = marketEvent;
-  console.log(spreadMarket, eventMarkets);
   const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, spreadMarket.marketId), [
     spreadMarket.amm.ammOutcomes[eventOutcomeId].balance,
   ]);
@@ -199,15 +203,48 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   return (
     <article>
       <label>{eventOutcomeName}</label>
-      <button onClick={() => console.log("spread click")} disabled={spreadOdds === "-"}>
+      <button
+        onClick={() => {
+          spreadSizePrice &&
+            !bets[`${spreadMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...spreadMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: spreadMarket.marketId,
+              heading: `${marketEvent.description || spreadMarket.description}: ${spreadMarket.title}`,
+            });
+        }}
+        disabled={spreadOdds === "-"}
+      >
         {spreadLine && spreadOdds !== "-" ? <span>{spreadLine > 0 ? `+${spreadLine}` : spreadLine}</span> : <span />}
         <span>{spreadOdds}</span>
       </button>
-      <button onClick={() => console.log("moneyline click")} disabled={moneyLineOdds === "-"}>
+      <button
+        onClick={() => {
+          moneyLineSizePrice &&
+            !bets[`${moneyLineMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...moneyLineMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: moneyLineMarket.marketId,
+              heading: `${marketEvent.description || moneyLineMarket.description}: ${moneyLineMarket.title}`,
+            });
+        }}
+        disabled={moneyLineOdds === "-"}
+      >
         <span />
         <span>{moneyLineOdds}</span>
       </button>
-      <button onClick={() => console.log("OU click")} disabled={OUOdds === "-"}>
+      <button
+        onClick={() => {
+          OUSizePrice &&
+            !bets[`${OUMarket.marketId}-${eventOutcomeId}`] &&
+            addBet({
+              ...OUMarket.amm.ammOutcomes[eventOutcomeId],
+              marketId: OUMarket.marketId,
+              heading: `${marketEvent.description || OUMarket.description}: ${OUMarket.title}`,
+            });
+        }}
+        disabled={OUOdds === "-"}
+      >
         {OUOdds !== "-" ? (
           <span>
             {overUnderLetter && <b>{overUnderLetter}</b>}
@@ -253,6 +290,7 @@ const SportsOutcomeButton = ({ outcome, marketId, title, description, amm, event
             heading: `${marketEvents?.[eventId]?.description || description}: ${title}`,
           })
         }
+        disabled={odds === "-"}
       >
         {odds}
       </button>

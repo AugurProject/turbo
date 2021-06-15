@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared.less';
+@import (reference) "~assets/styles/shared.less";
 
 .SportsMarketCard {
   .SimpleBorder;
@@ -17,7 +17,7 @@
   flex-flow: row nowrap;
   min-height: @size-20;
   max-height: @size-20;
-  
+
   > span {
     min-height: @size-20;
     max-height: @size-20;
@@ -35,7 +35,7 @@
       .text-12-semi-bold;
 
       color: var(--simple-secondary-text);
-      text-transform: uppercase;  
+      text-transform: uppercase;
     }
 
     &:last-of-type {
@@ -55,8 +55,7 @@
 
   > header {
     .PrimaryTopBorderRadius;
-    
-   
+
     align-items: center;
     background: var(--light-background-color);
     border-bottom: @size-1 solid var(--simple-border);
@@ -84,41 +83,41 @@
     > div {
       flex: 1;
       margin-right: @size-8;
-      
+
       &:last-of-type {
         margin-right: 0;
       }
     }
   }
 
-  > footer {
-    .text-14;
-
-    min-height: @size-40;
-    max-height: @size-40;
-    height: @size-40;
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    padding: @size-8;
-    background: var(--simple-light-bg);
-    border-top: @size-1 solid var(--simple-border);
-
-    > span {
-      .text-14-bold;
-
-      font-style: italic;
-      margin: 0 @size-4;
-    }
-
-    > svg {
-      height: @size-24;
-      width: @size-24;
-    }
-  }
-
   > :last-child {
     .PrimaryBottomBorderRadius;
+  }
+}
+
+.SportsCardOutcomesFooter {
+  .text-14;
+
+  min-height: @size-40;
+  max-height: @size-40;
+  height: @size-40;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: @size-8;
+  background: var(--simple-light-bg);
+  border-top: @size-1 solid var(--simple-border);
+
+  > span {
+    .text-14-bold;
+
+    font-style: italic;
+    margin: 0 @size-4;
+  }
+
+  > svg {
+    height: @size-24;
+    width: @size-24;
   }
 }
 
@@ -159,6 +158,11 @@
     cursor: pointer;
     grid-column: 2;
     grid-row: 1;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 
   > span {
@@ -269,7 +273,7 @@
         cursor: pointer;
 
         &:disabled {
-          opacity: .5;
+          opacity: 0.5;
           cursor: not-allowed;
         }
 
@@ -310,5 +314,14 @@
 
   > :last-child {
     .PrimaryBottomBorderRadius;
+  }
+
+  &.MarketPage {
+    > main {
+      background: var(--simple-light-bg);
+    }
+
+    > footer {
+    }
   }
 }

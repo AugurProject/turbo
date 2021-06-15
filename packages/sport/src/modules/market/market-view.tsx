@@ -14,14 +14,16 @@ import {
   ProcessData,
   Stores,
   Links,
+  createBigNumber,
 } from "@augurproject/comps";
 import type { MarketInfo, AmmOutcome, MarketOutcome, AmmExchange } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSportsStore } from "../stores/sport";
 import { MARKETS } from "modules/constants";
-import { SportsCardOutcomes } from "../sports-card/sports-card";
+import { SportsCardOutcomes, SportsCardComboOutcomes } from "../sports-card/sports-card";
 import { CategoriesTrail } from "../categories/categories";
 import { Link } from "react-router-dom";
+import { MarketEvent } from '../stores/constants';
 const {
   SEO,
   LabelComps: { 
@@ -133,6 +135,7 @@ const MarketView = ({ defaultMarket = null }) => {
   const marketId = useMarketQueryId();
   const { isMobile, isLogged } = useAppStatusStore();
   const {
+    marketEvents,
     settings: { timeFormat },
     actions: { setShowTradingForm },
   } = useSportsStore();
@@ -141,7 +144,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
   const amm: AmmExchange = ammExchanges[marketId];
-
   if ((!market && !loading) || !isLogged)
     return (
       <NonexistingMarketView
@@ -150,11 +152,36 @@ const MarketView = ({ defaultMarket = null }) => {
       />
     );
   if (!market) return <EmptyMarketView />;
+  const marketEvent: MarketEvent = marketEvents[market?.eventId];
+  const totalEventStats = marketEvent.marketIds.reduce(
+    (acc, marketId) => {
+      const output = { ...acc };
+      const marketTransactions = transactions[marketId];
+      const ammLiquidityUSD = markets[marketId].amm.liquidityUSD;
+      if (marketTransactions?.volumeTotalUSD) {
+        output.volumeTotalUSD = output.volumeTotalUSD + marketTransactions.volumeTotalUSD;
+      }
+      if (marketTransactions?.volume24hrTotalUSD) {
+        output.volume24hrTotalUSD = output.volume24hrTotalUSD + marketTransactions.volume24hrTotalUSD;
+      }
+      if (ammLiquidityUSD) {
+        output.liquidityUSD = createBigNumber(output.liquidityUSD).plus(ammLiquidityUSD).toFixed();
+      }
+      return output;
+    },
+    { volumeTotalUSD: 0, volume24hrTotalUSD: 0, liquidityUSD: "0" }
+  );
+  const outcomeContent =
+    marketEvent.marketIds.length > 1 ? (
+      <SportsCardComboOutcomes {...{ marketEvent }} />
+    ) : (
+      <SportsCardOutcomes {...{ ...markets[marketEvent.marketIds[0]] }} />
+    );
+
   const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
-  const { volume24hrTotalUSD = null, volumeTotalUSD = null } = transactions[marketId] || {};
   const isFinalized = isMarketFinal(market);
   return (
     <div className={Styles.MarketView}>
@@ -173,18 +200,18 @@ const MarketView = ({ defaultMarket = null }) => {
         <ul className={Styles.StatsRow}>
           <li>
             <span>24hr Volume</span>
-            <span>{formatDai(volume24hrTotalUSD || "0.00").full}</span>
+            <span>{formatDai(totalEventStats.volume24hrTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Total Volume</span>
-            <span>{formatDai(volumeTotalUSD || "0.00").full}</span>
+            <span>{formatDai(totalEventStats.volumeTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Liquidity</span>
-            <span>{formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
+            <span>{formatLiquidity(totalEventStats?.liquidityUSD || "0.00").full}</span>
           </li>
         </ul>
-        <SportsCardOutcomes {...{ ...market }} />
+        {outcomeContent}
         <div
           className={classNames(Styles.Details, {
             [Styles.isClosed]: !showMoreDetails,
