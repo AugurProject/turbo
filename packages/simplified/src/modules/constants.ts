@@ -208,7 +208,7 @@ export const MODAL_CONNECT_TO_POLYGON = "MODAL_CONNECT_TO_POLYGON";
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
   primaryCategory: SPORTS,
   reportingState: OPEN,
-  sortBy: STARTS_SOON,
+  sortBy: LIQUIDITY,
   currency: ALL_CURRENCIES,
   subCategories: [],
 };
