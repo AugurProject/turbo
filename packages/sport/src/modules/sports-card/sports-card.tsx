@@ -17,8 +17,6 @@ const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
-
-
 export const EventCard = ({ marketEvent, ...props }) => {
   const {
     settings: { timeFormat },
@@ -80,7 +78,14 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE, description = "", amm, eventId }) => {
+export const SportsCardOutcomes = ({
+  marketId,
+  title,
+  sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE,
+  description = "",
+  amm,
+  eventId,
+}) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
@@ -152,12 +157,6 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
           />
         ))}
       </main>
-      {isMarketPage && (
-        <footer className={Styles.SportsCardOutcomesFooter}>
-          {FingersCrossedIcon}
-          <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
-        </footer>
-      )}
     </section>
   );
 };
