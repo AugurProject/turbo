@@ -288,7 +288,6 @@ export const SportsChartSection = ({ eventId, marketId }) => {
   const { marketEvents } = useSportsStore();
   const directMarket = markets[marketId];
   const event = marketEvents[eventId];
-  console.log(event);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, directMarket, cashes);
   const formattedOutcomes = getFormattedOutcomes({ market: directMarket });
   const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));

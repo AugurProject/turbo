@@ -52,7 +52,7 @@ export interface MarketEvent {
   marketIds: string[];
   spreadLine: number | null;
   overUnderLine: number | null;
-  outcomes: Array<{ id: number, name: string }>;
+  outcomes: Array<{ id: number; name: string }>;
 }
 
 export interface MarketEvents {

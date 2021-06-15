@@ -80,7 +80,7 @@ const SportsCardTitle = ({ marketId, description }) => (
   </MarketLink>
 );
 
-export const SportsCardOutcomes = ({ marketId, title, sportsMarketType, description = "", amm, eventId }) => {
+export const SportsCardOutcomes = ({ marketId, title, sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE, description = "", amm, eventId }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;

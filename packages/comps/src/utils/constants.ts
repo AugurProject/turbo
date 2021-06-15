@@ -325,10 +325,10 @@ export const SPORTS_MARKET_TYPE = {
 };
 
 export const SPORTS_MARKET_TYPE_LABELS = {
-  [SPORTS_MARKET_TYPE.SPREAD]: 'Spread',
-  [SPORTS_MARKET_TYPE.MONEY_LINE]: 'Money Line',
-  [SPORTS_MARKET_TYPE.OVER_UNDER]: 'Over / Under',
-}
+  [SPORTS_MARKET_TYPE.SPREAD]: "Spread",
+  [SPORTS_MARKET_TYPE.MONEY_LINE]: "Money Line",
+  [SPORTS_MARKET_TYPE.OVER_UNDER]: "Over / Under",
+};
 
 export const MMA_MARKET_TYPE = {
   MONEY_LINE: 0,

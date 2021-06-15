@@ -11,7 +11,6 @@ import {
   Utils,
   Components,
   DerivedMarketData,
-  ProcessData,
   Stores,
   Links,
   createBigNumber,
@@ -41,7 +40,6 @@ const {
   Formatter: { formatDai, formatLiquidity },
   PathUtils: { parseQuery, makePath },
 } = Utils;
-const { getCombinedMarketTransactionsFormatted } = ProcessData;
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
@@ -138,7 +136,7 @@ const MarketView = ({ defaultMarket = null }) => {
     settings: { timeFormat },
     actions: { setShowTradingForm },
   } = useSportsStore();
-  const { cashes, markets, ammExchanges, loading, transactions } = useDataStore();
+  const { markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
