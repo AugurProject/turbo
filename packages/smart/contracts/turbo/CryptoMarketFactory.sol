@@ -168,7 +168,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         address _creator,
         uint256 _newPrice
     ) internal returns (uint256 _id) {
-        string[] memory _outcomes = new string[](3);
+        string[] memory _outcomes = new string[](2);
         _outcomes[uint256(PriceUpDownOutcome.Above)] = "Above";
         _outcomes[uint256(PriceUpDownOutcome.NotAbove)] = "Not Above";
 

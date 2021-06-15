@@ -12,11 +12,20 @@ import {
   CryptoMarketFactory__factory,
   CryptoMarketFactory,
   AggregatorV3Interface,
+  AMMFactory,
+  FeePot,
+  AMMFactory__factory,
+  BFactory__factory,
+  AbstractMarketFactory,
+  BPool__factory,
 } from "../typechain";
 import feedABI from "../abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json";
 import { calcShareFactor, CryptoMarketType, NULL_ADDRESS } from "../src";
+import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
-describe("CryptoFactory", () => {
+const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
+
+describe.only("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -35,9 +44,14 @@ describe("CryptoFactory", () => {
   let nextResolutionTime = firstResolutionTime;
 
   const smallFee = BigNumber.from(10).pow(16);
+  const usdcBasis = BigNumber.from(10).pow(6);
 
   let collateral: Cash;
+  let reputationToken: Cash;
+  let feePot: FeePot;
+  let shareFactor: BigNumber;
   let marketFactory: CryptoMarketFactory;
+  let ammFactory: AMMFactory;
   let ethPriceMarketId: BigNumber;
   let btcPriceMarketId: BigNumber;
   let ethPriceFeed: AggregatorV3Interface;
@@ -54,12 +68,16 @@ describe("CryptoFactory", () => {
     btcPriceFeed = await smockit(feedABI);
   });
 
-  it("is deployable", async () => {
+  before("other contracts", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    const shareFactor = calcShareFactor(await collateral.decimals());
+    reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    shareFactor = calcShareFactor(await collateral.decimals());
+    const bFactory = await new BFactory__factory(signer).deploy();
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, smallFee);
+  });
 
+  it("is deployable", async () => {
     const owner = signer.address;
     const protocol = signer.address;
     const linkNode = signer.address;
@@ -169,6 +187,7 @@ describe("CryptoFactory", () => {
     const marketDetails = await marketFactory.getMarketDetails(ethPriceMarketId);
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
+    expect(market.shareTokens.length).to.equal(2);
     expect(market.endTime).to.equal(nextResolutionTime);
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
@@ -186,6 +205,7 @@ describe("CryptoFactory", () => {
     const marketDetails = await marketFactory.getMarketDetails(btcPriceMarketId);
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
+    expect(market.shareTokens.length).to.equal(2);
     expect(market.endTime).to.equal(nextResolutionTime);
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
@@ -236,5 +256,72 @@ describe("CryptoFactory", () => {
     expect(await above.name()).to.equal("Above");
     expect(await notAbove.symbol()).to.equal("Not Above");
     expect(await notAbove.name()).to.equal("Not Above");
+  });
+
+  describe("trading", () => {
+    it("can create pool", async () => {
+      const basis = BigNumber.from(10).pow(18);
+      const weights = [
+        basis.mul(50).div(2), // 50% above
+        basis.mul(50).div(2), // 50% not-above
+      ];
+
+      const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
+      await collateral.faucet(initialLiquidity);
+      await collateral.approve(ammFactory.address, initialLiquidity);
+
+      await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, weights, signer.address);
+    });
+
+    it("can buy shares", async () => {
+      const collateralIn = usdcBasis.mul(10);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+      await ammFactory.buy(marketFactory.address, ethPriceMarketId, PriceUpDownOutcome.Above, collateralIn, 0);
+    });
+
+    it("can sell shares", async () => {
+      const setsInForCollateral = await marketFactory.calcShares(usdcBasis.mul(5));
+      const [tokenAmountOut, shareTokensIn] = await calculateSellCompleteSetsWithValues(
+        ammFactory,
+        (marketFactory as unknown) as AbstractMarketFactory,
+        ethPriceMarketId.toString(),
+        PriceUpDownOutcome.Above,
+        setsInForCollateral.toString()
+      );
+
+      await Promise.all(
+        await marketFactory
+          .getMarket(ethPriceMarketId)
+          .then((market) => market.shareTokens)
+          .then((addresses) => addresses.map((address) => OwnedERC20__factory.connect(address, signer)))
+          .then((shareTokens) => shareTokens.map((shareToken) => shareToken.approve(ammFactory.address, MAX_APPROVAL)))
+      );
+
+      await ammFactory.sellForCollateral(
+        marketFactory.address,
+        ethPriceMarketId,
+        PriceUpDownOutcome.Above,
+        shareTokensIn,
+        tokenAmountOut
+      );
+    });
+
+    it("can add liquidity", async () => {
+      const collateralIn = usdcBasis.mul(10);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+      await ammFactory.addLiquidity(marketFactory.address, ethPriceMarketId, collateralIn, 0, signer.address);
+    });
+
+    it("can remove liquidity", async () => {
+      const collateralIn = usdcBasis.mul(10);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+      const lpTokensIn = await ammFactory.getPoolTokenBalance(marketFactory.address, ethPriceMarketId, signer.address);
+      const pool = await ammFactory.getPool(marketFactory.address, ethPriceMarketId).then(address => BPool__factory.connect(address, signer));
+      await pool.approve(ammFactory.address, lpTokensIn);
+      await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
+    });
   });
 });
