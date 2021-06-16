@@ -12,10 +12,8 @@ export const getSportsResolutionRules = (marketInfo: MarketInfo, sportId: string
     if (mmaDailiesSportIds.includes(sportId)) return MmaDailies.getSportsResolutionRules(sportId, sportsMarketType);
     return SimpleSportsDailies.getSportsResolutionRules(sportId, sportsMarketType);
   } else if (marketInfo.marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarkets.getResolutionRules())
+    return CryptoMarkets.getResolutionRules(marketInfo);
   }
-
-
   return [];
 };
 
@@ -31,12 +29,10 @@ export const isIgnoredMarket = (sportId: string, sportsMarketType: number): bool
 };
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFactoryType: string): MarketInfo => {
-
   if (marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK) {
     return SimpleSportsDailies.deriveMarketInfo(market, marketData);
   } else if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarkets.
+    return CryptoMarkets.deriveMarketInfo(market, marketData);
   }
-
   return market;
 }

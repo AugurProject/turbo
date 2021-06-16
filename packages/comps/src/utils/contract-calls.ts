@@ -53,6 +53,7 @@ import {
   SEC_IN_DAY,
   ZERO,
   MARKET_LOAD_TYPE,
+  MARKET_FACTORY_TYPES,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1218,8 +1219,12 @@ export const faucetUSDC = async (library: Web3Provider, account?: string) => {
 const getMarketFactoryContract = (
   library: Web3Provider,
   address: string,
-  account?: string
+  marketFactoryType: string,
+  account?: string,
 ): SportsLinkMarketFactory => {
+  if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
+    return CryptoMarketFactory__factory.connet(address, getProviderOrSigner(library, account));
+  }
   return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
@@ -1437,7 +1442,7 @@ const retrieveMarkets = async (
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
-  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
@@ -1558,7 +1563,8 @@ const retrieveMarkets = async (
       ammFactoryContract,
       provider,
       account,
-      factoryAddress
+      factoryAddress,
+      marketFactoryType
     );
   }
 
@@ -1617,7 +1623,8 @@ const retrieveExchangeInfos = async (
   ammFactory: AMMFactory,
   provider: Web3Provider,
   account: string,
-  factoryAddress: string
+  factoryAddress: string,
+  marketFactoryType: string,
 ): Market[] => {
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
 
@@ -1632,7 +1639,7 @@ const retrieveExchangeInfos = async (
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
-  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractPricesCall: ContractCallContext[] = existingIndexes.reduce(
     (p, index) => [

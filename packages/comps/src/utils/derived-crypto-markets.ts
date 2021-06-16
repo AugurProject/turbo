@@ -35,7 +35,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
       outcomes,
       eventId,
       price,
-      startTimestamp: creationTimestamp,
+      startTimestamp: Number(creationTimestamp),
       coinIndex,
     };
   }
