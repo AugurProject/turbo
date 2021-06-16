@@ -13,7 +13,7 @@ task("markets", "retreive markets").setAction(async (args, hre) => {
 
   const deferredPromises = Object.entries(MarketFactories).map(([name, { marketFactory }]) => async () => {
     const length = await marketFactory.marketCount();
-    console.log(`MarketFactory "${name}" has ${length} marktets. They are:`);
+    console.log(`MarketFactory "${name}" has ${length} markets. They are:`);
     for (let marketId = 0; marketId < Number(length); marketId++) {
       const market = await marketFactory.getMarket(marketId);
       const details = await marketFactory.getMarketDetails(marketId);

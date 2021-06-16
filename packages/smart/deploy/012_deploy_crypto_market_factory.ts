@@ -33,7 +33,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const cadence = 60 * 60 * 24 * 7; // one week
 
   const args: Parameters<CryptoMarketFactory__factory["deploy"]> = [
-    owner,
+    deployer, // initial owner must be deployer for coins to be addable
     collateral.address,
     shareFactor,
     feePot.address,
@@ -46,11 +46,35 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     cadence,
   ];
 
-  await deployments.deploy("CryptoMarketFactory", {
+  const deployment = await deployments.deploy("CryptoMarketFactory", {
     from: deployer,
     args,
     log: true,
   });
+  const marketFactory = CryptoMarketFactory__factory.connect(deployment.address, signer);
+
+  const btcPriceFeed = hre.network.config.deployConfig?.externalAddresses?.btcPriceFeed || (await deployments.get("BTCPriceFeed")).address;
+  const ethPriceFeed = hre.network.config.deployConfig?.externalAddresses?.ethPriceFeed || (await deployments.get("ETHPriceFeed")).address;
+
+  // create coins
+  const coins = [
+    {
+      name: "BTC",
+      priceFeed: btcPriceFeed,
+    },
+    {
+      name: "ETH",
+      priceFeed: ethPriceFeed,
+    },
+  ];
+  for (const { name, priceFeed } of coins) {
+    await marketFactory.addCoin(name, priceFeed);
+  }
+
+  // finished making coins so can now set owner
+  if (owner !== deployer) {
+    await marketFactory.transferOwnership(owner);
+  }
 };
 
 // 4pm EST is 8PM UTC, same day

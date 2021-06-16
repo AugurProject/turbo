@@ -19,7 +19,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     {
       name: "Reputation",
       address: deployedAddresses.reputationToken,
-    }
+    },
   ];
 
   await hre.tenderly.verify(contracts);

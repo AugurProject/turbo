@@ -319,7 +319,9 @@ describe.only("CryptoFactory", () => {
       await collateral.faucet(collateralIn);
       await collateral.approve(ammFactory.address, collateralIn);
       const lpTokensIn = await ammFactory.getPoolTokenBalance(marketFactory.address, ethPriceMarketId, signer.address);
-      const pool = await ammFactory.getPool(marketFactory.address, ethPriceMarketId).then(address => BPool__factory.connect(address, signer));
+      const pool = await ammFactory
+        .getPool(marketFactory.address, ethPriceMarketId)
+        .then((address) => BPool__factory.connect(address, signer));
       await pool.approve(ammFactory.address, lpTokensIn);
       await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
     });
