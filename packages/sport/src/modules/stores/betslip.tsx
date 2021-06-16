@@ -55,7 +55,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
         subHeading: `${SPORTS_MARKET_TYPE_LABELS[market.sportsMarketType]}`,
         name,
         price: lastTrade.price,
-        wager: formatDai(collateral).formatted,
+        wager: formatDai(collateral.abs()).formatted,
         toWin: formatDai(toWin?.maxProfit).formatted,
         timestamp: Number(lastTrade.timestamp),
         status: TX_STATUS.CONFIRMED,
