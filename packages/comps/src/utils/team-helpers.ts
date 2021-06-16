@@ -24,4 +24,4 @@ export const getFullTeamName = (teamId: string): string =>
 export const getTeamAbbrevation = (teamId: string): string => getTeam(teamId)?.abbrevation;
 export const getSportId = (teamId: string): string => getTeam(teamId)?.sport_id;
 export const getSportName = (teamId: string): SportType => Sports[getSportId(teamId)]?.name;
-export const getSportCategories = (teamId: string): SportType => Sports[getSportId(teamId)]?.categories;
+export const getSportCategories = (teamId: string): string[] => Sports[getSportId(teamId)]?.categories;
