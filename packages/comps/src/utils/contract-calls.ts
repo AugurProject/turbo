@@ -41,7 +41,6 @@ import {
   ETH,
   NULL_ADDRESS,
   USDC,
-  NO_CONTEST_OUTCOME_ID,
   MARKET_STATUS,
   NUM_TICKS_STANDARD,
   DEFAULT_AMM_FEE_RAW,
@@ -71,6 +70,7 @@ import {
   AbstractMarketFactory,
   SportsLinkMarketFactory__factory,
   AbstractMarketFactory__factory,
+  CryptoMarketFactory__factory,
   calcSellCompleteSets,
   estimateBuy,
   MarketFactory,
@@ -1507,7 +1507,6 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  console.log('contractMarketsCall', contractMarketsCall);
   const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch(e => {
     console.error('retrieveMarkets', e);
     throw e;
