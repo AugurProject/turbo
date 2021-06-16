@@ -8,6 +8,7 @@ import {
   Sender,
   Trade
 } from "../../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export function getOrCreateAmmFactory (
   id: string,
@@ -38,6 +39,7 @@ export function getOrCreateSender (
     entity = new Sender(id);
 
     if (save) {
+      entity.totalLiquidity = BigInt.fromString("0");
       entity.save();
     }
   }

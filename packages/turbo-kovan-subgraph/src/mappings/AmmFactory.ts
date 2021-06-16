@@ -86,9 +86,7 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let liquidityEntity = getOrCreateLiquidity(id, true, false);
   getOrCreateMarket(marketId);
   let sender = getOrCreateSender(senderId);
-  sender.totalLiquidity = sender.totalLiquidity ?
-    sender.totalLiquidity + event.params.collateral :
-    event.params.collateral;
+  sender.totalLiquidity = sender.totalLiquidity + event.params.collateral;
   sender.save();
 
   let ammContractInstance = AmmFactoryContract.bind(event.address);
