@@ -99,8 +99,8 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         returns (uint256 _coinIndex)
     {
         Coin memory _coin = makeCoin(_name, _priceFeed);
+        _coinIndex = coins.length;
         coins.push(_coin);
-        _coinIndex = coins.length - 1;
 
         createAndResolveMarketsForCoin(_coinIndex);
     }
