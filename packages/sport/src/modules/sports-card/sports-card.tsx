@@ -113,12 +113,9 @@ export const SportsCardOutcomes = ({
   );
 };
 
-export const SportsCardComboOutcomes = ({ marketEvent }) => {
-  const location = useLocation();
-  const path = parsePath(location.pathname)[0];
-  const isMarketPage = path === MARKET;
+export const useMarketEventMarkets = (marketEvent) => {
   const { markets } = useDataStore();
-  const eventMarkets = marketEvent.marketIds.reduce((acc, marketId) => {
+  return marketEvent?.marketIds?.reduce((acc, marketId) => {
     const out = { ...acc };
     const market = markets[marketId];
     switch (market.sportsMarketType) {
@@ -139,6 +136,13 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
     }
     return out;
   }, {});
+};
+
+export const SportsCardComboOutcomes = ({ marketEvent }) => {
+  const location = useLocation();
+  const path = parsePath(location.pathname)[0];
+  const isMarketPage = path === MARKET;
+  const eventMarkets = useMarketEventMarkets(marketEvent);
   const marketOutcomesOrderedForDisplay = []
     .concat(marketEvent.outcomes)
     .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
