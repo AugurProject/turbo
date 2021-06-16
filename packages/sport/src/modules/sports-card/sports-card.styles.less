@@ -163,6 +163,16 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    &:not(:disabled) {
+      &:hover {
+        background: var(--simple-yes-30);
+      }
+
+      &:focus {
+        border: var(--primary-button-border-focus);
+      }
+    }
   }
 
   > span {
@@ -277,6 +287,16 @@
           cursor: not-allowed;
         }
 
+        &:not(:disabled) {
+          &:hover {
+            background: var(--simple-yes-30);
+          }
+    
+          &:focus {
+            border: var(--primary-button-border-focus);
+          }
+        }
+
         > span:first-of-type {
           .text-12;
 
@@ -319,9 +339,10 @@
   &.MarketPage {
     > main {
       background: var(--simple-light-bg);
-    }
 
-    > footer {
+      > article:hover {
+        background: var(--light-background-color);
+      }
     }
   }
 }
