@@ -208,9 +208,9 @@ export const STUBBED_BETSLIP_ACTIONS = {
   addBet: (bet) => {},
   removeBet: (betId) => {},
   updateBet: (bet) => {},
-  addActive: (bet) => {},
+  addActive: (bet, dontUpdateTime = false) => {},
   removeActive: (hash) => {},
-  updateActive: (bet) => {},
+  updateActive: (bet, dontUpdateTime = false) => {},
   cancelAllBets: () => {},
 };
 
