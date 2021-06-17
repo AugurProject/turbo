@@ -30,7 +30,7 @@ const {
   ButtonComps: { BuySellButton },
 } = Components;
 const { MarketsLink } = Links;
-const { getSportsResolutionRules } = DerivedMarketData;
+const { getResolutionRules } = DerivedMarketData;
 const { MARKET_ID_PARAM_NAME } = Constants;
 const {
   Utils: { isMarketFinal },
@@ -177,7 +177,7 @@ const MarketView = ({ defaultMarket = null }) => {
       <SportsCardOutcomes {...{ ...market }} />
     );
 
-  const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
+  const details = getResolutionRules(market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   

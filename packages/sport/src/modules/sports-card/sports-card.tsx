@@ -205,6 +205,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   );
   const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
   const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
+
   return (
     <article>
       <label>{eventOutcomeName}</label>
