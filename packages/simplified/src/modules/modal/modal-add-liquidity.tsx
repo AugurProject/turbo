@@ -526,6 +526,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   ammCash={cash}
                   dontFilterInvalid
                   hasLiquidity={!mustSetPrices}
+                  marketFactoryType={market?.marketFactoryType}
                 />
               </>
             )}

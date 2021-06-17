@@ -324,6 +324,11 @@ export const SPORTS_MARKET_TYPE = {
   OVER_UNDER: 2,
 };
 
+export const MARKET_FACTORY_TYPES = {
+  SPORTSLINK: "SportsLink",
+  CRYPTO: "Crypto",
+};
+
 export const SPORTS_MARKET_TYPE_LABELS = {
   [SPORTS_MARKET_TYPE.SPREAD]: "Spread",
   [SPORTS_MARKET_TYPE.MONEY_LINE]: "Money Line",

@@ -1,4 +1,5 @@
 import { BigNumber as BN } from "bignumber.js";
+import { MarketInfo } from "types";
 import { NO_CONTEST_OUTCOME_ID, MMA_MARKET_TYPE } from "./constants";
 
 const NAMING_TEAM = {
@@ -93,8 +94,10 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
   return sportsData[sportId]?.types[sportsMarketType];
 };
 
-export const getSportsResolutionRules = (sportId: string, sportsMarketType: number): string[] => {
-  if (!sportsResolutionRules[sportId]) return null;
+export const getResolutionRules = (market: MarketInfo): string[] => {
+  if (!market?.sportId || market.sportsMarketType === undefined) return [];
+  const { sportId, sportsMarketType } = market;
+  if (!sportsResolutionRules[sportId]) return [];
   return sportsResolutionRules[sportId]?.types[sportsMarketType];
 };
 

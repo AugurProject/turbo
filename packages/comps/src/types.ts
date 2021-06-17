@@ -273,11 +273,14 @@ export interface MarketInfo {
   outcomes: MarketOutcome[];
   amm: AmmExchange | null;
   reportingState: string;
-  claimedProceeds: ClaimedProceeds[];
   isInvalid: boolean;
   numTicks: string;
   hasWinner: boolean;
   winner?: number;
+  shareTokens?: string[];
+  marketFactoryType?: string;
+  coinIndex?: string;
+  price?: string;
   spreadOuLine?: number;
 }
 
@@ -592,6 +595,7 @@ export interface PositionBalance extends SimpleBalance {
   visible: boolean;
   positionFromAddLiquidity: boolean;
   positionFromRemoveLiquidity: boolean;
+  timestamp: number;
 }
 
 export interface AmmMarketShares {

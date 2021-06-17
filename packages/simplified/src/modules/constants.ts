@@ -91,7 +91,7 @@ export const categoryItems = [
   {
     label: CRYPTO,
     value: CRYPTO,
-    disabled: true,
+    disabled: false,
   },
   {
     label: ECONOMICS,

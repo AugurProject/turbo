@@ -22,6 +22,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     hre.network.config.deployConfig?.externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
+  const cryptoMarketFactory = await deployments.get("CryptoMarketFactory");
   const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory");
   const ammFactory = await deployments.get("AMMFactory");
 
@@ -43,6 +44,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       description: "mlb and nba",
       type: "SportsLink",
       address: sportsLinkMarketFactory.address,
+      collateral,
+      ammFactory: ammFactory.address,
+    });
+  }
+  if (!hasFactory(marketFactories, cryptoMarketFactory.address)) {
+    marketFactories.unshift({
+      version,
+      description: "crypto prices",
+      type: "Crypto",
+      address: cryptoMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
     });

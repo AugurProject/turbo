@@ -7,7 +7,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
   const deployedAddresses = addresses[chainId as ChainId];
   if (!deployedAddresses) return console.warn(`No contracts known for chainid "${chainId}"`);
 
-  await hre.tenderly.verify([
+  const contracts = [
     {
       name: "AMMFactory",
       address: deployedAddresses.marketFactories[0].ammFactory,
@@ -20,9 +20,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
       name: "Reputation",
       address: deployedAddresses.reputationToken,
     },
-    {
-      name: "SportsLinkMarketFactory",
-      address: deployedAddresses.marketFactories[0].address,
-    },
-  ]);
+  ];
+
+  await hre.tenderly.verify(contracts);
 });
