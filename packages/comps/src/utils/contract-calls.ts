@@ -1451,6 +1451,7 @@ export const getFactoryMarketInfo = async (
     ammFactory,
     MarketFactoryType
   );
+
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
 };
 
