@@ -682,8 +682,8 @@ export const getUserBalances = async (
   }
   // need different calls to get lp tokens and market share balances
   const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
-  const balanceResult: ContractCallResults = await multicall.call(balanceCalls).catch(e => {
-    console.error('getUserBalances', e);
+  const balanceResult: ContractCallResults = await multicall.call(balanceCalls).catch((e) => {
+    console.error("getUserBalances", e);
     throw e;
   });
 
@@ -896,7 +896,7 @@ const getPositionUsdValues = (
     visible,
     positionFromAddLiquidity,
     positionFromRemoveLiquidity,
-    timestamp
+    timestamp,
   };
 };
 
@@ -1005,7 +1005,7 @@ const getInitPositionValues = (
   outcome: string,
   account: string,
   userClaims: UserClaimTransactions
-): { avgPrice: string; positionFromAddLiquidity: boolean; positionFromRemoveLiquidity: boolean, timestamp: number } => {
+): { avgPrice: string; positionFromAddLiquidity: boolean; positionFromRemoveLiquidity: boolean; timestamp: number } => {
   const outcomeId = String(new BN(outcome));
   // sum up trades shares
   const claimTimestamp = lastClaimTimestamp(userClaims?.claimedProceeds, outcomeId, account);
@@ -1051,13 +1051,18 @@ const getInitPositionValues = (
         .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
-  const timestamp = [...(marketTransactions?.addLiquidity || []), ...(marketTransactions?.removeLiquidity || []), ...(marketTransactions?.buys || []), ...(marketTransactions?.sells || [])].reduce((p, v) => v.timestamp > p ? v.timestamp : p, 0);
+  const timestamp = [
+    ...(marketTransactions?.addLiquidity || []),
+    ...(marketTransactions?.removeLiquidity || []),
+    ...(marketTransactions?.buys || []),
+    ...(marketTransactions?.sells || []),
+  ].reduce((p, v) => (v.timestamp > p ? v.timestamp : p), 0);
 
   return {
     avgPrice: String(weightedAvgPrice),
     positionFromAddLiquidity,
     positionFromRemoveLiquidity,
-    timestamp
+    timestamp,
   };
 };
 
@@ -1219,7 +1224,7 @@ const getMarketFactoryContract = (
   library: Web3Provider,
   address: string,
   marketFactoryType: string,
-  account?: string,
+  account?: string
 ): SportsLinkMarketFactory => {
   if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
     return CryptoMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
@@ -1404,7 +1409,7 @@ export const getFactoryMarketInfo = async (
   factoryAddress: string,
   ammFactory: string,
   ignoreList: { [factory: string]: number[] },
-  MarketFactoryType: string,
+  MarketFactoryType: string
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
@@ -1504,8 +1509,8 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch(e => {
-    console.error('retrieveMarkets', e);
+  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch((e) => {
+    console.error("retrieveMarkets", e);
     throw e;
   });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
@@ -1587,8 +1592,8 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     ],
   }));
   const balances = {};
-  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch(e => {
-    console.error('exchangesHaveLiquidity', e);
+  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch((e) => {
+    console.error("exchangesHaveLiquidity", e);
     throw e;
   });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
@@ -1620,7 +1625,7 @@ const retrieveExchangeInfos = async (
   provider: Web3Provider,
   account: string,
   factoryAddress: string,
-  marketFactoryType: string,
+  marketFactoryType: string
 ): Market[] => {
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
 
@@ -1741,14 +1746,12 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await multicall.call([
-    ...contractMarketsCall,
-    ...shareFactorCalls,
-    ...contractPricesCall,
-  ]).catch(e => {
-    console.error('retrieveExchangeInfos', e);
-    throw e;
-  });
+  const marketsResult: ContractCallResults = await multicall
+    .call([...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall])
+    .catch((e) => {
+      console.error("retrieveExchangeInfos", e);
+      throw e;
+    });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -1852,7 +1855,7 @@ const decodeMarket = (marketData: any, marketFactoryType: string) => {
     settlementFee: creatorFee,
     shareTokens,
     creator,
-    marketFactoryType
+    marketFactoryType,
   };
 };
 

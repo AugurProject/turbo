@@ -18,11 +18,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const ethPriceFeed =
     hre.network.config.deployConfig?.externalAddresses?.ethPriceFeed || (await deployments.get("ETHPriceFeed")).address;
 
-  const marketFactory = CryptoMarketFactory__factory.connect((await deployments.get("CryptoMarketFactory")).address, signer);
+  const marketFactory = CryptoMarketFactory__factory.connect(
+    (await deployments.get("CryptoMarketFactory")).address,
+    signer
+  );
 
   // create coins
   const coinCount = (await marketFactory.getCoins()).length;
-  if (coinCount === 1) { // 1 because index 0 is fake coin
+  if (coinCount === 1) {
+    // 1 because index 0 is fake coin
     const coins = [
       {
         name: "BTC",

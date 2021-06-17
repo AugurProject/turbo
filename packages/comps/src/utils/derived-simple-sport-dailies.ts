@@ -17,7 +17,6 @@ const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
 
-
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
     awayTeamId: coAwayTeamId,
@@ -59,7 +58,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     sportsMarketType,
     spreadLine: line,
   };
-}
+};
 
 const getOutcomeName = (
   outcomeId: number,
@@ -104,7 +103,7 @@ const getMarketTitle = (
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
-  line: number,
+  line: number
 ): { title: string; description: string } => {
   const marketTitles = getSportsTitles(sportId, sportsMarketType);
   if (!marketTitles) {
@@ -154,7 +153,7 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
 };
 
 export const getResolutionRules = (market: MarketInfo): string[] => {
-  if (!market.sportId || !market.sportsMarketType || !sportsResolutionRules[market?.sportId]) return []
+  if (!market.sportId || !market.sportsMarketType || !sportsResolutionRules[market?.sportId]) return [];
   const { sportId, sportsMarketType } = market;
   return sportsResolutionRules[sportId]?.types[sportsMarketType];
 };
@@ -187,7 +186,7 @@ const decodeOutcomes = (
       name: getOutcomeName(i, sportId, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
       symbol: shareToken,
       isInvalid: i === NO_CONTEST_OUTCOME_ID,
-      isWinner: market.hasWinner && (i === market.winner) ? true : false,
+      isWinner: market.hasWinner && i === market.winner ? true : false,
       isFinalNumerator: false, // need to translate final numerator payout hash to outcome
       shareToken,
     };

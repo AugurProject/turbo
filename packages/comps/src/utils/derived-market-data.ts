@@ -31,4 +31,4 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
     return CryptoMarkets.deriveMarketInfo(market, marketData);
   }
   return market;
-}
+};
