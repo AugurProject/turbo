@@ -1,5 +1,7 @@
 import { BigNumber as BN } from "bignumber.js";
+import { MarketInfo } from "types";
 import { NO_CONTEST_OUTCOME_ID, SPORTS_MARKET_TYPE } from "./constants";
+import { getFullTeamName, getSportCategories, getSportId } from "./team-helpers";
 
 const NAMING_TEAM = {
   HOME_TEAM: "HOME_TEAM",
@@ -15,13 +17,56 @@ const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Tie/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
 
-export const getOutcomeName = (
+export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
+  const {
+    awayTeamId: coAwayTeamId,
+    eventId: coEventId,
+    homeTeamId: coHomeTeamId,
+    estimatedStartTime,
+    value0,
+    marketType,
+  } = marketData;
+  // translate market data
+  const eventIdValue = new BN(String(coEventId)).toString(16); // could be used to group events
+  const eventId = `0${eventIdValue}`.slice(-32); // just grab the last 32
+  const homeTeamId = String(coHomeTeamId); // home team identifier
+  const awayTeamId = String(coAwayTeamId); // visiting team identifier
+  const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
+  let categories = getSportCategories(homeTeamId);
+  if (!categories) categories = ["Unknown", "Unknown", "Unknown"];
+  const line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
+  const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
+  const homeTeam = getFullTeamName(homeTeamId);
+  const awayTeam = getFullTeamName(awayTeamId);
+  const sportId = getSportId(homeTeamId) || "4"; // TODO: need to add team so we get correct sportsId
+
+  const { shareTokens } = market;
+  const outcomes = decodeOutcomes(market, shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
+  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
+
+  return {
+    ...market,
+    title,
+    description,
+    categories,
+    outcomes,
+    eventId,
+    homeTeamId,
+    awayTeamId,
+    startTimestamp,
+    sportId,
+    sportsMarketType,
+    spreadLine: line,
+  };
+};
+
+const getOutcomeName = (
   outcomeId: number,
   sportId: string,
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
-  line: string
+  line: number
 ) => {
   const marketOutcome = getMarketOutcome(sportId, sportsMarketType, outcomeId);
   // create outcome name using market type and line
@@ -46,19 +91,19 @@ export const getOutcomeName = (
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
     // over/under
-    return marketOutcome.replace(NAMING_LINE.OVER_UNDER_LINE, line);
+    return marketOutcome.replace(NAMING_LINE.OVER_UNDER_LINE, String(line));
   }
 
   return `Outcome ${outcomeId}`;
 };
 
 // todo: move this to own file when new market factory is available
-export const getMarketTitle = (
+const getMarketTitle = (
   sportId: string,
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
-  line: string
+  line: number
 ): { title: string; description: string } => {
   const marketTitles = getSportsTitles(sportId, sportsMarketType);
   if (!marketTitles) {
@@ -92,7 +137,7 @@ export const getMarketTitle = (
 
   if (sportsMarketType === 2) {
     // over/under
-    title = marketTitles.title.replace(NAMING_LINE.OVER_UNDER_LINE, line);
+    title = marketTitles.title.replace(NAMING_LINE.OVER_UNDER_LINE, String(line));
     description = populateHomeAway(marketTitles.description, homeTeam, awayTeam);
   }
   return { title, description };
@@ -107,8 +152,9 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
   return sportsData[sportId]?.types[sportsMarketType];
 };
 
-export const getSportsResolutionRules = (sportId: string, sportsMarketType: number): string[] => {
-  if (!sportsResolutionRules[sportId]) return null;
+export const getResolutionRules = (market: MarketInfo): string[] => {
+  if (!market.sportId || !market.sportsMarketType || !sportsResolutionRules[market?.sportId]) return [];
+  const { sportId, sportsMarketType } = market;
   return sportsResolutionRules[sportId]?.types[sportsMarketType];
 };
 
@@ -123,6 +169,28 @@ const getMarketOutcome = (sportId: string, sportsMarketType: number, outcomeId: 
     return "";
   }
   return data.outcomes[outcomeId];
+};
+
+const decodeOutcomes = (
+  market: MarketInfo,
+  shareTokens: string[],
+  sportId: string,
+  homeTeam: string,
+  awayTeam: string,
+  sportsMarketType: number,
+  line: number
+) => {
+  return shareTokens.map((shareToken, i) => {
+    return {
+      id: i,
+      name: getOutcomeName(i, sportId, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
+      symbol: shareToken,
+      isInvalid: i === NO_CONTEST_OUTCOME_ID,
+      isWinner: market.hasWinner && i === market.winner ? true : false,
+      isFinalNumerator: false, // need to translate final numerator payout hash to outcome
+      shareToken,
+    };
+  });
 };
 
 const sportsData = {
