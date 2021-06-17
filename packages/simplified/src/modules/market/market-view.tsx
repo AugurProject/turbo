@@ -185,7 +185,7 @@ const MarketView = ({ defaultMarket = null }) => {
           <CategoryIcon big categories={categories} />
           <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <CurrencyLabel name={amm?.cash?.name} />
+          {!marketHasNoLiquidity && <CurrencyLabel name={amm?.cash?.name} />}
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}

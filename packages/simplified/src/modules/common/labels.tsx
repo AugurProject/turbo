@@ -25,7 +25,6 @@ const {
 const {
   CREATE,
   USDC,
-  // ETH,
   MODAL_ADD_LIQUIDITY,
   MARKET,
   ADD,
@@ -38,7 +37,7 @@ const {
   PathUtils: { parsePath },
   Formatter: { formatCash },
 } = Utils;
-const { USDCIcon, EthIcon, PlusIcon } = Icons;
+const { USDCIcon, EthIcon } = Icons;
 
 const handleValue = (value, cashName = USDC) =>
   formatCash(value, cashName, {

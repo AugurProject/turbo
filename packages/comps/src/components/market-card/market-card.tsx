@@ -176,18 +176,27 @@ export const MarketCardView = ({
           <CategoryLabel {...{ categories }} />
           <div>
             <ReportingStateLabel {...{ reportingState }} />
-            {marketHasNoLiquidity ? <TinyThemeButton customClass={Styles.NoLiquidityPill} action={() => {}} text="add liquidity to earn fees" disabled /> : <ValueLabel label="Liquidity Provider APY" value={formattedApy || "-"} />}
+            {marketHasNoLiquidity ? (
+              <TinyThemeButton
+                customClass={Styles.NoLiquidityPill}
+                action={() => {}}
+                text="add liquidity to earn fees"
+                disabled
+              />
+            ) : (
+              <ValueLabel label="Liquidity Provider APY" value={formattedApy || "-"} />
+            )}
           </div>
         </article>
-          <MarketLink id={marketId} dontGoToMarket={false}>
-            <MarketTitleArea {...{ ...market, timeFormat }} />
-            <ValueLabel label="total volume" value={formattedVol || "-"} />
-            <ValueLabel label="Liquidity" value={formattedLiquidity || "-"} />
-            <OutcomesTable {...{ amm }} />
-            {!hasWinner && extraOutcomes > 0 && (
-              <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
-            )}
-          </MarketLink>
+        <MarketLink id={marketId} dontGoToMarket={false}>
+          <MarketTitleArea {...{ ...market, timeFormat }} />
+          <ValueLabel label="total volume" value={formattedVol || "-"} />
+          <ValueLabel label="Liquidity" value={formattedLiquidity || "-"} />
+          <OutcomesTable {...{ amm }} />
+          {!hasWinner && extraOutcomes > 0 && (
+            <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
+          )}
+        </MarketLink>
       </div>
     </article>
   );

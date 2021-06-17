@@ -67,6 +67,9 @@
 
         > div[class*="ValueLabel"] {
           > span:last-of-type {
+            .text-12-semi-bold;
+
+            margin-top: @size-2;
             justify-content: flex-end;
           }
         }
@@ -95,7 +98,7 @@
       }
 
       > span:last-of-type {
-        .text-10-semi-bold;
+        .text-12;
 
         color: var(--simple-secondary-text);
         white-space: nowrap;
@@ -134,18 +137,22 @@
         grid-row: 1;
       }
 
-      > div:first-of-type {
+      > div:first-of-type { 
+        // volume labels (Total Volume)
         grid-column: 1 / span 2;
         grid-row: 2;
         align-items: flex-end;
         margin-top: @size-16;
 
         > span:last-of-type {
-          align-self: center;
+          .text-14-semi-bold;
+
+          margin-top: @size-2;
         }
       }
 
       > div:nth-of-type(2) {
+        // volume labels (Liquidity)
         // align-items: flex-end;
         grid-column: 1 / span 2;
         grid-row: 3;
@@ -158,11 +165,13 @@
             .text-12;
 
             color: var(--color-secondary-text);
-            margin-bottom: @size-4;
           }
 
           &:last-of-type {
-            .text-12-semi-bold;
+            .text-14-semi-bold;
+
+            margin-top: @size-2;
+            color: var(--simple-primary-text);
           }
         }
       }
@@ -481,7 +490,8 @@ span.ExtraOutcomes {
           > span:last-of-type {
             .text-14-semi-bold;
 
-            margin-left: @size-4;
+            margin-left: @size-8;
+            margin-top: 0;
           }
         }
 
@@ -491,6 +501,14 @@ span.ExtraOutcomes {
           flex: 0;
           order: 4;
           margin-top: @size-8;
+          flex-flow: row nowrap;
+
+          > span:last-of-type {
+            .text-14-semi-bold;
+
+            margin-left: @size-8;
+            margin-top: 0;
+          }
         }
 
         > div.OutcomesTable {
