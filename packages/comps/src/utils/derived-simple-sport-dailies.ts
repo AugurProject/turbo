@@ -154,9 +154,10 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
 };
 
 export const getResolutionRules = (market: MarketInfo): string[] => {
-  if (!market.sportId || !market.sportsMarketType || !sportsResolutionRules[market?.sportId]) return [];
+  if (!market?.sportId || market?.sportsMarketType === undefined || !sportsResolutionRules[String(market?.sportId)])
+    return [];
   const { sportId, sportsMarketType } = market;
-  return sportsResolutionRules[sportId]?.types[sportsMarketType];
+  return sportsResolutionRules[String(sportId)]?.types[sportsMarketType];
 };
 
 const getMarketOutcome = (sportId: string, sportsMarketType: number, outcomeId: number): string => {
