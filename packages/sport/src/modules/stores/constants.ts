@@ -50,6 +50,9 @@ export interface MarketEvent {
   categories: string[];
   hasWinner: boolean;
   marketIds: string[];
+  spreadLine: number | null;
+  overUnderLine: number | null;
+  outcomes: Array<{ id: number; name: string }>;
 }
 
 export interface MarketEvents {
@@ -58,6 +61,7 @@ export interface MarketEvents {
 export interface BetType {
   id: number;
   heading?: string;
+  subHeading?: string;
   wager: string | null;
   toWin: string | null;
   price: string;
@@ -204,9 +208,9 @@ export const STUBBED_BETSLIP_ACTIONS = {
   addBet: (bet) => {},
   removeBet: (betId) => {},
   updateBet: (bet) => {},
-  addActive: (bet) => {},
+  addActive: (bet, dontUpdateTime = false) => {},
   removeActive: (hash) => {},
-  updateActive: (bet) => {},
+  updateActive: (bet, dontUpdateTime = false) => {},
   cancelAllBets: () => {},
 };
 

@@ -356,13 +356,19 @@ export const PositionTable = ({
   } = useUserStore();
 
   const {
-    settings: { timeFormat },
+    settings: { showResolvedPositions, timeFormat },
   } = useSimplifiedStore();
 
   const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
   const { hasLiquidity } = ammExchange;
+
+  // Hide positions if they are resolved and user has hide resolved positions enabled
+  if (!showResolvedPositions && !claimableWinnings && market.winner !== null) {
+    return null;
+  }
+
   return (
     <>
       <div className={Styles.PositionTable}>

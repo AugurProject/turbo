@@ -85,7 +85,9 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let senderId = event.params.user.toHexString();
   let liquidityEntity = getOrCreateLiquidity(id, true, false);
   getOrCreateMarket(marketId);
-  getOrCreateSender(senderId);
+  let sender = getOrCreateSender(senderId);
+  sender.totalLiquidity = sender.totalLiquidity + event.params.collateral;
+  sender.save();
 
   let ammContractInstance = AmmFactoryContract.bind(event.address);
   let poolAddress = ammContractInstance.pools(event.params.marketFactory, event.params.marketId);
@@ -129,6 +131,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradeEntity.marketFactory = event.params.marketFactory.toHexString();
   tradeEntity.marketId = marketId;
   tradeEntity.user = senderId;
+  tradeEntity.sender = senderId;
   tradeEntity.outcome = bigIntToHexString(event.params.outcome);
   tradeEntity.collateral = bigIntToHexString(event.params.collateral);
   tradeEntity.shares = bigIntToHexString(event.params.shares);

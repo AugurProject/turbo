@@ -11,8 +11,12 @@ import {
   SelectionComps,
   MarketCardComps,
   Utils,
+  ProcessData,
+  useDataStore,
 } from "@augurproject/comps";
 import { SportStore, useSportsStore } from "modules/stores/sport";
+import { useMarketEventMarkets } from "modules/sports-card/sports-card";
+
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
 const {
@@ -20,7 +24,8 @@ const {
   DateUtils: { getDayFormat, getTimeFormat },
 } = Utils;
 const { Checkbox } = Icons;
-const { TransactionTypes } = Constants;
+const { getCombinedMarketTransactionsFormatted } = ProcessData;
+const { TransactionTypes, SPORTS_MARKET_TYPE_LABELS, SPORTS_MARKET_TYPE } = Constants;
 const HIGHLIGHTED_LINE_WIDTH = 2;
 const NORMAL_LINE_WIDTH = 2;
 const ONE_MIN = 60;
@@ -62,32 +67,32 @@ const RANGE_OPTIONS = [
 
 const EVENT_MARKET_OPTIONS = [
   {
-    id: 0,
-    label: 'Spread',
+    id: SPORTS_MARKET_TYPE.SPREAD,
+    label: SPORTS_MARKET_TYPE_LABELS[SPORTS_MARKET_TYPE.SPREAD],
   },
   {
-    id: 1,
-    label: 'Moneyline',
+    id: SPORTS_MARKET_TYPE.MONEY_LINE,
+    label: SPORTS_MARKET_TYPE_LABELS[SPORTS_MARKET_TYPE.MONEY_LINE],
   },
   {
-    id: 2,
-    label: 'Over / Under',
-  }
-]
+    id: SPORTS_MARKET_TYPE.OVER_UNDER,
+    label: SPORTS_MARKET_TYPE_LABELS[SPORTS_MARKET_TYPE.OVER_UNDER],
+  },
+];
 
 const SERIES_COLORS = ["#FF4E27", "#FCBD43", "#48EBB5", "#FF56B1", "#FF8DED", "#1B91FF", "#09CFE1", "#AE5DFF"];
 const SERIES_GRADIENTS = [
   [
-    [0, "rgba(255, 78, 39, .15)"],
+    [0, "rgba(255, 78, 39, 0.15)"],
     [1, "rgba(255, 78, 39, 0)"],
   ],
   [
-    [0, "rgba(252, 189, 67, .15)"],
+    [0, "rgba(252, 189, 67, 0.15)"],
     [1, "rgba(252, 189, 67, 0)"],
   ],
   [
-    [0, "rgba(72, 235, 181,, .15)"],
-    [1, "rgba(72, 235, 181,, 0)"],
+    [0, "rgba(72, 235, 181, 0.15)"],
+    [1, "rgba(72, 235, 181, 0)"],
   ],
   [
     [0, "rgba(255, 86, 177, 0.15)"],
@@ -258,11 +263,13 @@ export const SelectOutcomeButton = ({
   cash,
   disabled = false,
 }: typeof React.Component) => {
-  const { settings: { oddsFormat } } = useSportsStore();
+  const {
+    settings: { oddsFormat },
+  } = useSportsStore();
   const OutcomePrice =
     isNaN(Number(lastPrice)) || Number(lastPrice) <= 0
       ? `-`
-      : convertToOdds(convertToNormalizedPrice({ price: lastPrice }), oddsFormat).full 
+      : convertToOdds(convertToNormalizedPrice({ price: lastPrice }), oddsFormat).full;
   return (
     <button
       className={classNames(Styles.SelectOutcomeButton, {
@@ -278,11 +285,16 @@ export const SelectOutcomeButton = ({
   );
 };
 
-export const SportsChartSection = ({ market, cash, transactions }) => {
-  const formattedOutcomes = getFormattedOutcomes({ market });
-  const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));
+export const SportsChartSection = ({ eventId, marketId }) => {
+  const { markets, cashes, transactions } = useDataStore();
+  const { marketEvents } = useSportsStore();
+  const directMarket = markets[marketId];
+  const event = marketEvents[eventId];
+  const directMarketTransactions = getCombinedMarketTransactionsFormatted(transactions, directMarket, cashes);
+  const directFormattedOutcomes = getFormattedOutcomes({ market: directMarket });
+  const [selectedOutcomes, setSelectedOutcomes] = useState(directFormattedOutcomes.map(({ outcomeIdx }) => true));
   const [rangeSelection, setRangeSelection] = useState(3);
-  const [marketOptionSelection, setMarketOptionSelection] = useState(1);
+  const [marketOptionSelection, setMarketOptionSelection] = useState(directMarket.sportsMarketType);
 
   const toggleOutcome = (id) => {
     const updates: boolean[] = [].concat(selectedOutcomes);
@@ -290,35 +302,42 @@ export const SportsChartSection = ({ market, cash, transactions }) => {
     setSelectedOutcomes(updates);
   };
 
+  const eventMarkets = useMarketEventMarkets(event);
+  const selectedMarket = eventMarkets?.[marketOptionSelection];
+  const selectedMarketTransactions = selectedMarket ? getCombinedMarketTransactionsFormatted(transactions, selectedMarket, cashes) : [];
+  const formattedOutcomes = selectedMarket ? getFormattedOutcomes({ market: selectedMarket }) : directFormattedOutcomes;
+
   return (
     <section className={Styles.SimpleChartSection}>
       <div>
-        <MultiButtonSelection
-          options={EVENT_MARKET_OPTIONS}
-          selection={marketOptionSelection}
-          setSelection={(id) => setMarketOptionSelection(id)}
-        />
         <MultiButtonSelection
           options={RANGE_OPTIONS}
           selection={rangeSelection}
           setSelection={(id) => setRangeSelection(id)}
         />
+        {event?.marketIds?.length > 1 && (
+          <MultiButtonSelection
+            options={EVENT_MARKET_OPTIONS}
+            selection={marketOptionSelection}
+            setSelection={(id) => setMarketOptionSelection(id)}
+          />
+        )}
       </div>
       <PriceHistoryChart
         {...{
-          market,
-          transactions,
+          market: selectedMarket ? selectedMarket : directMarket,
+          transactions: selectedMarket ? selectedMarketTransactions : directMarketTransactions,
           formattedOutcomes,
           selectedOutcomes,
           rangeSelection,
-          cash,
+          cash: directMarket.amm?.cash,
         }}
       />
       <div>
         {formattedOutcomes.map((outcome) => (
           <SelectOutcomeButton
             key={`${outcome.id}_${outcome.name}`}
-            cash={cash}
+            cash={directMarket.amm?.cash}
             outcome={outcome}
             toggleSelected={toggleOutcome}
             isSelected={selectedOutcomes[outcome.outcomeIdx]}
@@ -450,12 +469,12 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
       // @ts-ignore
       const date = `${getDayFormat(this.x)}, ${getTimeFormat(this.x, timeFormat)}`;
       let out = `<h5>${date}</h5><ul>`;
-      
+
       // @ts-ignore
       this.points.forEach((point) => {
         const odds = convertToOdds(convertToNormalizedPrice({ price: point.y }), oddsFormat).full;
         out += `<li><span style="color:${point.color}">&#9679;</span><b>${point.series.name}</b><span>${
-          odds.includes('Infinity') ? '-' : odds
+          odds.includes("Infinity") ? "-" : odds
         }</span></li>`;
       });
       out += "</ul>";

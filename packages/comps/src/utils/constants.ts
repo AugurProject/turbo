@@ -328,6 +328,13 @@ export const MARKET_FACTORY_TYPES = {
   SPORTSLINK: "SportsLink",
   CRYPTO: "Crypto",
 };
+
+export const SPORTS_MARKET_TYPE_LABELS = {
+  [SPORTS_MARKET_TYPE.SPREAD]: "Spread",
+  [SPORTS_MARKET_TYPE.MONEY_LINE]: "Money Line",
+  [SPORTS_MARKET_TYPE.OVER_UNDER]: "Over / Under",
+};
+
 export const MMA_MARKET_TYPE = {
   MONEY_LINE: 0,
   SPREAD: 1, // TODO: no spread markets for MMA when real market factory gets created

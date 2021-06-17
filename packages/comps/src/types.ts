@@ -281,6 +281,7 @@ export interface MarketInfo {
   marketFactoryType?: string;
   coinIndex?: string;
   price?: string;
+  spreadOuLine?: number;
 }
 
 export interface MarketOutcome {

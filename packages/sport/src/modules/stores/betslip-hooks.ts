@@ -61,13 +61,14 @@ export function BetslipReducer(state, action) {
       break;
     }
     case ADD_ACTIVE: {
-      const { bet } = action;
+      const { bet, dontUpdateTime } = action;
+      const extra = dontUpdateTime ? {} : { timestamp };
       updatedState[ACTIVE] = {
         ...updatedState[ACTIVE],
         [`${bet.hash}`]: {
           ...DEFAULT_ACTIVE_BET,
           ...bet,
-          timestamp,
+          ...extra,
         },
       };
       delete updatedState[BETS][bet.betId];
@@ -78,11 +79,12 @@ export function BetslipReducer(state, action) {
       break;
     }
     case UPDATE_ACTIVE: {
-      const { bet } = action;
+      const { bet, dontUpdateTime } = action;
+      const extra = dontUpdateTime ? {} : { timestamp };
       updatedState[ACTIVE][bet.hash] = {
         ...updatedState[ACTIVE][bet.hash],
         ...action.bet,
-        timestamp,
+        ...extra,
       };
       break;
     }
@@ -113,10 +115,10 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       addBet: (bet) => dispatch({ type: ADD_BET, bet }),
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
       updateBet: (bet) => dispatch({ type: UPDATE_BET, bet }),
-      addActive: (bet) => dispatch({ type: ADD_ACTIVE, bet }),
+      addActive: (bet, dontUpdateTime = false) => dispatch({ type: ADD_ACTIVE, bet, dontUpdateTime }),
       removeActive: (hash) => dispatch({ type: REMOVE_ACTIVE, hash }),
       cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
-      updateActive: (bet) => dispatch({ type: UPDATE_ACTIVE, bet }),
+      updateActive: (bet, dontUpdateTime = false) => dispatch({ type: UPDATE_ACTIVE, bet, dontUpdateTime }),
     },
   };
 };

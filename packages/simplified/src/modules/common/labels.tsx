@@ -17,6 +17,7 @@ import {
   createBigNumber
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
+import { useSimplifiedStore } from "modules/stores/simplified";
 const {
   Utils: { isMarketFinal }
 } = Stores;
@@ -44,14 +45,18 @@ const handleValue = (value, cashName = USDC) =>
 
 export const AppViewStats = ({ small }) => {
   const { isLogged } = useAppStatusStore();
+  const {
+    settings: { showResolvedPositions },
+  } = useSimplifiedStore();
+
   const { balances } = useUserStore();
-  const totalAccountValue = useMemo(() => handleValue(isLogged ? balances?.totalAccountValue : 0), [
+  const totalAccountValue = useMemo(() => handleValue(isLogged ? showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly : 0), [
     isLogged,
-    balances.totalAccountValue,
+    showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly,
   ]);
-  const positionsValue = useMemo(() => handleValue(isLogged ? balances?.totalPositionUsd : 0), [
+  const positionsValue = useMemo(() => handleValue(isLogged ? showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly : 0), [
     isLogged,
-    balances.totalPositionUsd,
+    showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly,
   ]);
   // const ethValue = useMemo(
   //   () => handleValue(balances?.ETH?.balance || 0, ETH),
