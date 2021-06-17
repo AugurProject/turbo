@@ -4,7 +4,7 @@ import { CRYPTO } from "./constants";
 import { getMarketEndtimeDate } from "./date-utils";
 import { formatCashPrice } from "./format-number";
 
-const COINS: { [index: string]: { name: string; decimals: number, priceFeedUrl: string } } = {
+const COINS: { [index: string]: { name: string; decimals: number; priceFeedUrl: string } } = {
   "1": { name: "BTC", decimals: 0, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/btc-usd" },
   "2": { name: "ETH", decimals: 0, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/eth-usd" },
 };
