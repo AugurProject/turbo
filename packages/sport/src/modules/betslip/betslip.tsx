@@ -92,12 +92,12 @@ export const BetslipMain = () => {
     actions: { setOddsChangedMessage },
   } = useBetslipStore();
 
-  const valuesToWatch = Object.entries(bets).map(([betId, bet]) => {
+  const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
     return `${bet.wagerAvgPrice}-${bet.wager}`;
   });
 
   useEffect(() => {
-    const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]) => {
+    const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
       if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return ODDS_CHANGED_ORDER_SIZE;
