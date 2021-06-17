@@ -280,6 +280,7 @@ export interface MarketInfo {
   shareTokens?: string[];
   marketFactoryType?: string;
   coinIndex?: string;
+  price?: string;
 }
 
 export interface MarketOutcome {

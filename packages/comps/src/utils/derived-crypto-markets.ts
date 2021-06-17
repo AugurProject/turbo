@@ -29,7 +29,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     categories,
     outcomes,
     eventId,
-    price,
+    price: tokenPrice.full,
     startTimestamp: Number(creationTimestamp),
     coinIndex: String(tokenIndes),
   };
@@ -44,7 +44,7 @@ const getMarketTitle = (endTimestamp: number, name: string, price: string): { ti
 
 export const getResolutionRules = (market: MarketInfo): string[] => {
   if (!market || !market?.coinIndex) return [];
-  return resolutionRules[market?.coinIndex];
+  return resolutionRules(market?.coinIndex, market?.price);
 };
 
 const decodeOutcomes = (market: MarketInfo, shareTokens: string[]) => {
@@ -61,21 +61,12 @@ const decodeOutcomes = (market: MarketInfo, shareTokens: string[]) => {
   });
 };
 
-const resolutionRules = {
-  "1": [
-    `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
-    `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
-    `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
-    `If a fighter is disqualified during the fight, the opposing fighter should be declared the winner. If both fighters are disqualified the market should resolve as 'Draw/No Contest'.`,
-    `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
-    `A draw can occur when the fight is either stopped before completion or after all rounds are completed and goes to the judges' scorecards for decision.  If the match ends in a draw, only the 'Draw/No Contest' result should be the winning outcome.`,
-  ],
-  "2": [
-    `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
-    `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
-    `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
-    `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
-    `If the official time is exactly on (equal to) the over/under number the market should resolve as 'Over'.`,
-    `Markets referring to round/fight duration represents the actual time passed in the round/fight, as applicable, depending on the scheduled round/fight duration. For example, Over 2.5 Total Rounds will be settled as 'Over' once two and a half minutes or more in the 3rd Round has passed.`,
-  ],
+const resolutionRules = (tokenIndes, price) => {
+  const coinInfo = COINS[String(tokenIndes)];
+  return [
+    `This is a market on whether the price of Token will settle above ${price} on Date at 4 pm ET.`,
+    `The market will resolve to "Above" if the resolution source reports greater than ${price}.`,
+    `This market will resolve to "Not Above" if the resolution source reports equal to or less than ${price}.`,
+    `The resolution price for Token is determined by querying the Chainlink price oracle. The result is the median of all most recently reported prices from the list of Chainlink oracles found here: ${coinInfo.priceFeedUrl}`,
+  ];
 };
