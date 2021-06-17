@@ -32,7 +32,7 @@ const {
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
 } = Components;
-const { getSportsResolutionRules } = DerivedMarketData;
+const { getResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const { Utils: { isMarketFinal } } = Stores;
@@ -171,7 +171,7 @@ const MarketView = ({ defaultMarket = null }) => {
   );
 
   if (!market) return <EmptyMarketView />;
-  const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
+  const details = getResolutionRules(market);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);

@@ -1051,8 +1051,7 @@ const getInitPositionValues = (
         .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
-  const timestamp = [...marketTransactions.addLiquidity, ...marketTransactions.removeLiquidity, ...marketTransactions.buys, ...marketTransactions.sells].reduce((p, v) => v.timestamp > p ? v.timestamp : p, 0);
-  console.log('timestamp', timestamp);
+  const timestamp = [...(marketTransactions?.addLiquidity || []), ...(marketTransactions?.removeLiquidity || []), ...(marketTransactions?.buys || []), ...(marketTransactions?.sells || [])].reduce((p, v) => v.timestamp > p ? v.timestamp : p, 0);
 
   return {
     avgPrice: String(weightedAvgPrice),
@@ -1223,7 +1222,7 @@ const getMarketFactoryContract = (
   account?: string,
 ): SportsLinkMarketFactory => {
   if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarketFactory__factory.connet(address, getProviderOrSigner(library, account));
+    return CryptoMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
   }
   return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
@@ -1415,8 +1414,6 @@ export const getFactoryMarketInfo = async (
   for (let i = 1; i < numMarkets; i++) {
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
-
-  console.log('retreive markets from ', factoryAddress, indexes)
 
   const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
     indexes,

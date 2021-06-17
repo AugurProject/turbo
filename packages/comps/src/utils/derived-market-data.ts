@@ -4,13 +4,9 @@ import * as CryptoMarkets from "./derived-crypto-markets";
 import { MARKET_FACTORY_TYPES, SPORTS_MARKET_TYPE } from "./constants";
 import { MarketInfo } from "types";
 
-const simpleDailiesSportIds = ["3", "4"]; // needed for when other sports come in
-const mmaDailiesSportIds = ["7"];
-
-export const getSportsResolutionRules = (marketInfo: MarketInfo, sportId: string, sportsMarketType: number): string[] => {
+export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
   if (marketInfo.marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK) {
-    if (mmaDailiesSportIds.includes(sportId)) return MmaDailies.getSportsResolutionRules(sportId, sportsMarketType);
-    return SimpleSportsDailies.getSportsResolutionRules(sportId, sportsMarketType);
+    return SimpleSportsDailies.getResolutionRules(marketInfo);
   } else if (marketInfo.marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
     return CryptoMarkets.getResolutionRules(marketInfo);
   }

@@ -153,8 +153,9 @@ const getSportsTitles = (sportId: string, sportsMarketType: number): { title: st
   return sportsData[sportId]?.types[sportsMarketType];
 };
 
-export const getSportsResolutionRules = (sportId: string, sportsMarketType: number): string[] => {
-  if (!sportsResolutionRules[sportId]) return null;
+export const getResolutionRules = (market: MarketInfo): string[] => {
+  if (!market.sportId || !market.sportsMarketType || !sportsResolutionRules[market?.sportId]) return []
+  const { sportId, sportsMarketType } = market;
   return sportsResolutionRules[sportId]?.types[sportsMarketType];
 };
 

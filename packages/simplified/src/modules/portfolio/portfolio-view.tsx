@@ -168,6 +168,7 @@ export const ClaimWinningsSection = () => {
       {isLogged && MarketFactoryTotals.length > 0 && (
         MarketFactoryTotals.map(factory => (
         <PrimaryButton
+          key={factory.address}
           text={
             !pendingClaim
               ? `Claim Winnings (${

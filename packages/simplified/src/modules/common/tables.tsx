@@ -46,7 +46,6 @@ const {
   REMOVE,
   TRADES,
   TX_STATUS,
-  ETH,
   TABLES,
   TransactionTypes,
 } = Constants;

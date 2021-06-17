@@ -2,6 +2,7 @@ import { BigNumber as BN } from "bignumber.js";
 import { MarketInfo } from "types";
 import { CRYPTO } from "./constants";
 import { getMarketEndtimeFull } from "./date-utils";
+import { formatCashPrice } from "./format-number";
 
 const COINS: {[index: string]: { name: string, priceFeedUrl: string }} = {
     "1": { name: "BTC", priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/btc-usd" },
@@ -17,15 +18,15 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
         endTimestamp,
         creationTimestamp
     } = market;
-    // translate market data
-    const eventId = `${coinIndex}-${price}-${endTimestamp}`;
-    console.log('coinIndex', coinIndex, price);
-    const coinInfo = COINS[String(coinIndex)];
+    const tokenIndes = new BN(String(coinIndex)).toNumber();
+    const tokenPrice = formatCashPrice(new BN(String(price)).div(new BN(10).pow(6)), "USDC", {decimals: 6 });
+    const eventId = `${tokenIndes}-${price}-${endTimestamp}`;
+    const coinInfo = COINS[String(tokenIndes)];
     const categories = [CRYPTO, coinInfo.name, ""];
   
     const { shareTokens } = market;
     const outcomes = decodeOutcomes(market, shareTokens);
-    const { title, description } = getMarketTitle(endTimestamp, coinInfo.name, price);
+    const { title, description } = getMarketTitle(endTimestamp, coinInfo.name, tokenPrice.full);
   
     return {
       ...market,
@@ -36,11 +37,11 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
       eventId,
       price,
       startTimestamp: Number(creationTimestamp),
-      coinIndex,
+      coinIndex: String(tokenIndes),
     };
   }
 
-// todo: move this to own file when new market factory is available
+
 const getMarketTitle = (
   endTimestamp: number,
   name: string,
