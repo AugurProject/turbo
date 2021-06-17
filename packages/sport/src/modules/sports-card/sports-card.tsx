@@ -215,6 +215,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
             !bets[`${spreadMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...spreadMarket.amm.ammOutcomes[eventOutcomeId],
+              ...spreadSizePrice,
               marketId: spreadMarket.marketId,
               heading: `${marketEvent.description || spreadMarket.description}:`,
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[spreadMarket.sportsMarketType]}`,
@@ -231,6 +232,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
             !bets[`${moneyLineMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...moneyLineMarket.amm.ammOutcomes[eventOutcomeId],
+              ...moneyLineSizePrice,
               marketId: moneyLineMarket.marketId,
               heading: `${marketEvent.description || moneyLineMarket.description}:`,
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[moneyLineMarket.sportsMarketType]}`,
@@ -247,6 +249,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
             !bets[`${OUMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...OUMarket.amm.ammOutcomes[eventOutcomeId],
+              ...OUSizePrice,
               marketId: OUMarket.marketId,
               heading: `${marketEvent.description || OUMarket.description}:`,
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[OUMarket.sportsMarketType]}`,
@@ -295,6 +298,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
           !bets[`${marketId}-${id}`] &&
           addBet({
             ...outcome,
+            ...sizedPrice,
             marketId,
             heading: `${marketEvents?.[eventId]?.description || description}:`,
             subHeading: `${SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}`,

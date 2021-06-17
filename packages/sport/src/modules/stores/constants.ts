@@ -65,6 +65,8 @@ export interface BetType {
   wager: string | null;
   toWin: string | null;
   price: string;
+  size?: string;
+  wagerAvgPrice: string | null;
   name: string;
   betId: string;
   marketId: string;
@@ -78,6 +80,8 @@ export interface ActiveBetType {
   price: string;
   betId: string;
   name: string;
+  size?: string;
+  wagerAvgPrice?: string;
   marketId: string;
   status: string;
   canCashOut: boolean;
@@ -90,6 +94,7 @@ const { TX_STATUS } = Constants;
 export const DEFAULT_BET = {
   wager: null,
   toWin: null,
+  wagerAvgPrice: null,
 };
 
 export const DEFAULT_ACTIVE_BET = {
@@ -99,6 +104,7 @@ export const DEFAULT_ACTIVE_BET = {
 };
 
 export const DEFAULT_BETSLIP_STATE = {
+  oddsChangedMessage: null,
   selectedView: BETSLIP,
   selectedCount: 0,
   bets: {},
@@ -204,6 +210,7 @@ export const DEFAULT_BETSLIP_STATE = {
 };
 */
 export const STUBBED_BETSLIP_ACTIONS = {
+  setOddsChangedMessage: (message = null) => {},
   toggleSelectedView: () => {},
   addBet: (bet) => {},
   removeBet: (betId) => {},
@@ -215,6 +222,7 @@ export const STUBBED_BETSLIP_ACTIONS = {
 };
 
 export const BETSLIP_STATE_KEYS = {
+  ODDS_CHANGED_MESSAGE: "oddsChangedMessage",
   SELECTED_VIEW: "selectedView",
   SELECTED_COUNT: "selectedCount",
   BETS: "bets",
@@ -222,6 +230,7 @@ export const BETSLIP_STATE_KEYS = {
 };
 
 export const BETSLIP_ACTIONS = {
+  SET_ODDS_CHANGED_MESSAGE: "SET_ODDS_CHANGED_MESSAGE",
   TOGGLE_SELECTED_VIEW: "TOGGLE_SELECTED_VIEW",
   ADD_BET: "ADD_BET",
   REMOVE_BET: "REMOVE_BET",

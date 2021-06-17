@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   PathUtils,
   Links,
   windowRef,
+  createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
 import { getBuyAmount, makeBet } from "modules/utils";
@@ -35,12 +36,15 @@ export const MOCK_PROMPT_SIGNATURE = ({ name = "404 NAME NOT FOUND", action = "t
   windowRef.confirm(`Mock Sign a transaction ${action} ${name}?`);
 
 export const Betslip = () => {
-  const { selectedView } = useBetslipStore();
+  const { selectedView, oddsChangedMessage } = useBetslipStore();
   return (
     <section className={Styles.Betslip}>
       <div>
         <BetslipHeader />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
+        {oddsChangedMessage && selectedView === BETSLIP && (
+          <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
+        )}
         <BetslipFooter />
       </div>
     </section>
@@ -77,9 +81,38 @@ const BetslipHeader = () => {
   );
 };
 
+const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
+const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
-  const { bets, selectedCount } = useBetslipStore();
+  const {
+    bets,
+    selectedCount,
+    oddsChangedMessage,
+    actions: { setOddsChangedMessage },
+  } = useBetslipStore();
+
+  const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
+    return `${bet.wagerAvgPrice}-${bet.wager}`;
+  });
+
+  useEffect(() => {
+    const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
+      if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+        if (createBigNumber(bet.wager).gt(bet.size)) {
+          return ODDS_CHANGED_ORDER_SIZE;
+        } else if (bet?.price !== bet?.wagerAvgPrice) {
+          return ODDS_CHANGED_SINCE_SELECTION;
+        }
+      }
+      if (acc !== null) return acc;
+      return null;
+    }, null);
+    if (anyBetsChanged !== oddsChangedMessage) {
+      setOddsChangedMessage(anyBetsChanged);
+    }
+  }, [valuesToWatch.toString()]);
+
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]) => (
@@ -156,14 +189,15 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const { id, marketId, heading, subHeading, name, price, wager, toWin } = bet;
+  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
-  const hasOddsChanged = initialOdds.current !== price;
+  const hasOddsChanged =
+    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
   const checkErrors = (value: string) => {
     let returnError = null;
     const test = value.split(",").join("");
@@ -201,6 +235,7 @@ const EditableBet = ({ betId, bet }) => {
                   ...bet,
                   wager: null,
                   toWin: null,
+                  wagerAvgPrice: null,
                 });
               } else {
                 const fmtNewValue = formatDai(newValue).formatted;
@@ -213,6 +248,7 @@ const EditableBet = ({ betId, bet }) => {
                   setUpdatedPrice(nextBuyAmount.price);
                   updateBet({
                     ...bet,
+                    wagerAvgPrice: nextBuyAmount.price,
                     wager: fmtNewValue,
                     toWin: formatDai(nextBuyAmount.maxProfit).formatted,
                   });
@@ -244,6 +280,7 @@ const EditableBet = ({ betId, bet }) => {
                 }
                 updateBet({
                   ...bet,
+                  wagerAvgPrice: buyAmount.price,
                   wager: fmtValue,
                   toWin: updatedToWin,
                 });
