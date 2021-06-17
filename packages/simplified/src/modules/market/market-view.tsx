@@ -224,6 +224,7 @@ const MarketView = ({ defaultMarket = null }) => {
           dontFilterInvalid
           noClick
           hasLiquidity={amm?.hasLiquidity}
+          marketFactoryType={amm?.market?.marketFactoryType}
         />
         <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} />
         <PositionsLiquidityViewSwitcher ammExchange={amm} />

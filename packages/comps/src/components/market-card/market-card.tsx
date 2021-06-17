@@ -6,7 +6,7 @@ import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types"
 import { formatApy, formatCashPrice, formatDai, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
 import { CategoryIcon, CategoryLabel, CurrencyTipIcon, ReportingStateLabel, ValueLabel } from "../common/labels";
-import { MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
+import { MARKET_FACTORY_TYPES, MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
@@ -64,8 +64,12 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
   return newOrder;
 };
 
-export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[] = []): AmmOutcome[] =>
-  ammOutcomes.length > 0 && ammOutcomes[0].id === 0 ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1)) : ammOutcomes;
+export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[] = [], marketFactoryType: string = MARKET_FACTORY_TYPES.SPORTSLINK): AmmOutcome[] => {
+  if (marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK)
+    return ammOutcomes.length > 0 && ammOutcomes[0].id === 0 ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1)) : ammOutcomes;
+  return ammOutcomes;
+}
+  
 
 export const unOrderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
   ammOutcomes.slice(-1).concat(ammOutcomes.slice(0, -1));
@@ -82,7 +86,7 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
       {ConfirmedCheck}
     </div>
   ) : (
-    orderOutcomesForDisplay(amm.ammOutcomes)
+    orderOutcomesForDisplay(amm.ammOutcomes, amm?.market?.marketFactoryType)
       .slice(0, 3)
       .map((outcome) => {
         const OutcomePrice =
