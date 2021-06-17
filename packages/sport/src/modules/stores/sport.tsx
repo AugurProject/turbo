@@ -91,13 +91,13 @@ const useMarketEvents = () => {
               (id) => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.SPREAD
             );
             if (spreadMarketId) {
-              event.spreadLine = markets[spreadMarketId].spreadOuLine > 0 ? markets[spreadMarketId].spreadOuLine + .5 : markets[spreadMarketId].spreadOuLine - .5;
+              event.spreadLine = markets[spreadMarketId].spreadLine > 0 ? markets[spreadMarketId].spreadLine + .5 : markets[spreadMarketId].spreadLine - .5;
             }
             const overUnderMarketId = event.marketIds.find(
               (id) => markets[id].sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER
             );
             if (overUnderMarketId) {
-              event.overUnderLine = markets[overUnderMarketId].spreadOuLine > 0 ? markets[overUnderMarketId].spreadOuLine + .5 : markets[overUnderMarketId].spreadOuLine - .5;
+              event.overUnderLine = markets[overUnderMarketId].spreadLine > 0 ? markets[overUnderMarketId].spreadLine + .5 : markets[overUnderMarketId].spreadLine - .5;
             }
           }
           return { ...p, [id]: event };

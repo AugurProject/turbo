@@ -414,7 +414,7 @@ const determineBetTotals = (bets: Array<BetType>) => {
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
     totalWager = totalWager.plus(bet?.wager?.split(",").join("") || "0");
-    totalToWin = totalWager.plus(bet?.toWin?.split(",").join("") || "0");
+    totalToWin = totalToWin.plus(bet?.toWin?.split(",").join("") || "0");
   });
   return { totalWager, totalToWin };
 };
