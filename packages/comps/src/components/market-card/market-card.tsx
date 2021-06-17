@@ -3,14 +3,13 @@ import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
-import { formatApy, formatCashPrice, formatDai, getCashFormat } from "../../utils/format-number";
+import { formatApy, formatLiquidity, formatCashPrice, formatDai, getCashFormat } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
 import { CategoryIcon, CategoryLabel, CurrencyTipIcon, ReportingStateLabel, ValueLabel } from "../common/labels";
 import { MARKET_FACTORY_TYPES, MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
-import { PrimaryButton } from "../common/buttons";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
-import { isMarketFinal } from '../../stores/utils';
+import { TinyThemeButton } from "../common/buttons";
 
 export const LoadingMarketCard = () => {
   return (
@@ -64,12 +63,16 @@ export const outcomesToDisplay = (ammOutcomes: AmmOutcome[], marketOutcomes: Mar
   return newOrder;
 };
 
-export const orderOutcomesForDisplay = (ammOutcomes: AmmOutcome[] = [], marketFactoryType: string = MARKET_FACTORY_TYPES.SPORTSLINK): AmmOutcome[] => {
+export const orderOutcomesForDisplay = (
+  ammOutcomes: AmmOutcome[] = [],
+  marketFactoryType: string = MARKET_FACTORY_TYPES.SPORTSLINK
+): AmmOutcome[] => {
   if (marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK)
-    return ammOutcomes.length > 0 && ammOutcomes[0].id === 0 ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1)) : ammOutcomes;
+    return ammOutcomes.length > 0 && ammOutcomes[0].id === 0
+      ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1))
+      : ammOutcomes;
   return ammOutcomes;
-}
-  
+};
 
 export const unOrderOutcomesForDisplay = (ammOutcomes: AmmOutcome[]): AmmOutcome[] =>
   ammOutcomes.slice(-1).concat(ammOutcomes.slice(0, -1));
@@ -91,7 +94,7 @@ const OutcomesTable = ({ amm }: { amm: AmmExchange }) => {
       .map((outcome) => {
         const OutcomePrice =
           !hasLiquidity || isNaN(Number(outcome?.price)) || Number(outcome?.price) <= 0
-            ? `${getCashFormat(amm?.cash?.name)?.symbol} -`
+            ? `-`
             : formatCashPrice(outcome.price, amm?.cash?.name).full;
         return (
           <div key={`${outcome.name}-${amm?.marketId}-${outcome.id}`}>
@@ -143,6 +146,7 @@ export const MarketCardView = ({
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
+  const formattedLiquidity = useMemo(() => formatLiquidity(amm?.liquidityUSD || "0.00").full, [amm?.liquidityUSD]);
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
@@ -151,14 +155,14 @@ export const MarketCardView = ({
     [marketTransactions?.volumeTotalUSD]
   );
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
-
+  const marketHasNoLiquidity = !amm?.id && !market.hasWinner;
   return (
     <article
       className={classNames(Styles.MarketCard, {
         [Styles.NoLiquidity]: !amm?.id,
       })}
       onClick={() => {
-        !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
+        // !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
       }}
     >
       <div>
@@ -172,36 +176,18 @@ export const MarketCardView = ({
           <CategoryLabel {...{ categories }} />
           <div>
             <ReportingStateLabel {...{ reportingState }} />
-            <CurrencyTipIcon name={amm?.cash?.name} marketId={marketId} />
+            {marketHasNoLiquidity ? <TinyThemeButton customClass={Styles.NoLiquidityPill} action={() => {}} text="add liquidity to earn fees" disabled /> : <ValueLabel label="Liquidity Provider APY" value={formattedApy || "-"} />}
           </div>
         </article>
-        {!amm?.id && !market.hasWinner ? (
-          <>
-            <MarketTitleArea {...{ ...market, timeFormat }} />
-            <div>
-              <span>Market requires Initial liquidity</span>
-              <PrimaryButton
-                title={
-                  noLiquidityDisabled
-                    ? "Connect an account to earn fees as a liquidity provider"
-                    : "Earn fees as a liquidity provider"
-                }
-                disabled={noLiquidityDisabled}
-                text="Earn fees as a liquidity provider"
-              />
-            </div>
-          </>
-        ) : (
           <MarketLink id={marketId} dontGoToMarket={false}>
             <MarketTitleArea {...{ ...market, timeFormat }} />
             <ValueLabel label="total volume" value={formattedVol || "-"} />
-            <ValueLabel label="APY" value={formattedApy || "- %"} />
+            <ValueLabel label="Liquidity" value={formattedLiquidity || "-"} />
             <OutcomesTable {...{ amm }} />
             {!hasWinner && extraOutcomes > 0 && (
               <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
             )}
           </MarketLink>
-        )}
       </div>
     </article>
   );

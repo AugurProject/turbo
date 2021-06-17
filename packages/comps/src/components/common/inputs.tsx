@@ -198,7 +198,7 @@ const Outcome = ({
   const price = !!hasLiquidity
     ? formatCashPrice(outcome?.price, ammCash?.name).full
     : prepend
-    ? `${symbol}-`
+    ? `-`
     : `- ${symbol}`;
 
   return (
