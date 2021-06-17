@@ -191,7 +191,7 @@ const MarketView = ({ defaultMarket = null }) => {
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
-        {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
+        {!!startTimestamp ? <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span> : <span />}
         {isFinalized && winningOutcome && (
           <WinningOutcomeLabel winningOutcome={winningOutcome} />
         )}
