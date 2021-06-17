@@ -127,6 +127,26 @@
   }
 }
 
+.AddLiquidityButton {
+  flex-flow: column nowrap;
+  min-height: @size-82;
+  height: @size-82;
+  max-height: @size-82;
+  
+  > span:first-of-type {
+    .text-20-bold;
+
+    color: var(--simple-primary-text);
+    margin-bottom: @size-4;
+  }
+
+  > span:last-of-type {
+    .text-16;
+
+    color: var(--simple-primary-text);
+  }
+}
+
 @media @breakpoint-mobile-tablet {
   .AppStats {
     height: auto;

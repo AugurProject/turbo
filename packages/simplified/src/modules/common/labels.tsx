@@ -12,6 +12,7 @@ import {
   Constants,
   PARA_CONFIG,
   LabelComps,
+  ButtonComps,
   Stores,
   Links,
   createBigNumber
@@ -32,6 +33,7 @@ const {
 } = Constants;
 const { ExternalLink } = Links;
 const { ValueLabel } = LabelComps;
+const { PrimaryThemeButton } = ButtonComps;
 const {
   PathUtils: { parsePath },
   Formatter: { formatCash },
@@ -78,10 +80,10 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
     actions: { setModal },
   } = useAppStatusStore();
   return (
-    <button
-      className={classNames(Styles.AddLiquidity)}
+    <PrimaryThemeButton
+      customClass={Styles.AddLiquidityButton}
       title={isLogged ? "Add liquidity" : "Connect an account to add liquidity"}
-      onClick={() => {
+      action={() => {
         if (isLogged) {
           setModal({
             type: MODAL_ADD_LIQUIDITY,
@@ -92,13 +94,9 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
         }
       }}
       disabled={!isLogged || isMarketFinal(market)}
-    >
-      <span>
-        {PlusIcon}
-        add liquidity
-      </span>
-      <span>earn fees as a liquidity provider</span>
-    </button>
+      text="add liquidity"
+      subText="earn fees as a liquidity provider"
+    />
   );
 };
 
