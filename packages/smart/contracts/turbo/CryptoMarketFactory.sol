@@ -28,6 +28,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         string name;
         AggregatorV3Interface priceFeed;
         uint256 price;
+        uint8 imprecision; // how many decimals to truncate
         uint256[1] currentMarkets;
     }
     Coin[] public coins;
@@ -49,8 +50,6 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
     address public linkNode; // market creator and resolver
 
-    uint256 public cadence; // how often markets are created and resolved
-    uint256 firstResolutionTime;
     uint256 public nextResolutionTime;
 
     constructor(
@@ -63,8 +62,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         address _protocol,
         uint256 _protocolFee,
         address _linkNode,
-        uint256 _firstResolutionTime,
-        uint256 _cadence
+        uint256 _firstResolutionTime
     )
         AbstractMarketFactory(
             _owner,
@@ -78,13 +76,10 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
-
-        firstResolutionTime = _firstResolutionTime;
-        cadence = _cadence;
         nextResolutionTime = _firstResolutionTime;
 
         string memory _name = "";
-        coins.push(makeCoin(_name, AggregatorV3Interface(0)));
+        coins.push(makeCoin(_name, AggregatorV3Interface(0), 0));
     }
 
     function getMarketDetails(uint256 _marketId) public view returns (MarketDetails memory) {
@@ -93,12 +88,12 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
     // NOTE: Trusts the owner not to add a coin twice.
     // Returns the coin index.
-    function addCoin(string calldata _name, AggregatorV3Interface _priceFeed)
-        external
-        onlyOwner
-        returns (uint256 _coinIndex)
-    {
-        Coin memory _coin = makeCoin(_name, _priceFeed);
+    function addCoin(
+        string calldata _name,
+        AggregatorV3Interface _priceFeed,
+        uint8 _imprecision
+    ) external onlyOwner returns (uint256 _coinIndex) {
+        Coin memory _coin = makeCoin(_name, _priceFeed, _imprecision);
         _coinIndex = coins.length;
         coins.push(_coin);
 
@@ -121,11 +116,13 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     // If markets do not exist for coin, create them.
     // If markets for coin are ready to resolve, resolve them and create new markets.
     // Else, error.
-    function createAndResolveMarkets() public {
+    function createAndResolveMarkets(uint256 _nextResolutionTime) public {
         require(msg.sender == linkNode, "Only link node can create markets");
-        require(block.timestamp >= nextResolutionTime, "Must wait for market resolutionTime");
+        // If market creation was stopped then it can be started again.
+        // If market creation wasn't stopped then you must wait for market end time to resolve.
+        require(nextResolutionTime == 0 || block.timestamp >= nextResolutionTime, "Must wait for market resolution");
 
-        updateNextResolutionTime();
+        nextResolutionTime = _nextResolutionTime;
 
         // Start at 1 to skip the fake Coin in the 0 index
         for (uint256 i = 1; i < coins.length; i++) {
@@ -135,13 +132,22 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
     function createAndResolveMarketsForCoin(uint256 _coinIndex) internal {
         Coin memory _coin = coins[_coinIndex];
-        uint256 _newPrice = getPrice(_coin.priceFeed);
+        uint256 _newPrice = getPrice(_coin);
 
+        // resolve markets
         if (_coin.currentMarkets[uint256(MarketType.PriceUpDown)] != 0) {
             resolvePriceUpDownMarket(_coin, _newPrice);
         }
 
+        // update price only AFTER resolution
         coins[_coinIndex].price = _newPrice;
+
+        // link node sets nextResolutionTime to zero to signify "do not create markets after resolution"
+        if (nextResolutionTime == 0) {
+            return;
+        }
+
+        // create markets
         coins[_coinIndex].currentMarkets[uint256(MarketType.PriceUpDown)] = createPriceUpDownMarket(
             _coinIndex,
             linkNode,
@@ -172,45 +178,49 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         _outcomes[uint256(PriceUpDownOutcome.Above)] = "Above";
         _outcomes[uint256(PriceUpDownOutcome.NotAbove)] = "Not Above";
 
-        _id = markets.length;
         uint256 _nextResolutionTime = nextResolutionTime;
+        _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _nextResolutionTime));
         marketDetails[_id] = MarketDetails(MarketType.PriceUpDown, _coinIndex, _newPrice);
         emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }
 
-    function getPrice(AggregatorV3Interface _priceFeed) internal view returns (uint256) {
-        (, int256 _price, , , ) = _priceFeed.latestRoundData();
+    function getPrice(Coin memory _coin) internal view returns (uint256) {
+        (, int256 _price, , , ) = _coin.priceFeed.latestRoundData();
         require(_price >= 0, "Price from feed is negative");
-        return uint256(_price);
-    }
 
-    function updateNextResolutionTime() internal returns (uint256 _nextResolutionTime) {
-        _nextResolutionTime = nextResolutionTime;
-        uint256 _blockTime = block.timestamp;
+        // The precision is how many decimals the price has. Zero is dollars, 2 includes cents, 3 is tenths of a cent, etc.
+        // Our resolution rules want a certain precision. Like BTC is to the dollar and MATIC is to the cent.
+        // If somehow the decimals are larger than the desired precision then add zeroes to the end to meet the precision.
+        // This does not change the resolution outcome but does guard against decimals() changing and therefore altering the basis.
 
-        if (_nextResolutionTime > _blockTime) {
-            // No need to update resolution time.
-            return _nextResolutionTime;
+        uint256 _truncatedPrice;
+        uint8 _precision = _coin.priceFeed.decimals(); // probably constant but that isn't guaranteed, so query each time
+        if (_precision > _coin.imprecision) {
+            uint8 _truncate = _precision - _coin.imprecision;
+            _truncatedPrice = uint256(_price) / (10**_truncate);
+        } else if (_precision < _coin.imprecision) {
+            uint8 _greaten = _coin.imprecision - _precision;
+            _truncatedPrice = uint256(_price) * (10**_greaten);
         } else {
-            // Bump time to make the while loop's first iteration useful.
-            _nextResolutionTime += cadence;
+            _truncatedPrice = uint256(_price);
         }
 
-        // Iterate in case the resolution time is more than one cadence behind.
-        while (true) {
-            if (_nextResolutionTime > _blockTime) {
-                nextResolutionTime = _nextResolutionTime;
-                return _nextResolutionTime;
-            } else {
-                _nextResolutionTime += cadence;
-            }
+        // Round up because that cleanly fits Above/Not-Above.
+        if (_truncatedPrice == uint256(_price)) {
+            return _truncatedPrice;
+        } else {
+            return _truncatedPrice + 1;
         }
     }
 
-    function makeCoin(string memory _name, AggregatorV3Interface _priceFeed) internal pure returns (Coin memory _coin) {
+    function makeCoin(
+        string memory _name,
+        AggregatorV3Interface _priceFeed,
+        uint8 _imprecision
+    ) internal pure returns (Coin memory _coin) {
         uint256[1] memory _currentMarkets = [uint256(0)];
-        _coin = Coin(_name, _priceFeed, 0, _currentMarkets);
+        _coin = Coin(_name, _priceFeed, 0, _imprecision, _currentMarkets);
     }
 
     function resolveMarket(uint256) public pure override {

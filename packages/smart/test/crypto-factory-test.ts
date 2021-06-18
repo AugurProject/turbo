@@ -56,8 +56,8 @@ describe.only("CryptoFactory", () => {
   let btcPriceMarketId: BigNumber;
   let ethPriceFeed: AggregatorV3Interface;
   let btcPriceFeed: AggregatorV3Interface;
-  let ethPrice: BigNumberish;
-  let btcPrice: BigNumberish;
+  let ethPrice: number;
+  let btcPrice: number;
 
   before("signer", async () => {
     [signer] = await ethers.getSigners();
@@ -66,6 +66,9 @@ describe.only("CryptoFactory", () => {
   before("price feeds", async () => {
     ethPriceFeed = await smockit(feedABI);
     btcPriceFeed = await smockit(feedABI);
+
+    ethPriceFeed.smocked.decimals.will.return.with(8);
+    btcPriceFeed.smocked.decimals.will.return.with(8);
   });
 
   before("other contracts", async () => {
@@ -94,8 +97,7 @@ describe.only("CryptoFactory", () => {
       protocol,
       protocolFee,
       linkNode,
-      firstResolutionTime,
-      cadence
+      firstResolutionTime
     );
 
     expect(await marketFactory.getOwner()).to.equal(owner);
@@ -107,20 +109,19 @@ describe.only("CryptoFactory", () => {
     expect(await marketFactory.protocol()).to.equal(protocol);
     expect(await marketFactory.protocolFee()).to.equal(protocolFee);
     expect(await marketFactory.linkNode()).to.equal(linkNode);
-    expect(await marketFactory.cadence()).to.equal(cadence);
     expect(await marketFactory.nextResolutionTime()).to.equal(nextResolutionTime);
   });
 
   it("Can add a coin, which creates a market", async () => {
     ethPrice = 2400;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice, 1, 1, 1]);
-    await marketFactory.addCoin("ETH", ethPriceFeed.address);
+    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1, 1, 1, 1]);
+    await marketFactory.addCoin("ETH", ethPriceFeed.address, 0);
   });
 
   it("Can add a second coin, which creates another market", async () => {
     btcPrice = 60000;
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice, 1, 1, 1]);
-    await marketFactory.addCoin("BTC", btcPriceFeed.address);
+    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 1e7, 1, 1, 1]);
+    await marketFactory.addCoin("BTC", btcPriceFeed.address, 0);
   });
 
   it("MarketCreated logs are correct", async () => {
@@ -128,21 +129,21 @@ describe.only("CryptoFactory", () => {
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, null, null);
     const logs = await marketFactory.queryFilter(filter);
-    expect(logs.length).to.equal(2);
+    expect(logs.length, "number of logs").to.equal(2);
     const [ethLog, btcLog] = logs.map((log) => log.args);
 
     [ethPriceMarketId] = ethLog;
     [btcPriceMarketId] = btcLog;
 
-    expect(ethPriceMarketId).to.equal(1);
-    expect(btcPriceMarketId).to.equal(2);
+    expect(ethPriceMarketId, "eth market id").to.equal(1);
+    expect(btcPriceMarketId, "btc market id").to.equal(2);
 
     const { creator, endTime, marketType, coinIndex, price } = ethLog;
-    expect(creator).to.equal(signer.address);
-    expect(endTime).to.equal(nextResolutionTime);
-    expect(marketType).to.equal(CryptoMarketType.PriceUpTo);
-    expect(coinIndex).to.equal(CoinIndex.ETH);
-    expect(price).to.equal(ethPrice);
+    expect(creator, "creator").to.equal(signer.address);
+    expect(endTime, "endTime").to.equal(nextResolutionTime);
+    expect(marketType, "marketType").to.equal(CryptoMarketType.PriceUpTo);
+    expect(coinIndex, "coinIndex").to.equal(CoinIndex.ETH);
+    expect(price, "price").to.equal(ethPrice);
   });
 
   it("can index MarketCreated by coin", async () => {
@@ -221,12 +222,12 @@ describe.only("CryptoFactory", () => {
   it("can resolve and recreate markets", async () => {
     ethPrice = 2500;
     btcPrice = 55000;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice, 1, 1, 1]);
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice, 1, 1, 1]);
+    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1e8 + 1, 1, 1, 1]);
+    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 2, 1, 1, 1]);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
-    await marketFactory.createAndResolveMarkets();
     nextResolutionTime = nextResolutionTime.add(cadence);
+    await marketFactory.createAndResolveMarkets(nextResolutionTime);
 
     const ethPriceMarket = await marketFactory.getMarket(ethPriceMarketId);
     const btcPriceMarket = await marketFactory.getMarket(btcPriceMarketId);
@@ -324,6 +325,20 @@ describe.only("CryptoFactory", () => {
         .then((address) => BPool__factory.connect(address, signer));
       await pool.approve(ammFactory.address, lpTokensIn);
       await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
+    });
+
+    it("can resolve without creating", async () => {
+      ethPrice = 2500;
+      btcPrice = 55000;
+      ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8, 1, 1, 1]);
+      btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8, 1, 1, 1]);
+      await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+
+      expect(await marketFactory.marketCount(), "market count before final resolution").to.equal(5);
+
+      await marketFactory.createAndResolveMarkets(0);
+
+      expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(5);
     });
   });
 });
