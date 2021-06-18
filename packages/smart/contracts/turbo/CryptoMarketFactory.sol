@@ -193,16 +193,24 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         // Our resolution rules want a certain precision. Like BTC is to the dollar and MATIC is to the cent.
         // If somehow the decimals are larger than the desired precision then add zeroes to the end to meet the precision.
         // This does not change the resolution outcome but does guard against decimals() changing and therefore altering the basis.
-        // Also, truncate instead of rounding because it's simpler.
+
+        uint256 _truncatedPrice;
         uint8 _precision = _coin.priceFeed.decimals(); // probably constant but that isn't guaranteed, so query each time
         if (_precision > _coin.imprecision) {
             uint8 _truncate = _precision - _coin.imprecision;
-            return uint256(_price) / (10**_truncate);
+            _truncatedPrice = uint256(_price) / (10**_truncate);
         } else if (_precision < _coin.imprecision) {
             uint8 _greaten = _coin.imprecision - _precision;
-            return uint256(_price) * (10**_greaten);
+            _truncatedPrice = uint256(_price) * (10**_greaten);
         } else {
-            return uint256(_price);
+            _truncatedPrice = uint256(_price);
+        }
+
+        // Round up because that cleanly fits Above/Not-Above.
+        if (_truncatedPrice == uint256(_price)) {
+            return _truncatedPrice;
+        } else {
+            return _truncatedPrice + 1;
         }
     }
 
