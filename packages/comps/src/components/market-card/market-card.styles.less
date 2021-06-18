@@ -106,6 +106,10 @@
         word-break: none;
         display: inline-block;
         text-transform: uppercase;
+
+        @media @breakpoint-mobile-tablet {
+          .text-10;
+        }
       }
 
       &:first-of-type {
@@ -475,7 +479,7 @@ span.ExtraOutcomes {
           order: 0;
         }
 
-        > span:last-of-type:not(:first-of-type) {
+        > span:last-of-type:not(:first-of-type) {          
           flex: 1 100%;
           order: 2;
           height: @size-14;
@@ -493,7 +497,7 @@ span.ExtraOutcomes {
           margin-top: @size-8;
 
           > span:last-of-type {
-            .text-14-semi-bold;
+            .text-12-semi-bold;
 
             margin-left: @size-8;
             margin-top: 0;
@@ -509,7 +513,7 @@ span.ExtraOutcomes {
           flex-flow: row nowrap;
 
           > span:last-of-type {
-            .text-14-semi-bold;
+            .text-12-semi-bold;
 
             margin-left: @size-8;
             margin-top: 0;
