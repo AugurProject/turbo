@@ -30,17 +30,15 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
     const marketShareEntries: [string, { positions: PositionBalance[] }][] = Object.entries(marketShares);
     const onlyImportTransactions = marketShareEntries.map(([marketId, marketInfo]) => {
       const marketTrades = transactions?.[marketId]?.trades;
-      const outcomeIdsToCareAbout = marketInfo?.positions?.reduce((acc, pos) => {
-        const output = [].concat(acc);
-        if (!output.includes(pos.outcomeId)) output.push(pos.outcomeId);
-        return output;
-      }, []);
+      const outcomeIdsToCareAbout = [...new Set(marketInfo?.positions?.map(pos => pos.outcomeId))];
       const mostRecentUserTrade = marketTrades
         ?.filter((t) => isSameAddress(t.user, account))
         ?.filter((ut) => outcomeIdsToCareAbout.includes(parseInt(ut.outcome)))
         .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
+
       return mostRecentUserTrade;
-    });
+    }).filter(m => m);
+
     const preparedActiveBets = onlyImportTransactions.map((lastTrade) => {
       const { ammExchange, positions } = marketShares[lastTrade.marketId.id];
       const { market } = ammExchange;
