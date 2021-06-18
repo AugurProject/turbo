@@ -114,13 +114,13 @@ describe.only("CryptoFactory", () => {
 
   it("Can add a coin, which creates a market", async () => {
     ethPrice = 2400;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, (ethPrice * 1e8 - 1), 1, 1, 1]);
+    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1, 1, 1, 1]);
     await marketFactory.addCoin("ETH", ethPriceFeed.address, 0);
   });
 
   it("Can add a second coin, which creates another market", async () => {
     btcPrice = 60000;
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, (btcPrice * 1e8 - 1e7), 1, 1, 1]);
+    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 1e7, 1, 1, 1]);
     await marketFactory.addCoin("BTC", btcPriceFeed.address, 0);
   });
 
@@ -222,8 +222,8 @@ describe.only("CryptoFactory", () => {
   it("can resolve and recreate markets", async () => {
     ethPrice = 2500;
     btcPrice = 55000;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, (ethPrice * 1e8 - 1e8 + 1), 1, 1, 1]);
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, (btcPrice * 1e8 - 2), 1, 1, 1]);
+    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1e8 + 1, 1, 1, 1]);
+    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 2, 1, 1, 1]);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
     nextResolutionTime = nextResolutionTime.add(cadence);
