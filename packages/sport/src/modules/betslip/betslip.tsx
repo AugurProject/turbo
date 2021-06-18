@@ -280,7 +280,7 @@ const EditableBet = ({ betId, bet }) => {
                 }
                 updateBet({
                   ...bet,
-                  wagerAvgPrice: buyAmount.price,
+                  wagerAvgPrice: buyAmount?.price,
                   wager: fmtValue,
                   toWin: updatedToWin,
                 });
