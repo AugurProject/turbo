@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
+import { FAKE_COINS } from "../src";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
@@ -8,26 +9,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const signer = await makeSigner(hre);
   const deployer = await signer.getAddress();
 
-  const { btcPriceFeed, ethPriceFeed } = hre.network.config.deployConfig?.externalAddresses || {};
-
-  if (btcPriceFeed) {
-    console.log(`Using external address for BTC price feed: "${btcPriceFeed}"`);
-  } else {
-    await deployments.deploy("BTCPriceFeed", {
-      contract: "FakePriceFeed",
-      from: deployer,
-      args: [6, "BTC / USD", 3],
-      log: true,
-    });
+  if (hre.network.config.deployConfig?.externalAddresses?.priceFeeds) {
+    console.log("Not deploying fake price feeds because real ones were specified");
   }
 
-  if (ethPriceFeed) {
-    console.log(`Using external address for ETH price feed: "${ethPriceFeed}"`);
-  } else {
-    await deployments.deploy("ETHPriceFeed", {
+  const version = 3; // arbitrary
+  for (const coin of FAKE_COINS) {
+    await deployments.deploy(coin.deploymentName, {
       contract: "FakePriceFeed",
       from: deployer,
-      args: [6, "ETH / USD", 3],
+      args: [coin.decimals, coin.description, version],
       log: true,
     });
   }
