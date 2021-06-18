@@ -143,7 +143,7 @@ const applyFiltersAndSort = (
   // Move games where the start time is < current time
   const now = Date.now();
   const isExpired = (market) => {
-    var thirtyHoursLaterMillis = (market.startTimestamp + 30*60*60)*1000;
+    var thirtyHoursLaterMillis = market.startTimestamp ? (market.startTimestamp + 30*60*60)*1000 : market.endTimestamp;
     return now >= thirtyHoursLaterMillis;
   }
 

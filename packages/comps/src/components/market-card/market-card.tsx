@@ -146,12 +146,12 @@ export const MarketCardView = ({
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
-  const formattedLiquidity = useMemo(() => formatLiquidity(amm?.liquidityUSD || "0.00").full, [amm?.liquidityUSD]);
+  const formattedLiquidity = useMemo(() => formatLiquidity(amm?.liquidityUSD || "0.00", { bigUnitPostfix: true }).full, [amm?.liquidityUSD]);
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
   const formattedVol = useMemo(
-    () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD).full,
+    () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD, { bigUnitPostfix: true }).full,
     [marketTransactions?.volumeTotalUSD]
   );
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
@@ -165,7 +165,7 @@ export const MarketCardView = ({
         // !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
       }}
     >
-      <div>
+      <MarketLink id={marketId} dontGoToMarket={false}>
         <article
           className={classNames({
             [Styles.Trading]: reportingState === MARKET_STATUS.TRADING,
@@ -180,7 +180,7 @@ export const MarketCardView = ({
               <TinyThemeButton
                 customClass={Styles.NoLiquidityPill}
                 action={() => {}}
-                text="add liquidity to earn fees"
+                text="Add liquidity to earn fees"
                 disabled
               />
             ) : (
@@ -188,16 +188,16 @@ export const MarketCardView = ({
             )}
           </div>
         </article>
-        <MarketLink id={marketId} dontGoToMarket={false}>
+        <a>
           <MarketTitleArea {...{ ...market, timeFormat }} />
           <ValueLabel label="total volume" value={formattedVol || "-"} />
-          <ValueLabel label="Liquidity" value={formattedLiquidity || "-"} />
+          <ValueLabel label="Liquidity" value={marketHasNoLiquidity ? "-" : formattedLiquidity || "-"} />
           <OutcomesTable {...{ amm }} />
           {!hasWinner && extraOutcomes > 0 && (
             <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
           )}
-        </MarketLink>
-      </div>
+        </a>
+      </MarketLink>
     </article>
   );
 };
