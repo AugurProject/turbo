@@ -76,7 +76,7 @@ export interface ParaDeploys {
   reputationToken: string;
   balancerFactory: string;
   marketFactories: MarketFactoryConfig[];
-  info: {uploadBlockNumber: number, graphName: string }
+  info: { uploadBlockNumber: number; graphName: string };
 }
 export interface AmmTransaction {
   id: string;

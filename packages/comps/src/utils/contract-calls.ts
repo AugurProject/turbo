@@ -1319,7 +1319,7 @@ const isOldMarketFactory = (address) => {
 
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
   if (loadtype === MARKET_LOAD_TYPE.SPORT)
-    return PARA_CONFIG.marketFactories.filter(c => c.type === MARKET_FACTORY_TYPES.SPORTSLINK)
+    return PARA_CONFIG.marketFactories.filter((c) => c.type === MARKET_FACTORY_TYPES.SPORTSLINK);
   return PARA_CONFIG.marketFactories;
 };
 
