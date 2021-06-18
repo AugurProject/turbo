@@ -1398,10 +1398,26 @@ export const getMarketInfos = async (
         .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
         .map((id) => Number(marketInfos[id]?.turboId));
 
-      addResolvedMarketToList(ignoreList, factoryAddress, [...ids, ...hiddenMarketsIds, ...existingEventIds]);
+      // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
+      const marketSpreadZeroIds = Object.keys(marketInfos)
+        .filter(
+          (id) =>
+            marketInfos[id].sportsMarketType === SPORTS_MARKET_TYPE.SPREAD &&
+            marketInfos[id].spreadLine === 0 &&
+            marketInfos[id].amm.hasLiquidity === false
+        )
+        .map((id) => Number(marketInfos[id]?.turboId));
+
+      addResolvedMarketToList(ignoreList, factoryAddress, [
+        ...ids,
+        ...hiddenMarketsIds,
+        ...existingEventIds,
+        ...marketSpreadZeroIds,
+      ]);
 
       const filteredMarketIds = Object.keys(marketInfos).reduce(
         (p, id) =>
+          marketSpreadZeroIds.includes(marketInfos[id]?.turboId) ||
           existingEvents.includes(marketInfos[id]?.eventId) ||
           (loadtype !== MARKET_LOAD_TYPE.SPORT &&
             isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
@@ -1409,7 +1425,6 @@ export const getMarketInfos = async (
             : { ...p, [id]: marketInfos[id] },
         {}
       );
-
       return {
         markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
@@ -1419,7 +1434,6 @@ export const getMarketInfos = async (
     },
     { markets, ammExchanges, blocknumber: null, loading: false }
   );
-
   return marketInfos;
 };
 
@@ -1592,20 +1606,7 @@ const retrieveMarkets = async (
     );
   }
 
-  // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
-  // Filter out spread markets whose "value" (target home spread) is exactly 5,  Since this is identical to a head-to-head market.
-  const SPORTS_MARKET_TYPE_SPREAD = 1;
-  let marketInfosNoZeroSpread = marketInfos;
-  let exchangesNoZeroSpread = exchanges;
-
-  Object.keys(marketInfos).forEach((market) => {
-    if (marketInfos[market].sportsMarketType === SPORTS_MARKET_TYPE_SPREAD && marketInfos[market].spreadLine === 5) {
-      delete marketInfosNoZeroSpread[market];
-      delete exchangesNoZeroSpread[market];
-    }
-  });
-
-  return { marketInfos: marketInfosNoZeroSpread, exchanges: exchangesNoZeroSpread, blocknumber };
+  return { marketInfos, exchanges, blocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
