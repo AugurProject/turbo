@@ -5,6 +5,7 @@
 
   border-radius: @size-8;
 
+  > a,
   > div,
   > section > div {
     .text-14-bold;
@@ -197,6 +198,7 @@
   }
 
   &.NoLiquidity {
+    > a,
     > div,
     > section > div {
       > div:first-of-type {
@@ -217,9 +219,10 @@
 }
 
 button.NoLiquidityPill:disabled {
-  .text-12-semi-bold;
+  .text-12;
 
   align-self: baseline;
+  border: 0;
   color: var(--simple-secondary-text);
   cursor: initial;
   max-height: @size-24;
@@ -228,6 +231,7 @@ button.NoLiquidityPill:disabled {
   padding: @size-4 @size-8;
   opacity: 1;
   border-color: var(--simple-border);
+  text-transform: none;
 }
 
 span.ExtraOutcomes {
@@ -423,6 +427,7 @@ span.ExtraOutcomes {
   .MarketCard {
     max-width: 100%;
 
+    > a,
     > div {
       max-width: 100%;
 
@@ -531,6 +536,7 @@ span.ExtraOutcomes {
 }
 
 @media @breakpoint-mobile-tablet {
+  .MarketCard > a > a,
   .MarketCard > div > a,
   .MarketCard > div > a > span {
     height: unset;

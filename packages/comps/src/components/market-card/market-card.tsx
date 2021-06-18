@@ -165,7 +165,7 @@ export const MarketCardView = ({
         // !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
       }}
     >
-      <div>
+      <MarketLink id={marketId} dontGoToMarket={false}>
         <article
           className={classNames({
             [Styles.Trading]: reportingState === MARKET_STATUS.TRADING,
@@ -180,7 +180,7 @@ export const MarketCardView = ({
               <TinyThemeButton
                 customClass={Styles.NoLiquidityPill}
                 action={() => {}}
-                text="add liquidity to earn fees"
+                text="Add liquidity to earn fees"
                 disabled
               />
             ) : (
@@ -188,16 +188,16 @@ export const MarketCardView = ({
             )}
           </div>
         </article>
-        <MarketLink id={marketId} dontGoToMarket={false}>
+        <a>
           <MarketTitleArea {...{ ...market, timeFormat }} />
           <ValueLabel label="total volume" value={formattedVol || "-"} />
-          <ValueLabel label="Liquidity" value={formattedLiquidity || "-"} />
+          <ValueLabel label="Liquidity" value={marketHasNoLiquidity ? "-" : formattedLiquidity || "-"} />
           <OutcomesTable {...{ amm }} />
           {!hasWinner && extraOutcomes > 0 && (
             <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
           )}
-        </MarketLink>
-      </div>
+        </a>
+      </MarketLink>
     </article>
   );
 };
