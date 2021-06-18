@@ -75,11 +75,8 @@ export interface ParaDeploys {
   collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  hatcheryRegistry: string;
-  marketFactory: string;
-  arbiter: string;
-  ammFactory: string;
-  pool: string;
+  marketFactories: MarketFactoryConfig[];
+  info: { uploadBlockNumber: number; graphName: string };
 }
 export interface AmmTransaction {
   id: string;
@@ -707,4 +704,13 @@ export interface LiquidityBreakdown {
   minAmountsRaw?: string[];
   minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
   poolPct?: string;
+}
+
+export interface MarketFactoryConfig {
+  type: string;
+  address: string;
+  collateral: string;
+  ammFactory: string;
+  description: string;
+  version: string;
 }

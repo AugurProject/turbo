@@ -1317,7 +1317,9 @@ const isOldMarketFactory = (address) => {
   return address.toUpperCase() === oldest.address.toUpperCase();
 };
 
-const marketFactories = (): MarketFactory[] => {
+const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
+  if (loadtype === MARKET_LOAD_TYPE.SPORT)
+    return PARA_CONFIG.marketFactories.filter((c) => c.type === MARKET_FACTORY_TYPES.SPORTSLINK);
   return PARA_CONFIG.marketFactories;
 };
 
@@ -1342,7 +1344,7 @@ export const getMarketInfos = async (
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
-  const factories = marketFactories();
+  const factories = marketFactories(loadtype);
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
       getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList, type)
