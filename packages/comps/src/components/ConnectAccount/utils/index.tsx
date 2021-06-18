@@ -6,7 +6,6 @@ import { MATIC_MUMBAI_RPC_DATA, MATIC_RPC_DATA, SUPPORTED_WALLETS } from "../con
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { UnsupportedChainIdError } from "@web3-react/core";
 import { PARA_CONFIG } from "../../../stores/constants";
-import  Web3HttpProvider from "web3-providers-http";
 
 const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   1: "",
@@ -38,9 +37,11 @@ export const getRpcData = () => {
 let defaultProvider = null;
 export const getDefaultProvider = () => {
   const rpcData = getRpcData();
-  const httpProvider = new Web3HttpProvider(rpcData.rpcUrls[0]);
   if (!defaultProvider){
-    defaultProvider = new Web3Provider(httpProvider, 'any');
+    defaultProvider = new ethers.providers.StaticJsonRpcProvider(
+      rpcData.rpcUrls[0],
+      Number(PARA_CONFIG.networkId)
+    );
   }
   return defaultProvider;
 }
