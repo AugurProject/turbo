@@ -327,7 +327,6 @@ describe.only("CryptoFactory", () => {
       await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
     });
 
-
     it("can resolve without creating", async () => {
       ethPrice = 2500;
       btcPrice = 55000;
