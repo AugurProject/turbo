@@ -146,12 +146,12 @@ export const MarketCardView = ({
   timeFormat?: string;
 }) => {
   const { categories, marketId, reportingState, hasWinner } = market;
-  const formattedLiquidity = useMemo(() => formatLiquidity(amm?.liquidityUSD || "0.00").full, [amm?.liquidityUSD]);
+  const formattedLiquidity = useMemo(() => formatLiquidity(amm?.liquidityUSD || "0.00", { bigUnitPostfix: true }).full, [amm?.liquidityUSD]);
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
   const formattedVol = useMemo(
-    () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD).full,
+    () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD, { bigUnitPostfix: true }).full,
     [marketTransactions?.volumeTotalUSD]
   );
   const extraOutcomes = amm?.ammOutcomes?.length - 3;
