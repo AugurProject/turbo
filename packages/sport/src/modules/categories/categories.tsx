@@ -59,16 +59,16 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const topLevel = handleCategoryMap(CATEGORIES_TO_CARE_ABOUT, CATEGORIES_ICON_MAP);
   const categoryGroups = !primaryCategory ? (
     <>
-      {Object.entries(topLevel).map((categoryInfo) => (
-        <CategoryGroup {...{ categoryInfo, markets }} />
+      {Object.entries(topLevel).map((categoryInfo, i) => (
+        <CategoryGroup {...{ categoryInfo, markets, key: i}} />
       ))}
     </>
   ) : (
     <>
       {Object.entries(topLevel)
         .filter(([label, info]) => primaryCategory === label)
-        .map((categoryInfo) => (
-          <CategoryGroup {...{ categoryInfo, markets }} />
+        .map((categoryInfo, i) => (
+          <CategoryGroup {...{ categoryInfo, markets, key: i }} />
         ))}
     </>
   );
@@ -144,8 +144,9 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
         </h4>
       )}
       {subCategories.length < 2 &&
-        subCategoryList.map(([subLabel, subInfo]) => (
+        subCategoryList.map(([subLabel, subInfo], i) => (
           <button
+            key={i}
             className={classNames({
               [Styles.SelectedCategory]: subCategories.length > 0 && subCategories[0] === subLabel,
             })}
@@ -157,8 +158,9 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
         ))}
       {!!subCategories.length && (
         <>
-          {filteredLeaves.map((tertiaryLabel) => (
+          {filteredLeaves.map((tertiaryLabel, i) => (
             <button
+              key={i}
               className={classNames({
                 [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === tertiaryLabel,
               })}
@@ -180,7 +182,7 @@ export const CategoriesTrail = ({ categories }) => (
   <span className={Styles.CategoriesTrail}>
     {categories.map((category, index) => {
       return (
-        <span>
+        <span key={index}>
           {category}
           {`${index !== categories.length - 1 ? " / " : ""}`}
         </span>
