@@ -210,6 +210,8 @@ export const DailyFutureSwitch = ({ selection, setSelection }) => {
           key={`${label}-${id}`}
           onClick={() => setSelection(id)}
           className={classNames({ [Styles.Selected]: id === selection })}
+          disabled={id === 1}
+          title={id === 1 ? 'Coming Soon' : label}
         >
           {label}
         </button>

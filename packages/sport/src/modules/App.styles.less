@@ -28,6 +28,10 @@
       margin-top: @sports-top-bar-height;
       grid-column: 1;
       grid-row: 2;
+
+      @media @breakpoint-mobile-tablet {
+        grid-column: span 2;
+      }
     }
   }
 }

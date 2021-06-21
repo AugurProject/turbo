@@ -57,7 +57,7 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
-      <SportsCardTitle {...{ ...market, description }} />
+      <SportsCardTitle {...{ ...market, description, timeFormat }} />
       <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
@@ -67,24 +67,25 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
 const SportsCardTopbar = ({ market, timeFormat }) => (
   <div className={Styles.SportsCardTopbar}>
     <CategoriesTrail {...{ ...market }} />
-    <span>{getMarketEndtimeFull(market.startTimestamp, timeFormat)}</span>
-    <span>{SocialMediaIcon}</span>
+    {/* <span>{getMarketEndtimeFull(market.startTimestamp, timeFormat)}</span> */}
+    {/* <span>{SocialMediaIcon}</span> */}
   </div>
 );
 
-const SportsCardTitle = ({ marketId, description }) => (
+const SportsCardTitle = ({ marketId, description, startTimestamp, timeFormat }) => (
   <MarketLink id={marketId} dontGoToMarket={false}>
     {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
+    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
   </MarketLink>
 );
 
 export const SportsCardOutcomes = ({
   marketId,
-  title,
   sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE,
   description = "",
   amm,
   eventId,
+  checkForNoLiquidity = false,
 }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -94,16 +95,24 @@ export const SportsCardOutcomes = ({
   if (noContest) {
     outcomes.push(noContest);
   }
+  const noLiquidity = checkForNoLiquidity && !amm?.hasLiquidity;
 
   return (
-    <section className={Styles.SportsCardOutcomes}>
-      <header>{!!title && <span>{title}</span>}</header>
+    <section className={classNames(Styles.SportsCardOutcomes, {
+      [Styles.NoLiquidity]: noLiquidity,
+    })}>
+      <header>
+        <span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span>
+        {noLiquidity && <span>No Liquidity</span>}
+      </header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ outcome, marketId, sportsMarketType, description, amm, eventId, key: outcome.id }} />
+          <SportsOutcomeButton
+            {...{ outcome, marketId, sportsMarketType, description, amm, eventId, key: outcome.id }}
+          />
         ))}
       </main>
-      {isMarketPage && (
+      {isMarketPage && !noLiquidity && (
         <footer className={Styles.SportsCardOutcomesFooter}>
           {FingersCrossedIcon}
           <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
@@ -161,6 +170,15 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
           />
         ))}
       </main>
+      <section>
+        {[
+          eventMarkets[SPORTS_MARKET_TYPE.MONEY_LINE],
+          eventMarkets[SPORTS_MARKET_TYPE.SPREAD],
+          eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER],
+        ].map((eventMarket) => (
+          <SportsCardOutcomes {...{ ...eventMarket, checkForNoLiquidity: true }} />
+        ))}
+      </section>
     </section>
   );
 };
