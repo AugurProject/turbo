@@ -112,7 +112,7 @@ export const SportsCardOutcomes = ({
           />
         ))}
       </main>
-      {isMarketPage && (
+      {isMarketPage && !noLiquidity && (
         <footer className={Styles.SportsCardOutcomesFooter}>
           {FingersCrossedIcon}
           <span>Some outcome</span> is the favorite with $1.00 wagered on this market.
