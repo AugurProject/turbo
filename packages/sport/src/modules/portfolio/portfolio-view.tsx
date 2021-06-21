@@ -6,6 +6,8 @@ import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 import { DailyFutureSwitch } from "../categories/categories";
+import { useSportsStore } from "../stores/sport";
+import { useBetslipStore } from "../stores/betslip";
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -223,11 +225,46 @@ export const ClaimWinningsSection = () => {
   );
 };
 
+const useEventPositionsData = () => {
+  const { markets } = useDataStore();
+  const { marketEvents } = useSportsStore();
+  const { active } = useBetslipStore();
+  const marketIds = Array.from(new Set(Object.entries(active)
+    .map(([txhash, bet]) => {
+      // @ts-ignore
+      return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
+    })
+    .filter((i) => i)));
+  const events = Array.from(new Set(marketIds.map(marketId => markets?.[marketId]?.eventId))).map(eventId => marketEvents[eventId]);
+  const eventPositionsData = events.reduce((acc, event) => {
+    const out = {...acc};
+    const bets = Object.entries(active).reduce((a, [txhash, bet]) => {
+      let result = {...a};
+      // @ts-ignore
+      const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
+      if (event.marketIds.includes(marketId)) {
+        result[txhash] = bet;
+      }
+      return result;
+    }, {});
+    out[event.eventId] = {
+      eventId: event.eventId,
+      eventTitle: event.description,
+      eventStartTime: event.startTimestamp,
+      bets,
+    };
+    return out;
+  }, {});
+  return eventPositionsData;
+}
+
 export const PortfolioView = () => {
   useScrollToTopOnMount();
   const [filter, setFilter] = useState("");
   const [soryBy, setSortBy] = useState(OPEN);
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
+  const eventPositionsData = useEventPositionsData();  
+
   return (
     <div className={Styles.PortfolioView}>
       <SEO {...PORTFOLIO_HEAD_TAGS} />
@@ -249,7 +286,7 @@ export const PortfolioView = () => {
             clearValue={() => setFilter("")}
           />
         </ul>
-        <EventBetsSection EventPositionData={MOCK_EVENT_POSITIONS_DATA} />
+        <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
         <ClaimWinningsSection />
@@ -282,7 +319,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: "70.00",
-        date: now - 2000,
+        timestamp: now - 2000,
         cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
@@ -295,7 +332,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: null,
-        date: now - 2500,
+        timestamp: now - 2500,
         cashoutAmount: "5.60",
         canCashOut: false,
         hasCashedOut: true,
@@ -308,7 +345,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: "70.00",
-        date: now - 3050,
+        timestamp: now - 3050,
         cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
@@ -328,7 +365,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: "70.00",
-        date: now - 2000,
+        timestamp: now - 2000,
         cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
@@ -348,7 +385,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: "70.00",
-        date: now - 7000,
+        timestamp: now - 7000,
         cashoutAmount: "0.00",
         canCashOut: true,
         hasCashedOut: false,
@@ -361,7 +398,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: null,
-        date: now - 7500,
+        timestamp: now - 7500,
         cashoutAmount: "5.60",
         canCashOut: false,
         hasCashedOut: true,
@@ -374,7 +411,7 @@ const MOCK_EVENT_POSITIONS_DATA = {
         wager: "10.00",
         price: "0.125",
         toWin: "70.00",
-        date: now - 8050,
+        timestamp: now - 8050,
         cashoutAmount: "0.00",
         canCashOut: false,
         hasCashedOut: false,

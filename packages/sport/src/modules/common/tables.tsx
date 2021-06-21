@@ -10,9 +10,9 @@ const {
 const { Pagination } = PaginationComps;
 const { TinyThemeButton } = ButtonComps;
 
-export const EventBetsSection = ({ EventPositionData = {} }) => {
-  if (!Object.keys(EventPositionData).length) return null;
-  const EventDataEntries = Object.entries(EventPositionData);
+export const EventBetsSection = ({ eventPositionData = {} }) => {
+  if (!Object.keys(eventPositionData).length) return null;
+  const EventDataEntries = Object.entries(eventPositionData);
   return (
     <section className={Styles.EventBetsSection}>
       {EventDataEntries.map(([EventId, Event]) => (
@@ -82,7 +82,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>${bet.wager}</li>
             <li>{convertToOdds(convertToNormalizedPrice({ price: bet.price }), oddsFormat).full}</li>
             <li>{bet.toWin && bet.toWin !== "0" ? `$${bet.toWin}` : "-"}</li>
-            <li>{getMarketEndtimeFull(bet.date, timeFormat)}</li>
+            <li>{getMarketEndtimeFull(bet.timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
                 customClass={determineClasses(bet)}

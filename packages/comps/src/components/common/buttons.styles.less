@@ -1,4 +1,4 @@
-@import (reference) '../../assets/styles/shared.less';
+@import (reference) "../../assets/styles/shared.less";
 
 .Button {
   .text-16-bold;
@@ -49,7 +49,7 @@
   &:disabled,
   &.Disabled {
     pointer-events: none;
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
@@ -109,11 +109,11 @@
       &:hover {
         background-color: var(--color-primary-action-70);
       }
-  
+
       &:focus {
         background-color: var(--color-primary-action-20);
       }
-  
+
       &:active {
         background-color: var(--color-primary-action-20);
       }
@@ -167,12 +167,9 @@
     color: var(--color-brand-secondary);
 
     > div::before {
-      background:
-        linear-gradient(  0deg, transparent 50%, white 100%)   0%   0%,
-        linear-gradient( 90deg, white  0%, white 100%) 100%   0%,
-        linear-gradient(180deg, white  0%, white 100%) 100% 100%,
-        linear-gradient(270deg, white 0%, white 100%)   0% 100%
-      ;
+      background: linear-gradient(0deg, transparent 50%, white 100%) 0% 0%,
+        linear-gradient(90deg, white 0%, white 100%) 100% 0%, linear-gradient(180deg, white 0%, white 100%) 100% 100%,
+        linear-gradient(270deg, white 0%, white 100%) 0% 100%;
       background-repeat: no-repeat;
       background-size: 50% 50%;
     }
@@ -210,7 +207,7 @@
   flex-direction: row-reverse;
   grid-gap: 0;
   white-space: nowrap;
-  
+
   > svg {
     max-width: @size-16;
     max-height: @size-16;
@@ -376,7 +373,7 @@
       position: relative;
 
       &:before {
-        content: '';
+        content: "";
         position: absolute;
         left: @size-12;
         width: @size-8;
@@ -441,7 +438,7 @@
       }
     }
   }
-  
+
   &:hover {
     color: var(--color-secondary-text);
 
@@ -454,14 +451,13 @@
         &:nth-child(odd) {
           fill: var(--color-secondary-text);
         }
-  
+
         &:nth-child(even) {
           stroke: var(--color-secondary-text);
         }
       }
     }
   }
-
 }
 
 .ThemeButtonRadius {
@@ -478,12 +474,12 @@
   padding: var(--normal-button-padding);
   text-transform: capitalize;
   display: flex;
-  flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: var(--normal-button-font-size);
   font-weight: var(--normal-button-font-weight);
+  flex-flow: var(--normal-button-flex-flow);
 
   > span {
     white-space: nowrap;
@@ -492,12 +488,12 @@
   > svg {
     height: var(--normal-button-svg-height);
     width: var(--normal-button-svg-width);
-    margin-left: @size-4;
+    margin: var(--normal-button-icon-margin);
   }
 
   > div {
     // sometimes a div is used to house a svg
-    margin-left: @size-4;
+    margin: var(--normal-button-icon-margin);
   }
 
   &:not(:disabled):not(:active):focus {
@@ -510,17 +506,15 @@
   }
 
   &.Reversed {
-    flex-flow: row-reverse nowrap;
+    flex-flow: var(--normal-button-flex-flow-reverse);
 
     > svg {
-      margin-left: 0;
-      margin-right: @size-4;
+      margin: var(--normal-button-icon-margin-reverse);
     }
 
     > div {
       // sometimes a div is used to house a svg
-      margin-left: 0;
-      margin-right: @size-4;
+      margin: var(--normal-button-icon-margin-reverse);
     }
   }
 
@@ -813,6 +807,20 @@
       }
     }
 
+    > div[class*="Spinner"] {
+      background: white;
+
+      &:before {
+        background: linear-gradient(0deg, transparent 50%, var(transparent) 100%) 0% 0%,
+          linear-gradient(90deg, var(--simple-light-bg-50) 0%, var(--simple-light-bg-75) 100%) 100% 0%,
+          linear-gradient(180deg, var(--simple-light-bg-75) 0%, var(--simple-light-bg) 100%) 100% 100%,
+          linear-gradient(270deg, var(--simple-light-bg) 0%, var(--simple-light-bg) 100%) 0% 100%;
+      }
+      &:after {
+        background: black;
+      }
+    }
+
     &:not(:disabled) {
       &:hover {
         background: var(--inverted-secondary-button-background-hover);
@@ -831,6 +839,15 @@
             stroke: var(--inverted-secondary-button-text-color-hover);
           }
         }
+
+        > div[class*="Spinner"] {
+          background: transparent;
+
+          &:after {
+            background: var(--simple-light-bg);
+          }
+        }
+
       }
 
       &:focus {
@@ -878,7 +895,7 @@
   background: var(--tiny-button-background);
   border: var(--tiny-button-border);
   color: var(--tiny-button-text-color);
-  text-transform: uppercase;
+  text-transform: var(--tiny-button-text-transform);
 
   > svg {
     > path[fill],
