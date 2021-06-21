@@ -152,7 +152,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   }, [tradingFeeSelection, amm?.feeRaw]);
 
   let buttonError = "";
-  const priceErrors = outcomes.filter((outcome) => {
+  const priceErrors = isRemove ? [] : outcomes.filter((outcome) => {
     return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
   });
   const hasPriceErrors = priceErrors.length > 0;
@@ -282,7 +282,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   useEffect(() => {
     let isMounted = true;
-    const priceErrorsWithEmptyString = outcomes.filter(
+    const priceErrorsWithEmptyString = isRemove ? [] : outcomes.filter(
       (outcome) => parseFloat(outcome.price) >= 1 || outcome.price === ""
     );
 
@@ -290,7 +290,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
 
-    const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+    const valid = isRemove ? true : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
     if (!valid) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
@@ -321,7 +321,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     return () => {
       isMounted = false;
     };
-  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice]);
+  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
 
   const LIQUIDITY_STRINGS = {
     [REMOVE]: {

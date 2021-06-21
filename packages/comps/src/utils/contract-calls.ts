@@ -275,8 +275,9 @@ export async function getRemoveLiquidity(
       outcomeId: i,
       hide: new BN(results.minAmounts[i]).lt(DUST_POSITION_AMOUNT),
     }));
+    const minAmtsRaw = amm?.ammOutcomes.map((o, i) => results.minAmountsRaw[i]);    
     minAmounts = minAmts;
-    minAmountsRaw = results.minAmountsRaw;
+    minAmountsRaw = minAmtsRaw;
   }
 
   if (!results) return null;
