@@ -13,7 +13,7 @@ const COINS: { [index: string]: { name: string; decimals: number; priceFeedUrl: 
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const { coinIndex, price } = marketData;
-  const { endTimestamp, creationTimestamp } = market;
+  const { endTimestamp } = market;
   const tokenIndes = new BN(String(coinIndex)).toNumber();
   const coinInfo = COINS[String(tokenIndes)];
   const displayPrice = new BN(String(price)).div(new BN(10).pow(Number(coinInfo.decimals))); //.decimalPlaces(0, 1);
