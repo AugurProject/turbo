@@ -195,7 +195,7 @@ const EditableBet = ({ betId, bet }) => {
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
+  const displayOdds = updatedPrice ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full : '-';
   const hasOddsChanged =
     initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
   const checkErrors = (value: string) => {
@@ -252,6 +252,8 @@ const EditableBet = ({ betId, bet }) => {
                     wager: fmtNewValue,
                     toWin: formatDai(nextBuyAmount.maxProfit).formatted,
                   });
+                } else {
+                  setUpdatedPrice(null);
                 }
               }
 

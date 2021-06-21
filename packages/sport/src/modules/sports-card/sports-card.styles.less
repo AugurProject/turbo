@@ -9,6 +9,22 @@
   padding: @size-12;
   display: grid;
   grid-gap: @size-8;
+
+  > a:first-of-type {
+    display: flex;
+    flex-flow: column nowrap;
+
+    > span:last-of-type:not(:first-of-type) {
+      .text-12-semi-bold;
+
+      color: var(--simple-secondary-text);
+      text-transform: uppercase;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }
 
 .SportsCardTopbar {
@@ -92,7 +108,7 @@
 
     @media @breakpoint-mobile {
       padding: 0;
-      
+
       > div {
         border-radius: 0;
         flex: 1 100%;
@@ -314,7 +330,7 @@
           &:hover {
             background: var(--simple-yes-30);
           }
-    
+
           &:focus {
             border: var(--primary-button-border-focus);
           }

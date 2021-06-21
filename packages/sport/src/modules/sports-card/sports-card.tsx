@@ -57,7 +57,7 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
-      <SportsCardTitle {...{ ...market, description }} />
+      <SportsCardTitle {...{ ...market, description, timeFormat}} />
       <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
@@ -67,14 +67,15 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
 const SportsCardTopbar = ({ market, timeFormat }) => (
   <div className={Styles.SportsCardTopbar}>
     <CategoriesTrail {...{ ...market }} />
-    <span>{getMarketEndtimeFull(market.startTimestamp, timeFormat)}</span>
-    <span>{SocialMediaIcon}</span>
+    {/* <span>{getMarketEndtimeFull(market.startTimestamp, timeFormat)}</span> */}
+    {/* <span>{SocialMediaIcon}</span> */}
   </div>
 );
 
-const SportsCardTitle = ({ marketId, description }) => (
+const SportsCardTitle = ({ marketId, description, startTimestamp, timeFormat }) => (
   <MarketLink id={marketId} dontGoToMarket={false}>
     {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
+    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
   </MarketLink>
 );
 

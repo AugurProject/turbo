@@ -696,6 +696,7 @@ export interface TransactionDetails {
   timestamp?: number;
   seen?: boolean;
   status?: string;
+  message?: string;
   marketDescription?: string;
 }
 
