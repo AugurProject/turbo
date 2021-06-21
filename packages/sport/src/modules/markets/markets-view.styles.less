@@ -116,16 +116,11 @@
   }
 }
 
-
-// @media @breakpoint-desktop-large {
-//   .MarketsView > article:last-of-type > section > {
-//     grid-template-columns: repeat(2, 1fr);
-//   }
-// }
-
 @media @breakpoint-mobile-tiny {
   .MarketsView {
     padding-bottom: @size-40;
+    grid-column: span 2;
+
     > article:last-of-type {
       > section {
         grid-template-columns: 1fr;
