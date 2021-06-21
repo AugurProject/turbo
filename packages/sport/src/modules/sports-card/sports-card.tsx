@@ -81,7 +81,6 @@ const SportsCardTitle = ({ marketId, description, startTimestamp, timeFormat }) 
 
 export const SportsCardOutcomes = ({
   marketId,
-  title,
   sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE,
   description = "",
   amm,
@@ -98,7 +97,7 @@ export const SportsCardOutcomes = ({
 
   return (
     <section className={Styles.SportsCardOutcomes}>
-      <header>{!!title && <span>{title}</span>}</header>
+      <header><span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span></header>
       <main>
         {outcomes?.map((outcome) => (
           <SportsOutcomeButton {...{ outcome, marketId, sportsMarketType, description, amm, eventId, key: outcome.id }} />
