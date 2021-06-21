@@ -57,7 +57,7 @@ export const SportsCard = ({ marketId, markets, ammExchanges, timeFormat, market
   return (
     <article className={Styles.SportsMarketCard}>
       <SportsCardTopbar {...{ market, timeFormat }} />
-      <SportsCardTitle {...{ ...market, description, timeFormat}} />
+      <SportsCardTitle {...{ ...market, description, timeFormat }} />
       <SportsCardOutcomes {...{ ...market }} />
       <SportsCardFooter {...{ marketTransactions }} />
     </article>
@@ -85,6 +85,7 @@ export const SportsCardOutcomes = ({
   description = "",
   amm,
   eventId,
+  checkForNoLiquidity = false,
 }) => {
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -94,13 +95,21 @@ export const SportsCardOutcomes = ({
   if (noContest) {
     outcomes.push(noContest);
   }
+  const noLiquidity = checkForNoLiquidity && !amm?.hasLiquidity;
 
   return (
-    <section className={Styles.SportsCardOutcomes}>
-      <header><span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span></header>
+    <section className={classNames(Styles.SportsCardOutcomes, {
+      [Styles.NoLiquidity]: noLiquidity,
+    })}>
+      <header>
+        <span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span>
+        {noLiquidity && <span>No Liquidity</span>}
+      </header>
       <main>
         {outcomes?.map((outcome) => (
-          <SportsOutcomeButton {...{ outcome, marketId, sportsMarketType, description, amm, eventId, key: outcome.id }} />
+          <SportsOutcomeButton
+            {...{ outcome, marketId, sportsMarketType, description, amm, eventId, key: outcome.id }}
+          />
         ))}
       </main>
       {isMarketPage && (
@@ -161,6 +170,15 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
           />
         ))}
       </main>
+      <section>
+        {[
+          eventMarkets[SPORTS_MARKET_TYPE.MONEY_LINE],
+          eventMarkets[SPORTS_MARKET_TYPE.SPREAD],
+          eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER],
+        ].map((eventMarket) => (
+          <SportsCardOutcomes {...{ ...eventMarket, checkForNoLiquidity: true }} />
+        ))}
+      </section>
     </section>
   );
 };

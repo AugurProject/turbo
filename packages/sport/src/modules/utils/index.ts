@@ -113,7 +113,7 @@ export const makeBet = async (
     status: TX_STATUS.PENDING,
     from: account,
     addedTime: new Date().getTime(),
-    message: 'Bet Placed',
+    message: "Bet Placed",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
 };

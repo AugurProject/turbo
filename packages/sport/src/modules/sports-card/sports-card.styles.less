@@ -80,6 +80,7 @@
     padding: @size-8;
     min-height: @size-30;
     max-height: @size-30;
+    justify-content: space-between;
 
     > span {
       .text-10-semi-bold;
@@ -131,6 +132,18 @@
 
   > :last-child {
     .PrimaryBottomBorderRadius;
+  }
+
+  &.NoLiquidity {
+    > main {
+      display: none;
+    }
+
+    > header {
+      .PrimaryBorderRadius;
+
+      border-bottom: 0;
+    }
   }
 }
 
@@ -368,6 +381,25 @@
       > article:last-of-type {
         .PrimaryBottomBorderRadius;
       }
+    }
+  }
+
+  > section {
+    display: none;
+  }
+
+  @media @breakpoint-mobile-tablet {
+    border: none;
+    background: transparent;
+
+    > header,
+    > main {
+      display: none;
+    }
+    > section {
+      display: grid;
+      grid-gap: @size-8;
+      grid-template-columns: 1fr;
     }
   }
 
