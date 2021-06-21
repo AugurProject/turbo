@@ -174,6 +174,9 @@ export const TopNav = () => {
             transactions,
             setModal,
             isMobile,
+            buttonOptions: {
+              reverseContent: true,
+            }
           }}
         />
         {isMobile ? (

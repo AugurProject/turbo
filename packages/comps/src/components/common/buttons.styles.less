@@ -478,12 +478,12 @@
   padding: var(--normal-button-padding);
   text-transform: capitalize;
   display: flex;
-  flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: var(--normal-button-font-size);
   font-weight: var(--normal-button-font-weight);
+  flex-flow: var(--normal-button-flex-flow);
 
   > span {
     white-space: nowrap;
@@ -492,12 +492,12 @@
   > svg {
     height: var(--normal-button-svg-height);
     width: var(--normal-button-svg-width);
-    margin-left: @size-4;
+    margin: var(--normal-button-icon-margin);
   }
 
   > div {
     // sometimes a div is used to house a svg
-    margin-left: @size-4;
+    margin: var(--normal-button-icon-margin);
   }
 
   &:not(:disabled):not(:active):focus {
@@ -510,17 +510,15 @@
   }
 
   &.Reversed {
-    flex-flow: row-reverse nowrap;
+    flex-flow: var(--normal-button-flex-flow-reverse);
 
     > svg {
-      margin-left: 0;
-      margin-right: @size-4;
+      margin: var(--normal-button-icon-margin-reverse);
     }
 
     > div {
       // sometimes a div is used to house a svg
-      margin-left: 0;
-      margin-right: @size-4;
+      margin: var(--normal-button-icon-margin-reverse);
     }
   }
 
@@ -878,7 +876,7 @@
   background: var(--tiny-button-background);
   border: var(--tiny-button-border);
   color: var(--tiny-button-text-color);
-  text-transform: uppercase;
+  text-transform: var(--tiny-button-text-transform);
 
   > svg {
     > path[fill],
