@@ -3,6 +3,7 @@ import { AmmExchange, Cash, LoginAccount, PositionBalance, TransactionDetails } 
 import { ContractCalls, createBigNumber } from "@augurproject/comps";
 import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
+import { claimWinnings } from "@augurproject/comps/build/utils/contract-calls";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 
 export interface SizedPrice {
@@ -116,4 +117,34 @@ export const makeBet = async (
     message: "Bet Placed",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
+};
+
+export const claimMarketWinnings = async (
+  loginAccount: LoginAccount,
+  amm: AmmExchange,
+): Promise<TransactionDetails> => {
+  if (amm && loginAccount && loginAccount?.account) {
+    const { marketFactoryAddress, turboId } = amm?.market;
+    return claimAll(loginAccount, [turboId], marketFactoryAddress);
+  }
+};
+
+export const claimAll = async (
+  loginAccount: LoginAccount,
+  marketIndexes: string[],
+  marketFactoryAddress: string,
+): Promise<TransactionDetails> => {
+  if (loginAccount && loginAccount?.account) {
+    const response = claimWinnings(loginAccount?.account, loginAccount?.library, marketIndexes, marketFactoryAddress);
+    return {
+      hash: response?.hash,
+      chainId: String(loginAccount.chainId),
+      seen: false,
+      status: TX_STATUS.PENDING,
+      from: loginAccount?.account,
+      addedTime: new Date().getTime(),
+      message: "Claim Winnings",
+      marketDescription: `Claim Winnings`,
+    };
+  }
 };
