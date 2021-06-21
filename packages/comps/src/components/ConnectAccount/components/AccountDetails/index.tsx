@@ -7,7 +7,7 @@ import { SUPPORTED_WALLETS } from "../../constants";
 import { useActiveWeb3React } from "../../hooks";
 import Styles from "./index.less";
 import classNames from "classnames";
-import { TinyButton } from "../../../common/buttons";
+import { TinyThemeButton } from "../../../common/buttons";
 import { Spinner } from "../../../common/spinner";
 import { GetWalletIcon } from "../../../common/get-wallet-icon";
 import { AbstractConnector } from "@web3-react/abstract-connector";
@@ -39,7 +39,7 @@ const AccountCard = ({ account, connector, connectorName, chainId, chainName }: 
       <div>
         {account && <CopyHelper toCopy={account} copyText="Copy Address" />}
         {chainId && account && (
-          <TinyButton
+          <TinyThemeButton
             href={getChainExplorerLink(chainId, account, "address")}
             icon={LinkIcon}
             text={`View on ${MATIC_CHAINS.includes(chainId) ? 'PolygonScan' : 'Etherscan'}`}
@@ -222,13 +222,13 @@ export const AccountDetails = ({
         <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} chainName={chainName} />
       </section>
       <section>
-        {!process.env.HIDE_FAUCET && <TinyButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
-        <TinyButton action={() => openOptions()} text="Switch Wallet" />
+        {!process.env.HIDE_FAUCET && <TinyThemeButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
+        <TinyThemeButton action={() => openOptions()} text="Switch Wallet" />
         {connector !== injected && notWalletLink && (
-          <TinyButton action={() => (connector as any).disconnect()} text="Sign Out" />
+          <TinyThemeButton action={() => (connector as any).disconnect()} text="Sign Out" />
         )}
         {connector === injected && notWalletLink && (
-          <TinyButton
+          <TinyThemeButton
             action={() => {
               logout();
               // setTimeout allows lastUser localStorage to be cleared before calling deactivate,
