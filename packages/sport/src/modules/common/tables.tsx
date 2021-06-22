@@ -1,7 +1,7 @@
 import React from "react";
 import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
-import { Utils, PaginationComps, ButtonComps } from "@augurproject/comps";
+import { Utils, ButtonComps, PaginationComps } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
@@ -27,7 +27,6 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
             // setPage(page);
             console.log("set page", page);
           }}
-          updateLimit={null}
         />
       )}
     </section>

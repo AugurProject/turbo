@@ -1,85 +1,75 @@
 @import (reference) '~assets/styles/shared';
 
-.Pagination {
+.Pagination > section {
   display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
 
-  > div {
-    margin-bottom: @size-48;
-    margin-left: @size-16;
-
-    @media @breakpoint-mobile {
-      margin: @size-16 0 @size-48 0;
-    }
+  > span {
+    white-space: nowrap;
+    margin: 0 @size-16;
   }
 
-  button {
-    background: transparent;
-  }
+  > button {
+    min-height: @size-40;
+    max-height: @size-40;
+    height: @size-40;
 
-  button > span {
-    padding-right: @size-8;
-  }
+    max-width: @size-40;
+    min-width: @size-40;
+    width: @size-40;
+    padding: 0;
 
-  button > span::before {
-    content: 'Show:';
-
-    font-weight: normal;
-    padding-right: @size-4;
-  }
-
-  @media @breakpoint-mobile {
-    align-items: center;
-    flex-direction: column;
-  }
-
-  > section {
-    align-content: center;
-    display: flex;
-
-    > span {
-      .text-12;
-  
-      color: var(--simples-primary-text);
-      display: flex;
-      margin: auto;
-      white-space: nowrap;
-
-      @media @breakpoint-mobile {
-        display: block;
-        padding: 0 @size-16;
-        margin: auto 0;
+    &:first-of-type {
+      > svg {
+        height: @size-12;
+        width: @size-12;
+        margin: 0;
+        transform: rotate(90deg);
+        transform-origin: 50% 50%;
       }
     }
+
+    &:last-of-type {
+      > svg {
+        height: @size-12;
+        width: @size-12;
+        margin: 0;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+      }
+    }
+
+    &:not(:disabled) {
+      &:focus {
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: initial;
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: initial;
+          }
+        }
+      }
+
+      &:not(:active):focus {
+        padding: 0;
+      }
+    }
+  }
+
+  @media @breakpoint-mobile-tablet {
+    width: 100%;
 
     > button {
-      margin-right: @size-16;
-
-      &:last-of-type {
-        margin-right: 0;
-        margin-left: @size-16;
-      }
+      max-width: unset;
+      width: unset;
+      flex: 1 100%;
     }
   }
-}
-
-.Active {
-  color: var(--color-primary-text);
-  font-weight: bold;
-
-  &::after {
-    background: var(--color-primary-text);
-    border-radius: @border-radius-default;
-    content: ' ';
-    display: block;
-    height: @size-2;
-    margin: 0 auto;
-    width: @size-16;
-  }
-}
-
-.PaginationContainer {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  margin: @size-32;
 }
