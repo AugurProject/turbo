@@ -21,7 +21,7 @@ const {
   ButtonComps: { SearchButton, SecondaryButton },
   Icons: { FilterIcon },
   MarketCardComps: { LoadingMarketCard },
-  PaginationComps: { sliceByPage, Pagination },
+  PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
 } = Components;
 const {
@@ -324,7 +324,6 @@ const MarketsView = () => {
             action={(page) => {
               setPage(page);
             }}
-            updateLimit={null}
           />
         )}
       </article>

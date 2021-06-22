@@ -1,13 +1,14 @@
 import React from 'react';
 import Styles from './pagination.styles.less';
-import { DirectionButton } from './buttons';
+import { SecondaryThemeButton } from './buttons';
+import { SimpleChevron } from './icons';
 
 export interface PaginationProps {
   page: number;
   itemsPerPage: number;
   itemCount: number;
   action: Function;
-  updateLimit: Function;
+  updateLimit?: Function;
   showLimitChanger?: boolean;
   maxLimit?: number;
   showPagination?: boolean;
@@ -89,9 +90,6 @@ export const Pagination = ({
   action,
   itemCount,
   itemsPerPage,
-  updateLimit,
-  showLimitChanger,
-  maxLimit,
   showPagination = true,
 }: PaginationProps) => {
   const totalPages =
@@ -101,15 +99,16 @@ export const Pagination = ({
     <div className={Styles.Pagination}>
       {showPagination && (
         <section>
-          <DirectionButton
+          <SecondaryThemeButton
             action={() => action(page - 1)}
-            left
             disabled={page === 1}
+            icon={SimpleChevron}
           />
           <span>Page {page} of {totalPages}</span>
-          <DirectionButton
+          <SecondaryThemeButton
             action={() => action(page + 1)}
             disabled={page === totalPages || totalPages === 0}
+            icon={SimpleChevron}
           />
         </section>
       )}
