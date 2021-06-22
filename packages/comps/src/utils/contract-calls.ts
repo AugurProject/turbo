@@ -375,7 +375,7 @@ export const estimateBuyTrade = (
   return {
     outputValue: trimDecimalValue(estimatedShares),
     tradeFees,
-    averagePrice: averagePrice.toFixed(2),
+    averagePrice: averagePrice.toFixed(4),
     maxProfit,
     ratePerCash,
     priceImpact,
