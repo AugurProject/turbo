@@ -87,6 +87,10 @@ export interface ActiveBetType {
   canCashOut: boolean;
   hasCashedOut: boolean;
   hash: string;
+  cashOutHash?: string;
+  outcomeId: number;
+  isApproved: boolean;
+  cashoutAmount: string;
 }
 
 const { TX_STATUS } = Constants;

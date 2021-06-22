@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
+import { BigNumber as BN } from "bignumber.js";
 import { DEFAULT_BETSLIP_STATE, STUBBED_BETSLIP_ACTIONS } from "../stores/constants";
 import { useBetslip } from "./betslip-hooks";
 import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/comps";
 import { useSportsStore } from "./sport";
 import { PositionBalance } from "@augurproject/comps/build/types";
-import { getBuyAmount } from "modules/utils";
 const { convertOnChainCashAmountToDisplayCashAmount, formatDai, isSameAddress } = Formatter;
 const { SPORTS_MARKET_TYPE_LABELS, TX_STATUS } = Constants;
 export const BetslipContext = React.createContext({
@@ -44,9 +44,10 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
       const { market } = ammExchange;
       const marketEvent = marketEvents[market.eventId];
       const tradeOutcomeId = parseInt(lastTrade.outcome);
-      const outcomePosition = positions.find(p => p.outcomeId === tradeOutcomeId);
+      const outcomePosition: PositionBalance = positions.find(p => p.outcomeId === tradeOutcomeId);
       const collateral = convertOnChainCashAmountToDisplayCashAmount(lastTrade?.collateral, 6);
-      const toWin = getBuyAmount(ammExchange, tradeOutcomeId, outcomePosition?.initCostUsd);
+      // since trading in USDC one share max value is 1 USDC
+      const toWin = new BN(outcomePosition.quantity).minus(new BN(outcomePosition.initCostUsd));
       const { name } = ammExchange.ammOutcomes.find(outcome => outcome.id === tradeOutcomeId);
       const updatedActiveBet = {
         heading: `${marketEvent?.description}`,
@@ -54,13 +55,17 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
         name,
         price: lastTrade.price,
         wager: formatDai(collateral.abs()).formatted,
-        toWin: formatDai(toWin?.maxProfit).formatted,
+        toWin: formatDai(toWin).formatted,
         timestamp: Number(lastTrade.timestamp),
         status: TX_STATUS.CONFIRMED,
         canCashOut: false,
         hasCashedOut: false,
         hash: lastTrade.transactionHash,
         betId: `${lastTrade.marketId.id}-${tradeOutcomeId}`,
+        marketId: market.marketId,
+        size: outcomePosition.quantity,
+        outcomeId: outcomePosition.outcomeId,
+        cashoutAmount: 0,
       };
       return updatedActiveBet;
     });

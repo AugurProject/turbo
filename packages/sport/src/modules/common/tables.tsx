@@ -3,6 +3,10 @@ import Styles from "./tables.styles.less";
 import { useSportsStore } from "../stores/sport";
 import { Utils, PaginationComps, ButtonComps } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
+import { formatDai } from "@augurproject/comps/build/utils/format-number";
+import { approveCashOut, makeCashOut } from "modules/utils";
+import { useUserStore } from "@augurproject/comps";
+import { useDataStore } from "@augurproject/comps";
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
@@ -58,6 +62,11 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
+  const {
+    account,
+    loginAccount,
+  } = useUserStore();
+  const { markets } = useDataStore();
   const determineClasses = ({ canCashOut, hasCashedOut }) => ({
     [Styles.CanCashOut]: canCashOut,
     [Styles.hasCashedOut]: hasCashedOut,
@@ -73,6 +82,13 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         <li></li>
       </ul>
       {Object.entries(bets).map(([tx_hash, bet]) => {
+        const market = markets[bet.marketId]
+        const cashout = formatDai(bet.cashoutAmount).formatted;
+        const buttonName = !bet.hasCashedOut && !bet.canCashOut
+          ? "CASHOUT NOT AVAILABLE"
+          : !bet.isApproved ? `APPROVE CASHOUT $${cashout}` : bet.hasCashedOut
+            ? `WON: $${cashout}`
+            : `CASHOUT: $${cashout}`;
         return (
           <ul key={tx_hash}>
             <li>
@@ -86,15 +102,9 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>
               <TinyThemeButton
                 customClass={determineClasses(bet)}
-                action={() => {}}
+                action={!bet.isApproved ? () => approveCashOut(loginAccount, bet, market) : () => makeCashOut(loginAccount, bet, market)}
                 disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
-                text={
-                  !bet.hasCashedOut && !bet.canCashOut
-                    ? "CASHOUT NOT AVAILABLE"
-                    : bet.hasCashedOut
-                    ? `WON: $${bet.cashoutAmount}`
-                    : `CASHOUT: $${bet.cashoutAmount}`
-                }
+                text={buttonName}
               />
             </li>
           </ul>

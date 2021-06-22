@@ -3,7 +3,7 @@ import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
-import { BetType } from "../stores/constants";
+import { ActiveBetType, BetType } from "../stores/constants";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
 import {
   ButtonComps,
@@ -309,8 +309,8 @@ const EditableBet = ({ betId, bet }) => {
 const LabeledInput = ({
   label,
   value = null,
-  onEdit = (e) => {},
-  onBlur = (e) => {},
+  onEdit = (e) => { },
+  onBlur = (e) => { },
   isInvalid = false,
   disabled = false,
 }) => {
@@ -342,7 +342,7 @@ const LabeledInput = ({
   );
 };
 
-const BetReciept = ({ tx_hash, bet }) => {
+const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
@@ -358,11 +358,7 @@ const BetReciept = ({ tx_hash, bet }) => {
     class: { [Styles.Pending]: true },
     action: () => console.log("nothing happens"),
   };
-  let disableCashout = false;
-  //TODO: do this for real, this is just for mocks stake
-  if (tx_hash === "0xtxHash03") {
-    disableCashout = true;
-  }
+
   switch (status) {
     case TX_STATUS.CONFIRMED: {
       txStatus.class = {
@@ -383,6 +379,12 @@ const BetReciept = ({ tx_hash, bet }) => {
       break;
   }
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const cashout = formatDai(bet.cashoutAmount).formatted;
+  const buttonName = !bet.hasCashedOut && !bet.canCashOut
+    ? "CASHOUT NOT AVAILABLE"
+    : !bet.isApproved ? `APPROVE CASHOUT $${cashout}` : bet.hasCashedOut
+      ? `WON: $${cashout}`
+      : `CASHOUT: $${cashout}`;
 
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
@@ -403,8 +405,8 @@ const BetReciept = ({ tx_hash, bet }) => {
         {(canCashOut || hasCashedOut) && (
           <div className={classNames(Styles.Cashout, txStatus.class)}>
             {hasCashedOut && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-            <button disabled={disableCashout}>
-              {disableCashout ? "Cashout not available" : `cash${hasCashedOut ? "ed" : ""} out: $${bet.toWin}`}
+            <button disabled={bet.hasCashedOut}>
+              {buttonName}
             </button>
           </div>
         )}
@@ -479,9 +481,9 @@ const BetslipFooter = () => {
   const { totalWager, totalToWin } = onBetslip
     ? determineBetTotals(bets)
     : {
-        totalWager: ZERO,
-        totalToWin: ZERO,
-      };
+      totalWager: ZERO,
+      totalToWin: ZERO,
+    };
   return (
     <footer>
       {onBetslip ? (
