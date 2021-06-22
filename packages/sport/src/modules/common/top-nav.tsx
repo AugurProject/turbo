@@ -92,18 +92,18 @@ export const SettingsButton = () => {
             <label htmlFor="betSize">Bet Size to odds display</label>
             <div>
               <TinyThemeButton
-                customClass={{ [Styles.Active]: "5" === betSizeToOdds }}
-                action={() => betSizeToOdds !== "5" && updateSettings({ betSizeToOdds: "5" }, account)}
+                customClass={{ [Styles.Active]: ".05" === betSizeToOdds }}
+                action={() => betSizeToOdds !== ".05" && updateSettings({ betSizeToOdds: ".05" }, account)}
                 text="5%"
               />
                <TinyThemeButton
-                customClass={{ [Styles.Active]: "10" === betSizeToOdds }}
-                action={() => betSizeToOdds !== "10" && updateSettings({ betSizeToOdds: "10" }, account)}
+                customClass={{ [Styles.Active]: ".10" === betSizeToOdds }}
+                action={() => betSizeToOdds !== ".10" && updateSettings({ betSizeToOdds: ".10" }, account)}
                 text="10%"
               />
                <TinyThemeButton
-                customClass={{ [Styles.Active]: "15" === betSizeToOdds }}
-                action={() => betSizeToOdds !== "15" && updateSettings({ betSizeToOdds: "15" }, account)}
+                customClass={{ [Styles.Active]: ".15" === betSizeToOdds }}
+                action={() => betSizeToOdds !== ".15" && updateSettings({ betSizeToOdds: ".15" }, account)}
                 text="15%"
               />
             </div>

@@ -185,7 +185,7 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
 
 const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) => {
   const {
-    settings: { oddsFormat },
+    settings: { oddsFormat, betSizeToOdds },
   } = useSportsStore();
   const {
     bets,
@@ -194,8 +194,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
   const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
   const { spreadLine, overUnderLine } = marketEvent;
-  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, eventOutcomeId), [
+  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, eventOutcomeId, betSizeToOdds), [
     spreadMarket.amm.ammOutcomes[eventOutcomeId].balance,
+    betSizeToOdds,
   ]);
   const spreadOdds = useMemo(
     () =>
@@ -204,8 +205,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         : "-",
     [spreadSizePrice, oddsFormat]
   );
-  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket.amm, eventOutcomeId), [
+  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket.amm, eventOutcomeId, betSizeToOdds), [
     moneyLineMarket.amm.ammOutcomes[eventOutcomeId].balance,
+    betSizeToOdds,
   ]);
   const moneyLineOdds = useMemo(
     () =>
@@ -214,8 +216,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         : "-",
     [moneyLineSizePrice, oddsFormat]
   );
-  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket.amm, eventOutcomeId), [
+  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket.amm, eventOutcomeId, betSizeToOdds), [
     OUMarket.amm.ammOutcomes[eventOutcomeId].balance,
+    betSizeToOdds,
   ]);
   const OUOdds = useMemo(
     () => (OUSizePrice ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
@@ -295,14 +298,14 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
 const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, sportsMarketType }) => {
   const {
     marketEvents,
-    settings: { oddsFormat },
+    settings: { oddsFormat, betSizeToOdds },
   } = useSportsStore();
   const {
     bets,
     actions: { addBet },
   } = useBetslipStore();
   const { id, name } = outcome;
-  const sizedPrice = useMemo(() => getSizedPrice(amm, id), [outcome.balance]);
+  const sizedPrice = useMemo(() => getSizedPrice(amm, id, betSizeToOdds), [outcome.balance, betSizeToOdds]);
   const odds = useMemo(
     () => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"),
     [sizedPrice, oddsFormat]
