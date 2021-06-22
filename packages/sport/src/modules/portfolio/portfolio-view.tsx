@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
-import { ContractCalls, Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
+import { Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
@@ -42,18 +42,17 @@ const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber, ids
 
 export const getClaimAllMessage = (cash: Cash): string => `Claim All ${cash?.name} Winnings`;
 
-const handleClaimAll = (loginAccount, ids, factoryAddress, addTransaction, setPendingClaim) => {
+const handleClaimAll = async (loginAccount, ids, factoryAddress, addTransaction, setPendingClaim) => {
   const from = loginAccount?.account;
   if (from) {
     setPendingClaim(true);
-    const txDetails = claimAll(loginAccount?.library, ids, factoryAddress)
-    // handle transaction response here
+    const txDetails = await claimAll(loginAccount, ids, factoryAddress).catch(e => console.error(e));
     setPendingClaim(false);
-    addTransaction(txDetails);
+    if (txDetails) addTransaction(txDetails);
   }
 };
 
-const ClaimableTicket = ({ key, amount, cash, USDCTotal }) => {
+const ClaimableTicket = ({ amount, cash, USDCTotal }) => {
   const {
     loginAccount,
     transactions,
@@ -61,17 +60,16 @@ const ClaimableTicket = ({ key, amount, cash, USDCTotal }) => {
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
   const disableClaimUSDCWins =
-  Boolean(transactions.find((t) => t.message === getClaimAllMessage(cash) && t.status === TX_STATUS.PENDING));
+    Boolean(transactions.find((t) => t.message === getClaimAllMessage(cash) && t.status === TX_STATUS.PENDING));
 
   return (
-    <section className={Styles.ClaimableTicket} key={key}>
+    <section className={Styles.ClaimableTicket}>
       {WinnerMedal}
       <p>
         You have <b>{amount}</b> in winnings to claim in markets
     </p>
       <PrimaryThemeButton
         text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
-        subText={pendingClaim && `(Confirm this transaction in your wallet)`}
         disabled={pendingClaim || disableClaimUSDCWins}
         action={() => {
           handleClaimAll(
@@ -102,8 +100,7 @@ export const ClaimWinningsSection = () => {
     <div className={Styles.ClaimableWinningsSection}>
       {isLogged && !hasWinnings && <div>{WinnerMedal} Any winnings will show here</div>}
       {isLogged && hasWinnings && USDCTotals.map(USDCTotal => (
-        <ClaimableTicket
-          key={USDCTotal.address}
+        <ClaimableTicket          
           amount={formatCash(USDCTotal.total, usdcCash?.name).full}
           cash={usdcCash}
           USDCTotal={USDCTotal}

@@ -16,7 +16,7 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
   return (
     <section className={Styles.EventBetsSection}>
       {EventDataEntries.map(([EventId, Event]) => (
-        <EventBetsTable {...{ Event }} />
+        <EventBetsTable {...{ Event, key: EventId }} />
       ))}
       {EventDataEntries.length > 0 && (
         <Pagination
@@ -74,7 +74,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
       </ul>
       {Object.entries(bets).map(([tx_hash, bet]) => {
         return (
-          <ul>
+          <ul key={tx_hash}>
             <li>
               <span>{bet.name}</span>
               <span>{bet.marketEventType}</span>

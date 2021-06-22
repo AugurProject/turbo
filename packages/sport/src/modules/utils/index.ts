@@ -121,21 +121,27 @@ export const makeBet = async (
 
 export const claimMarketWinnings = async (
   loginAccount: LoginAccount,
-  amm: AmmExchange,
+  amm: AmmExchange
 ): Promise<TransactionDetails> => {
   if (amm && loginAccount && loginAccount?.account) {
     const { marketFactoryAddress, turboId } = amm?.market;
-    return claimAll(loginAccount, [turboId], marketFactoryAddress);
+    return claimAll(loginAccount, [String(turboId)], marketFactoryAddress);
   }
+  return null;
 };
 
 export const claimAll = async (
   loginAccount: LoginAccount,
   marketIndexes: string[],
-  marketFactoryAddress: string,
+  marketFactoryAddress: string
 ): Promise<TransactionDetails> => {
-  if (loginAccount && loginAccount?.account) {
-    const response = claimWinnings(loginAccount?.account, loginAccount?.library, marketIndexes, marketFactoryAddress);
+  if (loginAccount?.account) {
+    const response = await claimWinnings(
+      loginAccount?.account,
+      loginAccount?.library,
+      marketIndexes,
+      marketFactoryAddress
+    );
     return {
       hash: response?.hash,
       chainId: String(loginAccount.chainId),
@@ -147,4 +153,5 @@ export const claimAll = async (
       marketDescription: `Claim Winnings`,
     };
   }
+  return null;
 };
