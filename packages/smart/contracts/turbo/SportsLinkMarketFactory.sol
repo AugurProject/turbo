@@ -20,11 +20,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 indexed eventId,
         uint256 homeTeamId,
         uint256 awayTeamId,
-        uint256 estimatedStarTime,
+        uint256 estimatedStartTime,
         int256 score
     );
     event MarketResolved(uint256 id, address winner);
-
     event LinkNodeChanged(address newLinkNode);
 
     enum MarketType {HeadToHead, Spread, OverUnder}
@@ -43,9 +42,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         Over, // 1
         Under // 2
     }
-
-    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
-
     struct MarketDetails {
         uint256 eventId;
         uint256 homeTeamId;
@@ -61,8 +57,25 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
-    // EventId => [MarketId]
-    mapping(uint256 => uint256[3]) public events;
+
+    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+    struct EventDetails {
+        uint256[3] markets;
+        uint256 startTime;
+        uint256 homeScore;
+        uint256 awayScore;
+        EventStatus status;
+        // If there is a resolution time then the market is resolved but not necessarily finalized.
+        // A market is finalized when its last two score updates were identical.
+        // Score updates must occur after a period of time spedcified by resolutionBuffer.
+        // This mechanism exists to reduce the risk of bad scores being sent by the API then later corrected.
+        // The downside is slower resolution.
+        uint256 resolutionTime; // time since last score update
+        bool finalized; // true after event resolves and has stable scores
+    }
+    // EventId => EventDetails
+    mapping(uint256 => EventDetails) public events;
+    uint256[] public listOfEvents;
 
     address public linkNode;
     uint256 public sportId;
@@ -110,7 +123,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
-        _ids = events[_eventId];
+        _ids = events[_eventId].markets;
 
         if (_ids[0] == 0) {
             _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
@@ -142,7 +155,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             );
         }
 
-        events[_eventId] = _ids;
+        events[_eventId].status = EventStatus.Scheduled;
+        events[_eventId].startTime = _startTimestamp;
+        events[_eventId].markets = _ids;
+        listOfEvents.push(_eventId);
     }
 
     function createHeadToHeadMarket(
@@ -285,7 +301,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         require(msg.sender == linkNode, "Only link node can resolve markets");
 
         (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
-        uint256[3] memory _ids = events[_eventId];
+
+        EventDetails storage _event = events[_eventId];
+        uint256[3] memory _ids = _event.markets;
+
         require(_ids[0] != 0 || _ids[1] != 0 || _ids[2] != 0, "Cannot resolve markets that weren't created");
 
         require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
@@ -388,20 +407,20 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
 
     function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
-        uint256[3] memory _event = events[_eventId];
+        uint256[3] memory _event = events[_eventId].markets;
         return _event;
     }
 
     // Events can be partially registered, by only creating some markets.
     // This returns true only if an event is fully registered.
     function isEventRegistered(uint256 _eventId) public view returns (bool) {
-        uint256[3] memory _event = events[_eventId];
+        uint256[3] memory _event = events[_eventId].markets;
         return _event[0] != 0 && _event[1] != 0 && _event[2] != 0;
     }
 
     function isEventResolved(uint256 _eventId) public view returns (bool) {
-        // check the event's head-to-head market since it will always exist if of the event's markets exist
-        uint256 _marketId = events[_eventId][0];
+        // check the event's head-to-head market since it will always exist if the event's markets exist
+        uint256 _marketId = events[_eventId].markets[0];
         return isMarketResolved(_marketId);
     }
 
@@ -502,5 +521,52 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
             _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
             _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
         }
+    }
+
+    // Only usable off-chain. Gas cost can easily eclipse block limit.
+    // Lists all events that could be resolved with a call to resolveEvent.
+    // Not all will be resolvable because this does not ensure the game ended.
+    function listResolvableEvents() external view returns (uint256[] memory) {
+        uint256 _totalResolvable = countResolvableEvents();
+        uint256[] memory _resolvableEvents = new uint256[](_totalResolvable);
+
+        uint256 n = 0;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            if (n > _totalResolvable) break;
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _resolvableEvents[n] = _eventId;
+                n++;
+            }
+        }
+
+        return _resolvableEvents;
+    }
+
+    function countResolvableEvents() internal view returns (uint256) {
+        uint256 _totalResolvable = 0;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _totalResolvable++;
+            }
+        }
+        return _totalResolvable;
+    }
+
+    // Returns true if a call to resolveEvent is potentially useful.
+    function isEventResolvable(uint256 _eventId) internal view returns (bool) {
+        EventDetails memory _event = events[_eventId];
+
+        bool _unresolved = false; // default because non-existing markets aren't resolvable
+        for (uint256 i = 0; i < _event.markets.length; i++) {
+            uint256 _marketId = _event.markets[i];
+            if (_marketId != 0 && !isMarketResolved(_marketId)) {
+                _unresolved = true;
+                break;
+            }
+        }
+
+        return _unresolved;
     }
 }
