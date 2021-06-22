@@ -2,24 +2,15 @@
 Sport ID: 7
 Notes
 - The fighter IDs are sent in resolution because if a fighter is substituted, the market resolves as No Contest.
-- MMA has only Head-to-Head and Over-Under markets.
-  Likewise, MMA doesn't have scores for H2H, just a winner.
-- There's no score.
-  The O-U markets are for match length.
-  The integer component is how many rounds have started (TODO verify w chwy).
-  The decimal component is irrelevant.
-- The rundown API gives total_over and total_under but they are the same.
-  TODO verify
+- MMA has only Head-to-Head markets.
+- There's no score, just a winner.
 - Fighter name and ID are given. Name is used for TBD check but mostly for UI.
   ID is used for resolution since it won't ever be duplicated.
-- TODO how to handle total score?
-  They use e.g. 2.5 for the line but the event mentioned 3 rounds.
-  Chwy says this differs by book so there's no way to be sure without knowing the specific book's behavior.
- 
  
 Run two cron jobs: creation and resolution.
  
 These are the values to get from the API.
+
 | Value                | Rundown API Path                                          | Use                                           |
 |----------------------|-----------------------------------------------------------|-----------------------------------------------|
 | `eventId`            | `event.event_id`                                          | referencing the event                         |
@@ -30,7 +21,6 @@ These are the values to get from the API.
 | `startTimestamp`     | `Date.parse(event.event_date)`                            | UI shows date                                 |
 | `moneyLineHome`      | `event.lines[9].moneyline.moneyline_home`                 | initial odds for head-to-head markets         |
 | `moneyLineAway`      | `event.lines[9].moneyline.moneyline_away`                 | initial odds for head-to-head markets         |
-| `totalScore`         | `event.lines[9].total.total_over`                         | target score for over-under market resolution |
 | `homeWon`            | `event.score.winner_home`                                 | resolving markets                             |
 | `eventStatus`        | `event.score.event_status`                                | resolving markets                             |
 | `eventStatusDetails` | `event.score.event_status_details`                        | if TBD then do not create markets             |
@@ -50,14 +40,13 @@ This cron job runs at least once per day.
 Get every event matching these criteria:
 1. Occurs no more than 7 days in the future.
 2. Occurs at least one day in the future.
-3. Its moneylineHome, moneylineAway, and totalScore lines have values that are NOT `0.0001`.
+3. Its moneylineHome and moneylineAway lines have values that are NOT `0.0001`.
 4. Its eventStatusDetails is NOT `"TBD"`.
 5. Neither homeFighter nor awayFighter are the TBD fighter, which is the fighter with name `Opponent TBA`.
 6. The event has not already been used to create markets.
 
 Then for each remaining event, make this call:
 
-CreateEvent
 ```typescript
 contract.createMarket(
   eventId,
@@ -67,8 +56,7 @@ contract.createMarket(
   awayFighterId,
   startTimestamp,
   moneylineHome,
-  moneylineAway,
-  totalScore,
+  moneylineAway
 )
 ```
 
@@ -85,14 +73,12 @@ This cron job runs every two hours.
 3. Filter out events whose eventStatus is `STATUS_SCHEDULED`.
 4. For each remaining event, make this call:
 
-   CreateEvent
    ```typescript
    contract.trustedResolveMarkets(
      eventId,
      eventStatus,
      homeFighterId,
      awayFighterId,
-     homeWon,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-     totalScore                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+     homeWon
    )
    ```
