@@ -75,6 +75,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
     // EventId => EventDetails
     mapping(uint256 => EventDetails) public events;
+    uint256[] public listOfEvents;
 
     address public linkNode;
     uint256 public sportId;
@@ -157,6 +158,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         events[_eventId].status = EventStatus.Scheduled;
         events[_eventId].startTime = _startTimestamp;
         events[_eventId].markets = _ids;
+        listOfEvents.push(_eventId);
     }
 
     function createHeadToHeadMarket(
@@ -525,46 +527,31 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     // Lists all events that could be resolved with a call to resolveEvent.
     // Not all will be resolvable because this does not ensure the game ended.
     function listResolvableEvents() external view returns (uint256[] memory) {
-        uint256[] memory _unresolvedMarkets = listUnresolvedMarkets();
-
-        uint256 _totalUnresolved = 0;
-        uint256[] memory _allUnresolvedEvents = new uint256[](_unresolvedMarkets.length);
-        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
-            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
-            bool _uniqueEvent = true;
-            for (uint256 j = 0; j < _allUnresolvedEvents.length; j++) {
-                if (_allUnresolvedEvents[j] == _eventId) {
-                    _uniqueEvent = false;
-                    break;
-                }
-            }
-            if (_uniqueEvent && isEventResolvable(_eventId)) {
-                _totalUnresolved++;
-                _allUnresolvedEvents[i] = _eventId;
-            }
-        }
-
-        uint256[] memory _uniqueUnresolvedEvents = new uint256[](_totalUnresolved);
+        uint256 _totalResolvable = countResolvableEvents();
+        uint256[] memory _resolvableEvents = new uint256[](_totalResolvable);
 
         uint256 n = 0;
-        for (uint256 i = 0; i < _unresolvedMarkets.length; i++) {
-            if (n >= _totalUnresolved) break;
-
-            uint256 _eventId = marketDetails[_unresolvedMarkets[i]].eventId;
-            bool _uniqueEvent = true;
-            for (uint256 j = 0; j < n; j++) {
-                if (_uniqueUnresolvedEvents[j] == _eventId) {
-                    _uniqueEvent = false;
-                    break;
-                }
-            }
-            if (_uniqueEvent && isEventResolvable(_eventId)) {
-                _uniqueUnresolvedEvents[n] = _eventId;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            if (n > _totalResolvable) break;
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _resolvableEvents[n] = _eventId;
                 n++;
             }
         }
 
-        return _uniqueUnresolvedEvents;
+        return _resolvableEvents;
+    }
+
+    function countResolvableEvents() internal view returns (uint256) {
+        uint256 _totalResolvable = 0;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _totalResolvable++;
+            }
+        }
+        return _totalResolvable;
     }
 
     // Returns true if a call to resolveEvent is potentially useful.
