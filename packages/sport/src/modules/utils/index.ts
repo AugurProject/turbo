@@ -52,7 +52,7 @@ export const estimatedCashOut = (amm: AmmExchange, bet: ActiveBetType): string =
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
-export const makeCashOut = async (
+const makeCashOut = async (
   loginAccount: LoginAccount,
   bet: ActiveBetType,
   market: MarketInfo
@@ -173,7 +173,7 @@ export const isCashOutApproved = async (
   return result === ApprovalState.APPROVED;
 };
 
-export const approveCashOut = async (
+const approveCashOut = async (
   loginAccount: LoginAccount,
   bet: ActiveBetType,
   market: MarketInfo
@@ -182,4 +182,12 @@ export const approveCashOut = async (
   const { amm } = market;
   const shareToken = market.shareTokens[outcomeId];
   return await approveERC20Contract(shareToken, "Cashout", amm.ammFactoryAddress, loginAccount);
+};
+
+export const approveOrCashOut = async (
+  loginAccount: LoginAccount,
+  bet: ActiveBetType,
+  market: MarketInfo
+): Promise<TransactionDetails> => {
+  return (await bet.isApproved) ? makeCashOut(loginAccount, bet, market) : approveCashOut(loginAccount, bet, market);
 };

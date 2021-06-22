@@ -207,7 +207,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 2000,
         cashoutAmount: "0.00",
         canCashOut: true,
-        hasCashedOut: false,
       },
       "0xfaketxhash02": {
         marketId: "0xfakeMarket02",
@@ -220,7 +219,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 2500,
         cashoutAmount: "5.60",
         canCashOut: false,
-        hasCashedOut: true,
       },
       "0xfaketxhash03": {
         marketId: "0xfakeMarket03",
@@ -233,7 +231,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 3050,
         cashoutAmount: "0.00",
         canCashOut: true,
-        hasCashedOut: false,
       },
     },
   },
@@ -253,7 +250,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 2000,
         cashoutAmount: "0.00",
         canCashOut: true,
-        hasCashedOut: false,
       },
     },
   },
@@ -273,7 +269,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 7000,
         cashoutAmount: "0.00",
         canCashOut: true,
-        hasCashedOut: false,
       },
       "0xfaketxhash06": {
         marketId: "0xfakeMarket06",
@@ -286,7 +281,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 7500,
         cashoutAmount: "5.60",
         canCashOut: false,
-        hasCashedOut: true,
       },
       "0xfaketxhash07": {
         marketId: "0xfakeMarket07",
@@ -299,7 +293,6 @@ const MOCK_EVENT_POSITIONS_DATA = {
         timestamp: now - 8050,
         cashoutAmount: "0.00",
         canCashOut: false,
-        hasCashedOut: false,
       },
     },
   },

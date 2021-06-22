@@ -4,9 +4,11 @@ import { useSportsStore } from "../stores/sport";
 import { Utils, PaginationComps, ButtonComps } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 import { formatDai } from "@augurproject/comps/build/utils/format-number";
-import { approveCashOut, makeCashOut } from "modules/utils";
+import { approveOrCashOut } from "modules/utils";
 import { useUserStore } from "@augurproject/comps";
 import { useDataStore } from "@augurproject/comps";
+import { CASHOUT_NOT_AVAILABLE } from "modules/constants";
+import { useBetslipStore } from "modules/stores/betslip";
 const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
@@ -63,14 +65,25 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
   const {
-    account,
+    actions: { updateActive },
+  } = useBetslipStore();
+  const {
     loginAccount,
+    actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, hasCashedOut }) => ({
+  const determineClasses = ({ canCashOut }) => ({
     [Styles.CanCashOut]: canCashOut,
-    [Styles.hasCashedOut]: hasCashedOut,
   });
+
+  const doApproveOrCashOut = async (loginAccount, bet, market) => {
+    const txDetails = await approveOrCashOut(loginAccount, bet, market);
+    if (txDetails?.hash) {
+      addTransaction(txDetails);
+      updateActive({ ...bet, hash: txDetails.hash })
+    }
+  }
+
   return (
     <main className={Styles.EventTableMain}>
       <ul>
@@ -82,28 +95,29 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         <li></li>
       </ul>
       {Object.entries(bets).map(([tx_hash, bet]) => {
-        const market = markets[bet.marketId]
-        const cashout = formatDai(bet.cashoutAmount).formatted;
-        const buttonName = !bet.hasCashedOut && !bet.canCashOut
-          ? "CASHOUT NOT AVAILABLE"
-          : !bet.isApproved ? `APPROVE CASHOUT $${cashout}` : bet.hasCashedOut
-            ? `WON: $${cashout}`
+        const { marketId, cashoutAmount, price, marketEventType, name, wager, toWin, isApproved, canCashOut, isPending, timestamp } = bet;
+        const market = markets[marketId]
+        const cashout = formatDai(cashoutAmount).formatted;
+        const buttonName = !canCashOut
+          ? CASHOUT_NOT_AVAILABLE
+          : !isApproved ? `APPROVE CASHOUT $${cashout}` : isPending
+            ? `PENDING $${cashout}`
             : `CASHOUT: $${cashout}`;
         return (
           <ul key={tx_hash}>
             <li>
-              <span>{bet.name}</span>
-              <span>{bet.marketEventType}</span>
+              <span>{name}</span>
+              <span>{marketEventType}</span>
             </li>
-            <li>${bet.wager}</li>
-            <li>{convertToOdds(convertToNormalizedPrice({ price: bet.price }), oddsFormat).full}</li>
-            <li>{bet.toWin && bet.toWin !== "0" ? `$${bet.toWin}` : "-"}</li>
-            <li>{getMarketEndtimeFull(bet.timestamp, timeFormat)}</li>
+            <li>${wager}</li>
+            <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
+            <li>{toWin && toWin !== "0" ? `$${toWin}` : "-"}</li>
+            <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
                 customClass={determineClasses(bet)}
-                action={!bet.isApproved ? () => approveCashOut(loginAccount, bet, market) : () => makeCashOut(loginAccount, bet, market)}
-                disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
+                action={() => doApproveOrCashOut(loginAccount, bet, market)}
+                disabled={isPending || !canCashOut}
                 text={buttonName}
               />
             </li>

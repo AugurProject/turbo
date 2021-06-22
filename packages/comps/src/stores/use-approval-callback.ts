@@ -339,7 +339,7 @@ export const approveERC20Contract = async (
     const { hash } = response;
     return {
       hash,
-      chainId,
+      chainId: String(chainId),
       addedTime: new Date().getTime(),
       seen: false,
       status: TX_STATUS.PENDING,

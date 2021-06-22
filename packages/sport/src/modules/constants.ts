@@ -84,6 +84,7 @@ export const MARKET_STATUS = {
   SETTLED: "SETTLED",
 };
 
+export const CASHOUT_NOT_AVAILABLE = "CASHOUT NOT AVAILABLE";
 export const categoryItems = [
   {
     label: ALL_MARKETS,

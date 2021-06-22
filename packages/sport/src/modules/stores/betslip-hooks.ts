@@ -150,9 +150,7 @@ export const useActiveBets = (blocknumber) => {
         const isApproved = await isCashOutApproved(loginAccount, activeBet, market, transactions);
         updateActive({
           ...active[id],
-          hasCashedOut: Boolean(
-            transactions.find((t) => t.hash === activeBet.cashOutHash && t.status === TX_STATUS.PENDING)
-          ),
+          isPending: Boolean(transactions.find((t) => t.hash === activeBet.hash && t.status === TX_STATUS.PENDING)),
           cashoutAmount,
           canCashOut: cashoutAmount !== null,
           isApproved,

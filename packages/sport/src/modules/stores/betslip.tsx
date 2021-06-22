@@ -59,7 +59,6 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
         timestamp: Number(lastTrade.timestamp),
         status: TX_STATUS.CONFIRMED,
         canCashOut: false,
-        hasCashedOut: false,
         hash: lastTrade.transactionHash,
         betId: `${lastTrade.marketId.id}-${tradeOutcomeId}`,
         marketId: market.marketId,

@@ -4,7 +4,7 @@ import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
 import { ActiveBetType, BetType } from "../stores/constants";
-import { BETSLIP, ACTIVE_BETS } from "../constants";
+import { BETSLIP, ACTIVE_BETS, CASHOUT_NOT_AVAILABLE } from "../constants";
 import {
   ButtonComps,
   useAppStatusStore,
@@ -21,7 +21,7 @@ import {
   createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getBuyAmount, makeBet } from "modules/utils";
+import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -343,15 +343,20 @@ const LabeledInput = ({
 };
 
 const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) => {
+  const { markets } = useDataStore();
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
   const {
-    actions: { removeActive },
+    actions: { removeActive, updateActive },
   } = useBetslipStore();
-  const { transactions } = useUserStore();
-  const { price, name, heading, canCashOut, hasCashedOut } = bet;
+  const { 
+    loginAccount,
+    transactions, 
+    actions: { addTransaction } } = useUserStore();
+  const { price, name, heading, isApproved, canCashOut, isPending } = bet;
   const status = transactions.find((t) => t.hash === tx_hash)?.status || bet.status;
+  const market = markets[bet.marketId];
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -363,7 +368,6 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
     case TX_STATUS.CONFIRMED: {
       txStatus.class = {
         [Styles.Confirmed]: true,
-        [Styles.HasCashedOut]: hasCashedOut,
       };
       txStatus.icon = SimpleCheck;
       break;
@@ -380,12 +384,20 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   }
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
   const cashout = formatDai(bet.cashoutAmount).formatted;
-  const buttonName = !bet.hasCashedOut && !bet.canCashOut
-    ? "CASHOUT NOT AVAILABLE"
-    : !bet.isApproved ? `APPROVE CASHOUT $${cashout}` : bet.hasCashedOut
-      ? `WON: $${cashout}`
+  const buttonName = !canCashOut
+    ? CASHOUT_NOT_AVAILABLE
+    : !isApproved ? `APPROVE CASHOUT $${cashout}` : isPending
+      ? `PENDING $${cashout}`
       : `CASHOUT: $${cashout}`;
 
+      const doApproveOrCashOut = async (loginAccount, bet, market) => {
+        const txDetails = await approveOrCashOut(loginAccount, bet, market);
+        if (txDetails?.hash) {
+          addTransaction(txDetails);
+          updateActive({...bet, hash: txDetails.hash})
+        }
+      }
+      
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
       <header>{heading}</header>
@@ -402,10 +414,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        {(canCashOut || hasCashedOut) && (
+        {(canCashOut || isPending) && (
           <div className={classNames(Styles.Cashout, txStatus.class)}>
-            {hasCashedOut && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-            <button disabled={bet.hasCashedOut}>
+            {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
+            <button disabled={isPending} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
               {buttonName}
             </button>
           </div>
