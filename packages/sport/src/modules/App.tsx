@@ -21,6 +21,7 @@ import {
 import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
+import { useActiveBets } from "./stores/betslip-hooks";
 
 const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
 const { parsePath } = PathUtils;
@@ -36,6 +37,7 @@ const AppBody = () => {
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
+  useActiveBets(blocknumber)
   
   useEffect(() => {
     const html: any = windowRef.document.firstElementChild;

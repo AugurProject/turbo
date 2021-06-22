@@ -102,24 +102,12 @@
           min-height: @size-20;
           max-height: @size-20;
 
-          &:not(.CanCashOut):not(.HasCashedOut):disabled {
-            opacity: 0.75;
-            cursor: not-allowed;
-          }
-
           &.CanCashOut {
             &:hover:not(:disabled) {
               border-color: var(--simple-primary-text);
               background: var(--simple-primary-text);
               color: var(--simple-light-bg);
             }
-          }
-
-          &.HasCashedOut {
-            background: var(--simple-primary-action-15);
-            border-color: var(--simple-primary-action-15);
-            cursor: default;
-            color: var(--simple-secondary-text);
           }
         }
       }
