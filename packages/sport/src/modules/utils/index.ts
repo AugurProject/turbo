@@ -44,10 +44,9 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
   };
 };
 
-export const estimatedCashOut = (amm: AmmExchange, bet: ActiveBetType): string => {
-  if (!amm?.hasLiquidity || !bet) return null;
-  const shareAmount = bet.size;
-  const est = estimateSellTrade(amm, shareAmount, bet.outcomeId, []);
+export const estimatedCashOut = (amm: AmmExchange, size: string, outcomeId: number): string => {
+  if (!amm?.hasLiquidity || !size) return null;
+  const est = estimateSellTrade(amm, size, outcomeId, []);
   // can sell all position or none
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
@@ -81,7 +80,6 @@ const makeCashOut = async (
     hash: response?.hash,
     chainId: String(loginAccount.chainId),
     seen: false,
-    status: TX_STATUS.PENDING,
     from: loginAccount?.account,
     addedTime: new Date().getTime(),
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
@@ -115,7 +113,6 @@ export const makeBet = async (
     hash: response?.hash,
     chainId: String(loginAccount.chainId),
     seen: false,
-    status: TX_STATUS.PENDING,
     from: account,
     addedTime: new Date().getTime(),
     message: "Bet Placed",
@@ -150,7 +147,6 @@ export const claimAll = async (
       hash: response?.hash,
       chainId: String(loginAccount.chainId),
       seen: false,
-      status: TX_STATUS.PENDING,
       from: loginAccount?.account,
       addedTime: new Date().getTime(),
       message: "Claim Winnings",

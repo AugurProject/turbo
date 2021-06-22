@@ -355,7 +355,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
     transactions, 
     actions: { addTransaction } } = useUserStore();
   const { price, name, heading, isApproved, canCashOut, isPending } = bet;
-  const status = transactions.find((t) => t.hash === tx_hash)?.status || bet.status;
+  const status = transactions.find((t) => t.hash === tx_hash)?.status || TX_STATUS.CONFIRMED;
   const market = markets[bet.marketId];
   const txStatus = {
     message: null,

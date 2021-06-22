@@ -83,7 +83,6 @@ export interface ActiveBetType {
   size?: string;
   wagerAvgPrice?: string;
   marketId: string;
-  status: string;
   canCashOut: boolean;
   hash: string;
   outcomeId: number;
@@ -92,8 +91,6 @@ export interface ActiveBetType {
   isPending: boolean;
 }
 
-const { TX_STATUS } = Constants;
-
 export const DEFAULT_BET = {
   wager: null,
   toWin: null,
@@ -101,7 +98,6 @@ export const DEFAULT_BET = {
 };
 
 export const DEFAULT_ACTIVE_BET = {
-  status: TX_STATUS.PENDING,
   canCashOut: false,
 };
 
@@ -142,7 +138,6 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "500.00",
       toWin: "1337.00",
       timestamp: now,
-      status: TX_STATUS.PENDING,
       canCashOut: false,
       hash: "0xtxHash05",
       betId: "0xdeadbeef-0-2",
@@ -156,7 +151,6 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 100,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hash: "0xtxHash04",
       betId: "0xdeadbeef-0-2",
@@ -170,7 +164,6 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 200,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: true,
       hash: "0xtxHash03",
       betId: "0xdeadbeef-0-2",
@@ -184,7 +177,6 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 300,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: false,
       hash: "0xtxHash02",
       betId: "0xdeadbeef-0-2",
@@ -198,7 +190,6 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "10.00",
       toWin: "9.00",
       timestamp: now - 400,
-      status: TX_STATUS.FAILURE,
       canCashOut: false,
       hash: "0xtxHash01",
       betId: "0xdeadbeef-0-2",
