@@ -417,7 +417,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
     }
 
     function isEventResolved(uint256 _eventId) public view returns (bool) {
-        // check the event's head-to-head market since it will always exist if of the event's markets exist
+        // check the event's head-to-head market since it will always exist if the event's markets exist
         uint256 _marketId = events[_eventId].markets[0];
         return isMarketResolved(_marketId);
     }
