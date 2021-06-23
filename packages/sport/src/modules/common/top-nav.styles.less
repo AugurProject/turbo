@@ -13,6 +13,7 @@
   width: 100%;
   position: fixed;
   z-index: @above-all-content;
+  box-sizing: content-box;
 
   > section {
     align-items: center;
@@ -28,10 +29,15 @@
     max-height: @sports-top-nav-height;
 
     &:first-of-type {
-      // max-width: @size-912;
+      max-width: @size-912;
       padding-left: @sports-gutter;
       grid-template-columns: 0fr 1fr;
       grid-gap: @size-80;
+
+      > a:first-of-type > section {
+        height: @size-32;
+        width: @size-96;
+      }
 
       @media @breakpoint-mobile-tablet {
         grid-template-columns: auto;
@@ -55,9 +61,9 @@
           }
 
           > a {
-            .text-20-bold;
+            .text-16-bold;
 
-            text-decoration: none;
+            text-transform: uppercase;
             color: var(--simple-secondary-text);
           }
 
@@ -81,7 +87,7 @@
     }
 
     &:last-of-type {
-      // max-width: @size-528;
+      max-width: @size-528;
       padding-right: @sports-gutter;
       grid-gap: @size-8;
       align-items: center;
@@ -150,6 +156,7 @@
   position: relative;
   grid-column: 1;
   grid-row: 1;
+  height: 100%;
 
   &.Open {
     > button {
@@ -171,7 +178,7 @@
     align-items: center;
     justify-content: center;
     min-height: @size-56;
-    height: @size-56;
+    height: 100%;
     width: @size-56;
     min-width: @size-56;
     cursor: pointer;
@@ -243,7 +250,6 @@
 
         &:not(:last-of-type):focus-within,
         &:focus-within {
-
           padding: 0;
 
           > button {
@@ -251,7 +257,6 @@
             border-bottom: @size-1 solid var(--theme-focus-border-color);
             padding: 0 @size-12;
           }
-          
         }
 
         &:hover {
@@ -305,11 +310,11 @@
       grid-template-columns: auto auto auto;
       grid-gap: @size-4;
       padding: @size-8 @size-16;
-      
+
       > button {
         .text-12-semi-bold;
         .SimpleBorder;
-      
+
         background: transparent;
         color: var(--simple-secondary-text);
 
@@ -372,18 +377,14 @@
             min-height: 100%;
             align-items: center;
             justify-content: center;
-            // border-bottom: @size-2 solid transparent;
 
             > a {
               height: 100%;
               display: flex;
               align-items: center;
-              // color: var(--simple-light-bg);
             }
 
             &:hover {
-              // border-bottom: @size-2 solid var(--simple-light-bg);
-
               > a {
                 color: var(--simple-light-bg);
 
@@ -395,8 +396,6 @@
 
             &.Active,
             &.Active:hover {
-              // border-bottom: @size-2 solid var(--simple-outline-color);
-
               > a {
                 color: var(--simple-light-bg);
               }
@@ -407,9 +406,6 @@
 
       &:last-of-type {
         > div:first-of-type {
-          // min-height: 100%;
-          // height: 100%;
-          // max-height: unset;
           grid-column: 2;
           grid-row: 1;
           display: flex;
