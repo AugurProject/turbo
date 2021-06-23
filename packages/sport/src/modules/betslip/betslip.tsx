@@ -115,7 +115,7 @@ export const BetslipMain = () => {
 
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(bets).map(([betId, bet]) => (
+      {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
     </main>
@@ -133,7 +133,7 @@ export const ActiveBetsMain = () => {
     <main className={Styles.BetslipContent}>
       {Object.entries(active)
         .sort(RECENT_UPDATES_TOP)
-        .map(([tx_hash, bet]) => (
+        .map(([tx_hash, bet]: [string, ActiveBetType]) => (
           <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
         ))}
     </main>
