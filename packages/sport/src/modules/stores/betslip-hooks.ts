@@ -150,11 +150,14 @@ export const useActiveBets = (blocknumber) => {
         const isPending = Boolean(
           transactions.find((t) => t.hash === activeBet.hash && t.status === TX_STATUS.PENDING)
         );
-        updateActive({
-          ...active[id],
-          isPending,
-          isApproved,
-        }, true);
+        updateActive(
+          {
+            ...active[id],
+            isPending,
+            isApproved,
+          },
+          true
+        );
       });
     }
   }, [blocknumber, account]);

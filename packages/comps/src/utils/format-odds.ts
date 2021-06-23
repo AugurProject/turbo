@@ -51,7 +51,7 @@ interface ConvertToNormalizedPriceType {
 }
 
 export const convertToOdds = (normalizedPrice, oddsType = DECIMAL, toDecimals = 4) => {
-  if (!normalizedPrice) return formatNone()
+  if (!normalizedPrice) return formatNone();
   const odds = getOddsObject(createBigNumber(normalizedPrice), toDecimals);
   return odds[oddsType];
 };
