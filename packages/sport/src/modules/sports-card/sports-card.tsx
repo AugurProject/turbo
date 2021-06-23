@@ -226,6 +226,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   );
   const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
   const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
+  const outcomeSpread = spreadMarket?.outcomes?.find(o => o?.id === eventOutcomeId)?.name?.replace(eventOutcomeName, '').trim();
 
   return (
     <article>
@@ -244,7 +245,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         }}
         disabled={spreadOdds === "-"}
       >
-        {spreadLine && spreadOdds !== "-" ? <span>{spreadLine > 0 ? `+${spreadLine}` : spreadLine}</span> : <span />}
+        {spreadLine && spreadOdds !== "-" && outcomeSpread !== '' ? <span>{outcomeSpread}</span> : <span />}
         <span>{spreadOdds}</span>
       </button>
       <button
