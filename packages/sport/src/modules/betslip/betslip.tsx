@@ -154,9 +154,9 @@ export const EmptyBetslip = () => {
     </>
   ) : (
     <>
-      <p>You need to sign in to start betting!</p>
+      <p>You need to connect a wallet to start betting!</p>
       <PrimaryThemeButton
-        text="Sign Up"
+        text="Connect Wallet"
         action={() =>
           setModal({
             type: MODAL_CONNECT_WALLET,
