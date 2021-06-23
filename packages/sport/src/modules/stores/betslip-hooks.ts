@@ -104,7 +104,7 @@ export function BetslipReducer(state, action) {
       break;
     }
     case CLEAR_BETSLIP: {
-      Object.keys(updatedState).forEach(key => {
+      Object.keys(updatedState).forEach((key) => {
         updatedState[key] = DEFAULT_BETSLIP_STATE[key];
       });
       break;
