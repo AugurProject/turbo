@@ -53,7 +53,6 @@ export async function createMarket(
 ): Promise<void> {
   const result = await marketFactory
     .createMarket(
-      await marketFactory.callStatic.encodeCreation(
         eventId,
         homeId,
         awayId,
@@ -62,7 +61,6 @@ export async function createMarket(
         overUnderTarget,
         true,
         true
-      )
     )
     .then((tx: ContractTransaction) => tx.wait(confirmations));
   console.log("result", result);

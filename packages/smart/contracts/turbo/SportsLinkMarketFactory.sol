@@ -94,19 +94,18 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         sportId = _sportId;
     }
 
-    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+    function createMarket(
+        uint256 _eventId,
+        uint256 _homeTeamId,
+        uint256 _awayTeamId,
+        uint256 _startTimestamp,
+        int256 _homeSpread,
+        uint256 _totalScore,
+        bool _makeSpread,
+        bool _makeTotalScore
+    ) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
-        (
-            uint256 _eventId,
-            uint256 _homeTeamId,
-            uint256 _awayTeamId,
-            uint256 _startTimestamp,
-            int256 _homeSpread,
-            uint256 _totalScore,
-            bool _makeSpread,
-            bool _makeTotalScore
-        ) = decodeCreation(_payload);
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
