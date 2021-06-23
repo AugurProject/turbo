@@ -254,6 +254,15 @@ const EditableBet = ({ betId, bet }) => {
                   });
                 } else {
                   setUpdatedPrice(null);
+                  updateBet({
+                    ...bet,
+                    toWin: '-',
+                  });
+                  if (error === null) {
+                    const errorCheck = checkErrors(newValue || "");
+                    const error = errorCheck ? errorCheck : HIGH_AMOUNT_ERROR;
+                    setError(error);
+                  }
                 }
               }
 
@@ -496,17 +505,19 @@ const BetslipFooter = () => {
       totalWager: ZERO,
       totalToWin: ZERO,
     };
+  const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
   return (
     <footer>
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
+            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{isInvalid ? '-' : formatDai(totalToWin).full}</b> if you
             win
           </p>
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
+            disabled={isInvalid}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
