@@ -252,7 +252,7 @@ describe("LinkFactory NoContest", () => {
 
   it("can resolve markets as No Contest", async () => {
     await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postpones, 0, 0)
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postponed, 0, 0)
     );
 
     const headToHeadMarketId = 1;
