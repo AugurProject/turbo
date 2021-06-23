@@ -1,12 +1,5 @@
 import { useReducer, useEffect } from "react";
-import {
-  BETSLIP_ACTIONS,
-  DEFAULT_BETSLIP_STATE,
-  BETSLIP_STATE_KEYS,
-  DEFAULT_BET,
-  DEFAULT_ACTIVE_BET,
-  ActiveBetType,
-} from "./constants";
+import { BETSLIP_ACTIONS, DEFAULT_BETSLIP_STATE, BETSLIP_STATE_KEYS, DEFAULT_BET, ActiveBetType } from "./constants";
 import { BETSLIP, ACTIVE_BETS, TX_STATUS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
 import { useUserStore } from "@augurproject/comps";
@@ -76,8 +69,7 @@ export function BetslipReducer(state, action) {
       const extra = dontUpdateTime ? {} : { timestamp };
       updatedState[ACTIVE] = {
         ...updatedState[ACTIVE],
-        [`${bet.hash}`]: {
-          ...DEFAULT_ACTIVE_BET,
+        [`${bet.betId}`]: {
           ...bet,
           ...extra,
         },
@@ -86,14 +78,14 @@ export function BetslipReducer(state, action) {
       break;
     }
     case REMOVE_ACTIVE: {
-      delete updatedState[ACTIVE][action.hash];
+      delete updatedState[ACTIVE][action.betId];
       break;
     }
     case UPDATE_ACTIVE: {
       const { bet, dontUpdateTime } = action;
       const extra = dontUpdateTime ? {} : { timestamp };
-      updatedState[ACTIVE][bet.hash] = {
-        ...updatedState[ACTIVE][bet.hash],
+      updatedState[ACTIVE][bet.betId] = {
+        ...updatedState[ACTIVE][bet.betId],
         ...action.bet,
         ...extra,
       };
@@ -134,7 +126,7 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
       updateBet: (bet) => dispatch({ type: UPDATE_BET, bet }),
       addActive: (bet, dontUpdateTime = false) => dispatch({ type: ADD_ACTIVE, bet, dontUpdateTime }),
-      removeActive: (hash) => dispatch({ type: REMOVE_ACTIVE, hash }),
+      removeActive: (betId) => dispatch({ type: REMOVE_ACTIVE, betId }),
       cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
       updateActive: (bet, dontUpdateTime = false) => dispatch({ type: UPDATE_ACTIVE, bet, dontUpdateTime }),
       clearBetslip: () => dispatch({ type: CLEAR_BETSLIP }),

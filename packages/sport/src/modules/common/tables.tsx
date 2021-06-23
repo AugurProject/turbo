@@ -79,7 +79,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
       addTransaction(txDetails);
-      updateActive({ ...bet, hash: txDetails.hash })
+      updateActive({ ...bet, hash: txDetails.hash }, true)
     }
   }
 

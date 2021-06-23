@@ -1,7 +1,7 @@
 import { BigNumber as BN } from "bignumber.js";
 import { AmmExchange, Cash, LoginAccount, TransactionDetails } from "@augurproject/comps/build/types";
 import { ContractCalls, createBigNumber } from "@augurproject/comps";
-import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
+import { TradingDirection } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
 import { claimWinnings } from "@augurproject/comps/build/utils/contract-calls";
 import { ActiveBetType } from "modules/stores/constants";

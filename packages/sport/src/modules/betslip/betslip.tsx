@@ -403,7 +403,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
         const txDetails = await approveOrCashOut(loginAccount, bet, market);
         if (txDetails?.hash) {
           addTransaction(txDetails);
-          updateActive({...bet, hash: txDetails.hash})
+          updateActive({...bet, hash: txDetails.hash}, true)
         }
       }
       
