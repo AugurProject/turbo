@@ -6,7 +6,7 @@ import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/
 import { useSportsStore } from "./sport";
 import { AmmMarketShares } from "@augurproject/comps/build/types";
 import { estimatedCashOut } from "modules/utils";
-const { convertOnChainCashAmountToDisplayCashAmount, formatDai, isSameAddress } = Formatter;
+const { formatDai, isSameAddress } = Formatter;
 const { SPORTS_MARKET_TYPE_LABELS } = Constants;
 export const BetslipContext = React.createContext({
   ...DEFAULT_BETSLIP_STATE,
@@ -72,9 +72,20 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
   }, [account, Object.keys(marketShares).length, Object.keys(marketEvents).length]);
 };
 
+const useClearOnLogout = ({ actions: { clearBetslip }}) => {
+  const { account } = useUserStore();
+
+  useEffect(() => {
+    if (!account) {
+      clearBetslip();
+    }
+  }, [account])
+}
+
 export const BetslipProvider = ({ children }: any) => {
   const state = useBetslip();
 
+  useClearOnLogout(state);
   usePersistentActiveBets(state);
 
   if (!BetslipStore.actionsSet) {

@@ -26,6 +26,7 @@ const {
   CANCEL_ALL_BETS,
   ADD_ACTIVE,
   REMOVE_ACTIVE,
+  CLEAR_BETSLIP,
 } = BETSLIP_ACTIONS;
 const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT, ODDS_CHANGED_MESSAGE } = BETSLIP_STATE_KEYS;
 
@@ -102,6 +103,12 @@ export function BetslipReducer(state, action) {
       updatedState[BETS] = [];
       break;
     }
+    case CLEAR_BETSLIP: {
+      Object.keys(updatedState).forEach((key) => {
+        updatedState[key] = DEFAULT_BETSLIP_STATE[key];
+      });
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
@@ -130,6 +137,7 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       removeActive: (hash) => dispatch({ type: REMOVE_ACTIVE, hash }),
       cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
       updateActive: (bet, dontUpdateTime = false) => dispatch({ type: UPDATE_ACTIVE, bet, dontUpdateTime }),
+      clearBetslip: () => dispatch({ type: CLEAR_BETSLIP }),
     },
   };
 };
