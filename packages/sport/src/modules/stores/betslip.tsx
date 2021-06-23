@@ -25,7 +25,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
     account,
     balances: { marketShares },
   } = useUserStore();
-  const { transactions } = useDataStore();
+  const { transactions, blocknumber } = useDataStore();
 
   useEffect(() => {
     if (!account) return null;
@@ -70,7 +70,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
         active[bet.betId] ? updateActive(bet, true) : addActive(bet, true);
       });
     }
-  }, [account, Object.keys(marketShares).length, Object.keys(marketEvents).length, Object.keys(transactions).length]);
+  }, [account, blocknumber]);
 };
 
 const useClearOnLogout = ({ actions: { clearBetslip }}) => {

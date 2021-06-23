@@ -474,7 +474,7 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
       this.points.forEach((point) => {
         const odds = convertToOdds(convertToNormalizedPrice({ price: point.y }), oddsFormat).full;
         out += `<li><span style="color:${point.color}">&#9679;</span><b>${point.series.name}</b><span>${
-          odds.includes("Infinity") ? "-" : odds
+          odds
         }</span></li>`;
       });
       out += "</ul>";
