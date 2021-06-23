@@ -90,18 +90,7 @@ export async function createSportsLinkMarket(
   confirmations: number
 ) {
   return marketFactory
-    .createMarket(
-      await marketFactory.callStatic.encodeCreation(
-        eventId,
-        homeId,
-        awayId,
-        startTime,
-        homeSpreadTarget,
-        overUnderTarget,
-        true,
-        true
-      )
-    )
+    .createMarket(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget, true, true)
     .then((tx: ContractTransaction) => tx.wait(confirmations));
 }
 
