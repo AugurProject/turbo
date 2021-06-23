@@ -97,10 +97,6 @@ export const DEFAULT_BET = {
   wagerAvgPrice: null,
 };
 
-export const DEFAULT_ACTIVE_BET = {
-  canCashOut: false,
-};
-
 export const DEFAULT_BETSLIP_STATE = {
   oddsChangedMessage: null,
   selectedView: BETSLIP,

@@ -26,9 +26,9 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
     balances: { marketShares },
   } = useUserStore();
   const { transactions } = useDataStore();
+
   useEffect(() => {
     if (!account) return null;
-
     const preparedActiveBets = Object.keys(marketShares).reduce((p, marketId) => {
       const userMarketShares = marketShares as AmmMarketShares;
       const marketPositions = userMarketShares[marketId];
@@ -44,6 +44,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
         const toWin = new BN(position.quantity).minus(new BN(position.initCostUsd));
         const { name } = market.outcomes.find(outcome => outcome.id === position.outcomeId);
         const cashoutAmount = estimatedCashOut(market.amm, position.quantity, position.outcomeId);
+
         return {
           heading: `${marketEvent?.description}`,
           subHeading: `${SPORTS_MARKET_TYPE_LABELS[market.sportsMarketType]}`,
@@ -51,7 +52,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
           price: position.avgPrice,
           wager: formatDai(position.initCostUsd).formatted,
           toWin: formatDai(toWin).formatted,
-          timestamp: mostRecentUserTrade ? mostRecentUserTrade?.timestamp : 0,
+          timestamp: mostRecentUserTrade ? mostRecentUserTrade?.timestamp : null,
           hash: mostRecentUserTrade ? mostRecentUserTrade?.transactionHash : null,
           betId: `${market.marketId}-${position.outcomeId}`,
           marketId: market.marketId,
@@ -66,10 +67,10 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
 
     if (preparedActiveBets.length) {
       preparedActiveBets.forEach((bet) => {
-        active[bet.hash] ? updateActive(bet, true) : addActive(bet, true);
+        active[bet.betId] ? updateActive(bet, true) : addActive(bet, true);
       });
     }
-  }, [account, Object.keys(marketShares).length, Object.keys(marketEvents).length]);
+  }, [account, Object.keys(marketShares).length, Object.keys(marketEvents).length, Object.keys(transactions)]);
 };
 
 const useClearOnLogout = ({ actions: { clearBetslip }}) => {
