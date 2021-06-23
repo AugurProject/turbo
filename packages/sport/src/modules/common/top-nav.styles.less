@@ -15,6 +15,18 @@
   z-index: @above-all-content;
   box-sizing: content-box;
 
+  > article {
+    display: none;
+    flex-flow: row nowrap;
+    align-items: center;
+    box-sizing: border-box;
+    flex: 1 100%;
+    width: 100%;
+    height: @size-48;
+    min-height: @size-48;
+    max-height: @size-48;
+  }
+
   > section {
     align-items: center;
     background: var(--light-background-color);
@@ -124,30 +136,50 @@
 
 @media @breakpoint-mobile-tablet {
   .TopNav {
-    background: var(--light-background-color);
-    display: grid;
-    grid-template-columns: auto 1fr;
+    height: @size-48;
+    min-height: @size-48;
+    max-height: @size-48;
 
-    > section:first-of-type {
-      padding-left: @size-16;
-      grid-column: 1;
+    > article {
+      display: flex;
 
-      > a > section {
-        width: @size-56;
-        align-items: center;
+      > a:first-of-type {
+        height: @size-48;
+        width: @size-48;
         display: flex;
-        align-content: center;
+        align-items: center;
+        justify-content: center;
+      }
+
+      > button:first-of-type {
+        background: transparent;
+        border: 0;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        border-right: @size-1 solid var(--simple-secondary-text);
+        border-left: @size-1 solid var(--simple-secondary-text);
+        height: @size-48;
+        min-height: @size-48;
+        max-height: @size-48;
+        width: @size-48;
+        min-width: @size-48;
+        max-width: @size-48;
+        margin-left: auto;
+      }
+
+      > button[class*="BaseNormalButton"] {
+        margin: 0 @size-12;
+
+        > div {
+          display: none;
+        }
       }
     }
 
-    > section:last-of-type {
-      padding-right: @size-16;
-      grid-column: 2;
-      margin-left: auto;
-    }
-
-    &.TwoTone > section:last-of-type {
-      background: transparent;
+    > section {
+      display: none;
     }
   }
 }
@@ -348,10 +380,29 @@
 }
 
 .MobileMenuButton {
-  max-width: @size-56;
-  min-width: @size-56;
-  width: @size-56;
+  max-width: @size-48;
+  min-width: @size-48;
+  width: @size-48;
+  height: @size-48;
+  min-height: @size-48;
+  max-height: @size-48;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
   padding: none;
+  background: transparent;
+  border: 0;
+  border-left: @size-1 solid var(--simple-secondary-text);
+
+  > svg {
+    width: @size-20;
+    height: @size-16;
+
+    > path {
+      fill: white;
+    }
+  }
 }
 
 :root[theme="SPORTS"] {

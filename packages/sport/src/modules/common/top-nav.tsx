@@ -16,7 +16,9 @@ import {
   Constants,
   LinkLogo,
   Formatter,
+  Links,
 } from "@augurproject/comps";
+const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
 const { TinyThemeButton } = ButtonComps;
 const { ConnectAccount } = CompsConnectAccount;
@@ -96,12 +98,12 @@ export const SettingsButton = () => {
                 action={() => betSizeToOdds !== ".05" && updateSettings({ betSizeToOdds: ".05" }, account)}
                 text="5%"
               />
-               <TinyThemeButton
+              <TinyThemeButton
                 customClass={{ [Styles.Active]: ".10" === betSizeToOdds }}
                 action={() => betSizeToOdds !== ".10" && updateSettings({ betSizeToOdds: ".10" }, account)}
                 text="10%"
               />
-               <TinyThemeButton
+              <TinyThemeButton
                 customClass={{ [Styles.Active]: ".15" === betSizeToOdds }}
                 action={() => betSizeToOdds !== ".15" && updateSettings({ betSizeToOdds: ".15" }, account)}
                 text="15%"
@@ -216,7 +218,7 @@ export const TopNav = () => {
               isMobile,
               buttonOptions: {
                 invert: true,
-              }
+              },
             }}
           />
         </div>
@@ -235,6 +237,60 @@ export const TopNav = () => {
           <SettingsButton />
         )}
       </section>
+      <article>
+        <MarketsLink>
+          <svg width="22" height="24" viewBox="0 0 22 24">
+            <path
+              d="M4.02894 10.428L5.53694 11.394C5.67894 11.484 5.86694 11.44 5.95294 11.296L10.8229 3.152C10.8809 3.056 11.0209 3.056 11.0789 3.152L15.9489 11.296C16.0349 11.44 16.2249 11.484 16.3649 11.394L17.8729 10.428C18.0089 10.342 18.0509 10.162 17.9689 10.024L12.1489 0.29C12.0409 0.11 11.8469 0 11.6369 0H10.2649C10.0549 0 9.86094 0.11 9.75294 0.29L3.93294 10.024C3.85094 10.162 3.89294 10.342 4.02894 10.428Z"
+              fill="#2AE7A8"
+            />
+            <path
+              d="M21.8171 16.4621L19.4991 12.5861C19.4131 12.4421 19.2231 12.3981 19.0831 12.4881L17.5751 13.4541C17.4391 13.5401 17.3971 13.7201 17.4791 13.8581L18.8031 16.0721C18.8451 16.1421 18.8231 16.2301 18.7551 16.2741L11.0311 21.2241C10.9811 21.2561 10.9191 21.2561 10.8711 21.2241L3.14709 16.2741C3.07909 16.2301 3.05909 16.1401 3.09909 16.0721L4.42309 13.8581C4.50509 13.7201 4.46309 13.5401 4.32709 13.4541L2.81909 12.4881C2.67709 12.3981 2.48909 12.4421 2.40309 12.5861L0.0850897 16.4621C-0.0809103 16.7381 0.00308974 17.0961 0.27509 17.2701L10.6291 23.9061C10.8251 24.0321 11.0771 24.0321 11.2731 23.9061L21.6271 17.2701C21.8971 17.0961 21.9811 16.7381 21.8171 16.4621Z"
+              fill="white"
+            />
+          </svg>
+        </MarketsLink>
+        <button>
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <g clipPath="url(#clip0)">
+              <path
+                d="M2.72295 10.12L10.1198 2.72309C10.9447 3.11956 11.9124 3.11956 12.7373 2.72309L17.2771 7.26284C16.8806 8.08772 16.8806 9.05542 17.2771 9.8803L9.88016 17.2772C9.05528 16.8807 8.08758 16.8807 7.2627 17.2772L2.72295 12.7374C3.11942 11.9126 3.11942 10.9449 2.72295 10.12Z"
+                stroke="white"
+                strokeWidth="2"
+              />
+              <path d="M14.8811 11.6666L8.3335 5.4165" stroke="white" strokeWidth="2" />
+            </g>
+            <defs>
+              <clipPath id="clip0">
+                <rect width="20" height="20" fill="white" />
+              </clipPath>
+            </defs>
+          </svg>
+        </button>
+        <ConnectAccount
+          {...{
+            updateLoginAccount: handleAccountUpdate,
+            autoLogin,
+            transactions,
+            setModal,
+            isMobile,
+            buttonOptions: {
+              invert: true,
+              small: true,
+            },
+          }}
+        />
+        <button
+          className={Styles.MobileMenuButton}
+          title="Augur Settings Menu"
+          aria-label="Settings"
+          onClick={() => {
+            setSidebar(SIDEBAR_TYPES.NAVIGATION);
+          }}
+        >
+          {ThreeLinesIcon}
+        </button>
+      </article>
     </section>
   );
 };
