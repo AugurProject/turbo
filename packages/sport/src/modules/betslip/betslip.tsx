@@ -361,10 +361,8 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   } = useBetslipStore();
   const { 
     loginAccount,
-    transactions, 
     actions: { addTransaction } } = useUserStore();
-  const { price, name, heading, isApproved, canCashOut, isPending } = bet;
-  const status = transactions.find((t) => t.hash === tx_hash)?.status || TX_STATUS.CONFIRMED;
+  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
   const market = markets[bet.marketId];
   const txStatus = {
     message: null,
@@ -402,8 +400,11 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
+      console.log(txDetails);
       addTransaction(txDetails);
-      updateActive({...bet, hash: txDetails.hash}, true)
+      const newBet = {...bet, hash: txDetails.hash};
+      console.log(bet.hash, newBet.hash); 
+      updateActive(newBet, true)
     }
   }
       

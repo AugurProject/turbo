@@ -6,6 +6,7 @@ import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/
 import { useSportsStore } from "./sport";
 import { AmmMarketShares } from "@augurproject/comps/build/types";
 import { estimatedCashOut } from "modules/utils";
+import { TX_STATUS } from "modules/constants";
 const { formatDai, isSameAddress } = Formatter;
 const { SPORTS_MARKET_TYPE_LABELS } = Constants;
 export const BetslipContext = React.createContext({
@@ -60,6 +61,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } 
           outcomeId: position.outcomeId,
           cashoutAmount,
           canCashOut: cashoutAmount !== null,
+          status: TX_STATUS.CONFIRMED
         };
       });
       return [...p, ...bets];

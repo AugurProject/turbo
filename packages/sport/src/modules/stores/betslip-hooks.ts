@@ -4,7 +4,7 @@ import { BETSLIP, ACTIVE_BETS, TX_STATUS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
 import { useUserStore } from "@augurproject/comps";
 import { useBetslipStore } from "./betslip";
-import { estimatedCashOut, isCashOutApproved } from "modules/utils";
+import { isCashOutApproved } from "modules/utils";
 import { useDataStore } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
@@ -146,15 +146,14 @@ export const useActiveBets = (blocknumber) => {
       Object.keys(active).forEach(async (id) => {
         const activeBet: ActiveBetType = active[id];
         const market = markets[activeBet.marketId];
-        const isApproved = await isCashOutApproved(loginAccount, activeBet, market, transactions);
-        const isPending = Boolean(
-          transactions.find((t) => t.hash === activeBet.hash && t.status === TX_STATUS.PENDING)
-        );
+        const isApproved = await isCashOutApproved(loginAccount, activeBet.outcomeId, market, transactions);
+        const status = transactions.find((t) => t.hash === activeBet.hash)?.status || TX_STATUS.CONFIRMED;
         updateActive(
           {
             ...active[id],
-            isPending,
+            isPending: status === TX_STATUS.PENDING,
             isApproved,
+            status
           },
           true
         );
