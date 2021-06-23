@@ -327,11 +327,10 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
       positions: PositionBalance[];
       claimableWinnings: Winnings;
     } [])
-    .filter(position => (showResolvedPositions ||
-      (!showResolvedPositions &&
-        !position.ammExchange.market.hasWinner ||
-        position?.claimableWinnings))) :
-    [];
+    .filter(position => (
+      showResolvedPositions ||
+      position?.claimableWinnings ||
+      (!showResolvedPositions && !position.ammExchange.market.hasWinne))) : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
@@ -581,10 +580,10 @@ export const PositionsLiquidityViewSwitcher = ({
       positions: PositionBalance[];
       claimableWinnings: Winnings;
     } [])
-    .filter(position => (showResolvedPositions ||
-      (!showResolvedPositions &&
-        !position.ammExchange.market.hasWinner ||
-        position?.claimableWinnings))) : [];
+    .filter(position => (
+      showResolvedPositions ||
+      position?.claimableWinnings ||
+      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
       ammExchange: ammExchanges[marketId],
