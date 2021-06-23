@@ -78,7 +78,7 @@ import {
 } from "@augurproject/smart";
 import { deriveMarketInfo, isIgnoredMarket } from "./derived-market-data";
 
-const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).toFixed(6);
+const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).decimalPlaces(6, 1).toFixed();
 interface LiquidityProperties {
   account: string;
   amm: AmmExchange;
