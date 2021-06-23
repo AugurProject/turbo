@@ -45,7 +45,7 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
 };
 
 export const estimatedCashOut = (amm: AmmExchange, size: string, outcomeId: number): string => {
-  if (!amm?.hasLiquidity || !size) return null;
+  if (!amm?.hasLiquidity || !size || !outcomeId) return null;
   const est = estimateSellTrade(amm, size, outcomeId, []);
   // can sell all position or none
   return est.maxSellAmount !== "0" ? null : est.outputValue;

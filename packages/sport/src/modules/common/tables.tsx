@@ -108,7 +108,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
               <span>{name}</span>
               <span>{marketEventType}</span>
             </li>
-            <li>${wager}</li>
+            <li>${wager === "0.00" ? "-" : wager}</li>
             <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
             <li>{toWin && toWin !== "0" ? `$${toWin}` : "-"}</li>
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>

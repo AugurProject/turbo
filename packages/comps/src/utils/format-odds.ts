@@ -1,6 +1,6 @@
-import { ODDS_TYPE, BUY, SELL, NEGATIVE_ONE, ONE, FIFTY, HUNDRED } from "./constants";
+import { ODDS_TYPE, BUY, SELL, NEGATIVE_ONE, ONE, FIFTY, HUNDRED, ZERO } from "./constants";
 import { createBigNumber, BigNumber } from "./create-big-number";
-import { formatNumber, formatPercent, formatFractional, formatAmerican } from "./format-number";
+import { formatNumber, formatPercent, formatFractional, formatAmerican, formatNone } from "./format-number";
 import { FormattedNumber } from "../types";
 
 const { DECIMAL, FRACTIONAL, AMERICAN, PERCENT } = ODDS_TYPE;
@@ -51,12 +51,14 @@ interface ConvertToNormalizedPriceType {
 }
 
 export const convertToOdds = (normalizedPrice, oddsType = DECIMAL, toDecimals = 4) => {
+  if (!normalizedPrice) return formatNone()
   const odds = getOddsObject(createBigNumber(normalizedPrice), toDecimals);
   return odds[oddsType];
 };
 
 export const convertToNormalizedPrice = ({ price, min = 0, max = 1, type = BUY }: ConvertToNormalizedPriceType) => {
   const bnPrice = createBigNumber(price);
+  if (bnPrice.eq(ZERO)) return null;
   const bnMin = createBigNumber(min);
   const bnMax = createBigNumber(max);
   let normalizedPrice = bnPrice.minus(bnMin).dividedBy(bnMax.minus(bnMin));
