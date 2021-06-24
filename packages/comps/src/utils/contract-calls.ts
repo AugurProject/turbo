@@ -139,10 +139,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-          outcomeId: i,
-          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-        }))
+            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+            outcomeId: i,
+            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+          }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -568,10 +568,7 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
 };
 
 const MULTI_CALL_LIMIT = 600;
-const chunkedMulticall = async (
-  provider: Web3Provider,
-  contractCalls
-): ContractCallResults => {
+const chunkedMulticall = async (provider: Web3Provider, contractCalls): ContractCallResults => {
   if (!provider) {
     throw new Error("Provider not provided");
   }
@@ -592,7 +589,8 @@ const chunkedMulticall = async (
     const totalChunks = Math.ceil(contractCalls.length / MULTI_CALL_LIMIT);
     for (let i = 0; i < totalChunks; i++) {
       const j = i + 1;
-      const chunk = j === totalChunks ? contractCalls.slice(j * MULTI_CALL_LIMIT) : contractCalls.slice(i, j * MULTI_CALL_LIMIT);
+      const chunk =
+        j === totalChunks ? contractCalls.slice(j * MULTI_CALL_LIMIT) : contractCalls.slice(i, j * MULTI_CALL_LIMIT);
       const call = await multicall.call(chunk).catch((e) => {
         console.error(`multicall, chunk ${chunk}`, e);
         throw e;
@@ -603,7 +601,7 @@ const chunkedMulticall = async (
     results = combined;
   }
   return results;
-}
+};
 
 export const getUserBalances = async (
   provider: Web3Provider,
@@ -1098,17 +1096,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-      .times(sharesAddLiquidity.shares)
-      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-      .times(outcomeLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(outcomeLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   const timestamp = [
@@ -1429,8 +1427,8 @@ export const getMarketInfos = async (
         loadtype === MARKET_LOAD_TYPE.SPORT
           ? []
           : Object.keys(marketInfos)
-            .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
-            .map((id) => Number(marketInfos[id]?.turboId));
+              .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
+              .map((id) => Number(marketInfos[id]?.turboId));
 
       // filter out dup eventIds
       const existingEventIds = Object.keys(marketInfos)
@@ -1457,9 +1455,9 @@ export const getMarketInfos = async (
       const filteredMarketIds = Object.keys(marketInfos).reduce(
         (p, id) =>
           marketSpreadZeroIds.includes(marketInfos[id]?.turboId) ||
-            existingEvents.includes(marketInfos[id]?.eventId) ||
-            (loadtype !== MARKET_LOAD_TYPE.SPORT &&
-              isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
+          existingEvents.includes(marketInfos[id]?.eventId) ||
+          (loadtype !== MARKET_LOAD_TYPE.SPORT &&
+            isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
             ? p
             : { ...p, [id]: marketInfos[id] },
         {}
@@ -1819,11 +1817,14 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, [...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall])
-    .catch((e) => {
-      console.error("retrieveExchangeInfos", e);
-      throw e;
-    });
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, [
+    ...contractMarketsCall,
+    ...shareFactorCalls,
+    ...contractPricesCall,
+  ]).catch((e) => {
+    console.error("retrieveExchangeInfos", e);
+    throw e;
+  });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
