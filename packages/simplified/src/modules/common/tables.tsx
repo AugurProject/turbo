@@ -318,13 +318,19 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     balances: { marketShares },
   } = useUserStore();
-  const positions = marketShares
-    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
+  const {
+    settings: { showResolvedPositions },
+  } = useSimplifiedStore();
+  const positions = marketShares ?
+    ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
       ammExchange: AmmExchange;
       positions: PositionBalance[];
       claimableWinnings: Winnings;
-    }[])
-    : [];
+    } [])
+    .filter(position => (
+      showResolvedPositions ||
+      position?.claimableWinnings ||
+      (!showResolvedPositions && !position.ammExchange.market.hasWinne))) : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
@@ -551,6 +557,10 @@ export const PositionsLiquidityViewSwitcher = ({
   const {
     balances: { lpTokens, marketShares },
   } = useUserStore();
+  const {
+    settings: { showResolvedPositions },
+  } = useSimplifiedStore();
+
   const { ammExchanges, markets } = useDataStore();
   const marketId = ammExchange?.marketId;
 
@@ -564,13 +574,16 @@ export const PositionsLiquidityViewSwitcher = ({
   }
   const market = ammExchange?.market;
 
-  const positions = marketShares
-    ? ((Object.values(marketShares) as unknown[]) as {
+  const positions = marketShares ?
+    ((Object.values(marketShares) as unknown[]) as {
       ammExchange: AmmExchange;
       positions: PositionBalance[];
       claimableWinnings: Winnings;
-    }[])
-    : [];
+    } [])
+    .filter(position => (
+      showResolvedPositions ||
+      position?.claimableWinnings ||
+      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
       ammExchange: ammExchanges[marketId],
