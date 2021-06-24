@@ -2,6 +2,7 @@ import { SettlementFeeClaimed, WinningsClaimed } from "../../generated/AbstractM
 import { bigIntToHexString } from "../utils";
 import { getOrCreateSender } from "../helpers/AmmFactoryHelper";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
+import { handlePositionFromClaimWinningsEvent } from "../helpers/CommonHandlers";
 
 export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -18,6 +19,8 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.fees = bigIntToHexString(event.params.settlementFee);
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
+
+  handlePositionFromClaimWinningsEvent(event);
 
   entity.save();
 }

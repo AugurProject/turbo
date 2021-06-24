@@ -46,6 +46,7 @@ type Sender @entity {
   claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "sender")
   claimedFees: [ClaimedFees!] @derivedFrom(field: "sender")
   trade: [Trade!] @derivedFrom(field: "sender")
+  positionBalance: [PositionBalance!] @derivedFrom(field: "sender")
   "From the perspective of the user. E.g. totalLiquidity is negative when adding liquidity."
   totalLiquidity: BigInt
 }
@@ -116,4 +117,47 @@ type ClaimedFees @entity {
   receiver: String!
   transactionHash: String!
   timestamp: BigInt!
+}
+
+#
+#event LiquidityChanged(
+#  address indexed marketFactory,
+#  uint256 indexed marketId,
+#  address indexed user,
+#  address recipient,
+#  // from the perspective of the user. e.g. collateral is negative when adding liquidity
+#  int256 collateral,
+#  int256 lpTokens,
+#  uint256[] sharesReturned
+#);
+#
+#event SharesSwapped(
+#  address indexed marketFactory,
+#  uint256 indexed marketId,
+#  address indexed user,
+#  uint256 outcome,
+#  // from the perspective of the user. e.g. collateral is negative when buying
+#  int256 collateral,
+#  int256 shares,
+#  uint256 price
+#);
+
+type PositionBalance @entity {
+  id: ID!
+  positionFromAddLiquidity: Boolean # did the user get a position from adding liquidity
+  positionFromRemoveLiquidity: Boolean # did the user get a position from removing liquidity
+  hasClaimed: Boolean # has the user claimed winnings
+  timestamp: BigInt! # last timestamp that effected user's position
+  transactionHash: String!
+  shares: String # number of shares
+  outcomeId: String # market outcome id
+  # total paid / shares
+  avgPrice: BigInt # average price user paid
+  # price * shares
+  initCostUsd: String # total cost in usdc, user paid
+  sender: Sender!
+
+  # usdValue: String # current usdc value of position
+  # outcomeName: String # market outcome name
+  # totalChangeUsd: String # total change in usdc, current value - initial cost
 }
