@@ -1351,7 +1351,6 @@ export const getMarketInfos = async (
       getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList, type)
     )
   );
-
   let existingEvents = [];
   // first market infos get all markets with liquidity
   const marketInfos = allMarkets.reduce(
@@ -1549,10 +1548,30 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch((e) => {
-    console.error("retrieveMarkets", e);
-    throw e;
-  });
+  let marketsResult: ContractCallResults = { blockNumber: null, results: {} };
+  if (contractMarketsCall.length > 900) {
+    const totalChunks = Math.ceil(contractMarketsCall.length / 900);
+    const combined: ContractCallResults = {
+      blockNumber: null,
+      results: {},
+    };
+    for (let i = 0; i < totalChunks; i++) {
+      const j = i + 1;
+      const chunk = j === totalChunks ? contractMarketsCall.slice(j * 900) : contractMarketsCall.slice(i, j * 900);
+      const call = await multicall.call(chunk).catch((e) => {
+        console.error(e);
+        throw e;
+      });
+      combined.blockNumber = call.blockNumber;
+      combined.results = { ...combined.results, ...call.results };
+    }
+    marketsResult = combined;
+  } else {
+    marketsResult = await multicall.call(contractMarketsCall).catch((e) => {
+      console.error("retrieveMarkets", e);
+      throw e;
+    });
+  }
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
