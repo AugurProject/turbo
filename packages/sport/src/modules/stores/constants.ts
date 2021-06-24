@@ -89,6 +89,7 @@ export interface ActiveBetType {
   isApproved: boolean;
   cashoutAmount: string;
   isPending: boolean;
+  status: string;
 }
 
 export const DEFAULT_BET = {

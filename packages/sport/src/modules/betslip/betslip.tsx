@@ -361,10 +361,8 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   } = useBetslipStore();
   const { 
     loginAccount,
-    transactions, 
     actions: { addTransaction } } = useUserStore();
-  const { price, name, heading, isApproved, canCashOut, isPending } = bet;
-  const status = transactions.find((t) => t.hash === tx_hash)?.status || TX_STATUS.CONFIRMED;
+  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
   const market = markets[bet.marketId];
   const txStatus = {
     message: null,
@@ -524,6 +522,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
+                    betId,
                     ...txDetails,
                   });
                   addTransaction(txDetails);
