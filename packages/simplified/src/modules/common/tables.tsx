@@ -330,7 +330,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
     .filter(position => (
       showResolvedPositions ||
       position?.claimableWinnings ||
-      (!showResolvedPositions && !position.ammExchange.market.hasWinne))) : [];
+      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
@@ -360,20 +360,14 @@ export const PositionTable = ({
     seenPositionWarnings,
     actions: { updateSeenPositionWarning },
   } = useUserStore();
-
   const {
-    settings: { showResolvedPositions, timeFormat },
+    settings: { timeFormat },
   } = useSimplifiedStore();
 
   const marketAmmId = market?.marketId;
   const seenMarketPositionWarningAdd = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.add;
   const seenMarketPositionWarningRemove = seenPositionWarnings && seenPositionWarnings[marketAmmId]?.remove;
   const { hasLiquidity } = ammExchange;
-
-  // Hide positions if they are resolved and user has hide resolved positions enabled
-  if (!showResolvedPositions && !claimableWinnings && market.winner !== null) {
-    return null;
-  }
 
   return (
     <>
@@ -598,6 +592,11 @@ export const PositionsLiquidityViewSwitcher = ({
       setTableView(POSITIONS);
     }
   }, [view]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [showResolvedPositions]);
+
   return (
     <div className={Styles.PositionsLiquidityViewSwitcher}>
       <div>
