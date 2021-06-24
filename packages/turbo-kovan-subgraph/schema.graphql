@@ -152,9 +152,13 @@ type PositionBalance @entity {
   shares: String # number of shares
   outcomeId: String # market outcome id
   # total paid / shares
-  avgPrice: BigInt # average price user paid
+  avgPrice: BigDecimal # average price user paid
   # price * shares
   initCostUsd: String # total cost in usdc, user paid
+  sharesBigInt: BigInt
+  initCostUsdBigInt: BigInt
+  sharesBigDecimal: BigDecimal
+  initCostUsdBigDecimal: BigDecimal
   sender: Sender!
 
   # usdValue: String # current usdc value of position

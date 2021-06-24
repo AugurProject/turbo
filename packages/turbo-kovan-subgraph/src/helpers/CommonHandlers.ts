@@ -1,6 +1,6 @@
 import { PositionBalance } from "../../generated/schema";
 import { getOrCreateSender } from "./AmmFactoryHelper";
-import { bigIntToHexString } from "../utils";
+import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { WinningsClaimed } from "../../generated/AbstractMarketFactory/AbstractMarketFactory";
 import { BigInt } from "@graphprotocol/graph-ts/index";
@@ -53,9 +53,17 @@ export function handlePositionFromTradeEvent(
   positionBalanceEntity.timestamp = event.block.timestamp;
   positionBalanceEntity.shares = bigIntToHexString(event.params.shares);
   positionBalanceEntity.outcomeId = bigIntToHexString(event.params.outcome);
-  positionBalanceEntity.avgPrice = event.params.collateral / event.params.shares;
   positionBalanceEntity.initCostUsd = bigIntToHexString(event.params.collateral);
+  positionBalanceEntity.sharesBigInt = event.params.shares;
+  positionBalanceEntity.initCostUsdBigInt = event.params.collateral;
+
   positionBalanceEntity.sender = senderId;
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let sharesBigDecimal = (event.params.shares.toBigDecimal()).div(SHARES_DECIMALS);
+  positionBalanceEntity.sharesBigDecimal = sharesBigDecimal;
+  positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
+  positionBalanceEntity.avgPrice = collateralBigDecimal.div(sharesBigDecimal);
+
   positionBalanceEntity.save();
 }
 
@@ -76,7 +84,7 @@ export function handlePositionFromLiquidityChangedEvent(
   positionBalanceEntity.timestamp = event.block.timestamp;
   positionBalanceEntity.shares = bigIntToHexString(sharesReturned);
   // positionBalanceEntity.outcomeId = bigIntToHexString(event.params.outcome);
-  // positionBalanceEntity.avgPrice = event.params.collateral / event.params.shares;
+  // positionBalanceEntity.avgPrice = event.params.collateral.div(event.params.shares);
   positionBalanceEntity.initCostUsd = bigIntToHexString(event.params.collateral);
   positionBalanceEntity.sender = senderId;
   positionBalanceEntity.save();
@@ -97,7 +105,9 @@ export function handlePositionFromClaimWinningsEvent(
   positionBalanceEntity.timestamp = event.block.timestamp;
   positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
   positionBalanceEntity.outcomeId = event.params.winningOutcome.toHexString();
-  positionBalanceEntity.avgPrice = event.params.payout / event.params.amount;
+  let payoutBigDecimal = event.params.payout.toBigDecimal();
+  let amountBigDecimal = event.params.amount.toBigDecimal();
+  positionBalanceEntity.avgPrice = payoutBigDecimal.div(amountBigDecimal);
   // positionBalanceEntity.initCostUsd = bigIntToHexString(event.params.collateral);
   positionBalanceEntity.sender = senderId;
   positionBalanceEntity.save();

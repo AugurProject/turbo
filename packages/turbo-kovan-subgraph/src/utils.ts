@@ -1,6 +1,9 @@
 import { Address, BigInt, Bytes, crypto } from "@graphprotocol/graph-ts";
 
-let ZERO = new BigInt(0);
+let ZERO = BigInt.fromI32(0);
+
+export let SHARES_DECIMALS = BigInt.fromI32(10 ).pow(18).toBigDecimal();
+export let USDC_DECIMALS = BigInt.fromI32(10 ).pow(6).toBigDecimal();
 
 function upperCase(s: string): string {
   let letterMap = new Map<string, string>();
