@@ -1559,7 +1559,7 @@ const retrieveMarkets = async (
       const j = i + 1;
       const chunk = j === totalChunks ? contractMarketsCall.slice(j * 900) : contractMarketsCall.slice(i, j * 900);
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`retrieveMarkets, chunk ${chunk}`, e);
+        console.error(`retrieveMarkets, chunk ${i} - ${j}: ${ammFactoryAddress}`, e);
         throw e;
       });
       combined.blockNumber = call.blockNumber;
