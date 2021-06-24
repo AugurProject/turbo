@@ -18,6 +18,7 @@ import {
   Formatter,
   Links,
 } from "@augurproject/comps";
+import { useBetslipStore } from "modules/stores/betslip";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
 const { TinyThemeButton } = ButtonComps;
@@ -135,6 +136,7 @@ export const TopNav = () => {
     balances,
     actions: { updateLoginAccount, logout },
   } = useUserStore();
+  const { active } = useBetslipStore();
   const [lastUser, setLastUser] = useLocalStorage("lastUser", null);
 
   useEffect(() => {
@@ -168,6 +170,11 @@ export const TopNav = () => {
       }).full,
     [balances?.USDC?.usdValue]
   );
+  
+  const activeBetDisplay = useMemo(() => {
+    const amount = Object.keys(active).length;
+    return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
+  }, [Object.keys(active).length]);
 
   return (
     <section
@@ -238,7 +245,7 @@ export const TopNav = () => {
         )}
       </section>
       <article>
-        <MarketsLink>
+        <MarketsLink id="mobile-logo-link">
           <svg width="22" height="24" viewBox="0 0 22 24">
             <path
               d="M4.02894 10.428L5.53694 11.394C5.67894 11.484 5.86694 11.44 5.95294 11.296L10.8229 3.152C10.8809 3.056 11.0209 3.056 11.0789 3.152L15.9489 11.296C16.0349 11.44 16.2249 11.484 16.3649 11.394L17.8729 10.428C18.0089 10.342 18.0509 10.162 17.9689 10.024L12.1489 0.29C12.0409 0.11 11.8469 0 11.6369 0H10.2649C10.0549 0 9.86094 0.11 9.75294 0.29L3.93294 10.024C3.85094 10.162 3.89294 10.342 4.02894 10.428Z"
@@ -250,7 +257,11 @@ export const TopNav = () => {
             />
           </svg>
         </MarketsLink>
-        <button>
+        <button
+          onClick={() => {
+            console.log("clicked activeBetsButtonMobile");
+          }}
+        >
           <svg width="20" height="20" viewBox="0 0 20 20">
             <g clipPath="url(#clip0)">
               <path
@@ -266,6 +277,7 @@ export const TopNav = () => {
               </clipPath>
             </defs>
           </svg>
+          {activeBetDisplay && <p>{activeBetDisplay}</p>}
         </button>
         <ConnectAccount
           {...{
