@@ -166,9 +166,9 @@ export const isCashOutApproved = async (
   market: MarketInfo,
   transactions: TransactionDetails[]
 ): Promise<Boolean> => {
-  const { amm } = market;
+  if (!market) return false;
   const shareToken = market.shareTokens[outcomeId];
-  const result = await checkAllowance(shareToken, amm.ammFactoryAddress, loginAccount, transactions);
+  const result = await checkAllowance(shareToken, market?.amm.ammFactoryAddress, loginAccount, transactions);
   return result === ApprovalState.APPROVED;
 };
 

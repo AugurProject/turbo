@@ -133,31 +133,3 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
     },
   };
 };
-
-export const useActiveBets = (blocknumber) => {
-  const { account, loginAccount, transactions } = useUserStore();
-  const { markets } = useDataStore();
-  const {
-    active,
-    actions: { updateActive },
-  } = useBetslipStore();
-  useEffect(() => {
-    if (account) {
-      Object.keys(active).forEach(async (id) => {
-        const activeBet: ActiveBetType = active[id];
-        const market = markets[activeBet.marketId];
-        const isApproved = await isCashOutApproved(loginAccount, activeBet.outcomeId, market, transactions);
-        const status = transactions.find((t) => t.hash === activeBet.hash)?.status || TX_STATUS.CONFIRMED;
-        updateActive(
-          {
-            ...active[id],
-            isPending: status === TX_STATUS.PENDING,
-            isApproved,
-            status
-          },
-          true
-        );
-      });
-    }
-  }, [blocknumber, account]);
-};

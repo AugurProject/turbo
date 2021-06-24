@@ -400,11 +400,8 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
-      console.log(txDetails);
       addTransaction(txDetails);
-      const newBet = {...bet, hash: txDetails.hash};
-      console.log(bet.hash, newBet.hash); 
-      updateActive(newBet, true)
+      updateActive({...bet, hash: txDetails.hash}, true)
     }
   }
       
@@ -525,6 +522,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
+                    betId,
                     ...txDetails,
                   });
                   addTransaction(txDetails);
