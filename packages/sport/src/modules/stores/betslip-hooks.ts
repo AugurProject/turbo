@@ -4,7 +4,7 @@ import { BETSLIP, ACTIVE_BETS, TX_STATUS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
 import { useUserStore } from "@augurproject/comps";
 import { useBetslipStore } from "./betslip";
-import { estimatedCashOut, isCashOutApproved } from "modules/utils";
+import { isCashOutApproved } from "modules/utils";
 import { useDataStore } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
@@ -132,33 +132,4 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
       clearBetslip: () => dispatch({ type: CLEAR_BETSLIP }),
     },
   };
-};
-
-export const useActiveBets = (blocknumber) => {
-  const { account, loginAccount, transactions } = useUserStore();
-  const { markets } = useDataStore();
-  const {
-    active,
-    actions: { updateActive },
-  } = useBetslipStore();
-  useEffect(() => {
-    if (account) {
-      Object.keys(active).forEach(async (id) => {
-        const activeBet: ActiveBetType = active[id];
-        const market = markets[activeBet.marketId];
-        const cashoutAmount = estimatedCashOut(market.amm, activeBet?.size, activeBet?.outcomeId);
-        const isApproved = await isCashOutApproved(loginAccount, activeBet, market, transactions);
-        const isPending = Boolean(
-          transactions.find((t) => t.hash === activeBet.hash && t.status === TX_STATUS.PENDING)
-        );
-        updateActive({
-          ...active[id],
-          isPending,
-          cashoutAmount,
-          canCashOut: cashoutAmount !== null,
-          isApproved,
-        });
-      });
-    }
-  }, [blocknumber, account]);
 };

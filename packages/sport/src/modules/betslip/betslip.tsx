@@ -124,17 +124,17 @@ export const BetslipMain = () => {
   );
 };
 
-const RECENT_UPDATES_TOP = (a, b) => b[1].timestamp - a[1].timestamp;
+const RECENT_UPDATES_TOP = (a, b) => b[1]?.timestamp - a[1]?.timestamp;
 
 export const ActiveBetsMain = () => {
   const { isLogged } = useAppStatusStore();
   const { active, selectedCount } = useBetslipStore();
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(active)
+      {Object.values(active)
         .sort(RECENT_UPDATES_TOP)
-        .map(([tx_hash, bet]: [string, ActiveBetType]) => (
-          <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
+        .map((bet: ActiveBetType) => (
+          <BetReciept {...{ bet, tx_hash: bet.hash, key: `BetReciept-${bet.betId}-${bet.hash}` }} />
         ))}
     </main>
   ) : (
@@ -361,10 +361,8 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   } = useBetslipStore();
   const { 
     loginAccount,
-    transactions, 
     actions: { addTransaction } } = useUserStore();
-  const { price, name, heading, isApproved, canCashOut, isPending } = bet;
-  const status = transactions.find((t) => t.hash === tx_hash)?.status || TX_STATUS.CONFIRMED;
+  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
   const market = markets[bet.marketId];
   const txStatus = {
     message: null,
@@ -399,13 +397,13 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
       ? `PENDING $${cashout}`
       : `CASHOUT: $${cashout}`;
 
-      const doApproveOrCashOut = async (loginAccount, bet, market) => {
-        const txDetails = await approveOrCashOut(loginAccount, bet, market);
-        if (txDetails?.hash) {
-          addTransaction(txDetails);
-          updateActive({...bet, hash: txDetails.hash}, true)
-        }
-      }
+  const doApproveOrCashOut = async (loginAccount, bet, market) => {
+    const txDetails = await approveOrCashOut(loginAccount, bet, market);
+    if (txDetails?.hash) {
+      addTransaction(txDetails);
+      updateActive({...bet, hash: txDetails.hash}, true)
+    }
+  }
       
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
@@ -423,14 +421,12 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        {(canCashOut || isPending) && (
-          <div className={classNames(Styles.Cashout, txStatus.class)}>
-            {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-            <button disabled={isPending} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
-              {buttonName}
-            </button>
-          </div>
-        )}
+        <div className={classNames(Styles.Cashout, txStatus.class)}>
+          {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
+          <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
+            {buttonName}
+          </button>
+        </div>
       </main>
     </article>
   );
@@ -455,7 +451,7 @@ const TicketBreakdown = ({ bet, timeFormat }) => {
       <li>
         <span>Wager</span>
         <DashlineNormal />
-        <span>{`$${wager}`}</span>
+        <span>{`$${wager === "0.00" ? "-" : wager}`}</span>
       </li>
       <li>
         <span>To Win</span>
@@ -526,6 +522,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
+                    betId,
                     ...txDetails,
                   });
                   addTransaction(txDetails);

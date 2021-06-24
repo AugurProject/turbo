@@ -7,7 +7,7 @@ import { claimWinnings } from "@augurproject/comps/build/utils/contract-calls";
 import { ActiveBetType } from "modules/stores/constants";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import { approveERC20Contract, checkAllowance } from "@augurproject/comps/build/stores/use-approval-callback";
-import { ApprovalState } from "modules/constants";
+import { ApprovalState, TX_STATUS } from "modules/constants";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 
 export interface SizedPrice {
@@ -45,7 +45,7 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
 };
 
 export const estimatedCashOut = (amm: AmmExchange, size: string, outcomeId: number): string => {
-  if (!amm?.hasLiquidity || !size) return null;
+  if (!amm?.hasLiquidity || !size || outcomeId === undefined) return null;
   const est = estimateSellTrade(amm, size, outcomeId, []);
   // can sell all position or none
   return est.maxSellAmount !== "0" ? null : est.outputValue;
@@ -82,6 +82,8 @@ const makeCashOut = async (
     seen: false,
     from: loginAccount?.account,
     addedTime: new Date().getTime(),
+    status: TX_STATUS.PENDING,
+    message: "Cashout Bet",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
 };
@@ -115,6 +117,7 @@ export const makeBet = async (
     seen: false,
     from: account,
     addedTime: new Date().getTime(),
+    status: TX_STATUS.PENDING,
     message: "Bet Placed",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
@@ -149,6 +152,7 @@ export const claimAll = async (
       seen: false,
       from: loginAccount?.account,
       addedTime: new Date().getTime(),
+      status: TX_STATUS.PENDING,
       message: "Claim Winnings",
       marketDescription: `Claim Winnings`,
     };
@@ -158,14 +162,13 @@ export const claimAll = async (
 
 export const isCashOutApproved = async (
   loginAccount: LoginAccount,
-  bet: ActiveBetType,
+  outcomeId: number,
   market: MarketInfo,
   transactions: TransactionDetails[]
 ): Promise<Boolean> => {
-  const { outcomeId } = bet;
-  const { amm } = market;
+  if (!market) return false;
   const shareToken = market.shareTokens[outcomeId];
-  const result = await checkAllowance(shareToken, amm.ammFactoryAddress, loginAccount, transactions);
+  const result = await checkAllowance(shareToken, market?.amm.ammFactoryAddress, loginAccount, transactions);
   return result === ApprovalState.APPROVED;
 };
 
