@@ -167,7 +167,6 @@ const applyFiltersAndSort = (
 
 const MarketsView = () => {
   const {
-    isMobile,
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
@@ -257,22 +256,6 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredMarkets} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
-        {isMobile && (
-          <div>
-            <SecondaryButton
-              text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
-              icon={FilterIcon}
-              action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}
-            />
-            <SearchButton
-              action={() => {
-                setFilter("");
-                setShowFilter(!showFilter);
-              }}
-              selected={showFilter}
-            />
-          </div>
-        )}
         <ul>
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
