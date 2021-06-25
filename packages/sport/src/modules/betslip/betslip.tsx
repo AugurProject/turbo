@@ -21,7 +21,7 @@ import {
   createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
+import { approveOrCashOut, getBuyAmount, makeBet, approveBuy } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -189,7 +189,8 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
+  const { loginAccount } = useUserStore();
+  const { id, marketId, heading, subHeading, name, price, wager, toWin, size, isApproved, isPending } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
@@ -310,6 +311,11 @@ const EditableBet = ({ betId, bet }) => {
           </div>
           {error && <span>{error}</span>}
         </div>
+        {isApproved === false && <div className={classNames(Styles.Cashout)}>
+          <button disabled={isPending} onClick={() => approveBuy(loginAccount, amm)}>
+            {"Approve Place Bet"}
+          </button>
+        </div>}
       </main>
     </article>
   );
@@ -501,19 +507,27 @@ const BetslipFooter = () => {
       totalWager: ZERO,
       totalToWin: ZERO,
     };
+  // all bets have been approved 
+  const isNotAllApproved = Object.keys(bets).find(betId => bets[betId].isApproved === false)?.length;
   const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
   return (
     <footer>
       {onBetslip ? (
         <>
+        {isNotAllApproved && (
+           <p>Approve <b>"Place Bet"</b> to place all bets, some approvals approve other markets</p>
+        )}
+        {!isNotAllApproved && (
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{isInvalid ? '-' : formatDai(totalToWin).full}</b> if you
-            win
-          </p>
+          You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{isInvalid ? '-' : formatDai(totalToWin).full}</b> if you
+          win
+        </p>
+        )}
+
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
-            disabled={isInvalid}
+            disabled={isInvalid || !!isNotAllApproved}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
