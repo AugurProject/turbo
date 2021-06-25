@@ -657,6 +657,7 @@ export interface SeenPositionWarnings {
 export interface AppStatusState {
   isMobile: boolean;
   isLogged: boolean;
+  isRpcDown: boolean;
   modal: Modal;
 }
 

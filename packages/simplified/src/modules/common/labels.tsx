@@ -128,6 +128,7 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
 
 export const NetworkMismatchBanner = () => {
   const { errors } = useDataStore();
+  const { isRpcDown } = useAppStatusStore();
   const { loginAccount, balances } = useUserStore();
   const { error } = useWeb3React();
   const { networkId } = PARA_CONFIG;
@@ -173,6 +174,17 @@ export const NetworkMismatchBanner = () => {
           })}
         >
           You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://help.augur.net" />
+      </article>}
+      {isRpcDown && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          MetaMask RPC rate limit error. Please try again later or switch your MetaMasks Network RPC.
+          <ExternalLink
+            label="Click here for more information."
+            URL="https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-custom-Network-RPC-and-or-Block-Explorer"
+          />
       </article>}
     </>
   );
