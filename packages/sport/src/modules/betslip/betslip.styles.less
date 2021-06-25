@@ -100,7 +100,6 @@
     z-index: @mask;
     height: 100vh;
     align-items: flex-end;
-    width: 100vw;
 
     > div > button[class*="BaseNormalButton"] {
       display: flex;
@@ -136,6 +135,8 @@
 
 @media @breakpoint-mobile {
   .Betslip {
+    width: 100vw;
+
     > div {
       > button[class*="BaseNormalButton"] {
         display: none;

@@ -538,6 +538,7 @@ const BetslipFooter = () => {
     bets,
     actions: { cancelAllBets, addActive },
   } = useBetslipStore();
+  const { actions: { setSidebar }} = useSportsStore();
   if (!isLogged || selectedCount === 0) {
     return null;
   }
@@ -580,7 +581,7 @@ const BetslipFooter = () => {
         </>
       ) : (
         <>
-          <Link to={makePath(PORTFOLIO)}>{SimpleChevron} View All Bets</Link>
+          <Link onClick={() => setSidebar(null)} to={makePath(PORTFOLIO)}>{SimpleChevron} View All Bets</Link>
         </>
       )}
     </footer>
