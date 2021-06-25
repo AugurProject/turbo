@@ -26,7 +26,7 @@ import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES } = Constants;
-const { SimpleCheck, SimpleChevron } = Icons;
+const { SimpleCheck, SimpleChevron, XIcon } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
@@ -77,9 +77,13 @@ export const Betslip = () => {
 };
 
 const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggle: (type: string) => {} }) => {
+  const { actions: { setSidebarType } } = useSportsStore();
   const { selectedView } = useBetslipStore();
   return (
     <header className={Styles.BetslipHeader}>
+      <div><h2>{selectedView}</h2><button onClick={() => {
+        setSidebarType(null);
+      }}>{XIcon}</button></div>
       <button
         className={classNames({ [Styles.SelectedView]: selectedView === BETSLIP, [Styles.isPopulated]: counts[0] > 0 })}
         onClick={() => handleToggle(BETSLIP)}

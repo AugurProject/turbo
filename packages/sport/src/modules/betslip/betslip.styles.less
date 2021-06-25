@@ -152,6 +152,10 @@ button.FlipContent {
   min-height: @size-48;
   max-height: @size-48;
 
+  > div {
+    display: none;
+  }
+
   > button {
     .text-14-semi-bold;
 
@@ -191,6 +195,52 @@ button.FlipContent {
         background: var(--simple-light-bg);
         color: var(--simple-primary-text);
       }
+    }
+  }
+
+  @media @breakpoint-mobile-tablet {
+    > div {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0 @size-12;
+
+      > h2 {
+        .text-16-bold;
+
+        color: var(--simple-light-bg);
+        text-transform: capitalize;
+        width: 100%;
+        flex: 1 100%;
+        text-align: center;
+      }
+
+      > button {
+        border: 0;
+        background: transparent;
+        align-self: flex-end;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: @size-36;
+
+        > svg {
+          height: @size-16;
+          width: @size-16;
+
+          > path {
+            fill: var(--simple-light-bg);
+          }
+        }
+      }
+    }
+
+    > button {
+      display: none;
     }
   }
 }

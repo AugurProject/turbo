@@ -19,6 +19,7 @@ import {
   Links,
 } from "@augurproject/comps";
 import { useBetslipStore } from "modules/stores/betslip";
+import { ACTIVE_BETS } from "../constants";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck } = Icons;
 const { TinyThemeButton } = ButtonComps;
@@ -127,6 +128,7 @@ export const TopNav = () => {
     actions: { setModal },
   } = useAppStatusStore();
   const {
+    sidebarType,
     actions: { setSidebar },
   } = useSportsStore();
   const {
@@ -136,7 +138,11 @@ export const TopNav = () => {
     balances,
     actions: { updateLoginAccount, logout },
   } = useUserStore();
-  const { active } = useBetslipStore();
+  const {
+    active,
+    selectedView,
+    actions: { toggleSelectedView },
+  } = useBetslipStore();
   const [lastUser, setLastUser] = useLocalStorage("lastUser", null);
 
   useEffect(() => {
@@ -170,7 +176,7 @@ export const TopNav = () => {
       }).full,
     [balances?.USDC?.usdValue]
   );
-  
+
   const activeBetDisplay = useMemo(() => {
     const amount = Object.keys(active).length;
     return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
@@ -259,7 +265,8 @@ export const TopNav = () => {
         </MarketsLink>
         <button
           onClick={() => {
-            console.log("clicked activeBetsButtonMobile");
+            selectedView !== ACTIVE_BETS && toggleSelectedView();
+            setSidebar(sidebarType === SIDEBAR_TYPES.BETSLIP ? null : SIDEBAR_TYPES.BETSLIP);
           }}
         >
           <svg width="20" height="20" viewBox="0 0 20 20">
