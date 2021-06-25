@@ -574,16 +574,18 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   }
 
   const multicall = new Multicall({ ethersProvider: provider });
-  let results: ContractCallResults = { blockNumber: null, results: {} };
+  let results: ContractCallResults = { blocknumber: null, results: {} };
+
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < MULTI_CALL_LIMIT) {
-    results = await multicall.call(contractCalls).catch((e) => {
+    const res = await multicall.call(contractCalls).catch((e) => {
       console.error("multicall", e);
       throw e;
     });
+    results = { results: res.results, blocknumber: res.blockNumber };
   } else {
     const combined: ContractCallResults = {
-      blockNumber: null,
+      blocknumber: null,
       results: {},
     };
     const totalChunks = Math.ceil(contractCalls.length / MULTI_CALL_LIMIT);
@@ -595,7 +597,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
         console.error(`multicall, chunk ${chunk}`, e);
         throw e;
       });
-      combined.blockNumber = call.blockNumber;
+      combined.blocknumber = call.blockNumber;
       combined.results = { ...combined.results, ...call.results };
     }
     results = combined;
@@ -1378,12 +1380,24 @@ export const getMarketInfos = async (
   cashes: Cashes,
   account: string,
   ignoreList: { [factory: string]: number[] },
-  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories(loadtype);
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
-      getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList, type)
+      getFactoryMarketInfo(
+        provider,
+        markets,
+        ammExchanges,
+        cashes,
+        account,
+        address,
+        ammFactory,
+        ignoreList,
+        type,
+        blocknumber
+      )
     )
   );
   let existingEvents = [];
@@ -1410,10 +1424,11 @@ export const getMarketInfos = async (
         existingEvents = Object.keys(liquidityMarkets).map((id) => liquidityMarkets[id].eventId);
         // ignore non liquid markets from old market factory, grab first of market infos to get factory address
         addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
+
         return {
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
-          blocknumber,
+          blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         };
       }
 
@@ -1462,14 +1477,15 @@ export const getMarketInfos = async (
             : { ...p, [id]: marketInfos[id] },
         {}
       );
+
       return {
         markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
-        blocknumber,
+        blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         ignoreList,
       };
     },
-    { markets, ammExchanges, blocknumber: null, loading: false }
+    { markets, ammExchanges, blocknumber, loading: false }
   );
   return marketInfos;
 };
@@ -1477,12 +1493,14 @@ export const getMarketInfos = async (
 export const getFactoryMarketInfo = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   cashes: Cashes,
   account: string,
   factoryAddress: string,
   ammFactory: string,
   ignoreList: { [factory: string]: number[] },
-  MarketFactoryType: string
+  MarketFactoryType: string,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
@@ -1493,17 +1511,25 @@ export const getFactoryMarketInfo = async (
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
-  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+  if (indexes.length === 0) return { markets, ammExchanges, blocknumber, factoryAddress };
+
+  const { marketInfos, exchanges, blocknumber: newBlocknumber } = await retrieveMarkets(
     indexes,
     cashes,
     provider,
     account,
     factoryAddress,
     ammFactory,
-    MarketFactoryType
+    MarketFactoryType,
+    blocknumber
   );
 
-  return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
+  return {
+    markets: marketInfos,
+    ammExchanges: exchanges,
+    blocknumber: newBlocknumber ? newBlocknumber : blocknumber,
+    factoryAddress,
+  };
 };
 
 const retrieveMarkets = async (
@@ -1513,7 +1539,8 @@ const retrieveMarkets = async (
   account: string,
   factoryAddress: string,
   ammFactory: string,
-  marketFactoryType: string
+  marketFactoryType: string,
+  blocknumber
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
@@ -1586,6 +1613,7 @@ const retrieveMarkets = async (
     console.error(`retrieveMarkets`, e);
     throw e;
   });
+
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -1627,7 +1655,7 @@ const retrieveMarkets = async (
     });
   }
 
-  const blocknumber = marketsResult.blockNumber;
+  const newBlocknumber = marketsResult.blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
     exchanges = await retrieveExchangeInfos(
@@ -1642,7 +1670,7 @@ const retrieveMarkets = async (
     );
   }
 
-  return { marketInfos, exchanges, blocknumber };
+  return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {

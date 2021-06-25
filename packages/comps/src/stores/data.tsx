@@ -41,7 +41,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
         const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
-        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount, MARKET_IGNORE_LIST, loadType);
+        return await getMarketInfos(provider, DataStore.get().markets, DataStore.get().ammExchanges, cashes, userAccount, MARKET_IGNORE_LIST, loadType, DataStore.get().blocknumber);
       } catch (e) {
         console.log("error getting market data", e);
       }
