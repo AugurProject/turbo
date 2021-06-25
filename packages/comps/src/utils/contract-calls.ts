@@ -582,7 +582,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
       console.error("multicall", e);
       throw e;
     });
-    results = { results: res.results, blocknumber: res.blockNumber}
+    results = { results: res.results, blocknumber: res.blockNumber };
   } else {
     const combined: ContractCallResults = {
       blocknumber: null,
@@ -1381,12 +1381,23 @@ export const getMarketInfos = async (
   account: string,
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
-  blocknumber: number,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories(loadtype);
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
-      getFactoryMarketInfo(provider, markets, ammExchanges, cashes, account, address, ammFactory, ignoreList, type, blocknumber)
+      getFactoryMarketInfo(
+        provider,
+        markets,
+        ammExchanges,
+        cashes,
+        account,
+        address,
+        ammFactory,
+        ignoreList,
+        type,
+        blocknumber
+      )
     )
   );
   let existingEvents = [];
@@ -1489,7 +1500,7 @@ export const getFactoryMarketInfo = async (
   ammFactory: string,
   ignoreList: { [factory: string]: number[] },
   MarketFactoryType: string,
-  blocknumber: number,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
@@ -1513,7 +1524,12 @@ export const getFactoryMarketInfo = async (
     blocknumber
   );
 
-  return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber, factoryAddress };
+  return {
+    markets: marketInfos,
+    ammExchanges: exchanges,
+    blocknumber: newBlocknumber ? newBlocknumber : blocknumber,
+    factoryAddress,
+  };
 };
 
 const retrieveMarkets = async (
@@ -1524,7 +1540,7 @@ const retrieveMarkets = async (
   factoryAddress: string,
   ammFactory: string,
   marketFactoryType: string,
-  blocknumber,
+  blocknumber
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
