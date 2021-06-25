@@ -4,7 +4,7 @@ import { DEFAULT_BETSLIP_STATE, STUBBED_BETSLIP_ACTIONS } from "../stores/consta
 import { useBetslip } from "./betslip-hooks";
 import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/comps";
 import { useSportsStore } from "./sport";
-import { AmmMarketShares, PositionBalance } from "@augurproject/comps/build/types";
+import { AmmMarketShares } from "@augurproject/comps/build/types";
 import { estimatedCashOut, isCashOutApproved } from "modules/utils";
 import { TX_STATUS } from "modules/constants";
 const { formatDai, isSameAddress } = Formatter;

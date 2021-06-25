@@ -18,14 +18,11 @@ import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryButton },
-  Icons: { FilterIcon },
   MarketCardComps: { LoadingMarketCard },
   PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
 } = Components;
 const {
-  SIDEBAR_TYPES,
   ALL_CURRENCIES,
   ALL_MARKETS,
   OPEN,
@@ -174,7 +171,7 @@ const MarketsView = () => {
     marketEvents,
     marketsViewSettings,
     settings: { showLiquidMarkets },
-    actions: { setSidebar, updateMarketsViewSettings },
+    actions: { updateMarketsViewSettings },
   } = useSportsStore();
   const { markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;

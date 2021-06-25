@@ -65,6 +65,17 @@ export const Betslip = () => {
             setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
           }}
         />
+        {counts[0] > 0 && (
+          <div>
+            <PrimaryThemeButton
+              text={`Betslip (${counts[0]})`}
+              action={() => {
+                handleToggle(BETSLIP);
+                setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
+              }}
+            />
+          </div>
+        )}
         <BetslipHeader {...{ counts, handleToggle }} />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
         {oddsChangedMessage && selectedView === BETSLIP && (
@@ -77,13 +88,22 @@ export const Betslip = () => {
 };
 
 const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggle: (type: string) => {} }) => {
-  const { actions: { setSidebar } } = useSportsStore();
+  const {
+    actions: { setSidebar },
+  } = useSportsStore();
   const { selectedView } = useBetslipStore();
   return (
     <header className={Styles.BetslipHeader}>
-      <div><h2>{selectedView}</h2><button onClick={() => {
-        setSidebar(null);
-      }}>{XIcon}</button></div>
+      <div>
+        <h2>{selectedView}</h2>
+        <button
+          onClick={() => {
+            setSidebar(null);
+          }}
+        >
+          {XIcon}
+        </button>
+      </div>
       <button
         className={classNames({ [Styles.SelectedView]: selectedView === BETSLIP, [Styles.isPopulated]: counts[0] > 0 })}
         onClick={() => handleToggle(BETSLIP)}
