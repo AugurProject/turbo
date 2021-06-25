@@ -182,7 +182,7 @@ export const PortfolioView = () => {
 };
 
 export default PortfolioView;
-
+/*
 const date = new Date();
 const now = Math.floor(date.getTime() / 1000);
 const MET = {
@@ -190,6 +190,7 @@ const MET = {
   SP: "Spread",
   OU: "Over / Under",
 };
+
 const MOCK_EVENT_POSITIONS_DATA = {
   "0xdeadbeef-0": {
     eventId: "0xdeadbeef-0",
@@ -297,3 +298,4 @@ const MOCK_EVENT_POSITIONS_DATA = {
     },
   },
 };
+*/
