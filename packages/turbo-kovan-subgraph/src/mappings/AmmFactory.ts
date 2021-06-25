@@ -61,7 +61,7 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
     let array = new Array<BigInt>(3);
     array = event.params.sharesReturned;
     if (array[i].gt(BigInt.fromI32(0))) {
-      handlePositionFromLiquidityChangedEvent(event, true, array[i]);
+      handlePositionFromLiquidityChangedEvent(event, true, array[i], BigInt.fromI32(i));
     }
   }
 
@@ -89,7 +89,7 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
     let array = new Array<BigInt>(3);
     array = event.params.sharesReturned;
     if (array[i].gt(BigInt.fromI32(0))) {
-      handlePositionFromLiquidityChangedEvent(event, false, array[i]);
+      handlePositionFromLiquidityChangedEvent(event, false, array[i], BigInt.fromI32(i));
     }
   }
 
