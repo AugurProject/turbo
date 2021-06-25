@@ -20,6 +20,21 @@
     display: flex;
     flex-flow: column nowrap;
 
+    > button[class*="BaseNormalButton"] {
+      display: none;
+      position: absolute;
+      right: @betslip-column-width + @size-17;
+      transform: rotate(-90deg);
+      transform-origin: right;
+
+      > svg {
+        height: @size-12;
+        width: @size-12;
+        transform: rotate(180deg);
+        transform-origin: center;
+      }
+    }
+
     > main:not(.EmptyBetslip) {
       flex: 1;
     }
@@ -72,9 +87,45 @@
       .PrimaryBottomBorderRadius;
     }
   }
+}
 
-  @media @breakpoint-mobile-tablet {
-    display: none;
+@media @breakpoint-tablet-tiny {
+  .Betslip {
+    position: absolute;
+    left: 100%;
+    z-index: @mask;
+    height: 100vh;
+    align-items: flex-end;
+
+    > div > button[class*="BaseNormalButton"] {
+      display: flex;
+      right: @betslip-column-width + @size-17;
+      top: @size-78;
+    }
+
+    &.Open {
+      left: 0;
+      right: 0;
+      background: var(--simple-primary-text-40);
+      width: 100%;
+
+      > div {
+        > button {
+          right: @betslip-width + @size-17;
+
+          > svg {
+            transform: rotate(0deg);
+            transform-origin: center;
+          }
+        }
+      }
+    }
+
+    > div {
+      margin: 0;
+      height: 100%;
+      max-height: 100vh;
+    }
   }
 }
 

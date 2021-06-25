@@ -25,7 +25,7 @@ import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
-const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
+const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES } = Constants;
 const { SimpleCheck, SimpleChevron } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
@@ -36,11 +36,36 @@ export const MOCK_PROMPT_SIGNATURE = ({ name = "404 NAME NOT FOUND", action = "t
   windowRef.confirm(`Mock Sign a transaction ${action} ${name}?`);
 
 export const Betslip = () => {
-  const { selectedView, oddsChangedMessage } = useBetslipStore();
+  const {
+    sidebarType,
+    actions: { setSidebar },
+  } = useSportsStore();
+  const {
+    selectedView,
+    active,
+    oddsChangedMessage,
+    bets,
+    actions: { toggleSelectedView },
+  } = useBetslipStore();
+  const counts = [Object.keys(bets).length, Object.keys(active).length];
+  const handleToggle = (type) => selectedView !== type && toggleSelectedView();
   return (
-    <section className={Styles.Betslip}>
+    <section
+      className={classNames(Styles.Betslip, {
+        [Styles.Open]: sidebarType === SIDEBAR_TYPES.BETSLIP,
+      })}
+    >
       <div>
-        <BetslipHeader />
+        <PrimaryThemeButton
+          text={`Betslip (${counts[0]})`}
+          icon={SimpleChevron}
+          small
+          action={() => {
+            handleToggle(BETSLIP);
+            setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
+          }}
+        />
+        <BetslipHeader {...{ counts, handleToggle }} />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
         {oddsChangedMessage && selectedView === BETSLIP && (
           <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
@@ -51,15 +76,8 @@ export const Betslip = () => {
   );
 };
 
-const BetslipHeader = () => {
-  const {
-    selectedView,
-    active,
-    bets,
-    actions: { toggleSelectedView },
-  } = useBetslipStore();
-  const counts = [Object.keys(bets).length, Object.keys(active).length];
-  const handleToggle = (type) => selectedView !== type && toggleSelectedView();
+const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggle: (type: string) => {} }) => {
+  const { selectedView } = useBetslipStore();
   return (
     <header className={Styles.BetslipHeader}>
       <button
@@ -195,7 +213,9 @@ const EditableBet = ({ betId, bet }) => {
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = updatedPrice ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full : '-';
+  const displayOdds = updatedPrice
+    ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full
+    : "-";
   const hasOddsChanged =
     initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
   const checkErrors = (value: string) => {
@@ -256,7 +276,7 @@ const EditableBet = ({ betId, bet }) => {
                   setUpdatedPrice(null);
                   updateBet({
                     ...bet,
-                    toWin: '-',
+                    toWin: "-",
                   });
                   if (error === null) {
                     const errorCheck = checkErrors(newValue || "");
@@ -318,8 +338,8 @@ const EditableBet = ({ betId, bet }) => {
 const LabeledInput = ({
   label,
   value = null,
-  onEdit = (e) => { },
-  onBlur = (e) => { },
+  onEdit = (e) => {},
+  onBlur = (e) => {},
   isInvalid = false,
   disabled = false,
 }) => {
@@ -351,7 +371,7 @@ const LabeledInput = ({
   );
 };
 
-const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) => {
+const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) => {
   const { markets } = useDataStore();
   const {
     settings: { oddsFormat, timeFormat },
@@ -359,9 +379,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   const {
     actions: { removeActive, updateActive },
   } = useBetslipStore();
-  const { 
+  const {
     loginAccount,
-    actions: { addTransaction } } = useUserStore();
+    actions: { addTransaction },
+  } = useUserStore();
   const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
   const market = markets[bet.marketId];
   const txStatus = {
@@ -393,18 +414,20 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string, bet: ActiveBetType }) =
   const cashout = formatDai(bet.cashoutAmount).formatted;
   const buttonName = !canCashOut
     ? CASHOUT_NOT_AVAILABLE
-    : !isApproved ? `APPROVE CASHOUT $${cashout}` : isPending
-      ? `PENDING $${cashout}`
-      : `CASHOUT: $${cashout}`;
+    : !isApproved
+    ? `APPROVE CASHOUT $${cashout}`
+    : isPending
+    ? `PENDING $${cashout}`
+    : `CASHOUT: $${cashout}`;
 
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
       addTransaction(txDetails);
-      updateActive({...bet, hash: txDetails.hash}, true)
+      updateActive({ ...bet, hash: txDetails.hash }, true);
     }
-  }
-      
+  };
+
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
       <header>{heading}</header>
@@ -498,17 +521,17 @@ const BetslipFooter = () => {
   const { totalWager, totalToWin } = onBetslip
     ? determineBetTotals(bets)
     : {
-      totalWager: ZERO,
-      totalToWin: ZERO,
-    };
+        totalWager: ZERO,
+        totalToWin: ZERO,
+      };
   const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
   return (
     <footer>
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{isInvalid ? '-' : formatDai(totalToWin).full}</b> if you
-            win
+            You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
+            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
           </p>
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
