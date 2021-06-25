@@ -77,12 +77,12 @@ export const Betslip = () => {
 };
 
 const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggle: (type: string) => {} }) => {
-  const { actions: { setSidebarType } } = useSportsStore();
+  const { actions: { setSidebar } } = useSportsStore();
   const { selectedView } = useBetslipStore();
   return (
     <header className={Styles.BetslipHeader}>
       <div><h2>{selectedView}</h2><button onClick={() => {
-        setSidebarType(null);
+        setSidebar(null);
       }}>{XIcon}</button></div>
       <button
         className={classNames({ [Styles.SelectedView]: selectedView === BETSLIP, [Styles.isPopulated]: counts[0] > 0 })}

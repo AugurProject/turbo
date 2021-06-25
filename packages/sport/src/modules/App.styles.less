@@ -12,6 +12,7 @@
     max-width: @desktop-max;
     width: 100%;
     margin: 0 auto;
+    overflow-x: hidden;
 
     > section[class*="Betslip"] {
       grid-column: 2;
@@ -53,11 +54,31 @@
     > section[class*="Betslip"] {
       display: none;
     }
+
+    @media @breakpoint-mobile-tablet {
+      > section[class*="Betslip"] {
+        display: flex;
+      }
+    }
   }
 }
 
 .ModalShowing {
   overflow: hidden;
+}
+
+.BetslipShowing {
+  @media @breakpoint-mobile-tiny {
+    overflow: hidden;
+    max-height: 100vh;
+    margin: 0;
+
+    > main {
+      overflow: hidden;
+      max-height: 100vh;
+      margin: 0;
+    }
+  }
 }
 
 .SidebarOut {

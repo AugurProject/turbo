@@ -89,7 +89,7 @@
   }
 }
 
-@media @breakpoint-tablet-tiny {
+@media @breakpoint-mobile-tiny {
   .Betslip {
     position: absolute;
     left: 100%;
@@ -107,7 +107,7 @@
       left: 0;
       right: 0;
       background: var(--simple-primary-text-40);
-      width: 100%;
+      width: 100vw;
 
       > div {
         > button {
@@ -125,6 +125,21 @@
       margin: 0;
       height: 100%;
       max-height: 100vh;
+    }
+  }
+}
+
+@media @breakpoint-mobile {
+  .Betslip {
+    > div {
+      > button[class*="BaseNormalButton"] {
+        display: none;
+      }
+    }
+
+    &.Open > div {
+      border: 0;
+      width: 100vw;
     }
   }
 }

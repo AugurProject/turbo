@@ -5,7 +5,7 @@ import Styles from "./App.styles.less";
 import Routes from "./routes/routes";
 import TopNav from "./common/top-nav";
 import "../assets/styles/shared.less";
-import { SportProvider } from "./stores/sport";
+import { SportProvider, useSportsStore } from "./stores/sport";
 import classNames from "classnames";
 import ModalView from "./modal/modal-view";
 import {
@@ -22,7 +22,7 @@ import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
 
-const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
+const { PORTFOLIO, MARKET_LOAD_TYPE, SIDEBAR_TYPES } = Constants;
 const { parsePath } = PathUtils;
 
 const AppBody = () => {
@@ -30,7 +30,9 @@ const AppBody = () => {
   const {
     modal,
   } = useAppStatusStore();
+  const { sidebarType } = useSportsStore();
   const modalShowing = Object.keys(modal).length !== 0;
+  const betslipShowing = sidebarType === SIDEBAR_TYPES.BETSLIP;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
 
@@ -55,6 +57,7 @@ const AppBody = () => {
       id="mainContent"
       className={classNames(Styles.App, {
         [Styles.ModalShowing]: modalShowing,
+        [Styles.BetslipShowing]: betslipShowing,
         [Styles.MyBets]: path === PORTFOLIO
       })}
     >
