@@ -115,8 +115,8 @@ export function handlePositionFromClaimWinningsEvent(
   positionBalanceEntity.outcomeId = event.params.winningOutcome.toHexString();
   positionBalanceEntity.sender = senderId;
 
-  let payoutBigDecimal = event.params.payout.toBigDecimal();
-  let amountBigDecimal = event.params.amount.toBigDecimal();
+  let payoutBigDecimal = event.params.payout.toBigDecimal().div(USDC_DECIMALS);
+  let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
   positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
   positionBalanceEntity.sharesBigInt = event.params.amount;
   positionBalanceEntity.sharesBigDecimal = amountBigDecimal;
