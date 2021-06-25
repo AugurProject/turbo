@@ -113,7 +113,7 @@ export const APP_STATE_KEYS = {
   IS_MOBILE: "isMobile",
   MODAL: "modal",
   IS_LOGGED: "isLogged",
-  IS_RPC_DOWN: "isRpcDown"
+  IS_RPC_DOWN: "isRpcDown",
 };
 
 export const APP_STATUS_ACTIONS = {
