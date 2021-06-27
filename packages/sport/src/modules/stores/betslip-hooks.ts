@@ -4,7 +4,6 @@ import { BETSLIP, ACTIVE_BETS, TX_STATUS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
 import { useDataStore } from "@augurproject/comps";
 import { useUserStore } from "@augurproject/comps";
-import { useBetslipStore } from "./betslip";
 import { isBuyApproved } from "modules/utils";
 const {
   Utils: { dispatchMiddleware },

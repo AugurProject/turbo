@@ -183,8 +183,8 @@ export const isBuyApproved = async (
   return result === ApprovalState.APPROVED;
 };
 
-export const approveBuy = async (loginAccount: LoginAccount, amm: AmmExchange): Promise<TransactionDetails> => {
-  if (!amm) return {};
+export const approveBuy = async (loginAccount: LoginAccount, amm: AmmExchange): Promise<TransactionDetails | null> => {
+  if (!amm) return null;
   const cash = amm?.cash?.address;
   return await approveERC20Contract(cash, "Place Bet", amm.ammFactoryAddress, loginAccount);
 };

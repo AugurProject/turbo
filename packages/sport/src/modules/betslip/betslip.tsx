@@ -189,7 +189,7 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const { loginAccount } = useUserStore();
+  const { loginAccount, actions: { addTransaction } } = useUserStore();
   const { id, marketId, heading, subHeading, name, price, wager, toWin, size, isApproved, isPending } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
@@ -207,6 +207,13 @@ const EditableBet = ({ betId, bet }) => {
     }
     return returnError;
   };
+  const doApproval = async (loginAccount, amm) => {
+    const txDetails = await approveBuy(loginAccount, amm);
+    if (txDetails?.hash) {
+      addTransaction(txDetails);
+      updateBet({...bet, hash: txDetails.hash})
+    }
+  }
   return (
     <article className={Styles.EditableBet}>
       <header>
@@ -312,7 +319,7 @@ const EditableBet = ({ betId, bet }) => {
           {error && <span>{error}</span>}
         </div>
         {isApproved === false && <div className={classNames(Styles.Cashout)}>
-          <button disabled={isPending} onClick={() => approveBuy(loginAccount, amm)}>
+          <button disabled={isPending} onClick={() => doApproval(loginAccount, amm)}>
             {"Approve Place Bet"}
           </button>
         </div>}
