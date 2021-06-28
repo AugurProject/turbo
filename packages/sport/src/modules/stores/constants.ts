@@ -7,6 +7,7 @@ export const STUBBED_SPORT_ACTIONS = {
   updateSettings: (settings, account = null) => {},
   updateMarketsViewSettings: (settings) => {},
   updateMarketEvents: (marketEvents: MarketEvents) => {},
+  setFilteredEvents: (filteredEvents: MarketEvents[]) => {},
 };
 
 export const DEFAULT_SPORT_STATE = {
@@ -21,6 +22,7 @@ export const DEFAULT_SPORT_STATE = {
     showLiquidMarkets: true,
   },
   marketEvents: {},
+  filteredEvents: [],
 };
 
 export const LOCAL_STORAGE_SETTINGS_THEME = "sports_settings";
@@ -33,6 +35,7 @@ export const SPORT_STATE_KEYS = {
   ODDS_FORMAT: "oddsFormat",
   MARKETS_VIEW_SETTINGS: "marketsViewSettings",
   MARKET_EVENTS: "marketEvents",
+  FILTERED_EVENTS: "filteredEvents",
 };
 
 export const SPORT_ACTIONS = {
@@ -41,6 +44,7 @@ export const SPORT_ACTIONS = {
   SET_BETSLIP_MINIMIZED: "SET_BETSLIP_MINIMIZED",
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
   UPDATE_MARKET_EVENTS: "UPDATE_MARKET_EVENTS",
+  SET_FILTERED_EVENTS: "SET_FILTERED_EVENTS",
 };
 
 export interface MarketEvent {

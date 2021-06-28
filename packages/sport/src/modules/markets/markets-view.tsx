@@ -45,7 +45,7 @@ const PAGE_LIMIT = 21;
 const applyFiltersAndSort = (
   passedInMarkets,
   passedInMarketEvents,
-  { setFilteredMarkets, setFilteredEvents },
+  { setFilteredEvents },
   transactions,
   { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
 ) => {
@@ -157,7 +157,7 @@ const applyFiltersAndSort = (
     return output;
   }, []);
 
-  setFilteredMarkets(updatedFilteredMarkets);
+  // setFilteredMarkets(updatedFilteredMarkets);
   setFilteredEvents(updatedEvents);
 };
 
@@ -168,17 +168,17 @@ const MarketsView = () => {
   } = useAppStatusStore();
   const {
     marketEvents,
+    filteredEvents,
     marketsViewSettings,
     settings: { showLiquidMarkets },
-    actions: { updateMarketsViewSettings },
+    actions: { updateMarketsViewSettings, setFilteredEvents },
   } = useSportsStore();
   const { markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [filteredMarkets, setFilteredMarkets] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  // const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
   const marketKeys = Object.keys(markets);
 
@@ -191,7 +191,7 @@ const MarketsView = () => {
     applyFiltersAndSort(
       Object.values(markets),
       marketEvents,
-      { setFilteredMarkets, setFilteredEvents },
+      { setFilteredEvents },
       transactions,
       {
         filter,
@@ -235,12 +235,11 @@ const MarketsView = () => {
       });
     }
   };
-
   return (
     <div
       className={Styles.MarketsView}
     >
-      <CategoriesArea filteredMarkets={filteredMarkets} />
+      <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
         <ul>
@@ -285,10 +284,10 @@ const MarketsView = () => {
         ) : (
           <span className={Styles.EmptyMarketsMessage}>No markets to show. Try changing the filter options.</span>
         )}
-        {filteredMarkets.length > 0 && (
+        {filteredEvents.length > 0 && (
           <Pagination
             page={page}
-            itemCount={filteredMarkets.length}
+            itemCount={filteredEvents.length}
             itemsPerPage={PAGE_LIMIT}
             action={(page) => {
               setPage(page);

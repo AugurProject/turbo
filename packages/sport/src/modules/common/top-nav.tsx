@@ -8,7 +8,6 @@ import {
   Icons,
   useAppStatusStore,
   useUserStore,
-  useDataStore,
   ButtonComps,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
@@ -297,10 +296,10 @@ export const TopNav = () => {
 const MobileMenu = () => {
   const { isLogged } = useAppStatusStore();
   const {
+    filteredEvents,
     sidebarType,
     actions: { setSidebar },
   } = useSportsStore();
-  const { markets } = useDataStore();
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   return (
@@ -340,7 +339,7 @@ const MobileMenu = () => {
             </Link>
           </li>
         </ol>
-        {path === MARKETS && <CategoriesArea filteredMarkets={markets} />}
+        {path === MARKETS && <CategoriesArea filteredMarkets={filteredEvents} />}
       </main>
       <footer>
         <SettingsButton />
