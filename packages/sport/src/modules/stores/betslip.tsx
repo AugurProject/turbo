@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { BigNumber as BN } from "bignumber.js";
 import { DEFAULT_BETSLIP_STATE, STUBBED_BETSLIP_ACTIONS } from "../stores/constants";
-import { useBetslip } from "./betslip-hooks";
+import { useBets, useBetslip } from "./betslip-hooks";
 import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/comps";
 import { useSportsStore } from "./sport";
 import { AmmMarketShares } from "@augurproject/comps/build/types";
@@ -111,6 +111,7 @@ export const BetslipProvider = ({ children }: any) => {
 
   useClearOnLogout(state);
   usePersistentActiveBets(state);
+  useBets(state);
 
   if (!BetslipStore.actionsSet) {
     BetslipStore.actions = state.actions;

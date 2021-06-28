@@ -567,6 +567,44 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
   return isDust ? "0" : amount.toFixed();
 };
 
+const MULTI_CALL_LIMIT = 600;
+const chunkedMulticall = async (provider: Web3Provider, contractCalls): ContractCallResults => {
+  if (!provider) {
+    throw new Error("Provider not provided");
+  }
+
+  const multicall = new Multicall({ ethersProvider: provider });
+  let results: ContractCallResults = { blocknumber: null, results: {} };
+
+  if (!contractCalls || contractCalls.length === 0) return results;
+  if (contractCalls.length < MULTI_CALL_LIMIT) {
+    const res = await multicall.call(contractCalls).catch((e) => {
+      console.error("multicall", e);
+      throw e;
+    });
+    results = { results: res.results, blocknumber: res.blockNumber };
+  } else {
+    const combined: ContractCallResults = {
+      blocknumber: null,
+      results: {},
+    };
+    const totalChunks = Math.ceil(contractCalls.length / MULTI_CALL_LIMIT);
+    for (let i = 0; i < totalChunks; i++) {
+      const j = i + 1;
+      const chunk =
+        j === totalChunks ? contractCalls.slice(j * MULTI_CALL_LIMIT) : contractCalls.slice(i, j * MULTI_CALL_LIMIT);
+      const call = await multicall.call(chunk).catch((e) => {
+        console.error(`multicall, chunk ${chunk}`, e);
+        throw e;
+      });
+      combined.blocknumber = call.blockNumber;
+      combined.results = { ...combined.results, ...call.results };
+    }
+    results = combined;
+  }
+  return results;
+};
+
 export const getUserBalances = async (
   provider: Web3Provider,
   account: string,
@@ -614,7 +652,6 @@ export const getUserBalances = async (
   const allExchanges = Object.values(ammExchanges).filter((e) => e.id);
   userBalances.ETH = await getEthBalance(provider, cashes, account);
 
-  const multicall = new Multicall({ ethersProvider: provider });
   const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
     reference: exchange.id,
     contractAddress: exchange.id,
@@ -684,7 +721,7 @@ export const getUserBalances = async (
   }
   // need different calls to get lp tokens and market share balances
   const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
-  const balanceResult: ContractCallResults = await multicall.call(balanceCalls).catch((e) => {
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls).catch((e) => {
     console.error("getUserBalances", e);
     throw e;
   });
@@ -1343,12 +1380,24 @@ export const getMarketInfos = async (
   cashes: Cashes,
   account: string,
   ignoreList: { [factory: string]: number[] },
-  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
   const factories = marketFactories(loadtype);
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
-      getFactoryMarketInfo(provider, markets, cashes, account, address, ammFactory, ignoreList, type)
+      getFactoryMarketInfo(
+        provider,
+        markets,
+        ammExchanges,
+        cashes,
+        account,
+        address,
+        ammFactory,
+        ignoreList,
+        type,
+        blocknumber
+      )
     )
   );
   let existingEvents = [];
@@ -1375,10 +1424,11 @@ export const getMarketInfos = async (
         existingEvents = Object.keys(liquidityMarkets).map((id) => liquidityMarkets[id].eventId);
         // ignore non liquid markets from old market factory, grab first of market infos to get factory address
         addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
+
         return {
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
-          blocknumber,
+          blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         };
       }
 
@@ -1427,14 +1477,15 @@ export const getMarketInfos = async (
             : { ...p, [id]: marketInfos[id] },
         {}
       );
+
       return {
         markets: { ...p.markets, ...filteredMarketIds },
         ammExchanges: { ...p.ammExchanges, ...exchanges },
-        blocknumber,
+        blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         ignoreList,
       };
     },
-    { markets, ammExchanges, blocknumber: null, loading: false }
+    { markets, ammExchanges, blocknumber, loading: false }
   );
   return marketInfos;
 };
@@ -1442,12 +1493,14 @@ export const getMarketInfos = async (
 export const getFactoryMarketInfo = async (
   provider: Web3Provider,
   markets: MarketInfos,
+  ammExchanges: AmmExchanges,
   cashes: Cashes,
   account: string,
   factoryAddress: string,
   ammFactory: string,
   ignoreList: { [factory: string]: number[] },
-  MarketFactoryType: string
+  MarketFactoryType: string,
+  blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string } => {
   const marketFactoryContract = getAbstractMarketFactoryContract(provider, factoryAddress, account);
   const numMarkets = (await marketFactoryContract.marketCount()).toNumber();
@@ -1458,17 +1511,25 @@ export const getFactoryMarketInfo = async (
     if (!ignoreMarketIndexes.includes(i)) indexes.push(i);
   }
 
-  const { marketInfos, exchanges, blocknumber } = await retrieveMarkets(
+  if (indexes.length === 0) return { markets, ammExchanges, blocknumber, factoryAddress };
+
+  const { marketInfos, exchanges, blocknumber: newBlocknumber } = await retrieveMarkets(
     indexes,
     cashes,
     provider,
     account,
     factoryAddress,
     ammFactory,
-    MarketFactoryType
+    MarketFactoryType,
+    blocknumber
   );
 
-  return { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress };
+  return {
+    markets: marketInfos,
+    ammExchanges: exchanges,
+    blocknumber: newBlocknumber ? newBlocknumber : blocknumber,
+    factoryAddress,
+  };
 };
 
 const retrieveMarkets = async (
@@ -1478,7 +1539,8 @@ const retrieveMarkets = async (
   account: string,
   factoryAddress: string,
   ammFactory: string,
-  marketFactoryType: string
+  marketFactoryType: string,
+  blocknumber
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
@@ -1489,7 +1551,6 @@ const retrieveMarkets = async (
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
   const ammFactoryAddress = ammFactoryContract.address;
   const ammFactoryAbi = extractABI(ammFactoryContract);
-  const multicall = new Multicall({ ethersProvider: provider });
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
@@ -1548,30 +1609,11 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  let marketsResult: ContractCallResults = { blockNumber: null, results: {} };
-  if (contractMarketsCall.length > 900) {
-    const totalChunks = Math.ceil(contractMarketsCall.length / 900);
-    const combined: ContractCallResults = {
-      blockNumber: null,
-      results: {},
-    };
-    for (let i = 0; i < totalChunks; i++) {
-      const j = i + 1;
-      const chunk = j === totalChunks ? contractMarketsCall.slice(j * 900) : contractMarketsCall.slice(i, j * 900);
-      const call = await multicall.call(chunk).catch((e) => {
-        console.error(`retrieveMarkets, chunk ${chunk}`, e);
-        throw e;
-      });
-      combined.blockNumber = call.blockNumber;
-      combined.results = { ...combined.results, ...call.results };
-    }
-    marketsResult = combined;
-  } else {
-    marketsResult = await multicall.call(contractMarketsCall).catch((e) => {
-      console.error("retrieveMarkets", e);
-      throw e;
-    });
-  }
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
+    console.error(`retrieveMarkets`, e);
+    throw e;
+  });
+
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -1613,7 +1655,7 @@ const retrieveMarkets = async (
     });
   }
 
-  const blocknumber = marketsResult.blockNumber;
+  const newBlocknumber = marketsResult.blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
     exchanges = await retrieveExchangeInfos(
@@ -1628,12 +1670,11 @@ const retrieveMarkets = async (
     );
   }
 
-  return { marketInfos, exchanges, blocknumber };
+  return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
   const TOTAL_SUPPLY = "totalSupply";
-  const multicall = new Multicall({ ethersProvider: provider });
   const ex = Object.values(exchanges).filter((k) => k.id);
   const contractMarketsCall: ContractCallContext[] = ex.map((e) => ({
     reference: `${e.id}-total-supply`,
@@ -1651,7 +1692,7 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     ],
   }));
   const balances = {};
-  const marketsResult: ContractCallResults = await multicall.call(contractMarketsCall).catch((e) => {
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
     console.error("exchangesHaveLiquidity", e);
     throw e;
   });
@@ -1695,7 +1736,6 @@ const retrieveExchangeInfos = async (
   const GET_POOL_WEIGHTS = "getPoolWeights";
   const ammFactoryAddress = ammFactory.address;
   const ammFactoryAbi = extractABI(ammFactory);
-  const multicall = new Multicall({ ethersProvider: provider });
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
@@ -1805,12 +1845,14 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await multicall
-    .call([...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall])
-    .catch((e) => {
-      console.error("retrieveExchangeInfos", e);
-      throw e;
-    });
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, [
+    ...contractMarketsCall,
+    ...shareFactorCalls,
+    ...contractPricesCall,
+  ]).catch((e) => {
+    console.error("retrieveExchangeInfos", e);
+    throw e;
+  });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];

@@ -70,6 +70,7 @@ export interface BetType {
   name: string;
   betId: string;
   marketId: string;
+  hash?: string;
 }
 
 export interface ActiveBetType {

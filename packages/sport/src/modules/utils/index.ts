@@ -172,6 +172,23 @@ export const isCashOutApproved = async (
   return result === ApprovalState.APPROVED;
 };
 
+export const isBuyApproved = async (
+  loginAccount: LoginAccount,
+  market: MarketInfo,
+  transactions: TransactionDetails[]
+): Promise<Boolean> => {
+  if (!market) return false;
+  const cash = market?.amm?.cash?.address;
+  const result = await checkAllowance(cash, market?.amm?.ammFactoryAddress, loginAccount, transactions);
+  return result === ApprovalState.APPROVED;
+};
+
+export const approveBuy = async (loginAccount: LoginAccount, amm: AmmExchange): Promise<TransactionDetails | null> => {
+  if (!amm) return null;
+  const cash = amm?.cash?.address;
+  return await approveERC20Contract(cash, "Place Bet", amm.ammFactoryAddress, loginAccount);
+};
+
 const approveCashOut = async (
   loginAccount: LoginAccount,
   bet: ActiveBetType,
