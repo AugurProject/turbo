@@ -53,6 +53,7 @@ export const Betslip = () => {
     <section
       className={classNames(Styles.Betslip, {
         [Styles.Open]: sidebarType === SIDEBAR_TYPES.BETSLIP,
+        [Styles.NavOpen]: sidebarType === SIDEBAR_TYPES.NAVIGATION,
       })}
     >
       <div>
