@@ -633,6 +633,7 @@ export const getUserBalances = async (
     marketShares: {},
     claimableWinnings: {},
     claimableFees: "0",
+    approvals: {},
   };
 
   if (!account || !provider) return userBalances;
@@ -642,15 +643,20 @@ export const getUserBalances = async (
   const BALANCE_OF = "balanceOf";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const MARKET_SHARE_COLLECTION = "marketShares";
+  const APPROVAL_COLLECTION = "approvals"
+  const ALLOWANCE = "allowance";
+
   // finalized markets
   const finalizedMarkets = Object.values(markets).filter((m) => m.reportingState === MARKET_STATUS.FINALIZED);
   const finalizedMarketIds = finalizedMarkets.map((f) => f.marketId);
   const finalizedAmmExchanges = Object.values(ammExchanges).filter((a) => finalizedMarketIds.includes(a.marketId));
+  const ammFactoryAddresses = Object.values(ammExchanges).reduce((p, exchange) => p.includes(exchange.ammFactoryAddress) ? p : [...p, exchange.ammFactoryAddress], []);
 
   // balance of
   const exchanges = Object.values(ammExchanges).filter((e) => e.id && e.totalSupply !== "0");
   const allExchanges = Object.values(ammExchanges).filter((e) => e.id);
   userBalances.ETH = await getEthBalance(provider, cashes, account);
+  const usdc = Object.values(cashes).find((c) => c.name === USDC);
 
   const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
     reference: exchange.id,
@@ -667,6 +673,23 @@ export const getUserBalances = async (
           decimals: 18,
           marketid: exchange.marketId,
           totalSupply: exchange?.totalSupply,
+        },
+      },
+    ],
+  }));
+
+  const contractAmmFactoryApprovals: ContractCallContext[] = ammFactoryAddresses.map((address) => ({
+    reference: address,
+    contractAddress: usdc.address,
+    abi: ERC20ABI,
+    calls: [
+      {
+        reference: address,
+        methodName: ALLOWANCE,
+        methodParameters: [account, address],
+        context: {
+          dataKey: address,
+          collection: APPROVAL_COLLECTION,
         },
       },
     ],
@@ -696,7 +719,7 @@ export const getUserBalances = async (
   }, []);
 
   let basicBalanceCalls: ContractCallContext[] = [];
-  const usdc = Object.values(cashes).find((c) => c.name === USDC);
+
 
   if (usdc) {
     basicBalanceCalls = [
@@ -720,7 +743,7 @@ export const getUserBalances = async (
     ];
   }
   // need different calls to get lp tokens and market share balances
-  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall];
+  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall, ...contractAmmFactoryApprovals];
   const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls).catch((e) => {
     console.error("getUserBalances", e);
     throw e;
@@ -799,8 +822,10 @@ export const getUserBalances = async (
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
-        }
+        } 
       }
+    } else if (method === ALLOWANCE) {
+      userBalances[collection][dataKey] = new BN(rawBalance).gt(ZERO);
     }
   }
 
