@@ -18,14 +18,11 @@ import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryButton },
-  Icons: { FilterIcon },
   MarketCardComps: { LoadingMarketCard },
   PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
 } = Components;
 const {
-  SIDEBAR_TYPES,
   ALL_CURRENCIES,
   ALL_MARKETS,
   OPEN,
@@ -167,7 +164,6 @@ const applyFiltersAndSort = (
 
 const MarketsView = () => {
   const {
-    isMobile,
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
@@ -175,7 +171,7 @@ const MarketsView = () => {
     marketEvents,
     marketsViewSettings,
     settings: { showLiquidMarkets },
-    actions: { setSidebar, updateMarketsViewSettings },
+    actions: { updateMarketsViewSettings },
   } = useSportsStore();
   const { markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
@@ -257,22 +253,6 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredMarkets} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
-        {isMobile && (
-          <div>
-            <SecondaryButton
-              text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
-              icon={FilterIcon}
-              action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}
-            />
-            <SearchButton
-              action={() => {
-                setFilter("");
-                setShowFilter(!showFilter);
-              }}
-              selected={showFilter}
-            />
-          </div>
-        )}
         <ul>
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />

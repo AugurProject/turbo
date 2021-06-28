@@ -116,10 +116,12 @@ export const POPULAR_CATEGORIES_ICONS = {
 // side bar types
 export const NAVIGATION: string = "NAVIGATION";
 export const FILTERS: string = "FILTERS";
+export const BETSLIP: string = "BETSLIP";
 
 export const SIDEBAR_TYPES = {
   [NAVIGATION]: NAVIGATION,
   [FILTERS]: FILTERS,
+  [BETSLIP]: BETSLIP,
 };
 
 //  transaction types
