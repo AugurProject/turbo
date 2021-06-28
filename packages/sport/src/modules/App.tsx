@@ -32,7 +32,6 @@ const AppBody = () => {
   } = useAppStatusStore();
   const { sidebarType } = useSportsStore();
   const modalShowing = Object.keys(modal).length !== 0;
-  const betslipShowing = sidebarType === SIDEBAR_TYPES.BETSLIP;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
 
@@ -57,7 +56,7 @@ const AppBody = () => {
       id="mainContent"
       className={classNames(Styles.App, {
         [Styles.ModalShowing]: modalShowing,
-        [Styles.BetslipShowing]: betslipShowing,
+        [Styles.BetslipShowing]: sidebarType !== null,
         [Styles.MyBets]: path === PORTFOLIO
       })}
     >
