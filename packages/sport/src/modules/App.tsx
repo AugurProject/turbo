@@ -22,7 +22,7 @@ import { Betslip } from "./betslip/betslip";
 import { BetslipProvider } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
 
-const { PORTFOLIO, MARKET_LOAD_TYPE, SIDEBAR_TYPES } = Constants;
+const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
 const { parsePath } = PathUtils;
 
 const AppBody = () => {

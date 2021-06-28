@@ -12,7 +12,6 @@ import {
   getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
@@ -181,7 +180,6 @@ const MarketsView = () => {
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [filter, setFilter] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
   const marketKeys = Object.keys(markets);
 
   useScrollToTopOnMount(page);
@@ -226,12 +224,6 @@ const MarketsView = () => {
     handleFilterSort();
   }, [marketKeys.length, Object.keys(marketEvents).length]);
 
-  let changedFilters = 0;
-
-  Object.keys(DEFAULT_MARKET_VIEW_SETTINGS).forEach((setting) => {
-    if (marketsViewSettings[setting] !== DEFAULT_MARKET_VIEW_SETTINGS[setting]) changedFilters++;
-  });
-
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
     if (!amm.id && isLogged) {
@@ -246,9 +238,7 @@ const MarketsView = () => {
 
   return (
     <div
-      className={classNames(Styles.MarketsView, {
-        [Styles.SearchOpen]: showFilter,
-      })}
+      className={Styles.MarketsView}
     >
       <CategoriesArea filteredMarkets={filteredMarkets} />
       <article>
@@ -269,7 +259,6 @@ const MarketsView = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             clearValue={() => setFilter("")}
-            showFilter={showFilter}
           />
         </ul>
         {!isLogged ? (
