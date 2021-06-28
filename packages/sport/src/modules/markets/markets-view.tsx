@@ -51,10 +51,10 @@ const applyFiltersAndSort = (
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
-  // immediately sort by event id and turbo id.
-  updatedFilteredMarkets = updatedFilteredMarkets.sort(
-    (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  );
+  // // immediately sort by event id and turbo id.
+  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
+  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
+  // );
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {

@@ -8,6 +8,7 @@ import {
   Icons,
   useAppStatusStore,
   useUserStore,
+  useDataStore,
   ButtonComps,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
@@ -18,8 +19,9 @@ import {
   Formatter,
   Links,
 } from "@augurproject/comps";
-import { useBetslipStore } from "modules/stores/betslip";
+import { useBetslipStore } from "../stores/betslip";
 import { ACTIVE_BETS } from "../constants";
+import { CategoriesArea } from "../categories/categories";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck, XIcon } = Icons;
 const { TinyThemeButton } = ButtonComps;
@@ -292,12 +294,13 @@ export const TopNav = () => {
   );
 };
 
-const MobileMenu = ({ extraContent = null }: any) => {
+const MobileMenu = () => {
   const { isLogged } = useAppStatusStore();
   const {
     sidebarType,
     actions: { setSidebar },
   } = useSportsStore();
+  const { markets } = useDataStore();
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
   return (
@@ -337,7 +340,7 @@ const MobileMenu = ({ extraContent = null }: any) => {
             </Link>
           </li>
         </ol>
-        {extraContent && extraContent}
+        {path === MARKETS && <CategoriesArea filteredMarkets={markets} />}
       </main>
       <footer>
         <SettingsButton />

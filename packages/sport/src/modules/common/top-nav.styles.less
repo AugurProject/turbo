@@ -513,8 +513,10 @@
   max-height: 100vh;
   left: 100%;
   top: 0;
-  display: flex;
-  flex-flow: column nowrap;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: @size-64 1fr @size-64;
+  grid-gap: @size-8;
 
   &.Open {
     left: 0;
@@ -553,7 +555,6 @@
       border: 0;
       background: transparent;
 
-
       > svg {
         height: @size-12;
         width: @size-12;
@@ -566,16 +567,17 @@
   }
 
   > main {
-    flex: 1 100%;
+    padding: 0 @size-24;
     display: flex;
     flex-flow: column nowrap;
-    padding: 0 @size-24;
+    overflow-y: auto;
 
     > ol {
-      margin-top: @size-40;
+      margin-top: @size-32;
       border-bottom: @size-1 dashed var(--simple-secondary-text);
       display: flex;
       flex-flow: column nowrap;
+      margin-bottom: @size-24;
 
       > li {
         margin-bottom: @size-24;
@@ -591,9 +593,24 @@
         }
       }
     }
+
+    > article {
+      display: grid;
+
+      > h2,
+      > h3 {
+        color: var(--simple-light-bg);
+      }
+      > article[class*="CategoryGroup"] {
+        > h4,
+        > button[class*="SelectedCategory"] {
+          color: var(--simple-light-bg);
+        }
+      }
+    }
   }
 
-  > footer { 
+  > footer {
     height: @size-64;
     min-height: @size-64;
     max-height: @size-64;
