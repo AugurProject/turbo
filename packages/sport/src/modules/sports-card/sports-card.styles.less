@@ -151,10 +151,10 @@
   .text-14;
 
   min-height: @size-40;
-  max-height: @size-40;
-  height: @size-40;
+  // max-height: @size-40;
+  // height: @size-40;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   align-items: center;
   padding: @size-8;
   background: var(--simple-light-bg);
@@ -165,6 +165,7 @@
 
     font-style: italic;
     margin: 0 @size-4;
+    white-space: nowrap;
   }
 
   > svg {

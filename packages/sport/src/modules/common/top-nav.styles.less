@@ -520,6 +520,10 @@
 
   &.Open {
     left: 0;
+
+    > footer {
+      left: 0;
+    }
   }
 
   > header {
@@ -593,21 +597,6 @@
         }
       }
     }
-
-    > article {
-      display: grid;
-
-      > h2,
-      > h3 {
-        color: var(--simple-light-bg);
-      }
-      > article[class*="CategoryGroup"] {
-        > h4,
-        > button[class*="SelectedCategory"] {
-          color: var(--simple-light-bg);
-        }
-      }
-    }
   }
 
   > footer {
@@ -622,6 +611,7 @@
     position: fixed;
     bottom: 0;
     width: 100vw;
+    left: 100%;
 
     > div {
       > button {
