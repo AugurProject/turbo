@@ -643,14 +643,17 @@ export const getUserBalances = async (
   const BALANCE_OF = "balanceOf";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const MARKET_SHARE_COLLECTION = "marketShares";
-  const APPROVAL_COLLECTION = "approvals"
+  const APPROVAL_COLLECTION = "approvals";
   const ALLOWANCE = "allowance";
 
   // finalized markets
   const finalizedMarkets = Object.values(markets).filter((m) => m.reportingState === MARKET_STATUS.FINALIZED);
   const finalizedMarketIds = finalizedMarkets.map((f) => f.marketId);
   const finalizedAmmExchanges = Object.values(ammExchanges).filter((a) => finalizedMarketIds.includes(a.marketId));
-  const ammFactoryAddresses = Object.values(ammExchanges).reduce((p, exchange) => p.includes(exchange.ammFactoryAddress) ? p : [...p, exchange.ammFactoryAddress], []);
+  const ammFactoryAddresses = Object.values(ammExchanges).reduce(
+    (p, exchange) => (p.includes(exchange.ammFactoryAddress) ? p : [...p, exchange.ammFactoryAddress]),
+    []
+  );
 
   // balance of
   const exchanges = Object.values(ammExchanges).filter((e) => e.id && e.totalSupply !== "0");
@@ -720,7 +723,6 @@ export const getUserBalances = async (
 
   let basicBalanceCalls: ContractCallContext[] = [];
 
-
   if (usdc) {
     basicBalanceCalls = [
       {
@@ -743,7 +745,12 @@ export const getUserBalances = async (
     ];
   }
   // need different calls to get lp tokens and market share balances
-  const balanceCalls = [...basicBalanceCalls, ...contractMarketShareBalanceCall, ...contractLpBalanceCall, ...contractAmmFactoryApprovals];
+  const balanceCalls = [
+    ...basicBalanceCalls,
+    ...contractMarketShareBalanceCall,
+    ...contractLpBalanceCall,
+    ...contractAmmFactoryApprovals,
+  ];
   const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls).catch((e) => {
     console.error("getUserBalances", e);
     throw e;
@@ -822,7 +829,7 @@ export const getUserBalances = async (
           if (position) userBalances.marketShares[marketId].positions.push(position);
           userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
-        } 
+        }
       }
     } else if (method === ALLOWANCE) {
       userBalances[collection][dataKey] = new BN(rawBalance).gt(ZERO);

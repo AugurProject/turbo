@@ -622,7 +622,7 @@ export interface UserBalances {
   claimableFees: string;
   rep?: string;
   legacyRep?: string;
-  approvals: Approvals
+  approvals: Approvals;
 }
 
 export interface ProcessedData {
