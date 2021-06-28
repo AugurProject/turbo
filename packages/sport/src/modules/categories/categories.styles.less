@@ -4,6 +4,18 @@
   min-width: 210px;
   margin-right: @size-40;
 
+  &.Inverted {
+    margin-right: 0;
+
+    > h2,
+    > h3 {
+      color: var(--simple-light-bg);
+    }
+    > article:last-of-type {
+      border-bottom: @size-1 dashed var(--simple-secondary-text);
+    }
+  }
+
   > h2 {
     .text-20-bold;
 
@@ -148,7 +160,6 @@
 
     &:focus {
       border: @size-1 solid var(--theme-focus-border-color);
-      
     }
 
     &:hover {
@@ -181,6 +192,99 @@
   }
 }
 
+.CategoriesArea.Inverted {
+  .RemoveCategoryButton {
+    color: var(--simple-secondary-text);
+  
+    &:hover {
+      color: var(--simple-primary-text);
+  
+      > span {
+        border-color: var(--simple-primary-text);
+      }
+    }
+  
+    > span {
+      background: var(--simple-light-bg);
+      border: @size-1 solid var(--simple-tertiary-text);
+  
+      > svg {
+        > path {
+          fill: var(--simple-primary-text);
+        }
+      }
+    }
+  }
+
+  > article.CategoryGroup {
+    > h4,
+    > button {
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--simple-tertiary-text);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--simple-tertiary-text);
+        }
+      }
+
+      > span {
+        .NumberBox;
+
+        border: @size-1 solid var(--simple-secondary-text);
+        background: var(--simple-primary-text);
+        color: var(--simple-light-bg);
+      }
+
+      &:hover {
+        > span {
+          border-color: var(--simple-light-bg);
+          color: var(--simple-light-bg);
+        }
+      }
+
+      &.SelectedCategory {
+        color: var(--simple-light-bg);
+
+        > span {
+          background: var(--simple-light-bg);
+          border-color: var(--simple-light-bg);
+          color: var(--simple-primary-text);
+        }
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--simple-light-bg);
+          }
+  
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--simple-light-bg);
+          }
+        }
+      }
+    }
+
+    > h4 {
+      color: var(--simple-light-bg);
+    }
+
+    > button {
+      color: var(--simple-tertiary-text);
+
+      &:hover {
+        color: var(--simple-light-bg);
+      }
+    }
+  }
+}
+
 .CategoriesTrail {
   .text-10-semi-bold;
 
@@ -199,7 +303,7 @@
 }
 
 @media @breakpoint-mobile-tiny {
-  .CategoriesArea {
+  .CategoriesArea:not(.Inverted) {
     display: none;
   }
 }
@@ -244,7 +348,7 @@
     }
 
     &:disabled {
-      opacity: .95;
+      opacity: 0.95;
       cursor: not-allowed;
     }
   }

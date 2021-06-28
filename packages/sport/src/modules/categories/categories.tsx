@@ -36,12 +36,12 @@ const formatCategoryCount = (numCats) =>
     bigUnitPostfix: true,
   }).full;
 
-export const CategoriesArea = ({ filteredMarkets }) => {
+export const CategoriesArea = ({ filteredMarkets, inverted = false }) => {
   const { marketsViewSettings } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
-    <article className={Styles.CategoriesArea}>
+    <article className={classNames(Styles.CategoriesArea, { [Styles.Inverted]: inverted })}>
       <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
       <NavigationArea selectedCategories={selectedCategories} markets={filteredMarkets} />
     </article>
@@ -60,7 +60,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const categoryGroups = !primaryCategory ? (
     <>
       {Object.entries(topLevel).map((categoryInfo, i) => (
-        <CategoryGroup {...{ categoryInfo, markets, key: i}} />
+        <CategoryGroup {...{ categoryInfo, markets, key: i }} />
       ))}
     </>
   ) : (
@@ -211,7 +211,7 @@ export const DailyFutureSwitch = ({ selection, setSelection }) => {
           onClick={() => setSelection(id)}
           className={classNames({ [Styles.Selected]: id === selection })}
           disabled={id === 1}
-          title={id === 1 ? 'Coming Soon' : label}
+          title={id === 1 ? "Coming Soon" : label}
         >
           {label}
         </button>
