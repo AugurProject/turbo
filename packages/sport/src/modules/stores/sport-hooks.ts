@@ -16,9 +16,17 @@ const {
   SET_SIDEBAR,
   SET_BETSLIP_MINIMIZED,
   UPDATE_MARKETS_VIEW_SETTINGS,
+  SET_FILTERED_EVENTS,
 } = SPORT_ACTIONS;
 
-const { MARKET_EVENTS, SETTINGS, SIDEBAR_TYPE, BETSLIP_MINIMIZED, MARKETS_VIEW_SETTINGS } = SPORT_STATE_KEYS;
+const {
+  MARKET_EVENTS,
+  SETTINGS,
+  SIDEBAR_TYPE,
+  BETSLIP_MINIMIZED,
+  MARKETS_VIEW_SETTINGS,
+  FILTERED_EVENTS,
+} = SPORT_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
@@ -76,6 +84,10 @@ export function SportReducer(state, action) {
       };
       break;
     }
+    case SET_FILTERED_EVENTS: {
+      updatedState[FILTERED_EVENTS] = action.filteredEvents;
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
@@ -97,6 +109,7 @@ export const useSport = (defaultState = DEFAULT_SPORT_STATE) => {
       setSidebar: (sidebarType) => dispatch({ type: SET_SIDEBAR, sidebarType }),
       updateSettings: (settings, account = null) => dispatch({ type: UPDATE_SETTINGS, settings, account }),
       updateMarketEvents: (marketEvents: MarketEvents) => dispatch({ type: UPDATE_MARKET_EVENTS, marketEvents }),
+      setFilteredEvents: (filteredEvents: MarketEvents[]) => dispatch({ type: SET_FILTERED_EVENTS, filteredEvents }),
     },
   };
 };
