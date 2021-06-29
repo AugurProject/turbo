@@ -43,7 +43,8 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     struct MarketDetails {
         MarketType marketType;
         uint256 coinIndex;
-        uint256 price;
+        uint256 creationPrice;
+        uint256 resolutionPrice;
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
@@ -132,11 +133,11 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
     function createAndResolveMarketsForCoin(uint256 _coinIndex) internal {
         Coin memory _coin = coins[_coinIndex];
-        uint256 _newPrice = getPrice(_coin);
+        (uint256 _fullPrice, uint256 _newPrice) = getPrice(_coin);
 
         // resolve markets
         if (_coin.currentMarkets[uint256(MarketType.PriceUpDown)] != 0) {
-            resolvePriceUpDownMarket(_coin, _newPrice);
+            resolvePriceUpDownMarket(_coin, _newPrice, _fullPrice);
         }
 
         // update price only AFTER resolution
@@ -155,7 +156,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         );
     }
 
-    function resolvePriceUpDownMarket(Coin memory _coin, uint256 _newPrice) internal {
+    function resolvePriceUpDownMarket(Coin memory _coin, uint256 _newPrice, uint256 _fullPrice) internal {
         uint256 _marketId = _coin.currentMarkets[uint256(MarketType.PriceUpDown)];
 
         OwnedERC20 _winner;
@@ -166,6 +167,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         }
 
         markets[_marketId].winner = _winner;
+        marketDetails[_marketId].resolutionPrice = _fullPrice;
         emit MarketResolved(_marketId, address(_winner));
     }
 
@@ -181,36 +183,34 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         uint256 _nextResolutionTime = nextResolutionTime;
         _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _nextResolutionTime));
-        marketDetails[_id] = MarketDetails(MarketType.PriceUpDown, _coinIndex, _newPrice);
+        marketDetails[_id] = MarketDetails(MarketType.PriceUpDown, _coinIndex, _newPrice, 0);
         emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }
 
-    function getPrice(Coin memory _coin) internal view returns (uint256) {
-        (, int256 _price, , , ) = _coin.priceFeed.latestRoundData();
-        require(_price >= 0, "Price from feed is negative");
+    function getPrice(Coin memory _coin) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
+        (, int256 _rawPrice, , , ) = _coin.priceFeed.latestRoundData();
+        require(_rawPrice >= 0, "Price from feed is negative");
+        _fullPrice = uint256(_rawPrice);
 
         // The precision is how many decimals the price has. Zero is dollars, 2 includes cents, 3 is tenths of a cent, etc.
         // Our resolution rules want a certain precision. Like BTC is to the dollar and MATIC is to the cent.
         // If somehow the decimals are larger than the desired precision then add zeroes to the end to meet the precision.
         // This does not change the resolution outcome but does guard against decimals() changing and therefore altering the basis.
 
-        uint256 _truncatedPrice;
         uint8 _precision = _coin.priceFeed.decimals(); // probably constant but that isn't guaranteed, so query each time
         if (_precision > _coin.imprecision) {
             uint8 _truncate = _precision - _coin.imprecision;
-            _truncatedPrice = uint256(_price) / (10**_truncate);
+            _truncatedPrice = _fullPrice / (10**_truncate);
         } else if (_precision < _coin.imprecision) {
             uint8 _greaten = _coin.imprecision - _precision;
-            _truncatedPrice = uint256(_price) * (10**_greaten);
+            _truncatedPrice = _fullPrice * (10**_greaten);
         } else {
-            _truncatedPrice = uint256(_price);
+            _truncatedPrice = _fullPrice;
         }
 
         // Round up because that cleanly fits Above/Not-Above.
-        if (_truncatedPrice == uint256(_price)) {
-            return _truncatedPrice;
-        } else {
-            return _truncatedPrice + 1;
+        if (_truncatedPrice != _fullPrice) {
+            _truncatedPrice += 1;
         }
     }
 
