@@ -195,8 +195,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
   const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
   const { spreadLine, overUnderLine } = marketEvent;
-  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket.amm, eventOutcomeId, betSizeToOdds), [
-    spreadMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket?.amm, eventOutcomeId, betSizeToOdds), [
+    spreadMarket?.amm?.ammOutcomes[eventOutcomeId]?.balance,
     betSizeToOdds,
   ]);
   const spreadOdds = useMemo(

@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from "react";
-import { useDataStore, useUserStore } from "@augurproject/comps";
-import { PrimaryThemeButton } from "@augurproject/comps/build/components/common/buttons";
+import React, { useState } from "react";
+import Styles from "./buy-approvals.styles.less";
+import classNames from "classnames";
+import { useDataStore, useUserStore, Icons } from "@augurproject/comps";
+import { PrimaryThemeButton, SecondaryThemeButton } from "@augurproject/comps/build/components/common/buttons";
 import { Cash } from "@augurproject/comps/build/types";
 import { ammFactoryMarketNames } from "@augurproject/comps/build/utils/contract-calls";
 import { USDC } from "modules/constants";
@@ -8,17 +10,16 @@ import { BetType } from "modules/stores/constants";
 import { approveBuy, approveBuyReset } from "modules/utils";
 import { TX_STATUS } from "@augurproject/comps/build/utils/constants";
 import { PendingIcon } from "modules/betslip/betslip";
+const { SimpleCheck } = Icons;
 
-export const useUserApprovals = (bets: BetType[]): boolean => {
+export const useUserApprovals = (bets: BetType[]): number => {
     const { markets } = useDataStore();
     const { balances: { approvals } } = useUserStore();
     const allAmmFactoryAddresses = Object.values(bets).reduce(
         (p, bet) => (p.includes(markets[bet.marketId].amm.ammFactoryAddress) ? p : [...p, markets[bet.marketId].amm.ammFactoryAddress]),
         []
     );
-
-    const needsApproval = allAmmFactoryAddresses.filter(address => !approvals[address]);
-    return needsApproval.length > 0;
+    return allAmmFactoryAddresses.filter(address => !approvals[address])?.length;
 }
 
 export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
@@ -55,22 +56,32 @@ export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
             setTxHashes({ ...txHashes, [ammFactoryAddress]: txDetails.hash })
         }
     };
+    const getIcon = (ammFactoryAddress) => {
+        const hash = txHashes[ammFactoryAddress]
+        if (!hash) return null;
+        if (hashStatus[hash] === TX_STATUS.PENDING) return PendingIcon;
+        if (hashStatus[hash] === TX_STATUS.CONFIRMED) return  SimpleCheck;
+        return null;
+    }
+    const getPreTitle = (ammFactoryAddress) => {
+        return hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED ? `Can now bet` : `Allow betting`
+    }
 
+    const showReset = true;
+    
     return (
         <>
             {needsApproval && needsApproval.map(ammFactoryAddress => (
-                <div >
-                    <PrimaryThemeButton small disabled={hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.PENDING} action={() => doApproval(loginAccount, ammFactoryAddress)}
-                        customContent={
-                            <>
-                            <span>{`Allow betting on ${factoryNames[ammFactoryAddress]} markets`}</span>
-                            {hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.PENDING && PendingIcon}
-                            </>
-                        }
+                <div key={ammFactoryAddress} className={classNames(Styles.ApprovalButton, {
+                    [Styles.Confirmed]: hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED
+                })}>
+                    <PrimaryThemeButton small disabled={!!hashStatus[txHashes[ammFactoryAddress]]} action={() => doApproval(loginAccount, ammFactoryAddress)}
+                        icon={getIcon(ammFactoryAddress)}
+                        text={`${getPreTitle(ammFactoryAddress)} on ${factoryNames[ammFactoryAddress]} markets`}
                     />
                 </div>
             ))}
-            {allAmmFactoryAddresses && allAmmFactoryAddresses.map(ammFactoryAddress => (
+            {showReset && allAmmFactoryAddresses && allAmmFactoryAddresses.map(ammFactoryAddress => (
                 <div >
                     <PrimaryThemeButton small disabled={hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.PENDING} action={() => doResetApproval(loginAccount, ammFactoryAddress)}
                         text="Reset"

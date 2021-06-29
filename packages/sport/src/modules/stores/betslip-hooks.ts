@@ -1,10 +1,7 @@
-import { useReducer, useEffect } from "react";
-import { BETSLIP_ACTIONS, DEFAULT_BETSLIP_STATE, BETSLIP_STATE_KEYS, DEFAULT_BET, BetType } from "./constants";
-import { BETSLIP, ACTIVE_BETS, TX_STATUS } from "../constants";
+import { useReducer } from "react";
+import { BETSLIP_ACTIONS, DEFAULT_BETSLIP_STATE, BETSLIP_STATE_KEYS, DEFAULT_BET } from "./constants";
+import { BETSLIP, ACTIVE_BETS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
-import { useDataStore } from "@augurproject/comps";
-import { useUserStore } from "@augurproject/comps";
-import { isBuyApproved } from "modules/utils";
 const {
   Utils: { dispatchMiddleware },
 } = Stores;

@@ -127,7 +127,8 @@ const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggl
 
 const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
 const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
-const APPROVALS_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+const APPROVALS_NEEDED = `Approvals are required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -144,11 +145,15 @@ export const BetslipMain = () => {
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
-      if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+      if (needsApprovals) {
+        return needsApprovals === 1 ? APPROVAL_NEEDED : APPROVALS_NEEDED;
+      } else if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return ODDS_CHANGED_ORDER_SIZE;
         } else if (bet?.price !== bet?.wagerAvgPrice) {
           return ODDS_CHANGED_SINCE_SELECTION;
+        } else {
+          return null;
         }
       }
       if (acc !== null) return acc;
@@ -157,17 +162,14 @@ export const BetslipMain = () => {
     if (anyBetsChanged !== oddsChangedMessage) {
       setOddsChangedMessage(anyBetsChanged);
     }
-    if (needsApprovals) {
-      console.log('setting approval neeeded message')
-      //setOddsChangedMessage(APPROVALS_NEEDED);
-    }
-  }, [valuesToWatch.toString()], needsApprovals);
+  }, [valuesToWatch.toString(), needsApprovals]);
 
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
+      <BuyApprovals bets={bets} />
     </main>
   ) : (
     <EmptyBetslip />
@@ -372,8 +374,8 @@ const EditableBet = ({ betId, bet }) => {
 const LabeledInput = ({
   label,
   value = null,
-  onEdit = (e) => {},
-  onBlur = (e) => {},
+  onEdit = (e) => { },
+  onBlur = (e) => { },
   isInvalid = false,
   disabled = false,
 }) => {
@@ -563,7 +565,6 @@ const BetslipFooter = () => {
       totalToWin: ZERO,
     };
   const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
-        //<BuyApprovals bets={bets} />
   return (
     <footer>
       {onBetslip ? (
