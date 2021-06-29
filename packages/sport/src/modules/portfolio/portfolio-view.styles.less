@@ -8,60 +8,6 @@
   > section:first-of-type {
     flex-flow: column nowrap;
     padding-right: @size-40;
-
-    > ul {
-      align-items: center;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-flow: row nowrap;
-      justify-content: flex-end;
-      width: 100%;
-      margin-bottom: @size-24;
-
-      > div {
-        max-height: @size-40;
-        margin-right: @size-20;
-
-        > input {
-          max-height: @size-38;
-        }
-
-        &:last-of-type {
-          .PrimaryBorderRadius;
-
-          margin-right: 0;
-          height: unset;
-          transition: 0.2s flex ease-in-out;
-          min-width: @size-269;
-          margin-left: @size-20;
-
-          > div {
-            background: none;
-            border: 0;
-            border-radius: 0;
-            margin-left: 0;
-          }
-
-          &:focus-within {
-            flex: 1;
-            transition: 0.33s flex ease-in-out;
-          }
-        }
-      }
-
-      > article {
-        margin-right: auto;
-      }
-
-      > button {
-        margin-left: auto;
-      }
-    }
-
-    > div[class*="Activity"] {
-      display: none;
-    }
   }
 }
 
@@ -69,6 +15,7 @@
   .PortfolioView {
     grid-template-columns: 1fr;
     flex-flow: column nowrap;
+    padding: 0;
 
     > section:last-of-type {
       display: none;
@@ -109,6 +56,146 @@
       > div[class*="Activity"] {
         display: flex;
       }
+    }
+
+    &.ActivityShown {
+      > section:first-of-type {
+        display: none;
+      }
+      > section:last-of-type {
+        display: flex;
+        padding: @size-16 @size-16 @size-40;
+
+        > div:last-of-type {
+          max-width: unset;
+        }
+
+        > div:first-of-type {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.FilterSearchNav {
+  align-items: center;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: @size-24;
+
+  > div {
+    max-height: @size-40;
+    margin-right: @size-20;
+
+    > input {
+      max-height: @size-38;
+    }
+
+    &:last-of-type {
+      .PrimaryBorderRadius;
+
+      margin-right: 0;
+      height: unset;
+      transition: 0.2s flex ease-in-out;
+      min-width: @size-269;
+      margin-left: @size-20;
+
+      > div {
+        background: none;
+        border: 0;
+        border-radius: 0;
+        margin-left: 0;
+      }
+
+      &:focus-within {
+        flex: 1;
+        transition: 0.33s flex ease-in-out;
+      }
+    }
+  }
+
+  > article {
+    margin-right: auto;
+  }
+
+  > button {
+    display: none;
+  }
+
+  @media @breakpoint-mobile-tiny {
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    grid-gap: @size-8;
+
+    > div {
+      margin: 0;
+
+      &:last-of-type {
+        grid-column: span 2;
+        grid-row: 1;
+        margin-left: 0;
+      }
+    }
+
+    > article {
+      margin: 0;
+    }
+  }
+
+  @media @breakpoint-mobile-tablet {
+    grid-template-columns: 0fr 0fr 1fr;
+
+    > div {
+      grid-column: 1;
+
+      &:last-of-type {
+        grid-column: span 3;
+        grid-row: 2;
+      }
+    }
+
+    > article {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    > button {
+      display: flex;
+      grid-row: 1;
+      grid-column: 3;
+      margin-left: auto;
+    }
+  }
+
+  @media @breakpoint-mobile {
+    grid-template-columns: 0fr 1fr;
+    grid-gap: @size-16;
+
+    > div {
+      grid-column: 1;
+      grid-row: 2;
+
+      &:last-of-type {
+        grid-column: span 2;
+        grid-row: 3;
+      }
+    }
+
+    > article {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    > button {
+      display: flex;
+      grid-row: 1;
+      grid-column: 2;
+      margin-left: auto;
     }
   }
 }
