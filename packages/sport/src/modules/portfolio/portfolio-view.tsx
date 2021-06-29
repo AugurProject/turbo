@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import classNames from "classnames";
 import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
 import { Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
@@ -19,23 +20,21 @@ const {
 } = Stores;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { PrimaryThemeButton },
-  Icons: { WinnerMedal },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
+  Icons: { WinnerMedal, SimpleChevron },
   InputComps: { SearchInput },
 } = Components;
 
-const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber, ids: string[], address: string }[] => {
+const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber; ids: string[]; address: string }[] => {
   const factories = claimbleMarketsPerCash.reduce(
-    (p, {
-      ammExchange: { turboId, marketFactoryAddress },
-      claimableWinnings: { claimableBalance },
-    }) => {
+    (p, { ammExchange: { turboId, marketFactoryAddress }, claimableWinnings: { claimableBalance } }) => {
       const factory = p[marketFactoryAddress] || { total: new BigNumber(0), ids: [] };
       factory.total = factory.total.plus(createBigNumber(claimableBalance));
       factory.ids.push(turboId);
       factory.address = marketFactoryAddress;
-      return { ...p, [marketFactoryAddress]: factory }
-    }, {}
+      return { ...p, [marketFactoryAddress]: factory };
+    },
+    {}
   );
   return Object.values(factories);
 };
@@ -46,7 +45,7 @@ const handleClaimAll = async (loginAccount, ids, factoryAddress, addTransaction,
   const from = loginAccount?.account;
   if (from) {
     setPendingClaim(true);
-    const txDetails = await claimAll(loginAccount, ids, factoryAddress).catch(e => console.error(e));
+    const txDetails = await claimAll(loginAccount, ids, factoryAddress).catch((e) => console.error(e));
     setPendingClaim(false);
     if (txDetails) addTransaction(txDetails);
   }
@@ -59,29 +58,25 @@ const ClaimableTicket = ({ amount, cash, USDCTotal }) => {
     actions: { addTransaction },
   } = useUserStore();
   const [pendingClaim, setPendingClaim] = useState(false);
-  const disableClaimUSDCWins =
-    Boolean(transactions.find((t) => t.message === getClaimAllMessage(cash) && t.status === TX_STATUS.PENDING));
+  const disableClaimUSDCWins = Boolean(
+    transactions.find((t) => t.message === getClaimAllMessage(cash) && t.status === TX_STATUS.PENDING)
+  );
 
   return (
     <section className={Styles.ClaimableTicket}>
       {WinnerMedal}
       <p>
         You have <b>{amount}</b> in winnings to claim in markets
-    </p>
+      </p>
       <PrimaryThemeButton
         text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
         disabled={pendingClaim || disableClaimUSDCWins}
         action={() => {
-          handleClaimAll(
-            loginAccount,
-            USDCTotal.ids,
-            USDCTotal.address,
-            addTransaction,
-            setPendingClaim
-          );
+          handleClaimAll(loginAccount, USDCTotal.ids, USDCTotal.address, addTransaction, setPendingClaim);
         }}
       />
-    </section>)
+    </section>
+  );
 };
 
 export const ClaimWinningsSection = () => {
@@ -99,13 +94,15 @@ export const ClaimWinningsSection = () => {
   return (
     <div className={Styles.ClaimableWinningsSection}>
       {isLogged && !hasWinnings && <div>{WinnerMedal} Any winnings will show here</div>}
-      {isLogged && hasWinnings && USDCTotals.map(USDCTotal => (
-        <ClaimableTicket          
-          amount={formatCash(USDCTotal.total, usdcCash?.name).full}
-          cash={usdcCash}
-          USDCTotal={USDCTotal}
-        />)
-      )}
+      {isLogged &&
+        hasWinnings &&
+        USDCTotals.map((USDCTotal) => (
+          <ClaimableTicket
+            amount={formatCash(USDCTotal.total, usdcCash?.name).full}
+            cash={usdcCash}
+            USDCTotal={USDCTotal}
+          />
+        ))}
     </div>
   );
 };
@@ -114,13 +111,19 @@ const useEventPositionsData = () => {
   const { markets } = useDataStore();
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
-  const marketIds = Array.from(new Set(Object.entries(active)
-    .map(([txhash, bet]) => {
-      // @ts-ignore
-      return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
-    })
-    .filter((i) => i)));
-  const events = Array.from(new Set(marketIds.map(marketId => markets?.[marketId]?.eventId))).map(eventId => marketEvents[eventId]);
+  const marketIds = Array.from(
+    new Set(
+      Object.entries(active)
+        .map(([txhash, bet]) => {
+          // @ts-ignore
+          return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
+        })
+        .filter((i) => i)
+    )
+  );
+  const events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId))).map(
+    (eventId) => marketEvents[eventId]
+  );
   const eventPositionsData = events.reduce((acc, event) => {
     const out = { ...acc };
     const bets = Object.entries(active).reduce((a, [txhash, bet]) => {
@@ -141,20 +144,26 @@ const useEventPositionsData = () => {
     return out;
   }, {});
   return eventPositionsData;
-}
+};
 
 export const PortfolioView = () => {
   useScrollToTopOnMount();
   const [filter, setFilter] = useState("");
   const [soryBy, setSortBy] = useState(OPEN);
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
+  const [showActivity, setShowActivity] = useState(false);
   const eventPositionsData = useEventPositionsData();
 
   return (
-    <div className={Styles.PortfolioView}>
+    <div
+      className={classNames(Styles.PortfolioView, {
+        [Styles.ActivityShown]: showActivity,
+      })}
+    >
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
-        <ul>
+        <ClaimWinningsSection />
+        <ul className={Styles.FilterSearchNav}>
           <SquareDropdown
             onChange={(value) => {
               setSortBy(value);
@@ -164,6 +173,7 @@ export const PortfolioView = () => {
             preLabel="Market Status"
           />
           <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+          <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
           <SearchInput
             value={filter}
             // @ts-ignore
@@ -174,6 +184,8 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
+        <SecondaryThemeButton text="MY BETS" reverseContent icon={SimpleChevron} action={() => setShowActivity(!showActivity)} small />
+        <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />
       </section>

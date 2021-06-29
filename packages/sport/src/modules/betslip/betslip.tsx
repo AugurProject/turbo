@@ -510,7 +510,7 @@ export const DashlineLong = () => (
   </svg>
 );
 
-const TicketBreakdown = ({ bet, timeFormat }) => {
+export const TicketBreakdown = ({ bet, timeFormat }) => {
   const { wager, toWin, timestamp } = bet;
   return (
     <ul className={Styles.TicketBreakdown}>
