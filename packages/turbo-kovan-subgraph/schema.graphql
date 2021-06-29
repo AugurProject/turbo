@@ -49,6 +49,7 @@ type Sender @entity {
   positionBalance: [PositionBalance!] @derivedFrom(field: "sender")
   "From the perspective of the user. E.g. totalLiquidity is negative when adding liquidity."
   totalLiquidity: BigInt
+  sumOfInitialCost: [InitialCostPerMarket!] @derivedFrom(field: "sender")
 }
 
 type AddLiquidity @entity {
@@ -149,19 +150,29 @@ type PositionBalance @entity {
   hasClaimed: Boolean # has the user claimed winnings
   timestamp: BigInt! # last timestamp that effected user's position
   transactionHash: String!
-  shares: String # number of shares
   outcomeId: String # market outcome id
   # total paid / shares
   avgPrice: BigDecimal # average price user paid
   # price * shares
   initCostUsd: String # total cost in usdc, user paid
-  sharesBigInt: BigInt
   initCostUsdBigInt: BigInt
-  sharesBigDecimal: BigDecimal
   initCostUsdBigDecimal: BigDecimal
+  shares: String # number of shares
+  sharesBigInt: BigInt
+  sharesBigDecimal: BigDecimal
+  payout: String
+  payoutBigInt: BigInt
+  payoutBigDecimal: BigDecimal
   sender: Sender!
+  market: Market!
+  totalChangeUsd: String
+  totalChangeUsdBigInt: BigInt
+  totalChangeUsdBigDecimal: BigDecimal
+}
 
-  # usdValue: String # current usdc value of position
-  # outcomeName: String # market outcome name
-  # totalChangeUsd: String # total change in usdc, current value - initial cost
+type InitialCostPerMarket @entity {
+  id: ID!
+  sender: Sender
+  market: Market
+  sumOfInitialCost: BigInt!
 }
