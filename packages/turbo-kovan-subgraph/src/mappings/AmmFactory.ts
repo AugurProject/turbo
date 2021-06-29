@@ -17,6 +17,7 @@ import {
   getOrCreateSender,
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
+import { handlePositionFromTradeEvent, handlePositionFromLiquidityChangedEvent } from "../helpers/CommonHandlers";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -56,6 +57,14 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   addLiquidityEntity.totalSupply = totalSupply;
   addLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
+  for (let i = 0; i < event.params.sharesReturned.length; i++) {
+    let array = new Array<BigInt>(3);
+    array = event.params.sharesReturned;
+    if (array[i].gt(BigInt.fromI32(0))) {
+      handlePositionFromLiquidityChangedEvent(event, true, array[i], BigInt.fromI32(i));
+    }
+  }
+
   addLiquidityEntity.save();
 }
 
@@ -75,6 +84,14 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   removeLiquidityEntity.sender = senderId;
   removeLiquidityEntity.totalSupply = totalSupply;
   removeLiquidityEntity.sharesReturned = event.params.sharesReturned;
+
+  for (let i = 0; i < event.params.sharesReturned.length; i++) {
+    let array = new Array<BigInt>(3);
+    array = event.params.sharesReturned;
+    if (array[i].gt(BigInt.fromI32(0))) {
+      handlePositionFromLiquidityChangedEvent(event, false, array[i], BigInt.fromI32(i));
+    }
+  }
 
   removeLiquidityEntity.save();
 }
@@ -139,6 +156,8 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
 
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
+
+  handlePositionFromTradeEvent(event);
 
   tradeEntity.save();
 }
