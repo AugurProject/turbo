@@ -111,7 +111,6 @@ export const BetslipProvider = ({ children }: any) => {
 
   useClearOnLogout(state);
   usePersistentActiveBets(state);
-  useBets(state);
 
   if (!BetslipStore.actionsSet) {
     BetslipStore.actions = state.actions;

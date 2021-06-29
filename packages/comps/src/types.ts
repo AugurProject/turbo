@@ -719,3 +719,7 @@ export interface MarketFactoryConfig {
   description: string;
   version: string;
 }
+
+export interface MarketFactoryNames {
+  [address: string]: string;
+}

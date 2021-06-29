@@ -21,7 +21,8 @@ import {
   createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { approveOrCashOut, getBuyAmount, makeBet, approveBuy } from "modules/utils";
+import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
+import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -126,6 +127,7 @@ const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggl
 
 const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
 const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
+const APPROVALS_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -138,6 +140,7 @@ export const BetslipMain = () => {
   const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
     return `${bet.wagerAvgPrice}-${bet.wager}`;
   });
+  const needsApprovals = useUserApprovals(bets);
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
@@ -154,7 +157,11 @@ export const BetslipMain = () => {
     if (anyBetsChanged !== oddsChangedMessage) {
       setOddsChangedMessage(anyBetsChanged);
     }
-  }, [valuesToWatch.toString()]);
+    if (needsApprovals) {
+      console.log('setting approval neeeded message')
+      //setOddsChangedMessage(APPROVALS_NEEDED);
+    }
+  }, [valuesToWatch.toString()], needsApprovals);
 
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
@@ -232,11 +239,8 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const {
-    loginAccount,
-    actions: { addTransaction },
-  } = useUserStore();
-  const { id, marketId, heading, subHeading, name, price, wager, toWin, size, isApproved, isPending } = bet;
+
+  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
@@ -255,13 +259,7 @@ const EditableBet = ({ betId, bet }) => {
     }
     return returnError;
   };
-  const doApproval = async (loginAccount, amm) => {
-    const txDetails = await approveBuy(loginAccount, amm);
-    if (txDetails?.hash) {
-      addTransaction(txDetails);
-      updateBet({ ...bet, hash: txDetails.hash });
-    }
-  };
+
   return (
     <article className={Styles.EditableBet}>
       <header>
@@ -366,13 +364,6 @@ const EditableBet = ({ betId, bet }) => {
           </div>
           {error && <span>{error}</span>}
         </div>
-        {isApproved === false && (
-          <div className={classNames(Styles.Cashout)}>
-            <button disabled={isPending} onClick={() => doApproval(loginAccount, amm)}>
-              {"Approve Place Bet"}
-            </button>
-          </div>
-        )}
       </main>
     </article>
   );
@@ -458,10 +449,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
   const buttonName = !canCashOut
     ? CASHOUT_NOT_AVAILABLE
     : !isApproved
-    ? `APPROVE CASHOUT $${cashout}`
-    : isPending
-    ? `PENDING $${cashout}`
-    : `CASHOUT: $${cashout}`;
+      ? `APPROVE CASHOUT $${cashout}`
+      : isPending
+        ? `PENDING $${cashout}`
+        : `CASHOUT: $${cashout}`;
 
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
@@ -560,6 +551,7 @@ const BetslipFooter = () => {
   const {
     actions: { setSidebar },
   } = useSportsStore();
+  const needsApprovals = useUserApprovals(bets);
   if (!isLogged || selectedCount === 0) {
     return null;
   }
@@ -567,30 +559,24 @@ const BetslipFooter = () => {
   const { totalWager, totalToWin } = onBetslip
     ? determineBetTotals(bets)
     : {
-        totalWager: ZERO,
-        totalToWin: ZERO,
-      };
-  // all bets have been approved
-  const isNotAllApproved = Object.keys(bets).find((betId) => bets[betId].isApproved === false)?.length;
+      totalWager: ZERO,
+      totalToWin: ZERO,
+    };
   const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
+        //<BuyApprovals bets={bets} />
   return (
     <footer>
       {onBetslip ? (
         <>
-          {isNotAllApproved ? (
-            <p>
-              Approve <b>"Place Bet"</b> to place all bets, some approvals approve other markets
+          <p>
+            You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
+            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
             </p>
-          ) : (
-            <p>
-              You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
-              <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
-            </p>
-          )}
+
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
-            disabled={isInvalid || !!isNotAllApproved}
+            disabled={isInvalid || !!needsApprovals}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
