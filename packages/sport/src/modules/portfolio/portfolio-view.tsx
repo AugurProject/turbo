@@ -21,7 +21,7 @@ const {
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
-  Icons: { WinnerMedal },
+  Icons: { WinnerMedal, SimpleChevron },
   InputComps: { SearchInput },
 } = Components;
 
@@ -162,6 +162,7 @@ export const PortfolioView = () => {
     >
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
+        <ClaimWinningsSection />
         <ul className={Styles.FilterSearchNav}>
           <SquareDropdown
             onChange={(value) => {
@@ -183,6 +184,8 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
+        <SecondaryThemeButton text="MY BETS" reverseContent icon={SimpleChevron} action={() => setShowActivity(!showActivity)} small />
+        <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />
       </section>

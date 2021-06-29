@@ -8,6 +8,17 @@
   > section:first-of-type {
     flex-flow: column nowrap;
     padding-right: @size-40;
+
+    > div:first-of-type {
+      display: none;
+    }
+  }
+
+  > section:last-of-type {
+    > h2,
+    > button {
+      display: none;
+    }
   }
 }
 
@@ -19,43 +30,24 @@
 
     > section:last-of-type {
       display: none;
+      position: relative;
+
+      > button {
+        display: flex;
+      }
+
+      > h2 {
+        .text-16-bold;
+
+        color: var(--simple-primary-text);
+        margin: @size-24 0 @size-16;
+        display: block;
+      }
     }
 
     > section:first-of-type {
       padding: @size-16 @size-16 @size-40;
       max-width: 100%;
-
-      > div[class*="AppStats"] > div {
-        padding-left: 0;
-        padding-right: 0;
-        grid-gap: 0;
-        display: flex;
-        flex-flow: column nowrap;
-        justify-content: center;
-
-        > span {
-          text-align: center;
-          justify-content: center;
-          align-items: center;
-          grid-column: span 2;
-
-          &:first-of-type {
-            margin-bottom: @size-2;
-          }
-
-          &:last-of-type {
-            .text-14-bold;
-          }
-        }
-      }
-
-      > div[class*="PositionsLiquidityViewSwitcher"] {
-        margin-top: @size-40;
-      }
-
-      > div[class*="Activity"] {
-        display: flex;
-      }
     }
 
     &.ActivityShown {
@@ -64,7 +56,29 @@
       }
       > section:last-of-type {
         display: flex;
+        flex-flow: column nowrap;
         padding: @size-16 @size-16 @size-40;
+
+        > button {
+          position: fixed;
+          background: var(--simple-light-bg);
+          top: @sports-top-bar-height-mobile;
+          left: 0;
+          right: 0;
+          width: 100%;
+          border-radius: 0;
+          border: 0;
+          border-bottom: @size-1 solid var(--simple-border);
+          justify-content: flex-end;
+
+          > svg {
+            height: @size-12;
+            width: @size-12;
+
+            transform-origin: 50% 50%;
+            transform: rotate(90deg);
+          }
+        }
 
         > div:last-of-type {
           max-width: unset;
@@ -242,7 +256,20 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     grid-gap: @size-8 0;
-    margin-top: @size-16;
+    max-width: unset;
+    margin: 0;
+
+    > div {
+      display: none;
+    }
+
+    > section:first-of-type {
+      margin-top: @size-16;
+    }
+
+    > section:last-of-type {
+      margin-bottom: @size-24;
+    }
 
     > button {
       margin-top: 0;
