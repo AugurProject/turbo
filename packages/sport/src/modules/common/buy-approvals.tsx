@@ -67,7 +67,7 @@ export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
         return hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED ? `Can now bet` : `Allow betting`
     }
 
-    const showReset = true;
+    const showReset = true; // used for debugging
     
     return (
         <>

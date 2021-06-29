@@ -1399,7 +1399,7 @@ export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
     return {
       ...p,
       [factory.ammFactory]: isSportsLink ? "NBA & MLB" : factory.description.toUpperCase(),
-    }
+    };
   });
 };
 
