@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Styles from "./tables.styles.less";
 import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
@@ -18,6 +18,7 @@ const { Pagination } = PaginationComps;
 const { TinyThemeButton } = ButtonComps;
 
 export const EventBetsSection = ({ eventPositionData = {} }) => {
+  const [page, setPage] = useState(1);
   if (!Object.keys(eventPositionData).length) return null;
   const EventDataEntries = Object.entries(eventPositionData);
   return (
@@ -27,12 +28,11 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
       ))}
       {EventDataEntries.length > 0 && (
         <Pagination
-          page={1}
+          page={page}
           itemCount={EventDataEntries.length}
           itemsPerPage={10}
           action={(page) => {
-            // setPage(page);
-            console.log("set page", page);
+            setPage(page);
           }}
         />
       )}
