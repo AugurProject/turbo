@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Styles from "./buy-approvals.styles.less";
 import classNames from "classnames";
 import { useDataStore, useUserStore, Icons } from "@augurproject/comps";
-import { PrimaryThemeButton, SecondaryThemeButton } from "@augurproject/comps/build/components/common/buttons";
+import { PrimaryThemeButton } from "@augurproject/comps/build/components/common/buttons";
 import { Cash } from "@augurproject/comps/build/types";
 import { ammFactoryMarketNames } from "@augurproject/comps/build/utils/contract-calls";
 import { USDC } from "modules/constants";
@@ -32,12 +32,18 @@ export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
     const { balances: { approvals } } = useUserStore();
     const factoryNames = ammFactoryMarketNames();
     const [txHashes, setTxHashes] = useState<{ [address: string]: string }>({});
-    const allAmmFactoryAddresses = Object.values(bets).reduce(
-        (p, bet) => (p.includes(markets[bet.marketId].amm.ammFactoryAddress) ? p : [...p, markets[bet.marketId].amm.ammFactoryAddress]),
-        []
-    );
+    const [needsApproval, setNeedsApproval] = useState<string[]>([])
+    const [allAmmFactoryAddresses, setAllAmmFactoryAddresses] = useState([])
 
-    const needsApproval = allAmmFactoryAddresses.filter(address => !approvals[address]);
+    useEffect(() => {
+        const allAmmFactoryAddresses = Object.values(bets).reduce(
+            (p, bet) => (p.includes(markets[bet.marketId].amm.ammFactoryAddress) ? p : [...p, markets[bet.marketId].amm.ammFactoryAddress]),
+            []
+        );    
+        setAllAmmFactoryAddresses(allAmmFactoryAddresses);
+        setNeedsApproval(allAmmFactoryAddresses.filter(address => !approvals[address]))
+    }, [bets])
+    
     const cash = Object.values(cashes).find((c: Cash) => c.name === USDC) as Cash;
     const hashStatus = transactions.reduce((p, tx) => ({ ...p, [tx.hash]: tx.status }), {});
 
@@ -50,12 +56,9 @@ export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
     };
 
     const doResetApproval = async (loginAccount, ammFactoryAddress) => {
-        const txDetails = await approveBuyReset(loginAccount, cash?.address, ammFactoryAddress);
-        if (txDetails?.hash) {
-            addTransaction(txDetails);
-            setTxHashes({ ...txHashes, [ammFactoryAddress]: txDetails.hash })
-        }
+        await approveBuyReset(loginAccount, cash?.address, ammFactoryAddress);
     };
+
     const getIcon = (ammFactoryAddress) => {
         const hash = txHashes[ammFactoryAddress]
         if (!hash) return null;
@@ -67,7 +70,7 @@ export const BuyApprovals = ({ bets }: { [betId: string]: BetType }) => {
         return hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED ? `Can now bet` : `Allow betting`
     }
 
-    const showReset = true; // used for debugging
+    const showReset = false; // used for debugging
     
     return (
         <>
