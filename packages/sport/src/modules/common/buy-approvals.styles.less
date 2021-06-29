@@ -1,0 +1,25 @@
+@import (reference) "~assets/styles/shared.less";
+
+.ApprovalButton {
+    padding: @size-4;
+    width: 100%;
+
+    > button[class*="BaseNormalButton"] {
+        justify-content: start;
+        width: 100%;
+
+        display: flex;
+        justify-content: space-between;
+
+        span:last-of-type {
+            display: none;
+        }
+    }
+
+    &.Confirmed {
+        > button {
+            background: var(--light-background-color);
+            border: @size-1 solid var(--simple-border);
+        }
+    }
+}

@@ -1393,6 +1393,16 @@ const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): Market
   return PARA_CONFIG.marketFactories;
 };
 
+export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
+  return PARA_CONFIG.marketFactories.reduce((p, factory) => {
+    const isSportsLink = factory.type === "SportsLink";
+    return {
+      ...p,
+      [factory.ammFactory]: isSportsLink ? "NBA & MLB" : factory.description.toUpperCase(),
+    };
+  });
+};
+
 // stop updating resolved markets
 const addResolvedMarketToList = (
   ignoreList: { [factory: string]: number[] },
