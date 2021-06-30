@@ -176,12 +176,14 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         _weights[2] = 24.5e18; // 49%
     }
 
+    enum WhoWon {Unknown, Home, Away, Draw}
+
     function trustedResolveMarkets(
         uint256 _eventId,
         uint256 _eventStatus,
         uint256 _homeFighterId,
         uint256 _awayFighterId,
-        bool _homeWon
+        WhoWon _whoWon
     ) public {
         require(msg.sender == linkNode, "Only link node can resolve markets");
 
@@ -189,10 +191,10 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         require(_event.markets[0] != 0, "Cannot resolve markets that weren't created");
         require(EventStatus(_eventStatus) != EventStatus.Scheduled, "Cannot resolve SCHEDULED markets");
 
-        if (eventIsNoContest(_event, _eventStatus, _homeFighterId, _awayFighterId)) {
+        if (eventIsNoContest(_event, _eventStatus, _homeFighterId, _awayFighterId, _whoWon)) {
             resolveMarketsAsNoContest(_eventId);
         } else {
-            resolveHeadToHeadMarket(_event.markets[0], _homeWon);
+            resolveHeadToHeadMarket(_event.markets[0], _whoWon);
         }
     }
 
@@ -200,12 +202,14 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         EventDetails memory _event,
         uint256 _eventStatus,
         uint256 _homeFighterId,
-        uint256 _awayFighterId
+        uint256 _awayFighterId,
+        WhoWon _whoWon
     ) internal view returns (bool) {
+        bool _draw = _whoWon == WhoWon.Draw;
         bool _notFinal = EventStatus(_eventStatus) != EventStatus.Final;
         bool _unstableHomeFighterId = _event.homeFighterId != _homeFighterId;
         bool _unstableAwayFighterId = _event.awayFighterId != _awayFighterId;
-        return _notFinal || _unstableHomeFighterId || _unstableAwayFighterId;
+        return _draw || _notFinal || _unstableHomeFighterId || _unstableAwayFighterId;
     }
 
     function resolveMarketsAsNoContest(uint256 _eventId) internal {
@@ -219,12 +223,14 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         }
     }
 
-    function resolveHeadToHeadMarket(uint256 _marketId, bool _homeWon) internal {
+    function resolveHeadToHeadMarket(uint256 _marketId, WhoWon _whoWon) internal {
         OwnedERC20 _winner;
-        if (_homeWon) {
+        if (WhoWon.Home == _whoWon) {
             _winner = markets[_marketId].shareTokens[uint256(HeadToHeadOutcome.Home)];
-        } else {
+        } else if (WhoWon.Away == _whoWon) {
             _winner = markets[_marketId].shareTokens[uint256(HeadToHeadOutcome.Away)];
+        } else {
+            require(false, "Bad market resolution choice");
         }
 
         markets[_marketId].winner = _winner;

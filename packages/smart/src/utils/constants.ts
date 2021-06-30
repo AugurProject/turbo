@@ -16,6 +16,13 @@ export enum SportsLinkEventStatus {
   Canceled,
 }
 
+export enum MMAWhoWon {
+  Unknown,
+  Home,
+  Away,
+  Draw,
+}
+
 export enum CryptoMarketType {
   PriceUpTo,
 }

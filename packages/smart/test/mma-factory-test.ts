@@ -11,7 +11,7 @@ import {
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
-import { calcShareFactor, SportsLinkEventStatus } from "../src";
+import { calcShareFactor, MMAWhoWon, SportsLinkEventStatus } from "../src";
 
 describe("MMA Factory", () => {
   let signer: SignerWithAddress;
@@ -101,7 +101,13 @@ describe("MMA Factory", () => {
   });
 
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Final, homeFighterId, awayFighterId, true);
+    await marketFactory.trustedResolveMarkets(
+      eventId,
+      SportsLinkEventStatus.Final,
+      homeFighterId,
+      awayFighterId,
+      MMAWhoWon.Home
+    );
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
@@ -129,10 +135,33 @@ describe("MMA Factory", () => {
       SportsLinkEventStatus.Final,
       homeFighterId,
       awayFighterId,
-      false
+      MMAWhoWon.Away
     );
     const headToHeadMarket = await marketFactory.getMarket(marketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[1]); // away team won
+  });
+
+  it("draws can happen", async () => {
+    const thisEventId = eventId + 1; // just has to be different
+    await marketFactory.createMarket(
+      thisEventId,
+      homeFighterName,
+      homeFighterId,
+      awayFighterName,
+      awayFighterId,
+      estimatedStartTime,
+      [moneylineHome, moneylineAway]
+    );
+    const [marketId] = await marketFactory.getEventMarkets(thisEventId);
+    await marketFactory.trustedResolveMarkets(
+      thisEventId,
+      SportsLinkEventStatus.Final,
+      homeFighterId,
+      awayFighterId,
+      MMAWhoWon.Draw
+    );
+    const headToHeadMarket = await marketFactory.getMarket(marketId);
+    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[0]); // draw
   });
 
   describe("LinkFactory NoContest", () => {
@@ -184,7 +213,7 @@ describe("MMA Factory", () => {
     });
 
     it("can resolve markets as No Contest", async () => {
-      await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Postponed, 0, 0, false);
+      await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Postponed, 0, 0, MMAWhoWon.Away);
 
       const headToHeadMarketId = 1;
 
