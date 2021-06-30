@@ -152,9 +152,11 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   }, [tradingFeeSelection, amm?.feeRaw]);
 
   let buttonError = "";
-  const priceErrors = isRemove ? [] : outcomes.filter((outcome) => {
-    return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
-  });
+  const priceErrors = isRemove
+    ? []
+    : outcomes.filter((outcome) => {
+        return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
+      });
   const hasPriceErrors = priceErrors.length > 0;
   const hasAmountErrors = isInvalidNumber(amount);
   if (hasAmountErrors) {
@@ -189,10 +191,12 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   const getCreateBreakdown = (isRemove) => {
     const fullBreakdown = [
-      ...orderOutcomesForDisplay(breakdown.minAmounts).filter(m => !m.hide).map(m => ({
-        label: `${market.outcomes[m.outcomeId]?.name} Shares`,
-        value: `${formatSimpleShares(m.amount).formatted}`,
-      })),
+      ...orderOutcomesForDisplay(breakdown.minAmounts)
+        .filter((m) => !m.hide)
+        .map((m) => ({
+          label: `${market.outcomes[m.outcomeId]?.name} Shares`,
+          value: `${formatSimpleShares(m.amount).formatted}`,
+        })),
       {
         label: isRemove ? "USDC" : "LP tokens",
         value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
@@ -225,7 +229,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         .catch((error) => {
           console.log("Error when trying to remove AMM liquidity: ", error?.message);
           addTransaction({
-            hash: 'remove-liquidity-failed',
+            hash: "remove-liquidity-failed",
             chainId: loginAccount.chainId,
             seen: false,
             status: TX_STATUS.FAILURE,
@@ -282,15 +286,17 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   useEffect(() => {
     let isMounted = true;
-    const priceErrorsWithEmptyString = isRemove ? [] : outcomes.filter(
-      (outcome) => parseFloat(outcome.price) >= 1 || outcome.price === ""
-    );
+    const priceErrorsWithEmptyString = isRemove
+      ? []
+      : outcomes.filter((outcome) => parseFloat(outcome.price) >= 1 || outcome.price === "");
 
     if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
 
-    const valid = isRemove ? true : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+    const valid = isRemove
+      ? true
+      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
     if (!valid) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
@@ -454,7 +460,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   if (LIQUIDITY_STRINGS[modalType].minimumAmount && amount) {
     if (new BN(amount).lt(new BN(LIQUIDITY_STRINGS[modalType].minimumAmount)))
-      buttonError = `$${LIQUIDITY_STRINGS[modalType].minimumAmount} Minimum deposit`
+      buttonError = `$${LIQUIDITY_STRINGS[modalType].minimumAmount} Minimum deposit`;
   }
 
   const setPrices = (price, index) => {
@@ -570,8 +576,11 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   : null
               }
             />
-            <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}
-            {LIQUIDITY_STRINGS[modalType].footerEmphasize && <span>{LIQUIDITY_STRINGS[modalType].footerEmphasize}</span>}
+            <div className={Styles.FooterText}>
+              {LIQUIDITY_STRINGS[modalType].footerText}
+              {LIQUIDITY_STRINGS[modalType].footerEmphasize && (
+                <span>{LIQUIDITY_STRINGS[modalType].footerEmphasize}</span>
+              )}
             </div>
           </main>
         </>
@@ -603,13 +612,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                 <InfoNumbers infoNumbers={LIQUIDITY_STRINGS[modalType].marketLiquidityDetails.breakdown} />
               </section>
             )}
-            {liquidityModalType !== REMOVE && <WarningBanner
-              className={Styles.MarginTop}
-              title="Remove liquidity before winning outcome is known to prevent loss of funds."
-              subtitle={
-                "Impermanent loss occurs when you provide liquidity to a liquidity pool, and the price of your deposited assets changes compared to when you deposited them. The bigger this change is, the more exposed you are to impermanent loss. To mitigate this risk, it is recommended that you remove your liquidity before the final outcome is known."
-              }
-            />}
+            {liquidityModalType !== REMOVE && (
+              <WarningBanner
+                className={Styles.MarginTop}
+                title="Remove liquidity before winning outcome is known to prevent loss of funds."
+                subtitle={
+                  "Impermanent loss occurs when you provide liquidity to a liquidity pool, and the price of your deposited assets changes compared to when you deposited them. The bigger this change is, the more exposed you are to impermanent loss. To mitigate this risk, it is recommended that you remove your liquidity before the final outcome is known."
+                }
+              />
+            )}
             <BuySellButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} />
             {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
