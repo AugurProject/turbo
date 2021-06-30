@@ -12,7 +12,7 @@ export enum SportsLinkEventStatus {
   Unknown,
   Scheduled,
   Final,
-  Postpones,
+  Postponed,
   Canceled,
 }
 
