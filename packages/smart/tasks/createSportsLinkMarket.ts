@@ -29,7 +29,8 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
 
       console.log("Creating market");
-      await marketFactory.createMarket( eventId,
+      await marketFactory.createMarket(
+        eventId,
         homeTeamId,
         awayTeamId,
         startTimestamp,

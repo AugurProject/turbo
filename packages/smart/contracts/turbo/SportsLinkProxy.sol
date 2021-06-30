@@ -9,7 +9,7 @@ import "./SportsLinkMarketFactory.sol";
 contract SportsLinkProxy is Ownable {
     // Link API
 
-    function createMarket( 
+    function createMarket(
         uint256 _eventId,
         uint256 _homeTeamId,
         uint256 _awayTeamId,
@@ -20,27 +20,30 @@ contract SportsLinkProxy is Ownable {
         bool _makeTotalScore
     ) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
-        creationPayloads.push(markerData({
-            eventId : _eventId,
-            homeTeamId: _homeTeamId,
-            awayTeamId: _awayTeamId,
-            startTimestamp: _startTimestamp,
-            homeSpread: _homeSpread,
-            totalScore: _totalScore,
-            makeSpread: _makeSpread,
-            makeTotalScore: _makeTotalScore
-        }));
-        // creationPayloads.push(_payload);
-        return marketFactory.createMarket(
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            _homeSpread,
-            _totalScore,
-            _makeSpread,
-            _makeTotalScore
+        creationPayloads.push(
+            markerData({
+                eventId: _eventId,
+                homeTeamId: _homeTeamId,
+                awayTeamId: _awayTeamId,
+                startTimestamp: _startTimestamp,
+                homeSpread: _homeSpread,
+                totalScore: _totalScore,
+                makeSpread: _makeSpread,
+                makeTotalScore: _makeTotalScore
+            })
         );
+        // creationPayloads.push(_payload);
+        return
+            marketFactory.createMarket(
+                _eventId,
+                _homeTeamId,
+                _awayTeamId,
+                _startTimestamp,
+                _homeSpread,
+                _totalScore,
+                _makeSpread,
+                _makeTotalScore
+            );
     }
 
     function trustedResolveMarkets(bytes32 _payload) public {
@@ -66,13 +69,13 @@ contract SportsLinkProxy is Ownable {
 
     function replayCreate(uint256 i) public onlyOwner {
         marketFactory.createMarket(
-            creationPayloads[i].eventId, 
-            creationPayloads[i].homeTeamId, 
-            creationPayloads[i].awayTeamId, 
-            creationPayloads[i].startTimestamp, 
-            creationPayloads[i].homeSpread, 
-            creationPayloads[i].totalScore, 
-            creationPayloads[i].makeSpread, 
+            creationPayloads[i].eventId,
+            creationPayloads[i].homeTeamId,
+            creationPayloads[i].awayTeamId,
+            creationPayloads[i].startTimestamp,
+            creationPayloads[i].homeSpread,
+            creationPayloads[i].totalScore,
+            creationPayloads[i].makeSpread,
             creationPayloads[i].makeTotalScore
         );
     }
@@ -101,7 +104,7 @@ contract SportsLinkProxy is Ownable {
         bool makeSpread;
         bool makeTotalScore;
     }
-    
+
     SportsLinkMarketFactory public marketFactory;
     address public linkNode;
     markerData[] public creationPayloads;
