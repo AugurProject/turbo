@@ -101,6 +101,7 @@ export const SportsCardOutcomes = ({
   return (
     <section className={classNames(Styles.SportsCardOutcomes, {
       [Styles.NoLiquidity]: noLiquidity,
+      [Styles.MarketPage]: isMarketPage,
     })}>
       <header>
         <span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span>

@@ -108,7 +108,6 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           isPending,
           timestamp,
         } = bet;
-        console.log(subHeading, bet);
         const market = markets[marketId];
         const cashout = formatDai(cashoutAmount).formatted;
         const buttonName = !canCashOut

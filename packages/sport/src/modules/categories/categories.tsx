@@ -113,7 +113,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
   const subCategoryList = subCategories.length
     ? subOptionList.filter(([optLabel, optInfo]) => subCategories[0] === optLabel)
     : subOptionList;
-  const secondaryCount = determineCount(primaryCategory, markets);
+  const categoryCount = determineCount(label, markets);
   const secondaryCategory = subCategories[0];
   const filteredLeaves = useMemo(
     () =>
@@ -132,6 +132,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
       }, []),
     [subCategories]
   );
+    
   return (
     <article className={Styles.CategoryGroup}>
       {!subCategories.length && (
@@ -140,7 +141,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>{formatCategoryCount(secondaryCount)}</span>
+          <span>{formatCategoryCount(categoryCount)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&

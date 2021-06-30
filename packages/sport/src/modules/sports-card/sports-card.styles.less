@@ -145,6 +145,15 @@
       border-bottom: 0;
     }
   }
+
+  @media @breakpoint-mobile-tablet {
+    &.MarketPage {
+      > main > div {
+        background: var(--simple-light-bg);
+      }
+    }
+  }
+ 
 }
 
 .SportsCardOutcomesFooter {
@@ -405,6 +414,12 @@
       display: grid;
       grid-gap: @size-8;
       grid-template-columns: 1fr;
+    }
+
+    &.MarketPage {
+      > section > section > main > div {
+        background: var(--simple-light-bg);
+      }
     }
   }
 
