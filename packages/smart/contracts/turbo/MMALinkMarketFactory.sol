@@ -105,20 +105,19 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
         uint256[1] memory _ids = events[_eventId].markets;
+        // require(_ids[0] == 0, "This event was already used to create markets");
 
-        if (_ids[0] == 0) {
-            _ids[0] = createHeadToHeadMarket(
-                _creator,
-                _endTime,
-                _eventId,
-                _homeFighterName,
-                _homeFighterId,
-                _awayFighterName,
-                _awayFighterId,
-                _startTimestamp,
-                _moneylines
-            );
-        }
+        _ids[0] = createHeadToHeadMarket(
+            _creator,
+            _endTime,
+            _eventId,
+            _homeFighterName,
+            _homeFighterId,
+            _awayFighterName,
+            _awayFighterId,
+            _startTimestamp,
+            _moneylines
+        );
 
         events[_eventId].markets = _ids;
         events[_eventId].homeFighterId = _homeFighterId;

@@ -61,8 +61,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
     marketFactories.unshift({
       version,
-      description: "mma placeholder",
-      type: "SportsLink",
+      description: "mma",
+      type: "MMALink",
       address: mmaLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
