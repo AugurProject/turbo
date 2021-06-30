@@ -3,10 +3,11 @@ import classNames from "classnames";
 import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
-import { LabelComps, Links, Utils, Constants, useDataStore } from "@augurproject/comps";
+import { LabelComps, Links, Utils, Constants, useDataStore, useAppStatusStore } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
 import { getSizedPrice } from "modules/utils";
+import { MODAL_EVENT_RULES } from "modules/constants";
 const {
   PathUtils: { parsePath },
   Formatter: { formatDai },
@@ -45,7 +46,7 @@ export const EventCard = ({ marketEvent, ...props }) => {
       <SportsCardTopbar {...{ market: marketEvent, timeFormat }} />
       <SportsCardTitle {...{ ...marketEvent, marketId: marketEvent.marketIds[0] }} />
       {outcomeContent}
-      <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume }} />
+      <SportsCardFooter {...{ marketTransactions: totalTransactionsVolume, marketEvent }} />
     </article>
   );
 };
@@ -72,14 +73,16 @@ const SportsCardTopbar = ({ market }) => (
 );
 
 const SportsCardTitle = ({ marketId, description, startTimestamp }) => {
-  const { settings: { timeFormat }} = useSportsStore();
+  const {
+    settings: { timeFormat },
+  } = useSportsStore();
   return (
-  <MarketLink id={marketId} dontGoToMarket={false}>
-    {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
-    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
-  </MarketLink>
-);
-}
+    <MarketLink id={marketId} dontGoToMarket={false}>
+      {!!description && <span className={Styles.SportsCardTitle}>{description}</span>}
+      <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
+    </MarketLink>
+  );
+};
 export const SportsCardOutcomes = ({
   marketId,
   sportsMarketType = SPORTS_MARKET_TYPE.MONEY_LINE,
@@ -99,10 +102,12 @@ export const SportsCardOutcomes = ({
   const noLiquidity = checkForNoLiquidity && !amm?.hasLiquidity;
 
   return (
-    <section className={classNames(Styles.SportsCardOutcomes, {
-      [Styles.NoLiquidity]: noLiquidity,
-      [Styles.MarketPage]: isMarketPage,
-    })}>
+    <section
+      className={classNames(Styles.SportsCardOutcomes, {
+        [Styles.NoLiquidity]: noLiquidity,
+        [Styles.MarketPage]: isMarketPage,
+      })}
+    >
       <header>
         <span>{SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}</span>
         {noLiquidity && <span>No Liquidity</span>}
@@ -228,7 +233,10 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   );
   const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
   const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
-  const outcomeSpread = spreadMarket?.outcomes?.find(o => o?.id === eventOutcomeId)?.name?.replace(eventOutcomeName, '').trim();
+  const outcomeSpread = spreadMarket?.outcomes
+    ?.find((o) => o?.id === eventOutcomeId)
+    ?.name?.replace(eventOutcomeName, "")
+    .trim();
 
   return (
     <article>
@@ -248,7 +256,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         }}
         disabled={spreadOdds === "-"}
       >
-        {spreadLine && spreadOdds !== "-" && outcomeSpread !== '' ? <span>{outcomeSpread}</span> : <span />}
+        {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" ? <span>{outcomeSpread}</span> : <span />}
         <span>{spreadOdds}</span>
       </button>
       <button
@@ -341,14 +349,17 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
   );
 };
 
-const SportsCardFooter = ({ marketTransactions }) => {
+
+
+const SportsCardFooter = ({ marketTransactions, marketEvent = null }) => {
+  const { actions: { setModal }} = useAppStatusStore();
   const formattedVol = useMemo(
     () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD).full,
     [marketTransactions?.volumeTotalUSD]
   );
   return (
     <div className={Styles.SportsCardFooter}>
-      <span>{RulesIcon} Rules</span>
+      <button onClick={() => setModal({ type: MODAL_EVENT_RULES, marketEvent })}>{RulesIcon} Rules</button>
       <ValueLabel label="total volume" value={formattedVol || "-"} />
     </div>
   );
