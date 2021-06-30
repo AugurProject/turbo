@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-// import ModalAddLiquidity from './modal-add-liquidity';
+import { ModalRules } from './modal-rules';
 import { useHistory } from 'react-router';
 import Styles from './modal.styles.less';
-import { MODAL_ADD_LIQUIDITY, TURBO_NO_ACCESS_MODAL } from '../constants';
+import { MODAL_ADD_LIQUIDITY, TURBO_NO_ACCESS_MODAL, MODAL_EVENT_RULES } from '../constants';
 import { Constants, Modals, useUserStore, useAppStatusStore } from '@augurproject/comps';
 const { ModalConnectWallet } = Modals;
 
@@ -23,8 +23,9 @@ function selectModal(
         </section>
       );
     case MODAL_ADD_LIQUIDITY:
-      // return <ModalAddLiquidity {...modal} />;
       return <div/>;
+    case MODAL_EVENT_RULES: 
+      return <ModalRules {...modal} />;
     case Constants.MODAL_CONNECT_WALLET:
       return (
         <ModalConnectWallet

@@ -320,7 +320,8 @@ export const approveERC20Contract = async (
   tokenAddress: string,
   approvingName: string,
   spender: string,
-  loginAccount: LoginAccount
+  loginAccount: LoginAccount,
+  amount: string = APPROVAL_AMOUNT
 ) => {
   const { chainId, account, library } = loginAccount;
   if (!spender) {
@@ -328,18 +329,18 @@ export const approveERC20Contract = async (
     return null;
   }
   const tokenContract = getErc20Contract(tokenAddress, library, account);
-  const estimatedGas = await tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT).catch((e) => {
+  const estimatedGas = await tokenContract.estimateGas.approve(spender, amount).catch((e) => {
     // general fallback for tokens who restrict approval amounts
-    return tokenContract.estimateGas.approve(spender, APPROVAL_AMOUNT);
+    return tokenContract.estimateGas.approve(spender, amount);
   });
   try {
-    const response: TransactionResponse = await tokenContract.approve(spender, APPROVAL_AMOUNT, {
+    const response: TransactionResponse = await tokenContract.approve(spender, amount, {
       gasLimit: estimatedGas,
     });
     const { hash } = response;
     return {
       hash,
-      chainId,
+      chainId: String(chainId),
       addedTime: new Date().getTime(),
       seen: false,
       status: TX_STATUS.PENDING,

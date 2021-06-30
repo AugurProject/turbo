@@ -284,6 +284,14 @@
     background: var(--simple-light-bg);
     padding: @size-16;
 
+    @media @breakpoint-mobile {
+      flex-flow: column-reverse wrap;
+
+      > ul:last-of-type {
+        margin-bottom: @size-12;
+      }
+    }
+
     > ul {
       grid-gap: 0;
 
@@ -325,7 +333,7 @@
   background: transparent;
   color: var(--simple-primary-text);
   height: @size-44;
-  padding: 0 @size-12;
+  padding: 0 @size-8;
   flex: 0 auto;
   white-space: nowrap;
   text-transform: capitalize;

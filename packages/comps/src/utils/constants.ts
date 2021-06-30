@@ -116,10 +116,12 @@ export const POPULAR_CATEGORIES_ICONS = {
 // side bar types
 export const NAVIGATION: string = "NAVIGATION";
 export const FILTERS: string = "FILTERS";
+export const BETSLIP: string = "BETSLIP";
 
 export const SIDEBAR_TYPES = {
   [NAVIGATION]: NAVIGATION,
   [FILTERS]: FILTERS,
+  [BETSLIP]: BETSLIP,
 };
 
 //  transaction types
@@ -322,6 +324,11 @@ export const SPORTS_MARKET_TYPE = {
   MONEY_LINE: 0,
   SPREAD: 1,
   OVER_UNDER: 2,
+};
+
+export const MARKET_FACTORY_TYPES = {
+  SPORTSLINK: "SportsLink",
+  CRYPTO: "Crypto",
 };
 
 export const SPORTS_MARKET_TYPE_LABELS = {

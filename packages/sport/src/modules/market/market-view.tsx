@@ -27,10 +27,9 @@ const {
   SEO,
   LabelComps: { ReportingStateLabel },
   Icons: { ConfirmedCheck, SimpleChevron },
-  ButtonComps: { BuySellButton },
 } = Components;
 const { MarketsLink } = Links;
-const { getSportsResolutionRules } = DerivedMarketData;
+const { getResolutionRules } = DerivedMarketData;
 const { MARKET_ID_PARAM_NAME } = Constants;
 const {
   Utils: { isMarketFinal },
@@ -134,7 +133,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const {
     marketEvents,
     settings: { timeFormat },
-    actions: { setShowTradingForm },
   } = useSportsStore();
   const { markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
@@ -177,7 +175,7 @@ const MarketView = ({ defaultMarket = null }) => {
       <SportsCardOutcomes {...{ ...market }} />
     );
 
-  const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
+  const details = getResolutionRules(market.sportsMarketType);
   const { reportingState, title, description, startTimestamp, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   
@@ -228,7 +226,6 @@ const MarketView = ({ defaultMarket = null }) => {
           {details.length === 0 && <p>There are no additional details for this Market.</p>}
         </div>
         <SportsChartSection {...{ ...market }} />
-        <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>
     </div>
   );

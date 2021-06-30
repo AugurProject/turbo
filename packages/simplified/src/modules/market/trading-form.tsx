@@ -380,6 +380,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           ammCash={ammCash}
           dontFilterInvalid
           hasLiquidity={hasLiquidity}
+          marketFactoryType={amm?.market?.marketFactoryType}
         />
         <AmountInput
           chosenCash={isBuy ? ammCash?.name : SHARES}

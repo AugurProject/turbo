@@ -129,6 +129,12 @@ describe("LinkFactory", () => {
     expect(details.value0).to.equal(overUnderTotal + 5);
   });
 
+  it("lists resolvable events", async () => {
+    const events = await marketFactory.listResolvableEvents();
+    expect(events.length).to.equal(1);
+    expect(Number(events[0])).to.equal(eventId);
+  });
+
   it("can resolve markets", async () => {
     await marketFactory.trustedResolveMarkets(
       await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 100, 20)
@@ -142,6 +148,11 @@ describe("LinkFactory", () => {
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]); // over
+  });
+
+  it("stops listing resolved events", async () => {
+    const events = await marketFactory.listResolvableEvents();
+    expect(events.length).to.equal(0);
   });
 
   it("encodes and decodes market creation payload", async () => {
@@ -237,7 +248,7 @@ describe("LinkFactory NoContest", () => {
 
   it("can resolve markets as No Contest", async () => {
     await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postpones, 0, 0)
+      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postponed, 0, 0)
     );
 
     const headToHeadMarketId = 1;

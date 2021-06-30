@@ -36,12 +36,12 @@ const formatCategoryCount = (numCats) =>
     bigUnitPostfix: true,
   }).full;
 
-export const CategoriesArea = ({ filteredMarkets }) => {
+export const CategoriesArea = ({ filteredMarkets, inverted = false }) => {
   const { marketsViewSettings } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
-    <article className={Styles.CategoriesArea}>
+    <article className={classNames(Styles.CategoriesArea, { [Styles.Inverted]: inverted })}>
       <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
       <NavigationArea selectedCategories={selectedCategories} markets={filteredMarkets} />
     </article>
@@ -59,16 +59,16 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const topLevel = handleCategoryMap(CATEGORIES_TO_CARE_ABOUT, CATEGORIES_ICON_MAP);
   const categoryGroups = !primaryCategory ? (
     <>
-      {Object.entries(topLevel).map((categoryInfo) => (
-        <CategoryGroup {...{ categoryInfo, markets }} />
+      {Object.entries(topLevel).map((categoryInfo, i) => (
+        <CategoryGroup {...{ categoryInfo, markets, key: i }} />
       ))}
     </>
   ) : (
     <>
       {Object.entries(topLevel)
         .filter(([label, info]) => primaryCategory === label)
-        .map((categoryInfo) => (
-          <CategoryGroup {...{ categoryInfo, markets }} />
+        .map((categoryInfo, i) => (
+          <CategoryGroup {...{ categoryInfo, markets, key: i }} />
         ))}
     </>
   );
@@ -113,7 +113,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
   const subCategoryList = subCategories.length
     ? subOptionList.filter(([optLabel, optInfo]) => subCategories[0] === optLabel)
     : subOptionList;
-  const secondaryCount = determineCount(primaryCategory, markets);
+  const categoryCount = determineCount(label, markets);
   const secondaryCategory = subCategories[0];
   const filteredLeaves = useMemo(
     () =>
@@ -132,6 +132,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
       }, []),
     [subCategories]
   );
+    
   return (
     <article className={Styles.CategoryGroup}>
       {!subCategories.length && (
@@ -140,12 +141,13 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>{formatCategoryCount(secondaryCount)}</span>
+          <span>{formatCategoryCount(categoryCount)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&
-        subCategoryList.map(([subLabel, subInfo]) => (
+        subCategoryList.map(([subLabel, subInfo], i) => (
           <button
+            key={i}
             className={classNames({
               [Styles.SelectedCategory]: subCategories.length > 0 && subCategories[0] === subLabel,
             })}
@@ -157,8 +159,9 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
         ))}
       {!!subCategories.length && (
         <>
-          {filteredLeaves.map((tertiaryLabel) => (
+          {filteredLeaves.map((tertiaryLabel, i) => (
             <button
+              key={i}
               className={classNames({
                 [Styles.SelectedCategory]: subCategories.length > 1 && subCategories[1] === tertiaryLabel,
               })}
@@ -180,7 +183,7 @@ export const CategoriesTrail = ({ categories }) => (
   <span className={Styles.CategoriesTrail}>
     {categories.map((category, index) => {
       return (
-        <span>
+        <span key={index}>
           {category}
           {`${index !== categories.length - 1 ? " / " : ""}`}
         </span>
@@ -208,6 +211,8 @@ export const DailyFutureSwitch = ({ selection, setSelection }) => {
           key={`${label}-${id}`}
           onClick={() => setSelection(id)}
           className={classNames({ [Styles.Selected]: id === selection })}
+          disabled={id === 1}
+          title={id === 1 ? "Coming Soon" : label}
         >
           {label}
         </button>

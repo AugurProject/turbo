@@ -1,10 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
 import { useBetslipStore } from "../stores/betslip";
-import { BetType } from "../stores/constants";
-import { BETSLIP, ACTIVE_BETS } from "../constants";
+import { ActiveBetType, BetType } from "../stores/constants";
+import { BETSLIP, ACTIVE_BETS, CASHOUT_NOT_AVAILABLE } from "../constants";
 import {
   ButtonComps,
   useAppStatusStore,
@@ -18,14 +18,16 @@ import {
   PathUtils,
   Links,
   windowRef,
+  createBigNumber,
 } from "@augurproject/comps";
 import { useSportsStore } from "modules/stores/sport";
-import { getBuyAmount, makeBet } from "modules/utils";
+import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
+import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
-const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO } = Constants;
-const { SimpleCheck, SimpleChevron } = Icons;
+const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES } = Constants;
+const { SimpleCheck, SimpleChevron, XIcon } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
@@ -35,29 +37,75 @@ export const MOCK_PROMPT_SIGNATURE = ({ name = "404 NAME NOT FOUND", action = "t
   windowRef.confirm(`Mock Sign a transaction ${action} ${name}?`);
 
 export const Betslip = () => {
-  const { selectedView } = useBetslipStore();
-  return (
-    <section className={Styles.Betslip}>
-      <div>
-        <BetslipHeader />
-        {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
-        <BetslipFooter />
-      </div>
-    </section>
-  );
-};
-
-const BetslipHeader = () => {
+  const {
+    sidebarType,
+    actions: { setSidebar },
+  } = useSportsStore();
   const {
     selectedView,
     active,
+    oddsChangedMessage,
     bets,
     actions: { toggleSelectedView },
   } = useBetslipStore();
   const counts = [Object.keys(bets).length, Object.keys(active).length];
   const handleToggle = (type) => selectedView !== type && toggleSelectedView();
   return (
+    <section
+      className={classNames(Styles.Betslip, {
+        [Styles.Open]: sidebarType === SIDEBAR_TYPES.BETSLIP,
+        [Styles.NavOpen]: sidebarType === SIDEBAR_TYPES.NAVIGATION,
+      })}
+    >
+      <div>
+        <PrimaryThemeButton
+          text={`Betslip (${counts[0]})`}
+          icon={SimpleChevron}
+          small
+          action={() => {
+            handleToggle(BETSLIP);
+            setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
+          }}
+        />
+        {counts[0] > 0 && (
+          <div>
+            <PrimaryThemeButton
+              text={`Betslip (${counts[0]})`}
+              action={() => {
+                handleToggle(BETSLIP);
+                setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
+              }}
+            />
+          </div>
+        )}
+        <BetslipHeader {...{ counts, handleToggle }} />
+        {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
+        {oddsChangedMessage && selectedView === BETSLIP && (
+          <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
+        )}
+        <BetslipFooter />
+      </div>
+    </section>
+  );
+};
+
+const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggle: (type: string) => {} }) => {
+  const {
+    actions: { setSidebar },
+  } = useSportsStore();
+  const { selectedView } = useBetslipStore();
+  return (
     <header className={Styles.BetslipHeader}>
+      <div>
+        <h2>{selectedView}</h2>
+        <button
+          onClick={() => {
+            setSidebar(null);
+          }}
+        >
+          {XIcon}
+        </button>
+      </div>
       <button
         className={classNames({ [Styles.SelectedView]: selectedView === BETSLIP, [Styles.isPopulated]: counts[0] > 0 })}
         onClick={() => handleToggle(BETSLIP)}
@@ -77,31 +125,68 @@ const BetslipHeader = () => {
   );
 };
 
+const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
+const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
+const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+const APPROVALS_NEEDED = `Approvals are required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
-  const { bets, selectedCount } = useBetslipStore();
+  const {
+    bets,
+    selectedCount,
+    oddsChangedMessage,
+    actions: { setOddsChangedMessage },
+  } = useBetslipStore();
+
+  const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
+    return `${bet.wagerAvgPrice}-${bet.wager}`;
+  });
+  const needsApprovals = useUserApprovals(bets);
+
+  useEffect(() => {
+    const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
+      if (needsApprovals) {
+        return needsApprovals === 1 ? APPROVAL_NEEDED : APPROVALS_NEEDED;
+      } else if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+        if (createBigNumber(bet.wager).gt(bet.size)) {
+          return ODDS_CHANGED_ORDER_SIZE;
+        } else if (bet?.price !== bet?.wagerAvgPrice) {
+          return ODDS_CHANGED_SINCE_SELECTION;
+        } else {
+          return null;
+        }
+      }
+      if (acc !== null) return acc;
+      return null;
+    }, null);
+    if (anyBetsChanged !== oddsChangedMessage) {
+      setOddsChangedMessage(anyBetsChanged);
+    }
+  }, [valuesToWatch.toString(), needsApprovals]);
+
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(bets).map(([betId, bet]) => (
+      {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
+      <BuyApprovals bets={bets} />
     </main>
   ) : (
     <EmptyBetslip />
   );
 };
 
-const RECENT_UPDATES_TOP = (a, b) => b[1].timestamp - a[1].timestamp;
+const RECENT_UPDATES_TOP = (a, b) => b[1]?.timestamp - a[1]?.timestamp;
 
 export const ActiveBetsMain = () => {
   const { isLogged } = useAppStatusStore();
   const { active, selectedCount } = useBetslipStore();
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
-      {Object.entries(active)
+      {Object.values(active)
         .sort(RECENT_UPDATES_TOP)
-        .map(([tx_hash, bet]) => (
-          <BetReciept {...{ bet, tx_hash, key: `${tx_hash}-BetReciept` }} />
+        .map((bet: ActiveBetType) => (
+          <BetReciept {...{ bet, tx_hash: bet.hash, key: `BetReciept-${bet.betId}-${bet.hash}` }} />
         ))}
     </main>
   ) : (
@@ -121,9 +206,9 @@ export const EmptyBetslip = () => {
     </>
   ) : (
     <>
-      <p>You need to sign in to start betting!</p>
+      <p>You need to connect a wallet to start betting!</p>
       <PrimaryThemeButton
-        text="Sign Up"
+        text="Connect Wallet"
         action={() =>
           setModal({
             type: MODAL_CONNECT_WALLET,
@@ -156,14 +241,18 @@ const EditableBet = ({ betId, bet }) => {
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
-  const { id, marketId, heading, subHeading, name, price, wager, toWin } = bet;
+
+  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
   const [updatedPrice, setUpdatedPrice] = useState(price);
   const initialOdds = useRef(price);
-  const displayOdds = convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full;
-  const hasOddsChanged = initialOdds.current !== price;
+  const displayOdds = updatedPrice
+    ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full
+    : "-";
+  const hasOddsChanged =
+    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
   const checkErrors = (value: string) => {
     let returnError = null;
     const test = value.split(",").join("");
@@ -172,6 +261,7 @@ const EditableBet = ({ betId, bet }) => {
     }
     return returnError;
   };
+
   return (
     <article className={Styles.EditableBet}>
       <header>
@@ -201,6 +291,7 @@ const EditableBet = ({ betId, bet }) => {
                   ...bet,
                   wager: null,
                   toWin: null,
+                  wagerAvgPrice: null,
                 });
               } else {
                 const fmtNewValue = formatDai(newValue).formatted;
@@ -213,9 +304,21 @@ const EditableBet = ({ betId, bet }) => {
                   setUpdatedPrice(nextBuyAmount.price);
                   updateBet({
                     ...bet,
+                    wagerAvgPrice: nextBuyAmount.price,
                     wager: fmtNewValue,
                     toWin: formatDai(nextBuyAmount.maxProfit).formatted,
                   });
+                } else {
+                  setUpdatedPrice(null);
+                  updateBet({
+                    ...bet,
+                    toWin: "-",
+                  });
+                  if (error === null) {
+                    const errorCheck = checkErrors(newValue || "");
+                    const error = errorCheck ? errorCheck : HIGH_AMOUNT_ERROR;
+                    setError(error);
+                  }
                 }
               }
 
@@ -244,6 +347,7 @@ const EditableBet = ({ betId, bet }) => {
                 }
                 updateBet({
                   ...bet,
+                  wagerAvgPrice: buyAmount?.price,
                   wager: fmtValue,
                   toWin: updatedToWin,
                 });
@@ -270,8 +374,8 @@ const EditableBet = ({ betId, bet }) => {
 const LabeledInput = ({
   label,
   value = null,
-  onEdit = (e) => {},
-  onBlur = (e) => {},
+  onEdit = (e) => { },
+  onBlur = (e) => { },
   isInvalid = false,
   disabled = false,
 }) => {
@@ -303,32 +407,31 @@ const LabeledInput = ({
   );
 };
 
-const BetReciept = ({ tx_hash, bet }) => {
+const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) => {
+  const { markets } = useDataStore();
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
   const {
-    actions: { removeActive },
+    actions: { removeActive, updateActive },
   } = useBetslipStore();
-  const { transactions } = useUserStore();
-  const { price, name, heading, canCashOut, hasCashedOut } = bet;
-  const status = transactions.find((t) => t.hash === tx_hash)?.status || bet.status;
+  const {
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
+  const market = markets[bet.marketId];
   const txStatus = {
     message: null,
     icon: PendingIcon,
     class: { [Styles.Pending]: true },
     action: () => console.log("nothing happens"),
   };
-  let disableCashout = false;
-  //TODO: do this for real, this is just for mocks stake
-  if (tx_hash === "0xtxHash03") {
-    disableCashout = true;
-  }
+
   switch (status) {
     case TX_STATUS.CONFIRMED: {
       txStatus.class = {
         [Styles.Confirmed]: true,
-        [Styles.HasCashedOut]: hasCashedOut,
       };
       txStatus.icon = SimpleCheck;
       break;
@@ -344,6 +447,22 @@ const BetReciept = ({ tx_hash, bet }) => {
       break;
   }
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
+  const cashout = formatDai(bet.cashoutAmount).formatted;
+  const buttonName = !canCashOut
+    ? CASHOUT_NOT_AVAILABLE
+    : !isApproved
+      ? `APPROVE CASHOUT $${cashout}`
+      : isPending
+        ? `PENDING $${cashout}`
+        : `CASHOUT: $${cashout}`;
+
+  const doApproveOrCashOut = async (loginAccount, bet, market) => {
+    const txDetails = await approveOrCashOut(loginAccount, bet, market);
+    if (txDetails?.hash) {
+      addTransaction(txDetails);
+      updateActive({ ...bet, hash: txDetails.hash }, true);
+    }
+  };
 
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
@@ -361,14 +480,12 @@ const BetReciept = ({ tx_hash, bet }) => {
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        {(canCashOut || hasCashedOut) && (
-          <div className={classNames(Styles.Cashout, txStatus.class)}>
-            {hasCashedOut && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-            <button disabled={disableCashout}>
-              {disableCashout ? "Cashout not available" : `cash${hasCashedOut ? "ed" : ""} out: $${bet.toWin}`}
-            </button>
-          </div>
-        )}
+        <div className={classNames(Styles.Cashout, txStatus.class)}>
+          {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
+          <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
+            {buttonName}
+          </button>
+        </div>
       </main>
     </article>
   );
@@ -386,14 +503,14 @@ export const DashlineLong = () => (
   </svg>
 );
 
-const TicketBreakdown = ({ bet, timeFormat }) => {
+export const TicketBreakdown = ({ bet, timeFormat }) => {
   const { wager, toWin, timestamp } = bet;
   return (
     <ul className={Styles.TicketBreakdown}>
       <li>
         <span>Wager</span>
         <DashlineNormal />
-        <span>{`$${wager}`}</span>
+        <span>{`$${wager === "0.00" ? "-" : wager}`}</span>
       </li>
       <li>
         <span>To Win</span>
@@ -414,7 +531,7 @@ const determineBetTotals = (bets: Array<BetType>) => {
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
     totalWager = totalWager.plus(bet?.wager?.split(",").join("") || "0");
-    totalToWin = totalWager.plus(bet?.toWin?.split(",").join("") || "0");
+    totalToWin = totalToWin.plus(bet?.toWin?.split(",").join("") || "0");
   });
   return { totalWager, totalToWin };
 };
@@ -433,6 +550,10 @@ const BetslipFooter = () => {
     bets,
     actions: { cancelAllBets, addActive },
   } = useBetslipStore();
+  const {
+    actions: { setSidebar },
+  } = useSportsStore();
+  const needsApprovals = useUserApprovals(bets);
   if (!isLogged || selectedCount === 0) {
     return null;
   }
@@ -440,20 +561,23 @@ const BetslipFooter = () => {
   const { totalWager, totalToWin } = onBetslip
     ? determineBetTotals(bets)
     : {
-        totalWager: ZERO,
-        totalToWin: ZERO,
-      };
+      totalWager: ZERO,
+      totalToWin: ZERO,
+    };
+  const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
   return (
     <footer>
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> and will win <b>{formatDai(totalToWin).full}</b> if you
-            win
-          </p>
+            You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
+            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
+            </p>
+
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
+            disabled={isInvalid || !!needsApprovals}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
@@ -462,6 +586,7 @@ const BetslipFooter = () => {
                 if (txDetails.hash) {
                   addActive({
                     ...bet,
+                    betId,
                     ...txDetails,
                   });
                   addTransaction(txDetails);
@@ -472,7 +597,9 @@ const BetslipFooter = () => {
         </>
       ) : (
         <>
-          <Link to={makePath(PORTFOLIO)}>{SimpleChevron} View All Bets</Link>
+          <Link onClick={() => setSidebar(null)} to={makePath(PORTFOLIO)}>
+            {SimpleChevron} View All Bets
+          </Link>
         </>
       )}
     </footer>

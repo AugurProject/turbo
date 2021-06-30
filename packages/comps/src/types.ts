@@ -75,11 +75,8 @@ export interface ParaDeploys {
   collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  hatcheryRegistry: string;
-  marketFactory: string;
-  arbiter: string;
-  ammFactory: string;
-  pool: string;
+  marketFactories: MarketFactoryConfig[];
+  info: { uploadBlockNumber: number; graphName: string };
 }
 export interface AmmTransaction {
   id: string;
@@ -273,11 +270,14 @@ export interface MarketInfo {
   outcomes: MarketOutcome[];
   amm: AmmExchange | null;
   reportingState: string;
-  claimedProceeds: ClaimedProceeds[];
   isInvalid: boolean;
   numTicks: string;
   hasWinner: boolean;
   winner?: number;
+  shareTokens?: string[];
+  marketFactoryType?: string;
+  coinIndex?: string;
+  price?: string;
   spreadOuLine?: number;
 }
 
@@ -592,6 +592,7 @@ export interface PositionBalance extends SimpleBalance {
   visible: boolean;
   positionFromAddLiquidity: boolean;
   positionFromRemoveLiquidity: boolean;
+  timestamp: number;
 }
 
 export interface AmmMarketShares {
@@ -604,6 +605,9 @@ export interface AmmMarketShares {
   };
 }
 
+export interface Approvals {
+  [address: string]: boolean;
+}
 export interface UserBalances {
   ETH: CurrencyBalance;
   USDC: CurrencyBalance;
@@ -618,6 +622,7 @@ export interface UserBalances {
   claimableFees: string;
   rep?: string;
   legacyRep?: string;
+  approvals?: Approvals;
 }
 
 export interface ProcessedData {
@@ -695,6 +700,7 @@ export interface TransactionDetails {
   timestamp?: number;
   seen?: boolean;
   status?: string;
+  message?: string;
   marketDescription?: string;
 }
 
@@ -703,4 +709,17 @@ export interface LiquidityBreakdown {
   minAmountsRaw?: string[];
   minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
   poolPct?: string;
+}
+
+export interface MarketFactoryConfig {
+  type: string;
+  address: string;
+  collateral: string;
+  ammFactory: string;
+  description: string;
+  version: string;
+}
+
+export interface MarketFactoryNames {
+  [address: string]: string;
 }

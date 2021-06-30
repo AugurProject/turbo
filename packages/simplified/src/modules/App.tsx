@@ -20,7 +20,6 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { SimpleFooter } from './common/simple-footer';
-import { useActiveWeb3React } from "@augurproject/comps/build/components/ConnectAccount/hooks";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
 
@@ -36,8 +35,6 @@ const AppBody = () => {
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
-  const activeWeb3 = useActiveWeb3React();
-
 
   useEffect(() => {
     const html = windowRef.document.firstElementChild;

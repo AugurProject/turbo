@@ -14,3 +14,4 @@ export * from "./pokeLink";
 export * from "./setSportsLinkNode";
 export * from "./createSportsLinkMarket";
 export * from "./whoami";
+export * from "./createCryptoMarkets";

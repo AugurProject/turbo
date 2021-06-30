@@ -12,8 +12,12 @@ export enum SportsLinkEventStatus {
   Unknown,
   Scheduled,
   Final,
-  Postpones,
+  Postponed,
   Canceled,
+}
+
+export enum CryptoMarketType {
+  PriceUpTo,
 }
 
 export const MAX_UINT256 = ethers.BigNumber.from(2).pow(256).sub(1);

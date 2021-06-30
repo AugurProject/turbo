@@ -5,6 +5,7 @@
 
   border-radius: @size-8;
 
+  > a,
   > div,
   > section > div {
     .text-14-bold;
@@ -64,6 +65,15 @@
         > span:not(:last-of-type) {
           margin-right: @size-8;
         }
+
+        > div[class*="ValueLabel"] {
+          > span:last-of-type {
+            .text-12-semi-bold;
+
+            margin-top: @size-2;
+            justify-content: flex-end;
+          }
+        }
       }
     }
 
@@ -89,13 +99,17 @@
       }
 
       > span:last-of-type {
-        .text-10-semi-bold;
+        .text-12;
 
         color: var(--simple-secondary-text);
         white-space: nowrap;
         word-break: none;
         display: inline-block;
         text-transform: uppercase;
+
+        @media @breakpoint-mobile-tablet {
+          .text-10;
+        }
       }
 
       &:first-of-type {
@@ -128,22 +142,27 @@
         grid-row: 1;
       }
 
-      > div:first-of-type {
+      > div:first-of-type { 
+        // volume labels (Total Volume)
         grid-column: 1 / span 2;
         grid-row: 2;
         align-items: flex-end;
         margin-top: @size-16;
 
         > span:last-of-type {
-          align-self: center;
+          .text-14-semi-bold;
+
+          margin-top: @size-2;
         }
       }
 
       > div:nth-of-type(2) {
+        // volume labels (Liquidity)
         // align-items: flex-end;
         grid-column: 1 / span 2;
         grid-row: 3;
         display: flex;
+        flex-flow: column nowrap;
         height: 100%;
 
         > span {
@@ -151,11 +170,13 @@
             .text-12;
 
             color: var(--color-secondary-text);
-            margin-right: @size-4;
           }
 
           &:last-of-type {
-            .text-12-semi-bold;
+            .text-14-semi-bold;
+
+            margin-top: @size-2;
+            color: var(--simple-primary-text);
           }
         }
       }
@@ -181,6 +202,7 @@
   }
 
   &.NoLiquidity {
+    > a,
     > div,
     > section > div {
       > div:first-of-type {
@@ -198,6 +220,22 @@
       }
     }
   }
+}
+
+button.NoLiquidityPill:disabled {
+  .text-12;
+
+  align-self: baseline;
+  border: 0;
+  color: var(--simple-secondary-text);
+  cursor: initial;
+  max-height: @size-24;
+  min-height: @size-24;
+  height: @size-24;
+  padding: 0;
+  opacity: 1;
+  border-color: var(--simple-border);
+  text-transform: none;
 }
 
 span.ExtraOutcomes {
@@ -365,7 +403,7 @@ span.ExtraOutcomes {
     }
 
     &:nth-of-type(3) {
-      grid-template-columns: 1fr @size-250;
+      grid-template-columns: 1fr minmax(@size-200, @size-250);
       grid-template-rows: @size-46 repeat(2, @size-16);
       display: grid;
       grid-column-gap: @size-32;
@@ -393,6 +431,7 @@ span.ExtraOutcomes {
   .MarketCard {
     max-width: 100%;
 
+    > a,
     > div {
       max-width: 100%;
 
@@ -440,7 +479,7 @@ span.ExtraOutcomes {
           order: 0;
         }
 
-        > span:last-of-type:not(:first-of-type) {
+        > span:last-of-type:not(:first-of-type) {          
           flex: 1 100%;
           order: 2;
           height: @size-14;
@@ -458,9 +497,10 @@ span.ExtraOutcomes {
           margin-top: @size-8;
 
           > span:last-of-type {
-            .text-14-semi-bold;
+            .text-12-semi-bold;
 
             margin-left: @size-4;
+            margin-top: 0;
           }
         }
 
@@ -470,6 +510,14 @@ span.ExtraOutcomes {
           flex: 0;
           order: 4;
           margin-top: @size-8;
+          flex-flow: row nowrap;
+
+          > span:last-of-type {
+            .text-12-semi-bold;
+
+            margin-left: @size-4;
+            margin-top: 0;
+          }
         }
 
         > div.OutcomesTable {
@@ -492,6 +540,7 @@ span.ExtraOutcomes {
 }
 
 @media @breakpoint-mobile-tablet {
+  .MarketCard > a > a,
   .MarketCard > div > a,
   .MarketCard > div > a > span {
     height: unset;

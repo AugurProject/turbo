@@ -1,8 +1,13 @@
 import { BigNumber as BN } from "bignumber.js";
-import { AmmExchange, Cash, LoginAccount, PositionBalance, TransactionDetails } from "@augurproject/comps/build/types";
+import { AmmExchange, Cash, LoginAccount, TransactionDetails } from "@augurproject/comps/build/types";
 import { ContractCalls, createBigNumber } from "@augurproject/comps";
-import { TradingDirection, TX_STATUS } from "@augurproject/comps/build/utils/constants";
+import { TradingDirection } from "@augurproject/comps/build/utils/constants";
 import { doTrade } from "@augurproject/comps/build/utils/contract-calls";
+import { claimWinnings } from "@augurproject/comps/build/utils/contract-calls";
+import { ActiveBetType } from "modules/stores/constants";
+import { MarketInfo } from "@augurproject/comps/build/types";
+import { approveERC20Contract, checkAllowance } from "@augurproject/comps/build/stores/use-approval-callback";
+import { ApprovalState, TX_STATUS } from "modules/constants";
 const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 
 export interface SizedPrice {
@@ -15,7 +20,7 @@ export interface BuyAmount {
   maxProfit: string;
 }
 // id = outcome ID
-export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number = 0.1): SizedPrice => {
+export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: number | string = 0.1): SizedPrice => {
   if (!amm?.hasLiquidity) return null;
 
   const outcome = amm.ammOutcomes.find((o) => o.id === id);
@@ -39,25 +44,24 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
   };
 };
 
-export const estimatedCashOut = (amm: AmmExchange, position: PositionBalance): string => {
-  if (!amm?.hasLiquidity || !position) return null;
-  const shareAmount = position.quantity;
-  const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
+export const estimatedCashOut = (amm: AmmExchange, size: string, outcomeId: number): string => {
+  if (!amm?.hasLiquidity || !size || outcomeId === undefined) return null;
+  const est = estimateSellTrade(amm, size, outcomeId, []);
   // can sell all position or none
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
 
-export const makeCashOut = async (
+const makeCashOut = async (
   loginAccount: LoginAccount,
-  amm: AmmExchange,
-  position: PositionBalance,
-  account: string,
-  cash: Cash
+  bet: ActiveBetType,
+  market: MarketInfo
 ): Promise<TransactionDetails> => {
-  if (!amm?.hasLiquidity || !position) return null;
-  const shareAmount = position.quantity;
+  if (!market || !market?.amm?.hasLiquidity || !bet) return null;
+  const { amm } = market;
+  const { cash } = amm;
+  const shareAmount = bet.size;
   const defaultSlippage = "1";
-  const est = estimateSellTrade(amm, shareAmount, position.outcomeId, []);
+  const est = estimateSellTrade(amm, shareAmount, bet.outcomeId, []);
   // can sell all position or none
   if (est.maxSellAmount !== "0") return null;
   const response = await doTrade(
@@ -66,8 +70,8 @@ export const makeCashOut = async (
     amm,
     est.outputValue,
     shareAmount,
-    position.outcomeId,
-    account,
+    bet.outcomeId,
+    loginAccount?.account,
     cash,
     defaultSlippage,
     est?.outcomeShareTokensIn
@@ -76,9 +80,10 @@ export const makeCashOut = async (
     hash: response?.hash,
     chainId: String(loginAccount.chainId),
     seen: false,
-    status: TX_STATUS.PENDING,
-    from: account,
+    from: loginAccount?.account,
     addedTime: new Date().getTime(),
+    status: TX_STATUS.PENDING,
+    message: "Cashout Bet",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
 };
@@ -110,9 +115,107 @@ export const makeBet = async (
     hash: response?.hash,
     chainId: String(loginAccount.chainId),
     seen: false,
-    status: TX_STATUS.PENDING,
     from: account,
     addedTime: new Date().getTime(),
+    status: TX_STATUS.PENDING,
+    message: "Bet Placed",
     marketDescription: `${amm?.market?.title} ${amm?.market?.description}`,
   };
+};
+
+export const claimMarketWinnings = async (
+  loginAccount: LoginAccount,
+  amm: AmmExchange
+): Promise<TransactionDetails> => {
+  if (amm && loginAccount && loginAccount?.account) {
+    const { marketFactoryAddress, turboId } = amm?.market;
+    return claimAll(loginAccount, [String(turboId)], marketFactoryAddress);
+  }
+  return null;
+};
+
+export const claimAll = async (
+  loginAccount: LoginAccount,
+  marketIndexes: string[],
+  marketFactoryAddress: string
+): Promise<TransactionDetails> => {
+  if (loginAccount?.account) {
+    const response = await claimWinnings(
+      loginAccount?.account,
+      loginAccount?.library,
+      marketIndexes,
+      marketFactoryAddress
+    );
+    return {
+      hash: response?.hash,
+      chainId: String(loginAccount.chainId),
+      seen: false,
+      from: loginAccount?.account,
+      addedTime: new Date().getTime(),
+      status: TX_STATUS.PENDING,
+      message: "Claim Winnings",
+      marketDescription: `Claim Winnings`,
+    };
+  }
+  return null;
+};
+
+export const isCashOutApproved = async (
+  loginAccount: LoginAccount,
+  outcomeId: number,
+  market: MarketInfo,
+  transactions: TransactionDetails[]
+): Promise<Boolean> => {
+  if (!market) return false;
+  const shareToken = market.shareTokens[outcomeId];
+  const result = await checkAllowance(shareToken, market?.amm.ammFactoryAddress, loginAccount, transactions);
+  return result === ApprovalState.APPROVED;
+};
+
+export const isBuyApproved = async (
+  loginAccount: LoginAccount,
+  market: MarketInfo,
+  transactions: TransactionDetails[]
+): Promise<Boolean> => {
+  if (!market) return false;
+  const cash = market?.amm?.cash?.address;
+  const result = await checkAllowance(cash, market?.amm?.ammFactoryAddress, loginAccount, transactions);
+  return result === ApprovalState.APPROVED;
+};
+
+export const approveBuy = async (
+  loginAccount: LoginAccount,
+  cash: string,
+  ammFactoryAddress: string
+): Promise<TransactionDetails | null> => {
+  if (!cash || !ammFactoryAddress) return null;
+  return await approveERC20Contract(cash, "Place Bet", ammFactoryAddress, loginAccount);
+};
+
+export const approveBuyReset = async (
+  loginAccount: LoginAccount,
+  cash: string,
+  ammFactoryAddress: string
+): Promise<TransactionDetails | null> => {
+  if (!cash || !ammFactoryAddress) return null;
+  return await approveERC20Contract(cash, "Place Bet", ammFactoryAddress, loginAccount, "0");
+};
+
+const approveCashOut = async (
+  loginAccount: LoginAccount,
+  bet: ActiveBetType,
+  market: MarketInfo
+): Promise<TransactionDetails> => {
+  const { outcomeId } = bet;
+  const { amm } = market;
+  const shareToken = market.shareTokens[outcomeId];
+  return await approveERC20Contract(shareToken, "Cashout", amm.ammFactoryAddress, loginAccount);
+};
+
+export const approveOrCashOut = async (
+  loginAccount: LoginAccount,
+  bet: ActiveBetType,
+  market: MarketInfo
+): Promise<TransactionDetails> => {
+  return (await bet.isApproved) ? makeCashOut(loginAccount, bet, market) : approveCashOut(loginAccount, bet, market);
 };

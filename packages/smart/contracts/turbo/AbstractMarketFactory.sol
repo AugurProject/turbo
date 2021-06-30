@@ -260,7 +260,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     }
 
     // Only usable off-chain. Gas cost can easily eclipse block limit.
-    function listUnresolvedMarkets() external view returns (uint256[] memory) {
+    function listUnresolvedMarkets() public view returns (uint256[] memory) {
         uint256 _totalUnresolved = 0;
         for (uint256 i = 0; i < markets.length; i++) {
             if (!isMarketResolved(i)) {

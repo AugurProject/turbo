@@ -32,16 +32,19 @@ const {
   ButtonComps: { BuySellButton },
   InputComps: { OutcomesGrid },
 } = Components;
-const { getSportsResolutionRules } = DerivedMarketData;
+const { getResolutionRules } = DerivedMarketData;
 // eslint-disable-next-line
 const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
-const { Utils: { isMarketFinal } } = Stores;
+const {
+  Utils: { isMarketFinal },
+} = Stores;
 const {
   DateUtils: { getMarketEndtimeFull },
   Formatter: { formatDai, formatLiquidity },
   PathUtils: { parseQuery },
 } = Utils;
 const { getCombinedMarketTransactionsFormatted } = ProcessData;
+let timeoutId = null;
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
@@ -111,7 +114,7 @@ const EmptyMarketView = () => {
   );
 };
 
-const NonexistingMarketView = ({ text, showLink }) => {
+const NonexistingMarketView = ({ text, showLink = false }) => {
   return (
     <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
       <section>
@@ -152,31 +155,36 @@ const MarketView = ({ defaultMarket = null }) => {
   const amm: AmmExchange = ammExchanges[marketId];
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!market && marketId) {
-        setMarketNotFound(true);
-      }
-    }, 60 * 1000);
+    if (!market) {
+      timeoutId = setTimeout(() => {
+        if (!market && marketId) {
+          setMarketNotFound(true);
+        }
+      }, 60 * 1000);
+    }
 
     return () => {
       clearTimeout(timeoutId);
-    }
+    };
   }, [marketId]);
 
-  if (marketNotFound) return (
-    <NonexistingMarketView
-      text={"Market does not exist."}
-      showLink={false}
-    />
-  );
+  useEffect(() => {
+    if (timeoutId && market) {
+      clearTimeout(timeoutId);
+      timeoutId = null
+    }
+  }, [market]);
+
+  if (marketNotFound) return <NonexistingMarketView text="Market does not exist." />;
 
   if (!market) return <EmptyMarketView />;
-  const details = getSportsResolutionRules(market.sportId, market.sportsMarketType);
+  const details = getResolutionRules(market);
   const { reportingState, title, description, startTimestamp, categories, winner } = market;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const marketTransactions = getCombinedMarketTransactionsFormatted(transactions, market, cashes);
   const { volume24hrTotalUSD = null, volumeTotalUSD = null } = transactions[marketId] || {};
   const isFinalized = isMarketFinal(market);
+  const marketHasNoLiquidity = !amm?.id && !market.hasWinner;
   return (
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
@@ -187,26 +195,24 @@ const MarketView = ({ defaultMarket = null }) => {
           <CategoryIcon big categories={categories} />
           <CategoryLabel big categories={categories} />
           {!isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
-          <CurrencyLabel name={amm?.cash?.name} />
+          {!marketHasNoLiquidity && <CurrencyLabel name={amm?.cash?.name} />}
         </div>
         {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
-        {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
-        {isFinalized && winningOutcome && (
-          <WinningOutcomeLabel winningOutcome={winningOutcome} />
-        )}
+        {!!startTimestamp ? <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span> : <span />}
+        {isFinalized && winningOutcome && <WinningOutcomeLabel winningOutcome={winningOutcome} />}
         <ul className={Styles.StatsRow}>
           <li>
             <span>24hr Volume</span>
-            <span>{formatDai(volume24hrTotalUSD || "0.00").full}</span>
+            <span>{marketHasNoLiquidity ? "-" : formatDai(volume24hrTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Total Volume</span>
-            <span>{formatDai(volumeTotalUSD || "0.00").full}</span>
+            <span>{marketHasNoLiquidity ? "-" : formatDai(volumeTotalUSD || "0.00").full}</span>
           </li>
           <li>
             <span>Liquidity</span>
-            <span>{formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
+            <span>{marketHasNoLiquidity ? "-" : formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
           </li>
           {/* <li>
             <span>Expires</span>
@@ -224,12 +230,11 @@ const MarketView = ({ defaultMarket = null }) => {
           dontFilterInvalid
           noClick
           hasLiquidity={amm?.hasLiquidity}
+          marketFactoryType={amm?.market?.marketFactoryType}
         />
         <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} />
         <PositionsLiquidityViewSwitcher ammExchange={amm} />
-        <article className={Styles.MobileLiquidSection}>
-        {!isFinalized && <AddLiquidity market={market} />}
-        </article>
+        <article className={Styles.MobileLiquidSection}>{!isFinalized && <AddLiquidity market={market} />}</article>
         <div
           className={classNames(Styles.Details, {
             [Styles.isClosed]: !showMoreDetails,

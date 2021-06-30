@@ -12,8 +12,8 @@
 
   > div {
     .SimpleBorder;
+    .SecondaryBorderRadius;
 
-    border-radius: @size-16;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -38,109 +38,113 @@
   }
 }
 
-.ModalAddLiquidity {
-  .Container;
-
+.RulesModal {
+  max-width: @size-560;
+  max-height: 75vh;
   display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: @size-395;
-  max-height: calc(100vh - @size-100);
-  overflow-y: auto;
+  flex-flow: column nowrap;
+  justify-content: stretch;
+  align-items: center;
+
+  @media @breakpoint-mobile {
+    max-height: 85vh;
+    max-width: 90vw;
+  }
+
+  > div {
+    flex: 0;
+  }
 
   > main {
-    > button:first-of-type {
-      margin-bottom: @size-8;
-      margin-top: @size-24;
-    }
+    display: grid;
+    grid-gap: @size-24;
+    grid-template-columns: 1fr;
+    padding: @size-24;
+    overflow-y: auto;
+    flex: 1;
+    width: 100%;
 
-    > button {
-      margin-bottom: @size-8;
-    }
+    > section {
+      display: grid;
+      grid-template-columns: 0fr 1fr;
+      grid-gap: @size-4;
 
-    > div:first-of-type {
-      margin-top: @size-24;
-    }
+      > h2 {
+        .text-16-bold;
 
-    > button:last-of-type {
-      margin-bottom: 0;
-    }
-
-    > span {
-      margin-bottom: @size-12;
-      margin-top: @size-24;
-    }
-
-    > div > input {
-      margin-bottom: @size-16;
-      width: 100%;
-    }
-
-    > div[class*="ErrorBlock"] {
-      margin-top: @size-8;
-    }
-  }
-
-  &.Remove {
-    > main > div:first-of-type {
-      margin-top: 0;
-    }
-
-    > main > div:nth-of-type(2) {
-      margin-top: 0;
-    }
-  }
-
-  &.showBackView {
-    > div:first-of-type {
-      cursor: pointer;
-    }
-
-    > main {
-      > div:first-of-type {
-        .text-20-bold;
-
-        cursor: default;
-        border-bottom: @size-1 solid var(--simple-border);
-        color: var(--simple-secondary-text);
+        color: var(--simple-primary-text);
+        grid-column: span 2;
+        grid-row: 1;
+        white-space: nowrap;
       }
 
-      > div:nth-of-type(2) {
-        margin-top: @size-24;
-      }
+      > span {
+        grid-row: 2;
+        white-space: nowrap;
 
-      > section {
-        border-bottom: @size-1 solid var(--simple-border);
-        margin-bottom: @size-24;
-        padding-bottom: @size-24;
+        &:first-of-type {
+          .text-14;
 
-        > div {
-          margin-top: @size-12;
+          grid-column: 1;
+          color: var(--simple-secondary-text);
         }
 
         &:last-of-type {
-          border-bottom: 0;
-          padding-bottom: 0;
-          margin-bottom: 0;
+          .text-14-bold;
+
+          grid-column: 2;
+          color: var(--simple-primary-text);
         }
       }
 
-      > section:first-of-type {
-        margin-top: @size-24;
+      @media @breakpoint-mobile {
+        display: flex;
+        flex-flow: column wrap;
+
+        > h2 {
+          white-space: normal;
+        }
       }
     }
 
-    &.Remove {
-      > main > div:first-of-type {
-        margin-top: @size-24;
+    > div {
+      display: flex;
+      flex-flow: column nowrap;
+
+      > h4 {
+        .text-14-bold;
+
+        color: var(--simple-primary-text);
+        margin-bottom: @size-16;
+      }
+
+      > ul {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-gap: @size-4;
+        list-style: disc;
+        padding-left: @size-20;
+
+        > li {
+          .text-14;
+        }
       }
     }
   }
 
-  @media @breakpoint-mobile-tablet {
-    width: unset;
-    height: unset;
-    max-height: unset;
+  > footer {
+    border-top: @size-1 solid var(--simple-border);
+    background: var(--alternate-background-color);
+    min-height: @size-72;
+    height: @size-72;
+    max-height: @size-72;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    padding: @size-14 @size-16;
+    flex: 0;
+    width: 100%;
   }
 }
 

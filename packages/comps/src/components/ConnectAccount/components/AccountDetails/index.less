@@ -35,11 +35,12 @@
 }
 
 .AccountDetails {
+  .SecondaryBorderRadius;
+
   max-width: 432px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: @size-16;
   overflow: hidden;
 
   > header,
@@ -76,11 +77,13 @@
     padding: @size-24 @size-24 @size-20 @size-24;
 
     > .AccountCard {
+      .SecondaryBorderRadius;
+
       display: flex;
       flex-direction: column;
       width: 100%;
       border: @size-1 solid var(--simple-border);
-      border-radius: @size-8;
+      
       padding: @size-16;
 
       > div {
@@ -97,7 +100,7 @@
         > span {
           .text-14-semi-bold;
 
-          color: var(--color-secondary-text);
+          color: var(--simple-primary-text);
         }
 
         > button {

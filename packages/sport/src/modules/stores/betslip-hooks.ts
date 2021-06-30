@@ -1,17 +1,12 @@
 import { useReducer } from "react";
-import {
-  BETSLIP_ACTIONS,
-  DEFAULT_BETSLIP_STATE,
-  BETSLIP_STATE_KEYS,
-  DEFAULT_BET,
-  DEFAULT_ACTIVE_BET,
-} from "./constants";
+import { BETSLIP_ACTIONS, DEFAULT_BETSLIP_STATE, BETSLIP_STATE_KEYS, DEFAULT_BET } from "./constants";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
 import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
 } = Stores;
 const {
+  SET_ODDS_CHANGED_MESSAGE,
   TOGGLE_SELECTED_VIEW,
   ADD_BET,
   REMOVE_BET,
@@ -20,8 +15,9 @@ const {
   CANCEL_ALL_BETS,
   ADD_ACTIVE,
   REMOVE_ACTIVE,
+  CLEAR_BETSLIP,
 } = BETSLIP_ACTIONS;
-const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT } = BETSLIP_STATE_KEYS;
+const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT, ODDS_CHANGED_MESSAGE } = BETSLIP_STATE_KEYS;
 
 export function BetslipReducer(state, action) {
   const updatedState = { ...state };
@@ -29,6 +25,10 @@ export function BetslipReducer(state, action) {
   const timestamp = Math.floor(date.getTime() / 1000);
 
   switch (action.type) {
+    case SET_ODDS_CHANGED_MESSAGE: {
+      updatedState[ODDS_CHANGED_MESSAGE] = action.message;
+      break;
+    }
     case TOGGLE_SELECTED_VIEW: {
       updatedState[SELECTED_VIEW] = state.selectedView === BETSLIP ? ACTIVE_BETS : BETSLIP;
       break;
@@ -61,33 +61,40 @@ export function BetslipReducer(state, action) {
       break;
     }
     case ADD_ACTIVE: {
-      const { bet } = action;
+      const { bet, dontUpdateTime } = action;
+      const extra = dontUpdateTime ? {} : { timestamp };
       updatedState[ACTIVE] = {
         ...updatedState[ACTIVE],
-        [`${bet.hash}`]: {
-          ...DEFAULT_ACTIVE_BET,
+        [`${bet.betId}`]: {
           ...bet,
-          timestamp,
+          ...extra,
         },
       };
       delete updatedState[BETS][bet.betId];
       break;
     }
     case REMOVE_ACTIVE: {
-      delete updatedState[ACTIVE][action.hash];
+      delete updatedState[ACTIVE][action.betId];
       break;
     }
     case UPDATE_ACTIVE: {
-      const { bet } = action;
-      updatedState[ACTIVE][bet.hash] = {
-        ...updatedState[ACTIVE][bet.hash],
+      const { bet, dontUpdateTime } = action;
+      const extra = dontUpdateTime ? {} : { timestamp };
+      updatedState[ACTIVE][bet.betId] = {
+        ...updatedState[ACTIVE][bet.betId],
         ...action.bet,
-        timestamp,
+        ...extra,
       };
       break;
     }
     case CANCEL_ALL_BETS: {
       updatedState[BETS] = [];
+      break;
+    }
+    case CLEAR_BETSLIP: {
+      Object.keys(updatedState).forEach((key) => {
+        updatedState[key] = DEFAULT_BETSLIP_STATE[key];
+      });
       break;
     }
     default:
@@ -109,14 +116,16 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
   return {
     ...state,
     actions: {
+      setOddsChangedMessage: (message) => dispatch({ type: SET_ODDS_CHANGED_MESSAGE, message }),
       toggleSelectedView: () => dispatch({ type: TOGGLE_SELECTED_VIEW }),
       addBet: (bet) => dispatch({ type: ADD_BET, bet }),
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
       updateBet: (bet) => dispatch({ type: UPDATE_BET, bet }),
-      addActive: (bet) => dispatch({ type: ADD_ACTIVE, bet }),
-      removeActive: (hash) => dispatch({ type: REMOVE_ACTIVE, hash }),
+      addActive: (bet, dontUpdateTime = false) => dispatch({ type: ADD_ACTIVE, bet, dontUpdateTime }),
+      removeActive: (betId) => dispatch({ type: REMOVE_ACTIVE, betId }),
       cancelAllBets: () => dispatch({ type: CANCEL_ALL_BETS }),
-      updateActive: (bet) => dispatch({ type: UPDATE_ACTIVE, bet }),
+      updateActive: (bet, dontUpdateTime = false) => dispatch({ type: UPDATE_ACTIVE, bet, dontUpdateTime }),
+      clearBetslip: () => dispatch({ type: CLEAR_BETSLIP }),
     },
   };
 };

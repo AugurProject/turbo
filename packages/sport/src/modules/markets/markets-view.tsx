@@ -12,20 +12,16 @@ import {
   getCategoryIconLabel,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
-import { DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryButton },
-  Icons: { FilterIcon },
   MarketCardComps: { LoadingMarketCard },
-  PaginationComps: { sliceByPage, Pagination },
+  PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
 } = Components;
 const {
-  SIDEBAR_TYPES,
   ALL_CURRENCIES,
   ALL_MARKETS,
   OPEN,
@@ -44,21 +40,21 @@ const {
   MODAL_ADD_LIQUIDITY,
 } = Constants;
 
-const PAGE_LIMIT = 21;
+const PAGE_LIMIT = 10;
 
 const applyFiltersAndSort = (
   passedInMarkets,
   passedInMarketEvents,
-  { setFilteredMarkets, setFilteredEvents },
+  { setFilteredEvents },
   transactions,
   { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
-  // immediately sort by event id and turbo id.
-  updatedFilteredMarkets = updatedFilteredMarkets.sort(
-    (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  );
+  // // immediately sort by event id and turbo id.
+  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
+  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
+  // );
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
@@ -161,31 +157,29 @@ const applyFiltersAndSort = (
     return output;
   }, []);
 
-  setFilteredMarkets(updatedFilteredMarkets);
+  // setFilteredMarkets(updatedFilteredMarkets);
   setFilteredEvents(updatedEvents);
 };
 
 const MarketsView = () => {
   const {
-    isMobile,
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
   const {
     marketEvents,
+    filteredEvents,
     marketsViewSettings,
     settings: { showLiquidMarkets },
-    actions: { setSidebar, updateMarketsViewSettings },
+    actions: { updateMarketsViewSettings, setFilteredEvents },
   } = useSportsStore();
   const { markets, transactions, loading: dataLoading } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [filteredMarkets, setFilteredMarkets] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  // const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
   const marketKeys = Object.keys(markets);
 
   useScrollToTopOnMount(page);
@@ -197,7 +191,7 @@ const MarketsView = () => {
     applyFiltersAndSort(
       Object.values(markets),
       marketEvents,
-      { setFilteredMarkets, setFilteredEvents },
+      { setFilteredEvents },
       transactions,
       {
         filter,
@@ -230,12 +224,6 @@ const MarketsView = () => {
     handleFilterSort();
   }, [marketKeys.length, Object.keys(marketEvents).length]);
 
-  let changedFilters = 0;
-
-  Object.keys(DEFAULT_MARKET_VIEW_SETTINGS).forEach((setting) => {
-    if (marketsViewSettings[setting] !== DEFAULT_MARKET_VIEW_SETTINGS[setting]) changedFilters++;
-  });
-
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
     if (!amm.id && isLogged) {
@@ -247,32 +235,13 @@ const MarketsView = () => {
       });
     }
   };
-
   return (
     <div
-      className={classNames(Styles.MarketsView, {
-        [Styles.SearchOpen]: showFilter,
-      })}
+      className={Styles.MarketsView}
     >
-      <CategoriesArea filteredMarkets={filteredMarkets} />
+      <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
-        {isMobile && (
-          <div>
-            <SecondaryButton
-              text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
-              icon={FilterIcon}
-              action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}
-            />
-            <SearchButton
-              action={() => {
-                setFilter("");
-                setShowFilter(!showFilter);
-              }}
-              selected={showFilter}
-            />
-          </div>
-        )}
         <ul>
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
@@ -289,7 +258,6 @@ const MarketsView = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             clearValue={() => setFilter("")}
-            showFilter={showFilter}
           />
         </ul>
         {!isLogged ? (
@@ -316,15 +284,14 @@ const MarketsView = () => {
         ) : (
           <span className={Styles.EmptyMarketsMessage}>No markets to show. Try changing the filter options.</span>
         )}
-        {filteredMarkets.length > 0 && (
+        {filteredEvents.length > 0 && (
           <Pagination
             page={page}
-            itemCount={filteredMarkets.length}
+            itemCount={filteredEvents.length}
             itemsPerPage={PAGE_LIMIT}
             action={(page) => {
               setPage(page);
             }}
-            updateLimit={null}
           />
         )}
       </article>

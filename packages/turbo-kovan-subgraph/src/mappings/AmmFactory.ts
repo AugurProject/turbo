@@ -17,6 +17,7 @@ import {
   getOrCreateSender,
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
+import { handlePositionFromTradeEvent, handlePositionFromLiquidityChangedEvent } from "../helpers/CommonHandlers";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -56,6 +57,14 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   addLiquidityEntity.totalSupply = totalSupply;
   addLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
+  for (let i = 0; i < event.params.sharesReturned.length; i++) {
+    let array = new Array<BigInt>(3);
+    array = event.params.sharesReturned;
+    if (array[i].gt(BigInt.fromI32(0))) {
+      handlePositionFromLiquidityChangedEvent(event, true, array[i], BigInt.fromI32(i));
+    }
+  }
+
   addLiquidityEntity.save();
 }
 
@@ -76,6 +85,14 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   removeLiquidityEntity.totalSupply = totalSupply;
   removeLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
+  for (let i = 0; i < event.params.sharesReturned.length; i++) {
+    let array = new Array<BigInt>(3);
+    array = event.params.sharesReturned;
+    if (array[i].gt(BigInt.fromI32(0))) {
+      handlePositionFromLiquidityChangedEvent(event, false, array[i], BigInt.fromI32(i));
+    }
+  }
+
   removeLiquidityEntity.save();
 }
 
@@ -85,7 +102,9 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let senderId = event.params.user.toHexString();
   let liquidityEntity = getOrCreateLiquidity(id, true, false);
   getOrCreateMarket(marketId);
-  getOrCreateSender(senderId);
+  let sender = getOrCreateSender(senderId);
+  sender.totalLiquidity = sender.totalLiquidity + event.params.collateral;
+  sender.save();
 
   let ammContractInstance = AmmFactoryContract.bind(event.address);
   let poolAddress = ammContractInstance.pools(event.params.marketFactory, event.params.marketId);
@@ -129,6 +148,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradeEntity.marketFactory = event.params.marketFactory.toHexString();
   tradeEntity.marketId = marketId;
   tradeEntity.user = senderId;
+  tradeEntity.sender = senderId;
   tradeEntity.outcome = bigIntToHexString(event.params.outcome);
   tradeEntity.collateral = bigIntToHexString(event.params.collateral);
   tradeEntity.shares = bigIntToHexString(event.params.shares);
@@ -136,6 +156,8 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
 
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
+
+  handlePositionFromTradeEvent(event);
 
   tradeEntity.save();
 }

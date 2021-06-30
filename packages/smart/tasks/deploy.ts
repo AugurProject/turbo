@@ -43,8 +43,15 @@ export interface DeployConfig {
 
 export interface ExternalAddresses {
   reputationToken?: string;
-  usdcToken?: string; // address oof USDC collateral. also the test collateral
+  usdcToken?: string; // address of USDC collateral. also the test collateral
   balancerFactory?: string;
+  priceFeeds?: PriceFeedConfig[];
+}
+
+export interface PriceFeedConfig {
+  symbol: string;
+  priceFeedAddress: string;
+  imprecision: number;
 }
 
 declare module "hardhat/types/config" {

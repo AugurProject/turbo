@@ -16,7 +16,7 @@ import {
 import { SimplifiedStore } from "modules/stores/simplified";
 const { MultiButtonSelection } = SelectionComps;
 const { orderOutcomesForDisplay } = MarketCardComps;
-const { formatCashPrice, getCashFormat } = Formatter;
+const { formatCashPrice } = Formatter;
 const { Checkbox } = Icons;
 const { TransactionTypes } = Constants;
 const { getDayFormat, getTimeFormat } = DateUtils;
@@ -244,7 +244,7 @@ export const SelectOutcomeButton = ({
 }: typeof React.Component) => {
   const OutcomePrice =
     isNaN(Number(lastPrice)) || Number(lastPrice) <= 0
-      ? `${getCashFormat(cash?.name)?.symbol} -`
+      ? `-`
       : formatCashPrice(createBigNumber(lastPrice), cash?.name).full;
   return (
     <button
@@ -271,7 +271,7 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
     updates[id] = !updates[id];
     setSelectedOutcomes(updates);
   };
-
+  const marketHasNoLiquidity = !market.amm?.id && !market.hasWinner;
   return (
     <section className={Styles.SimpleChartSection}>
       <MultiButtonSelection
@@ -279,16 +279,20 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
         selection={rangeSelection}
         setSelection={(id) => setRangeSelection(id)}
       />
-      <PriceHistoryChart
-        {...{
-          market,
-          transactions,
-          formattedOutcomes,
-          selectedOutcomes,
-          rangeSelection,
-          cash,
-        }}
-      />
+      {marketHasNoLiquidity ? (
+        <section className={Styles.IlliquidMarketChart}>No Price History To Show</section>
+      ) : (
+        <PriceHistoryChart
+          {...{
+            market,
+            transactions,
+            formattedOutcomes,
+            selectedOutcomes,
+            rangeSelection,
+            cash,
+          }}
+        />
+      )}
       <div>
         {formattedOutcomes.map((outcome) => (
           <SelectOutcomeButton

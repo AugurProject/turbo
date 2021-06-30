@@ -198,7 +198,7 @@ const Outcome = ({
   const price = !!hasLiquidity
     ? formatCashPrice(outcome?.price, ammCash?.name).full
     : prepend
-    ? `${symbol}-`
+    ? `-`
     : `- ${symbol}`;
 
   return (
@@ -257,6 +257,7 @@ export interface OutcomesGridProps {
   error?: boolean;
   noClick?: boolean;
   hasLiquidity?: boolean;
+  marketFactoryType?: string;
 }
 export const OutcomesGrid = ({
   outcomes,
@@ -272,8 +273,9 @@ export const OutcomesGrid = ({
   error,
   noClick,
   hasLiquidity,
+  marketFactoryType
 }: OutcomesGridProps) => {
-  const sortedOutcomes = orderOutcomesForDisplay(outcomes);
+  const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
   return (
     <div
       className={classNames(Styles.Outcomes, {
