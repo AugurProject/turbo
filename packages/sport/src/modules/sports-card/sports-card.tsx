@@ -168,7 +168,13 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
           eventMarkets[SPORTS_MARKET_TYPE.SPREAD],
           eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER],
         ].map((eventMarket) => (
-          <SportsCardOutcomes {...{ ...eventMarket, checkForNoLiquidity: true }} />
+          <SportsCardOutcomes
+            {...{
+              ...eventMarket,
+              checkForNoLiquidity: true,
+              key: `${SPORTS_MARKET_TYPE_LABELS[eventMarket.sportsMarketType]}-outcomes`,
+            }}
+          />
         ))}
       </section>
     </section>
@@ -334,10 +340,10 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
   );
 };
 
-
-
 const SportsCardFooter = ({ marketTransactions, marketEvent = null }) => {
-  const { actions: { setModal }} = useAppStatusStore();
+  const {
+    actions: { setModal },
+  } = useAppStatusStore();
   const formattedVol = useMemo(
     () => marketTransactions?.volumeTotalUSD && formatDai(marketTransactions.volumeTotalUSD).full,
     [marketTransactions?.volumeTotalUSD]

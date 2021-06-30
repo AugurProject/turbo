@@ -323,7 +323,7 @@ export const BaseThemeButton = ({
     disabled,
     title,
     onClick: action,
-    ariaLabel,
+    "arial-label": ariaLabel,
     className: classNames(
       Styles.BaseNormalButton,
       {
