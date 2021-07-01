@@ -62,13 +62,6 @@ export const addresses: AddressMapping = {
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
       },
-      {
-        description: "mma placeholder",
-        type: "SportsLink",
-        address: "0xBE7CF258fa0409677C1340D0e599C4dA9aB57c98",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
-      },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "matic" },
   },
