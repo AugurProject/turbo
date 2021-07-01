@@ -77,6 +77,7 @@
       }
     }
 
+    > section > span,
     > a > span,
     > span {
       > span:first-of-type {
@@ -127,7 +128,8 @@
       grid-column: 1 / span 3;
     }
 
-    > a {
+    > a,
+    > section {
       grid-column: 1 / span 3;
       width: 100%;
       min-height: @size-180;
@@ -468,7 +470,8 @@ span.ExtraOutcomes {
         height: unset;
       }
 
-      > a {
+      > a,
+      > section {
         display: flex;
         flex-flow: row wrap;
         justify-content: space-between;
@@ -541,6 +544,7 @@ span.ExtraOutcomes {
 
 @media @breakpoint-mobile-tablet {
   .MarketCard > a > a,
+  .MarketCard > a > section,
   .MarketCard > div > a,
   .MarketCard > div > a > span {
     height: unset;
