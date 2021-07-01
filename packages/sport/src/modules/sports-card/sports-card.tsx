@@ -172,7 +172,7 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
             {...{
               ...eventMarket,
               checkForNoLiquidity: true,
-              key: `${SPORTS_MARKET_TYPE_LABELS[eventMarket.sportsMarketType]}-outcomes`,
+              key: `${SPORTS_MARKET_TYPE_LABELS[eventMarket?.sportsMarketType]}-outcomes`,
             }}
           />
         ))}
