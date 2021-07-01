@@ -1,12 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-import { calcShareFactor, NULL_ADDRESS } from "../src";
+import { calcShareFactor } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash, Cash__factory, SportsLinkMarketFactory__factory } from "../typechain";
+import { Cash__factory, SportsLinkMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments, ethers } = hre;
+  const { deployments } = hre;
 
   if (!isHttpNetworkConfig(hre.network.config)) {
     return; // skip tests and internal deploy
