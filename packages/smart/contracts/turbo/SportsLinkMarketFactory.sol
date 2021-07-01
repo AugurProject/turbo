@@ -296,10 +296,13 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
     }
 
-    function trustedResolveMarkets(bytes32 _payload) public {
+    function trustedResolveMarkets(
+        uint256 _eventId,
+        uint256 _eventStatus,
+        uint256 _homeScore,
+        uint256 _awayScore
+    ) public {
         require(msg.sender == linkNode, "Only link node can resolve markets");
-
-        (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
 
         EventDetails storage _event = events[_eventId];
         uint256[3] memory _ids = _event.markets;
@@ -421,105 +424,6 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         // check the event's head-to-head market since it will always exist if the event's markets exist
         uint256 _marketId = events[_eventId].markets[0];
         return isMarketResolved(_marketId);
-    }
-
-    function encodeCreation(
-        uint128 _eventId,
-        uint16 _homeTeamId,
-        uint16 _awayTeamId,
-        uint32 _startTimestamp,
-        int16 _homeSpread,
-        uint16 _totalScore,
-        bool _createSpread,
-        bool _createTotal
-    ) external pure returns (bytes32 _payload) {
-        uint8 _creationFlags;
-
-        if (_createSpread) {
-            _creationFlags += 1; // 0b0000000x
-        }
-        if (_createTotal) {
-            _creationFlags += 2; // 0b000000x0
-        }
-
-        bytes memory _a =
-            abi.encodePacked(
-                _eventId,
-                _homeTeamId,
-                _awayTeamId,
-                _startTimestamp,
-                _homeSpread,
-                _totalScore,
-                _creationFlags
-            );
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeCreation(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint16 _homeTeamId,
-            uint16 _awayTeamId,
-            uint32 _startTimestamp,
-            int16 _homeSpread,
-            uint16 _totalScore,
-            bool _createSpread,
-            bool _createTotal
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        uint8 _creationFlags;
-        // prettier-ignore
-        {
-            _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                                >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                         >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))                    >> (256 - 32));
-            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))               >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
-            _creationFlags  = uint8 ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
-
-            // Lowest bit is _createSpread.
-            // Second-lowest bit is _createTotal.
-            _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
-            _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
-        }
-    }
-
-    function encodeResolution(
-        uint128 _eventId,
-        uint8 _eventStatus,
-        uint16 _homeScore,
-        uint16 _awayScore
-    ) external pure returns (bytes32 _payload) {
-        bytes memory _a = abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeResolution(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint8 _eventStatus,
-            uint16 _homeScore,
-            uint16 _awayScore
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        // prettier-ignore
-        {
-            _eventId     = uint128(_temp >> 128);
-            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
-            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
-            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
-        }
     }
 
     // Only usable off-chain. Gas cost can easily eclipse block limit.
