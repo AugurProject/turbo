@@ -51,7 +51,7 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
   };
 }
 
-function instantiateMarketFactory(
+export function instantiateMarketFactory(
   type: MarketFactoryType,
   address: string,
   signerOrProvider: Signer | Provider

@@ -12,6 +12,7 @@ const COINS: { [index: string]: { name: string; decimals: number; priceFeedUrl: 
 };
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
+  console.log('marketData', marketData)
   const { coinIndex, price } = marketData;
   const { endTimestamp } = market;
   const tokenIndes = new BN(String(coinIndex)).toNumber();

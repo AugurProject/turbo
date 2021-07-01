@@ -29,6 +29,8 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
     return SimpleSportsDailies.deriveMarketInfo(market, marketData);
   } else if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
     return CryptoMarkets.deriveMarketInfo(market, marketData);
+  } else if (marketFactoryType === MARKET_FACTORY_TYPES.MMALINK) {
+    return MmaDailies.deriveMarketInfo(market, marketData);
   }
   return market;
 };
