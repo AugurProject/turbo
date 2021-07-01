@@ -1,6 +1,6 @@
 import { SettlementFeeClaimed, WinningsClaimed } from "../../generated/AbstractMarketFactory/AbstractMarketFactory";
 import { bigIntToHexString } from "../utils";
-import { getOrCreateSender } from "../helpers/AmmFactoryHelper";
+import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { handlePositionFromClaimWinningsEvent } from "../helpers/CommonHandlers";
 
@@ -9,6 +9,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
   let entity = getOrCreateClaimedProceeds(id, true, false);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
   entity.marketId = marketId;

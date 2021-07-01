@@ -17,7 +17,11 @@ import {
   getOrCreateSender,
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
-import { handlePositionFromTradeEvent, handlePositionFromLiquidityChangedEvent } from "../helpers/CommonHandlers";
+import {
+  handlePositionFromTradeEvent,
+  handlePositionFromLiquidityChangedEvent,
+  getOrCreateInitialCostPerMarket
+} from "../helpers/CommonHandlers";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -46,6 +50,7 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   let senderId = event.params.user.toHexString();
 
   let addLiquidityEntity = getOrCreateAddLiquidity(id, true, false);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
   addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
@@ -73,6 +78,7 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let removeLiquidityEntity = getOrCreateRemoveLiquidity(id, true, false);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   getOrCreateOutcomes(id);
 
@@ -130,6 +136,17 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
   liquidityEntity.save();
 
+  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  initialCostPerMarketEntity.market = marketId;
+  initialCostPerMarketEntity.sender = senderId;
+  let log = initialCostPerMarketEntity.log;
+  if (log) {
+    log.push(initialCostPerMarketEntity.sumOfInitialCost.toString() + " + " +  event.params.collateral.toString());
+  }
+  initialCostPerMarketEntity.log = log
+  initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost + event.params.collateral;
+  initialCostPerMarketEntity.save();
+
   if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
     addLiquidityEvent(event, totalSupply);
   } else {
@@ -156,6 +173,17 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
 
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
+
+  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  initialCostPerMarketEntity.market = marketId;
+  initialCostPerMarketEntity.sender = senderId;
+  let log = initialCostPerMarketEntity.log;
+  if (log) {
+    log.push(initialCostPerMarketEntity.sumOfInitialCost.toString() + " + " +  event.params.collateral.toString());
+  }
+  initialCostPerMarketEntity.log = log
+  initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost + event.params.collateral;
+  initialCostPerMarketEntity.save();
 
   handlePositionFromTradeEvent(event);
 

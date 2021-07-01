@@ -168,6 +168,7 @@ type PositionBalance @entity {
   totalChangeUsd: String
   totalChangeUsdBigInt: BigInt
   totalChangeUsdBigDecimal: BigDecimal
+  settlementFee: String
 }
 
 type InitialCostPerMarket @entity {
@@ -175,4 +176,5 @@ type InitialCostPerMarket @entity {
   sender: Sender
   market: Market
   sumOfInitialCost: BigInt!
+  log: [String!]
 }
