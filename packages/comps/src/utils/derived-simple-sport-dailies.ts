@@ -394,9 +394,25 @@ protests, or overturned decisions.`,
   },
   "6": {
     types: {
-      [SPORTS_MARKET_TYPE.MONEY_LINE]: [],
-      [SPORTS_MARKET_TYPE.SPREAD]: [],
-      [SPORTS_MARKET_TYPE.OVER_UNDER]: [],
+      [SPORTS_MARKET_TYPE.MONEY_LINE]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered an official game and the market should resolve as 'No Contest'.`,
+        `Overtime and any shoot-outs count towards settlement purposes.`,
+        `If the game ends in a tie, the market should resolve as 'No Contest'`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games, protests, or overturned decisions.`,
+      ],
+      [SPORTS_MARKET_TYPE.SPREAD]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered an official game and the market should resolve as 'No Contest'.`,
+        `Overtime and any shoot-outs count towards settlement purposes.`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games, protests, or overturned decisions.`,
+      ],
+      [SPORTS_MARKET_TYPE.OVER_UNDER]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered an official game and the market should resolve as 'No Contest'.`,
+        `Overtime and any shoot-outs count towards settlement purposes.`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games, protests, or overturned decisions.`,
+      ],
     },
   },
   "7": {

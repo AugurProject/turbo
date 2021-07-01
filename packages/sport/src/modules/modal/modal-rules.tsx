@@ -31,11 +31,11 @@ export const ModalRules = ({ marketEvent }) => {
       <Header title="Market Rules" subtitle={null} />
       <main>
         {shape.content.map((marketRule) => (
-          <div>
+          <div key={`${marketRule.heading}-section`}>
             <h4>{marketRule.heading}</h4>
             <ul>
-              {marketRule.rules.map((rule) => (
-                <li>{rule}</li>
+              {marketRule.rules.map((rule, index) => (
+                <li key={`${marketRule.heading}-${index}`}>{rule}</li>
               ))}
             </ul>
           </div>

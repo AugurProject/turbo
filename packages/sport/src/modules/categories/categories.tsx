@@ -60,7 +60,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const categoryGroups = !primaryCategory ? (
     <>
       {Object.entries(topLevel).map((categoryInfo, i) => (
-        <CategoryGroup {...{ categoryInfo, markets, key: i }} />
+        <CategoryGroup {...{ categoryInfo, markets, key: `category-group-${i}` }} />
       ))}
     </>
   ) : (
@@ -68,7 +68,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
       {Object.entries(topLevel)
         .filter(([label, info]) => primaryCategory === label)
         .map((categoryInfo, i) => (
-          <CategoryGroup {...{ categoryInfo, markets, key: i }} />
+          <CategoryGroup {...{ categoryInfo, markets, key: `category-group-${i}` }} />
         ))}
     </>
   );
@@ -87,7 +87,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
         const category = index ? subCategories[0] : primaryCategory;
         const updatedSubCategories = index ? subCategories.filter((v) => v !== label) : [];
         const action = () => updateMarketsViewSettings({ primaryCategory, subCategories: updatedSubCategories });
-        return <RemoveCategoryOption {...{ category, action }} />;
+        return <RemoveCategoryOption {...{ category, action, key: `${label}-remove` }} />;
       })}
       {categoryGroups}
     </>
@@ -132,7 +132,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
       }, []),
     [subCategories]
   );
-    
+
   return (
     <article className={Styles.CategoryGroup}>
       {!subCategories.length && (
