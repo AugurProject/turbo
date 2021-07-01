@@ -71,6 +71,22 @@ export const addresses: AddressMapping = {
     marketFactories: [
       {
         type: "Crypto",
+        address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
+        description: "crypto prices",
+        version: "FILL THIS OUT",
+      },
+      {
+        type: "SportsLink",
+        address: "0x203fdF154b636D834ABC015Ca6Dc9C6127659c58",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
+        description: "mlb and nba",
+        version: "FILL THIS OUT",
+      },
+      {
+        type: "Crypto",
         address: "0xaB66e733FB24FEFa28c05689D22504044E872b6f",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
