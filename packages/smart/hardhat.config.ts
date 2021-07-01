@@ -68,6 +68,7 @@ const config: HardhatUserConfig = {
       deployConfig: {
         linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
       },
+      confirmations: 5,
     },
     maticMainnet: {
       url: "https://rpc-mainnet.maticvigil.com/",

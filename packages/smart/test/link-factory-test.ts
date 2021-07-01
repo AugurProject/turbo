@@ -62,16 +62,14 @@ describe("LinkFactory", () => {
 
   it("can create markets", async () => {
     await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -237,16 +235,14 @@ describe("LinkFactory NoContest", () => {
     );
 
     await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
   });
 

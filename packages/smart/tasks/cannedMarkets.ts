@@ -9,11 +9,15 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   console.log("Creating canned markets");
   const { ethers } = hre;
   const signer = await makeSigner(hre);
+  const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
   const network = await ethers.provider.getNetwork();
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
-  const { MarketFactories } = contracts;
-  const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
+  await sportsLink(signer, contracts, confirmations);
+  await mmaLink(signer, contracts, confirmations);
+});
+
+async function sportsLink(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
   const sportsLinkMarkets = [
     { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -50, ou: 2000 },
     { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -30, ou: 300 },
@@ -22,22 +26,41 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
     { eventId: "0x12f001", homeId: 0x67, awayId: 0x68, spread: 0, ou: 10 },
   ];
 
-  for (const { eventId, homeId, awayId, spread, ou } of sportsLinkMarkets) {
-    console.log("Creating market:");
-    console.log(`    Event ID: ${eventId}`);
-    console.log(`    Home ID: ${homeId}`);
-    console.log(`    Away ID: ${awayId}`);
-    const startTime = BigNumber.from(Date.now())
-      .div(1000)
-      .add(60 * 5); // 5 minutes from now
-    const marketFactory = MarketFactories[marketFactoryIndex(contracts, "SportsLink")]
-      .marketFactory as SportsLinkMarketFactory;
-    await createSportsLinkMarket(signer, marketFactory, startTime, eventId, homeId, awayId, spread, ou, confirmations);
-    const marketCount = await marketFactory.marketCount().then((bn) => bn.toNumber());
-    const [m1, m2, m3] = [marketCount - 1, marketCount - 2, marketCount - 3];
-    console.log(`Created markets ${m3}, ${m2}, ${m1} for SportsLink ${marketFactory.address}`);
-  }
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "SportsLink")]
+    .marketFactory as SportsLinkMarketFactory;
 
+  const originalLinkNode = await handleLinkNode(marketFactory, signer);
+
+  try {
+    for (const { eventId, homeId, awayId, spread, ou } of sportsLinkMarkets) {
+      console.log("Creating market:");
+      console.log(`    Event ID: ${eventId}`);
+      console.log(`    Home ID: ${homeId}`);
+      console.log(`    Away ID: ${awayId}`);
+      const startTime = makeTime(60 * 5); // 5 minutes from now
+
+      await createSportsLinkMarket(
+        signer,
+        marketFactory,
+        startTime,
+        eventId,
+        homeId,
+        awayId,
+        spread,
+        ou,
+        confirmations
+      );
+
+      const marketCount = await marketFactory.marketCount().then((bn) => bn.toNumber());
+      const [m1, m2, m3] = [marketCount - 1, marketCount - 2, marketCount - 3];
+      console.log(`Created markets ${m3}, ${m2}, ${m1} for SportsLink ${marketFactory.address}`);
+    }
+  } finally {
+    await resetLinkNode(marketFactory, originalLinkNode);
+  }
+}
+
+async function mmaLink(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
   const mmaLinkMarkets = [
     {
       eventId: "0x9b5ce",
@@ -50,33 +73,40 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
     },
   ];
 
-  for (const { eventId, homeName, homeId, awayName, awayId, moneylineHome, moneylineAway } of mmaLinkMarkets) {
-    console.log("Creating market:");
-    console.log(`    Event ID: ${eventId}`);
-    console.log(`    Home: ${homeName} (${homeId})`);
-    console.log(`    Away: ${awayName} (${awayId})`);
-    const startTime = BigNumber.from(Date.now())
-      .div(1000)
-      .add(60 * 5); // 5 minutes from now
-    const marketFactory = MarketFactories[marketFactoryIndex(contracts, "MMALink")]
-      .marketFactory as MMALinkMarketFactory;
-    await createMMALinkMarket(
-      signer,
-      marketFactory,
-      startTime,
-      eventId,
-      homeName,
-      homeId,
-      awayName,
-      awayId,
-      moneylineHome,
-      moneylineAway,
-      confirmations
-    );
-    const marketId = await marketFactory.marketCount().then((bn) => bn.toNumber() - 1);
-    console.log(`Created market ${marketId} for MMALink market ${marketFactory.address}`);
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "MMALink")]
+    .marketFactory as MMALinkMarketFactory;
+
+  const originalLinkNode = await handleLinkNode(marketFactory, signer);
+
+  try {
+    for (const { eventId, homeName, homeId, awayName, awayId, moneylineHome, moneylineAway } of mmaLinkMarkets) {
+      console.log("Creating market:");
+      console.log(`    Event ID: ${eventId}`);
+      console.log(`    Home: ${homeName} (${homeId})`);
+      console.log(`    Away: ${awayName} (${awayId})`);
+      const startTime = makeTime(60 * 5); // 5 minutes from now
+
+      await createMMALinkMarket(
+        signer,
+        marketFactory,
+        startTime,
+        eventId,
+        homeName,
+        homeId,
+        awayName,
+        awayId,
+        moneylineHome,
+        moneylineAway,
+        confirmations
+      );
+
+      const marketId = await marketFactory.marketCount().then((bn) => bn.toNumber() - 1);
+      console.log(`Created market ${marketId} for MMALink market ${marketFactory.address}`);
+    }
+  } finally {
+    await resetLinkNode(marketFactory, originalLinkNode);
   }
-});
+}
 
 export async function createSportsLinkMarket(
   signer: Signer,
@@ -90,18 +120,7 @@ export async function createSportsLinkMarket(
   confirmations: number
 ) {
   return marketFactory
-    .createMarket(
-      await marketFactory.callStatic.encodeCreation(
-        eventId,
-        homeId,
-        awayId,
-        startTime,
-        homeSpreadTarget,
-        overUnderTarget,
-        true,
-        true
-      )
-    )
+    .createMarket(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget, true, true)
     .then((tx: ContractTransaction) => tx.wait(confirmations));
 }
 
@@ -128,4 +147,45 @@ export async function createMMALinkMarket(
 function marketFactoryIndex(contracts: ContractInterfaces, ofType: MarketFactoryType): number {
   const { MarketFactories } = contracts;
   return MarketFactories.findIndex(({ marketFactoryType }) => marketFactoryType === ofType);
+}
+
+// Returns string if the link node needs to be reset afterwards.
+interface ControllableLinkMarketFactory {
+  linkNode(): Promise<string>;
+  setLinkNode(address: string): Promise<any>;
+  getOwner(): Promise<string>;
+}
+async function handleLinkNode(marketFactory: ControllableLinkMarketFactory, signer: Signer): Promise<string | null> {
+  const originalLinkNode = await marketFactory.linkNode().then((a) => a.toLowerCase());
+  const owner = await marketFactory.getOwner().then((a) => a.toLowerCase());
+  const me = await signer.getAddress().then((a) => a.toLowerCase());
+  const mustSetLinkNode = originalLinkNode !== me;
+
+  if (mustSetLinkNode && owner !== me) {
+    throw Error(
+      `Cannot create canned markets because you aren't the owner nor the link node. you=${me}, owner=${owner}, linkNode=${originalLinkNode}`
+    );
+  }
+
+  if (mustSetLinkNode) {
+    console.log(`Temporarily changing link node from ${originalLinkNode} to ${me}`);
+    await marketFactory.setLinkNode(me);
+    return originalLinkNode;
+  } else {
+    return null;
+  }
+}
+
+async function resetLinkNode(
+  marketFactory: ControllableLinkMarketFactory,
+  originalLinkNode: string | null
+): Promise<void> {
+  if (originalLinkNode) {
+    console.log(`Setting the link node back to ${originalLinkNode}`);
+    await marketFactory.setLinkNode(originalLinkNode);
+  }
+}
+
+function makeTime(futureSeconds: number): BigNumber {
+  return BigNumber.from(Date.now()).div(1000).add(futureSeconds);
 }

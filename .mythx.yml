@@ -1,0 +1,11 @@
+analyze:
+    mode: deep 
+    async: true
+    create-group: true
+    solc: 0.7.6
+    remappings:
+        - "@openzeppelin=node_modules/@openzeppelin"
+        - "@chainlink=node_modules/@chainlink"
+    targets:
+      - packages/smart/contracts/turbo/FeePot.sol:FeePot
+      - packages/smart/contracts/turbo/SportsLinkProxy.sol:SportsLinkProxy
