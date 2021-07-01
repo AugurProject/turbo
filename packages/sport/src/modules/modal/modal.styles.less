@@ -64,49 +64,6 @@
     flex: 1;
     width: 100%;
 
-    > section {
-      display: grid;
-      grid-template-columns: 0fr 1fr;
-      grid-gap: @size-4;
-
-      > h2 {
-        .text-16-bold;
-
-        color: var(--simple-primary-text);
-        grid-column: span 2;
-        grid-row: 1;
-        white-space: nowrap;
-      }
-
-      > span {
-        grid-row: 2;
-        white-space: nowrap;
-
-        &:first-of-type {
-          .text-14;
-
-          grid-column: 1;
-          color: var(--simple-secondary-text);
-        }
-
-        &:last-of-type {
-          .text-14-bold;
-
-          grid-column: 2;
-          color: var(--simple-primary-text);
-        }
-      }
-
-      @media @breakpoint-mobile {
-        display: flex;
-        flex-flow: column wrap;
-
-        > h2 {
-          white-space: normal;
-        }
-      }
-    }
-
     > div {
       display: flex;
       flex-flow: column nowrap;
@@ -128,6 +85,10 @@
         > li {
           .text-14;
         }
+      }
+
+      &:last-of-type {
+        padding-bottom: @size-32;
       }
     }
   }
