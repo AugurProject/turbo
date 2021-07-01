@@ -22,7 +22,7 @@ export const EventCard = ({ marketEvent, ...props }) => {
   const {
     settings: { timeFormat },
   } = useSportsStore();
-  const { markets, transactions } = useDataStore();
+  const { transactions } = useDataStore();
   const totalTransactionsVolume = marketEvent.marketIds.reduce(
     (acc, marketId) => {
       const output = { ...acc };
@@ -34,11 +34,12 @@ export const EventCard = ({ marketEvent, ...props }) => {
     },
     { volumeTotalUSD: 0 }
   );
+  const eventMarkets: object = useMarketEventMarkets(marketEvent);
   const outcomeContent =
-    marketEvent.marketIds.length > 1 ? (
+    Object.keys(eventMarkets).length > 1 ? (
       <SportsCardComboOutcomes {...{ marketEvent }} />
     ) : (
-      <SportsCardOutcomes {...{ ...markets[marketEvent.marketIds[0]] }} />
+      <SportsCardOutcomes {...{ ...Object.values(eventMarkets)[0] }} />
     );
 
   return (
@@ -147,6 +148,8 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
   const marketOutcomesOrderedForDisplay = []
     .concat(marketEvent.outcomes)
     .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
+
+  console.log(eventMarkets);
   return (
     <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
       <header>
@@ -165,14 +168,14 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
       <section>
         {[
           eventMarkets[SPORTS_MARKET_TYPE.MONEY_LINE],
-          eventMarkets[SPORTS_MARKET_TYPE.SPREAD],
-          eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER],
-        ].map((eventMarket) => (
+          eventMarkets[SPORTS_MARKET_TYPE.SPREAD] || null,
+          eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER] || null,
+        ].filter(m => !!m).map((eventMarket) => (
           <SportsCardOutcomes
             {...{
               ...eventMarket,
               checkForNoLiquidity: true,
-              key: `${SPORTS_MARKET_TYPE_LABELS[eventMarket?.sportsMarketType]}-outcomes`,
+              key: `${eventMarket?.marketId}-${SPORTS_MARKET_TYPE_LABELS[eventMarket?.sportsMarketType]}-outcomes`,
             }}
           />
         ))}
@@ -203,8 +206,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         : "-",
     [spreadSizePrice, oddsFormat]
   );
-  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket.amm, eventOutcomeId, betSizeToOdds), [
-    moneyLineMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  const moneyLineSizePrice = useMemo(() => getSizedPrice(moneyLineMarket?.amm, eventOutcomeId, betSizeToOdds), [
+    moneyLineMarket?.amm?.ammOutcomes[eventOutcomeId]?.balance,
     betSizeToOdds,
   ]);
   const moneyLineOdds = useMemo(
@@ -214,15 +217,15 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         : "-",
     [moneyLineSizePrice, oddsFormat]
   );
-  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket.amm, eventOutcomeId, betSizeToOdds), [
-    OUMarket.amm.ammOutcomes[eventOutcomeId].balance,
+  const OUSizePrice = useMemo(() => getSizedPrice(OUMarket?.amm, eventOutcomeId, betSizeToOdds), [
+    OUMarket?.amm?.ammOutcomes[eventOutcomeId]?.balance,
     betSizeToOdds,
   ]);
   const OUOdds = useMemo(
     () => (OUSizePrice ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
     [OUSizePrice, oddsFormat]
   );
-  const firstOULetter = OUMarket.amm.ammOutcomes[eventOutcomeId].name.slice(0, 1);
+  const firstOULetter = OUMarket?.amm?.ammOutcomes[eventOutcomeId]?.name.slice(0, 1);
   const overUnderLetter = firstOULetter === "N" ? null : firstOULetter;
   const outcomeSpread = spreadMarket?.outcomes
     ?.find((o) => o?.id === eventOutcomeId)
