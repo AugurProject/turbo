@@ -75,7 +75,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
         description: "crypto prices",
-        version: "FILL THIS OUT",
+        version: "2021-07-01.0",
       },
       {
         type: "SportsLink",
@@ -83,23 +83,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
         description: "mlb and nba",
-        version: "FILL THIS OUT",
-      },
-      {
-        type: "Crypto",
-        address: "0xaB66e733FB24FEFa28c05689D22504044E872b6f",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
-        description: "crypto prices",
-        version: "2021-06-30.1",
-      },
-      {
-        type: "SportsLink",
-        address: "0x3ECb867545d4e7E754285f74fB8cbc59Cd8e7f98",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
-        description: "mlb and nba",
-        version: "2021-06-30.1",
+        version: "2021-07-01.0",
       },
       {
         type: "MMALink",
