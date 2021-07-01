@@ -105,7 +105,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
         uint256[1] memory _ids = events[_eventId].markets;
-        // require(_ids[0] == 0, "This event was already used to create markets");
+         require(_ids[0] == 0, "This event was already used to create markets");
 
         _ids[0] = createHeadToHeadMarket(
             _creator,
