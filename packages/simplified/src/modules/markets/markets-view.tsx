@@ -3,7 +3,7 @@ import Styles from "./markets-view.styles.less";
 import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
-import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
+import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
 import { TopBanner } from "../common/top-banner";
 import {
   useAppStatusStore,
@@ -91,7 +91,12 @@ const applyFiltersAndSort = (
     if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
       return false;
     }
-    if (primaryCategory === SPORTS && subCategories.length > 0 && market.categories[market.categories.length - 1].toLowerCase() !== subCategories[subCategories.length - 1].toLowerCase()) {
+    if (
+      primaryCategory === SPORTS &&
+      subCategories.length > 0 &&
+      market.categories[market.categories.length - 1].toLowerCase() !==
+        subCategories[subCategories.length - 1].toLowerCase()
+    ) {
       return false;
     }
     if (currency !== ALL_CURRENCIES) {
@@ -135,7 +140,9 @@ const applyFiltersAndSort = (
   if (sortBy !== STARTS_SOON) {
     // if we aren't doing start time, then move illiquid markets to the back
     // half of the list, also sort by start time ascending for those.
-    const sortedIlliquid = updatedFilteredMarkets.filter((m) => m?.amm?.id === null).sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
+    const sortedIlliquid = updatedFilteredMarkets
+      .filter((m) => m?.amm?.id === null)
+      .sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
 
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   }
@@ -143,12 +150,14 @@ const applyFiltersAndSort = (
   // Move games where the start time is < current time
   const now = Date.now();
   const isExpired = (market) => {
-    var thirtyHoursLaterMillis = market.startTimestamp ? (market.startTimestamp + 30*60*60)*1000 : market.endTimestamp;
+    var thirtyHoursLaterMillis = market.startTimestamp
+      ? (market.startTimestamp + 30 * 60 * 60) * 1000
+      : market.endTimestamp;
     return now >= thirtyHoursLaterMillis;
-  }
+  };
 
-  const expired = updatedFilteredMarkets.filter(m => isExpired(m));
-  const scheduled = updatedFilteredMarkets.filter(m => !isExpired(m));
+  const expired = updatedFilteredMarkets.filter((m) => isExpired(m));
+  const scheduled = updatedFilteredMarkets.filter((m) => !isExpired(m));
   setFilteredMarkets([...scheduled, ...expired]);
 };
 
@@ -336,6 +345,10 @@ export const SubCategoriesFilter = () => {
   const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
   const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);
   const { icon: NBAIcon } = getCategoryIconLabel(["Sports", "Basketball", "NBA"]);
+  const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA"]);
+
+  // const { icon: HockeyIcon } = getCategoryIconLabel(["Sports", "Hockey", "NHL"]);
+  // const { icon: FootballIcon } = getCategoryIconLabel(["Sports", "American Football", "NFL"]);
   return (
     <div className={Styles.SubCategoriesFilter}>
       <button
@@ -362,6 +375,30 @@ export const SubCategoriesFilter = () => {
       >
         {NBAIcon} NBA
       </button>
+      <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.includes("MMA"),
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: ["MMA"] })}
+      >
+        {MMAIcon} MMA
+      </button>
+      {/* <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.includes("NHL"),
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: ["Hockey", "NHL"] })}
+      >
+        {HockeyIcon} NHL
+      </button>
+      <button
+        className={classNames(Styles.SubCategoryFilterButton, {
+          [Styles.selectedFilterCategory]: subCategories.includes("NFL"),
+        })}
+        onClick={() => updateMarketsViewSettings({ subCategories: ["American Football", "NFL"] })}
+      >
+        {FootballIcon} NFL
+      </button> */}
     </div>
   );
 };
