@@ -15,7 +15,6 @@ const NAMING_LINE = {
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Draw/No Contest";
 
-
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
     awayTeamId: coAwayTeamId,
@@ -34,9 +33,9 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const line = null;
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   // will need get get team names
-  const homeTeam = String(marketData["homeFighterName"])
-  const awayTeam = String(marketData["awayFighterName"])
-  const sportId = "7"
+  const homeTeam = String(marketData["homeFighterName"]);
+  const awayTeam = String(marketData["awayFighterName"]);
+  const sportId = "7";
 
   const { shareTokens } = market;
   const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType);
@@ -58,12 +57,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   };
 };
 
-export const getOutcomeName = (
-  outcomeId: number,
-  homeTeam: string,
-  awayTeam: string,
-  sportsMarketType: number,
-) => {
+export const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
   const marketOutcome = getMarketOutcome(sportsMarketType, outcomeId);
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
@@ -126,13 +120,12 @@ const getMarketOutcome = (sportsMarketType: number, outcomeId: number): string =
   return data.outcomes[outcomeId];
 };
 
-
 const decodeOutcomes = (
   market: MarketInfo,
   shareTokens: string[],
   homeTeam: string,
   awayTeam: string,
-  sportsMarketType: number,
+  sportsMarketType: number
 ) => {
   return shareTokens.map((shareToken, i) => {
     return {
@@ -162,21 +155,20 @@ const sportsData = {
 
 // TODO: Rules might change depending on how contract resolves over/under MMA markets, need to verify after contract is written
 const sportsResolutionRules = {
-      [MMA_MARKET_TYPE.MONEY_LINE]: [
-        `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
-        `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
-        `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
-        `If a fighter is disqualified during the fight, the opposing fighter should be declared the winner. If both fighters are disqualified the market should resolve as 'Draw/No Contest'.`,
-        `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
-        `A draw can occur when the fight is either stopped before completion or after all rounds are completed and goes to the judges' scorecards for decision.  If the match ends in a draw, only the 'Draw/No Contest' result should be the winning outcome.`,
-      ],
-      [MMA_MARKET_TYPE.OVER_UNDER]: [
-        `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
-        `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
-        `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
-        `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
-        `If the official time is exactly on (equal to) the over/under number the market should resolve as 'Over'.`,
-        `Markets referring to round/fight duration represents the actual time passed in the round/fight, as applicable, depending on the scheduled round/fight duration. For example, Over 2.5 Total Rounds will be settled as 'Over' once two and a half minutes or more in the 3rd Round has passed.`,
-      ],
-
+  [MMA_MARKET_TYPE.MONEY_LINE]: [
+    `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
+    `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
+    `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
+    `If a fighter is disqualified during the fight, the opposing fighter should be declared the winner. If both fighters are disqualified the market should resolve as 'Draw/No Contest'.`,
+    `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
+    `A draw can occur when the fight is either stopped before completion or after all rounds are completed and goes to the judges' scorecards for decision.  If the match ends in a draw, only the 'Draw/No Contest' result should be the winning outcome.`,
+  ],
+  [MMA_MARKET_TYPE.OVER_UNDER]: [
+    `A fight is considered official once the first round begins, regardless of the scheduled or actual duration.`,
+    `Market resolves based on the official result immediately following the fight. Later announcements, enquirers, or changes to the official result will not affect market settlement.`,
+    `If a fighter is substituted before the fight begins the market should resolve as 'Draw/No Contest'.`,
+    `If the fight is cancelled before it starts for any reason, the market should resolve as 'No Contest'.`,
+    `If the official time is exactly on (equal to) the over/under number the market should resolve as 'Over'.`,
+    `Markets referring to round/fight duration represents the actual time passed in the round/fight, as applicable, depending on the scheduled round/fight duration. For example, Over 2.5 Total Rounds will be settled as 'Over' once two and a half minutes or more in the 3rd Round has passed.`,
+  ],
 };

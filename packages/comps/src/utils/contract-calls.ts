@@ -76,7 +76,7 @@ import {
   estimateBuy,
   MarketFactory,
   MarketFactoryContract,
-  instantiateMarketFactory
+  instantiateMarketFactory,
 } from "@augurproject/smart";
 import { deriveMarketInfo, isIgnoredMarket } from "./derived-market-data";
 
@@ -581,7 +581,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < MULTI_CALL_LIMIT) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.log('contractCalls:', contractCalls);
+      console.log("contractCalls:", contractCalls);
       console.error("multicall", e);
       throw e;
     });
@@ -1649,7 +1649,7 @@ const retrieveMarkets = async (
     ],
     []
   );
-  
+
   let markets = [];
   const details = {};
   let exchanges = {};
