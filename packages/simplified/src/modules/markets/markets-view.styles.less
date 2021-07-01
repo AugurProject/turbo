@@ -168,9 +168,15 @@
     width: @size-16;
     margin-right: @size-4;
 
-    > path,
-    > g > path {
+    > path[fill],
+    > g > path[fill] {
       fill: var(--simple-secondary-text);
+    }
+
+    > line,
+    > path[stroke],
+    > g > path[stroke] {
+      stroke: var(--simple-secondary-text);
     }
   }
 
@@ -189,9 +195,15 @@
   
 
     > svg {
-      > path,
-      > g > path {
+      > path[fill],
+      > g > path[fill] {
         fill: var(--sports-color);
+      }
+
+      > line,
+      > path[stroke],
+      > g > path[stroke] {
+        stroke: var(--sports-color);
       }
     }
   }
