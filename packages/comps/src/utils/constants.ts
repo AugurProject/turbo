@@ -329,6 +329,7 @@ export const SPORTS_MARKET_TYPE = {
 export const MARKET_FACTORY_TYPES = {
   SPORTSLINK: "SportsLink",
   CRYPTO: "Crypto",
+  MMALINK: "MMALink",
 };
 
 export const SPORTS_MARKET_TYPE_LABELS = {

@@ -67,7 +67,7 @@ import {
   Cash__factory,
   BPool,
   BPool__factory,
-  SportsLinkMarketFactory,
+  MMALinkMarketFactory__factory,
   AbstractMarketFactory,
   SportsLinkMarketFactory__factory,
   AbstractMarketFactory__factory,
@@ -75,6 +75,8 @@ import {
   calcSellCompleteSets,
   estimateBuy,
   MarketFactory,
+  MarketFactoryContract,
+  instantiateMarketFactory,
 } from "@augurproject/smart";
 import { deriveMarketInfo, isIgnoredMarket } from "./derived-market-data";
 
@@ -579,6 +581,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < MULTI_CALL_LIMIT) {
     const res = await multicall.call(contractCalls).catch((e) => {
+      console.log("contractCalls:", contractCalls);
       console.error("multicall", e);
       throw e;
     });
@@ -1317,11 +1320,8 @@ const getMarketFactoryContract = (
   address: string,
   marketFactoryType: string,
   account?: string
-): SportsLinkMarketFactory => {
-  if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
-  }
-  return SportsLinkMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
+): MarketFactoryContract => {
+  return instantiateMarketFactory(marketFactoryType, address, getProviderOrSigner(library, account));
 };
 
 const getAbstractMarketFactoryContract = (
@@ -1390,7 +1390,7 @@ const isOldMarketFactory = (address) => {
 
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
   if (loadtype === MARKET_LOAD_TYPE.SPORT)
-    return PARA_CONFIG.marketFactories.filter((c) => c.type === MARKET_FACTORY_TYPES.SPORTSLINK);
+    return PARA_CONFIG.marketFactories.filter((c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO);
   return PARA_CONFIG.marketFactories;
 };
 
@@ -1594,6 +1594,7 @@ const retrieveMarkets = async (
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
   const ammFactoryAddress = ammFactoryContract.address;
   const ammFactoryAbi = extractABI(ammFactoryContract);
+
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
       ...p,
@@ -1648,6 +1649,7 @@ const retrieveMarkets = async (
     ],
     []
   );
+
   let markets = [];
   const details = {};
   let exchanges = {};
