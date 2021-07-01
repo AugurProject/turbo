@@ -204,7 +204,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 _homeFighterId,
         uint256 _awayFighterId,
         WhoWon _whoWon
-    ) internal view returns (bool) {
+    ) internal pure returns (bool) {
         bool _draw = _whoWon == WhoWon.Draw;
         bool _notFinal = EventStatus(_eventStatus) != EventStatus.Final;
         bool _unstableHomeFighterId = _event.homeFighterId != _homeFighterId;
