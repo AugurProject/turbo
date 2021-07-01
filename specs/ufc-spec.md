@@ -21,7 +21,7 @@ These are the values to get from the API.
 | `startTimestamp`     | `Date.parse(event.event_date)`                            | UI shows date                                 |
 | `moneyLineHome`      | `event.lines[9].moneyline.moneyline_home`                 | initial odds for head-to-head markets         |
 | `moneyLineAway`      | `event.lines[9].moneyline.moneyline_away`                 | initial odds for head-to-head markets         |
-| `homeWon`            | `event.score.winner_home`                                 | resolving markets                             |
+| `whoWon`             | `event.score.winner_home` and `event.score.winner_away`   | resolving markets                             |
 | `eventStatus`        | `event.score.event_status`                                | resolving markets                             |
 | `eventStatusDetails` | `event.score.event_status_details`                        | if TBD then do not create markets             |
  
@@ -71,7 +71,11 @@ This cron job runs every two hours.
    ```
 2. Query the API for each event.
 3. Filter out events whose eventStatus is `STATUS_SCHEDULED`.
-4. For each remaining event, make this call:
+4. Calculate `whoWon` like so:
+   - If `event.score.winner_home` is true then it is `1` to indicate that Home won.
+   - If `event.score.winner_away` is true then it is `2` to indicate that Away won.
+   - If neither is true then it is `3` to indicate a draw / tie.
+5. For each remaining event, make this call:
 
    ```typescript
    contract.trustedResolveMarkets(
@@ -79,6 +83,6 @@ This cron job runs every two hours.
      eventStatus,
      homeFighterId,
      awayFighterId,
-     homeWon
+     whoWon
    )
    ```
