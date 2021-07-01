@@ -98,7 +98,7 @@ async function mmaLink(signer: Signer, contracts: ContractInterfaces, confirmati
         moneylineHome,
         moneylineAway,
         confirmations
-      );
+      ).catch(() => console.log(`Cannot create. Probably, the market already exists.`));
 
       const marketId = await marketFactory.marketCount().then((bn) => bn.toNumber() - 1);
       console.log(`Created market ${marketId} for MMALink market ${marketFactory.address}`);
