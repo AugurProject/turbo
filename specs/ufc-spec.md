@@ -6,6 +6,7 @@ Notes
 - There's no score, just a winner.
 - Fighter name and ID are given. Name is used for TBD check but mostly for UI.
   ID is used for resolution since it won't ever be duplicated.
+- If multiple leagues for MMA are availble, currently filter only for `UFC`
  
 Run two cron jobs: creation and resolution.
  
