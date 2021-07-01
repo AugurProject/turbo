@@ -188,7 +188,7 @@ export const MarketCardView = ({
             )}
           </div>
         </article>
-        <a>
+        <section>
           <MarketTitleArea {...{ ...market, timeFormat }} />
           <ValueLabel label="total volume" value={formattedVol || "-"} />
           <ValueLabel label="Liquidity" value={marketHasNoLiquidity ? "-" : formattedLiquidity || "-"} />
@@ -196,7 +196,7 @@ export const MarketCardView = ({
           {!hasWinner && extraOutcomes > 0 && (
             <span className={Styles.ExtraOutcomes}>{`+ ${extraOutcomes} more Outcomes`}</span>
           )}
-        </a>
+        </section>
       </MarketLink>
     </article>
   );

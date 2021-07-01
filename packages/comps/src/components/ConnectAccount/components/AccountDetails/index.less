@@ -128,6 +128,15 @@
         > button {
           margin-right: @size-8;
         }
+
+        @media @breakpoint-mobile {
+          display: grid;
+          grid-gap: @size-8;
+
+          > button {
+            margin-right: 0;
+          }
+        }
       }
     }
   }
