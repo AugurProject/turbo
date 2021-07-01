@@ -156,7 +156,11 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         );
     }
 
-    function resolvePriceUpDownMarket(Coin memory _coin, uint256 _newPrice, uint256 _fullPrice) internal {
+    function resolvePriceUpDownMarket(
+        Coin memory _coin,
+        uint256 _newPrice,
+        uint256 _fullPrice
+    ) internal {
         uint256 _marketId = _coin.currentMarkets[uint256(MarketType.PriceUpDown)];
 
         OwnedERC20 _winner;
