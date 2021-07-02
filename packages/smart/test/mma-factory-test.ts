@@ -142,7 +142,7 @@ describe("MMA Factory", () => {
   });
 
   it("draws can happen", async () => {
-    const thisEventId = eventId + 2; // just has to be different
+    const thisEventId = eventId + 1; // just has to be different
     await marketFactory.createMarket(
       thisEventId,
       homeFighterName,
