@@ -1425,7 +1425,7 @@ export const getMarketInfos = async (
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
   blocknumber: number
-): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; loading: boolean } => {
+): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
@@ -1472,7 +1472,6 @@ export const getMarketInfos = async (
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
           blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
-          loading: false,
         };
       }
 
@@ -1527,10 +1526,9 @@ export const getMarketInfos = async (
         ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         ignoreList,
-        loading: false,
       };
     },
-    { markets, ammExchanges, blocknumber, loading: false }
+    { markets, ammExchanges, blocknumber }
   );
   return marketInfos;
 };

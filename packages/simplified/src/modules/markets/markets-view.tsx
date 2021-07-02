@@ -172,7 +172,7 @@ const MarketsView = () => {
     settings: { showLiquidMarkets, timeFormat },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
-  const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
+  const { ammExchanges, markets, transactions } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -295,7 +295,7 @@ const MarketsView = () => {
         showFilter={showFilter}
       />
       <SubCategoriesFilter />
-      {loading && dataLoading ? (
+      {loading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />
