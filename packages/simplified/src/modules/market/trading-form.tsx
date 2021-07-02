@@ -48,6 +48,7 @@ interface InfoNumber {
   value: string;
   tooltipText?: string;
   tooltipKey?: string;
+  img?: string;
 }
 
 interface InfoNumbersProps {
@@ -70,7 +71,7 @@ export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
               infoNumber.tooltipKey &&
               generateTooltip(infoNumber.tooltipText, infoNumber.tooltipKey)}
           </span>
-          <span>{infoNumber.value}</span>
+          <span>{infoNumber.value}{infoNumber.img ? <img src={infoNumber.img} alt="image" /> : ""}</span>
         </div>
       ))}
     </div>
