@@ -1472,6 +1472,7 @@ export const getMarketInfos = async (
           markets: { ...p.markets, ...liquidityMarkets },
           ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
           blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
+          loading: false,
         };
       }
 
@@ -1526,6 +1527,7 @@ export const getMarketInfos = async (
         ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         ignoreList,
+        loading: false,
       };
     },
     { markets, ammExchanges, blocknumber, loading: false }

@@ -12,12 +12,16 @@ import {
   Stores,
   SEO,
   ButtonComps,
+  Utils,
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 import { Cash } from '@augurproject/comps/build/types';
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'modules/constants';
 import MaticIcon from 'assets/images/matic-icon.png';
+const {
+  Formatter: { formatCash },
+} = Utils;
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatEther } = Formatter;

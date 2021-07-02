@@ -149,7 +149,6 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
     .concat(marketEvent.outcomes)
     .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
 
-  console.log(eventMarkets);
   return (
     <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
       <header>
