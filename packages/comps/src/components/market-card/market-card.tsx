@@ -67,7 +67,7 @@ export const orderOutcomesForDisplay = (
   ammOutcomes: AmmOutcome[] = [],
   marketFactoryType: string = MARKET_FACTORY_TYPES.SPORTSLINK
 ): AmmOutcome[] => {
-  if (marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK)
+  if (marketFactoryType !== MARKET_FACTORY_TYPES.CRYPTO)
     return ammOutcomes.length > 0 && ammOutcomes[0].id === 0
       ? ammOutcomes.slice(1).concat(ammOutcomes.slice(0, 1))
       : ammOutcomes;
