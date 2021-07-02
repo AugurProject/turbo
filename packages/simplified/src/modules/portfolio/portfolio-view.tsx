@@ -20,7 +20,7 @@ import { ZERO } from 'modules/constants';
 import MaticIcon from 'assets/images/matic-icon.png';
 
 const { claimWinnings, claimFees } = ContractCalls;
-const { formatCash } = Formatter;
+const { formatEther } = Formatter;
 const { ACTIVITY, TABLES, TX_STATUS, USDC } = Constants;
 const {
   Hooks: {
@@ -140,6 +140,10 @@ const handleClaimFees = (
 };
 
 export const RewardsSection = () => {
+  const {
+    balances
+  } = useUserStore();
+  const total = formatEther(balances?.totalRewards || "0").formatted;
   return (
     <div className={Styles.RewardsSection}>
       <div>
@@ -148,7 +152,7 @@ export const RewardsSection = () => {
       </div>
       <div>
         <span>
-          0.00
+          {total}
           <img src={MaticIcon} alt="Matic Icon" />
         </span>
       </div>

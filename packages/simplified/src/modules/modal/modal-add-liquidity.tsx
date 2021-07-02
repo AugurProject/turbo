@@ -7,6 +7,7 @@ import { InfoNumbers } from "../market/trading-form";
 import classNames from "classnames";
 import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "../types";
 import { BigNumber as BN } from "bignumber.js";
+import MaticIcon from 'assets/images/matic-icon.png';
 import {
   ContractCalls,
   createBigNumber,
@@ -25,7 +26,7 @@ const {
   estimateAddLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
-const { formatPercent, formatSimpleShares } = Formatter;
+const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
   Icons: { BackIcon },
   ButtonComps: { ApprovalButton, BuySellButton },
@@ -202,6 +203,14 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
       },
     ];
+    const pendingRewards = balances?.pendingRewards && balances.pendingRwards[marketId] && balances.pendingRwards[marketId].balance || "0";
+    if (pendingRewards !== "0") {
+      fullBreakdown.push({
+        label: `LP Rewards`,
+        value: `${formatEther(pendingRewards).formatted}`,
+        img: MaticIcon
+      })
+    }
 
     return fullBreakdown;
   };
