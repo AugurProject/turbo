@@ -93,7 +93,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         active[bet.betId] ? updateActive(bet, true) : addActive(bet, true);
       });
     }
-  }, [account, blocknumber]);
+  }, [account, blocknumber, Object.keys(marketShares).length]);
 };
 
 const useClearOnLogout = ({ actions: { clearBetslip } }) => {
