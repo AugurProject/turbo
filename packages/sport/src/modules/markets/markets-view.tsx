@@ -141,6 +141,14 @@ const applyFiltersAndSort = (
       .sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
 
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
+  } else {
+    // it is sort by, make sure to put markets that are before now to the end 
+    // of the list and order them with most recently started to oldest market.
+    const date = new Date();
+    const now = Math.floor(date.getTime() / 1000);
+    const beforeNow = updatedFilteredMarkets.filter(m => m.startTimestamp <= now).sort((a, b) => b.startTimestamp - a.startTimestamp);
+    const afterNow = updatedFilteredMarkets.filter(m => m.startTimestamp > now);
+    updatedFilteredMarkets = afterNow.concat(beforeNow);
   }
 
   // TODO: Strip out futures/dailes:

@@ -200,7 +200,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   ]);
   const spreadOdds = useMemo(
     () =>
-      spreadSizePrice
+      spreadSizePrice?.price
         ? convertToOdds(convertToNormalizedPrice({ price: spreadSizePrice.price }), oddsFormat).full
         : "-",
     [spreadSizePrice, oddsFormat]
@@ -211,7 +211,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   ]);
   const moneyLineOdds = useMemo(
     () =>
-      moneyLineSizePrice
+      moneyLineSizePrice?.price
         ? convertToOdds(convertToNormalizedPrice({ price: moneyLineSizePrice.price }), oddsFormat).full
         : "-",
     [moneyLineSizePrice, oddsFormat]
@@ -221,7 +221,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     betSizeToOdds,
   ]);
   const OUOdds = useMemo(
-    () => (OUSizePrice ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
+    () => (OUSizePrice?.price ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
     [OUSizePrice, oddsFormat]
   );
   const firstOULetter = OUMarket?.amm?.ammOutcomes[eventOutcomeId]?.name.slice(0, 1);
@@ -295,9 +295,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         )}
         <span>{OUOdds}</span>
       </button>
-      <span>{spreadSizePrice?.size && <span>{formatDai(spreadSizePrice?.size).full}</span>}</span>
-      <span>{moneyLineSizePrice?.size && <span>{formatDai(moneyLineSizePrice?.size).full}</span>}</span>
-      <span>{OUSizePrice?.size && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
+      <span>{spreadSizePrice?.size && spreadSizePrice?.size !== "0" && <span>{formatDai(spreadSizePrice?.size).full}</span>}</span>
+      <span>{moneyLineSizePrice?.size && moneyLineSizePrice?.size !== "0" && <span>{formatDai(moneyLineSizePrice?.size).full}</span>}</span>
+      <span>{OUSizePrice?.size && OUSizePrice?.size !== "0" && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
     </article>
   );
 };
@@ -314,7 +314,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
   const { id, name } = outcome;
   const sizedPrice = useMemo(() => getSizedPrice(amm, id, betSizeToOdds), [outcome.balance, betSizeToOdds]);
   const odds = useMemo(
-    () => (sizedPrice ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"),
+    () => (sizedPrice?.price ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"),
     [sizedPrice, oddsFormat]
   );
   return (
@@ -337,7 +337,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
       >
         {odds}
       </button>
-      {sizedPrice?.size && <span>{formatDai(sizedPrice?.size).full}</span>}
+      {sizedPrice?.size && sizedPrice.size !== "0" && <span>{formatDai(sizedPrice?.size).full}</span>}
     </div>
   );
 };
