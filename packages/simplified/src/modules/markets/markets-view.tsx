@@ -347,7 +347,7 @@ export const SubCategoriesFilter = () => {
   const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
   const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);
   const { icon: NBAIcon } = getCategoryIconLabel(["Sports", "Basketball", "NBA"]);
-  const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA", "UFC"]);
+  const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA"]);
 
   // const { icon: HockeyIcon } = getCategoryIconLabel(["Sports", "Hockey", "NHL"]);
   // const { icon: FootballIcon } = getCategoryIconLabel(["Sports", "American Football", "NFL"]);
