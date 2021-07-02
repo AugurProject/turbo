@@ -54,7 +54,6 @@ interface InfoNumber {
 interface InfoNumbersProps {
   infoNumbers: InfoNumber[];
   unedited?: boolean;
-  img?: any;
 }
 
 export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
