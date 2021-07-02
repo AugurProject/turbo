@@ -47,7 +47,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
         const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-        const provider = loginAccount?.library ? loginAccount?.library : defaultProvider?.current;
+        const provider = loginAccount?.library || defaultProvider?.current;
         return await getMarketInfos(
           provider,
           dmarkets,
