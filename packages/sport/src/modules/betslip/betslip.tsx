@@ -284,6 +284,8 @@ const EditableBet = ({ betId, bet }) => {
             label="wager"
             onEdit={(e) => {
               const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
+              console.log("onEdit", e, e.target.value, newValue);
+
               if (newValue === "") {
                 setError(null);
                 setUpdatedPrice(price);
@@ -354,7 +356,7 @@ const EditableBet = ({ betId, bet }) => {
               }
             }}
             isInvalid={!!error}
-            value={value || ''}
+            value={value || ""}
           />
           <div
             className={classNames(Styles.LabeledInput, {
@@ -374,8 +376,8 @@ const EditableBet = ({ betId, bet }) => {
 const LabeledInput = ({
   label,
   value = "",
-  onEdit = (e) => { },
-  onBlur = (e) => { },
+  onEdit = (e) => {},
+  onBlur = (e) => {},
   isInvalid = false,
   disabled = false,
 }) => {
@@ -400,7 +402,8 @@ const LabeledInput = ({
         onKeyDown={(e) => {
           // stop passing values to onChange if they aren't valid keystrokes of // 0-9 | , | . | Backspace (for clearing input)
           const nums = /^(?:\d|\.|,)*$/;
-          if (!nums.test(e.key) && e.key !== "Backspace") e.preventDefault();
+          if (!nums.test(e.key) && !["Backspace", "Enter", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key))
+            e.preventDefault();
         }}
       />
     </div>
@@ -451,10 +454,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
   const buttonName = !canCashOut
     ? CASHOUT_NOT_AVAILABLE
     : !isApproved
-      ? `APPROVE CASHOUT $${cashout}`
-      : isPending
-        ? `PENDING $${cashout}`
-        : `CASHOUT: $${cashout}`;
+    ? `APPROVE CASHOUT $${cashout}`
+    : isPending
+    ? `PENDING $${cashout}`
+    : `CASHOUT: $${cashout}`;
 
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
@@ -561,9 +564,9 @@ const BetslipFooter = () => {
   const { totalWager, totalToWin } = onBetslip
     ? determineBetTotals(bets)
     : {
-      totalWager: ZERO,
-      totalToWin: ZERO,
-    };
+        totalWager: ZERO,
+        totalToWin: ZERO,
+      };
   const isInvalid = totalToWin?.isNaN() || totalToWin?.eq(ZERO);
   return (
     <footer>
@@ -572,7 +575,7 @@ const BetslipFooter = () => {
           <p>
             You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
             <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
-            </p>
+          </p>
 
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
