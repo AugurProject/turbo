@@ -141,10 +141,10 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   initialCostPerMarketEntity.sender = senderId;
   let log = initialCostPerMarketEntity.log;
   if (log) {
-    log.push(initialCostPerMarketEntity.sumOfInitialCost.toString() + " + " +  event.params.collateral.toString());
+    log.push(event.params.sharesReturned.toString() + " " + event.params.collateral.toString() + " " + event.params.lpTokens.toString() + " " + event.params.marketFactory.toHexString() + " " + event.params.marketId.toHexString() + " " + event.params.recipient.toHexString() + " " + event.params.user.toHexString());
   }
   initialCostPerMarketEntity.log = log
-  initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost + event.params.collateral;
+  initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost.plus(event.params.collateral);
   initialCostPerMarketEntity.save();
 
   if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
