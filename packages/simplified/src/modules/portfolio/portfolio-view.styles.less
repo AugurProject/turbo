@@ -14,6 +14,10 @@
     > div[class*="Activity"] {
       display: none;
     }
+
+    > div[class*="RewardsSection"] {
+      margin: @size-16 0 @size-24 0;
+    }
   }
 }
 
@@ -63,6 +67,69 @@
       }
     }
 
+  }
+}
+
+@media @breakpoint-mobile {
+  .PortfolioView {
+    > section:first-of-type > div[class*="RewardsSection"] {
+      margin: @size-8 0 0 0;
+    }
+  }
+}
+
+.RewardsSection {
+  padding: @size-15 @size-24;
+  background-color: var(--color-brand-secondary);
+  border: @size-1 solid var(--simple-border);
+  border-radius: var(--theme-primary-radius);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-gap: @size-16;
+
+  > div {
+    display: flex;
+  }
+
+  > div:first-of-type {
+    flex-direction: column;
+
+    > span:first-of-type {
+      .text-14-semi-bold;
+    }
+
+    > span:nth-of-type(2) {
+      .text-10-semi-bold;
+
+      color: var(--color-secondary-text);
+    }
+  }
+
+  > div:nth-of-type(2) {
+    align-items: center;
+
+    > span:first-of-type {
+      .text-14-semi-bold;
+
+      display: flex;
+      align-items: center;
+
+      > img {
+        width: @size-20;
+        height: @size-20;
+        margin-left: @size-8;
+      }
+    }
+  }
+
+  @media @breakpoint-mobile {
+    padding: @size-10 @size-16;
+
+    > div:first-of-type {
+      > span:first-of-type {
+        .text-12-semi-bold;
+      }
+    }
   }
 }
 

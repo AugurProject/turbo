@@ -17,6 +17,7 @@ import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 import { Cash } from '@augurproject/comps/build/types';
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'modules/constants';
+import MaticIcon from 'assets/images/matic-icon.png';
 
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatCash } = Formatter;
@@ -138,6 +139,23 @@ const handleClaimFees = (
   } 
 };
 
+export const RewardsSection = () => {
+  return (
+    <div className={Styles.RewardsSection}>
+      <div>
+        <span>Available Liquidity Provider Reward</span>
+        <span>(Will be claimed automatically when removing liquidity per market)</span>
+      </div>
+      <div>
+        <span>
+          0.00
+          <img src={MaticIcon} alt="Matic Icon" />
+        </span>
+      </div>
+    </div>
+  );
+};
+
 export const ClaimWinningsSection = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -231,6 +249,7 @@ export const PortfolioView = () => {
       <section>
         <NetworkMismatchBanner />
         <AppViewStats small />
+        <RewardsSection />
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}
