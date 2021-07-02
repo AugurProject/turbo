@@ -574,14 +574,13 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   if (!provider) {
     throw new Error("Provider not provided");
   }
-
+  
   const multicall = new Multicall({ ethersProvider: provider });
   let results: ContractCallResults = { blocknumber: null, results: {} };
 
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < MULTI_CALL_LIMIT) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.log("contractCalls:", contractCalls);
       console.error("multicall", e);
       throw e;
     });
@@ -591,11 +590,9 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
       blocknumber: null,
       results: {},
     };
-    const totalChunks = Math.ceil(contractCalls.length / MULTI_CALL_LIMIT);
-    for (let i = 0; i < totalChunks; i++) {
-      const j = i + 1;
-      const chunk =
-        j === totalChunks ? contractCalls.slice(j * MULTI_CALL_LIMIT) : contractCalls.slice(i, j * MULTI_CALL_LIMIT);
+    const chunks = sliceIntoChunks(contractCalls, MULTI_CALL_LIMIT);
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
         console.error(`multicall, chunk ${chunk}`, e);
         throw e;
@@ -607,6 +604,15 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   }
   return results;
 };
+
+const sliceIntoChunks = (arr, chunkSize) => {
+  const res = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+      const chunk = arr.slice(i, i + chunkSize);
+      res.push(chunk);
+  }
+  return res;
+}
 
 export const getUserBalances = async (
   provider: Web3Provider,
