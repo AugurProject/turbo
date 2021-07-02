@@ -574,7 +574,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   if (!provider) {
     throw new Error("Provider not provided");
   }
-  
+
   const multicall = new Multicall({ ethersProvider: provider });
   let results: ContractCallResults = { blocknumber: null, results: {} };
 
@@ -608,11 +608,11 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
 const sliceIntoChunks = (arr, chunkSize) => {
   const res = [];
   for (let i = 0; i < arr.length; i += chunkSize) {
-      const chunk = arr.slice(i, i + chunkSize);
-      res.push(chunk);
+    const chunk = arr.slice(i, i + chunkSize);
+    res.push(chunk);
   }
   return res;
-}
+};
 
 export const getUserBalances = async (
   provider: Web3Provider,
