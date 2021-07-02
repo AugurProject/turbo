@@ -354,7 +354,7 @@ const EditableBet = ({ betId, bet }) => {
               }
             }}
             isInvalid={!!error}
-            value={value}
+            value={value || ''}
           />
           <div
             className={classNames(Styles.LabeledInput, {
@@ -373,7 +373,7 @@ const EditableBet = ({ betId, bet }) => {
 
 const LabeledInput = ({
   label,
-  value = null,
+  value = "",
   onEdit = (e) => { },
   onBlur = (e) => { },
   isInvalid = false,
