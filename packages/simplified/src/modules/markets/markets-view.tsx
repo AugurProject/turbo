@@ -91,13 +91,15 @@ const applyFiltersAndSort = (
     if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
       return false;
     }
-    if (
-      primaryCategory === SPORTS &&
-      subCategories.length > 0 &&
-      market.categories[market.categories.length - 1].toLowerCase() !==
-        subCategories[subCategories.length - 1].toLowerCase()
-    ) {
-      return false;
+    if (primaryCategory === SPORTS && subCategories.length > 0) {
+      // subCategories is always a max 2 length, markets are 3.
+      const indexToCheck = subCategories.length === 1 ? 1 : market.categories.length - 1;
+      if (
+        market.categories[indexToCheck] &&
+        market.categories[indexToCheck].toLowerCase() !== subCategories[indexToCheck - 1].toLowerCase()
+      ) {
+        return false;
+      }
     }
     if (currency !== ALL_CURRENCIES) {
       if (!market.amm) {
@@ -345,7 +347,7 @@ export const SubCategoriesFilter = () => {
   const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
   const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);
   const { icon: NBAIcon } = getCategoryIconLabel(["Sports", "Basketball", "NBA"]);
-  const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA"]);
+  const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA", "UFC"]);
 
   // const { icon: HockeyIcon } = getCategoryIconLabel(["Sports", "Hockey", "NHL"]);
   // const { icon: FootballIcon } = getCategoryIconLabel(["Sports", "American Football", "NFL"]);
