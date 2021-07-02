@@ -91,13 +91,15 @@ const applyFiltersAndSort = (
     if (primaryCategory === OTHER && POPULAR_CATEGORIES_ICONS[market.categories[0].toLowerCase()]) {
       return false;
     }
-    if (
-      primaryCategory === SPORTS &&
-      subCategories.length > 0 &&
-      market.categories[market.categories.length - 1].toLowerCase() !==
-        subCategories[subCategories.length - 1].toLowerCase()
-    ) {
-      return false;
+    if (primaryCategory === SPORTS && subCategories.length > 0) {
+      // subCategories is always a max 2 length, markets are 3.
+      const indexToCheck = subCategories.length === 1 ? 1 : market.categories.length - 1;
+      if (
+        market.categories[indexToCheck] &&
+        market.categories[indexToCheck].toLowerCase() !== subCategories[indexToCheck - 1].toLowerCase()
+      ) {
+        return false;
+      }
     }
     if (currency !== ALL_CURRENCIES) {
       if (!market.amm) {
@@ -172,7 +174,7 @@ const MarketsView = () => {
     settings: { showLiquidMarkets, timeFormat },
     actions: { setSidebar, updateMarketsViewSettings },
   } = useSimplifiedStore();
-  const { ammExchanges, markets, transactions, loading: dataLoading } = useDataStore();
+  const { ammExchanges, markets, transactions } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -295,7 +297,7 @@ const MarketsView = () => {
         showFilter={showFilter}
       />
       <SubCategoriesFilter />
-      {loading && dataLoading ? (
+      {loading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
             <LoadingMarketCard key={index} />

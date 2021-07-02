@@ -135,7 +135,6 @@ export const DEFAULT_DATA_STATE: GraphDataState = {
   cashes: {},
   errors: null,
   markets: {},
-  loading: true,
   transactions: {},
 };
 
@@ -145,7 +144,6 @@ export const DATA_KEYS = {
   CASHES: "cashes",
   ERRORS: "errors",
   MARKETS: "markets",
-  LOADING: "loading",
   TRANSACTIONS: "transactions",
 };
 

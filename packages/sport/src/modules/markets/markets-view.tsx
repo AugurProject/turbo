@@ -173,7 +173,7 @@ const MarketsView = () => {
     settings: { showLiquidMarkets },
     actions: { updateMarketsViewSettings, setFilteredEvents },
   } = useSportsStore();
-  const { markets, transactions, loading: dataLoading } = useDataStore();
+  const { markets, transactions } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
@@ -260,11 +260,7 @@ const MarketsView = () => {
             clearValue={() => setFilter("")}
           />
         </ul>
-        {!isLogged ? (
-          <section>
-            <div className={Styles.EmptyMarketsMessage}>Please Connect A Wallet to load data.</div>
-          </section>
-        ) : loading && dataLoading ? (
+        {loading ? (
           <section>
             {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
               <LoadingMarketCard key={index} />
