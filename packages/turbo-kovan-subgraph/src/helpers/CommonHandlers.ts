@@ -79,7 +79,7 @@ export function handlePositionFromLiquidityChangedEvent(
   event: LiquidityChanged,
   positionFromAddLiquidity: boolean,
   sharesReturned: BigInt,
-  outcomeId: BigInt,
+  outcomeId: BigInt
 ): void {
   let id = event.transaction.hash.toHexString() + "-" + outcomeId.toHexString();
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();

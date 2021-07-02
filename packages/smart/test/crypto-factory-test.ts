@@ -25,7 +25,7 @@ import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 
-describe.only("CryptoFactory", () => {
+describe("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -193,7 +193,8 @@ describe.only("CryptoFactory", () => {
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
-    expect(marketDetails.price).to.equal(ethPrice);
+    expect(marketDetails.creationPrice).to.equal(ethPrice);
+    expect(marketDetails.resolutionPrice).to.equal(0);
 
     expect(await above.symbol()).to.equal("Above");
     expect(await above.name()).to.equal("Above");
@@ -211,7 +212,8 @@ describe.only("CryptoFactory", () => {
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.BTC);
-    expect(marketDetails.price).to.equal(btcPrice);
+    expect(marketDetails.creationPrice).to.equal(btcPrice);
+    expect(marketDetails.resolutionPrice).to.equal(0);
 
     expect(await above.symbol()).to.equal("Above");
     expect(await above.name()).to.equal("Above");
@@ -230,10 +232,15 @@ describe.only("CryptoFactory", () => {
     await marketFactory.createAndResolveMarkets(nextResolutionTime);
 
     const ethPriceMarket = await marketFactory.getMarket(ethPriceMarketId);
+    const ethPriceMarketDetails = await marketFactory.getMarketDetails(ethPriceMarketId);
     const btcPriceMarket = await marketFactory.getMarket(btcPriceMarketId);
+    const btcPriceMarketDetails = await marketFactory.getMarketDetails(btcPriceMarketId);
 
     expect(ethPriceMarket.winner).to.equal(ethPriceMarket.shareTokens[PriceUpDownOutcome.Above]);
+    expect(ethPriceMarketDetails.resolutionPrice).to.equal(249900000001);
+
     expect(btcPriceMarket.winner).to.equal(btcPriceMarket.shareTokens[PriceUpDownOutcome.NotAbove]);
+    expect(btcPriceMarketDetails.resolutionPrice).to.equal(5499999999998);
 
     expect(await marketFactory.nextResolutionTime()).to.equal(nextResolutionTime);
   });
@@ -251,7 +258,8 @@ describe.only("CryptoFactory", () => {
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
-    expect(marketDetails.price).to.equal(ethPrice);
+    expect(marketDetails.creationPrice).to.equal(ethPrice);
+    expect(marketDetails.resolutionPrice).to.equal(0);
 
     expect(await above.symbol()).to.equal("Above");
     expect(await above.name()).to.equal("Above");

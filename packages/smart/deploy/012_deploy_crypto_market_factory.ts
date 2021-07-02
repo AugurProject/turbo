@@ -40,7 +40,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     protocol,
     protocolFee,
     linkNode,
-    firstResolutionTime,
+    firstResolutionTime, // NOTE: This causes the crypto market factory to always redeploy.
   ];
 
   await deployments.deploy("CryptoMarketFactory", {

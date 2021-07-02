@@ -1,14 +1,12 @@
-import React, { ReactNode, useState, useCallback, useEffect } from 'react';
-import Styles from './buttons.styles.less';
-import classNames from 'classnames';
-import { Arrow, SearchIcon, ViewIcon } from './icons';
-import { Spinner } from './spinner';
-import { ApprovalAction, ApprovalState } from '../../utils/constants';
-import { AmmExchange, Cash } from '../../types';
-import { useUserStore } from '../../stores/user';
-import {
-  approveERC20Contract,
-} from '../../stores/use-approval-callback';
+import React, { ReactNode, useState, useCallback, useEffect } from "react";
+import Styles from "./buttons.styles.less";
+import classNames from "classnames";
+import { Arrow, SearchIcon, ViewIcon } from "./icons";
+import { Spinner } from "./spinner";
+import { ApprovalAction, ApprovalState } from "../../utils/constants";
+import { AmmExchange, Cash } from "../../types";
+import { useUserStore } from "../../stores/user";
+import { approveERC20Contract } from "../../stores/use-approval-callback";
 
 export interface ButtonProps {
   id?: string;
@@ -42,10 +40,10 @@ const Button = ({
   href,
   error,
   title,
-  target = '_blank',
-  rel = 'noopener noreferrer',
+  target = "_blank",
+  rel = "noopener noreferrer",
   pending,
-  label
+  label,
 }: ButtonProps) => {
   return href ? (
     <a
@@ -59,8 +57,8 @@ const Button = ({
           [Styles.TextAndIcon]: text && icon,
           [Styles.Disabled]: disabled,
           [Styles.Selected]: selected,
-          [Styles.Error]: error && error !== '',
-          [Styles.subText]: subText && subText.length > 0
+          [Styles.Error]: error && error !== "",
+          [Styles.subText]: subText && subText.length > 0,
         },
         className
       )}
@@ -68,7 +66,7 @@ const Button = ({
       target={target}
       rel={rel}
     >
-      {error && error !== '' ? error : text}
+      {error && error !== "" ? error : text}
       {icon && icon}
       {subText && <span>{subText}</span>}
     </a>
@@ -83,15 +81,15 @@ const Button = ({
           [Styles.TextAndIcon]: text && icon,
           [Styles.Disabled]: disabled || pending,
           [Styles.Selected]: selected,
-          [Styles.Error]: error && error !== '',
-          [Styles.subText]: subText && subText.length > 0
+          [Styles.Error]: error && error !== "",
+          [Styles.subText]: subText && subText.length > 0,
         },
         className
       )}
       onClick={(e) => action && action(e)}
     >
       {pending && <Spinner />}
-      {!pending && (error && error !== '' ? error : text)}
+      {!pending && (error && error !== "" ? error : text)}
       {!pending && icon && icon}
       {!pending && subText && <span>{subText}</span>}
     </button>
@@ -107,40 +105,22 @@ export const PrimaryButton = (props: ButtonProps) => (
   />
 );
 export const SecondaryButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.SecondaryButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.SecondaryButton, props.className)} />
 );
 export const TinyButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.TinyButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
 );
 export const BuySellButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.BuySellButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.BuySellButton, props.className)} />
 );
 export const ApproveButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.ApproveButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.ApproveButton, props.className)} />
 );
 export const WalletButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.WalletButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.WalletButton, props.className)} />
 );
 export const TextButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.TextButton, props.className)}
-  />
+  <Button {...props} className={classNames(Styles.TextButton, props.className)} />
 );
 
 export interface DirectionButtonProps {
@@ -150,12 +130,7 @@ export interface DirectionButtonProps {
   left?: boolean;
 }
 
-export const DirectionButton = ({
-  action,
-  disabled,
-  title,
-  left,
-}: DirectionButtonProps) => (
+export const DirectionButton = ({ action, disabled, title, left }: DirectionButtonProps) => (
   <button
     onClick={(e) => action(e)}
     className={classNames(Styles.DirectionButton, {
@@ -168,12 +143,7 @@ export const DirectionButton = ({
   </button>
 );
 
-export const {
-  ADD_LIQUIDITY,
-  REMOVE_LIQUIDITY,
-  ENTER_POSITION,
-  EXIT_POSITION,
-} = ApprovalAction;
+export const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
 
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
 
@@ -182,7 +152,7 @@ export const ApprovalButton = ({
   cash,
   actionType,
   isApproved,
-  shareToken = null
+  shareToken = null,
 }: {
   amm?: AmmExchange;
   cash: Cash;
@@ -247,20 +217,20 @@ export const ApprovalButton = ({
     return null;
   }
 
-  let buttonText = '';
-  let subText = '';
+  let buttonText = "";
+  let subText = "";
   switch (actionType) {
     case ENTER_POSITION: {
-      buttonText = 'Approve to Buy';
+      buttonText = "Approve to Buy";
       break;
     }
     case EXIT_POSITION: {
-      buttonText = 'Approve to Sell';
+      buttonText = "Approve to Sell";
       break;
     }
     case REMOVE_LIQUIDITY: {
-      buttonText = 'Approve Removal';
-      subText = '(approve to see removal estimation)'
+      buttonText = "Approve Removal";
+      subText = "(approve to see removal estimation)";
       break;
     }
     default:
@@ -271,7 +241,7 @@ export const ApprovalButton = ({
   return (
     <ApproveButton
       disabled={isPendingTx}
-      text={isPendingTx ? 'Approving...' : buttonText}
+      text={isPendingTx ? "Approving..." : buttonText}
       subText={subText}
       action={() => approve()}
     />
@@ -279,11 +249,7 @@ export const ApprovalButton = ({
 };
 
 export const SearchButton = (props) => (
-  <Button
-    {...props}
-    icon={SearchIcon}
-    className={classNames(Styles.SearchButton, props.className)}
-  />
+  <Button {...props} icon={SearchIcon} className={classNames(Styles.SearchButton, props.className)} />
 );
 
 export interface ExternalLinkButtonProps {
@@ -323,6 +289,7 @@ export interface BaseThemeButtonProps {
   reverseContent?: boolean;
   small?: boolean;
   ariaLabel?: string;
+  href?: string;
 }
 
 export const BaseThemeButton = ({
@@ -340,6 +307,7 @@ export const BaseThemeButton = ({
   reverseContent = false,
   small = false,
   ariaLabel,
+  href = null,
 }: BaseThemeButtonProps) => {
   const content = customContent ? (
     customContent
@@ -350,31 +318,35 @@ export const BaseThemeButton = ({
       <span>{subText}</span>
     </>
   );
-  return (
-    <button
-      id={id}
-      disabled={disabled}
-      title={title}
-      onClick={action}
-      aria-label={ariaLabel}
-      className={classNames(
-        Styles.BaseNormalButton,
-        {
-          [Styles[buttonType]]: true,
-          [Styles.Inverted]: invert,
-          [Styles.Reversed]: reverseContent,
-          [Styles.Small]: small,
-        },
-        customClass
-      )}
-    >
-      {content}
-    </button>
-  );
+  const props = {
+    id,
+    disabled,
+    title,
+    onClick: action,
+    "arial-label": ariaLabel,
+    className: classNames(
+      Styles.BaseNormalButton,
+      {
+        [Styles[buttonType]]: true,
+        [Styles.Inverted]: invert,
+        [Styles.Reversed]: reverseContent,
+        [Styles.Small]: small,
+      },
+      customClass
+    ),
+  };
+
+  return href ? <a {...{ ...props, href }}>{content}</a> : <button {...{ ...props }}>{content}</button>;
 };
 
-export const PrimaryThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />;
+export const PrimaryThemeButton = (props: BaseThemeButtonProps) => (
+  <BaseThemeButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />
+);
 
-export const SecondaryThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.SECONDARY, ...props }} />;
+export const SecondaryThemeButton = (props: BaseThemeButtonProps) => (
+  <BaseThemeButton {...{ buttonType: BUTTON_TYPES.SECONDARY, ...props }} />
+);
 
-export const TinyThemeButton = (props: BaseThemeButtonProps) => <BaseThemeButton {...{ buttonType: BUTTON_TYPES.TINY, ...props }} />;
+export const TinyThemeButton = (props: BaseThemeButtonProps) => (
+  <BaseThemeButton {...{ buttonType: BUTTON_TYPES.TINY, ...props }} />
+);

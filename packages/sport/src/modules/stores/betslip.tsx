@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
+import { BigNumber as BN } from "bignumber.js";
 import { DEFAULT_BETSLIP_STATE, STUBBED_BETSLIP_ACTIONS } from "../stores/constants";
 import { useBetslip } from "./betslip-hooks";
 import { useUserStore, useDataStore, Formatter, Constants } from "@augurproject/comps";
 import { useSportsStore } from "./sport";
-import { PositionBalance } from "@augurproject/comps/build/types";
-import { getBuyAmount } from "modules/utils";
-const { convertOnChainCashAmountToDisplayCashAmount, formatDai, isSameAddress } = Formatter;
-const { SPORTS_MARKET_TYPE_LABELS, TX_STATUS } = Constants;
+import { AmmMarketShares } from "@augurproject/comps/build/types";
+import { estimatedCashOut, isCashOutApproved } from "modules/utils";
+import { TX_STATUS } from "modules/constants";
+const { formatDai, isSameAddress } = Formatter;
+const { SPORTS_MARKET_TYPE_LABELS } = Constants;
 export const BetslipContext = React.createContext({
   ...DEFAULT_BETSLIP_STATE,
   actions: STUBBED_BETSLIP_ACTIONS,
@@ -18,63 +20,96 @@ export const BetslipStore = {
   actions: STUBBED_BETSLIP_ACTIONS,
 };
 
-const usePersistentActiveBets = ({ active, actions: { updateActive, addActive } }) => {
+const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, removeActive } }) => {
   const { marketEvents } = useSportsStore();
   const {
     account,
     balances: { marketShares },
+    loginAccount,
+    transactions: userTransactions
   } = useUserStore();
-  const { transactions } = useDataStore();
-  useEffect(() => {
+  const { markets, transactions, blocknumber } = useDataStore();
+
+  useEffect(async () => {
     if (!account) return null;
-    const marketShareEntries: [string, { positions: PositionBalance[] }][] = Object.entries(marketShares);
-    const onlyImportTransactions = marketShareEntries.map(([marketId, marketInfo]) => {
+    const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
+      const userMarketShares = marketShares as AmmMarketShares;
+      const marketPositions = userMarketShares[marketId];
+      const { market } = marketPositions.ammExchange;
+      if (market.hasWinner) return p;
+
+      return [...p, ...marketPositions.positions.map(pos => ({ ...pos, marketId: market.marketId }))];
+    }, []);
+
+    const bets = [];
+    for (let i = 0; i < marketPositions.length; i++) {
+      const position = marketPositions[i];
+      const marketId = position.marketId
+      const market = markets[marketId];
       const marketTrades = transactions?.[marketId]?.trades;
-      const outcomeIdsToCareAbout = [...new Set(marketInfo?.positions?.map(pos => pos.outcomeId))];
       const mostRecentUserTrade = marketTrades
         ?.filter((t) => isSameAddress(t.user, account))
-        ?.filter((ut) => outcomeIdsToCareAbout.includes(parseInt(ut.outcome)))
+        ?.filter((ut) => new BN(position.outcomeId).eq(new BN(ut.outcome)))
         .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
-
-      return mostRecentUserTrade;
-    }).filter(m => m);
-
-    const preparedActiveBets = onlyImportTransactions.map((lastTrade) => {
-      const { ammExchange, positions } = marketShares[lastTrade.marketId.id];
-      const { market } = ammExchange;
       const marketEvent = marketEvents[market.eventId];
-      const tradeOutcomeId = parseInt(lastTrade.outcome);
-      const outcomePosition = positions.find(p => p.outcomeId === tradeOutcomeId);
-      const collateral = convertOnChainCashAmountToDisplayCashAmount(lastTrade?.collateral, 6);
-      const toWin = getBuyAmount(ammExchange, tradeOutcomeId, outcomePosition?.initCostUsd);
-      const { name } = ammExchange.ammOutcomes.find(outcome => outcome.id === tradeOutcomeId);
-      const updatedActiveBet = {
+      const toWin = new BN(position.quantity).minus(new BN(position.initCostUsd));
+      const { name } = market.outcomes.find(outcome => outcome.id === position.outcomeId);
+      const cashoutAmount = estimatedCashOut(market.amm, position.quantity, position.outcomeId);
+      const isApproved = await isCashOutApproved(loginAccount, position.outcomeId, market, transactions);
+      const betId = `${market.marketId}-${position.outcomeId}`;
+      const activeBet = active[betId];
+      const status = userTransactions.find((t) => t.hash === activeBet?.hash)?.status || TX_STATUS.CONFIRMED;
+
+      bets.push({
         heading: `${marketEvent?.description}`,
         subHeading: `${SPORTS_MARKET_TYPE_LABELS[market.sportsMarketType]}`,
         name,
-        price: lastTrade.price,
-        wager: formatDai(collateral.abs()).formatted,
-        toWin: formatDai(toWin?.maxProfit).formatted,
-        timestamp: Number(lastTrade.timestamp),
-        status: TX_STATUS.CONFIRMED,
-        canCashOut: false,
-        hasCashedOut: false,
-        hash: lastTrade.transactionHash,
-        betId: `${lastTrade.marketId.id}-${tradeOutcomeId}`,
-      };
-      return updatedActiveBet;
-    });
-    if (preparedActiveBets.length) {
-      preparedActiveBets.forEach((bet) => {
-        active[bet.hash] ? updateActive(bet, true) : addActive(bet, true);
+        price: position.avgPrice,
+        wager: formatDai(position.initCostUsd).formatted,
+        toWin: formatDai(toWin).formatted,
+        timestamp: mostRecentUserTrade ? mostRecentUserTrade?.timestamp : null,
+        hash: mostRecentUserTrade ? mostRecentUserTrade?.transactionHash : null,
+        betId,
+        marketId: market.marketId,
+        size: position.quantity,
+        outcomeId: position.outcomeId,
+        cashoutAmount,
+        canCashOut: cashoutAmount !== null,
+        isPending: status === TX_STATUS.PENDING,
+        isApproved,
+        status,
       });
     }
-  }, [account, Object.keys(marketShares).length, Object.keys(marketEvents).length]);
+
+
+    // remove cashed out bets
+    const keys = bets.map(b => b.betId);
+    const betIds = Object.keys(active).filter(betId => active[betId].status !== TX_STATUS.PENDING)
+      .filter(betId => !keys.includes(betId));
+    betIds.map(betId => removeActive(betId));
+
+    if (bets.length) {
+      bets.forEach((bet) => {
+        active[bet.betId] ? updateActive(bet, true) : addActive(bet, true);
+      });
+    }
+  }, [account, blocknumber, Object.keys(marketShares).length]);
 };
+
+const useClearOnLogout = ({ actions: { clearBetslip } }) => {
+  const { account } = useUserStore();
+
+  useEffect(() => {
+    if (!account) {
+      clearBetslip();
+    }
+  }, [account])
+}
 
 export const BetslipProvider = ({ children }: any) => {
   const state = useBetslip();
 
+  useClearOnLogout(state);
   usePersistentActiveBets(state);
 
   if (!BetslipStore.actionsSet) {

@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-import { calcShareFactor, NULL_ADDRESS } from "../src";
+import { calcShareFactor } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
 import { Cash__factory, MMALinkMarketFactory__factory } from "../typechain";
 

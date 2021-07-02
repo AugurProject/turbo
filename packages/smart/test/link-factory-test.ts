@@ -62,16 +62,14 @@ describe("LinkFactory", () => {
 
   it("can create markets", async () => {
     await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -131,10 +129,14 @@ describe("LinkFactory", () => {
     expect(details.value0).to.equal(overUnderTotal + 5);
   });
 
+  it("lists resolvable events", async () => {
+    const events = await marketFactory.listResolvableEvents();
+    expect(events.length).to.equal(1);
+    expect(Number(events[0])).to.equal(eventId);
+  });
+
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Final, 100, 20)
-    );
+    await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Final, 100, 20);
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
@@ -146,43 +148,9 @@ describe("LinkFactory", () => {
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]); // over
   });
 
-  it("encodes and decodes market creation payload", async () => {
-    const fakeStartTime = 1619743497;
-    const payload = await marketFactory.encodeCreation(
-      eventId,
-      homeTeamId,
-      awayTeamId,
-      fakeStartTime,
-      homeSpread,
-      overUnderTotal,
-      true,
-      true
-    );
-    expect(payload).to.equal("0x00000000000000000000000000002329002a0759608b53090028003c03000000");
-
-    const decoded = await marketFactory.decodeCreation(payload);
-    expect(decoded._eventId, "_eventId").to.equal(eventId);
-    expect(decoded._homeTeamId, "_homeTeamId").to.equal(homeTeamId);
-    expect(decoded._awayTeamId, "_awayTeamId").to.equal(awayTeamId);
-    expect(decoded._startTimestamp, "_startTimestamp").to.equal(fakeStartTime);
-    expect(decoded._homeSpread, "_homeSpread").to.equal(homeSpread);
-    expect(decoded._totalScore, "_totalScore").to.equal(overUnderTotal);
-    expect(decoded._createSpread, "_createSpread").to.equal(true);
-    expect(decoded._createTotal, "_createTotal").to.equal(true);
-  });
-
-  it("encodes and decodes market resolution payload", async () => {
-    const eventStatus = 2;
-    const homeScore = 12;
-    const awayScore = 4810;
-    const payload = await marketFactory.encodeResolution(eventId, eventStatus, homeScore, awayScore);
-    expect(payload).to.equal("0x0000000000000000000000000000232902000c12ca0000000000000000000000");
-
-    const decoded = await marketFactory.decodeResolution(payload);
-    expect(decoded._eventId, "_eventId").to.equal(eventId);
-    expect(decoded._eventStatus, "_eventStatus").to.equal(eventStatus);
-    expect(decoded._homeScore, "_homeScore").to.equal(homeScore);
-    expect(decoded._awayScore, "_awayScore").to.equal(awayScore);
+  it("stops listing resolved events", async () => {
+    const events = await marketFactory.listResolvableEvents();
+    expect(events.length).to.equal(0);
   });
 });
 
@@ -226,23 +194,19 @@ describe("LinkFactory NoContest", () => {
     );
 
     await marketFactory.createMarket(
-      await marketFactory.encodeCreation(
-        eventId,
-        homeTeamId,
-        awayTeamId,
-        estimatedStartTime,
-        homeSpread,
-        overUnderTotal,
-        true,
-        true
-      )
+      eventId,
+      homeTeamId,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpread,
+      overUnderTotal,
+      true,
+      true
     );
   });
 
   it("can resolve markets as No Contest", async () => {
-    await marketFactory.trustedResolveMarkets(
-      await marketFactory.encodeResolution(eventId, SportsLinkEventStatus.Postpones, 0, 0)
-    );
+    await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Postponed, 0, 0);
 
     const headToHeadMarketId = 1;
     const spreadMarketId = 2;

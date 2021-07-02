@@ -74,7 +74,7 @@ export const RESOLVED = "Resolved";
 export const ENTER_AMOUNT = "Enter Amount";
 
 export const SETTINGS_SLIPPAGE = "1";
-export const BETSIZE_TO_ODDS = "10";
+export const BETSIZE_TO_ODDS = ".10";
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",
@@ -84,6 +84,7 @@ export const MARKET_STATUS = {
   SETTLED: "SETTLED",
 };
 
+export const CASHOUT_NOT_AVAILABLE = "CASHOUT NOT AVAILABLE";
 export const categoryItems = [
   {
     label: ALL_MARKETS,
@@ -194,6 +195,7 @@ export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 // Modals
 export const MODAL_ADD_LIQUIDITY = "MODAL_ADD_LIQUIDITY";
 export const TURBO_NO_ACCESS_MODAL = "TURBO_NO_ACCESS_MODAL";
+export const MODAL_EVENT_RULES = "MODAL_EVENT_RULES";
 
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
   primaryCategory: SPORTS,

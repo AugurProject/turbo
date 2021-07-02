@@ -142,6 +142,7 @@ export const Utils = {
   PathUtils,
   windowRef,
   getCategoryIconLabel,
+  DerivedMarketData,
   ..._TeamHelpers,
 };
 export const PaginationComps = _Pagination;

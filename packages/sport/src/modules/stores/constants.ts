@@ -7,6 +7,7 @@ export const STUBBED_SPORT_ACTIONS = {
   updateSettings: (settings, account = null) => {},
   updateMarketsViewSettings: (settings) => {},
   updateMarketEvents: (marketEvents: MarketEvents) => {},
+  setFilteredEvents: (filteredEvents: MarketEvents[]) => {},
 };
 
 export const DEFAULT_SPORT_STATE = {
@@ -21,6 +22,7 @@ export const DEFAULT_SPORT_STATE = {
     showLiquidMarkets: true,
   },
   marketEvents: {},
+  filteredEvents: [],
 };
 
 export const LOCAL_STORAGE_SETTINGS_THEME = "sports_settings";
@@ -33,6 +35,7 @@ export const SPORT_STATE_KEYS = {
   ODDS_FORMAT: "oddsFormat",
   MARKETS_VIEW_SETTINGS: "marketsViewSettings",
   MARKET_EVENTS: "marketEvents",
+  FILTERED_EVENTS: "filteredEvents",
 };
 
 export const SPORT_ACTIONS = {
@@ -41,6 +44,7 @@ export const SPORT_ACTIONS = {
   SET_BETSLIP_MINIMIZED: "SET_BETSLIP_MINIMIZED",
   UPDATE_MARKETS_VIEW_SETTINGS: "UPDATE_MARKETS_VIEW_SETTINGS",
   UPDATE_MARKET_EVENTS: "UPDATE_MARKET_EVENTS",
+  SET_FILTERED_EVENTS: "SET_FILTERED_EVENTS",
 };
 
 export interface MarketEvent {
@@ -70,6 +74,7 @@ export interface BetType {
   name: string;
   betId: string;
   marketId: string;
+  hash?: string;
 }
 
 export interface ActiveBetType {
@@ -83,24 +88,19 @@ export interface ActiveBetType {
   size?: string;
   wagerAvgPrice?: string;
   marketId: string;
-  status: string;
   canCashOut: boolean;
-  hasCashedOut: boolean;
   hash: string;
+  outcomeId: number;
+  isApproved: boolean;
+  cashoutAmount: string;
+  isPending: boolean;
+  status: string;
 }
-
-const { TX_STATUS } = Constants;
 
 export const DEFAULT_BET = {
   wager: null,
   toWin: null,
   wagerAvgPrice: null,
-};
-
-export const DEFAULT_ACTIVE_BET = {
-  status: TX_STATUS.PENDING,
-  canCashOut: false,
-  hasCashedOut: false,
 };
 
 export const DEFAULT_BETSLIP_STATE = {
@@ -140,9 +140,7 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "500.00",
       toWin: "1337.00",
       timestamp: now,
-      status: TX_STATUS.PENDING,
       canCashOut: false,
-      hasCashedOut: false,
       hash: "0xtxHash05",
       betId: "0xdeadbeef-0-2",
     },
@@ -155,9 +153,7 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 100,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: true,
-      hasCashedOut: false,
       hash: "0xtxHash04",
       betId: "0xdeadbeef-0-2",
     },
@@ -170,9 +166,7 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 200,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: true,
-      hasCashedOut: false,
       hash: "0xtxHash03",
       betId: "0xdeadbeef-0-2",
     },
@@ -185,9 +179,7 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "200.00",
       toWin: "325.00",
       timestamp: now - 300,
-      status: TX_STATUS.CONFIRMED,
       canCashOut: false,
-      hasCashedOut: true,
       hash: "0xtxHash02",
       betId: "0xdeadbeef-0-2",
     },
@@ -200,9 +192,7 @@ export const DEFAULT_BETSLIP_STATE = {
       wager: "10.00",
       toWin: "9.00",
       timestamp: now - 400,
-      status: TX_STATUS.FAILURE,
       canCashOut: false,
-      hasCashedOut: false,
       hash: "0xtxHash01",
       betId: "0xdeadbeef-0-2",
     },
@@ -239,4 +229,5 @@ export const BETSLIP_ACTIONS = {
   REMOVE_ACTIVE: "REMOVE_ACTIVE",
   UPDATE_ACTIVE: "UPDATE_ACTIVE",
   CANCEL_ALL_BETS: "CANCEL_ALL_BETS",
+  CLEAR_BETSLIP: "CLEAR_BETSLIP",
 };

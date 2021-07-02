@@ -44,6 +44,7 @@ const {
   PathUtils: { parseQuery },
 } = Utils;
 const { getCombinedMarketTransactionsFormatted } = ProcessData;
+let timeoutId = null;
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
@@ -154,16 +155,25 @@ const MarketView = ({ defaultMarket = null }) => {
   const amm: AmmExchange = ammExchanges[marketId];
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!market && marketId) {
-        setMarketNotFound(true);
-      }
-    }, 60 * 1000);
+    if (!market) {
+      timeoutId = setTimeout(() => {
+        if (!market && marketId) {
+          setMarketNotFound(true);
+        }
+      }, 60 * 1000);
+    }
 
     return () => {
       clearTimeout(timeoutId);
     };
   }, [marketId]);
+
+  useEffect(() => {
+    if (timeoutId && market) {
+      clearTimeout(timeoutId);
+      timeoutId = null
+    }
+  }, [market]);
 
   if (marketNotFound) return <NonexistingMarketView text="Market does not exist." />;
 

@@ -605,6 +605,9 @@ export interface AmmMarketShares {
   };
 }
 
+export interface Approvals {
+  [address: string]: boolean;
+}
 export interface UserBalances {
   ETH: CurrencyBalance;
   USDC: CurrencyBalance;
@@ -619,6 +622,7 @@ export interface UserBalances {
   claimableFees: string;
   rep?: string;
   legacyRep?: string;
+  approvals?: Approvals;
 }
 
 export interface ProcessedData {
@@ -696,6 +700,7 @@ export interface TransactionDetails {
   timestamp?: number;
   seen?: boolean;
   status?: string;
+  message?: string;
   marketDescription?: string;
 }
 
@@ -713,4 +718,8 @@ export interface MarketFactoryConfig {
   ammFactory: string;
   description: string;
   version: string;
+}
+
+export interface MarketFactoryNames {
+  [address: string]: string;
 }

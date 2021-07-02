@@ -1,33 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import Styles from "./tables.styles.less";
-import { useSportsStore } from "../stores/sport";
-import { Utils, PaginationComps, ButtonComps } from "@augurproject/comps";
+import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
+import { useSportsStore } from "../stores/sport";
+import { useBetslipStore } from "../stores/betslip";
+import { TicketBreakdown } from "../betslip/betslip";
+
+import { approveOrCashOut } from "../utils";
+import { CASHOUT_NOT_AVAILABLE } from "../constants";
+
 const {
+  Formatter: { formatDai },
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
 const { Pagination } = PaginationComps;
 const { TinyThemeButton } = ButtonComps;
 
-export const EventBetsSection = ({ EventPositionData = {} }) => {
-  if (!Object.keys(EventPositionData).length) return null;
-  const EventDataEntries = Object.entries(EventPositionData);
+export const EventBetsSection = ({ eventPositionData = {} }) => {
+  const [page, setPage] = useState(1);
+  if (!Object.keys(eventPositionData).length) return null;
+  const EventDataEntries = Object.entries(eventPositionData);
   return (
     <section className={Styles.EventBetsSection}>
       {EventDataEntries.map(([EventId, Event]) => (
-        <EventBetsTable {...{ Event }} />
+        <EventBetsTable {...{ Event, key: EventId }} />
       ))}
       {EventDataEntries.length > 0 && (
         <Pagination
-          page={1}
+          page={page}
           itemCount={EventDataEntries.length}
           itemsPerPage={10}
           action={(page) => {
-            // setPage(page);
-            console.log("set page", page);
+            setPage(page);
           }}
-          updateLimit={null}
         />
       )}
     </section>
@@ -58,10 +64,26 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   const {
     settings: { oddsFormat, timeFormat },
   } = useSportsStore();
-  const determineClasses = ({ canCashOut, hasCashedOut }) => ({
+  const {
+    actions: { updateActive },
+  } = useBetslipStore();
+  const {
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const { markets } = useDataStore();
+  const determineClasses = ({ canCashOut }) => ({
     [Styles.CanCashOut]: canCashOut,
-    [Styles.hasCashedOut]: hasCashedOut,
   });
+
+  const doApproveOrCashOut = async (loginAccount, bet, market) => {
+    const txDetails = await approveOrCashOut(loginAccount, bet, market);
+    if (txDetails?.hash) {
+      addTransaction(txDetails);
+      updateActive({ ...bet, hash: txDetails.hash }, true);
+    }
+  };
+
   return (
     <main className={Styles.EventTableMain}>
       <ul>
@@ -73,30 +95,48 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         <li></li>
       </ul>
       {Object.entries(bets).map(([tx_hash, bet]) => {
+        const {
+          marketId,
+          cashoutAmount,
+          price,
+          subHeading,
+          name,
+          wager,
+          toWin,
+          isApproved,
+          canCashOut,
+          isPending,
+          timestamp,
+        } = bet;
+        const market = markets[marketId];
+        const cashout = formatDai(cashoutAmount).formatted;
+        const buttonName = !canCashOut
+          ? CASHOUT_NOT_AVAILABLE
+          : !isApproved
+          ? `APPROVE CASHOUT $${cashout}`
+          : isPending
+          ? `PENDING $${cashout}`
+          : `CASHOUT: $${cashout}`;
+
         return (
-          <ul>
+          <ul key={tx_hash}>
             <li>
-              <span>{bet.name}</span>
-              <span>{bet.marketEventType}</span>
+              <span>{name}</span>
+              <span>{subHeading}</span>
             </li>
-            <li>${bet.wager}</li>
-            <li>{convertToOdds(convertToNormalizedPrice({ price: bet.price }), oddsFormat).full}</li>
-            <li>{bet.toWin && bet.toWin !== "0" ? `$${bet.toWin}` : "-"}</li>
-            <li>{getMarketEndtimeFull(bet.date, timeFormat)}</li>
+            <li>${wager === "0.00" ? "-" : wager}</li>
+            <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
+            <li>{toWin && toWin !== "0" ? `$${toWin}` : "-"}</li>
+            <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
                 customClass={determineClasses(bet)}
-                action={() => {}}
-                disabled={bet.hasCashedOut || (!bet.hasCashedOut && !bet.canCashOut)}
-                text={
-                  !bet.hasCashedOut && !bet.canCashOut
-                    ? "CASHOUT NOT AVAILABLE"
-                    : bet.hasCashedOut
-                    ? `WON: $${bet.cashoutAmount}`
-                    : `CASHOUT: $${bet.cashoutAmount}`
-                }
+                action={() => doApproveOrCashOut(loginAccount, bet, market)}
+                disabled={isPending || !canCashOut}
+                text={buttonName}
               />
             </li>
+            <TicketBreakdown {...{ bet, timeFormat }} />
           </ul>
         );
       })}

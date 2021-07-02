@@ -27,7 +27,6 @@ const {
   SEO,
   LabelComps: { ReportingStateLabel },
   Icons: { ConfirmedCheck, SimpleChevron },
-  ButtonComps: { BuySellButton },
 } = Components;
 const { MarketsLink } = Links;
 const { getResolutionRules } = DerivedMarketData;
@@ -134,7 +133,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const {
     marketEvents,
     settings: { timeFormat },
-    actions: { setShowTradingForm },
   } = useSportsStore();
   const { markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
@@ -228,7 +226,6 @@ const MarketView = ({ defaultMarket = null }) => {
           {details.length === 0 && <p>There are no additional details for this Market.</p>}
         </div>
         <SportsChartSection {...{ ...market }} />
-        <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
       </section>
     </div>
   );

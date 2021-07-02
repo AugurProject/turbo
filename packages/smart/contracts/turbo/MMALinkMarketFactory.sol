@@ -18,35 +18,47 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 endTime,
         MarketType marketType,
         uint256 indexed eventId,
-        uint256 homeTeamId,
-        uint256 awayTeamId,
-        uint256 estimatedStarTime,
-        int256 score
+        string homeFighterName,
+        uint256 homeFighterId,
+        string awayFighterName,
+        uint256 awayFighterId,
+        uint256 estimatedStartTime
     );
     event MarketResolved(uint256 id, address winner);
-
     event LinkNodeChanged(address newLinkNode);
 
-    enum MarketType {HeadToHead, Spread, OverUnder}
-    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+    enum MarketType {HeadToHead}
+    enum HeadToHeadOutcome {
+        NoContest, // 0
+        Away, // 1
+        Home // 2
+    }
 
     struct MarketDetails {
         uint256 eventId;
-        uint256 homeTeamId;
-        uint256 awayTeamId;
+        string homeFighterName;
+        uint256 homeFighterId;
+        string awayFighterName;
+        uint256 awayFighterId;
         uint256 estimatedStartTime;
         MarketType marketType;
         EventStatus eventStatus;
-        // This value depends on the marketType.
-        // HeadToHead: ignored
-        // Spread: the home team spread
-        // OverUnder: total score in game
-        int256 value0;
+        uint256[3] headToHeadWeights; // derived from moneyline
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
-    // EventId => [MarketId]
-    mapping(uint256 => uint256[3]) public events;
+
+    enum EventStatus {Unknown, Scheduled, Final, Postponed, Canceled}
+    struct EventDetails {
+        uint256[1] markets;
+        uint256 homeFighterId;
+        uint256 awayFighterId;
+        uint256 startTime;
+    }
+
+    // EventId => EventDetails
+    mapping(uint256 => EventDetails) public events;
+    uint256[] public listOfEvents;
 
     address public linkNode;
     uint256 public sportId;
@@ -78,80 +90,70 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         sportId = _sportId;
     }
 
-    function createMarket(bytes32 _payload) public returns (uint256[3] memory _ids) {
+    function createMarket(
+        uint256 _eventId,
+        string memory _homeFighterName,
+        uint256 _homeFighterId,
+        string memory _awayFighterName,
+        uint256 _awayFighterId,
+        uint256 _startTimestamp,
+        int256[2] memory _moneylines
+    ) public {
         require(msg.sender == linkNode, "Only link node can create markets");
 
-        (
-            uint256 _eventId,
-            uint256 _homeTeamId,
-            uint256 _awayTeamId,
-            uint256 _startTimestamp,
-            int256 _homeSpread,
-            uint256 _totalScore,
-            bool _makeSpread,
-            bool _makeTotalScore
-        ) = decodeCreation(_payload);
         address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
-        _ids = events[_eventId];
+        uint256[1] memory _ids = events[_eventId].markets;
+        require(_ids[0] == 0, "This event was already used to create markets");
 
-        if (_ids[0] == 0) {
-            _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
-        }
+        _ids[0] = createHeadToHeadMarket(
+            _creator,
+            _endTime,
+            _eventId,
+            _homeFighterName,
+            _homeFighterId,
+            _awayFighterName,
+            _awayFighterId,
+            _startTimestamp,
+            _moneylines
+        );
 
-        if (_ids[1] == 0 && _makeSpread) {
-            // spread market hasn't been created and is ready to be created
-            _ids[1] = createSpreadMarket(
-                _creator,
-                _endTime,
-                _eventId,
-                _homeTeamId,
-                _awayTeamId,
-                _startTimestamp,
-                _homeSpread
-            );
-        }
-
-        if (_ids[2] == 0 && _makeTotalScore) {
-            // over-under market hasn't been created and is ready to be created
-            _ids[2] = createOverUnderMarket(
-                _creator,
-                _endTime,
-                _eventId,
-                _homeTeamId,
-                _awayTeamId,
-                _startTimestamp,
-                _totalScore
-            );
-        }
-
-        events[_eventId] = _ids;
+        events[_eventId].markets = _ids;
+        events[_eventId].homeFighterId = _homeFighterId;
+        events[_eventId].awayFighterId = _awayFighterId;
+        events[_eventId].startTime = _startTimestamp;
+        listOfEvents.push(_eventId);
     }
 
     function createHeadToHeadMarket(
         address _creator,
         uint256 _endTime,
         uint256 _eventId,
-        uint256 _homeTeamId,
-        uint256 _awayTeamId,
-        uint256 _startTimestamp
+        string memory _homeTeamName,
+        uint256 _homeFighterId,
+        string memory _awayTeamName,
+        uint256 _awayFighterId,
+        uint256 _startTimestamp,
+        int256[2] memory _moneylines
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
+        _outcomes[uint256(HeadToHeadOutcome.NoContest)] = "No Contest";
+        _outcomes[uint256(HeadToHeadOutcome.Away)] = _awayTeamName;
+        _outcomes[uint256(HeadToHeadOutcome.Home)] = _homeTeamName;
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
         marketDetails[_id] = MarketDetails(
             _eventId,
-            _homeTeamId,
-            _awayTeamId,
+            _homeTeamName,
+            _homeFighterId,
+            _awayTeamName,
+            _awayFighterId,
             _startTimestamp,
             MarketType.HeadToHead,
             EventStatus.Scheduled,
-            0
+            deriveHeadToHeadWeights(_moneylines)
         );
         emit MarketCreated(
             _id,
@@ -159,193 +161,136 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
             _endTime,
             MarketType.HeadToHead,
             _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            0
+            _homeTeamName,
+            _homeFighterId,
+            _awayTeamName,
+            _awayFighterId,
+            _startTimestamp
         );
         return _id;
     }
 
-    function createSpreadMarket(
-        address _creator,
-        uint256 _endTime,
+    function deriveHeadToHeadWeights(int256[2] memory _moneylines) internal pure returns (uint256[3] memory _weights) {
+        _weights[0] = 1e18; // 2%
+        _weights[1] = 24.5e18; // 49%
+        _weights[2] = 24.5e18; // 49%
+    }
+
+    enum WhoWon {Unknown, Home, Away, Draw}
+
+    function trustedResolveMarkets(
         uint256 _eventId,
-        uint256 _homeTeamId,
-        uint256 _awayTeamId,
-        uint256 _startTimestamp,
-        int256 _homeSpread
-    ) internal returns (uint256) {
-        string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Away";
-        _outcomes[2] = "Home";
-
-        uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
-        marketDetails[_id] = MarketDetails(
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            MarketType.Spread,
-            EventStatus.Scheduled,
-            _homeSpread
-        );
-        emit MarketCreated(
-            _id,
-            _creator,
-            _endTime,
-            MarketType.Spread,
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            _homeSpread
-        );
-        return _id;
-    }
-
-    function createOverUnderMarket(
-        address _creator,
-        uint256 _endTime,
-        uint256 _eventId,
-        uint256 _homeTeamId,
-        uint256 _awayTeamId,
-        uint256 _startTimestamp,
-        uint256 _overUnderTotal
-    ) internal returns (uint256) {
-        string[] memory _outcomes = new string[](3);
-        _outcomes[0] = "No Contest";
-        _outcomes[1] = "Over";
-        _outcomes[2] = "Under";
-
-        uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
-        marketDetails[_id] = MarketDetails(
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            MarketType.OverUnder,
-            EventStatus.Scheduled,
-            int256(_overUnderTotal)
-        );
-        emit MarketCreated(
-            _id,
-            _creator,
-            _endTime,
-            MarketType.OverUnder,
-            _eventId,
-            _homeTeamId,
-            _awayTeamId,
-            _startTimestamp,
-            int256(_overUnderTotal)
-        );
-        return _id;
-    }
-
-    function resolveMarket(uint256) public pure override {
-        require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
-    }
-
-    function trustedResolveMarkets(bytes32 _payload) public {
+        uint256 _eventStatus,
+        uint256 _homeFighterId,
+        uint256 _awayFighterId,
+        WhoWon _whoWon
+    ) public {
         require(msg.sender == linkNode, "Only link node can resolve markets");
 
-        (uint256 _eventId, uint256 _eventStatus, uint256 _homeScore, uint256 _awayScore) = decodeResolution(_payload);
-        uint256[3] memory _ids = events[_eventId];
-        require(_ids[0] != 0 || _ids[1] != 0 || _ids[2] != 0, "Cannot resolve markets that weren't created");
+        EventDetails memory _event = events[_eventId];
+        require(_event.markets[0] != 0, "Cannot resolve markets that weren't created");
+        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "Cannot resolve SCHEDULED markets");
 
-        require(EventStatus(_eventStatus) != EventStatus.Scheduled, "cannot resolve SCHEDULED markets");
-
-        // resolve markets as No Contest
-        if (EventStatus(_eventStatus) != EventStatus.Final) {
-            for (uint256 i = 0; i < _ids.length; i++) {
-                uint256 _id = _ids[1];
-                if (_id == 0) continue; // skip non-created markets
-                markets[_id].winner = markets[_id].shareTokens[0];
-            }
-            return;
-        }
-
-        // only resolve markets that were created
-        if (_ids[0] != 0) {
-            resolveHeadToHeadMarket(_ids[0], _homeScore, _awayScore);
-        }
-        if (_ids[1] != 0) {
-            resolveSpreadMarket(_ids[1], _homeScore, _awayScore);
-        }
-        if (_ids[2] != 0) {
-            resolveOverUnderMarket(_ids[2], _homeScore, _awayScore);
+        if (eventIsNoContest(_event, _eventStatus, _homeFighterId, _awayFighterId, _whoWon)) {
+            resolveMarketsAsNoContest(_eventId);
+        } else {
+            resolveHeadToHeadMarket(_event.markets[0], _whoWon);
         }
     }
 
-    function resolveHeadToHeadMarket(
-        uint256 _id,
-        uint256 _homeScore,
-        uint256 _awayScore
-    ) internal {
-        OwnedERC20 _winner;
-        if (_homeScore > _awayScore) {
-            _winner = markets[_id].shareTokens[2]; // home team won
-        } else if (_homeScore < _awayScore) {
-            _winner = markets[_id].shareTokens[1]; // away team won
-        } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
-        }
-
-        markets[_id].winner = _winner;
-        emit MarketResolved(_id, address(_winner));
+    function eventIsNoContest(
+        EventDetails memory _event,
+        uint256 _eventStatus,
+        uint256 _homeFighterId,
+        uint256 _awayFighterId,
+        WhoWon _whoWon
+    ) internal pure returns (bool) {
+        bool _draw = _whoWon == WhoWon.Draw;
+        bool _notFinal = EventStatus(_eventStatus) != EventStatus.Final;
+        bool _unstableHomeFighterId = _event.homeFighterId != _homeFighterId;
+        bool _unstableAwayFighterId = _event.awayFighterId != _awayFighterId;
+        return _draw || _notFinal || _unstableHomeFighterId || _unstableAwayFighterId;
     }
 
-    function resolveSpreadMarket(
-        uint256 _id,
-        uint256 _homeScore,
-        uint256 _awayScore
-    ) internal {
-        MarketDetails memory _details = marketDetails[_id];
-        int256 _targetSpread = _details.value0;
-
-        int256 _actualSpread = int256(_homeScore).sub(int256(_awayScore));
-
-        OwnedERC20 _winner;
-        if (_actualSpread > _targetSpread) {
-            _winner = markets[_id].shareTokens[2]; // home spread greater
-        } else if (_actualSpread < _targetSpread) {
-            _winner = markets[_id].shareTokens[1]; // home spread lesser
-        } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+    function resolveMarketsAsNoContest(uint256 _eventId) internal {
+        uint256[1] memory _marketIds = events[_eventId].markets;
+        for (uint256 i = 0; i < _marketIds.length; i++) {
+            uint256 _marketId = _marketIds[i];
+            if (_marketId == 0) continue; // skip non-created markets
+            OwnedERC20 _winner = markets[_marketId].shareTokens[0]; // 0th outcome is No Contest for all market types
+            markets[_marketId].winner = _winner;
+            emit MarketResolved(_marketId, address(_winner));
         }
-
-        markets[_id].winner = _winner;
-        emit MarketResolved(_id, address(_winner));
     }
 
-    function resolveOverUnderMarket(
-        uint256 _id,
-        uint256 _homeScore,
-        uint256 _awayScore
-    ) internal {
-        MarketDetails memory _details = marketDetails[_id];
-        int256 _targetTotal = _details.value0;
-
-        int256 _actualTotal = int256(_homeScore).add(int256(_awayScore));
-
+    function resolveHeadToHeadMarket(uint256 _marketId, WhoWon _whoWon) internal {
         OwnedERC20 _winner;
-        if (_actualTotal > _targetTotal) {
-            _winner = markets[_id].shareTokens[1]; // over
-        } else if (_actualTotal < _targetTotal) {
-            _winner = markets[_id].shareTokens[2]; // under
+        if (WhoWon.Home == _whoWon) {
+            _winner = markets[_marketId].shareTokens[uint256(HeadToHeadOutcome.Home)];
+        } else if (WhoWon.Away == _whoWon) {
+            _winner = markets[_marketId].shareTokens[uint256(HeadToHeadOutcome.Away)];
         } else {
-            _winner = markets[_id].shareTokens[0]; // no contest
+            require(false, "Bad market resolution choice");
         }
 
-        markets[_id].winner = _winner;
-        emit MarketResolved(_id, address(_winner));
+        markets[_marketId].winner = _winner;
+        emit MarketResolved(_marketId, address(_winner));
     }
 
     function getMarketDetails(uint256 _marketId) public view returns (MarketDetails memory) {
         return marketDetails[_marketId];
+    }
+
+    // Only usable off-chain. Gas cost can easily eclipse block limit.
+    // Lists all events that could be resolved with a call to resolveEvent.
+    // Not all will be resolvable because this does not ensure the game ended.
+    function listResolvableEvents() external view returns (uint256[] memory) {
+        uint256 _totalResolvable = countResolvableEvents();
+        uint256[] memory _resolvableEvents = new uint256[](_totalResolvable);
+
+        uint256 n = 0;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            if (n > _totalResolvable) break;
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _resolvableEvents[n] = _eventId;
+                n++;
+            }
+        }
+
+        return _resolvableEvents;
+    }
+
+    function countResolvableEvents() internal view returns (uint256) {
+        uint256 _totalResolvable = 0;
+        for (uint256 i = 0; i < listOfEvents.length; i++) {
+            uint256 _eventId = listOfEvents[i];
+            if (isEventResolvable(_eventId)) {
+                _totalResolvable++;
+            }
+        }
+        return _totalResolvable;
+    }
+
+    // Returns true if a call to resolveEvent is potentially useful.
+    function isEventResolvable(uint256 _eventId) internal view returns (bool) {
+        EventDetails memory _event = events[_eventId];
+
+        bool _unresolved = false; // default because non-existing markets aren't resolvable
+        for (uint256 i = 0; i < _event.markets.length; i++) {
+            uint256 _marketId = _event.markets[i];
+            if (_marketId != 0 && !isMarketResolved(_marketId)) {
+                _unresolved = true;
+                break;
+            }
+        }
+
+        return _unresolved;
+    }
+
+    function getEventMarkets(uint256 _eventId) external view returns (uint256[1] memory) {
+        uint256[1] memory _event = events[_eventId].markets;
+        return _event;
     }
 
     function setLinkNode(address _newLinkNode) external onlyOwner {
@@ -353,120 +298,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         emit LinkNodeChanged(_newLinkNode);
     }
 
-    function getEventMarkets(uint256 _eventId) external view returns (uint256[3] memory) {
-        uint256[3] memory _event = events[_eventId];
-        return _event;
-    }
-
-    // Events can be partially registered, by only creating some markets.
-    // This returns true only if an event is fully registered.
-    function isEventRegistered(uint256 _eventId) public view returns (bool) {
-        uint256[3] memory _event = events[_eventId];
-        return _event[0] != 0 && _event[1] != 0 && _event[2] != 0;
-    }
-
-    function isEventResolved(uint256 _eventId) public view returns (bool) {
-        // check the event's head-to-head market since it will always exist if of the event's markets exist
-        uint256 _marketId = events[_eventId][0];
-        return isMarketResolved(_marketId);
-    }
-
-    function encodeCreation(
-        uint128 _eventId,
-        uint16 _homeTeamId,
-        uint16 _awayTeamId,
-        uint32 _startTimestamp,
-        int16 _homeSpread,
-        uint16 _totalScore,
-        bool _createSpread,
-        bool _createTotal
-    ) external pure returns (bytes32 _payload) {
-        uint8 _creationFlags;
-
-        if (_createSpread) {
-            _creationFlags += 1; // 0b0000000x
-        }
-        if (_createTotal) {
-            _creationFlags += 2; // 0b000000x0
-        }
-
-        bytes memory _a =
-            abi.encodePacked(
-                _eventId,
-                _homeTeamId,
-                _awayTeamId,
-                _startTimestamp,
-                _homeSpread,
-                _totalScore,
-                _creationFlags
-            );
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeCreation(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint16 _homeTeamId,
-            uint16 _awayTeamId,
-            uint32 _startTimestamp,
-            int16 _homeSpread,
-            uint16 _totalScore,
-            bool _createSpread,
-            bool _createTotal
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        uint8 _creationFlags;
-        // prettier-ignore
-        {
-            _eventId        = uint128(_temp >> 128);
-            _homeTeamId     = uint16((_temp << 128)                                >> (256 - 16));
-            _awayTeamId     = uint16((_temp << (128 + 16))                         >> (256 - 16));
-            _startTimestamp = uint32((_temp << (128 + 16 + 16))                    >> (256 - 32));
-            _homeSpread     = int16 ((_temp << (128 + 16 + 16 + 32))               >> (256 - 16));
-            _totalScore     = uint16((_temp << (128 + 16 + 16 + 32 + 16))          >> (256 - 16));
-            _creationFlags  = uint8 ((_temp << (128 + 16 + 16 + 32 + 16 + 16))     >> (256 -  8));
-
-            // Lowest bit is _createSpread.
-            // Second-lowest bit is _createTotal.
-            _createSpread = _creationFlags & 0x1 != 0; // 0b0000000x
-            _createTotal = _creationFlags & 0x2 != 0;  // 0b000000x0
-        }
-    }
-
-    function encodeResolution(
-        uint128 _eventId,
-        uint8 _eventStatus,
-        uint16 _homeScore,
-        uint16 _awayScore
-    ) external pure returns (bytes32 _payload) {
-        bytes memory _a = abi.encodePacked(_eventId, _eventStatus, _homeScore, _awayScore);
-        assembly {
-            _payload := mload(add(_a, 32))
-        }
-    }
-
-    function decodeResolution(bytes32 _payload)
-        public
-        pure
-        returns (
-            uint128 _eventId,
-            uint8 _eventStatus,
-            uint16 _homeScore,
-            uint16 _awayScore
-        )
-    {
-        uint256 _temp = uint256(_payload);
-        // prettier-ignore
-        {
-            _eventId     = uint128(_temp >> 128);
-            _eventStatus = uint8 ((_temp << 128)            >> (256 - 8));
-            _homeScore   = uint16((_temp << (128 + 8))      >> (256 - 16));
-            _awayScore   = uint16((_temp << (128 + 8 + 16)) >> (256 - 16));
-        }
+    function resolveMarket(uint256) public pure override {
+        require(false, "Only the link node can resolve the market, using trustedResolveMarkets");
     }
 }
