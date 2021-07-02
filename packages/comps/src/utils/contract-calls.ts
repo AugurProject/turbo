@@ -1527,7 +1527,7 @@ export const getMarketInfos = async (
         ammExchanges: { ...p.ammExchanges, ...exchanges },
         blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
         ignoreList,
-        loading: false
+        loading: false,
       };
     },
     { markets, ammExchanges, blocknumber, loading: false }
