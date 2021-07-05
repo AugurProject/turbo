@@ -1,7 +1,7 @@
-import React from 'react';
-import Styles from './pagination.styles.less';
-import { SecondaryThemeButton } from './buttons';
-import { SimpleChevron } from './icons';
+import React from "react";
+import Styles from "./pagination.styles.less";
+import { SecondaryThemeButton } from "./buttons";
+import { SimpleChevron } from "./icons";
 
 export interface PaginationProps {
   page: number;
@@ -26,11 +26,8 @@ const getOffset = (page, pageLimit) => {
 };
 
 export const sliceByPage = (array, page, pageLimit) => {
-  return array.slice(
-    getOffset(page, pageLimit),
-    getOffset(page, pageLimit) + pageLimit
-  )
-}; 
+  return array.slice(getOffset(page, pageLimit), getOffset(page, pageLimit) + pageLimit);
+};
 
 export const createPagesArray = (page: number, totalPages: number) => {
   if (totalPages <= 1) {
@@ -67,13 +64,11 @@ export const createPagesArray = (page: number, totalPages: number) => {
   const addPage = page !== 1 && page !== totalPages;
   ArrayToShow.push(PagesArray[0]);
   const beforeSlice = maxLength - afterLen - (addPage ? 1 : 0);
-  const newBefore =
-    beforeSlice > 2 ? SevenBefore.splice(-beforeSlice) : SevenBefore.splice(-3);
+  const newBefore = beforeSlice > 2 ? SevenBefore.splice(-beforeSlice) : SevenBefore.splice(-3);
   ArrayToShow = ArrayToShow.concat(newBefore);
   if (addPage) ArrayToShow.push(PagesArray[page - 1]);
   const afterSlice = maxLength - beforeLen - (addPage ? 1 : 0);
-  const newAfter =
-    afterSlice > 2 ? SevenAfter.splice(0, afterSlice) : SevenAfter.splice(0, 3);
+  const newAfter = afterSlice > 2 ? SevenAfter.splice(0, afterSlice) : SevenAfter.splice(0, 3);
   ArrayToShow = ArrayToShow.concat(newAfter);
   ArrayToShow.push(PagesArray[totalPages - 1]);
   const finalLen = ArrayToShow.length;
@@ -85,26 +80,16 @@ export const createPagesArray = (page: number, totalPages: number) => {
   return ArrayToShow;
 };
 
-export const Pagination = ({
-  page,
-  action,
-  itemCount,
-  itemsPerPage,
-  showPagination = true,
-}: PaginationProps) => {
-  const totalPages =
-    itemsPerPage === 1 ? 1 : Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
-
+export const Pagination = ({ page, action, itemCount, itemsPerPage, showPagination = true }: PaginationProps) => {
+  const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   return (
     <div className={Styles.Pagination}>
       {showPagination && (
         <section>
-          <SecondaryThemeButton
-            action={() => action(page - 1)}
-            disabled={page === 1}
-            icon={SimpleChevron}
-          />
-          <span>Page {page} of {totalPages}</span>
+          <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={SimpleChevron} />
+          <span>
+            Page {page} of {totalPages}
+          </span>
           <SecondaryThemeButton
             action={() => action(page + 1)}
             disabled={page === totalPages || totalPages === 0}

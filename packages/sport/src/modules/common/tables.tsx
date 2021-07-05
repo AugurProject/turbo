@@ -8,7 +8,7 @@ import { TicketBreakdown } from "../betslip/betslip";
 
 import { approveOrCashOut } from "../utils";
 import { CASHOUT_NOT_AVAILABLE } from "../constants";
-
+import { EmptyBetslipIcon } from '../betslip/betslip';
 const {
   Formatter: { formatDai },
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
@@ -19,7 +19,14 @@ const { TinyThemeButton } = ButtonComps;
 
 export const EventBetsSection = ({ eventPositionData = {} }) => {
   const [page, setPage] = useState(1);
-  if (!Object.keys(eventPositionData).length) return null;
+  if (!Object.keys(eventPositionData).length)
+    return (
+      <section className={Styles.EventBetsSectionEmpty}>
+        <div>{EmptyBetslipIcon}</div>
+        <h3>You don't have any bets</h3>
+        <p>Once you start betting your bets will appear on this page</p>
+      </section>
+    );
   const EventDataEntries = Object.entries(eventPositionData);
   return (
     <section className={Styles.EventBetsSection}>

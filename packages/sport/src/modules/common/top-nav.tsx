@@ -62,7 +62,7 @@ export const SettingsButton = () => {
             <ul id="timeFormat">
               <>
                 {Object.entries(Constants.TIME_TYPE).map(([timeName, timeType]) => (
-                  <li>
+                  <li key={timeName}>
                     <button
                       className={classNames({ [Styles.Active]: timeType === timeFormat })}
                       onClick={() => timeType !== timeFormat && updateSettings({ timeFormat: timeType }, account)}
@@ -80,7 +80,7 @@ export const SettingsButton = () => {
             <ul id="oddsFormat">
               <>
                 {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
-                  <li>
+                  <li key={oddType}>
                     <button
                       className={classNames({ [Styles.Active]: oddType === oddsFormat })}
                       onClick={() => oddType !== oddsFormat && updateSettings({ oddsFormat: oddType }, account)}
