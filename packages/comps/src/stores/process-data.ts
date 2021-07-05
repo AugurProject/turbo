@@ -140,7 +140,6 @@ export const formatUserTransactionActvity = (
 ): ActivityData[] => {
   if (!account) return [];
   if (!transactions || transactions.length === 0) return [];
-  console.log("in format", transactions, transactions.length)
   const formattedTransactions = transactions
     .reduce((p, transaction) => {
       const cashName = cash?.name;

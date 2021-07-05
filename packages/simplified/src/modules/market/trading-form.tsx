@@ -71,7 +71,10 @@ export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
               infoNumber.tooltipKey &&
               generateTooltip(infoNumber.tooltipText, infoNumber.tooltipKey)}
           </span>
-          <span>{infoNumber.value}{infoNumber.img ? <img src={infoNumber.img} alt="image" /> : ""}</span>
+          <span>
+            {infoNumber.value}
+            {infoNumber.img ? <img src={infoNumber.img} alt={infoNumber.label} /> : ""}
+          </span>
         </div>
       ))}
     </div>
@@ -254,10 +257,10 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     } else if (new BN(amount).gt(new BN(userBalance))) {
       actionText = `Insufficient ${isBuy ? ammCash.name : "Share"} Balance`;
       disabled = true;
-    } else if(breakdown?.maxSellAmount && breakdown?.maxSellAmount !== "0") {
+    } else if (breakdown?.maxSellAmount && breakdown?.maxSellAmount !== "0") {
       actionText = INSUFFICIENT_LIQUIDITY;
-      console.log('this is getting called')
-      subText = `Max Shares to Sell ${breakdown?.maxSellAmount}`
+      console.log("this is getting called");
+      subText = `Max Shares to Sell ${breakdown?.maxSellAmount}`;
       disabled = true;
     } else if (waitingToSign) {
       actionText = "Waiting for Confirmation";
@@ -267,7 +270,7 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       // todo: need better way to determine if there is liquidity
       actionText = INSUFFICIENT_LIQUIDITY;
       disabled = true;
-    } 
+    }
 
     return {
       disabled,
@@ -282,7 +285,18 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
     const direction = isBuy ? TradingDirection.ENTRY : TradingDirection.EXIT;
     setWaitingToSign(true);
     setShowTradingForm(false);
-    doTrade(direction, loginAccount?.library, amm, minOutput, amount, selectedOutcomeId, account, ammCash, slippage, outcomeShareTokensIn)
+    doTrade(
+      direction,
+      loginAccount?.library,
+      amm,
+      minOutput,
+      amount,
+      selectedOutcomeId,
+      account,
+      ammCash,
+      slippage,
+      outcomeShareTokensIn
+    )
       .then((response) => {
         if (response) {
           const { hash } = response;

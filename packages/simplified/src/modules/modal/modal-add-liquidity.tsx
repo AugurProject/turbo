@@ -203,7 +203,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
       },
     ];
-    const pendingRewards = balances?.pendingRewards && balances.pendingRwards[marketId] && balances.pendingRwards[marketId].balance || "0";
+    const pendingRewards = balances?.pendingRewards?.[marketId]?.balance || "0";
     if (pendingRewards !== "0") {
       fullBreakdown.push({
         label: `LP Rewards`,

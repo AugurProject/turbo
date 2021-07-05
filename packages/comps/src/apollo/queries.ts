@@ -93,21 +93,6 @@ const AMM_removeLiquidity = gql`
   }
 `;
 
-const AMM_swaps = gql`
-  fragment AMM_swaps on AMMExchange {
-    swaps {
-      id
-      sender {
-        id
-      }
-      tx_hash
-      timestamp
-      yesShares
-      noShares
-    }
-  }
-`;
-
 const AMM_common = gql`
   fragment AMM_common on AMMExchange {
     id

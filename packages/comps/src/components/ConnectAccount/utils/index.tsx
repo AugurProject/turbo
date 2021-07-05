@@ -61,9 +61,9 @@ export function getChainExplorerLink(
 ): string {
   let prefix;
 
-  if (chainId === MATIC_MAINNET) {
+  if (chainId === Number(MATIC_MAINNET)) {
     prefix = "https://polygonscan.com"
-  } else if (chainId == MATIC_MUMBAI) {
+  } else if (chainId === Number(MATIC_MUMBAI)) {
     // TODO can replace with polygonscan once mumbai support comes
     prefix = "https://explorer-mumbai.maticvigil.com";
   } else {

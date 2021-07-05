@@ -11,7 +11,6 @@ import { BigNumber as BN } from "bignumber.js";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import { AmmExchange, LoginAccount, TransactionDetails } from "../types";
 import { useUserStore } from "./user";
-import { PARA_CONFIG } from "./constants";
 
 const APPROVAL_AMOUNT = String(new BN(2 ** 255).minus(1).toFixed());
 

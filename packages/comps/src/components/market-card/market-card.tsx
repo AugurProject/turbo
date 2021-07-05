@@ -3,9 +3,9 @@ import classNames from "classnames";
 
 import Styles from "./market-card.styles.less";
 import { AmmExchange, AmmOutcome, MarketInfo, MarketOutcome } from "../../types";
-import { formatApy, formatLiquidity, formatCashPrice, formatDai, getCashFormat } from "../../utils/format-number";
+import { formatApy, formatLiquidity, formatCashPrice, formatDai } from "../../utils/format-number";
 import { getMarketEndtimeFull } from "../../utils/date-utils";
-import { CategoryIcon, CategoryLabel, CurrencyTipIcon, ReportingStateLabel, ValueLabel } from "../common/labels";
+import { CategoryIcon, CategoryLabel, ReportingStateLabel, ValueLabel } from "../common/labels";
 import { MARKET_FACTORY_TYPES, MARKET_STATUS, TWELVE_HOUR_TIME } from "../../utils/constants";
 import { MarketLink } from "../../utils/links/links";
 import { ConfirmedCheck } from "../common/icons";
