@@ -192,7 +192,7 @@ const ModalConnectWallet = ({
   }, [setWalletView, active, error, connector, activePrevious, connectorPrevious]);
 
   const getWalletButtons = useCallback(() => {
-    const isMetamask = window["ethereum"] && window["ethereum"]["isMetaMask"] || false;
+    const isMetamask = (window["ethereum"] && window["ethereum"]["isMetaMask"]) || false;
     const isWeb3 = window["web3"] || window["ethereum"];
     const walletButtons = Object.keys(SUPPORTED_WALLETS)
       .filter((wallet) => !(wallet === "PORTIS" && isSafari()))

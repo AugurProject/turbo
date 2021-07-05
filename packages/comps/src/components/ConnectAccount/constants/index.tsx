@@ -1,6 +1,6 @@
 import { AbstractConnector } from "@web3-react/abstract-connector";
 // import { fortmatic, injected, portis, walletconnect, walletlink } from "../connectors";
-import { injected, walletconnect } from '../connectors';
+import { injected } from '../connectors';
 
 export interface WalletInfo {
   connector?: AbstractConnector;

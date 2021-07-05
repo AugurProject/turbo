@@ -16,6 +16,49 @@
   }
 }
 
+.EventBetsSectionEmpty {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+
+  > div {
+    background: var(--simple-light-bg);
+    border-radius: 50%;
+    margin-top: @size-80;
+    margin-bottom: @size-16;
+    height: @size-80;
+    width: @size-80;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    > svg {
+      height: @size-40;
+      width: @size-40;
+    }
+  }
+
+  > h3 {
+    .text-14-bold;
+
+    color: var(--simple-primary-text);
+    margin: 0;
+  }
+
+  > p {
+    .text-14;
+
+    color: var(--simple-primary-text);
+    margin: 0;
+    margin-top: @size-1;
+    margin-bottom: @size-11;
+    max-width: 60vw;
+    text-align: center;
+  }
+}
+
 .EventBetTable {
   .SimpleBorder;
   .SecondaryBorderRadius;

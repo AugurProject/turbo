@@ -1,6 +1,6 @@
 import { TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } from "./constants";
 
-const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+// const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
 const DURATION_IN_SECONDS = {
   epochs: ["year", "month", "day", "hour", "minute", "second"],

@@ -284,8 +284,6 @@ const EditableBet = ({ betId, bet }) => {
             label="wager"
             onEdit={(e) => {
               const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
-              console.log("onEdit", e, e.target.value, newValue);
-
               if (newValue === "") {
                 setError(null);
                 setUpdatedPrice(price);
