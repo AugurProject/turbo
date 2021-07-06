@@ -17,7 +17,11 @@ import {
   getOrCreateSender,
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
-import { handlePositionFromTradeEvent, handlePositionFromLiquidityChangedEvent } from "../helpers/CommonHandlers";
+import {
+  handlePositionFromTradeEvent,
+  handlePositionFromLiquidityChangedEvent,
+  getOrCreateInitialCostPerMarket
+} from "../helpers/CommonHandlers";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -46,6 +50,7 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   let senderId = event.params.user.toHexString();
 
   let addLiquidityEntity = getOrCreateAddLiquidity(id, true, false);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
   addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
@@ -57,11 +62,30 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   addLiquidityEntity.totalSupply = totalSupply;
   addLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
+  let addToInitialCost = true;
   for (let i = 0; i < event.params.sharesReturned.length; i++) {
     let array = new Array<BigInt>(3);
     array = event.params.sharesReturned;
     if (array[i].gt(BigInt.fromI32(0))) {
       handlePositionFromLiquidityChangedEvent(event, true, array[i], BigInt.fromI32(i));
+
+      if (addToInitialCost) {
+        let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+        let log = initialCostPerMarketEntity.log;
+        let logId = event.transaction.hash.toHexString() + "-" + BigInt.fromI32(i).toHexString() + "-" + event.params.collateral.toString();
+        if (log) {
+          let wasAlreadySummed = log.includes(logId);
+          if (!wasAlreadySummed) {
+            log.push(logId);
+            initialCostPerMarketEntity.log = log
+            initialCostPerMarketEntity.market = marketId;
+            initialCostPerMarketEntity.sender = senderId;
+            initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost.plus(event.params.collateral);
+            initialCostPerMarketEntity.save();
+          }
+        }
+        addToInitialCost = false;
+      }
     }
   }
 
@@ -73,6 +97,7 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let removeLiquidityEntity = getOrCreateRemoveLiquidity(id, true, false);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   getOrCreateOutcomes(id);
 
@@ -85,11 +110,30 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   removeLiquidityEntity.totalSupply = totalSupply;
   removeLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
+  let addToInitialCost = true;
   for (let i = 0; i < event.params.sharesReturned.length; i++) {
     let array = new Array<BigInt>(3);
     array = event.params.sharesReturned;
     if (array[i].gt(BigInt.fromI32(0))) {
       handlePositionFromLiquidityChangedEvent(event, false, array[i], BigInt.fromI32(i));
+
+      if (addToInitialCost) {
+        let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+        let log = initialCostPerMarketEntity.log;
+        let logId = event.transaction.hash.toHexString() + "-" + BigInt.fromI32(i).toHexString() + "-" + event.params.collateral.toString();
+        if (log) {
+          let wasAlreadySummed = log.includes(logId);
+          if (!wasAlreadySummed) {
+            log.push(logId);
+            initialCostPerMarketEntity.log = log
+            initialCostPerMarketEntity.market = marketId;
+            initialCostPerMarketEntity.sender = senderId;
+            initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost.plus(event.params.collateral);
+            initialCostPerMarketEntity.save();
+          }
+        }
+        addToInitialCost = false;
+      }
     }
   }
 
@@ -156,6 +200,21 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
 
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
+
+  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  let log = initialCostPerMarketEntity.log;
+  let logId = event.transaction.hash.toHexString() + "-" + event.params.outcome.toHexString() + "-" + event.params.collateral.toString();
+  if (log) {
+    let wasAlreadySummed = log.includes(logId);
+    if (!wasAlreadySummed) {
+      log.push(logId);
+      initialCostPerMarketEntity.log = log
+      initialCostPerMarketEntity.market = marketId;
+      initialCostPerMarketEntity.sender = senderId;
+      initialCostPerMarketEntity.sumOfInitialCost = initialCostPerMarketEntity.sumOfInitialCost.plus(event.params.collateral);
+      initialCostPerMarketEntity.save();
+    }
+  }
 
   handlePositionFromTradeEvent(event);
 

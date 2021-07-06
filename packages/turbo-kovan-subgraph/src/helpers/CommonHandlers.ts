@@ -1,5 +1,5 @@
 import { InitialCostPerMarket, PositionBalance } from "../../generated/schema";
-import { getOrCreateSender } from "./AmmFactoryHelper";
+import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { WinningsClaimed } from "../../generated/AbstractMarketFactory/AbstractMarketFactory";
@@ -33,6 +33,7 @@ export function getOrCreateInitialCostPerMarket (
   if (entity == null && createIfNotFound) {
     entity = new InitialCostPerMarket(id);
     entity.sumOfInitialCost = BigInt.fromI32(0);
+    entity.log = new Array<string>();
 
     if (save) {
       entity.save();
@@ -49,13 +50,8 @@ export function handlePositionFromTradeEvent(
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
-  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
-
-  initialCostPerMarketEntity.market = marketId;
-  initialCostPerMarketEntity.sender = senderId;
-  initialCostPerMarketEntity.sumOfInitialCost += event.params.collateral;
-  initialCostPerMarketEntity.save();
 
   positionBalanceEntity.positionFromAddLiquidity = false;
   positionBalanceEntity.positionFromRemoveLiquidity = false;
@@ -89,13 +85,8 @@ export function handlePositionFromLiquidityChangedEvent(
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
-  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
-
-  initialCostPerMarketEntity.market = marketId;
-  initialCostPerMarketEntity.sender = senderId;
-  initialCostPerMarketEntity.sumOfInitialCost += event.params.collateral;
-  initialCostPerMarketEntity.save();
 
   positionBalanceEntity.positionFromAddLiquidity = positionFromAddLiquidity;
   positionBalanceEntity.positionFromRemoveLiquidity = !positionFromAddLiquidity;
@@ -127,6 +118,7 @@ export function handlePositionFromClaimWinningsEvent(
   let senderId = event.params.receiver.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
   let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
   positionBalanceEntity.positionFromAddLiquidity = false;
@@ -156,6 +148,7 @@ export function handlePositionFromClaimWinningsEvent(
   positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
   positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
   positionBalanceEntity.avgPrice = initialCostBigDecimal.div(amountBigDecimal);
+  positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
 
   positionBalanceEntity.save();
 }
