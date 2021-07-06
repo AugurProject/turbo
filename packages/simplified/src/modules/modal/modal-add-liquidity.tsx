@@ -7,7 +7,6 @@ import { InfoNumbers } from "../market/trading-form";
 import classNames from "classnames";
 import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "../types";
 import { BigNumber as BN } from "bignumber.js";
-import MaticIcon from 'assets/images/matic-icon.png';
 import {
   ContractCalls,
   createBigNumber,
@@ -19,6 +18,7 @@ import {
   Constants,
   Components,
 } from "@augurproject/comps";
+import { MaticIcon } from "@augurproject/comps/build/components/common/icons";
 const {
   checkConvertLiquidityProperties,
   doRemoveLiquidity,
@@ -208,7 +208,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       fullBreakdown.push({
         label: `LP Rewards`,
         value: `${formatEther(pendingRewards).formatted}`,
-        img: MaticIcon
+        svg: MaticIcon
       })
     }
 

@@ -18,7 +18,8 @@ import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
 import { Cash } from '@augurproject/comps/build/types';
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'modules/constants';
-import MaticIcon from 'assets/images/matic-icon.png';
+import { MaticIcon } from "@augurproject/comps/build/components/common/icons";
+
 const {
   Formatter: { formatCash },
 } = Utils;
@@ -157,7 +158,7 @@ export const RewardsSection = () => {
       <div>
         <span>
           {total}
-          <img src={MaticIcon} alt="Matic Icon" />
+          {MaticIcon}
         </span>
       </div>
     </div>
