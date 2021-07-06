@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import Styles from "modules/market/trading-form.styles.less";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
@@ -48,7 +48,7 @@ interface InfoNumber {
   value: string;
   tooltipText?: string;
   tooltipKey?: string;
-  img?: string;
+  svg?: ReactNode;
 }
 
 interface InfoNumbersProps {
@@ -73,7 +73,7 @@ export const InfoNumbers = ({ infoNumbers, unedited }: InfoNumbersProps) => {
           </span>
           <span>
             {infoNumber.value}
-            {infoNumber.img ? <img src={infoNumber.img} alt={infoNumber.label} /> : ""}
+            {infoNumber.svg && infoNumber.svg}
           </span>
         </div>
       ))}
