@@ -45,6 +45,8 @@ export function BetslipReducer(state, action) {
           timestamp,
         },
       };
+      // always make sure to switch to betslip when adding bets.
+      updatedState[SELECTED_VIEW] = BETSLIP;
       break;
     }
     case REMOVE_BET: {

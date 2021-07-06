@@ -172,7 +172,7 @@ export const BetslipMain = () => {
   );
 };
 
-const RECENT_UPDATES_TOP = (a, b) => b[1]?.timestamp - a[1]?.timestamp;
+const RECENT_UPDATES_TOP = (a, b) => Number(b?.timestamp) - Number(a?.timestamp);
 
 export const ActiveBetsMain = () => {
   const { isLogged } = useAppStatusStore();
@@ -545,7 +545,7 @@ const BetslipFooter = () => {
     selectedView,
     selectedCount,
     bets,
-    actions: { cancelAllBets, addActive },
+    actions: { cancelAllBets, addActive, toggleSelectedView },
   } = useBetslipStore();
   const {
     actions: { setSidebar },
@@ -580,11 +580,16 @@ const BetslipFooter = () => {
                 const { amm } = markets[bet.marketId];
                 const txDetails = await makeBet(loginAccount, amm, bet.id, bet.wager, account, amm.cash);
                 if (txDetails.hash) {
+                  const howManyBetsLeft = Object.keys(bets).length;
                   addActive({
                     ...bet,
                     betId,
                     ...txDetails,
                   });
+                  if (howManyBetsLeft === 1) {
+                    // last bet was just placed, toggle to active bets
+                    toggleSelectedView();
+                  }
                   addTransaction(txDetails);
                 }
               }
