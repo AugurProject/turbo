@@ -5,12 +5,19 @@ import { MARKET_FACTORY_TYPES, SPORTS_MARKET_TYPE } from "./constants";
 import { MarketInfo } from "types";
 
 export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
-  if (marketInfo.marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK) {
-    return SimpleSportsDailies.getResolutionRules(marketInfo);
-  } else if (marketInfo.marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarkets.getResolutionRules(marketInfo);
+  switch (marketInfo.marketFactoryType) {
+    case MARKET_FACTORY_TYPES.SPORTSLINK: {
+      return SimpleSportsDailies.getResolutionRules(marketInfo);
+    }
+    case MARKET_FACTORY_TYPES.CRYPTO: {
+      return CryptoMarkets.getResolutionRules(marketInfo);
+    }
+    case MARKET_FACTORY_TYPES.MMALINK: {
+      return MmaDailies.getResolutionRules(marketInfo);
+    }
+    default:
+      return [];
   }
-  return [];
 };
 
 const IgnoreMarkets = {
