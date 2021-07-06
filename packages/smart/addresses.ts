@@ -70,6 +70,30 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "MMALink",
+        address: "0x7CA404306a4a3867e1786900acF168206866530E",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
+        description: "mma",
+        version: "FILL THIS OUT",
+      },
+      {
+        type: "Crypto",
+        address: "0x296df8bDa8d2Fc033f8F89F3775a02c8ad038d98",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
+        description: "crypto prices",
+        version: "FILL THIS OUT",
+      },
+      {
+        type: "SportsLink",
+        address: "0xFAF9f5C55A2c2A527cD82006086B906b767fF330",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
+        description: "mlb and nba",
+        version: "FILL THIS OUT",
+      },
+      {
         type: "Crypto",
         address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
