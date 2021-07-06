@@ -140,6 +140,7 @@ const useEventPositionsData = () => {
       eventTitle: event?.description,
       eventStartTime: event?.startTimestamp,
       bets,
+      marketIds: event?.marketIds,
     };
     return out;
   }, {});

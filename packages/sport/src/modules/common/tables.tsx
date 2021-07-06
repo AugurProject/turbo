@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./tables.styles.less";
-import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore } from "@augurproject/comps";
+import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore, Links } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
@@ -8,7 +8,7 @@ import { TicketBreakdown } from "../betslip/betslip";
 
 import { approveOrCashOut } from "../utils";
 import { CASHOUT_NOT_AVAILABLE } from "../constants";
-import { EmptyBetslipIcon } from '../betslip/betslip';
+import { EmptyBetslipIcon } from "../betslip/betslip";
 const {
   Formatter: { formatDai },
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
@@ -16,6 +16,7 @@ const {
 } = Utils;
 const { Pagination } = PaginationComps;
 const { TinyThemeButton } = ButtonComps;
+const { MarketLink } = Links;
 
 export const EventBetsSection = ({ eventPositionData = {} }) => {
   const [page, setPage] = useState(1);
@@ -62,7 +63,10 @@ const EventTableHeading = ({ Event }) => {
   } = useSportsStore();
   return (
     <header>
-      <h4>{Event.eventTitle}</h4> <span>{getDateTimeFormat(Event.eventStartTime, timeFormat)}</span>
+      <MarketLink id={Event?.marketIds?.[0]}>
+        <h4>{Event.eventTitle}</h4>
+      </MarketLink>
+      <span>{getDateTimeFormat(Event.eventStartTime, timeFormat)}</span>
     </header>
   );
 };

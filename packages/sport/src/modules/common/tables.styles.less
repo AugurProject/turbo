@@ -73,16 +73,22 @@
     min-height: @size-72;
     padding: @size-16;
 
-    > h4 {
-      .text-16-bold;
-
-      color: var(--simple-primary-text);
+    > a {
       flex: 1;
       display: flex;
       flex-flow: row nowrap;
-      align-items: center;
-    }
 
+      > h4 {
+        .text-16-bold;
+  
+        color: var(--simple-primary-text);
+        flex: 1;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+      }
+    }
+    
     > span {
       .text-12-semi-bold;
 
@@ -162,7 +168,7 @@
 
     &:first-of-type {
       min-height: @size-40;
-      background: var(--simple-alternate-background);
+      background: var(--alternate-background-color);
 
       > li {
         .text-10-semi-bold;
