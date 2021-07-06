@@ -6,7 +6,11 @@
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
-  margin-top: @size-12;
+  padding: @size-12;
+
+  &:first-of-type {
+    border-top: @size-1 solid var(--simple-border);
+  }
 
   > button[class*="BaseNormalButton"] {
     flex: 1;
@@ -29,5 +33,9 @@
 }
 
 .ResetButtonRow {
-  margin: @size-12;
+  padding: @size-12;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
 }

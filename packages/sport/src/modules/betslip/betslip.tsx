@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
@@ -80,6 +80,7 @@ export const Betslip = () => {
         )}
         <BetslipHeader {...{ counts, handleToggle }} />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
+        <BuyApprovals />
         {oddsChangedMessage && selectedView === BETSLIP && (
           <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
         )}
@@ -127,8 +128,7 @@ const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggl
 
 const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
 const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
-const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
-const APPROVALS_NEEDED = `Approvals are required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -166,7 +166,6 @@ export const BetslipMain = () => {
       {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
-      <BuyApprovals />
     </main>
   ) : (
     <EmptyBetslip />
