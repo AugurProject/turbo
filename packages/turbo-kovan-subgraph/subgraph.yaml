@@ -8,9 +8,9 @@ dataSources:
       name: AmmFactory
       network: mumbai
       source:
-        address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
+        address: '0xeC82F887613AFf163949A0b56b7e67222952c92d'
         abi: AmmFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -36,9 +36,9 @@ dataSources:
       name: AbstractMarketFactory
       network: mumbai
       source:
-        address: '0x2625b03D6fd0D3FcEAD9eF9ceADDF44dEAC6Ad6F' # use SportsLinkMarketFactory
+        address: '0x0ccB45aE2576e7B40Df5a619B7eA7e44331C9b8f' # use SportsLinkMarketFactory
         abi: AbstractMarketFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -59,9 +59,9 @@ dataSources:
       name: AmmFactory2
       network: mumbai
       source:
-        address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
+        address: '0xeC82F887613AFf163949A0b56b7e67222952c92d'
         abi: AmmFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -87,9 +87,9 @@ dataSources:
       name: AbstractMarketFactory2
       network: mumbai
       source:
-        address: '0xB5b457B9f1d5Bd27522e41368e9A9Fcd0B929FEf' # use SportsLinkMarketFactory
+        address: '0xC05CeF624827E0372195E84D2F45235cf058A2F6' # use SportsLinkMarketFactory
         abi: AbstractMarketFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -110,9 +110,9 @@ dataSources:
       name: AmmFactory3
       network: mumbai
       source:
-        address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
+        address: '0xeC82F887613AFf163949A0b56b7e67222952c92d'
         abi: AmmFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -138,9 +138,9 @@ dataSources:
       name: AbstractMarketFactory3
       network: mumbai
       source:
-        address: '0xAA0Ca3716C9C1710b404918489B1EE8B18C03781' # use SportsLinkMarketFactory
+        address: '0x203fdF154b636D834ABC015Ca6Dc9C6127659c58' # use SportsLinkMarketFactory
         abi: AbstractMarketFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -163,7 +163,7 @@ dataSources:
       source:
         address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
         abi: AmmFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -191,7 +191,7 @@ dataSources:
       source:
         address: '0x4225c4fe9A02706C7beC927A3DB25f29E273b3d1' # use SportsLinkMarketFactory
         abi: AbstractMarketFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -214,7 +214,7 @@ dataSources:
       source:
         address: '0x8860542771F787dD8B2c8f9134662751DE2F664f'
         abi: AmmFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -242,58 +242,7 @@ dataSources:
       source:
         address: '0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF' # use SportsLinkMarketFactory
         abi: AbstractMarketFactory
-        startBlock: 14691785
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/AbstractMarketFactory.ts
-        entities:
-          - WinningsClaimed
-          - SettlementFeeClaimed
-        abis:
-          - name: AbstractMarketFactory
-            file: ./abis/AbstractMarketFactory.json
-        eventHandlers:
-          - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SettlementFeeClaimed(address,uint256,indexed address)
-            handler: handleSettlementFeeClaimedEvent
-    - kind: ethereum/contract
-      name: AmmFactory6
-      network: mumbai
-      source:
-        address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
-        abi: AmmFactory
-        startBlock: 14691785
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/AmmFactory.ts
-        entities:
-          - PoolCreated
-          - LiquidityChanged
-          - SharesSwapped
-        abis:
-          - name: AmmFactory
-            file: ./abis/AMMFactory.json
-          - name: BPool
-            file: ./abis/BPool.json
-        eventHandlers:
-          - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-            handler: handlePoolCreatedEvent
-          - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-            handler: handleLiquidityChangedEvent
-          - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-            handler: handleSharesSwappedEvent
-    - kind: ethereum/contract
-      name: AbstractMarketFactory6
-      network: mumbai
-      source:
-        address: '0x44043E4B5B8633d0915822ddc86e6Df962D126b2' # use SportsLinkMarketFactory
-        abi: AbstractMarketFactory
-        startBlock: 14691785
+        startBlock: 15758544
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
