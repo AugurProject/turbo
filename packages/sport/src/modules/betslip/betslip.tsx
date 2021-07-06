@@ -68,7 +68,7 @@ export const Betslip = () => {
           }}
         />
         {counts[0] > 0 && (
-          <div>
+          <div className={Styles.MobileBetslipButtonContainer}>
             <PrimaryThemeButton
               text={`Betslip (${counts[0]})`}
               action={() => {
@@ -80,6 +80,7 @@ export const Betslip = () => {
         )}
         <BetslipHeader {...{ counts, handleToggle }} />
         {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
+        <BuyApprovals />
         {oddsChangedMessage && selectedView === BETSLIP && (
           <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
         )}
@@ -127,8 +128,7 @@ const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggl
 
 const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
 const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
-const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
-const APPROVALS_NEEDED = `Approvals are required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -141,13 +141,10 @@ export const BetslipMain = () => {
   const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
     return `${bet.wagerAvgPrice}-${bet.wager}`;
   });
-  const needsApprovals = useUserApprovals(bets);
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
-      if (needsApprovals) {
-        return needsApprovals === 1 ? APPROVAL_NEEDED : APPROVALS_NEEDED;
-      } else if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+      if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return ODDS_CHANGED_ORDER_SIZE;
         } else if (bet?.price !== bet?.wagerAvgPrice) {
@@ -162,14 +159,13 @@ export const BetslipMain = () => {
     if (anyBetsChanged !== oddsChangedMessage) {
       setOddsChangedMessage(anyBetsChanged);
     }
-  }, [valuesToWatch.toString(), needsApprovals]);
+  }, [valuesToWatch.toString()]);
 
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
-      <BuyApprovals bets={bets} />
     </main>
   ) : (
     <EmptyBetslip />
@@ -532,7 +528,7 @@ const determineBetTotals = (bets: Array<BetType>) => {
   let totalToWin = ZERO;
   Object.entries(bets).forEach(([betId, bet]) => {
     totalWager = totalWager.plus(bet?.wager?.split(",").join("") || "0");
-    totalToWin = totalToWin.plus(bet?.toWin?.split(",").join("") || "0");
+    totalToWin = totalToWin.plus(bet?.toWin?.split(",").join(""));
   });
   return { totalWager, totalToWin };
 };
@@ -554,7 +550,7 @@ const BetslipFooter = () => {
   const {
     actions: { setSidebar },
   } = useSportsStore();
-  const needsApprovals = useUserApprovals(bets);
+  const { numApprovalsNeeded } = useUserApprovals();
   if (!isLogged || selectedCount === 0) {
     return null;
   }
@@ -571,14 +567,13 @@ const BetslipFooter = () => {
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
-            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
+            You're betting <b>{formatDai(totalWager).full}</b> to win{" "}
+            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b>
           </p>
-
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
-            disabled={isInvalid || !!needsApprovals}
+            disabled={isInvalid || numApprovalsNeeded > 0}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];
