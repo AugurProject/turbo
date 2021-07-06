@@ -143,7 +143,7 @@ const decodeOutcomes = (
 const sportsData = {
   [MMA_MARKET_TYPE.MONEY_LINE]: {
     title: `Which fighter will win?`,
-    description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
+    description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}`,
     outcomes: [NO_CONTEST_TIE, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
   },
   [MMA_MARKET_TYPE.OVER_UNDER]: {
