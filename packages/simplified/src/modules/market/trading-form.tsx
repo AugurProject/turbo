@@ -149,7 +149,7 @@ interface CanTradeProps {
 }
 
 const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: TradingFormProps) => {
-  const { isLogged, isRpcDown, actions: { setIsRpcDown }} = useAppStatusStore();
+  const { isLogged } = useAppStatusStore();
   const { cashes, blocknumber } = useDataStore();
   const {
     showTradingForm,
@@ -302,9 +302,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
           const { hash } = response;
           setAmount("");
           setWaitingToSign(false);
-          if (isRpcDown) {
-            setIsRpcDown(false);
-          }
           addTransaction({
             hash,
             chainId: loginAccount.chainId,
@@ -320,11 +317,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
       .catch((error) => {
         setWaitingToSign(false);
         console.log("Error when trying to trade: ", error?.message);
-        if (error?.message) {
-          if (error.message.toLowerCase().indexOf('rate limit') !== -1) {
-            setIsRpcDown(true);
-          }
-        }
         addTransaction({
           hash: `trade-failure${Date.now()}`,
           chainId: loginAccount.chainId,

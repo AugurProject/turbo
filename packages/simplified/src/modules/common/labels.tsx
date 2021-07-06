@@ -180,11 +180,7 @@ export const NetworkMismatchBanner = () => {
             [Styles.Market]: path === MARKET,
           })}
         >
-          MetaMask RPC rate limit error. Please try again later or switch your MetaMasks Network RPC.
-          <ExternalLink
-            label="Click here for more information."
-            URL="https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-custom-Network-RPC-and-or-Block-Explorer"
-          />
+          MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
       </article>}
     </>
   );

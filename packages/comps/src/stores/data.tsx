@@ -11,6 +11,7 @@ import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
+import { useAppStatusStore, AppStatusStore } from "./app-status";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -46,9 +47,10 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
     const getMarkets = async () => {
       try {
         const { account: userAccount, loginAccount } = UserStore.get();
+        const { isRpcDown } = AppStatusStore.get();
         const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
         const provider = loginAccount?.library || defaultProvider?.current;
-        return await getMarketInfos(
+        const infos = await getMarketInfos(
           provider,
           dmarkets,
           damm,
@@ -58,7 +60,18 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
           loadType,
           dblock
         );
+        if (isRpcDown) {
+          AppStatusStore.actions.setIsRpcDown(false);
+        }
+        return infos;
       } catch (e) {
+        if (e.data?.error?.details) {
+          if (e.data?.error?.details.toLowerCase().indexOf('rate limit') !== -1) {
+            if (e.data?.error?.data?.rate_violated.toLowerCase().indexOf('700 per 1 minute') !== -1) {
+              AppStatusStore.actions.setIsRpcDown(true);
+            }
+          }
+        }
         console.log("error getting market data", e);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null };
