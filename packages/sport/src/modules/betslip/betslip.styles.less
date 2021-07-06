@@ -52,6 +52,7 @@
 
         color: var(--simple-primary-text);
         grid-column: span 2;
+        text-align: center;
 
         > b {
           .text-12-bold;
@@ -638,8 +639,8 @@ button.FlipContent {
 }
 
 .TicketBreakdown {
-  display: flex;
-  flex-flow: column nowrap;
+  display: grid;
+  grid-gap: @size-4;
   width: 100%;
 
   > li {
