@@ -1,25 +1,33 @@
 @import (reference) "~assets/styles/shared.less";
 
-.ApprovalButton {
-    padding: @size-4;
-    width: 100%;
+.ApprovalButtonRow {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: @size-12;
 
-    > button[class*="BaseNormalButton"] {
-        justify-content: flex-start;
-        width: 100%;
+  > button[class*="BaseNormalButton"] {
+    flex: 1;
 
-        display: flex;
-        justify-content: space-between;
-
-        span:last-of-type {
-            display: none;
-        }
+    span:last-of-type {
+      display: none;
     }
+  }
 
-    &.Confirmed {
-        > button {
-            background: var(--light-background-color);
-            border: @size-1 solid var(--simple-border);
-        }
+  > span {
+      margin-left: @size-12;
+  }
+
+  &.Confirmed {
+    > button {
+      background: var(--light-background-color);
+      border: @size-1 solid var(--simple-border);
     }
+  }
+}
+
+.ResetButtonRow {
+  margin: @size-12;
 }

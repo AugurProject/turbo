@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
 import Styles from "./betslip.styles.less";
 import { Link } from "react-router-dom";
@@ -68,7 +68,7 @@ export const Betslip = () => {
           }}
         />
         {counts[0] > 0 && (
-          <div>
+          <div className={Styles.MobileBetslipButtonContainer}>
             <PrimaryThemeButton
               text={`Betslip (${counts[0]})`}
               action={() => {
@@ -141,13 +141,10 @@ export const BetslipMain = () => {
   const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
     return `${bet.wagerAvgPrice}-${bet.wager}`;
   });
-  const needsApprovals = useUserApprovals(bets);
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
-      if (needsApprovals) {
-        return needsApprovals === 1 ? APPROVAL_NEEDED : APPROVALS_NEEDED;
-      } else if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+      if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return ODDS_CHANGED_ORDER_SIZE;
         } else if (bet?.price !== bet?.wagerAvgPrice) {
@@ -162,14 +159,14 @@ export const BetslipMain = () => {
     if (anyBetsChanged !== oddsChangedMessage) {
       setOddsChangedMessage(anyBetsChanged);
     }
-  }, [valuesToWatch.toString(), needsApprovals]);
+  }, [valuesToWatch.toString()]);
 
   return isLogged && selectedCount > 0 ? (
     <main className={Styles.BetslipContent}>
       {Object.entries(bets).map(([betId, bet]: [string, BetType]) => (
         <EditableBet {...{ bet, betId, key: `${betId}-editable-bet` }} />
       ))}
-      <BuyApprovals bets={bets} />
+      <BuyApprovals />
     </main>
   ) : (
     <EmptyBetslip />
@@ -554,7 +551,7 @@ const BetslipFooter = () => {
   const {
     actions: { setSidebar },
   } = useSportsStore();
-  const needsApprovals = useUserApprovals(bets);
+  const { numApprovalsNeeded } = useUserApprovals();
   if (!isLogged || selectedCount === 0) {
     return null;
   }
@@ -574,11 +571,10 @@ const BetslipFooter = () => {
             You're betting <b>{formatDai(totalWager).full}</b> and will win{" "}
             <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b> if you win
           </p>
-
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
             text="Place Bets"
-            disabled={isInvalid || !!needsApprovals}
+            disabled={isInvalid || numApprovalsNeeded > 0}
             action={async () => {
               for (const betId in bets) {
                 const bet = bets[betId];

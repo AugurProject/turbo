@@ -76,6 +76,9 @@ export interface BetType {
   marketId: string;
   hash?: string;
 }
+export interface BetStateType {
+  [betId: string]: BetType;
+}
 
 export interface ActiveBetType {
   id: number;
@@ -96,6 +99,17 @@ export interface ActiveBetType {
   isPending: boolean;
   status: string;
 }
+export interface ActiveBetStateType {
+  [betId: string]: ActiveBetType;
+}
+
+export interface BetslipStateType {
+  oddsChangedMessage: null | string;
+  selectedView: string;
+  selectedCount: number;
+  bets: BetStateType;
+  active: ActiveBetStateType;
+}
 
 export const DEFAULT_BET = {
   wager: null,
@@ -103,7 +117,7 @@ export const DEFAULT_BET = {
   wagerAvgPrice: null,
 };
 
-export const DEFAULT_BETSLIP_STATE = {
+export const DEFAULT_BETSLIP_STATE: BetslipStateType = {
   oddsChangedMessage: null,
   selectedView: BETSLIP,
   selectedCount: 0,
