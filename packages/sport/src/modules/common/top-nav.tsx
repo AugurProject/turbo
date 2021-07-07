@@ -16,6 +16,7 @@ import {
   Constants,
   LinkLogo,
   Formatter,
+  LabelComps,
   Links,
 } from "@augurproject/comps";
 import { useBetslipStore } from "../stores/betslip";
@@ -24,6 +25,7 @@ import { CategoriesArea } from "../categories/categories";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck, XIcon } = Icons;
 const { TinyThemeButton } = ButtonComps;
+const { generateTooltip } = LabelComps;
 const { ConnectAccount } = CompsConnectAccount;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
@@ -94,7 +96,7 @@ export const SettingsButton = () => {
             </ul>
           </li>
           <li>
-            <label htmlFor="betSize">Bet Size to odds display</label>
+            <label htmlFor="betSize">Bet Size to odds display {generateTooltip('Adjust what percentage of each outcome you wish displayed.  For example, setting it to 10% will display the odds to take up to 10% of that outcome.', 'betsize-odds-tooltip')}</label>
             <div>
               <TinyThemeButton
                 customClass={{ [Styles.Active]: ".05" === betSizeToOdds }}
