@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import classNames from 'classnames';
+import React, { useEffect } from "react";
+import classNames from "classnames";
 
-import Styles from './toasts.styles.less';
-import { ReceiptLink } from '../../utils/links/links';
-import { CloseIcon, FailedX, ConfirmedCheck } from '../common/icons';
-import { useUserStore } from '../../stores/user';
-import { TX_STATUS } from '../../utils/constants';
+import Styles from "./toasts.styles.less";
+import { ReceiptLink } from "../../utils/links/links";
+import { CloseIcon, FailedX, ConfirmedCheck } from "../common/icons";
+import { useUserStore } from "../../stores/user";
+import { TX_STATUS } from "../../utils/constants";
 
 export const Toasts = () => {
   const {
@@ -61,12 +61,11 @@ const Toast = ({ toast, markAsSeen }: typeof React.Component) => {
       })}
     >
       <span>
-        {confirmed ? ConfirmedCheck : FailedX}{' '}
-        {confirmed ? 'Confirmed' : 'Failed'}
+        {confirmed ? ConfirmedCheck : FailedX} {confirmed ? "Confirmed" : "Failed"}
       </span>
       <p>{toast.message}</p>
       <h4>{toast?.marketDescription?.trim()}</h4>
-      <button onClick={() => markAsSeen(toast)}>{CloseIcon}</button>
+      <button onClick={() => false && markAsSeen(toast)}>{CloseIcon}</button>
       <ReceiptLink hash={toast.hash} />
     </article>
   );

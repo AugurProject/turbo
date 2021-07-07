@@ -15,7 +15,7 @@
   z-index: @above-all-content;
   box-sizing: content-box;
 
-  > article {
+  > article:not([class*="Toast"]) {
     display: none;
     flex-flow: row nowrap;
     align-items: center;
@@ -26,6 +26,12 @@
     min-height: @size-48;
     max-height: @size-48;
     position: relative;
+  }
+
+  > article[class*="Toast"] {
+    .SecondaryBorderRadius;
+
+    right: @size-32;
   }
 
   > section {
@@ -148,7 +154,7 @@
     min-height: @size-48;
     max-height: @size-48;
 
-    > article {
+    > article:not([class*="Toast"]) {
       display: flex;
 
       > a:first-of-type {
@@ -208,6 +214,12 @@
           display: none;
         }
       }
+    }
+
+    > article[class*="Toast"] {
+      .SecondaryBorderRadius;
+      
+      right: @size-16;
     }
 
     > section {

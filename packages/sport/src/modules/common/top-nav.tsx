@@ -345,8 +345,8 @@ export const TopNav = () => {
           {ThreeLinesIcon}
         </button>
         <MobileMenu />
-        <Toasts />
       </article>
+      <Toasts />
     </section>
   );
 };
