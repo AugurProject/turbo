@@ -58,7 +58,7 @@ export const Betslip = () => {
       })}
     >
       <div>
-        <PrimaryThemeButton
+        <SecondaryThemeButton
           text={`Betslip (${counts[0]})`}
           icon={SimpleChevron}
           small
