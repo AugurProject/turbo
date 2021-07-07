@@ -186,11 +186,11 @@ export const ActiveBetsMain = () => {
         ))}
     </main>
   ) : (
-    <EmptyBetslip />
+    <EmptyBetslip loggedMessage="You have no Active bets" />
   );
 };
 
-export const EmptyBetslip = () => {
+export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?"}) => {
   const {
     isLogged,
     actions: { setModal },
@@ -198,7 +198,7 @@ export const EmptyBetslip = () => {
   const { transactions } = useUserStore();
   const content = isLogged ? (
     <>
-      <p>Need help placing a bet?</p>
+      <p>{loggedMessage}</p>
     </>
   ) : (
     <>
