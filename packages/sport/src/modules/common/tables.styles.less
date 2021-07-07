@@ -152,12 +152,21 @@
           max-height: @size-20;
 
           &.CanCashOut {
+            &.PositiveCashout {
+              background: var(--simple-success-30);
+            }
+            &.NegativeCashout {
+              background: var(--simple-failed-30);
+            }
+            
             &:hover:not(:disabled) {
               border-color: var(--simple-primary-text);
               background: var(--simple-primary-text);
               color: var(--simple-light-bg);
             }
           }
+
+          
         }
       }
     }
