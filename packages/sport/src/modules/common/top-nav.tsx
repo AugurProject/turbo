@@ -36,9 +36,12 @@ export const SettingsButton = () => {
     settings: { oddsFormat, timeFormat, betSizeToOdds },
     actions: { updateSettings },
   } = useSportsStore();
+  const isPresetBetSizeOdds = [.05, .10].includes(Number(betSizeToOdds));
   const { account } = useUserStore();
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
+  const [custom, setCustom] = useState(isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100));
+  const [customError, setCustomError] = useState(false);
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
@@ -96,22 +99,73 @@ export const SettingsButton = () => {
             </ul>
           </li>
           <li>
-            <label htmlFor="betSize">Bet Size to odds display {generateTooltip('Adjust what percentage of each outcome you wish displayed.  For example, setting it to 10% will display the odds to take up to 10% of that outcome.', 'betsize-odds-tooltip')}</label>
+            <label htmlFor="betSize">
+              Bet Size to odds display
+              {generateTooltip(
+                "Adjust what percentage of each outcome you wish displayed.  For example, setting it to 10% will display the odds to take up to 10% of that outcome.",
+                "betsize-odds-tooltip"
+              )}
+            </label>
             <div>
               <TinyThemeButton
-                customClass={{ [Styles.Active]: ".05" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".05" && updateSettings({ betSizeToOdds: ".05" }, account)}
+                customClass={{ [Styles.Active]: .05 === Number(betSizeToOdds) }}
+                action={() => {
+                  if (betSizeToOdds !== ".05") {
+                    updateSettings({ betSizeToOdds: ".05" }, account);
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
                 text="5%"
               />
               <TinyThemeButton
-                customClass={{ [Styles.Active]: ".10" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".10" && updateSettings({ betSizeToOdds: ".10" }, account)}
+                customClass={{ [Styles.Active]: .1 === Number(betSizeToOdds) }}
+                action={() => {
+                  if (betSizeToOdds !== ".10") {
+                    updateSettings({ betSizeToOdds: ".10" }, account);
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
                 text="10%"
               />
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: ".15" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".15" && updateSettings({ betSizeToOdds: ".15" }, account)}
-                text="15%"
+              <input
+                type="text"
+                className={classNames(Styles.CustomBetSizeInput, {
+                  [Styles.Active]: !isPresetBetSizeOdds && !customError,
+                  [Styles.Error]: customError,
+                })}
+                value={custom}
+                min={1}
+                step={1}
+                max={99}
+                maxlength="2"
+                inputMode="numeric"
+                placeholder="Custom %"
+                onChange={(e) => {
+                  const cleanNumber = Number(/^[0-9]*$/.exec(e.target.value.replace('%', ''))?.[0]);
+                  if (cleanNumber < 100 && cleanNumber >= 1) {
+                    updateSettings({ betSizeToOdds: String(cleanNumber / 100) }, account);
+                    customError && setCustomError(false);
+                  } else {
+                    setCustomError(true);
+                  }
+                  setCustom(!isNaN(cleanNumber) ? `${String(cleanNumber)}` : custom);
+                }}
+                onBlur={(e) => {
+                  if (!isPresetBetSizeOdds) {
+                    if (customError) {
+                      const oddsScaled = Number(betSizeToOdds) * 100;
+                      setCustom(`${String(oddsScaled)}%`);
+                      setCustomError(false);
+                    } else {
+                      setCustom(`${custom.replace("%", "")}%`);
+                    }
+                  } else if (isPresetBetSizeOdds) {
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
               />
             </div>
           </li>

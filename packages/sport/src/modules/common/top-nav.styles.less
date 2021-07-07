@@ -372,7 +372,7 @@
       min-height: @size-44;
       max-height: @size-44;
       display: grid;
-      grid-template-columns: auto auto auto;
+      grid-template-columns: auto auto 1fr;
       grid-gap: @size-4;
       padding: @size-8 @size-16;
 
@@ -633,5 +633,33 @@
         right: 100%;
       }
     }
+  }
+}
+
+.CustomBetSizeInput {
+  .SimpleBorder;
+  .text-12-semi-bold;
+
+  background: transparent;
+  max-height: var(--tiny-button-height);
+  padding: @size-4 @size-8;
+  max-width: @size-76;
+  color: var(--simple-tertiary-text);
+  transition: width .25s ease-in-out;
+
+  &:focus {
+    max-width: unset;
+    transition: width .25s ease-in-out;
+    color: var(--simple-primary-text);
+  }
+
+  &.Active {
+    border-color: var(--simple-primary-text);
+    color: var(--simple-primary-text);
+  }
+
+  &.Error {
+    border-color: var(--simple-failed);
+    color: var(--simple-failed);
   }
 }
