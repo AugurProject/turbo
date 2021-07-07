@@ -165,17 +165,17 @@
   align-items: center;
   flex: 1;
   border-bottom: @size-1 solid var(--simple-border);
-  min-height: @size-72;
-  padding: 0 @size-24 0 @size-32;
+  min-height: @size-55;
+  padding: 0 @size-22;
   width: 100%;
   margin: 0;
   z-index: @above-all-content;
-  height: @size-72;
-  max-height: @size-72;
+  height: @size-55;
+  max-height: @size-55;
   color: var(--simple-secondary-text);
 
   > span {
-    .text-20-bold;
+    .text-16-bold;
 
     color: var(--simple-primary-text);
     text-transform: capitalize;
@@ -209,11 +209,18 @@
     border: 0;
     cursor: pointer;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: @size-24;
+    min-width: @size-24;
+
+    > svg {
+      width: @size-16;
+      height: @size-16;
+    }
   }
 
-  > svg {
-    margin-right: @size-8;
-  }
+  
 
   &:hover {
     color: var(--simple-primary-text);

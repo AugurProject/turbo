@@ -140,7 +140,7 @@ export const SettingsButton = () => {
                 min={1}
                 step={1}
                 max={99}
-                maxlength="2"
+                maxLength="2"
                 inputMode="numeric"
                 placeholder="Custom %"
                 onChange={(e) => {
