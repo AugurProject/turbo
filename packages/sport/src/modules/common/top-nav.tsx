@@ -15,6 +15,7 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
+  Toasts,
   Formatter,
   LabelComps,
   Links,
@@ -344,6 +345,7 @@ export const TopNav = () => {
           {ThreeLinesIcon}
         </button>
         <MobileMenu />
+        <Toasts />
       </article>
     </section>
   );
