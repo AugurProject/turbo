@@ -23,15 +23,38 @@
     > button[class*="BaseNormalButton"] {
       display: none;
       position: absolute;
-      right: @betslip-column-width + @size-17;
+      right: @betslip-column-width + @size-18;
       transform: rotate(-90deg);
       transform-origin: right;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
 
       > svg {
         height: @size-12;
         width: @size-12;
         transform: rotate(180deg);
         transform-origin: center;
+      }
+
+      &:not(:disabled) {
+        background-color: var(--simple-primary-text);
+        border-color: var(--simple-primary-text);
+        color: var(--simple-light-bg);
+
+        > svg > path {
+          fill: var(--simple-light-bg);
+        }
+        &:hover,
+        &:focus,
+        &:active {
+          background-color: var(--simple-primary-text);
+          border-color: var(--simple-primary-text);
+          color: var(--simple-light-bg);
+
+          > svg > path {
+            fill: var(--simple-light-bg);
+          }
+        }
       }
     }
 
@@ -104,7 +127,7 @@
 
     > div > button[class*="BaseNormalButton"] {
       display: flex;
-      right: @betslip-column-width + @size-17;
+      right: @betslip-column-width + @size-18;
       top: @size-78;
     }
 
@@ -116,7 +139,7 @@
 
       > div {
         > button {
-          right: @betslip-width + @size-17;
+          right: @betslip-width + @size-19;
 
           > svg {
             transform: rotate(0deg);
@@ -127,9 +150,15 @@
     }
 
     > div {
+      border: 0;
+      border-radius: 0;
       margin: 0;
       height: 100%;
       max-height: 100vh;
+
+      > :last-child {
+        border-radius: 0;
+      }
     }
 
     &.NavOpen {
@@ -160,7 +189,7 @@
         width: 100vw;
         min-width: 100vw;
         padding: @size-48 @size-12 @size-16;
-        background: linear-gradient(180deg, rgba(245, 245, 248, 0) 0%, #F5F5F8 67.29%);
+        background: linear-gradient(180deg, rgba(245, 245, 248, 0) 0%, #f5f5f8 67.29%);
         position: absolute;
         right: 100vw;
         bottom: 0;
@@ -247,6 +276,10 @@ button.FlipContent {
     }
   }
 
+  @media @breakpoint-mobile-tiny {
+    border-radius: 0;
+  }
+
   @media @breakpoint-mobile-tablet {
     > div {
       display: flex;
@@ -299,6 +332,7 @@ button.FlipContent {
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
+  margin-bottom: auto;
 
   > div {
     background: var(--light-background-color);
@@ -728,6 +762,20 @@ button.FlipContent {
 
     &:disabled {
       opacity: 0.25;
+    }
+  }
+
+  &.Positive {
+    > button {
+      background: var(--simple-success-30);
+      border-color: var(--simple-success);
+    }
+  }
+
+  &.Negative {
+    > button {
+      background: var(--simple-failed-30);
+      border-color: var(--simple-failed);
     }
   }
 }

@@ -15,7 +15,7 @@
   z-index: @above-all-content;
   box-sizing: content-box;
 
-  > article {
+  > article:not([class*="Toast"]) {
     display: none;
     flex-flow: row nowrap;
     align-items: center;
@@ -26,6 +26,12 @@
     min-height: @size-48;
     max-height: @size-48;
     position: relative;
+  }
+
+  > article[class*="Toast"] {
+    .SecondaryBorderRadius;
+
+    right: @size-32;
   }
 
   > section {
@@ -77,7 +83,7 @@
             .text-16-bold;
 
             text-transform: uppercase;
-            color: var(--simple-secondary-text);
+            color: var(--simple-tertiary-text);
             white-space: nowrap;
           }
 
@@ -86,7 +92,7 @@
               color: var(--simple-primary-text);
 
               &[disabled] {
-                color: var(--simple-secondary-text);
+                color: var(--simple-tertiary-text);
               }
             }
           }
@@ -148,7 +154,7 @@
     min-height: @size-48;
     max-height: @size-48;
 
-    > article {
+    > article:not([class*="Toast"]) {
       display: flex;
 
       > a:first-of-type {
@@ -208,6 +214,12 @@
           display: none;
         }
       }
+    }
+
+    > article[class*="Toast"] {
+      .SecondaryBorderRadius;
+
+      right: @size-16;
     }
 
     > section {
@@ -294,6 +306,7 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+      justify-content: space-between;
       background: var(--light-background-color);
       padding: @size-12 @size-14;
       text-transform: uppercase;
@@ -371,7 +384,7 @@
       min-height: @size-44;
       max-height: @size-44;
       display: grid;
-      grid-template-columns: auto auto auto;
+      grid-template-columns: auto auto 1fr;
       grid-gap: @size-4;
       padding: @size-8 @size-16;
 
@@ -630,6 +643,134 @@
       ul {
         bottom: 25vh;
         right: 100%;
+      }
+    }
+  }
+}
+
+.CustomBetSizeInput {
+  .SimpleBorder;
+  .text-12-semi-bold;
+
+  background: transparent;
+  max-height: var(--tiny-button-height);
+  padding: @size-4 @size-8;
+  max-width: @size-76;
+  color: var(--simple-tertiary-text);
+  transition: width 0.25s ease-in-out;
+
+  &:focus {
+    max-width: unset;
+    transition: width 0.25s ease-in-out;
+    color: var(--simple-primary-text);
+  }
+
+  &.Active {
+    border-color: var(--simple-primary-text);
+    color: var(--simple-primary-text);
+  }
+
+  &.Error {
+    border-color: var(--simple-failed);
+    color: var(--simple-failed);
+  }
+}
+
+.SportsAccountDetails {
+  > div:first-of-type {
+    // header
+    max-height: @size-55;
+    min-height: @size-55;
+    height: @size-55;
+    padding: 0 @size-22;
+
+    > span {
+      .text-16-bold;
+    }
+
+    > button {
+      min-height: @size-24;
+      min-width: @size-24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      > svg {
+        height: @size-16;
+        width: @size-16;
+      }
+    }
+  }
+
+  > main > div > div {
+    > section:first-of-type > div {
+      background: var(--light-background-color);
+
+      > div:first-of-type > span:first-of-type {
+        .text-14-bold;
+      }
+
+      > div:nth-of-type(2) > h3:last-of-type {
+        .text-20-bold;
+
+        color: var(--simple-secondary-text);
+      }
+
+      > div:last-of-type {
+        > button,
+        > a {
+          flex-flow: row-reverse nowrap;
+
+          > svg {
+            margin-left: 0;
+            margin-right: @size-4;
+          }
+          &:not(:focus) {
+            color: var(--simple-primary-text);
+
+            > svg {
+              > path[fill],
+              > g > path[fill] {
+                fill: var(--simple-primary-text);
+              }
+
+              > line,
+              > path[stroke],
+              > g > path[stroke] {
+                stroke: var(--simple-primary-text);
+              }
+            }
+
+            &:not(:hover):not(:focus):not(:disabled):not(:active) {
+              border-color: var(--simple-tertiary-text);
+            }
+          }
+        }
+      }
+    }
+
+    > section:last-of-type {
+      flex-flow: row wrap;
+
+      > button:not(:focus) {
+        color: var(--simple-primary-text);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--simple-primary-text);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--simple-primary-text);
+          }
+        }
+
+        &:not(:disabled):not(:hover):not(:active):not(:focus) {
+          border-color: var(--simple-tertiary-text);
+        }
       }
     }
   }

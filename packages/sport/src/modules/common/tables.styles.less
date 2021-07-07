@@ -150,14 +150,26 @@
           padding: @size-3 @size-6;
           min-height: @size-20;
           max-height: @size-20;
+          color: var(--simple-primary-text);
 
           &.CanCashOut {
+            &.PositiveCashout {
+              background: var(--simple-success-30);
+              border-color: var(--simple-success);
+            }
+            &.NegativeCashout {
+              background: var(--simple-failed-30);
+              border-color: var(--simple-failed);
+            }
+            
             &:hover:not(:disabled) {
               border-color: var(--simple-primary-text);
               background: var(--simple-primary-text);
               color: var(--simple-light-bg);
             }
           }
+
+          
         }
       }
     }

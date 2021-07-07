@@ -70,6 +70,7 @@ import * as _ApprovalHooks from './stores/use-approval-callback';
 import * as _GraphClient from './apollo/client';
 import ModalConnectWallet from './components/modal/modal-connect-wallet';
 import { ToggleSwitch, BuySellToggleSwitch } from './components/common/toggle-switch';
+import { Toasts } from './components/toasts/toasts'; 
 
 export const ContractCalls = _ContractCalls;
 export const DerivedMarketData = _DerivedMarketData;
@@ -185,6 +186,7 @@ export {
   Links,
   windowRef,
   LinkLogo,
+  Toasts,
   getCategoryIconLabel
 };
 export const Components = {
@@ -195,6 +197,7 @@ export const Components = {
   Links,
   Logo,
   LinkLogo,
+  Toasts,
   Icons,
   MarketCardComps,
   PaginationComps,

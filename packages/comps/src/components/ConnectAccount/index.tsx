@@ -57,6 +57,7 @@ const ConnectAccountButton = ({
   isMobile,
   setModal,
   buttonOptions = null,
+  customClassForModal = null,
 }) => {
   const networkId = PARA_CONFIG.networkId;
   const RPC_DATA = Number(networkId) === MATIC_MUMBAI ? MATIC_MUMBAI_RPC_DATA : MATIC_RPC_DATA;
@@ -87,6 +88,7 @@ const ConnectAccountButton = ({
       } catch (error) {
         setModal({
           type: MODAL_CONNECT_TO_POLYGON,
+          customClassForModal
         });
       }
     }
@@ -117,6 +119,7 @@ const ConnectAccountButton = ({
         darkMode,
         autoLogin,
         transactions,
+        customClassForModal,
       }),
     className: null,
     darkMode,
@@ -164,7 +167,13 @@ const ConnectAccountButton = ({
   return <LoginButton {...buttonProps} />;
 };
 
+// export interface ConnectAccountProps {
+//   customClassForModal: object | null;
+
+// }
+
 export const ConnectAccount = ({
+  customClassForModal = null,
   autoLogin,
   updateLoginAccount,
   darkMode = false,
@@ -181,5 +190,6 @@ export const ConnectAccount = ({
     isMobile={isMobile}
     setModal={setModal}
     buttonOptions={buttonOptions}
+    customClassForModal={customClassForModal}
   />
 );

@@ -83,9 +83,13 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut }) => ({
+  const determineClasses = ({ canCashOut, wager, cashout }) => { 
+    const isPositive = Number(wager) < Number(cashout);
+    return ({
     [Styles.CanCashOut]: canCashOut,
-  });
+    [Styles.PositiveCashout]: isPositive,
+    [Styles.NegativeCashout]: !isPositive
+  })};
 
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
@@ -141,7 +145,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
-                customClass={determineClasses(bet)}
+                customClass={determineClasses({ ...bet, cashout })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
                 text={buttonName}

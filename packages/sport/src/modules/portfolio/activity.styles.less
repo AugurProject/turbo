@@ -42,9 +42,10 @@
 .ActivityCard {
   .SimpleBorder;
   .HoverDropShadow;
+  .SecondaryBorderRadius;
 
   margin-bottom: @size-6;
-  padding: @size-16;
+  padding: @size-8;
   display: grid;
   grid-template-columns: 1fr auto auto;
   // cursor: pointer;
@@ -65,10 +66,11 @@
 
     color: var(--simple-primary-text);
     text-transform: uppercase;
+    grid-column: span 2;
   }
 
   > div.value {
-    .text-12-semi-bold;
+    .text-10-semi-bold;
 
     color: var(--simple-primary-text);
   }
@@ -86,7 +88,7 @@
 
     color: var(--simple-primary-text);
     grid-column: 1 / span 3;
-    margin: @size-8 0;
+    margin: @size-8 0 @size-4;
   }
 
   > div.subheader {
@@ -94,17 +96,17 @@
 
     grid-column: 1 / span 3;
     color: var(--simple-primary-text);
-    margin-bottom: @size-4;
+    margin-bottom: @size-8;
   }
 
   > div.time {
-    .text-12-semi-bold;
+    .text-10-semi-bold;
 
     color: var(--simple-secondary-text);
   }
 
   > a:not(:first-of-type) {
-    .text-12-semi-bold;
+    .text-10-semi-bold;
 
     grid-column: 2 / span 2;
     text-align: right;

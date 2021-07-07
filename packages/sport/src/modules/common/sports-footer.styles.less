@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .SportsFooter {
   align-items: center;
@@ -20,7 +20,7 @@
 
   > div {
     .text-12;
-    
+
     color: var(--simple-secondary-text);
     // version #
     margin-right: @size-16;
@@ -39,5 +39,13 @@
     &:not(:last-of-type) {
       border-right: @size-1 solid var(--simple-border);
     }
+  }
+}
+
+.BetslipOpen {
+  display: flex;
+
+  @media @breakpoint-mobile-tiny {
+    display: none;
   }
 }
