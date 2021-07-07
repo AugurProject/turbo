@@ -48,8 +48,24 @@ export const Betslip = () => {
     bets,
     actions: { toggleSelectedView },
   } = useBetslipStore();
+  const betslipRef = useRef(null);
   const counts = [Object.keys(bets).length, Object.keys(active).length];
   const handleToggle = (type) => selectedView !== type && toggleSelectedView();
+
+  useEffect(() => {
+    const handleWindowOnClick = (event) => {
+      if (sidebarType === SIDEBAR_TYPES.BETSLIP && !!event.target && betslipRef?.current !== null && !betslipRef?.current?.contains(event.target)) {
+        setSidebar(null);
+      }
+    };
+
+    window.addEventListener("click", handleWindowOnClick);
+
+    return () => {
+      window.removeEventListener("click", handleWindowOnClick);
+    };
+  });
+  
   return (
     <section
       className={classNames(Styles.Betslip, {
@@ -57,7 +73,7 @@ export const Betslip = () => {
         [Styles.NavOpen]: sidebarType === SIDEBAR_TYPES.NAVIGATION,
       })}
     >
-      <div>
+      <div ref={betslipRef}>
         <SecondaryThemeButton
           text={`Betslip (${counts[0]})`}
           icon={SimpleChevron}
