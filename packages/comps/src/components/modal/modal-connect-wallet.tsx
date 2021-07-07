@@ -115,7 +115,7 @@ export interface ModalConnectWalletProps {
   autoLogin: boolean;
   transactions: any;
   isLogged: boolean;
-  isMobile: boolean;
+  customClassForModal: object | null;
   closeModal: Function;
   removeTransaction: Function;
   logout: Function;
@@ -128,12 +128,12 @@ const ModalConnectWallet = ({
   autoLogin,
   transactions,
   isLogged,
-  isMobile,
   closeModal,
   removeTransaction,
   logout,
   updateTxFailed,
   updateMigrated,
+  customClassForModal,
 }: ModalConnectWalletProps) => {
   const { active, account, connector, activate, error } = useWeb3React();
   const { deactivate } = useActiveWeb3React();
@@ -231,7 +231,7 @@ const ModalConnectWallet = ({
   }, [getWalletButtons]);
 
   return (
-    <section>
+    <section className={classNames(customClassForModal)}>
       <Header
         closeModal={closeModal}
         title={
