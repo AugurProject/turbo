@@ -453,6 +453,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     ? `PENDING $${cashout}`
     : `CASHOUT: $${cashout}`;
 
+  const isPositiveCashout = Number(bet.wager) < Number(cashout);
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
@@ -477,7 +478,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        <div className={classNames(Styles.Cashout, txStatus.class)}>
+        <div className={classNames(Styles.Cashout, txStatus.class, {
+          [Styles.Positive]: canCashOut && isPositiveCashout,
+          [Styles.Negative]: canCashOut && !isPositiveCashout,
+        })}>
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
           <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
             {buttonName}
