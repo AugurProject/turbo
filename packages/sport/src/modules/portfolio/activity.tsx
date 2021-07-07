@@ -5,7 +5,7 @@ import {
   useDataStore,
   useUserStore,
   DateUtils,
-  Formatter,
+  // Formatter,
   ProcessData,
   Links,
   PaginationComps,
@@ -14,14 +14,14 @@ import { useSportsStore } from "modules/stores/sport";
 const { Pagination, sliceByPage } = PaginationComps;
 const { ReceiptLink, MarketLink } = Links;
 const { shapeUserActvity } = ProcessData;
-const { getCashFormat } = Formatter;
+// const { getCashFormat } = Formatter;
 const { getTimeFormat } = DateUtils;
 
 const ActivityCard = ({ activity, timeFormat }: typeof React.Component) => (
   <div className={Styles.ActivityCard}>
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>
-    <div className={Styles.icon}>{getCashFormat(activity.currency).icon}</div>
+    {/* <div className={Styles.icon}>{getCashFormat(activity.currency).symbol}</div> */}
     <MarketLink id={activity?.marketId}>
       <span className={Styles.description}>
         {activity.title}
