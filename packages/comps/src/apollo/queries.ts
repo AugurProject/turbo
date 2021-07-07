@@ -19,7 +19,7 @@ export const SEARCH_MARKETS = gql`
 `;
 
 // Get all markets except CATEGORICAL
-// https://thegraph.com/explorer/subgraph/augurproject/augur-turbo-kovan
+// https://thegraph.com/explorer/subgraph/augurproject/augur-turbo-mumbai
 const AMM_enters = gql`
   fragment AMM_enters on AMMExchange {
     enters {
@@ -168,6 +168,27 @@ export const CurrentMarket_fields = gql`
 export const GET_TRANSACTIONS = gql`
   query getTransactions($account: String) {
     senders(where: { id: $account }) {
+      positionBalance {
+        id
+        hasClaimed
+        positionFromAddLiquidity
+        positionFromRemoveLiquidity
+        timestamp
+        transactionHash
+        outcomeId
+        avgPrice
+        initCostUsd
+        initCostUsdBigInt
+        initCostUsdBigDecimal
+        shares
+        sharesBigDecimal
+        payout
+        totalChangeUsd
+        settlementFee
+        market {
+          id
+        }
+      }
       claimedFees {
         id
         collateral
