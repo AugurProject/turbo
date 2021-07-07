@@ -32,6 +32,8 @@ const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
 const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC } = Constants;
 
+const BETSIZE_ODDS_TO_DISPLAY_TIP = `The dollar amount shown under each odd represents the amount that can be taken at the odds shown. You can take greater than this amount, but it will impact the odds. To increase the amount, change the percentage. For example: 10% is displaying the odds you would receive if wanting to buy up to 10% of the available liquidity.`;
+
 export const SettingsButton = () => {
   const {
     settings: { oddsFormat, timeFormat, betSizeToOdds },
@@ -103,7 +105,7 @@ export const SettingsButton = () => {
             <label htmlFor="betSize">
               Bet Size to odds display
               {generateTooltip(
-                "Adjust what percentage of each outcome you wish displayed.  For example, setting it to 10% will display the odds to take up to 10% of that outcome.",
+                BETSIZE_ODDS_TO_DISPLAY_TIP,
                 "betsize-odds-tooltip"
               )}
             </label>
