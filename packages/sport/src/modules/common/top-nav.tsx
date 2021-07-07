@@ -331,6 +331,9 @@ export const TopNav = () => {
             transactions,
             setModal,
             isMobile: true,
+            customClassForModal: {
+              [Styles.SportsAccountDetails]: true,
+            },
             buttonOptions: {
               invert: true,
               small: true,

@@ -167,8 +167,13 @@ const ConnectAccountButton = ({
   return <LoginButton {...buttonProps} />;
 };
 
+// export interface ConnectAccountProps {
+//   customClassForModal: object | null;
+
+// }
+
 export const ConnectAccount = ({
-  customClassForModal,
+  customClassForModal = null,
   autoLogin,
   updateLoginAccount,
   darkMode = false,

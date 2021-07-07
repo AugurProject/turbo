@@ -218,7 +218,7 @@
 
     > article[class*="Toast"] {
       .SecondaryBorderRadius;
-      
+
       right: @size-16;
     }
 
@@ -657,11 +657,11 @@
   padding: @size-4 @size-8;
   max-width: @size-76;
   color: var(--simple-tertiary-text);
-  transition: width .25s ease-in-out;
+  transition: width 0.25s ease-in-out;
 
   &:focus {
     max-width: unset;
-    transition: width .25s ease-in-out;
+    transition: width 0.25s ease-in-out;
     color: var(--simple-primary-text);
   }
 
@@ -701,7 +701,75 @@
       }
     }
   }
+
   > main > div > div {
-    
+    > section:first-of-type > div {
+      background: var(--light-background-color);
+
+      > div:first-of-type > span:first-of-type {
+        .text-14-bold;
+      }
+
+      > div:nth-of-type(2) > h3:last-of-type {
+        .text-20-bold;
+
+        color: var(--simple-secondary-text);
+      }
+
+      > div:last-of-type {
+        > button,
+        > a {
+          flex-flow: row-reverse nowrap;
+
+          > svg {
+            margin-left: 0;
+            margin-right: @size-4;
+          }
+          &:not(:focus) {
+            color: var(--simple-primary-text);
+
+            > svg {
+              > path[fill],
+              > g > path[fill] {
+                fill: var(--simple-primary-text);
+              }
+
+              > line,
+              > path[stroke],
+              > g > path[stroke] {
+                stroke: var(--simple-primary-text);
+              }
+            }
+
+            &:not(:hover):not(:focus):not(:disabled):not(:active) {
+              border-color: var(--simple-tertiary-text);
+            }
+          }
+        }
+      }
+    }
+
+    > section:last-of-type {
+      > button:not(:focus) {
+        color: var(--simple-primary-text);
+
+        > svg {
+          > path[fill],
+          > g > path[fill] {
+            fill: var(--simple-primary-text);
+          }
+
+          > line,
+          > path[stroke],
+          > g > path[stroke] {
+            stroke: var(--simple-primary-text);
+          }
+        }
+
+        &:not(:disabled):not(:hover):not(:active):not(:focus) {
+          border-color: var(--simple-tertiary-text);
+        }
+      }
+    }
   }
 }
