@@ -39,10 +39,11 @@ export const SettingsButton = () => {
     settings: { oddsFormat, timeFormat, betSizeToOdds },
     actions: { updateSettings },
   } = useSportsStore();
-  const isPresetBetSizeOdds = [.05, .10].includes(Number(betSizeToOdds));
   const { account } = useUserStore();
+  const isPresetBetSizeOdds = [0.05, 0.1].includes(Number(betSizeToOdds));
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
+  const customBetSizeInputRef = useRef(null);
   const [custom, setCustom] = useState(isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100));
   const [customError, setCustomError] = useState(false);
 
@@ -59,6 +60,14 @@ export const SettingsButton = () => {
       window.removeEventListener("click", handleWindowOnClick);
     };
   });
+
+  useEffect(() => {
+    const viewVersion = isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100);
+    const customTrimmed = custom.replace("%","");
+    if (customTrimmed !== viewVersion && account && customTrimmed === '') {
+      setCustom(`${viewVersion}%`);
+    }
+  }, [account, betSizeToOdds]);
 
   return (
     <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
@@ -104,14 +113,11 @@ export const SettingsButton = () => {
           <li>
             <label htmlFor="betSize">
               Bet Size to odds display
-              {generateTooltip(
-                BETSIZE_ODDS_TO_DISPLAY_TIP,
-                "betsize-odds-tooltip"
-              )}
+              {generateTooltip(BETSIZE_ODDS_TO_DISPLAY_TIP, "betsize-odds-tooltip")}
             </label>
             <div>
               <TinyThemeButton
-                customClass={{ [Styles.Active]: .05 === Number(betSizeToOdds) }}
+                customClass={{ [Styles.Active]: 0.05 === Number(betSizeToOdds) }}
                 action={() => {
                   if (betSizeToOdds !== ".05") {
                     updateSettings({ betSizeToOdds: ".05" }, account);
@@ -122,7 +128,7 @@ export const SettingsButton = () => {
                 text="5%"
               />
               <TinyThemeButton
-                customClass={{ [Styles.Active]: .1 === Number(betSizeToOdds) }}
+                customClass={{ [Styles.Active]: 0.1 === Number(betSizeToOdds) }}
                 action={() => {
                   if (betSizeToOdds !== ".10") {
                     updateSettings({ betSizeToOdds: ".10" }, account);
@@ -133,6 +139,7 @@ export const SettingsButton = () => {
                 text="10%"
               />
               <input
+                ref={customBetSizeInputRef}
                 type="text"
                 className={classNames(Styles.CustomBetSizeInput, {
                   [Styles.Active]: !isPresetBetSizeOdds && !customError,
@@ -145,8 +152,13 @@ export const SettingsButton = () => {
                 maxLength="2"
                 inputMode="numeric"
                 placeholder="Custom %"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    customBetSizeInputRef?.current?.blur();
+                  }
+                }}
                 onChange={(e) => {
-                  const cleanNumber = Number(/^[0-9]*$/.exec(e.target.value.replace('%', ''))?.[0]);
+                  const cleanNumber = Number(/^[0-9]*$/.exec(e.target.value.replace("%", ""))?.[0]);
                   if (cleanNumber < 100 && cleanNumber >= 1) {
                     updateSettings({ betSizeToOdds: String(cleanNumber / 100) }, account);
                     customError && setCustomError(false);
