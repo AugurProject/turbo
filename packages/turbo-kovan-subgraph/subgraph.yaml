@@ -282,3 +282,49 @@ dataSources:
             handler: handleMarketCreatedEvent
           - event: MarketResolved(uint256,address)
             handler: handleMarketResolvedEvent
+    - kind: ethereum/contract
+      name: MmaMarketFactory
+      network: mumbai
+      source:
+        address: '0x6884938f3488CC020400FFAEFC75C37fb3FEf003'
+        abi: MmaMarketFactory
+        startBlock: 15758544
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/MmaMarketFactory.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+        abis:
+          - name: MmaMarketFactory
+            file: ./abis/MMALinkMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,string,uint256,string,uint256,uint256)
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address)
+            handler: handleMarketResolvedEvent
+    - kind: ethereum/contract
+      name: CryptoMarketFactory
+      network: mumbai
+      source:
+        address: '0xC05CeF624827E0372195E84D2F45235cf058A2F6'
+        abi: CryptoMarketFactory
+        startBlock: 15758544
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/CryptoMarketFactory.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+        abis:
+          - name: CryptoMarketFactory
+            file: ./abis/CryptoMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,address,indexed uint256,uint8,indexed uint256,uint256)
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address)
+            handler: handleMarketResolvedEvent

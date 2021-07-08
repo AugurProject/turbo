@@ -1,12 +1,12 @@
 import { BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket } from "../helpers/AmmFactoryHelper";
-import { getOrCreateTeamSportsMarket } from "../helpers/MarketFactoryHelper";
-import { MarketCreated, MarketResolved } from "../../generated/SportsLinkMarketFactory/SportsLinkMarketFactory";
+import { getOrCreateMmaMarket } from "../helpers/MarketFactoryHelper";
+import { MarketCreated, MarketResolved } from "../../generated/MmaMarketFactory/MmaMarketFactory";
 
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateTeamSportsMarket(marketId, true, false);
+  let entity = getOrCreateMmaMarket(marketId, true, false);
   getOrCreateMarket(marketId);
 
   entity.marketId = marketId;
@@ -17,9 +17,10 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.endTime = event.params.endTime;
   entity.marketType = BigInt.fromI32(event.params.marketType);
   entity.eventId = event.params.eventId;
-  entity.homeTeamId = event.params.homeTeamId;
-  entity.awayTeamId = event.params.awayTeamId;
-  entity.score = event.params.score;
+  entity.homeFighterName = event.params.homeFighterName;
+  entity.homeFighterId = event.params.homeFighterId;
+  entity.awayFighterName = event.params.awayFighterName;
+  entity.awayFighterId = event.params.awayFighterId;
 
   entity.save();
 }
@@ -27,7 +28,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateTeamSportsMarket(marketId, false, false);
+  let entity = getOrCreateMmaMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();

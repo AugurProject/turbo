@@ -17,22 +17,60 @@ type AmmFactory @entity {
 
 type Market @entity {
   id: ID!
-  transactionHash: String
-  timestamp: BigInt
-  creator: String
-  endTime: BigInt
-  marketType: BigInt
-  eventId: BigInt
-  homeTeamId: BigInt
-  awayTeamId: BigInt
-  estimatedStartTime: BigInt
-  score: BigInt
-  winner: String
   liquidity: [Liquidity!] @derivedFrom(field: "marketId")
   addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
   removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")
   trades: [Trade!] @derivedFrom(field: "marketId")
   claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "marketId")
+  teamSportsMarket: [TeamSportsMarket!] @derivedFrom(field: "marketId")
+  mmaMarket: [MmaMarket!] @derivedFrom(field: "marketId")
+  cryptoMarket: [CryptoMarket!] @derivedFrom(field: "marketId")
+}
+
+type TeamSportsMarket @entity {
+  id: ID!
+  marketId: Market!
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamId: BigInt
+  awayTeamId: BigInt
+  score: BigInt
+  winner: String
+}
+
+type MmaMarket @entity {
+  id: ID!
+  marketId: Market!
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeFighterName: String
+  homeFighterId: BigInt
+  awayFighterName: String
+  awayFighterId: BigInt
+  winner: String
+}
+
+type CryptoMarket @entity {
+  id: ID!
+  marketId: Market!
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  endTime: BigInt
+  marketType: BigInt
+  coinIndex: BigInt
+  price: BigInt
+  winner: String
 }
 
 type Liquidity @entity {
