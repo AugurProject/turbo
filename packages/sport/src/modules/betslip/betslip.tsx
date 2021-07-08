@@ -202,7 +202,7 @@ export const ActiveBetsMain = () => {
         ))}
     </main>
   ) : (
-    <EmptyBetslip loggedMessage="You have no Active bets" />
+    <EmptyBetslip loggedMessage="You have no active bets" />
   );
 };
 
