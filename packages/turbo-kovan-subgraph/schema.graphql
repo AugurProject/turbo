@@ -17,6 +17,17 @@ type AmmFactory @entity {
 
 type Market @entity {
   id: ID!
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamId: BigInt
+  awayTeamId: BigInt
+  estimatedStartTime: BigInt
+  score: BigInt
+  winner: String
   liquidity: [Liquidity!] @derivedFrom(field: "marketId")
   addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
   removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")

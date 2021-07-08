@@ -57,3 +57,26 @@ dataSources:
           - event: SettlementFeeClaimed(address,uint256,indexed address)
             handler: handleSettlementFeeClaimedEvent
   {{/marketFactories}}
+    - kind: ethereum/contract
+      name: SportsLinkMarketFactory
+      network: mumbai
+      source:
+        address: '0x203fdF154b636D834ABC015Ca6Dc9C6127659c58'
+        abi: SportsLinkMarketFactory
+        startBlock: 15758544
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/SportsLinkMarketFactory.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+        abis:
+          - name: SportsLinkMarketFactory
+            file: ./abis/SportsLinkMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,uint256,uint256,uint256,int256)
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address)
+            handler: handleMarketResolvedEvent
