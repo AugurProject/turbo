@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
 import classNames from "classnames";
@@ -39,6 +39,7 @@ const {
   Formatter: { formatDai, formatLiquidity },
   PathUtils: { parseQuery, makePath },
 } = Utils;
+let timeoutId = null;
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
   if (!ammOutcomes || ammOutcomes.length === 0) return [];
@@ -108,7 +109,7 @@ const EmptyMarketView = () => {
   );
 };
 
-const NonexistingMarketView = ({ text, showLink }) => {
+const NonexistingMarketView = ({ text, showLink = false }) => {
   return (
     <div className={classNames(Styles.MarketView, Styles.NonexistingMarketView)}>
       <section>
@@ -128,6 +129,7 @@ const NonexistingMarketView = ({ text, showLink }) => {
 
 const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
+  const [marketNotFound, setMarketNotFound] = useState(false);
   const marketId = useMarketQueryId();
   const { isMobile, isLogged } = useAppStatusStore();
   const {
@@ -137,15 +139,31 @@ const MarketView = ({ defaultMarket = null }) => {
   const { markets, ammExchanges, loading, transactions } = useDataStore();
   useScrollToTopOnMount();
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
-
   const amm: AmmExchange = ammExchanges[marketId];
-  if ((!market && !loading) || !isLogged)
-    return (
-      <NonexistingMarketView
-        text={!isLogged ? "Please connect a wallet to view market data." : "Market does not exist."}
-        showLink={isLogged}
-      />
-    );
+
+  useEffect(() => {
+    if (!market) {
+      timeoutId = setTimeout(() => {
+        if (!market && marketId) {
+          setMarketNotFound(true);
+        }
+      }, 60 * 1000);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [marketId]);
+
+  useEffect(() => {
+    if (timeoutId && market) {
+      clearTimeout(timeoutId);
+      timeoutId = null
+    }
+  }, [market]);
+ 
+  if (marketNotFound) return <NonexistingMarketView text="Market does not exist." />;
+
   if (!market) return <EmptyMarketView />;
   const marketEvent: MarketEvent = marketEvents?.[market?.eventId];
   const totalEventStats = marketEvent?.marketIds
