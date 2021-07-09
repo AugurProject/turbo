@@ -40,27 +40,6 @@
         transform-origin: 50% 50%;
       }
     }
-
-    &:not(:disabled) {
-      &:focus {
-        > svg {
-          > path[fill],
-          > g > path[fill] {
-            fill: initial;
-          }
-
-          > line,
-          > path[stroke],
-          > g > path[stroke] {
-            stroke: initial;
-          }
-        }
-      }
-
-      &:not(:active):focus {
-        padding: 0;
-      }
-    }
   }
 
   @media @breakpoint-mobile-tablet {
