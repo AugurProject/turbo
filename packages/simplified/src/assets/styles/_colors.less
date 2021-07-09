@@ -192,6 +192,7 @@
   --tiny-dark-button-theme-color: #8B959E;
   --tiny-light-button-theme-color: #DBE1E7;
   --theme-focus-border-color: #1b91ff;
+  --theme-focus-box-shadow: 0 0 0 @size-1 var(--theme-focus-border-color);
   --primary-button-theme-color: #05B169;
   --primary-button-theme-background-color: rgba(5, 177, 105, 0.15);
   --inverted-primary-button-theme-background-color: rgba(5, 177, 105, 0.3);
@@ -210,7 +211,7 @@
 
   --primary-button-background-focus: var(--primary-button-theme-background-color);
   --primary-button-border-color-focus: var(--theme-focus-border-color);
-  --primary-button-border-focus: @size-2 solid var(--primary-button-border-color-focus);
+  --primary-button-border-focus: @size-1 solid var(--primary-button-border-color-focus);
   --primary-button-text-color-focus: var(--dark-button-theme-color);
 
   --primary-button-background-pressed: var(--inverted-primary-button-theme-background-color);
@@ -230,7 +231,7 @@
 
   --inverted-primary-button-background-focus: var(--inverted-primary-button-theme-background-color);
   --inverted-primary-button-border-color-focus: var(--theme-focus-border-color);
-  --inverted-primary-button-border-focus: @size-2 solid var(--inverted-primary-button-border-color-focus);
+  --inverted-primary-button-border-focus: @size-1 solid var(--inverted-primary-button-border-color-focus);
   --inverted-primary-button-text-color-focus: var(--light-button-theme-color) f;
 
   --inverted-primary-button-background-pressed: var(--light-button-theme-color);
@@ -251,7 +252,7 @@
 
   --secondary-button-background-focus: var(--secondary-button-theme-background-color);
   --secondary-button-border-color-focus: var(--theme-focus-border-color);
-  --secondary-button-border-focus: @size-2 solid var(--secondary-button-border-color-focus);
+  --secondary-button-border-focus: @size-1 solid var(--secondary-button-border-color-focus);
   --secondary-button-text-color-focus: var(--dark-button-theme-color);
 
   --secondary-button-background-pressed: var(--inverted-secondary-button-theme-background-color);
@@ -271,7 +272,7 @@
 
   --inverted-secondary-button-background-focus: transparent;
   --inverted-secondary-button-border-color-focus: var(--theme-focus-border-color);
-  --inverted-secondary-button-border-focus: @size-2 solid var(--inverted-secondary-button-border-color-focus);
+  --inverted-secondary-button-border-focus: @size-1 solid var(--inverted-secondary-button-border-color-focus);
   --inverted-secondary-button-text-color-focus: var(--light-button-theme-color);
 
   --inverted-secondary-button-background-pressed: var(--light-button-theme-color);
@@ -325,7 +326,6 @@
 
   --normal-button-height: @size-48;
   --normal-button-padding: @size-13 @size-16;
-  --normal-button-padding-focus: @size-12 @size-15;
   --normal-button-svg-height: @size-20;
   --normal-button-svg-width: @size-20;
   --normal-button-font-size: @size-16;
@@ -337,7 +337,6 @@
 
   --small-button-height: @size-36;
   --small-button-padding: @size-12 @size-16;
-  --small-button-padding-focus: @size-11 @size-15;
   --small-button-svg-height: @size-16;
   --small-button-svg-width: @size-16;
   --small-button-font-size: @size-14;
@@ -345,7 +344,6 @@
 
   --tiny-button-height: @size-25;
   --tiny-button-padding: @size-3 @size-8;
-  --tiny-button-padding-focus: @size-5 @size-7;
   --tiny-button-svg-height: @size-16;
   --tiny-button-svg-width: @size-16;
   --tiny-button-font-size: @size-12;

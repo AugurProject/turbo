@@ -496,8 +496,9 @@
     margin: var(--normal-button-icon-margin);
   }
 
-  &:not(:disabled):not(:active):focus {
-    padding: var(--normal-button-padding-focus);
+  &:not(:disabled):not(:active):focus-within {
+    outline: none;
+    box-shadow: var(--theme-focus-box-shadow);
   }
 
   &:disabled {
@@ -531,9 +532,9 @@
       width: var(--small-button-svg-width);
     }
 
-    &:not(:disabled):not(:active):focus {
-      padding: var(--small-button-padding-focus);
-    }
+    // &:not(:disabled):not(:active):focus-within {
+      // padding: var(--small-button-padding-focus);
+    // }
   }
 
   &.Tiny {
@@ -549,9 +550,9 @@
       width: var(--tiny-button-svg-width);
     }
 
-    &:not(:disabled):not(:active):focus {
-      padding: var(--tiny-button-padding-focus);
-    }
+    // &:not(:disabled):not(:active):focus-within {
+    //   padding: var(--tiny-button-padding-focus);
+    // }
   }
 }
 
@@ -594,7 +595,7 @@
       }
     }
 
-    &:focus {
+    &:focus-within {
       background: var(--primary-button-background-focus);
       border: var(--primary-button-border-focus);
       color: var(--primary-button-text-color-focus);
@@ -670,7 +671,7 @@
         }
       }
 
-      &:focus {
+      &:focus-within {
         background: var(--inverted-primary-button-background-focus);
         border: var(--inverted-primary-button-border-focus);
         color: var(--inverted-primary-button-text-color-focus);
@@ -750,7 +751,7 @@
       }
     }
 
-    &:focus {
+    &:focus-within {
       background: var(--secondary-button-background-focus);
       border: var(--secondary-button-border-focus);
       color: var(--secondary-button-text-color-focus);
@@ -850,7 +851,7 @@
 
       }
 
-      &:focus {
+      &:focus-within {
         background: var(--inverted-secondary-button-background-focus);
         border: var(--inverted-secondary-button-border-focus);
         color: var(--inverted-secondary-button-text-color-focus);
@@ -931,7 +932,7 @@
       }
     }
 
-    &:focus {
+    &:focus-within {
       background: var(--tiny-button-background-focus);
       border: var(--tiny-button-border-focus);
       color: var(--tiny-button-text-color-focus);
