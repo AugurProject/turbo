@@ -11,6 +11,8 @@ import {
   CryptoMarketFactory,
   MMALinkMarketFactory,
   MMALinkMarketFactory__factory,
+  IERC20Full,
+  IERC20Full__factory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -27,6 +29,7 @@ export interface ContractInterfaces {
     marketFactory: MarketFactoryContract;
     ammFactory: AMMFactory;
     marketFactoryType: MarketFactoryType;
+    collateral: IERC20Full;
   }[];
 }
 export type MarketFactoryContract =
@@ -39,11 +42,14 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
   const contractAddresses = addresses[chainId];
   if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${chainId} not found.`);
 
-  const MarketFactories = contractAddresses.marketFactories.map(({ type, address, ammFactory: ammFactoryAddress }) => {
-    const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, address, signerOrProvider);
-    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
-    return { marketFactory, ammFactory, marketFactoryType: type };
-  });
+  const MarketFactories = contractAddresses.marketFactories.map(
+    ({ type, address, ammFactory: ammFactoryAddress, collateral: collateralAddress }) => {
+      const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, address, signerOrProvider);
+      const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+      const collateral = IERC20Full__factory.connect(collateralAddress, signerOrProvider);
+      return { marketFactory, ammFactory, collateral, marketFactoryType: type };
+    }
+  );
 
   return {
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
