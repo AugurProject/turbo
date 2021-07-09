@@ -43,10 +43,6 @@ const EVENTS: EventDescription[] = [
     initialLiquidity: dollars(75000),
   },
   {
-    // Who Will win the NBA Finals?
-    //
-    //
-    // No Contest
     description: "NBA Finals: Milwaukee Bucks vs Phoenix Suns on July 11th, starts at 8:00 pm ET",
     eventId: "0x124578124578eee",
     homeId: 1000000,
