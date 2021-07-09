@@ -70,7 +70,7 @@ const config: HardhatUserConfig = {
       gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
       gasPrice: 20000000000,
       deployConfig: {
-        version: "test-00",
+        version: "demo-2021-07-09",
         linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
       },
       confirmations: 5,

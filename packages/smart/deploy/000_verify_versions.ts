@@ -15,7 +15,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const version = hre.network.config.deployConfig?.version;
   for (const marketFactory of marketFactories) {
     if (marketFactory.version === version) {
-      throw Error(`Cannot deploy because version "${version} has already been deployed. Change hardhat config.`);
+      const message = `Cannot deploy because version "${version} has already been deployed. Change hardhat config.`;
+      console.error(message);
+      throw Error(message);
     }
   }
 };

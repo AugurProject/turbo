@@ -27,12 +27,12 @@ task("demoSetup", "creates markets and such for a demo").setAction(async (args, 
 
 const EVENTS: EventDescription[] = [
   {
-    description: "American League vs National League on July 13th 7:30 pm ET",
+    description: "MLB Allstar: American League vs National League on July 13th 7:30 pm ET",
     eventId: "0x14a6ded9358233",
     homeId: 1801,
     awayId: 1802,
     startTime: Date.parse("13 Jul 2021 19:30:00 EDT"),
-    initialLiquidity: dollars(100000),
+    initialLiquidity: dollars(50000),
   },
   {
     description: "Red Sox vs Yankees on July 15th, starts at 7:08 pm ET",
@@ -40,7 +40,7 @@ const EVENTS: EventDescription[] = [
     homeId: 10,
     awayId: 24,
     startTime: Date.parse("15 Jul 2021 19:08:00 EDT"),
-    initialLiquidity: dollars(75000),
+    initialLiquidity: dollars(12000),
   },
   {
     description: "NBA Finals: Milwaukee Bucks vs Phoenix Suns on July 11th, starts at 8:00 pm ET",
@@ -48,7 +48,7 @@ const EVENTS: EventDescription[] = [
     homeId: 1000000,
     awayId: 1000001,
     startTime: Date.parse("11 Jul 2021 20:00:00 EDT"),
-    initialLiquidity: dollars(42000),
+    initialLiquidity: dollars(16000),
   },
 ];
 
@@ -97,7 +97,7 @@ async function createMarket(
   marketFactory: SportsLinkMarketFactory,
   confirmations: number
 ) {
-  const { eventId, homeId, awayId, startTime } = eventDescription;
+  const { eventId, homeId, awayId, startTime, description } = eventDescription;
 
   const exists = await eventExists(marketFactory, eventId);
 
@@ -107,6 +107,7 @@ async function createMarket(
   }
 
   console.log("Creating market:");
+  if (description)   console.log(`    Description: ${description}`);
   console.log(`    Event ID: ${eventId}`);
   console.log(`    Start Time: ${startTime}`);
   console.log(`    Home ID: ${homeId}`);
