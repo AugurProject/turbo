@@ -237,7 +237,7 @@ const sportsData = {
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.STARS]: {
-        title: `Who will win the MLB All Star game?`,
+        title: ``,
         description: `Who will win the MLB All Star game?`,
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },      
@@ -266,7 +266,7 @@ const sportsData = {
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
       [SPORTS_MARKET_TYPE.FINALS]: {
-        title: `Who will win the NBA Finals?`,
+        title: ``,
         description: `Who will win the NBA Finals?`,
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },      
