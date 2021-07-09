@@ -71,8 +71,8 @@ Contains just the ETH_URL, which must be a wss link.
     ETH_URL=
 
 ## secret
-This file contains the node's private key. I think.
-It probably has to be set to restrictive permissions held by root.
+Not sure what this holds.
+Chainlink may tell you to make this file's permissions very restricted but that isn't actually necessary.
 
 # Tips & Troubleshooting
 
