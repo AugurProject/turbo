@@ -1,11 +1,12 @@
 import { task } from "hardhat/config";
 import {
+  AbstractMarketFactory,
   AMMFactory,
   buildContractInterfaces,
   Cash,
   Cash__factory,
   ContractInterfaces,
-  MarketFactoryType
+  MarketFactoryType,
 } from "../index";
 import { SportsLinkMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
@@ -40,6 +41,18 @@ const EVENTS: EventDescription[] = [
     awayId: 24,
     startTime: Date.parse("15 Jul 2021 19:08:00 EDT"),
     initialLiquidity: dollars(75000),
+  },
+  {
+    // Who Will win the NBA Finals?
+    //
+    //
+    // No Contest
+    description: "NBA Finals: Milwaukee Bucks vs Phoenix Suns on July 11th, starts at 8:00 pm ET",
+    eventId: "0x124578124578eee",
+    homeId: 1000000,
+    awayId: 1000001,
+    startTime: Date.parse("11 Jul 2021 20:00:00 EDT"),
+    initialLiquidity: dollars(42000),
   },
 ];
 
@@ -89,6 +102,14 @@ async function createMarket(
   confirmations: number
 ) {
   const { eventId, homeId, awayId, startTime } = eventDescription;
+
+  const exists = await eventExists(marketFactory, eventId);
+
+  if (exists) {
+    console.log(`Skipping creation of markets for ${eventId} because it already has at least one market`);
+    return;
+  }
+
   console.log("Creating market:");
   console.log(`    Event ID: ${eventId}`);
   console.log(`    Start Time: ${startTime}`);
@@ -123,13 +144,20 @@ async function addLiquidityForEvent(
   const { eventId, initialLiquidity } = eventDescription;
   const [marketId] = await getEventMarkets(marketFactory, eventId);
 
+  const exists = await poolExists(ammFactory, marketFactory, marketId);
+
+  if (exists) {
+    console.log(`Skipping liquidity adding for ${marketFactory}-${marketId.toString()} because it already has a pool`);
+    return;
+  }
+
   await collateral.faucet(initialLiquidity);
   await collateral.approve(ammFactory.address, initialLiquidity);
 
   const lpTokenRecipient = await marketFactory.signer.getAddress();
   const weights = calcWeights([2, 49, 49]);
 
-  console.log(`Adding liquidity to ${marketFactory.address}-${marketId.toString()}`)
+  console.log(`Adding liquidity to ${marketFactory.address}-${marketId.toString()}`);
   await ammFactory
     .createPool(marketFactory.address, marketId, initialLiquidity, weights, lpTokenRecipient)
     .then((tx) => tx.wait(confirmations));
@@ -198,6 +226,16 @@ async function resetLinkNode(
 
 async function getEventMarkets(marketFactory: SportsLinkMarketFactory, eventId: BigNumberish): Promise<BigNumber[]> {
   return marketFactory.getEventMarkets(eventId).then((ids) => ids.filter((id) => !id.isZero()));
+}
+
+async function eventExists(marketFactory: SportsLinkMarketFactory, eventId: BigNumberish): Promise<boolean> {
+  const marketIds = await getEventMarkets(marketFactory, eventId);
+  return marketIds.length > 0;
+}
+
+async function poolExists(ammFactory: AMMFactory, marketFactory: SportsLinkMarketFactory, marketId: BigNumberish) {
+  const pool = await ammFactory.getPool(marketFactory.address, marketId);
+  return !BigNumber.from(pool).eq(0);
 }
 
 function dollars(howManyDollars: number): BigNumber {

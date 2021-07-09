@@ -98,7 +98,7 @@ describe("CryptoFactory", () => {
       settlementFee,
       protocol,
       protocolFee,
-      linkNode,
+      linkNode
     );
     await marketFactory.setFirstResolutionTime(firstResolutionTime);
 

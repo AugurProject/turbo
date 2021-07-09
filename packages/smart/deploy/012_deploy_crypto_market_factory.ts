@@ -39,7 +39,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     settlementFee,
     protocol,
     protocolFee,
-    linkNode
+    linkNode,
   ];
 
   await deployments.deploy("CryptoMarketFactory", {

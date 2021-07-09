@@ -53,7 +53,7 @@ describe("LinkFactory", () => {
       smallFee,
       signer.address,
       smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -191,7 +191,7 @@ describe("LinkFactory NoContest", () => {
       smallFee,
       signer.address,
       smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     await marketFactory.createMarket(

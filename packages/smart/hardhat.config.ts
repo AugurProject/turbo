@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",
       gas: 9000000, // to fit createPool calls, which fails to estimate gas correctly
       deployConfig: {
-        version: "test-00"
+        version: "test-00",
       },
     },
     arbitrumKovan4: {
@@ -61,7 +61,7 @@ const config: HardhatUserConfig = {
       gas: 200000000, // arbitrum has as higher gas limit and cost for contract deploys from contracts
       gasPrice: 1,
       deployConfig: {
-        version: "test-00"
+        version: "test-00",
       },
     },
     maticMumbai: {
