@@ -43,7 +43,15 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
 
   const { shareTokens } = market;
   const outcomes = decodeOutcomes(market, shareTokens, sportId, homeTeam, awayTeam, sportsMarketType, line);
-  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
+  let newMarketType = sportsMarketType;
+
+  if (eventIdValue === "14a6ded9358233") {
+    newMarketType = SPORTS_MARKET_TYPE.STARS;
+  } else if (eventIdValue === "124578124578eee" || eventIdValue === "5555555555555a") {
+    newMarketType = SPORTS_MARKET_TYPE.FINALS;
+  }
+
+  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, newMarketType, line);
 
   return {
     ...market,
@@ -112,13 +120,13 @@ const getMarketTitle = (
   }
   let title = "";
   let description = "";
-  if (sportsMarketType === 0) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE || sportsMarketType === SPORTS_MARKET_TYPE.STARS || sportsMarketType === SPORTS_MARKET_TYPE.FINALS) {
     // head to head (money line)
     title = marketTitles.title;
     description = populateHomeAway(marketTitles.description, homeTeam, awayTeam);
   }
 
-  if (sportsMarketType === 1) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.SPREAD) {
     // spread
     let fav = awayTeam;
     let underdog = homeTeam;
@@ -136,7 +144,7 @@ const getMarketTitle = (
       .replace(NAMING_LINE.SPREAD_LINE, String(spread));
   }
 
-  if (sportsMarketType === 2) {
+  if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
     // over/under
     title = marketTitles.title.replace(NAMING_LINE.OVER_UNDER_LINE, String(line));
     description = populateHomeAway(marketTitles.description, homeTeam, awayTeam);
@@ -228,6 +236,11 @@ const sportsData = {
         description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}`,
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
+      [SPORTS_MARKET_TYPE.STARS]: {
+        title: `Who will win the MLB All Star game?`,
+        description: `Who will win the MLB All Star game?`,
+        outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
+      },      
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 runs?`,
         description: ``,
@@ -252,6 +265,11 @@ const sportsData = {
         description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}?`,
         outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
       },
+      [SPORTS_MARKET_TYPE.FINALS]: {
+        title: `Who will win the NBA Finals?`,
+        description: `Who will win the NBA Finals?`,
+        outcomes: [NO_CONTEST, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
+      },      
       [SPORTS_MARKET_TYPE.SPREAD]: {
         title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 points?`,
         description: ``,

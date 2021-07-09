@@ -80,10 +80,7 @@ const useMarketEvents = () => {
           );
           if (moneylineMarketId) {
             const moneyline: MarketInfo = markets[moneylineMarketId];
-            event.description =
-              moneyline.outcomes.length !== 0
-                ? `${moneyline.outcomes[1].name} vs ${moneyline.outcomes[2].name}`
-                : event.description.replace("?", "");
+            event.description = moneyline.title;
             event.outcomes = moneyline.outcomes.length !== 0 ? moneyline.outcomes.map((o) => ({ name: o.name, id: o.id })) : [];
           }
           if (event.marketIds.length > 1) {

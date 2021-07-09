@@ -13321,5 +13321,21 @@
     "abbreviation": "Shaun",
     "record": "0-3-0",
     "sport_id": "7"
+  },
+  "1000000": {
+    "team_id": 1000000,
+    "name": "Milwaukee",
+    "mascot": "Bucks",
+    "abbreviation": "MIL",
+    "record": "33-20",
+    "sport_id": "4"
+  },
+  "1000001": {
+    "team_id": 1000001,
+    "name": "Phoenix",
+    "mascot": "Suns",
+    "abbreviation": "PHX",
+    "record": "38-15",
+    "sport_id": "4"
   }
 }

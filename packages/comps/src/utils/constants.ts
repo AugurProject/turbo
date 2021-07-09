@@ -324,6 +324,8 @@ export const SPORTS_MARKET_TYPE = {
   MONEY_LINE: 0,
   SPREAD: 1,
   OVER_UNDER: 2,
+  STARS: 3,
+  FINALS: 4,
 };
 
 export const MARKET_FACTORY_TYPES = {
