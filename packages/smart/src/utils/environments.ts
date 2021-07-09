@@ -15,22 +15,22 @@ interface EnvironmentAddresses extends Addresses {
 }
 
 const marketFactoryTypes: {
-  [index: string]: string | null
+  [index: string]: string | null;
 } = {
   SportsLink: "teamSportsMarketFactories",
   MMALink: "mmaMarketFactories",
   Crypto: "cryptoMarketFactories",
-  Trusted: null
-}
+  Trusted: null,
+};
 
 const marketFactoryGraphNames: {
-  [index: string]: string | null
+  [index: string]: string | null;
 } = {
   SportsLink: "SportsLinkMarketFactory",
   MMALink: "MmaMarketFactory",
   Crypto: "CryptoMarketFactory",
-  Trusted: null
-}
+  Trusted: null,
+};
 
 function generateJsonEnvironments() {
   const networks = Object.keys(originalAddresses);
@@ -45,19 +45,25 @@ function generateJsonEnvironments() {
         j === 0 ? "AbstractMarketFactory" : `AbstractMarketFactory${j + 1}`;
 
       const marketFactoryType = addresses.marketFactories[j].type;
-      const marketFactoryTypeName = marketFactoryTypes.hasOwnProperty(marketFactoryType) ? marketFactoryTypes[marketFactoryType] : null;
+      const marketFactoryTypeName = marketFactoryTypes.hasOwnProperty(marketFactoryType)
+        ? marketFactoryTypes[marketFactoryType]
+        : null;
       if (marketFactoryTypeName) {
         if (!addresses[marketFactoryTypeName]) {
           addresses[marketFactoryTypeName] = [];
         }
 
-        const specificFactory = {...addresses.marketFactories[j]};
+        const specificFactory = { ...addresses.marketFactories[j] };
         delete specificFactory.ammFactoryGraphName;
-        const marketFactoryGraphName = marketFactoryGraphNames.hasOwnProperty(marketFactoryType) ? marketFactoryGraphNames[marketFactoryType] : null;
+        const marketFactoryGraphName = marketFactoryGraphNames.hasOwnProperty(marketFactoryType)
+          ? marketFactoryGraphNames[marketFactoryType]
+          : null;
 
         if (marketFactoryGraphName) {
           specificFactory.marketFactoryGraphName =
-            addresses[marketFactoryTypeName].length === 0 ? marketFactoryGraphName : `${marketFactoryGraphName}${j + 1}`;
+            addresses[marketFactoryTypeName].length === 0
+              ? marketFactoryGraphName
+              : `${marketFactoryGraphName}${j + 1}`;
           addresses[marketFactoryTypeName].push(specificFactory);
         }
       }
