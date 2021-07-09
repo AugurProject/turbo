@@ -47,7 +47,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
 
   if (eventIdValue === "14a6ded9358233") {
     newMarketType = SPORTS_MARKET_TYPE.STARS;
-  } else if (eventIdValue === "124578124578eee" || eventIdValue === "5555555555555a") {
+  } else if (eventIdValue === "5555555555555a") {
     newMarketType = SPORTS_MARKET_TYPE.FINALS;
   }
 
