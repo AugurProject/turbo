@@ -61,9 +61,10 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
     uint256[] public listOfEvents;
 
     address public linkNode;
-    uint256 public sportId;
+    uint256 public sportId = 7;
 
     constructor(
+        string memory _version,
         address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
@@ -72,10 +73,10 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 _settlementFee,
         address _protocol,
         uint256 _protocolFee,
-        address _linkNode,
-        uint256 _sportId
+        address _linkNode
     )
         AbstractMarketFactory(
+            _version,
             _owner,
             _collateral,
             _shareFactor,
@@ -87,7 +88,6 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
-        sportId = _sportId;
     }
 
     function createMarket(

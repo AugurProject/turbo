@@ -32,8 +32,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const uploadBlockNumber =
     ammFactory.receipt?.blockNumber || originalAddresses[chainId as ChainId]?.info.uploadBlockNumber || 0;
 
-  // const version = process.env.npm_package_version; // uses old version unfortunately. need the post-lerna call version
-  const version = "FILL THIS OUT";
+  const version = hre.network.config.deployConfig?.version;
 
   // Add new market factories. Only new ones.
   const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];

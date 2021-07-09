@@ -27,7 +27,6 @@ describe("MMA Factory", () => {
   const awayFighterId = 1881;
   const moneylineHome = -600;
   const moneylineAway = 800;
-  const sportId = 7;
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
@@ -42,7 +41,9 @@ describe("MMA Factory", () => {
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
     const shareFactor = calcShareFactor(await collateral.decimals());
+    const version = "internal test";
     marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
+      version,
       signer.address,
       collateral.address,
       shareFactor,
@@ -52,7 +53,6 @@ describe("MMA Factory", () => {
       signer.address,
       smallFee,
       signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -186,9 +186,10 @@ describe("MMA Factory", () => {
       const estimatedStartTime = now.add(60 * 60 * 24); // one day
       const homeFighterId = 42;
       const awayFighterId = 1881;
-      const sportId = 4;
+      const version = "internal test";
 
       marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
+        version,
         signer.address,
         collateral.address,
         shareFactor,
@@ -198,7 +199,6 @@ describe("MMA Factory", () => {
         signer.address,
         smallFee,
         signer.address, // pretending the deployer is a link node for testing purposes
-        sportId
       );
 
       await marketFactory.createMarket(

@@ -35,6 +35,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     event SettlementFeeChanged(uint256 fee);
     event StakerFeeChanged(uint256 fee);
 
+    string public version;
+
     IERC20Full public collateral;
     FeePot public feePot;
 
@@ -70,6 +72,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     uint256 private constant MAX_UINT = 2**256 - 1;
 
     constructor(
+        string memory _version,
         address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
@@ -79,6 +82,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         address _protocol,
         uint256 _protocolFee
     ) {
+        version = _version;
         owner = _owner; // controls fees for new markets
         collateral = _collateral;
         shareFactor = _shareFactor;
@@ -87,10 +91,12 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         settlementFee = _settlementFee;
         protocol = _protocol;
         protocolFee = _protocolFee;
-
         _collateral.approve(address(_feePot), MAX_UINT);
+        setFakeMarket();
+    }
 
-        // First market is always empty so that marketid zero means "no market"
+    // First market is always empty so that marketid zero means "no market"
+    function setFakeMarket() internal {
         string[] memory _nothing = new string[](0);
         markets.push(makeMarket(address(0), _nothing, _nothing, 0));
     }

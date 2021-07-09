@@ -1,5 +1,12 @@
 import { task } from "hardhat/config";
-import { AMMFactory, buildContractInterfaces, Cash, ContractInterfaces, MarketFactoryType } from "../index";
+import {
+  AMMFactory,
+  buildContractInterfaces,
+  Cash,
+  Cash__factory,
+  ContractInterfaces,
+  MarketFactoryType
+} from "../index";
 import { SportsLinkMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
@@ -11,7 +18,7 @@ task("demoSetup", "creates markets and such for a demo").setAction(async (args, 
   const factoryContracts = contracts.MarketFactories[marketFactoryIndex(contracts, "SportsLink")];
   const marketFactory = factoryContracts.marketFactory as SportsLinkMarketFactory;
   const ammFactory = factoryContracts.ammFactory;
-  const collateral = factoryContracts.collateral as Cash;
+  const collateral = Cash__factory.connect(factoryContracts.collateral.address, signer);
 
   await createMarkets(EVENTS, marketFactory, signer, confirmations);
   await addLiquidity(EVENTS, ammFactory, marketFactory, collateral, confirmations);
@@ -66,7 +73,11 @@ async function createMarkets(
   const finalMarketCount = await getMarketCount(marketFactory);
   const marketIds = listCreatedMarkets(originalMarketCount, finalMarketCount);
 
-  console.log(`Created markets for SportsLinkMarketFactory ${marketFactory.address}: ${marketIds.join(", ")}`);
+  if (marketIds.length > 0) {
+    console.log(`Created markets for SportsLinkMarketFactory ${marketFactory.address}: ${marketIds.join(", ")}`);
+  } else {
+    console.log(`Created no markets for SportsLinkMarketFactory ${marketFactory.address} because they already existed`);
+  }
 
   return marketIds;
 }
@@ -96,6 +107,7 @@ async function addLiquidity(
   collateral: Cash,
   confirmations: number
 ) {
+  console.log(`Adding liquidity for demo markets`);
   for (const eventDescription of eventDescriptions) {
     await addLiquidityForEvent(eventDescription, ammFactory, marketFactory, collateral, confirmations);
   }
@@ -109,7 +121,6 @@ async function addLiquidityForEvent(
   confirmations: number
 ) {
   const { eventId, initialLiquidity } = eventDescription;
-
   const [marketId] = await getEventMarkets(marketFactory, eventId);
 
   await collateral.faucet(initialLiquidity);
@@ -117,6 +128,8 @@ async function addLiquidityForEvent(
 
   const lpTokenRecipient = await marketFactory.signer.getAddress();
   const weights = calcWeights([2, 49, 49]);
+
+  console.log(`Adding liquidity to ${marketFactory.address}-${marketId.toString()}`)
   await ammFactory
     .createPool(marketFactory.address, marketId, initialLiquidity, weights, lpTokenRecipient)
     .then((tx) => tx.wait(confirmations));
@@ -183,7 +196,7 @@ async function resetLinkNode(
   }
 }
 
-async function getEventMarkets(marketFactory: SportsLinkMarketFactory, eventId: BigNumberish): Promise<BigNumberish[]> {
+async function getEventMarkets(marketFactory: SportsLinkMarketFactory, eventId: BigNumberish): Promise<BigNumber[]> {
   return marketFactory.getEventMarkets(eventId).then((ids) => ids.filter((id) => !id.isZero()));
 }
 

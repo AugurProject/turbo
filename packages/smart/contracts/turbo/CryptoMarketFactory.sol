@@ -54,6 +54,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     uint256 public nextResolutionTime;
 
     constructor(
+        string memory _version,
         address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
@@ -62,10 +63,10 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         uint256 _settlementFee,
         address _protocol,
         uint256 _protocolFee,
-        address _linkNode,
-        uint256 _firstResolutionTime
+        address _linkNode
     )
         AbstractMarketFactory(
+            _version,
             _owner,
             _collateral,
             _shareFactor,
@@ -77,8 +78,16 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         )
     {
         linkNode = _linkNode;
-        nextResolutionTime = _firstResolutionTime;
+        setFakeCoin();
+    }
 
+    function setFirstResolutionTime(uint256 _firstResolutionTime) external onlyOwner {
+        require(nextResolutionTime == 0, "Can only set first resolution time once");
+        nextResolutionTime = _firstResolutionTime;
+    }
+
+    // First coin is always empty so a priceFeed of address(0) zero means "no coin"
+    function setFakeCoin() internal {
         string memory _name = "";
         coins.push(makeCoin(_name, AggregatorV3Interface(0), 0));
     }

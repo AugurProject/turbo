@@ -81,6 +81,7 @@ describe("CryptoFactory", () => {
   });
 
   it("is deployable", async () => {
+    const version = "internal test";
     const owner = signer.address;
     const protocol = signer.address;
     const linkNode = signer.address;
@@ -88,6 +89,7 @@ describe("CryptoFactory", () => {
     const settlementFee = smallFee;
     const protocolFee = smallFee;
     marketFactory = await new CryptoMarketFactory__factory(signer).deploy(
+      version,
       owner,
       collateral.address,
       shareFactor,
@@ -97,9 +99,10 @@ describe("CryptoFactory", () => {
       protocol,
       protocolFee,
       linkNode,
-      firstResolutionTime
     );
+    await marketFactory.setFirstResolutionTime(firstResolutionTime);
 
+    expect(await marketFactory.version()).to.equal(version);
     expect(await marketFactory.getOwner()).to.equal(owner);
     expect(await marketFactory.collateral()).to.equal(collateral.address);
     expect(await marketFactory.shareFactor()).to.equal(shareFactor);

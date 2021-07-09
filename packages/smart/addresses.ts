@@ -70,6 +70,30 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "MMALink",
+        address: "0x79B31E46A171145A767B22370028fF6269aAE109",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0x8838706636185931F12c84155201b1f5DA5CB037",
+        description: "mma",
+        version: "test-00",
+      },
+      {
+        type: "Crypto",
+        address: "0x7EaE0DBbccE11973afEbD235646A8F6653903290",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0x8838706636185931F12c84155201b1f5DA5CB037",
+        description: "crypto prices",
+        version: "test-00",
+      },
+      {
+        type: "SportsLink",
+        address: "0xDc0454D6F89666dEb2E2DCB97061363728246FA9",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0x8838706636185931F12c84155201b1f5DA5CB037",
+        description: "mlb and nba",
+        version: "test-00",
+      },
+      {
         type: "Crypto",
         address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
@@ -110,6 +134,6 @@ export const addresses: AddressMapping = {
         version: "v1.0.0-beta.7",
       },
     ],
-    info: { uploadBlockNumber: 15758544, graphName: "mumbai" },
+    info: { uploadBlockNumber: 16143347, graphName: "mumbai" },
   },
 };

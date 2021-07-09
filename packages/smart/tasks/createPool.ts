@@ -9,7 +9,6 @@ import {
   BPool,
   BPool__factory,
   Cash__factory,
-  TestPriceMarketFactory__factory,
 } from "../typechain";
 import { BigNumberish } from "ethers/lib/ethers";
 
@@ -32,7 +31,7 @@ task("createPool", "Create a balancer pool for an AMM")
     const confirmations = isHttpNetworkConfig(hre.network.config) ? hre.network.config.confirmations : 0;
 
     initialLiquidity = ethers.BigNumber.from(10).pow(18).mul(initialLiquidity);
-    const marketFactory = TestPriceMarketFactory__factory.connect(marketFactoryAddress, signer);
+    const marketFactory = AbstractMarketFactory__factory.connect(marketFactoryAddress, signer);
 
     console.log("Finding the collateral address");
     const collateralAddress = await marketFactory.collateral();

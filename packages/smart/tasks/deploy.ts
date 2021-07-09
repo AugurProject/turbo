@@ -39,6 +39,8 @@ export interface DeployConfig {
   linkNode?: string; // address of link node running cron-initiated jobs to create and resolve markets
   owner?: string; // address which will own (control fees etc) the market factory
   protocol?: string; // address that receives protocol fees
+
+  version: string;
 }
 
 export interface ExternalAddresses {

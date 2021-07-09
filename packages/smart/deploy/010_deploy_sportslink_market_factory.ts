@@ -15,6 +15,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const signer = await makeSigner(hre);
   const deployer = await signer.getAddress();
 
+  const version = hre.network.config.deployConfig?.version;
   const collateralAddress =
     hre.network.config.deployConfig?.externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
   const collateral = Cash__factory.connect(collateralAddress, signer);
@@ -29,9 +30,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = hre.network.config.deployConfig?.protocol || deployer;
   const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const sportId = 4;
-
   const args: Parameters<SportsLinkMarketFactory__factory["deploy"]> = [
+    version,
     owner,
     collateral.address,
     shareFactor,
@@ -41,7 +41,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     protocol,
     protocolFee,
     linkNode,
-    sportId,
   ];
 
   await deployments.deploy("SportsLinkMarketFactory", {
@@ -52,6 +51,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 func.tags = ["SportsLinkMarketFactory"];
-func.dependencies = ["Tokens", "FeePot"];
+func.dependencies = ["Tokens", "FeePot", "Version"];
 
 export default func;

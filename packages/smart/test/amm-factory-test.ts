@@ -59,7 +59,9 @@ describe("AMMFactory", () => {
     const reputationToken = await Cash__factory.deploy("REPv2", "REPv2", 18);
     const feePot = await FeePot__factory.deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
+    const version = "internal test";
     marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
+      version,
       signer.address,
       collateral.address,
       shareFactor,

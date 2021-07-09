@@ -42,7 +42,9 @@ describe("LinkFactory", () => {
     const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     const smallFee = BigNumber.from(10).pow(16);
     const shareFactor = calcShareFactor(await collateral.decimals());
+    const version = "internal test";
     marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+      version,
       signer.address,
       collateral.address,
       shareFactor,
@@ -52,7 +54,6 @@ describe("LinkFactory", () => {
       signer.address,
       smallFee,
       signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
@@ -178,9 +179,10 @@ describe("LinkFactory NoContest", () => {
     const awayTeamId = 1881;
     const homeSpread = 40;
     const overUnderTotal = 60;
-    const sportId = 4;
+    const version = "internal test";
 
     marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+      version,
       signer.address,
       collateral.address,
       shareFactor,
@@ -190,7 +192,6 @@ describe("LinkFactory NoContest", () => {
       signer.address,
       smallFee,
       signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
     );
 
     await marketFactory.createMarket(

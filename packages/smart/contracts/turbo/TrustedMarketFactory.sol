@@ -19,6 +19,7 @@ contract TrustedMarketFactory is AbstractMarketFactory {
     MarketDetails[] internal marketDetails;
 
     constructor(
+        string memory _version,
         address _owner,
         IERC20Full _collateral,
         uint256 _shareFactor,
@@ -29,6 +30,7 @@ contract TrustedMarketFactory is AbstractMarketFactory {
         uint256 _protocolFee
     )
         AbstractMarketFactory(
+            _version,
             _owner,
             _collateral,
             _shareFactor,

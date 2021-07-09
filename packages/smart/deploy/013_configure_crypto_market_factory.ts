@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types";
 import { isHttpNetworkConfig, makeSigner, PriceFeedConfig } from "../tasks";
 import { CryptoMarketFactory, CryptoMarketFactory__factory } from "../typechain";
-import { FAKE_COINS } from "../src";
+import { FAKE_COINS, getUpcomingFriday4pmEst } from "../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -20,6 +20,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     (await deployments.get("CryptoMarketFactory")).address,
     signer
   );
+
+  const nextResolutionTime = await marketFactory.nextResolutionTime();
+  if (nextResolutionTime.eq(0)) {
+    const firstResolutionTime = getUpcomingFriday4pmEst().valueOf();
+    await marketFactory.setFirstResolutionTime(firstResolutionTime);
+  }
 
   if (await shouldAddCoins(marketFactory)) {
     for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(hre.network.config, deployments)) {
