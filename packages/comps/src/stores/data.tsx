@@ -9,7 +9,7 @@ import {
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
-import { getAllTransactions } from "../apollo/client";
+import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { useAppStatusStore, AppStatusStore } from "./app-status";
 
@@ -50,6 +50,9 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         const { isRpcDown } = AppStatusStore.get();
         const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
         const provider = loginAccount?.library || defaultProvider?.current;
+        const graphMarkets = await getMarketsData((data, block, errors) => {
+          console.log(data, block, errors);
+        });
         const infos = await getMarketInfos(
           provider,
           dmarkets,
