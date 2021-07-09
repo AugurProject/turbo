@@ -131,12 +131,12 @@ const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [marketNotFound, setMarketNotFound] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile, isLogged } = useAppStatusStore();
+  const { isMobile } = useAppStatusStore();
   const {
     marketEvents,
     settings: { timeFormat },
   } = useSportsStore();
-  const { markets, ammExchanges, loading, transactions } = useDataStore();
+  const { markets, ammExchanges, transactions } = useDataStore();
   useScrollToTopOnMount();
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
   const amm: AmmExchange = ammExchanges[marketId];
