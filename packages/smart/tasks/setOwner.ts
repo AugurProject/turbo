@@ -14,14 +14,14 @@ task("setOwner", "Set owner for market factory")
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories[index].marketFactory as unknown as AbstractMarketFactory;
+    const marketFactory = (MarketFactories[index].marketFactory as unknown) as AbstractMarketFactory;
 
     const originalOwner = await marketFactory.getOwner();
 
     if (originalOwner === address) {
-        console.log(`Owner is already "${address}" so no need to change it.`);
+      console.log(`Owner is already "${address}" so no need to change it.`);
     } else {
-        console.log(`Changing owner from "${originalOwner}" to "${address}".`);
-        await marketFactory.transferOwnership(address);
+      console.log(`Changing owner from "${originalOwner}" to "${address}".`);
+      await marketFactory.transferOwnership(address);
     }
   });

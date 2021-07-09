@@ -19,9 +19,9 @@ task("setSportsLinkNode", "Set linkNode for SportsLinkMarketFactory")
     const originalLinkNode = await marketFactory.linkNode();
 
     if (originalLinkNode === address) {
-        console.log(`Link node is already "${address}" so no need to change it.`);
+      console.log(`Link node is already "${address}" so no need to change it.`);
     } else {
-        console.log(`Changing link node from "${originalLinkNode}" to "${address}".`);
-        await marketFactory.setLinkNode(address);
+      console.log(`Changing link node from "${originalLinkNode}" to "${address}".`);
+      await marketFactory.setLinkNode(address);
     }
   });
