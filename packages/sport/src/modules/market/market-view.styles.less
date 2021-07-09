@@ -26,6 +26,10 @@
         word-wrap: break-word;
         word-break: break-word;
         hyphens: none;
+
+        @media @breakpoint-mobile-tablet {
+          .text-20-bold;
+        }
       }
 
       > span:first-of-type {
@@ -437,7 +441,7 @@
       grid-gap: unset;
 
       > span:first-of-type {
-        .text-14-semi-bold;
+        .text-12-semi-bold;
       }
 
       > div,
@@ -465,15 +469,10 @@
   }
 
   .StatsRow {
-    // display: grid;
-    // grid-template-columns: repeat(3, 1fr);
-    // height: unset;
     margin-bottom: @size-24;
 
     > li {
       padding: @size-12;
-      // height: unset;
-      // grid-gap: @size-4;
 
       > span:first-of-type {
         .text-12;
@@ -482,11 +481,6 @@
       > span:last-of-type {
         .text-16-semi-bold;
       }
-
-      // &:last-of-type {
-      //   grid-column: 1 / span 3;
-      //   border-top: @size-1 solid var(--simple-border);
-      // }
     }
   }
 }
