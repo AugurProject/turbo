@@ -45,9 +45,8 @@ function generateJsonEnvironments() {
         j === 0 ? "AbstractMarketFactory" : `AbstractMarketFactory${j + 1}`;
 
       const marketFactoryType = addresses.marketFactories[j].type;
-      const marketFactoryTypeName = marketFactoryTypes.hasOwnProperty(marketFactoryType)
-        ? marketFactoryTypes[marketFactoryType]
-        : null;
+      const hasMarketFactoryType = Object.prototype.hasOwnProperty.call(marketFactoryTypes, marketFactoryType);
+      const marketFactoryTypeName = hasMarketFactoryType ? marketFactoryTypes[marketFactoryType] : null;
       if (marketFactoryTypeName) {
         if (!addresses[marketFactoryTypeName]) {
           addresses[marketFactoryTypeName] = [];
@@ -55,9 +54,12 @@ function generateJsonEnvironments() {
 
         const specificFactory = { ...addresses.marketFactories[j] };
         delete specificFactory.ammFactoryGraphName;
-        const marketFactoryGraphName = marketFactoryGraphNames.hasOwnProperty(marketFactoryType)
-          ? marketFactoryGraphNames[marketFactoryType]
-          : null;
+
+        const hasMarketFactoryGraphName = Object.prototype.hasOwnProperty.call(
+          marketFactoryGraphNames,
+          marketFactoryType
+        );
+        const marketFactoryGraphName = hasMarketFactoryGraphName ? marketFactoryGraphNames[marketFactoryType] : null;
 
         if (marketFactoryGraphName) {
           specificFactory.marketFactoryGraphName =
