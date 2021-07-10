@@ -336,7 +336,7 @@ export const BaseThemeButton = ({
     ),
   };
 
-  return href ? <a {...{ ...props, href }}>{content}</a> : <button {...{ ...props }}>{content}</button>;
+  return href ? <a target="_blank" {...{ ...props, href }}>{content}</a> : <button {...{ ...props }}>{content}</button>;
 };
 
 export const PrimaryThemeButton = (props: BaseThemeButtonProps) => (
