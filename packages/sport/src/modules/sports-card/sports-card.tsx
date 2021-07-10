@@ -191,6 +191,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     bets,
     actions: { addBet },
   } = useBetslipStore();
+  const { isLogged } = useAppStatusStore();
   const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
   const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
   const { spreadLine, overUnderLine } = marketEvent;
@@ -247,7 +248,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[spreadMarket.sportsMarketType]}`,
             });
         }}
-        disabled={spreadOdds === "-"}
+        disabled={!isLogged || spreadOdds === "-"}
       >
         {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" ? <span>{outcomeSpread}</span> : <span />}
         <span>{spreadOdds}</span>
@@ -265,7 +266,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[moneyLineMarket.sportsMarketType]}`,
             });
         }}
-        disabled={moneyLineOdds === "-"}
+        disabled={!isLogged || moneyLineOdds === "-"}
       >
         <span />
         <span>{moneyLineOdds}</span>
@@ -283,7 +284,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[OUMarket.sportsMarketType]}`,
             });
         }}
-        disabled={OUOdds === "-"}
+        disabled={!isLogged || OUOdds === "-"}
       >
         {OUOdds !== "-" ? (
           <span>
@@ -311,6 +312,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
     bets,
     actions: { addBet },
   } = useBetslipStore();
+  const { isLogged } = useAppStatusStore();
   const { id, name } = outcome;
   const sizedPrice = useMemo(() => getSizedPrice(amm, id, betSizeToOdds), [outcome.balance, betSizeToOdds]);
   const odds = useMemo(
@@ -333,7 +335,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
             subHeading: `${SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}`,
           })
         }
-        disabled={odds === "-"}
+        disabled={!isLogged || odds === "-"}
       >
         {odds}
       </button>
