@@ -248,7 +248,7 @@ const getClientConfig = (): { augurClient: string; blockClient: string; turboCli
     "80001": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",
       blockClient: "",
-      turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-mumbai",
+      turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-demo-mumbai",
       network: "mumbai",
     },
     "137": {
