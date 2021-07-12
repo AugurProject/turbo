@@ -175,7 +175,7 @@ const getMarketOutcome = (sportId: string, sportsMarketType: number, outcomeId: 
 
 const decodeOutcomes = (
   market: MarketInfo,
-  shareTokens: string[],
+  shareTokens: string[] = [],
   sportId: string,
   homeTeam: string,
   awayTeam: string,

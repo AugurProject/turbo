@@ -21,7 +21,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     eventId: coEventId,
     homeTeamId: coHomeTeamId,
     estimatedStartTime,
-    marketType,
+    marketType = "0",
   } = marketData;
   // translate market data
   const eventId = String(coEventId._hex);
@@ -121,7 +121,7 @@ const getMarketOutcome = (sportsMarketType: number, outcomeId: number): string =
 
 const decodeOutcomes = (
   market: MarketInfo,
-  shareTokens: string[],
+  shareTokens: string[] = [],
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number

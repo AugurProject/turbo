@@ -1721,6 +1721,106 @@ const retrieveMarkets = async (
   return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
+
+const fillMarketDatas = async (
+  cashes: Cashes,
+  provider: Web3Provider,
+  account: string,
+  factoryAddress: string,
+  ammFactory: string,
+  marketFactoryType: string,
+  blocknumber
+): Market[] => {
+  const POOLS = "pools";
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
+  const marketFactoryAddress = marketFactoryContract.address;
+  const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
+  const ammFactoryAddress = ammFactoryContract.address;
+  const ammFactoryAbi = extractABI(ammFactoryContract);
+
+  const contractMarketsCall: ContractCallContext[] = indexes.reduce(
+    (p, index) => [
+      ...p,
+      {
+        reference: `${ammFactoryAddress}-${index}-pools`,
+        contractAddress: ammFactoryAddress,
+        abi: ammFactoryAbi,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-pools`,
+            methodName: POOLS,
+            methodParameters: [marketFactoryAddress, index],
+            context: {
+              index,
+              marketFactoryAddress,
+            },
+          },
+        ],
+      },
+    ],
+    []
+  );
+
+  let markets = [];
+  const details = {};
+  let exchanges = {};
+  const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
+    console.error(`retrieveMarkets`, e);
+    throw e;
+  });
+
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
+
+    if (method === POOLS) {
+      const id = data === NULL_ADDRESS ? null : data;
+      exchanges[marketId] = {
+        marketId,
+        id,
+        marketFactoryAddress,
+        turboId: context.index,
+        feeDecimal: "0",
+        feeRaw: "0",
+        feeInPercent: "0",
+        transactions: [], // to be filled in the future
+        trades: {}, // to be filled in the future
+        cash,
+        ammFactoryAddress,
+      };
+    } 
+  }
+
+  const marketInfos = {};
+  if (markets.length > 0) {
+    markets.forEach((m) => {
+      const marketDetails = details[m.marketId];
+      marketInfos[m.marketId] = deriveMarketInfo(m, marketDetails, marketFactoryType);
+    });
+  }
+
+  const newBlocknumber = marketsResult.blocknumber;
+
+  if (Object.keys(exchanges).length > 0) {
+    exchanges = await retrieveExchangeInfos(
+      exchanges,
+      marketInfos,
+      marketFactoryAddress,
+      ammFactoryContract,
+      provider,
+      account,
+      factoryAddress,
+      marketFactoryType
+    );
+  }
+
+  return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
+};
+
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
   const TOTAL_SUPPLY = "totalSupply";
   const ex = Object.values(exchanges).filter((k) => k.id);

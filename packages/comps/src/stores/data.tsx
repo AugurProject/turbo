@@ -12,6 +12,8 @@ import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { useAppStatusStore, AppStatusStore } from "./app-status";
+import { deriveMarketInfo } from "../utils/derived-market-data";
+import { MARKET_FACTORY_TYPES } from "../utils/constants";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -23,7 +25,11 @@ export const DataStore = {
   get: () => ({ ...DEFAULT_DATA_STATE }),
   actions: STUBBED_DATA_ACTIONS,
 };
-
+const GRAPH_MARKETS = {
+  "cryptoMarkets": MARKET_FACTORY_TYPES.CRYPTO,
+  "mmaMarkets": MARKET_FACTORY_TYPES.MMALINK,
+  "teamSportsMarkets": MARKET_FACTORY_TYPES.SPORTSLINK,
+}
 export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
@@ -52,6 +58,11 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         const provider = loginAccount?.library || defaultProvider?.current;
         const graphMarkets = await getMarketsData((data, block, errors) => {
           console.log(data, block, errors);
+          const markets = Object.keys(GRAPH_MARKETS).reduce((p, key) => {
+            const markets = data[key].map(m => deriveMarketInfo(m, m, GRAPH_MARKETS[key]));
+            return [...p, ...markets];
+          }, []);
+          console.log('filled markets', markets);
         });
         const infos = await getMarketInfos(
           provider,
