@@ -61,135 +61,8 @@
 
     &:focus-visible {
       outline: 0;
-      border: @size-1 solid var(--color-focused);
-      box-shadow: inset 0 0 0 @size-2 var(--color-focused);
-    }
-  }
-}
-
-.PrimaryButton {
-  .Button;
-
-  background-color: var(--simple-yes-15);
-  border: @size-1 solid var(--simple-yes);
-
-  > div {
-    &::after {
-      background-color: var(--simple-yes-15-builtin);
-    }
-  }
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      background-color: var(--simple-yes-30);
-    }
-
-    &:focus {
-      background-color: var(--simple-yes-15);
-    }
-
-    &:active {
-      background-color: var(--simple-yes-30);
-    }
-  }
-
-  &.Dark {
-    .text-12-bold;
-
-    background-color: var(--color-primary-action);
-    color: var(--color-dark-grey);
-    border: 0;
-    height: @size-32;
-    max-height: @size-32;
-    min-height: @size-32;
-    border-radius: @size-3;
-    padding: 0 @size-12;
-
-    &:not(:disabled):not(.Disabled) {
-      &:hover {
-        background-color: var(--color-primary-action-70);
-      }
-
-      &:focus {
-        background-color: var(--color-primary-action-20);
-      }
-
-      &:active {
-        background-color: var(--color-primary-action-20);
-      }
-    }
-  }
-}
-
-.SecondaryButton {
-  .Button;
-
-  background-color: var(--light-background-color);
-  border: @size-1 solid var(--simple-border);
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      background-color: var(--simple-alternate-background);
-    }
-
-    &:focus {
-      background-color: var(--light-background-color);
-    }
-
-    &:active {
-      background-color: var(--simple-alternate-background);
-    }
-  }
-
-  &.Error {
-    background-color: var(--color-error);
-    border: @size-1 solid var(--color-error);
-    color: var(--color-brand-secondary);
-
-    &:not(:disabled):not(.Disabled) {
-      &:hover,
-      &:focus,
-      &:active {
-        background-color: var(--color-error);
-        border: @size-1 solid var(--color-error);
-        color: var(--color-brand-secondary);
-      }
-
-      &:focus {
-        border: @size-1 solid var(--color-focused);
-      }
-    }
-  }
-
-  &.Pending {
-    background-color: var(--color-brand);
-    border: @size-1 solid var(--color-brand);
-    color: var(--color-brand-secondary);
-
-    > div::before {
-      background: linear-gradient(0deg, transparent 50%, white 100%) 0% 0%,
-        linear-gradient(90deg, white 0%, white 100%) 100% 0%, linear-gradient(180deg, white 0%, white 100%) 100% 100%,
-        linear-gradient(270deg, white 0%, white 100%) 0% 100%;
-      background-repeat: no-repeat;
-      background-size: 50% 50%;
-    }
-
-    > div::after {
-      background-color: var(--color-brand);
-    }
-
-    &:not(:disabled):not(.Disabled) {
-      &:hover,
-      &:focus,
-      &:active {
-        background-color: var(--color-brand);
-        border: @size-1 solid var(--color-brand);
-        color: var(--color-brand-secondary);
-      }
-
-      &:focus {
-        border: @size-1 solid var(--color-focused);
-      }
+      border: @size-1 solid var(--simple-focus-color);
+      box-shadow: inset 0 0 0 @size-2 var(--simple-focus-color);
     }
   }
 }
@@ -250,7 +123,7 @@
     &:active,
     &.Selected {
       background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--color-secondary-text);
+      border: @size-1 solid var(--simple-secondary-text);
     }
   }
 }
@@ -414,7 +287,7 @@
 .ExternalLinkButton {
   .text-10-semi-bold;
 
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
   border: 0;
   background: transparent;
   text-transform: uppercase;
@@ -429,31 +302,31 @@
 
     > path {
       &:nth-child(odd) {
-        fill: var(--color-primary-text);
+        fill: var(--simple-primary-text);
         stroke: none;
       }
 
       &:nth-child(even) {
-        stroke: var(--color-primary-text);
+        stroke: var(--simple-primary-text);
       }
     }
   }
 
   &:hover {
-    color: var(--color-secondary-text);
+    color: var(--simple-secondary-text);
 
     > a {
-      color: var(--color-secondary-text);
+      color: var(--simple-secondary-text);
     }
 
     > svg {
       > path {
         &:nth-child(odd) {
-          fill: var(--color-secondary-text);
+          fill: var(--simple-secondary-text);
         }
 
         &:nth-child(even) {
-          stroke: var(--color-secondary-text);
+          stroke: var(--simple-secondary-text);
         }
       }
     }

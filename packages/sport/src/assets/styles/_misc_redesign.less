@@ -89,14 +89,12 @@
 :root {
   --theme-primary-radius: @size-8;
   --theme-secondary-radius: @size-8;
-  --theme-tertiary-radius: @size-8;
   --theme-box-shadow: 0 @size-8 @size-40 var(--simple-shadow-10);
 }
 
 :root[theme="SPORTS"] {
   --theme-primary-radius: @size-3;
   --theme-secondary-radius: @size-6;
-  --theme-tertiary-radius: @size-4;
   --theme-box-shadow: 0 0 @size-4 rgba(14, 14, 33, 0.15);
 }
 
@@ -269,29 +267,4 @@
 .SecondaryBorderRadius {
   .SecondaryBottomBorderRadius;
   .SecondaryTopBorderRadius;
-}
-
-.TertiaryTopBorderRadius {
-  border-top-left-radius: var(--theme-tertiary-radius);
-  border-top-right-radius: var(--theme-tertiary-radius);
-}
-
-.TertiaryRightBorderRadius {
-  border-bottom-right-radius: var(--theme-tertiary-radius);
-  border-top-right-radius: var(--theme-tertiary-radius);
-}
-
-.TertiaryBottomBorderRadius {
-  border-bottom-left-radius: var(--theme-tertiary-radius);
-  border-bottom-right-radius: var(--theme-tertiary-radius);
-}
-
-.TertiaryLeftBorderRadius {
-  border-bottom-left-radius: var(--theme-tertiary-radius);
-  border-top-left-radius: var(--theme-tertiary-radius);
-}
-
-.TertiaryBorderRadius {
-  .TertiaryBottomBorderRadius;
-  .TertiaryTopBorderRadius;
 }

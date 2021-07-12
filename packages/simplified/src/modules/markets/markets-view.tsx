@@ -19,7 +19,7 @@ import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryButton },
+  ButtonComps: { SearchButton, SecondaryThemeButton },
   Icons: { FilterIcon },
   MarketCardComps: { LoadingMarketCard, MarketCard },
   PaginationComps: { sliceByPage, Pagination },
@@ -237,7 +237,7 @@ const MarketsView = () => {
       {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />}
       {isMobile && (
         <div>
-          <SecondaryButton
+          <SecondaryThemeButton
             text={`filters${changedFilters ? ` (${changedFilters})` : ``}`}
             icon={FilterIcon}
             action={() => setSidebar(SIDEBAR_TYPES.FILTERS)}

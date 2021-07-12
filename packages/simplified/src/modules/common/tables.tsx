@@ -28,7 +28,7 @@ import { useSimplifiedStore } from "../stores/simplified";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner },
   PaginationComps: { sliceByPage, Pagination },
-  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
@@ -283,7 +283,7 @@ export const PositionFooter = ({
         {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
       </span>
       {hasCompleteSets && !hasWinner && (
-        <PrimaryButton
+        <PrimaryThemeButton
           text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
           action={cashOut}
           subText={pendingCashOut && AWAITING_CONFIRM_SUBTEXT}
@@ -292,7 +292,7 @@ export const PositionFooter = ({
       )}
       {claimableWinnings && (
         <>
-          <PrimaryButton
+          <PrimaryThemeButton
             text={
               !pendingClaim
                 ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
@@ -307,7 +307,7 @@ export const PositionFooter = ({
       )}
       {showTradeButton && (
         <MarketLink id={marketId} ammId={amm?.id}>
-          <SecondaryButton text="trade" />
+          <SecondaryThemeButton text="trade" />
         </MarketLink>
       )}
     </div>
@@ -432,7 +432,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityFooter}>
-      <PrimaryButton
+      <PrimaryThemeButton
         text="Remove Liquidity"
         action={() =>
           setModal({
@@ -443,7 +443,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
           })
         }
       />
-      <SecondaryButton
+      <SecondaryThemeButton
         text={isfinal ? "Market Resolved" : "Add Liquidity"}
         disabled={isfinal}
         action={() =>
@@ -506,7 +506,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
       {!lpTokens && (
         <span>
           No liquidity to show
-          <PrimaryButton
+          <PrimaryThemeButton
             action={() => {
               if (isLogged) {
                 setModal({
@@ -623,7 +623,7 @@ export const PositionsLiquidityViewSwitcher = ({
           {LIQUIDITY}
         </span>
         {showActivityButton && (
-          <TinyButton
+          <TinyThemeButton
             action={() => {
               setTableView(null);
               setActivity();

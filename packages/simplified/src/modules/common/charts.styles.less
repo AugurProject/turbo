@@ -93,19 +93,19 @@
       }
 
       .highcharts-crosshair-label {
-        background-color: var(--color-module-background);
+        background-color: var(--simple-primary-text);
         border-radius: @size-5;
-        color: var(--color-primary-text);
+        color: var(--simple-primary-text);
         font-size: @size-10;
         z-index: @above-all-content;
         // ugh... we need !important here because inline styles are inserted.
         > text {
-          color: var(--color-primary-text) !important;
-          fill: var(--color-primary-text) !important;
+          color: var(--simple-primary-text) !important;
+          fill: var(--simple-primary-text) !important;
 
           > tspan {
-            color: var(--color-primary-text) !important;
-            fill: var(--color-primary-text) !important;
+            color: var(--simple-primary-text) !important;
+            fill: var(--simple-primary-text) !important;
           }
         }
       }
@@ -135,14 +135,14 @@
       g.highcharts-xaxis-labels > g.highcharts-crosshair-label > text {
         .mono-9;
 
-        fill: var(--color-primary-text);
+        fill: var(--simple-primary-text);
         transform: translateY(@size-4);
       }
 
       .highcharts-crosshair {
-        stroke: var(--simple-chart-color);
+        stroke: var(--simple-primary-text);
 
-        opacity: 1;
+        opacity: .3;
       }
 
       .highcharts-tooltip {
@@ -157,90 +157,90 @@
       // --- mulitple line styling
       .highcharts-line-series.highcharts-color-0,
       .highcharts-area-series.highcharts-color-0 {
-        fill: var(--simple-invalid);
+        fill: var(--theme-outcome-0);
       }
 
       g.highcharts-line-series.highcharts-color-0 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-0 > path.highcharts-graph {
-        stroke: var(--simple-invalid);
+        stroke: var(--theme-outcome-0);
       }
 
       .highcharts-line-series.highcharts-color-1,
       .highcharts-area-series.highcharts-color-1 {
-        fill: var(--simple-no);
+        fill: var(--theme-outcome-1);
       }
 
       g.highcharts-line-series.highcharts-color-1 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-1 > path.highcharts-graph {
-        stroke: var(--simple-no);
+        stroke: var(--theme-outcome-1);
       }
 
       .highcharts-line-series.highcharts-color-2,
       .highcharts-area-series.highcharts-color-2 {
-        fill: var(--simple-yes);
+        fill: var(--theme-outcome-2);
       }
 
       g.highcharts-line-series.highcharts-color-2 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-2 > path.highcharts-graph {
-        stroke: var(--simple-yes);
+        stroke: var(--theme-outcome-2);
       }
 
       .highcharts-line-series.highcharts-color-3,
       .highcharts-area-series.highcharts-color-3 {
-        fill: var(--medical-color);
+        fill: var(--theme-outcome-3);
       }
 
       g.highcharts-line-series.highcharts-color-3 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-3 > path.highcharts-graph {
-        stroke: var(--medical-color);
+        stroke: var(--theme-outcome-3);
       }
 
       .highcharts-line-series.highcharts-color-4,
       .highcharts-area-series.highcharts-color-4 {
-        fill: var(--entertainment-color);
+        fill: var(--theme-outcome-4);
       }
 
       g.highcharts-line-series.highcharts-color-4 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-4 > path.highcharts-graph {
-        stroke: var(--entertainment-color);
+        stroke: var(--theme-outcome-4);
       }
 
       .highcharts-line-series.highcharts-color-5,
       .highcharts-area-series.highcharts-color-5 {
-        fill: var(--crypto-color);
+        fill: var(--theme-outcome-5);
       }
 
       g.highcharts-line-series.highcharts-color-5 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-5 > path.highcharts-graph {
-        stroke: var(--crypto-color);
+        stroke: var(--theme-outcome-5);
       }
 
       .highcharts-line-series.highcharts-color-6,
       .highcharts-area-series.highcharts-color-6 {
-        fill: var(--sports-color);
+        fill: var(--theme-outcome-6);
       }
 
       g.highcharts-line-series.highcharts-color-6 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-6 > path.highcharts-graph {
-        stroke: var(--sports-color);
+        stroke: var(--theme-outcome-6);
       }
 
       .highcharts-line-series.highcharts-color-7,
       .highcharts-area-series.highcharts-color-7 {
-        fill: var(--politics-color);
+        fill: var(--theme-outcome-7);
       }
 
       g.highcharts-line-series.highcharts-color-7 > path.highcharts-graph,
       g.highcharts-area-series.highcharts-color-7 > path.highcharts-graph {
-        stroke: var(--politics-color);
+        stroke: var(--theme-outcome-7);
       }
 
       text.highcharts-title tspan,
       text.highcharts-title > tspan {
         .text-10;
 
-        color: var(--color-primary-text);
-        fill: var(--color-primary-text);
+        color: var(--simple-primary-text);
+        fill: var(--simple-primary-text);
         text-transform: capitalize;
       }
     }
@@ -317,7 +317,7 @@
   }
 
   > span {
-    border: @size-2 solid var(--simple-border-dk);
+    border: @size-2 solid var(--simple-border);
     border-radius: @size-4;
     background: var(--simple-light-bg);
     height: @size-20;
@@ -345,7 +345,7 @@
 
   &:hover:not([class*="isSelected_"]) {
     > span {
-      border: @size-2 solid var(--simple-border-dk);
+      border: @size-2 solid var(--simple-border);
       background: transparent;
 
       > svg {
@@ -378,48 +378,48 @@
 
 .isSelected_0 {
   > span {
-    background: var(--simple-invalid);
+    background: var(--theme-outcome-0);
   }
 }
 
 .isSelected_1 {
   > span {
-    background: var(--simple-yes);
+    background: var(--theme-outcome-1);
   }
 }
 
 .isSelected_2 {
   > span {
-    background: var(--simple-no);
+    background: var(--theme-outcome-2);
   }
 }
 
 .isSelected_3 {
   > span {
-    background: var(--medical-color);
+    background: var(--theme-outcome-3);
   }
 }
 
 .isSelected_4 {
   > span {
-    background: var(--entertainment-color);
+    background: var(--theme-outcome-4);
   }
 }
 
 .isSelected_5 {
   > span {
-    background: var(--crypto-color);
+    background: var(--theme-outcome-5);
   }
 }
 
 .isSelected_6 {
   > span {
-    background: var(--sports-color);
+    background: var(--theme-outcome-6);
   }
 }
 
 .isSelected_7 {
   > span {
-    background: var(--politics-color);
+    background: var(--theme-outcome-7);
   }
 }

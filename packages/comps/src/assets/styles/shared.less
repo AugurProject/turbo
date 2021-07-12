@@ -26,7 +26,7 @@ ol {
 }
 
 body {
-  color: var(--color-dark-grey);
+  color: var(--simple-primary-text);
   font-family: @Inter;
   font-size: @size-16;
   font-style: normal;
@@ -39,7 +39,7 @@ body {
 }
 
 label {
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
   display: block;
   margin-bottom: @size-10;
 
@@ -59,25 +59,19 @@ a {
 
 input,
 textarea {
-  background-color: var(--color-dark-grey);
   border: @size-1 solid transparent;
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
   display: block;
   font-family: @Inter;
   padding: @size-12 @size-16;
   width: 100%;
 
-  &:focus {
-    border: @size-1 solid var(--color-secondary-action-outline);
-  }
-
   &:disabled {
-    background-color: var(--color-inactive-text);
     cursor: default;
   }
 
   &::placeholder {
-    color: var(--color-secondary-text);
+    color: var(--simple-secondary-text);
     font-family: @Inter;
   }
 }

@@ -332,7 +332,20 @@
 
       &.Selected {    
         border: @size-1 solid @value;
-        background: fade(@value, 15%);
+        background: transparent;
+        position: relative;
+
+        &:before {
+          content: "";
+          border-radius: inherit;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background-color: @value;
+          opacity: 0.15;
+        }
       }
     }
   });
@@ -379,7 +392,7 @@
 
   &.noClick {
     pointer-events: none;
-    background-color: var(--simple-ultra-light-gray);
+    background-color: var(--simple-light-bg);
     border: 0;
 
     &:not(:last-of-type) {

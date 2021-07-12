@@ -99,7 +99,7 @@
       }
 
       .highcharts-crosshair-label {
-        background-color: var(--color-module-background);
+        background-color: var(--simple-primary-text);
         border-radius: @size-5;
         color: var(--simple-primary-text);
         font-size: @size-10;
@@ -146,9 +146,9 @@
       }
 
       .highcharts-crosshair {
-        stroke: var(--simple-chart-color);
+        stroke: var(--simple-primary-text);
 
-        opacity: 1;
+        opacity: .3;
       }
 
       .highcharts-tooltip {
@@ -347,7 +347,7 @@
   }
 
   > span {
-    border: @size-2 solid var(--simple-border-dk);
+    border: @size-2 solid var(--simple-border);
     border-radius: @size-4;
     background: var(--simple-light-bg);
     height: @size-20;
@@ -375,7 +375,7 @@
 
   &:hover:not([class*="isSelected_"]) {
     > span {
-      border: @size-2 solid var(--simple-border-dk);
+      border: @size-2 solid var(--simple-border);
       background: transparent;
 
       > svg {
