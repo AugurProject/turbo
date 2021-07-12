@@ -326,40 +326,6 @@
   });
 }
 
-// Used in Betting UI
-.DotSelection {
-  cursor: pointer;
-  position: relative;
-
-  > button {
-    display: flex;
-    > svg {
-      fill: var(--simple-secondary-text);
-      height: @size-16;
-      width: @size-16;
-    }
-  }
-
-  > button:hover,
-  > button:active {
-    > svg {
-      fill: var(--simple-primary-text);
-    }
-  }
-}
-
-:root[theme="BETTING"],
-:root[theme="SPORTS"] {
-  .DotSelection {
-    > button {
-      > svg {
-        fill: var(--color-inactive-text);
-        stroke: none;
-      }
-    }
-  }
-}
-
 .MenuOpen {
   > button > svg {
     fill: var(--simple-primary-text);
@@ -409,26 +375,6 @@
 
   > div:hover {
     background: var(--color-secondary-hover);
-  }
-}
-
-.CategorySelector {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  > div {
-    .text-14;
-
-    color: var(--color-inactive-text);
-    cursor: pointer;
-    height: @size-32;
-    margin: @size-24 @size-32 @size-24 0;
-
-    &.selected {
-      color: var(--simple-primary-text);
-      border-bottom: @size-1 solid var(--simple-primary-text);
-    }
   }
 }
 
