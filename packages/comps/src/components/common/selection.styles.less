@@ -1,7 +1,7 @@
 @import (reference) "~assets/styles/shared";
 
 .Dropdown {
-  border: @size-1 solid var(--color-secondary-action-outline);
+  border: @size-1 solid var(--simple-border);
   border-radius: @border-radius-default;
   cursor: pointer;
   display: flex;
@@ -24,7 +24,7 @@
     justify-content: space-between;
     white-space: nowrap;
     width: 100%;
-    background: var(--color-secondary-action);
+    background: transparent;
     color: var(--simple-primary-text);
     cursor: pointer;
 
@@ -329,52 +329,6 @@
 .MenuOpen {
   > button > svg {
     fill: var(--simple-primary-text);
-  }
-}
-
-.MenuItems {
-  .text-12-medium;
-
-  align-items: flex-start;
-  background: var(--color-secondary-action);
-  border-radius: @border-radius-default;
-  border: 1px solid var(--color-secondary-action-outline);
-  color: var(--simple-primary-text);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: absolute;
-  right: 0;
-  top: 36px;
-  user-select: none;
-  width: 189px;
-  z-index: @default-above;
-  outline: none;
-
-  > div {
-    align-items: center;
-    display: flex;
-    justify-content: flex-start;
-    flex-flow: row wrap;
-    width: 100%;
-    height: @size-32;
-    padding: @size-8 @size-12;
-    outline: none;
-
-    &:not(:last-of-type) {
-      &::after {
-        content: "";
-        height: 1px;
-        background: var(--color-secondary-action-outline);
-        width: 100%;
-        position: relative;
-        top: 7px;
-      }
-    }
-  }
-
-  > div:hover {
-    background: var(--color-secondary-hover);
   }
 }
 
