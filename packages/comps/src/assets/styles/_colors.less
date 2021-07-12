@@ -68,7 +68,6 @@
   --simple-yes: #05B169; // outcome 1 (tech 2 in code, 1 in mocks)
   --simple-yes-15: fade(#05B169, 15%);
   --simple-yes-30: fade(#05B169, 30%);
-  --simple-yes-15-builtin: #F0F9F4;
 
   --simple-no: #FF7D5E; // outcome 2 (tech 1 in code, 2 in mocks)
   --simple-no-15: fade(#FF7D5E, 15%);
@@ -88,24 +87,21 @@
   --simple-ultra-light-gray: #FAFBFC;
 
   --simple-brand: #2AE7A8;
+
+  --theme-outcome-0: #58586B;
+  --theme-outcome-1: #05B169;
+  --theme-outcome-2: #FF7D5E;
+  --theme-outcome-3: #73D2DE;
+  --theme-outcome-4: #218380;
+  --theme-outcome-5: #FFBC42;
+  --theme-outcome-6: #D81159;
+  --theme-outcome-7: #1F71B5;
 }
 
-
-// simplified outcome colors
-@outcome-simp-0: #58586B; //--simple-invalid;
-@outcome-simp-1: #05B169; //--simple-yes;
-@outcome-simp-2: #FF7D5E; //--finance-color; 
-@outcome-simp-3:  #73D2DE; //--medical-color; 
-@outcome-simp-4: #218380; //--crypto-color;
-@outcome-simp-5: #FFBC42; //--entertainment-color; 
-@outcome-simp-6: #D81159; //--sports-color; 
-@outcome-simp-7: #1F71B5; //--politics-color; 
-@outcome-simp-8: #58586B; //--simple-invalid;
-
-@color-simp-outcome-list: @outcome-simp-0 @outcome-simp-1 @outcome-simp-2 @outcome-simp-3 @outcome-simp-4 @outcome-simp-5 @outcome-simp-6 @outcome-simp-7 @outcome-simp-8;
+@color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3) var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
 
 .generate-trading-indexed-color-outcome-classes(@rules) {
-  each(@color-simp-outcome-list, {
+  each(@color-outcome-list, {
     @newIndex: @index;
     @rules();
   });
