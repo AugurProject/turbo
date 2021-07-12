@@ -51,9 +51,11 @@ export const useUserApprovals = (): {
 
 export const BuyApprovals = () => {
   const {
+    account,
     loginAccount,
-    actions: { addTransaction },
+    balances: { approvals },
     transactions,
+    actions: { addTransaction },
   } = useUserStore();
   const { bets } = useBetslipStore();
   const { cashes } = useDataStore();
@@ -66,7 +68,7 @@ export const BuyApprovals = () => {
   useEffect(() => {
     setAllAmmFactoryAddresses(allFactoryAddresses);
     setNeedsApproval(approvalArray);
-  }, [bets]);
+  }, [bets, approvals, account]);
 
   const cash = Object.values(cashes).find((c: Cash) => c.name === USDC) as Cash;
   const hashStatus = transactions.reduce((p, tx) => ({ ...p, [tx.hash]: tx.status }), {});
