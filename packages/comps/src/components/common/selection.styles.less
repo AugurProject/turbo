@@ -151,39 +151,6 @@
   }
 }
 
-// Used in Trading Page - Outcome selector
-.Large {
-  .Dropdown;
-
-  height: @size-32;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-  > button {
-    .text-12-medium;
-
-    background: var(--color-dark-grey);
-    padding: 0 @size-12;
-
-    // vertical line before arrow icon
-    > span {
-      flex: 1;
-      display: flex;
-      border-right: @size-1 solid var(--color-secondary-action-outline);
-      padding: @size-5 @size-8 @size-5 0;
-    }
-
-    &:hover {
-      background: var(--color-secondary-hover);
-    }
-  }
-
-  > div {
-    > div {
-      width: 100%;
-    }
-  }
-}
-
 // Used in expiration date selection and top section in outcome candlesticks
 .Normal {
   .Dropdown;

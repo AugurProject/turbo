@@ -28,7 +28,6 @@ export interface DropdownProps {
   className?: string;
   defaultValue?: string | number;
   options?: NameValuePair[];
-  large?: boolean;
   staticLabel?: string;
   staticMenuLabel?: string;
   sortByStyles?: object;
@@ -58,7 +57,6 @@ export const Dropdown = ({
   options,
   defaultValue,
   sortByStyles,
-  large,
   openTop,
   className,
   activeClassName,
@@ -112,8 +110,7 @@ export const Dropdown = ({
     <div
       style={sortByStyles}
       className={classNames(className, {
-        [Styles.Large]: large,
-        [Styles.Normal]: !large,
+        [Styles.Normal]: true,
         [Styles.isOpen]: showList,
         [Styles.openTop]: openTop,
         [`${activeClassName}`]: showList,
