@@ -25,7 +25,7 @@
     white-space: nowrap;
     width: 100%;
     background: var(--color-secondary-action);
-    color: var(--color-primary-text);
+    color: var(--simple-primary-text);
     cursor: pointer;
 
     > b {
@@ -39,7 +39,7 @@
       width: @size-10;
 
       > path {
-        fill: var(--color-secondary-text);
+        fill: var(--simple-secondary-text);
       }
     }
 
@@ -144,7 +144,7 @@
 }
 
 .SelectedLabel {
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
 
   &.invalidColor {
     color: var(--color-outcome-invalid);
@@ -389,12 +389,12 @@
       border-right: @size-1 solid var(--color-secondary-action-outline);
 
       > button {
-        color: var(--color-primary-text);
+        color: var(--simple-primary-text);
 
         > span {
           .text-9;
 
-          color: var(--color-secondary-text);
+          color: var(--simple-secondary-text);
         }
       }
 
@@ -418,7 +418,7 @@
       .mono-9-semi-bold;
 
       background: transparent;
-      color: var(--color-secondary-text);
+      color: var(--simple-secondary-text);
       height: 100%;
       padding: @size-4 @size-16;
       text-transform: capitalize;
@@ -426,7 +426,7 @@
       > span {
         .text-9;
 
-        color: var(--color-secondary-text);
+        color: var(--simple-secondary-text);
       }
     }
   }
@@ -450,10 +450,10 @@
       }
 
       &[class*="Selected"] {
-        border: @size-1 solid var(--color-primary-text);
+        border: @size-1 solid var(--simple-primary-text);
 
         > button {
-          color: var(--color-primary-text);
+          color: var(--simple-primary-text);
         }
       }
     }
@@ -502,7 +502,7 @@
       .mono-12-bold;
 
       height: 100%;
-      color: var(--color-secondary-text);
+      color: var(--simple-secondary-text);
       background: var(--color-page-background);
       padding: 0 @size-24;
       border-radius: 0;
@@ -512,7 +512,7 @@
     &.Selected,
     &:hover {
       > button {
-        color: var(--color-primary-text);
+        color: var(--simple-primary-text);
       }
     }
 
@@ -522,9 +522,9 @@
     }
 
     &:active {
-      border-bottom: @size-2 solid var(--color-primary-text);
+      border-bottom: @size-2 solid var(--simple-primary-text);
       > button {
-        color: var(--color-primary-text);
+        color: var(--simple-primary-text);
       }
     }
 
@@ -563,15 +563,15 @@
 
       &.Selected,
       &:hover {
-        border: @size-1 solid var(--color-primary-text);
-        border-right: @size-1 solid var(--color-primary-text);
+        border: @size-1 solid var(--simple-primary-text);
+        border-right: @size-1 solid var(--simple-primary-text);
 
         &:last-of-type {
-          border-right: @size-1 solid var(--color-primary-text);
+          border-right: @size-1 solid var(--simple-primary-text);
         }
 
         > button {
-          color: var(--color-secondary-text);
+          color: var(--simple-secondary-text);
         }
 
         & + li {
@@ -593,11 +593,11 @@
       }
 
       &:active {
-        border: @size-1 solid var(--color-primary-text);
-        border-right: @size-1 solid var(--color-primary-text);
+        border: @size-1 solid var(--simple-primary-text);
+        border-right: @size-1 solid var(--simple-primary-text);
 
         &:last-of-type {
-          border-right: @size-1 solid var(--color-primary-text);
+          border-right: @size-1 solid var(--simple-primary-text);
         }
 
         & + li {
@@ -654,7 +654,7 @@
   > button {
     display: flex;
     > svg {
-      fill: var(--color-secondary-text);
+      fill: var(--simple-secondary-text);
       height: @size-16;
       width: @size-16;
     }
@@ -663,7 +663,7 @@
   > button:hover,
   > button:active {
     > svg {
-      fill: var(--color-primary-text);
+      fill: var(--simple-primary-text);
     }
   }
 }
@@ -682,7 +682,7 @@
 
 .MenuOpen {
   > button > svg {
-    fill: var(--color-primary-text);
+    fill: var(--simple-primary-text);
   }
 }
 
@@ -693,7 +693,7 @@
   background: var(--color-secondary-action);
   border-radius: @border-radius-default;
   border: 1px solid var(--color-secondary-action-outline);
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -746,8 +746,8 @@
     margin: @size-24 @size-32 @size-24 0;
 
     &.selected {
-      color: var(--color-primary-text);
-      border-bottom: @size-1 solid var(--color-primary-text);
+      color: var(--simple-primary-text);
+      border-bottom: @size-1 solid var(--simple-primary-text);
     }
   }
 }

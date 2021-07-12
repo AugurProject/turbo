@@ -250,7 +250,7 @@
     &:active,
     &.Selected {
       background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--color-secondary-text);
+      border: @size-1 solid var(--simple-secondary-text);
     }
   }
 }
@@ -414,7 +414,7 @@
 .ExternalLinkButton {
   .text-10-semi-bold;
 
-  color: var(--color-primary-text);
+  color: var(--simple-primary-text);
   border: 0;
   background: transparent;
   text-transform: uppercase;
@@ -429,31 +429,31 @@
 
     > path {
       &:nth-child(odd) {
-        fill: var(--color-primary-text);
+        fill: var(--simple-primary-text);
         stroke: none;
       }
 
       &:nth-child(even) {
-        stroke: var(--color-primary-text);
+        stroke: var(--simple-primary-text);
       }
     }
   }
 
   &:hover {
-    color: var(--color-secondary-text);
+    color: var(--simple-secondary-text);
 
     > a {
-      color: var(--color-secondary-text);
+      color: var(--simple-secondary-text);
     }
 
     > svg {
       > path {
         &:nth-child(odd) {
-          fill: var(--color-secondary-text);
+          fill: var(--simple-secondary-text);
         }
 
         &:nth-child(even) {
-          stroke: var(--color-secondary-text);
+          stroke: var(--simple-secondary-text);
         }
       }
     }

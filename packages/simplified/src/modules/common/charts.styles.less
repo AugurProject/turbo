@@ -95,17 +95,17 @@
       .highcharts-crosshair-label {
         background-color: var(--color-module-background);
         border-radius: @size-5;
-        color: var(--color-primary-text);
+        color: var(--simple-primary-text);
         font-size: @size-10;
         z-index: @above-all-content;
         // ugh... we need !important here because inline styles are inserted.
         > text {
-          color: var(--color-primary-text) !important;
-          fill: var(--color-primary-text) !important;
+          color: var(--simple-primary-text) !important;
+          fill: var(--simple-primary-text) !important;
 
           > tspan {
-            color: var(--color-primary-text) !important;
-            fill: var(--color-primary-text) !important;
+            color: var(--simple-primary-text) !important;
+            fill: var(--simple-primary-text) !important;
           }
         }
       }
@@ -135,7 +135,7 @@
       g.highcharts-xaxis-labels > g.highcharts-crosshair-label > text {
         .mono-9;
 
-        fill: var(--color-primary-text);
+        fill: var(--simple-primary-text);
         transform: translateY(@size-4);
       }
 
@@ -239,8 +239,8 @@
       text.highcharts-title > tspan {
         .text-10;
 
-        color: var(--color-primary-text);
-        fill: var(--color-primary-text);
+        color: var(--simple-primary-text);
+        fill: var(--simple-primary-text);
         text-transform: capitalize;
       }
     }
