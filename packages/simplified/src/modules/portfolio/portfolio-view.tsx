@@ -258,7 +258,7 @@ export const PortfolioView = () => {
       <section>
         <NetworkMismatchBanner />
         <AppViewStats small />
-        <RewardsSection />
+        {/*<RewardsSection />*/}
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}
