@@ -52,8 +52,8 @@
     }
 
     &:focus-visible {
-      border: @size-1 solid var(--color-focused);
-      box-shadow: inset 0 0 0 @size-2 var(--color-focused);
+      border: @size-1 solid var(--simple-focus-color);
+      box-shadow: inset 0 0 0 @size-2 var(--simple-focus-color);
     }
 
     &:active {
@@ -147,7 +147,7 @@
   color: var(--simple-primary-text);
 
   &.invalidColor {
-    color: var(--color-outcome-invalid);
+    color: var(--theme-outcome-0);
   }
 }
 
@@ -511,7 +511,7 @@
 
     &:focus {
       outline: none;
-      border: @size-2 solid var(--color-focused);
+      border: @size-2 solid var(--simple-focus-color);
     }
 
     &:active {
@@ -573,11 +573,11 @@
       }
 
       &:focus {
-        border: @size-2 solid var(--color-focused);
-        border-right: @size-2 solid var(--color-focused);
+        border: @size-2 solid var(--simple-focus-color);
+        border-right: @size-2 solid var(--simple-focus-color);
 
         &:last-of-type {
-          border-right: @size-2 solid var(--color-focused);
+          border-right: @size-2 solid var(--simple-focus-color);
         }
 
         & + li {
