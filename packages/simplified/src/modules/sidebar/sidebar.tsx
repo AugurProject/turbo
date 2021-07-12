@@ -16,7 +16,6 @@ const {
   MARKETS,
   PORTFOLIO,
   SIDEBAR_TYPES,
-  // currencyItems,
   marketStatusItems,
   sortByItems,
 } = Constants;
@@ -24,7 +23,7 @@ const {
   LinkLogo,
   SelectionComps: { RadioBarGroup },
   Icons: { CloseIcon },
-  ButtonComps: { PrimaryButton, SecondaryButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
 } = Components;
 const { makePath, parsePath } = PathUtils;
 
@@ -93,14 +92,14 @@ const FilterSideBar = () => {
         /> */}
       </div>
       <div className={Styles.Footer}>
-        <SecondaryButton
+        <SecondaryThemeButton
           text="reset all"
           action={() => {
             setLocalSettings(DEFAULT_MARKET_VIEW_SETTINGS);
           }}
           disabled={filtersAreReset}
         />
-        <PrimaryButton
+        <PrimaryThemeButton
           text="apply filters"
           action={() => {
             updateMarketsViewSettings({

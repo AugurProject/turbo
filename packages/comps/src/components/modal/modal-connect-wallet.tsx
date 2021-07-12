@@ -7,7 +7,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
 import classNames from "classnames";
 import { NETWORK_NAMES } from "../../stores/constants";
-import { SecondaryButton, TextButton, WalletButton } from "../common/buttons";
+import { SecondaryThemeButton, TextButton, WalletButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
@@ -70,7 +70,7 @@ const PendingWalletView = ({
       {error ? (
         <div>
           <span>Error connecting.</span>
-          <SecondaryButton
+          <SecondaryThemeButton
             action={() => {
               setPendingError(false);
               connector && tryActivation(connector);

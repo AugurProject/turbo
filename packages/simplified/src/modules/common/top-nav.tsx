@@ -20,7 +20,7 @@ import {
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
-const { SecondaryButton } = ButtonComps;
+const { SecondaryThemeButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
 const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
 const { ToggleSwitch } = Components;
@@ -51,7 +51,7 @@ export const SettingsButton = () => {
 
   return (
     <div className={Styles.SettingsMenuWrapper}>
-      <SecondaryButton label="Settings" action={() => setOpened(!open)} icon={GearIcon} />
+      <SecondaryThemeButton title="Settings" action={() => setOpened(!open)} icon={GearIcon} />
       {open && (
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>

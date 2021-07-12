@@ -290,6 +290,7 @@ export interface BaseThemeButtonProps {
   small?: boolean;
   ariaLabel?: string;
   href?: string;
+  key?: string;
 }
 
 export const BaseThemeButton = ({
