@@ -54,7 +54,12 @@ export const Betslip = () => {
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
-      if (sidebarType === SIDEBAR_TYPES.BETSLIP && !!event.target && betslipRef?.current !== null && !betslipRef?.current?.contains(event.target)) {
+      if (
+        sidebarType === SIDEBAR_TYPES.BETSLIP &&
+        !!event.target &&
+        betslipRef?.current !== null &&
+        !betslipRef?.current?.contains(event.target)
+      ) {
         setSidebar(null);
       }
     };
@@ -65,7 +70,7 @@ export const Betslip = () => {
       window.removeEventListener("click", handleWindowOnClick);
     };
   });
-  
+
   return (
     <section
       className={classNames(Styles.Betslip, {
@@ -95,8 +100,14 @@ export const Betslip = () => {
           </div>
         )}
         <BetslipHeader {...{ counts, handleToggle }} />
-        {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
-        <BuyApprovals />
+        {selectedView === BETSLIP ? (
+          <>
+            <BetslipMain />
+            <BuyApprovals />
+          </>
+        ) : (
+          <ActiveBetsMain />
+        )}
         {oddsChangedMessage && selectedView === BETSLIP && (
           <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
         )}
@@ -206,7 +217,7 @@ export const ActiveBetsMain = () => {
   );
 };
 
-export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?"}) => {
+export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => {
   const {
     isLogged,
     actions: { setModal },
@@ -494,10 +505,12 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        <div className={classNames(Styles.Cashout, txStatus.class, {
-          [Styles.Positive]: canCashOut && isPositiveCashout,
-          [Styles.Negative]: canCashOut && !isPositiveCashout,
-        })}>
+        <div
+          className={classNames(Styles.Cashout, txStatus.class, {
+            [Styles.Positive]: canCashOut && isPositiveCashout,
+            [Styles.Negative]: canCashOut && !isPositiveCashout,
+          })}
+        >
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
           <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
             {buttonName}
