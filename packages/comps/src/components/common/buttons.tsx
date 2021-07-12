@@ -96,17 +96,7 @@ const Button = ({
   );
 };
 
-export const PrimaryButton = (props: ButtonProps) => (
-  <Button
-    {...props}
-    className={classNames(Styles.PrimaryButton, props.className, {
-      [Styles.Dark]: props.darkTheme,
-    })}
-  />
-);
-export const SecondaryButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.SecondaryButton, props.className)} />
-);
+
 export const TinyButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
 );
