@@ -104,12 +104,14 @@ export const Betslip = () => {
           <>
             <BetslipMain />
             <BuyApprovals />
+            {oddsChangedMessage && 
+              <div className={Styles.OddsChangedMessage}>
+                {oddsChangedMessage}
+              </div>
+            }
           </>
         ) : (
           <ActiveBetsMain />
-        )}
-        {oddsChangedMessage && selectedView === BETSLIP && (
-          <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
         )}
         <BetslipFooter />
       </div>
