@@ -134,7 +134,7 @@
     &.Open {
       left: 0;
       right: 0;
-      background: var(--simple-primary-text-40);
+      background: rgba(var(--simple-primary-text-rbg), 0.40);
       width: 100vw;
 
       > div {
@@ -573,14 +573,14 @@ button.FlipContent {
 }
 
 .OddsChange {
-  background: var(--simple-warning-30);
+  background: rgba(var(--simple-warning-rgb), 0.30);
 }
 
 .OddsChangedMessage {
   .text-10-semi-bold;
 
   color: var(--simple-primary-text);
-  background: var(--simple-warning-30);
+  background: rgba(var(--simple-warning-rgb), 0.30);
   border-top: @size-1 solid var(--simple-border);
   padding: @size-6 @size-12;
   display: flex;
@@ -633,7 +633,7 @@ button.FlipContent {
 
   &.Failed {
     > main {
-      background: var(--simple-failed-10);
+      background: rgba(var(--simple-failed-rgb), 0.15);
 
       > div:first-of-type > button {
         > svg > path {
@@ -766,14 +766,14 @@ button.FlipContent {
 
   &.Positive {
     > button {
-      background: var(--simple-success-15);
+      background: rgba(var(--simple-success-rgb), 0.15);
       border-color: var(--simple-success);
     }
   }
 
   &.Negative {
     > button {
-      background: var(--simple-failed-15);
+      background: rgba(var(--simple-failed-rgb), 0.15);
       border-color: var(--simple-failed);
     }
   }

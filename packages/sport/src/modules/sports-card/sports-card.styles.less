@@ -209,7 +209,7 @@
     .SimpleBorder;
 
     border-color: var(--simple-yes);
-    background: var(--simple-yes-15);
+    background: rgba(var(--simple-yes-rgb), 0.15);
     color: var(--simple-primary-text);
     min-height: @size-36;
     display: flex;
@@ -229,7 +229,7 @@
 
     &:not(:disabled) {
       &:hover {
-        background: var(--simple-yes-30);
+        background: rgba(var(--simple-yes-rgb), 0.30);
       }
 
       &:focus {
@@ -344,7 +344,7 @@
 
         align-items: center;
         border-color: var(--simple-yes);
-        background: var(--simple-yes-15);
+        background: rgba(var(--simple-yes-rgb), 0.15);
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
@@ -359,7 +359,7 @@
 
         &:not(:disabled) {
           &:hover {
-            background: var(--simple-yes-30);
+            background: rgba(var(--simple-yes-rgb), 0.30);
           }
 
           &:focus {
