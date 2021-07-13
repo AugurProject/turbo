@@ -30,7 +30,6 @@
     ;
     background-repeat: no-repeat;
     background-size: 50% 50%;
-    color: rgba(var(--color-primary-action), 0.5);
     top: 0;
     bottom: 0;
     left: 0;
@@ -38,8 +37,6 @@
   }
 
   &:after {
-    // had to use the opaque hex representation of the transparent color --color-primary-action-40, otherwise
-    // it wouldn't work
     background-color: var(--light-background-color);
     border-radius: 50%;
     top: @size-1;

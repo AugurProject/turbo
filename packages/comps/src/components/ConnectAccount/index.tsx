@@ -149,11 +149,11 @@ const ConnectAccountButton = ({
         : isMobile
         ? shortenAddress(account, 3)
         : shortenAddress(account),
-      icon: hasPendingTransaction ? (
-        <Spinner />
-      ) : (
-        connector && <GetWalletIcon connector={connector} account={account} />
-      ),
+      // icon: hasPendingTransaction ? (
+       icon: <Spinner />
+      // ) : (
+      //   connector && <GetWalletIcon connector={connector} account={account} />
+      // ),
     };
   } else if (error) {
     buttonProps = {
