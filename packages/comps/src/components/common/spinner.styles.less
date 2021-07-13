@@ -1,8 +1,12 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 @keyframes rotate {
-  from { transform: rotate(0deg);   }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .Spinner {
@@ -16,21 +20,28 @@
 
   &:before,
   &:after {
-    content: '';
+    content: "";
     position: absolute;
   }
 
   &:before {
     border-radius: 50%;
-    background:
-      linear-gradient(  0deg, transparent 50%, var(--color-secondary-action-outline-25) 100%)   0%   0%,
-      linear-gradient( 90deg, var(--color-secondary-action-outline-25)  0%, var(--color-secondary-action-outline-40) 100%) 100%   0%,
-      linear-gradient(180deg, var(--color-secondary-action-outline-40)  0%, var(--color-secondary-action-outline-70) 100%) 100% 100%,
-      linear-gradient(270deg, var(--color-secondary-action-outline-70) 0%, var(--color-secondary-action-outline) 100%)   0% 100%
-    ;
+    background: linear-gradient(0deg, transparent 50%, rgba(var(--simple-primary-text-rgb), 0.25) 100%) 0% 0%,
+      linear-gradient(
+          90deg,
+          rgba(var(--simple-primary-text-rgb), 0.25) 0%,
+          rgba(var(--simple-primary-text-rgb), 0.4) 100%
+        )
+        100% 0%,
+      linear-gradient(
+          180deg,
+          rgba(var(--simple-primary-text-rgb), 0.4) 0%,
+          rgba(var(--simple-primary-text-rgb), 0.7) 100%
+        )
+        100% 100%,
+      linear-gradient(270deg, rgba(var(--simple-primary-text-rgb), 0.7) 0%, var(--simple-primary-text) 100%) 0% 100%;
     background-repeat: no-repeat;
     background-size: 50% 50%;
-    color: rgba(var(--color-primary-action), 0.5);
     top: 0;
     bottom: 0;
     left: 0;
@@ -38,8 +49,6 @@
   }
 
   &:after {
-    // had to use the opaque hex representation of the transparent color --color-primary-action-40, otherwise
-    // it wouldn't work
     background-color: var(--light-background-color);
     border-radius: 50%;
     top: @size-1;

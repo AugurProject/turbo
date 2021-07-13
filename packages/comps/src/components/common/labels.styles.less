@@ -410,8 +410,8 @@
   line-height: @size-20;
   color: var(--simple-primary-text);
   padding: @size-16;
-  background: var(--simple-no-15);
-  border: @size-1 solid var(--simple-no);
+  background: rgba(var(--simple-failed-rgb), 0.15);
+  border: @size-1 solid var(--simple-failed);
   border-radius: @size-8;
 }
 
@@ -420,7 +420,7 @@
   .text-16-bold;
 
   border: none;
-  background: var(--simple-no-15);
+  background: rgba(var(--simple-failed-rgb), 0.15);
   color: var(--simple-failed);
   text-align: center;
   width: 100%;
@@ -484,7 +484,7 @@
 .Resolved {
   .ReportingStatusLabel;
 
-  background: var(--simple-failed-10);
+  background: rgba(var(--simple-failed-rgb), 0.10);
   color: var(--simple-failed);
 }
 
@@ -495,7 +495,7 @@
 .InSettlement {
   .ReportingStatusLabel;
 
-  background: var(--simple-warning-10);
+  background: rgba(var(--simple-warning-rgb), 0.10);
   color: var(--simple-warning);
 }
 

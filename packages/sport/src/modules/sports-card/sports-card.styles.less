@@ -15,6 +15,10 @@
     display: flex;
     flex-flow: column nowrap;
 
+    &:hover {
+      text-decoration: underlineg;
+    }
+
     > span:last-of-type:not(:first-of-type) {
       .text-12-semi-bold;
 
@@ -209,7 +213,7 @@
     .SimpleBorder;
 
     border-color: var(--simple-yes);
-    background: var(--simple-yes-15);
+    background: rgba(var(--simple-yes-rgb), 0.15);
     color: var(--simple-primary-text);
     min-height: @size-36;
     display: flex;
@@ -229,7 +233,7 @@
 
     &:not(:disabled) {
       &:hover {
-        background: var(--simple-yes-30);
+        background: rgba(var(--simple-yes-rgb), 0.30);
       }
 
       &:focus {
@@ -297,7 +301,7 @@
   > header {
     .PrimaryTopBorderRadius;
 
-    background: var(--alternate-background-color);
+    background: var(--simple-alternate-background);
     min-height: @size-30;
     max-height: @size-30;
     align-items: center;
@@ -344,7 +348,7 @@
 
         align-items: center;
         border-color: var(--simple-yes);
-        background: var(--simple-yes-15);
+        background: rgba(var(--simple-yes-rgb), 0.15);
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
@@ -359,7 +363,7 @@
 
         &:not(:disabled) {
           &:hover {
-            background: var(--simple-yes-30);
+            background: rgba(var(--simple-yes-rgb), 0.30);
           }
 
           &:focus {

@@ -1,88 +1,59 @@
 // theme divided values
-// TRADING is default theme, hence root by itself.
 // branding
 @color-brand: #2AE7A8;
 @color-brand-secondary: #FFFFFF;
+@color-twitter: #55ACEE;
+@color-twitter-2: #FFFFFF;
+@color-facebook: #3B5998;
+@color-facebook-2: #FFFFFF;
 
 :root {
   // branding
+  --simple-brand: #2AE7A8;
   --color-brand: @color-brand;
-  --color-brand-20: fade(#2AE7A8, 20%);
   --color-brand-secondary: @color-brand-secondary;
   --color-brand-secondary-flip: #0E0E21;
+  
   // social
-  --color-twitter: #55ACEE;
-  --color-twitter-2: #FFFFFF;
-  --color-facebook: #3B5998;
-  --color-facebook-2: #FFFFFF;
+  --color-twitter: @color-twitter;
+  --color-twitter-2: @color-twitter-2;
+  --color-facebook: @color-facebook;
+  --color-facebook-2: @color-facebook-2;
 
-  // Interactives
-  --color-primary-action: #09CFE1;
-  --color-primary-action-5-dark:#08b9c9;
-  --color-primary-action-15-dark: #068c98;
-  --color-primary-action-5: fade(#09CFE1, 5%);
-  --color-primary-action-10: fade(#09CFE1, 10%);
-  --color-primary-action-15: fade(#09CFE1, 15%);
-  --color-primary-action-20: fade(#09CFE1, 20%);
-  --color-primary-action-40: fade(#09CFE1, 40%);
-  --color-primary-action-70: fade(#09CFE1, 70%);
-  --color-primary-action-80: fade(#09CFE1, 80%);
-  --color-primary-action-90: fade(#09CFE1, 90%);
-
-  --color-secondary-action-outline: #3C3B43;
-  --color-secondary-action-outline-25: fade(#3C3B43, 25%);
-  --color-secondary-action-outline-30: fade(#3C3B43, 30%);
-  --color-secondary-action-outline-40: fade(#3C3B43, 40%);
-  --color-secondary-action-outline-50: fade(#3C3B43, 50%);
-  --color-secondary-action-outline-70: fade(#3C3B43, 70%);
-  --color-secondary-hover: #302F36;
-  --color-secondary-hover-25: fade(#3C3B43, 25%);
-  --color-secondary-hover-50: fade(#3C3B43, 50%);
-
-  //Simple UI colors
-  --light-background-color: #F6F7F8;
-  --simple-alternate-background: #EDEFF1;
-  --simple-secondary-text: #8B959E;
+  // text
   --simple-primary-text: #15171A;
-  --simple-primary-text-25: fade(#15171A, 25%);
-  --simple-primary-text-40: fade(#15171A, 40%);
-  --simple-primary-text-85: fade(#15171A, 85%);
-  --simple-secondary-text-50: fade(#8B959E, 50%);
+  --simple-primary-text-rgb: 21, 23, 26;
+  --simple-secondary-text: #8B959E;
+  --simple-secondary-text-rgb: 139, 149, 158;
+  --simple-tertiary-text: #8B949E;
+  --simple-tertiary-text-rgb: 139, 149, 158;
 
-  --simple-border: #DBE1E7;
+  // backgrounds
   --simple-light-bg: #FFFFFF;
-  --simple-light-bg-20: fade(#FFFFFF, 20%);
-  --simple-light-bg-50: fade(#FFFFFF, 50%);
-  --simple-light-bg-75: fade(#FFFFFF, 75%);
-  --simple-shadow-10: fade(#0e0e21, 10%);
-  --simple-outline-color: #1B91FF;
+  --simple-light-bg-rgb: 255, 255, 255;
+  --light-background-color: #F6F7F8;
+  --light-background-color-rgb: 246, 247, 248;
+  --simple-alternate-background: #EDEFF1;
+  --simple-alternate-background-rgb: 237, 239, 241;
+
+  // borders/actions
+  --simple-border: #DBE1E7;
   --simple-focus-color: #1B91FF;
 
-  --medical-color: #73D2DE; // outcome 3
-  --finance-color: #FF7D5E; // outcome 2 (tech 1 in code, 2 in mocks)
-  --entertainment-color: #FFBC42; // outcome 5
-  --politics-color: #1F71B5; // outcome 7
-  --crypto-color: #218380; // outcome 4
-  --sports-color: #D81159; // outcome 6
-
-  --simple-yes: #05B169; // outcome 1 (tech 2 in code, 1 in mocks)
-  --simple-yes-15: fade(#05B169, 15%);
-  --simple-yes-30: fade(#05B169, 30%);
-
-  --simple-no: #FF7D5E; // outcome 2 (tech 1 in code, 2 in mocks)
-  --simple-no-15: fade(#FF7D5E, 15%);
-  --simple-confirmed: @color-brand;
+  // status
   --simple-failed: #FF3E13;
-  --simple-failed-5: fade(#FF3E13, 5%);
-  --simple-failed-10: fade(#FF3E13, 10%);
-  --simple-failed-15: fade(#FF3E13, 15%);
+  --simple-failed-rgb: 255, 62, 19;
   --simple-warning: #F59300;
-  --simple-warning-5: fade(#F59300, 5%);
-  --simple-warning-10: fade(#F59300, 10%);
-  --simple-warning-15: fade(#F59300, 15%);
+  --simple-warning-rgb: 245, 147, 0;
+  --simple-success: #05B169;
+  --simple-success-rgb: 5, 177, 105;
+  // trading
+  --simple-yes: #05B169;
+  --simple-yes-rgb: 5, 177, 105;
+  --simple-no: #FF7D5E;
+  --simple-no-rgb: 255, 125, 94;
 
-  --simple-brand: #2AE7A8;
-
+  // outcomes
   --theme-outcome-0: #58586B;
   --theme-outcome-1: #05B169;
   --theme-outcome-2: #FF7D5E;
@@ -91,6 +62,14 @@
   --theme-outcome-5: #FFBC42;
   --theme-outcome-6: #D81159;
   --theme-outcome-7: #1F71B5;
+
+  // categories
+  --medical-color: #73D2DE;
+  --finance-color: #FF7D5E;
+  --entertainment-color: #FFBC42;
+  --politics-color: #1F71B5;
+  --crypto-color: #218380;
+  --sports-color: #D81159;
 }
 
 @color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3) var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);

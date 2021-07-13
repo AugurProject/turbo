@@ -30,7 +30,7 @@ const LoginButton = ({ action, text, icon, darkMode, className, buttonOptions }:
     icon={icon}
     ariaLabel={`account info button, account: ${text}`}
     customClass={className}
-    {...{...buttonOptions}}
+    {...{ ...buttonOptions }}
   />
 );
 
@@ -88,7 +88,7 @@ const ConnectAccountButton = ({
       } catch (error) {
         setModal({
           type: MODAL_CONNECT_TO_POLYGON,
-          customClassForModal
+          customClassForModal,
         });
       }
     }

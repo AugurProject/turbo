@@ -170,7 +170,7 @@
   }
 
   &:hover {
-    background-color: var(--simple-primary-text-85);
+    background-color: rgba(var(--simple-primary-text-rgb), 0.85);
   }
 
   &.Disabled {
@@ -185,7 +185,7 @@
   &.Error {
     pointer-events: none;
     color: var(--simple-failed);
-    background: var(--simple-failed-15);
+    background: rgba(var(--simple-failed-rgb), 0.15);
     opacity: 1;
     border: 0;
   }
@@ -686,8 +686,8 @@
 
       &:before {
         background: linear-gradient(0deg, transparent 50%, var(transparent) 100%) 0% 0%,
-          linear-gradient(90deg, var(--simple-light-bg-50) 0%, var(--simple-light-bg-75) 100%) 100% 0%,
-          linear-gradient(180deg, var(--simple-light-bg-75) 0%, var(--simple-light-bg) 100%) 100% 100%,
+          linear-gradient(90deg, rgba(var(--simple-light-bg-rgb), 0.50) 0%, rgba(var(--simple-light-bg-rgb), 0.75) 100%) 100% 0%,
+          linear-gradient(180deg, rgba(var(--simple-light-bg-rgb), 0.75) 0%, var(--simple-light-bg) 100%) 100% 100%,
           linear-gradient(270deg, var(--simple-light-bg) 0%, var(--simple-light-bg) 100%) 0% 100%;
       }
       &:after {
