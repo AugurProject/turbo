@@ -1766,7 +1766,7 @@ const fillMarketDatas = async (
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
   const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error(`retrieveMarkets`, e);
+    console.error(`fillMarketDatas`, e);
     throw e;
   });
 

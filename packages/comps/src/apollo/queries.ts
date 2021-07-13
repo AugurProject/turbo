@@ -47,6 +47,7 @@ export const GET_MARKETS = gql`
         marketFactory
         marketIndex
       }
+      shareTokens
     }
     cryptoMarkets {
       id
@@ -61,6 +62,7 @@ export const GET_MARKETS = gql`
       creationPrice
       marketType
       coinIndex
+      shareTokens
     }
     mmaMarkets {
       id
@@ -75,6 +77,7 @@ export const GET_MARKETS = gql`
       homeFighterName
       awayFighterName
       winner
+      shareTokens
     }
   }
 `;

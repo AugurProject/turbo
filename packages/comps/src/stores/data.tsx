@@ -63,6 +63,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
             return [...p, ...markets];
           }, []);
           console.log('filled markets', markets);
+          console.log('spread', markets.filter(m => m.spreadLine));
         });
         const infos = await getMarketInfos(
           provider,
