@@ -2081,7 +2081,7 @@ const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: str
   return outcomePrices;
 };
 
-const decodeMarket = (marketData: any, marketFactoryType: string) => {
+export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;

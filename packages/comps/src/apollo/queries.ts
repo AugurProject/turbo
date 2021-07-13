@@ -40,7 +40,7 @@ export const GET_MARKETS = gql`
       homeTeamId
       awayTeamId
       marketType
-      overUnderTotal
+      value0: overUnderTotal
       estimatedStartTime
       marketId {
         id
@@ -48,6 +48,7 @@ export const GET_MARKETS = gql`
         marketIndex
       }
       shareTokens
+      creator
     }
     cryptoMarkets {
       id
@@ -63,6 +64,7 @@ export const GET_MARKETS = gql`
       marketType
       coinIndex
       shareTokens
+      creator
     }
     mmaMarkets {
       id
@@ -78,6 +80,7 @@ export const GET_MARKETS = gql`
       awayFighterName
       winner
       shareTokens
+      creator
     }
   }
 `;

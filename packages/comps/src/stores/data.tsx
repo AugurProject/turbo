@@ -8,7 +8,7 @@ import {
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos } from "../utils/contract-calls";
+import { getMarketInfos, decodeMarket } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { useAppStatusStore, AppStatusStore } from "./app-status";
@@ -59,7 +59,12 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         const graphMarkets = await getMarketsData((data, block, errors) => {
           console.log(data, block, errors);
           const markets = Object.keys(GRAPH_MARKETS).reduce((p, key) => {
-            const markets = data[key].map(m => deriveMarketInfo(m, m, GRAPH_MARKETS[key]));
+            const markets = data[key].map(m => {
+              const decodedMarketInfo = decodeMarket(m, GRAPH_MARKETS[key]);
+              console.log('decodedMarketInfo', decodedMarketInfo)
+              return deriveMarketInfo(m, m, GRAPH_MARKETS[key]);
+            });
+            
             return [...p, ...markets];
           }, []);
           console.log('filled markets', markets);

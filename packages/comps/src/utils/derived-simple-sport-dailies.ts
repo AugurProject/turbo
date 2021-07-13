@@ -26,7 +26,6 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     value0,
     marketType,
   } = marketData;
-  const overUnderLine = marketData?.overUnderTotal;
   const eventIdValue = new BN(String(coEventId)).toString(16); // could be used to group events
   const eventId = `0${eventIdValue}`.slice(-32); // just grab the last 32
   const homeTeamId = String(coHomeTeamId); // home team identifier
@@ -34,7 +33,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
   let categories = getSportCategories(homeTeamId);
   if (!categories) categories = ["Unknown", "Unknown", "Unknown"];
-  let line = new BN(String(value0 || overUnderLine)).div(10).decimalPlaces(0, 1).toNumber();
+  let line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
   const homeTeam = getFullTeamName(homeTeamId);
