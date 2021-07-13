@@ -30,7 +30,7 @@ const LoginButton = ({ action, text, icon, darkMode, className, buttonOptions }:
     icon={icon}
     ariaLabel={`account info button, account: ${text}`}
     customClass={className}
-    {...{...buttonOptions}}
+    {...{ ...buttonOptions }}
   />
 );
 
@@ -88,7 +88,7 @@ const ConnectAccountButton = ({
       } catch (error) {
         setModal({
           type: MODAL_CONNECT_TO_POLYGON,
-          customClassForModal
+          customClassForModal,
         });
       }
     }
@@ -149,11 +149,11 @@ const ConnectAccountButton = ({
         : isMobile
         ? shortenAddress(account, 3)
         : shortenAddress(account),
-      // icon: hasPendingTransaction ? (
-       icon: <Spinner />
-      // ) : (
-      //   connector && <GetWalletIcon connector={connector} account={account} />
-      // ),
+      icon: hasPendingTransaction ? (
+        <Spinner />
+      ) : (
+        connector && <GetWalletIcon connector={connector} account={account} />
+      ),
     };
   } else if (error) {
     buttonProps = {
