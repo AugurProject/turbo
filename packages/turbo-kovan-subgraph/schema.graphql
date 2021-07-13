@@ -17,6 +17,8 @@ type AmmFactory @entity {
 
 type Market @entity {
   id: ID!
+  marketFactory: String
+  marketIndex: String
   liquidity: [Liquidity!] @derivedFrom(field: "marketId")
   addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
   removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")
@@ -39,7 +41,8 @@ type TeamSportsMarket @entity {
   eventId: BigInt
   homeTeamId: BigInt
   awayTeamId: BigInt
-  score: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
   winner: String
 }
 
@@ -57,6 +60,7 @@ type MmaMarket @entity {
   homeFighterId: BigInt
   awayFighterName: String
   awayFighterId: BigInt
+  shareTokens: [String!]
   winner: String
 }
 
@@ -69,7 +73,8 @@ type CryptoMarket @entity {
   endTime: BigInt
   marketType: BigInt
   coinIndex: BigInt
-  price: BigInt
+  creationPrice: BigInt
+  shareTokens: [String!]
   winner: String
 }
 

@@ -1,7 +1,24 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket } from "../helpers/AmmFactoryHelper";
 import { getOrCreateMmaMarket } from "../helpers/MarketFactoryHelper";
-import { MarketCreated, MarketResolved } from "../../generated/MmaMarketFactory/MmaMarketFactory";
+import {
+  MarketCreated,
+  MarketResolved,
+  MmaMarketFactory as MmaMarketFactoryContract
+} from "../../generated/MmaMarketFactory/MmaMarketFactory";
+
+function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
+  let contract = MmaMarketFactoryContract.bind(contractAddress);
+  let marketDetails = contract.getMarket(marketId);
+
+  let rawShareTokens = marketDetails.shareTokens;
+  let shareTokens = new Array<String>();
+  for (let i = 0; i < rawShareTokens.length; i++) {
+    shareTokens.push(rawShareTokens[i].toHexString());
+  }
+
+  return shareTokens;
+}
 
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
@@ -21,6 +38,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.homeFighterId = event.params.homeFighterId;
   entity.awayFighterName = event.params.awayFighterName;
   entity.awayFighterId = event.params.awayFighterId;
+  entity.shareTokens = getShareTokens(event.address, event.params.id);
 
   entity.save();
 }
