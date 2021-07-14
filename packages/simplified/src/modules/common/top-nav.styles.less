@@ -4,7 +4,7 @@
 .TopNav {
   align-items: center;
   background: transparent;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
@@ -17,7 +17,7 @@
 
   > section {
     align-items: center;
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     box-sizing: border-box;
     display: inline-grid;
     grid-template-columns: auto auto;
@@ -59,22 +59,22 @@
             .text-20-bold;
 
             text-decoration: none;
-            color: var(--simple-secondary-text);
+            color: var(--secondary-text);
           }
 
           &:hover {
             > a {
-              color: var(--simple-primary-text);
+              color: var(--primary-text);
 
               &[disabled] {
-                color: var(--simple-secondary-text);
+                color: var(--secondary-text);
               }
             }
           }
 
           &.Active {
             > a {
-              color: var(--simple-primary-text);
+              color: var(--primary-text);
             }
           }
         }
@@ -95,7 +95,7 @@
   }
 
   &.TwoTone > section:last-of-type {
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
   }
 }
 
@@ -103,7 +103,7 @@
   .TopNav {
     &.OnMarketsView {
       &.TwoTone > section:last-of-type {
-        background: var(--light-background-color);
+        background: var(--secondary-bg);
       }
     }
     &.TwoTone > section:first-of-type {
@@ -119,7 +119,7 @@
 
 @media @breakpoint-mobile-tablet {
   .TopNav {
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     display: grid;
     grid-template-columns: auto 1fr;
 
@@ -151,37 +151,41 @@
   .RoundedButton;
   .text-16-bold;
 
-  background: var(--light-background-color);
-  border: @size-1 solid var(--simple-border);
+  background: var(--secondary-bg);
+  border: @size-1 solid var(--theme-border);
   min-height: @size-48;
   max-height: @size-48;
   height: @size-48;
   padding: 0 @size-14;
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
 
   &:hover,
   &:active,
   &:hover:active {
-    background: var(--simple-alternate-background);
-    border: @size-1 solid var(--simple-border);
+    background: var(--tertiary-bg);
+    border: @size-1 solid var(--theme-border);
   }
 
-  &:focus {
-    background: var(--light-background-color);
+  &:focus-within {
+    background: var(--secondary-bg);
     outline: auto;
-    outline-color: var(--simple-outline-color);
+    outline-color: var(--theme-focus-color);
   }
 }
 
 .SettingsMenuWrapper {
   position: relative;
+
+  > button > svg {
+    margin: 0;
+  }
 }
 
 .SettingsMenu {
   .SimpleBorder;
   .FixedBoxShadow;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   border-radius: @size-16;
   position: absolute;
   top: @size-60;
@@ -204,14 +208,14 @@
     > h2 {
       .text-16-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       margin: 0;
     }
 
     > label {
       .text-14;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       margin-bottom: @size-12;
       display: flex;
       align-items: center;
@@ -246,7 +250,7 @@
           .text-12-semi-bold;
 
           background: transparent;
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
           padding: 0;
           text-align: right;
           outline-style: none;
@@ -259,7 +263,7 @@
           }
 
           &:focus {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
             outline-style: none;
             border: none;
           }
@@ -268,30 +272,30 @@
         > span {
           .text-12-semi-bold;
 
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
           margin-left: @size-4;
         }
 
         &[class*='Selected'] {
-          background-color: var(--simple-alternate-background);
-          border: @size-1 solid var(--simple-secondary-text);
+          background-color: var(--tertiary-bg);
+          border: @size-1 solid var(--secondary-text);
 
           > input {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
           }
 
           &:not(:disabled):not(.Disabled) {
             &:hover {
-              background-color: var(--simple-alternate-background);
-              border: @size-1 solid var(--simple-secondary-text);
+              background-color: var(--tertiary-bg);
+              border: @size-1 solid var(--secondary-text);
             }
 
             &:focus {
-              background-color: var(--simple-alternate-background);
+              background-color: var(--tertiary-bg);
             }
 
             &:active {
-              background-color: var(--simple-alternate-background);
+              background-color: var(--tertiary-bg);
             }
           }
         }
@@ -301,7 +305,7 @@
 }
 
 .Selected {
-  background: var(--simple-alternate-background);
+  background: var(--tertiary-bg);
 }
 
 .MobileMenuButton {

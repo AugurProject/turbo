@@ -9,14 +9,14 @@
   > span:first-of-type {
     .text-20-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: capitalize;
   }
 
   > span:nth-of-type(2) {
     .text-14-semi-bold;
 
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     margin-top: @size-32;
   }
 
@@ -25,7 +25,7 @@
       > span {
         .text-14-semi-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         margin-bottom: @size-12;
         margin-top: @size-32;
         display: flex;
@@ -51,7 +51,7 @@
   // cursor: pointer;
 
   &:hover {
-    background-color: var(--simple-light-bg);
+    background-color: var(--primary-bg);
   }
 
   > div,
@@ -64,7 +64,7 @@
   > div.type {
     .text-10-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: uppercase;
     grid-column: span 2;
   }
@@ -72,7 +72,7 @@
   > div.value {
     .text-10-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 
   > div.icon {
@@ -86,7 +86,7 @@
   > a:first-of-type > span.description {
     .text-12;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 1 / span 3;
     margin: @size-8 0 @size-4;
   }
@@ -95,14 +95,14 @@
     .text-12-semi-bold;
 
     grid-column: 1 / span 3;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-bottom: @size-8;
   }
 
   > div.time {
     .text-10-semi-bold;
 
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
   }
 
   > a:not(:first-of-type) {
@@ -111,11 +111,11 @@
     grid-column: 2 / span 2;
     text-align: right;
     text-decoration: none;
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     justify-content: flex-end;
 
     &:hover {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 }
@@ -132,6 +132,6 @@
   }
 
   .ActivityCard {
-    background-color: var(--simple-light-bg);
+    background-color: var(--primary-bg);
   }
 }

@@ -225,7 +225,7 @@ export function formatDai(num: NumStrBigNumber, opts: FormattedNumberOptions = {
   });
 }
 
-export function formatLiquidity(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+export function formatLiquidity(num: NumStrBigNumber = "0", opts: FormattedNumberOptions = {}): FormattedNumber {
   let value = num;
   if (createBigNumber(value).lt(DUST_LIQUIDITY_AMOUNT)) value = "0.00";
   return formatNumber(value, {

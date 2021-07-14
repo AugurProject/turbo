@@ -195,12 +195,7 @@ const Outcome = ({
       setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
-  const price = !!hasLiquidity
-    ? formatCashPrice(outcome?.price, ammCash?.name).full
-    : prepend
-    ? `-`
-    : `- ${symbol}`;
-
+  const price = !!hasLiquidity ? formatCashPrice(outcome?.price, ammCash?.name).full : prepend ? `-` : `- ${symbol}`;
   return (
     <div
       key={index}
@@ -211,7 +206,6 @@ const Outcome = ({
         [Styles.nonSelectable]: nonSelectable,
         [Styles.Edited]: customVal !== "",
         [Styles.showAsButton]: showAsButton,
-        [Styles.loggedOut]: !isLogged,
         [Styles.disabled]: !isLogged,
         [Styles.Error]: error,
         [Styles.noClick]: noClick,
@@ -272,7 +266,7 @@ export const OutcomesGrid = ({
   error,
   noClick,
   hasLiquidity,
-  marketFactoryType
+  marketFactoryType,
 }: OutcomesGridProps) => {
   const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
   return (

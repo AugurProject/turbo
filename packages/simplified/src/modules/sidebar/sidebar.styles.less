@@ -4,7 +4,7 @@
 div.Sidebar {
   @media @breakpoint-mobile-tablet {
     position: fixed;
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     z-index: @above-all-content-top-layer;
     top: 0;
     bottom: 0;
@@ -22,7 +22,7 @@ div.Sidebar {
 
 .Header {
   padding: 0 @size-16;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   height: @simple-top-bar-height;
   min-height: @simple-top-bar-height;
@@ -74,13 +74,13 @@ div.Sidebar {
       > a {
         .text-30-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         text-decoration: none;
       }
 
       &.Active {
         > a {
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
       }
     }
@@ -88,7 +88,7 @@ div.Sidebar {
 }
 
 .Footer {
-  border-top: @size-1 solid var(--simple-border);
+  border-top: @size-1 solid var(--theme-border);
   display: flex;
   justify-content: space-between;
   padding: @size-12 @size-16;

@@ -30,7 +30,7 @@
   > span:first-of-type {
     .text-12;
 
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     text-transform: capitalize;
     white-space: nowrap;
   }
@@ -38,7 +38,7 @@
   > span:last-of-type {
     .text-16-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 1 / span 2;
   }
 
@@ -58,7 +58,7 @@
 
   &.light {
     > span:last-of-type {
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
   }
 
@@ -89,7 +89,7 @@
     &:first-of-type {
       .text-16-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       margin-bottom: @size-8;
       grid-column: 1 / span 2;
     }
@@ -98,7 +98,7 @@
   > span:nth-of-type(3) {
     .text-36-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-left: @size-8;
   }
 
@@ -126,7 +126,7 @@
   .text-14;
   .SimpleBorder;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   max-width: @size-136;
   overflow: hidden;
   padding: @size-7 @size-8;
@@ -177,7 +177,7 @@
   }
 
   &:hover {
-    border: @size-1 solid var(--simple-border);
+    border: @size-1 solid var(--theme-border);
   }
 
   @media @breakpoint-mobile-tablet {
@@ -208,7 +208,7 @@
   width: @size-40;
   min-width: @size-40;
   max-width: @size-40;
-  border: @size-1 solid var(--simple-invalid);
+  border: @size-1 solid var(--theme-outcome-0);
 
   > svg {
     height: @size-20;
@@ -279,7 +279,7 @@
     .text-20-bold;
 
     text-transform: capitalize;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
 
     > svg {
       margin-right: @size-10;
@@ -291,11 +291,11 @@
 
     margin-top: @size-8;
     text-transform: capitalize;
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
   }
 
   &:not(:disabled):hover {
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
   }
 
   &:disabled {
@@ -308,7 +308,7 @@
   .text-14-semi-bold;
 
   align-items: center;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   flex-flow: row nowrap;
   margin-top: @size-12;
 
@@ -388,7 +388,7 @@
       margin: 0;
       border-right: 0;
       padding: 0;
-      border-left: @size-1 solid var(--simple-border);
+      border-left: @size-1 solid var(--theme-border);
     }
 
     > div:nth-of-type(2) {
@@ -408,10 +408,10 @@
   .text-14-semi-bold;
 
   line-height: @size-20;
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   padding: @size-16;
-  background: var(--simple-no-15);
-  border: @size-1 solid var(--simple-no);
+  background: rgba(var(--failed-rgb), 0.15);
+  border: @size-1 solid var(--failed);
   border-radius: @size-8;
 }
 
@@ -420,8 +420,8 @@
   .text-16-bold;
 
   border: none;
-  background: var(--simple-no-15);
-  color: var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.15);
+  color: var(--failed);
   text-align: center;
   width: 100%;
   flex: 1;
@@ -484,8 +484,8 @@
 .Resolved {
   .ReportingStatusLabel;
 
-  background: var(--simple-failed-10);
-  color: var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.10);
+  color: var(--failed);
 }
 
 .Version {
@@ -495,8 +495,8 @@
 .InSettlement {
   .ReportingStatusLabel;
 
-  background: var(--simple-warning-10);
-  color: var(--simple-warning);
+  background: rgba(var(--warning-rgb), 0.10);
+  color: var(--warning);
 }
 
 .CurrencyTipIcon,
@@ -543,7 +543,7 @@
   border-radius: @size-8;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  border: @size-1 solid var(--simple-brand);
+  border: @size-1 solid var(--success);
   padding: @size-16 @size-18;
 
   > div:first-of-type {
@@ -554,14 +554,14 @@
     > span:first-of-type {
       .text-12-semi-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       margin-bottom: @size-4;
     }
 
     > span:last-of-type {
       .text-12;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 
@@ -572,11 +572,11 @@
 
 .MovementLabel_Text {
   &_positive {
-    color: var(--simple-yes);
+    color: var(--success);
   }
 
   &_negative {
-    color: var(--simple-no);
+    color: var(--failed);
   }
 }
 
