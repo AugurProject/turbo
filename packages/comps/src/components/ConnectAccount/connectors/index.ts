@@ -3,14 +3,10 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { NetworkConnector } from "./NetworkConnector";
 import { DEFAULT_NETWORK_ID } from "../../../stores/constants";
-import { MATIC_MUMBAI } from "../utils";
-
-export const NETWORK_CHAIN_ID = DEFAULT_NETWORK_ID || String(MATIC_MUMBAI);
+export const NETWORK_CHAIN_ID = DEFAULT_NETWORK_ID || "80001";
 
 const NETWORK_URL =
-  DEFAULT_NETWORK_ID === String(MATIC_MUMBAI)
-    ? "https://rpc-mumbai.maticvigil.com"
-    : "https://matic-mainnet-full-rpc.bwarelabs.com";
+  NETWORK_CHAIN_ID === "80001" ? "https://rpc-mumbai.maticvigil.com" : "https://matic-mainnet-full-rpc.bwarelabs.com";
 
 if (typeof NETWORK_URL === "undefined") {
   throw new Error(`NETWORK_CHAIN_ID must be a defined environment variable`);
