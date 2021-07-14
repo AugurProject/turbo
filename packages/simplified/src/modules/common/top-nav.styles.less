@@ -1,5 +1,5 @@
-@import (reference) '~assets/styles/shared';
-@import (reference) '~modules/common/buttons.styles.less';
+@import (reference) "~assets/styles/shared";
+@import (reference) "~modules/common/buttons.styles.less";
 
 .TopNav {
   align-items: center;
@@ -148,16 +148,23 @@
 }
 
 .SettingsButton {
-  .RoundedButton;
+  .ThemeBorder;
   .text-16-bold;
 
   background: var(--secondary-bg);
-  border: @size-1 solid var(--theme-border);
   min-height: @size-48;
   max-height: @size-48;
   height: @size-48;
   padding: 0 @size-14;
   color: var(--primary-text);
+  outline: none;
+  grid-gap: @size-8;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
 
   &:hover,
   &:active,
@@ -245,7 +252,7 @@
         align-items: center;
         justify-content: center;
 
-        > input[type='number'] {
+        > input[type="number"] {
           -moz-appearance: textfield;
           .text-12-semi-bold;
 
@@ -276,7 +283,7 @@
           margin-left: @size-4;
         }
 
-        &[class*='Selected'] {
+        &[class*="Selected"] {
           background-color: var(--tertiary-bg);
           border: @size-1 solid var(--secondary-text);
 

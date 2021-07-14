@@ -248,10 +248,10 @@
     > span {
       .text-14;
 
-      border-bottom: @size-1 dotted var(--primary-text);;
+      border-bottom: @size-1 dotted var(--primary-text);
 
       &:hover {
-        border-bottom: @size-1 solid var(--primary-text);;
+        border-bottom: @size-1 solid var(--primary-text);
       }
     }
 
@@ -261,7 +261,7 @@
       width: @size-9;
 
       > path {
-        fill: var(--primary-text);;
+        fill: var(--primary-text);
       }
     }
   }
@@ -271,7 +271,7 @@
 
     > div:first-of-type {
       padding: @size-12 @size-16;
-    
+
       > button {
         .text-14;
 
@@ -484,6 +484,21 @@
   grid-gap: @size-4;
 
   > li > button {
-    .RoundedButton;
+    .ThemeBorder;
+    .text-12-semi-bold;
+
+    background: transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    grid-gap: @size-8;
+    outline: none;
+
+    &:hover {
+      border: @size-1 solid var(--secondary-text);
+    }
   }
 }

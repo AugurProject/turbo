@@ -298,7 +298,7 @@
   }
 
   > button {
-    .RoundedButton;
+    .PrimaryBorderRadius;
     .text-16-bold;
 
     background: none;
@@ -307,6 +307,13 @@
     padding: 0;
     text-decoration: underline;
     color: var(--primary-text);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    outline: none;
 
     &:hover {
       border: none;

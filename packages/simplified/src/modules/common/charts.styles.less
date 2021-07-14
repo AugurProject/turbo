@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .PriceHistoryChart {
   display: flex;
@@ -142,7 +142,7 @@
       .highcharts-crosshair {
         stroke: var(--primary-text);
 
-        opacity: .3;
+        opacity: 0.3;
       }
 
       .highcharts-tooltip {
@@ -250,7 +250,7 @@
 .IlliquidMarketChart {
   .PrimaryBorderRadius;
   .text-12;
-  
+
   align-items: center;
   color: var(--primary-text);
   background: var(--tertiary-bg);
@@ -297,7 +297,7 @@
 }
 
 .SelectOutcomeButton {
-  .RoundedButton;
+  .ThemeBorder;
   .text-14;
 
   background: transparent;
@@ -308,11 +308,22 @@
   white-space: nowrap;
   text-transform: capitalize;
   grid-gap: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+
+  &:hover {
+    border: @size-1 solid var(--secondary-text);
+  }
 
   &:disabled,
   &:disabled:hover {
     cursor: not-allowed;
-    opacity: .5;
+    opacity: 0.5;
     background: transparent;
   }
 

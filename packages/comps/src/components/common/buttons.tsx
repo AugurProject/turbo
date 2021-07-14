@@ -306,7 +306,7 @@ export const BaseThemeButton = ({
     <>
       <span>{text}</span>
       {icon}
-      <span>{subText}</span>
+      {subText && <span>{subText}</span>}
     </>
   );
   const props = {
