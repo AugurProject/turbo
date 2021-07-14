@@ -83,6 +83,7 @@ export const GET_MARKETS = gql`
       winner
       shareTokens
       creator
+      marketType
     }
   }
 `;

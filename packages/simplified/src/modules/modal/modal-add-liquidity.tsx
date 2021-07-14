@@ -533,7 +533,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   outcomes={outcomes}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
-                  marketType={YES_NO}
                   orderType={BUY}
                   nonSelectable
                   editable={mustSetPrices}

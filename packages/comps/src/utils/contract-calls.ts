@@ -1800,11 +1800,11 @@ export const fillMarketsData = async (
     } 
   }
 
-  console.log('exchanges', exchanges)
   const marketInfos = {};
   if (markets.length > 0) {
     markets.forEach((m) => {
-      marketInfos[m.marketId] = deriveMarketInfo(m, m, marketFactoryType);
+      const market = {...m, ...decodeMarket(m, marketFactoryType) };
+      marketInfos[m.marketId] = deriveMarketInfo(market, market, marketFactoryType);
     });
   }
 
@@ -2100,7 +2100,6 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
     creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
-    marketType: "Categorical", // categorical markets
     numTicks: NUM_TICKS_STANDARD,
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
     hasWinner,

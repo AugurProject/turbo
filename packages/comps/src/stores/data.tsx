@@ -50,31 +50,37 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
     let isMounted = true;
     let intervalId = null;
     const getMarkets = async () => {
+      const { account: userAccount, loginAccount } = UserStore.get();
+      const { isRpcDown } = AppStatusStore.get();
+      const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
+      const provider = loginAccount?.library || defaultProvider?.current;
+      let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
-        const { account: userAccount, loginAccount } = UserStore.get();
-        const { isRpcDown } = AppStatusStore.get();
-        const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-        const provider = loginAccount?.library || defaultProvider?.current;
-        const xxx = await getMarketsData((data, block, errors) => {
-          console.log(data, block, errors);
-          const markets = Object.keys(GRAPH_MARKETS).reduce(async (p, key) => {
+        try {
+          const {data, block, errors} = await getMarketsData();
+          //console.log(data, block, errors);
+          for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
+            const key = Object.keys(GRAPH_MARKETS)[i];
             const graphMarkets = data[key];
-            const {marketInfos: filledMarkets, exchanges } = await fillMarketsData(graphMarkets, cashes, provider, account, GRAPH_MARKETS[key], dblock)
-            console.log('filledMarkets', filledMarkets, exchanges)
-            return {...p, ...filledMarkets};
-          }, {})
+            const { marketInfos: filledMarkets, exchanges: filledExchanges } = await fillMarketsData(graphMarkets, cashes, provider, account, GRAPH_MARKETS[key], Number(block))
+            infos = { markets: { ...infos.markets, ...filledMarkets }, ammExchanges: { ...infos.ammExchanges, ...filledExchanges }, blocknumber: Number(block) };
+          };
+          return infos;
+        } catch (e) {
+          // failover use multicalls
+          console.log('failover to use multicall', e);
+          infos = await getMarketInfos(
+            provider,
+            dmarkets,
+            damm,
+            cashes,
+            userAccount,
+            MARKET_IGNORE_LIST,
+            loadType,
+            dblock
+          );
 
-        });
-        const infos = await getMarketInfos(
-          provider,
-          dmarkets,
-          damm,
-          cashes,
-          userAccount,
-          MARKET_IGNORE_LIST,
-          loadType,
-          dblock
-        );
+        }
         if (isRpcDown) {
           AppStatusStore.actions.setIsRpcDown(false);
         }

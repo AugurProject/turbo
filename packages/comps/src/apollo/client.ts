@@ -43,7 +43,7 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
-export async function getMarketsData(updateHeartbeat) {
+export async function getMarketsData() {
   const clientConfig = getClientConfig();
   let response = null;
   let block = null;
@@ -54,20 +54,16 @@ export async function getMarketsData(updateHeartbeat) {
     });
   } catch (e) {
     console.error(e);
-    updateHeartbeat(null, null, e);
+    return {data: null, block: null, errors: e};
   }
 
   if (response) {
-    console.log('GET_MARKETS', response)
     if (response.errors) {
       console.error(JSON.stringify(response.errors, null, 1));
     }
-
-    updateHeartbeat(response.data,
-      block,
-      response?.errors
-    );
+    return {data: response.data, block, errors: response?.errors }
   }
+  return {data: null, block: null, errors: null};
 }
 
 export async function searchMarkets(searchString, cb) {

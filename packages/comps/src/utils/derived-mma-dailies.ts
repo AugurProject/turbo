@@ -56,7 +56,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   };
 };
 
-export const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
+const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
   const marketOutcome = getMarketOutcome(sportsMarketType, outcomeId);
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
