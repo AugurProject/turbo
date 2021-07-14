@@ -32,7 +32,7 @@ export const SEARCH_MARKETS = gql`
 export const GET_MARKETS = gql`
   query {
     teamSportsMarkets {
-      id
+      marketId: id
       timestamp
       endTime
       winner
@@ -42,7 +42,7 @@ export const GET_MARKETS = gql`
       marketType
       value0: overUnderTotal
       estimatedStartTime
-      marketId {
+      market: marketId {
         id
         marketFactory
         marketIndex
@@ -51,8 +51,8 @@ export const GET_MARKETS = gql`
       creator
     }
     cryptoMarkets {
-      id
-      marketId {
+      marketId: id
+      market: marketId {
         id
         marketFactory
         marketIndex
@@ -67,8 +67,8 @@ export const GET_MARKETS = gql`
       creator
     }
     mmaMarkets {
-      id
-      marketId {
+      marketId: id
+      market: marketId {
         id
         marketFactory
         marketIndex
@@ -78,6 +78,8 @@ export const GET_MARKETS = gql`
       eventId
       homeFighterName
       awayFighterName
+      homeFighterId
+      awayFighterId
       winner
       shareTokens
       creator

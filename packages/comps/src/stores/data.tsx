@@ -8,11 +8,10 @@ import {
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos, decodeMarket } from "../utils/contract-calls";
+import { getMarketInfos, fillMarketsData } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { useAppStatusStore, AppStatusStore } from "./app-status";
-import { deriveMarketInfo } from "../utils/derived-market-data";
 import { MARKET_FACTORY_TYPES } from "../utils/constants";
 
 export const DataContext = React.createContext({
@@ -56,19 +55,15 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         const { isRpcDown } = AppStatusStore.get();
         const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
         const provider = loginAccount?.library || defaultProvider?.current;
-        const graphMarkets = await getMarketsData((data, block, errors) => {
+        const xxx = await getMarketsData((data, block, errors) => {
           console.log(data, block, errors);
-          const markets = Object.keys(GRAPH_MARKETS).reduce((p, key) => {
-            const markets = data[key].map(m => {
-              const decodedMarketInfo = decodeMarket(m, GRAPH_MARKETS[key]);
-              console.log('decodedMarketInfo', decodedMarketInfo)
-              return deriveMarketInfo(m, m, GRAPH_MARKETS[key]);
-            });
-            
-            return [...p, ...markets];
-          }, []);
-          console.log('filled markets', markets);
-          console.log('spread', markets.filter(m => m.spreadLine));
+          const markets = Object.keys(GRAPH_MARKETS).reduce(async (p, key) => {
+            const graphMarkets = data[key];
+            const {marketInfos: filledMarkets, exchanges } = await fillMarketsData(graphMarkets, cashes, provider, account, GRAPH_MARKETS[key], dblock)
+            console.log('filledMarkets', filledMarkets, exchanges)
+            return {...p, ...filledMarkets};
+          }, {})
+
         });
         const infos = await getMarketInfos(
           provider,

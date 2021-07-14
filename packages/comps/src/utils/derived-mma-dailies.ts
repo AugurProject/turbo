@@ -17,14 +17,14 @@ const NO_CONTEST_TIE = "Draw/No Contest";
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
-    awayTeamId: coAwayTeamId,
+    awayFighterId: coAwayTeamId,
     eventId: coEventId,
-    homeTeamId: coHomeTeamId,
+    homeFighterId: coHomeTeamId,
     estimatedStartTime,
     marketType = "0",
   } = marketData;
   // translate market data
-  const eventId = String(coEventId._hex);
+  const eventId = String(coEventId._hex || coEventId);
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
