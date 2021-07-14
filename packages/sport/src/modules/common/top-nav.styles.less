@@ -3,7 +3,7 @@
 .TopNav {
   align-items: center;
   background: transparent;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
@@ -319,13 +319,13 @@
     }
 
     &:not(:first-of-type) > label {
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
     }
 
     > ul {
       display: flex;
       flex-flow: column nowrap;
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
 
       > li {
         padding: 0 @size-12;
@@ -379,13 +379,13 @@
         }
 
         &:not(:last-of-type) > button {
-          border-bottom: @size-1 solid var(--simple-border);
+          border-bottom: @size-1 solid var(--theme-border);
         }
       }
     }
 
     > div {
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
       min-height: @size-44;
       max-height: @size-44;
       display: grid;

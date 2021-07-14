@@ -61,8 +61,8 @@
 
     &:focus-visible {
       outline: 0;
-      border: @size-1 solid var(--simple-focus-color);
-      box-shadow: inset 0 0 0 @size-2 var(--simple-focus-color);
+      border: @size-1 solid var(--theme-focus-color);
+      box-shadow: inset 0 0 0 @size-2 var(--theme-focus-color);
     }
   }
 }
@@ -109,7 +109,7 @@
   .TinyButton;
 
   background-color: transparent;
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
@@ -176,7 +176,7 @@
   &.Disabled {
     pointer-events: none;
     background: var(--secondary-bg);
-    border: @size-1 solid var(--simple-border);
+    border: @size-1 solid var(--theme-border);
     color: var(--secondary-text);
     // purposeful override for specifically just this button for readability.
     opacity: 1;
@@ -197,7 +197,7 @@
 
   color: var(--color-brand-secondary);
   background-color: var(--primary-text);
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
   min-height: @size-68;
   height: @size-68;
   max-height: @size-68;

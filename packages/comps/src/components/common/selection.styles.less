@@ -1,7 +1,7 @@
 @import (reference) "~assets/styles/shared";
 
 .Dropdown {
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
   border-radius: @border-radius-default;
   cursor: pointer;
   display: flex;
@@ -52,8 +52,8 @@
     }
 
     &:focus-visible {
-      border: @size-1 solid var(--simple-focus-color);
-      box-shadow: inset 0 0 0 @size-2 var(--simple-focus-color);
+      border: @size-1 solid var(--theme-focus-color);
+      box-shadow: inset 0 0 0 @size-2 var(--theme-focus-color);
     }
 
     &:active {
@@ -279,7 +279,7 @@
         align-items: center;
         justify-content: space-between;
         padding: @size-12 0 @size-11;
-        border-bottom: @size-1 solid var(--simple-border);
+        border-bottom: @size-1 solid var(--theme-border);
 
         > svg {
           display: block;

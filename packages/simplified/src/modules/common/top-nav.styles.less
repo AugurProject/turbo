@@ -4,7 +4,7 @@
 .TopNav {
   align-items: center;
   background: transparent;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
@@ -152,7 +152,7 @@
   .text-16-bold;
 
   background: var(--secondary-bg);
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
   min-height: @size-48;
   max-height: @size-48;
   height: @size-48;
@@ -163,13 +163,13 @@
   &:active,
   &:hover:active {
     background: var(--tertiary-bg);
-    border: @size-1 solid var(--simple-border);
+    border: @size-1 solid var(--theme-border);
   }
 
   &:focus-within {
     background: var(--secondary-bg);
     outline: auto;
-    outline-color: var(--simple-focus-color);
+    outline-color: var(--theme-focus-color);
   }
 }
 
