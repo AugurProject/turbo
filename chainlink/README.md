@@ -49,12 +49,10 @@ Some files are created when you sign up with your node.
 Others must be added.
 
 ## .api
-I think this is created by the node when you first sign up.
-But you can use your own.
-It has two lines: username/email and password.
+This is the initial user/password for the api and gui login. This file contains two lines: username/email and password.
 
 ## .password
-Contains a password... not sure what for. Probably created on signup.
+Contains a password for the keystore. Can be anything on a single line.
 
 ## augur-adapter.env
 Contains these, with values after the = sign.
