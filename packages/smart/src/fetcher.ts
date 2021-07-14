@@ -1,5 +1,29 @@
 import { BigNumber, BigNumberish } from "ethers";
 
+// Common
+
+interface FetcherPool {
+  addr: string;
+  tokenRatios: BigNumberish[];
+  balances: BigNumberish[];
+  weights: BigNumberish[];
+  swapFee: BigNumberish;
+  totalSupply: BigNumberish;
+}
+type RawFetcherPool = [string, BigNumberish[], BigNumberish[], BigNumberish[], BigNumberish, BigNumberish];
+
+function createFetcherPool(raw: RawFetcherPool): FetcherPool {
+  const [addr, tokenRatios, balances, weights, swapFee, totalSupply] = raw;
+  return {
+    addr,
+    tokenRatios,
+    balances,
+    weights,
+    swapFee,
+    totalSupply,
+  };
+}
+
 interface MarketFactoryBundle {
   shareFactor: BigNumberish;
   stakerFee: BigNumberish;
@@ -11,6 +35,7 @@ interface MarketFactoryBundle {
     symbol: string;
     decimals: number;
   };
+  marketCount: BigNumberish;
 }
 
 interface RawMarketFactoryBundle extends Pick<MarketFactoryBundle, Exclude<keyof MarketFactoryBundle, "collateral">> {
@@ -33,17 +58,7 @@ function createMarketFactoryBundle(raw: RawMarketFactoryBundle): MarketFactoryBu
       symbol: raw.collateral.symbol,
       decimals: BigNumber.from(raw.collateral.decimals).toNumber(),
     },
-  };
-}
-
-interface NBAMarketFactoryBundle extends MarketFactoryBundle {
-  sportId: BigNumberish;
-}
-
-export function createNBAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): NBAMarketFactoryBundle {
-  return {
-    ...createMarketFactoryBundle(raw[0]),
-    sportId: BigNumber.from(raw[1]),
+    marketCount: raw.marketCount,
   };
 }
 
@@ -76,6 +91,42 @@ function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMarketBundl
     creationTimestamp: raw.creationTimestamp,
     endTime: raw.endTime,
     winner: raw.winner,
+  };
+}
+
+interface DynamicMarketBundle {
+  factory: string;
+  marketId: BigNumberish;
+  pool: FetcherPool;
+  winner: string;
+}
+
+interface RawDynamicMarketBundle {
+  factory: string;
+  marketId: BigNumberish;
+  pool: RawFetcherPool;
+  winner: string;
+}
+
+function createDynamicMarketBundle(raw: RawDynamicMarketBundle): DynamicMarketBundle {
+  return {
+    factory: raw.factory,
+    marketId: raw.marketId,
+    pool: createFetcherPool(raw.pool),
+    winner: raw.winner,
+  };
+}
+
+// NBA
+
+interface NBAMarketFactoryBundle extends MarketFactoryBundle {
+  sportId: BigNumberish;
+}
+
+export function createNBAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): NBAMarketFactoryBundle {
+  return {
+    ...createMarketFactoryBundle(raw[0]),
+    sportId: BigNumber.from(raw[1]),
   };
 }
 
@@ -115,29 +166,6 @@ export function createNBAStaticMarketBundle(raw: RawNBAStaticMarketBundle): NBAS
   return bundle;
 }
 
-interface DynamicMarketBundle {
-  factory: string;
-  marketId: BigNumberish;
-  pool: FetcherPool;
-  winner: string;
-}
-
-interface RawDynamicMarketBundle {
-  factory: string;
-  marketId: BigNumberish;
-  pool: RawFetcherPool;
-  winner: string;
-}
-
-function createDynamicMarketBundle(raw: RawDynamicMarketBundle): DynamicMarketBundle {
-  return {
-    factory: raw.factory,
-    marketId: raw.marketId,
-    pool: createFetcherPool(raw.pool),
-    winner: raw.winner,
-  };
-}
-
 interface NBADynamicMarketBundle extends DynamicMarketBundle {
   eventStatus: BigNumberish;
 }
@@ -154,24 +182,73 @@ export function createNBADynamicMarketBundle(raw: RawNBADynamicMarketBundle): NB
   };
 }
 
-interface FetcherPool {
-  addr: string;
-  tokenRatios: BigNumberish[];
-  balances: BigNumberish[];
-  weights: BigNumberish[];
-  swapFee: BigNumberish;
-  totalSupply: BigNumberish;
-}
-type RawFetcherPool = [string, BigNumberish[], BigNumberish[], BigNumberish[], BigNumberish, BigNumberish];
+// MMA
 
-function createFetcherPool(raw: RawFetcherPool): FetcherPool {
-  const [addr, tokenRatios, balances, weights, swapFee, totalSupply] = raw;
+interface MMAMarketFactoryBundle extends MarketFactoryBundle {
+  sportId: BigNumberish;
+}
+
+export function createMMAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): MMAMarketFactoryBundle {
   return {
-    addr,
-    tokenRatios,
-    balances,
-    weights,
-    swapFee,
-    totalSupply,
+    ...createMarketFactoryBundle(raw[0]),
+    sportId: BigNumber.from(raw[1]),
+  };
+}
+
+interface MMAStaticMarketBundle extends StaticMarketBundle {
+  eventId: BigNumberish;
+  homeFighterName: string;
+  homeFighterId: BigNumberish;
+  awayFighterName: string;
+  awayFighterId: BigNumberish;
+  estimatedStartTime: BigNumberish;
+  marketType: BigNumberish;
+  headToHeadWeights: BigNumberish[];
+  eventStatus: BigNumberish;
+}
+
+interface RawMMAStaticMarketBundle {
+  super: RawStaticMarketBundle;
+  eventId: BigNumberish;
+  homeFighterName: string;
+  homeFighterId: BigNumberish;
+  awayFighterName: string;
+  awayFighterId: BigNumberish;
+  estimatedStartTime: BigNumberish;
+  marketType: BigNumberish;
+  headToHeadWeights: BigNumberish[];
+  eventStatus: BigNumberish;
+}
+
+export function createMMAStaticMarketBundle(raw: RawMMAStaticMarketBundle): MMAStaticMarketBundle {
+  const bundle: MMAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
+    ...createStaticMarketBundle(raw.super),
+    eventId: raw.eventId,
+    homeFighterName: raw.homeFighterName,
+    homeFighterId: raw.homeFighterId,
+    awayFighterName: raw.awayFighterName,
+    awayFighterId: raw.awayFighterId,
+    estimatedStartTime: raw.estimatedStartTime,
+    marketType: raw.marketType,
+    headToHeadWeights: raw.headToHeadWeights,
+    eventStatus: raw.eventStatus,
+  };
+  delete bundle.super;
+  return bundle;
+}
+
+interface MMADynamicMarketBundle extends DynamicMarketBundle {
+  eventStatus: BigNumberish;
+}
+
+interface RawMMADynamicMarketBundle {
+  super: RawDynamicMarketBundle;
+  eventStatus: BigNumberish;
+}
+
+export function createMMADynamicMarketBundle(raw: RawMMADynamicMarketBundle): MMADynamicMarketBundle {
+  return {
+    ...createDynamicMarketBundle(raw.super),
+    eventStatus: raw.eventStatus,
   };
 }
