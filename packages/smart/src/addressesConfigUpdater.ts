@@ -53,6 +53,10 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                 "ammFactory",
                                 ts.factory.createStringLiteral(marketFactory.ammFactory)
                               ),
+                              context.factory.createPropertyAssignment(
+                                "fetcher",
+                                ts.factory.createStringLiteral(marketFactory.fetcher)
+                              ),
                             ];
                             if (marketFactory.description) {
                               fields.push(
