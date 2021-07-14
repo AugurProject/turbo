@@ -158,7 +158,7 @@
   .text-20-bold;
 
   background: var(--primary-text);
-  color: var(--simple-light-bg);
+  color: var(--primary-bg);
   min-height: @size-68;
   height: @size-68;
   max-height: @size-68;
@@ -686,9 +686,9 @@
 
       &:before {
         background: linear-gradient(0deg, transparent 50%, var(transparent) 100%) 0% 0%,
-          linear-gradient(90deg, rgba(var(--simple-light-bg-rgb), 0.50) 0%, rgba(var(--simple-light-bg-rgb), 0.75) 100%) 100% 0%,
-          linear-gradient(180deg, rgba(var(--simple-light-bg-rgb), 0.75) 0%, var(--simple-light-bg) 100%) 100% 100%,
-          linear-gradient(270deg, var(--simple-light-bg) 0%, var(--simple-light-bg) 100%) 0% 100%;
+          linear-gradient(90deg, rgba(var(--primary-bg-rgb), 0.50) 0%, rgba(var(--primary-bg-rgb), 0.75) 100%) 100% 0%,
+          linear-gradient(180deg, rgba(var(--primary-bg-rgb), 0.75) 0%, var(--primary-bg) 100%) 100% 100%,
+          linear-gradient(270deg, var(--primary-bg) 0%, var(--primary-bg) 100%) 0% 100%;
       }
       &:after {
         background: black;
@@ -718,7 +718,7 @@
           background: transparent;
 
           &:after {
-            background: var(--simple-light-bg);
+            background: var(--primary-bg);
           }
         }
 

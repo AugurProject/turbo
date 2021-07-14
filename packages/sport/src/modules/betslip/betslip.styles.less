@@ -9,7 +9,7 @@
   > div {
     .SecondaryBorderRadius;
 
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     box-shadow: var(--theme-box-shadow);
     min-height: 440px;
     max-height: 85vh;
@@ -39,20 +39,20 @@
       &:not(:disabled) {
         background-color: var(--primary-text);
         border-color: var(--primary-text);
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
 
         > svg > path {
-          fill: var(--simple-light-bg);
+          fill: var(--primary-bg);
         }
         &:hover,
         &:focus,
         &:active {
           background-color: var(--primary-text);
           border-color: var(--primary-text);
-          color: var(--simple-light-bg);
+          color: var(--primary-bg);
 
           > svg > path {
-            fill: var(--simple-light-bg);
+            fill: var(--primary-bg);
           }
         }
       }
@@ -255,22 +255,22 @@ button.FlipContent {
       border: @size-1 solid var(--tertiary-text);
       padding: @size-3 @size-5;
       margin-left: @size-8;
-      color: var(--simple-light-bg);
+      color: var(--primary-bg);
     }
 
     &.isPopulated {
       > span {
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
       }
     }
 
     &.SelectedView,
     &.SelectedView.isPopulated {
-      color: var(--simple-light-bg);
+      color: var(--primary-bg);
 
       > span {
-        border: @size-1 solid var(--simple-light-bg);
-        background: var(--simple-light-bg);
+        border: @size-1 solid var(--primary-bg);
+        background: var(--primary-bg);
         color: var(--primary-text);
       }
     }
@@ -292,7 +292,7 @@ button.FlipContent {
       > h2 {
         .text-16-bold;
 
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
         text-transform: capitalize;
         width: 100%;
         flex: 1 100%;
@@ -315,7 +315,7 @@ button.FlipContent {
           width: @size-16;
 
           > path {
-            fill: var(--simple-light-bg);
+            fill: var(--primary-bg);
           }
         }
       }
@@ -405,7 +405,7 @@ button.FlipContent {
   > main {
     .SecondaryBottomBorderRadius;
 
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     padding: @size-12;
     display: grid;
     grid-template-columns: 1fr;
@@ -488,7 +488,7 @@ button.FlipContent {
 .LabeledInput {
   .SimpleBorder;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -514,7 +514,7 @@ button.FlipContent {
     text-transform: uppercase;
     color: var(--secondary-text);
     padding: 0 @size-4;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     position: absolute;
     display: flex;
     flex-flow: column nowrap;
@@ -756,7 +756,7 @@ button.FlipContent {
     &:hover:not(:disabled) {
       border-color: var(--primary-text);
       background: var(--primary-text);
-      color: var(--simple-light-bg);
+      color: var(--primary-bg);
     }
 
     &:disabled {
