@@ -34,7 +34,7 @@
           > h5 {
             .text-12;
 
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
             margin: 0;
             padding: 0;
             margin-bottom: @size-4;
@@ -87,31 +87,31 @@
         .text-12;
 
         font-weight: 400;
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
 
         > text,
         > text > tspan {
           .text-12;
 
           font-weight: 400;
-          fill: var(--simple-primary-text);
+          fill: var(--primary-text);
         }
       }
 
       .highcharts-crosshair-label {
-        background-color: var(--simple-primary-text);
+        background-color: var(--primary-text);
         border-radius: @size-5;
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         font-size: @size-10;
         z-index: @above-all-content;
         // ugh... we need !important here because inline styles are inserted.
         > text {
-          color: var(--simple-primary-text) !important;
-          fill: var(--simple-primary-text) !important;
+          color: var(--primary-text) !important;
+          fill: var(--primary-text) !important;
 
           > tspan {
-            color: var(--simple-primary-text) !important;
-            fill: var(--simple-primary-text) !important;
+            color: var(--primary-text) !important;
+            fill: var(--primary-text) !important;
           }
         }
       }
@@ -124,12 +124,12 @@
         > text {
           .text-12;
 
-          fill: var(--simple-primary-text);
+          fill: var(--primary-text);
           transform: translateX(@size-38);
 
           > tspan {
-            color: var(--simple-primary-text);
-            fill: var(--simple-primary-text);
+            color: var(--primary-text);
+            fill: var(--primary-text);
           }
         }
       }
@@ -141,12 +141,12 @@
       g.highcharts-xaxis-labels > g.highcharts-crosshair-label > text {
         .mono-9;
 
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
         transform: translateY(@size-4);
       }
 
       .highcharts-crosshair {
-        stroke: var(--simple-primary-text);
+        stroke: var(--primary-text);
 
         opacity: .3;
       }
@@ -245,8 +245,8 @@
       text.highcharts-title > tspan {
         .text-10;
 
-        color: var(--simple-primary-text);
-        fill: var(--simple-primary-text);
+        color: var(--primary-text);
+        fill: var(--primary-text);
         text-transform: capitalize;
       }
     }
@@ -331,7 +331,7 @@
   .text-14;
 
   background: transparent;
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   height: @size-36;
   padding: 0 @size-8;
   flex: 0 auto;
@@ -369,7 +369,7 @@
   > b {
     .text-16-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-left: @size-8;
   }
 

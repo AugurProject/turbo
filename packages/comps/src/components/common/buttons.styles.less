@@ -4,7 +4,7 @@
   .text-16-bold;
   .SimpleBorder;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   padding: 0 @size-16;
   background-color: var(--light-background-color);
   display: flex;
@@ -100,7 +100,7 @@
     &.Selected {
       background-color: var(--simple-alternate-background);
       border: @size-1 solid var(--secondary-text);
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 }
@@ -157,7 +157,7 @@
   .Button;
   .text-20-bold;
 
-  background: var(--simple-primary-text);
+  background: var(--primary-text);
   color: var(--simple-light-bg);
   min-height: @size-68;
   height: @size-68;
@@ -170,7 +170,7 @@
   }
 
   &:hover {
-    background-color: rgba(var(--simple-primary-text-rgb), 0.85);
+    background-color: rgba(var(--primary-text-rgb), 0.85);
   }
 
   &.Disabled {
@@ -196,7 +196,7 @@
   .text-20-bold;
 
   color: var(--color-brand-secondary);
-  background-color: var(--simple-primary-text);
+  background-color: var(--primary-text);
   border: @size-1 solid var(--simple-border);
   min-height: @size-68;
   height: @size-68;
@@ -205,7 +205,7 @@
   &:not(:disabled):not(.Disabled):focus {
     .Focused;
 
-    background-color: var(--simple-primary-text);
+    background-color: var(--primary-text);
   }
 
   &:not(:disabled):not(.Disabled):active {
@@ -287,7 +287,7 @@
 .ExternalLinkButton {
   .text-10-semi-bold;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   border: 0;
   background: transparent;
   text-transform: uppercase;
@@ -302,12 +302,12 @@
 
     > path {
       &:nth-child(odd) {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
         stroke: none;
       }
 
       &:nth-child(even) {
-        stroke: var(--simple-primary-text);
+        stroke: var(--primary-text);
       }
     }
   }
