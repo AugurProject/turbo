@@ -23,37 +23,37 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
 
     contracts.push({
       name: "AMMFactory",
-      address: ammFactory
+      address: ammFactory,
     });
 
     // Fails to verify in production because real collateral (USDC) is used.
     contracts.push({
       name: "Cash",
-      address: collateral
+      address: collateral,
     });
 
     contracts.push({
       name: marketFactoryTypeToContractName[type],
-      address
+      address,
     });
 
     // Fetchers aren't always defined
     if (fetcher !== "") {
       contracts.push({
         name: marketFactoryTypeToFetcherName[type],
-        address: fetcher
+        address: fetcher,
       });
     }
   }
 
   const addrs: string[] = [];
-  const uniqueContracts = contracts.filter(c => {
+  const uniqueContracts = contracts.filter((c) => {
     const keep = !addrs.includes(c.address);
     if (keep) addrs.push(c.address);
     return keep;
-  })
+  });
 
-  console.log(`Attempting to verify ${uniqueContracts.length} contracts for network ${chainId}.`)
+  console.log(`Attempting to verify ${uniqueContracts.length} contracts for network ${chainId}.`);
 
   // One at a time because some will fail for various benign reasons.
   for (const contract of uniqueContracts) {
