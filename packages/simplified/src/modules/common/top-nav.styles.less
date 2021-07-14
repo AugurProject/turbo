@@ -17,7 +17,7 @@
 
   > section {
     align-items: center;
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     box-sizing: border-box;
     display: inline-grid;
     grid-template-columns: auto auto;
@@ -103,7 +103,7 @@
   .TopNav {
     &.OnMarketsView {
       &.TwoTone > section:last-of-type {
-        background: var(--light-background-color);
+        background: var(--secondary-bg);
       }
     }
     &.TwoTone > section:first-of-type {
@@ -119,7 +119,7 @@
 
 @media @breakpoint-mobile-tablet {
   .TopNav {
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     display: grid;
     grid-template-columns: auto 1fr;
 
@@ -151,7 +151,7 @@
   .RoundedButton;
   .text-16-bold;
 
-  background: var(--light-background-color);
+  background: var(--secondary-bg);
   border: @size-1 solid var(--simple-border);
   min-height: @size-48;
   max-height: @size-48;
@@ -167,7 +167,7 @@
   }
 
   &:focus-within {
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     outline: auto;
     outline-color: var(--simple-focus-color);
   }
