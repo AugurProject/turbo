@@ -30,7 +30,8 @@ import {
   NULL_ADDRESS,
   SportsLinkEventStatus,
   createMMAMarketFactoryBundle,
-  createMMAStaticMarketBundle, createMMADynamicMarketBundle
+  createMMAStaticMarketBundle,
+  createMMADynamicMarketBundle,
 } from "../src";
 
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
@@ -757,11 +758,7 @@ type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
 type CheckableMarketFactory = SportsLinkMarketFactory | MMALinkMarketFactory;
 
-async function marketFactoryBundleCheck(
-  marketFactory: CheckableMarketFactory,
-  collateral: Cash,
-  feePot: FeePot
-) {
+async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {
     sportId: await marketFactory.sportId(),
     shareFactor: await marketFactory.shareFactor(),
