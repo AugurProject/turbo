@@ -209,9 +209,6 @@ export const AccountDetails = ({
     setConnectorName(formatConnectorName(connector));
   }, [account, connector, transactions]);
 
-  // const notWalletLink = connector !== walletlink;
-  const notWalletLink = true;
-
   return (
     <div
       className={classNames(Styles.AccountDetails, {
@@ -224,21 +221,8 @@ export const AccountDetails = ({
       <section>
         {!process.env.HIDE_FAUCET && <TinyThemeButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
         <TinyThemeButton action={() => openOptions()} text="Switch Wallet" />
-        {connector !== injected && notWalletLink && (
-          <TinyThemeButton action={() => (connector as any).disconnect()} text="Sign Out" />
-        )}
-        {connector === injected && notWalletLink && (
-          <TinyThemeButton
-            action={() => {
-              logout();
-              // setTimeout allows lastUser localStorage to be cleared before calling deactivate,
-              // otherwise the autologin seems to overide our deactivate call.
-              setTimeout(() => {
-                deactivate();
-              });
-            }}
-            text="Sign Out"
-          />
+        {connector !== injected && (connector as any)?.walletConnectProvider?.qrcode && (
+          <TinyThemeButton action={() => (connector as any).walletConnectProvider?.disconnect()} text="Sign Out" />
         )}
       </section>
       <footer>

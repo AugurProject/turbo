@@ -3,23 +3,21 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { NetworkConnector } from "./NetworkConnector";
 import { ChainId } from "@uniswap/sdk";
-import { PARA_CONFIG } from "../../../stores/constants";
+import { DEFAULT_NETWORK_ID } from "../../../stores/constants";
 
-const networkId = PARA_CONFIG.networkId;
-
-export const NETWORK_CHAIN_ID: number = networkId ? parseInt(networkId) : ChainId.KOVAN;
+export const NETWORK_CHAIN_ID = DEFAULT_NETWORK_ID || ChainId.MUMBAI;
 
 const NETWORK_URL =
-  NETWORK_CHAIN_ID === ChainId.MAINNET
-    ? "https://eth-mainnet.alchemyapi.io/v2/Kd37_uEmJGwU6pYq6jrXaJXXi8u9IoOM"
-    : "https://eth-kovan.alchemyapi.io/v2/Kd37_uEmJGwU6pYq6jrXaJXXi8u9IoOM";
+  DEFAULT_NETWORK_ID === String(ChainId.MATIC)
+    ? "https://matic-mainnet-full-rpc.bwarelabs.com"
+    : "https://rpc-mumbai.maticvigil.com"
 
 if (typeof NETWORK_URL === "undefined") {
-  throw new Error(`REACT_APP_NETWORK_URL must be a defined environment variable`);
+  throw new Error(`NETWORK_CHAIN_ID must be a defined environment variable`);
 }
 
 export const network = new NetworkConnector({
-  urls: { [NETWORK_CHAIN_ID]: NETWORK_URL },
+  urls: { [DEFAULT_NETWORK_ID]: NETWORK_URL }
 });
 
 let networkLibrary: Web3Provider | undefined;
@@ -28,14 +26,11 @@ export function getNetworkLibrary(): Web3Provider {
 }
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 3, 4, 5, 42, 137, 80001],
+  supportedChainIds: [1, 137, 80001]
 });
 
-// mainnet only
 export const walletconnect = new WalletConnectConnector({
-  rpc: { [NETWORK_CHAIN_ID]: NETWORK_URL },
-
-  bridge: "https://bridge.walletconnect.org",
+  rpc: { [DEFAULT_NETWORK_ID]: NETWORK_URL },
   qrcode: true,
-  pollingInterval: 15000,
+  pollingInterval: 15000
 });

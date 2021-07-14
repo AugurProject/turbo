@@ -13,6 +13,8 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   4: "rinkeby.",
   5: "goerli.",
   42: "kovan.",
+  137: "matic",
+  80001: "mumbai",
 };
 
 export const CHAIN_ID_NAMES = {
