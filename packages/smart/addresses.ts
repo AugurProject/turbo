@@ -19,6 +19,25 @@ export interface MarketFactory {
   version?: string; // release version. for humans to read
 }
 export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto";
+export type MarketFactoryContractName = "SportsLinkMarketFactory" | "MMALinkMarketFactory" | "CryptoMarketFactory" | "TrustedMarketFactory";
+export type FetcherContractName = "NBAFetcher"| "MMAFetcher" | "";
+
+
+export const marketFactoryTypeToContractName: { [Property in MarketFactoryType]: MarketFactoryContractName} = {
+  "SportsLink": "SportsLinkMarketFactory",
+  "MMALink": "MMALinkMarketFactory",
+  "Crypto": "CryptoMarketFactory",
+  "Trusted": "TrustedMarketFactory",
+};
+
+export const marketFactoryTypeToFetcherName: { [Property in MarketFactoryType]: FetcherContractName} = {
+  "SportsLink": "NBAFetcher",
+  "MMALink": "MMAFetcher",
+  "Crypto": "",
+  "Trusted": "",
+};
+
+
 export enum ChainId {
   Mainnet = 1,
   Ropsten = 3,
