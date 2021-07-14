@@ -5,7 +5,7 @@ import Styles from "./inputs.styles.less";
 import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice } from "../../utils/format-number";
 import { USDC, ERROR_AMOUNT, SHARES, ETH, DUST_POSITION_AMOUNT } from "../../utils/constants";
 import { useAppStatusStore } from "../../stores/app-status";
-import { TinyThemeButton } from "./buttons";
+import { TinyButton } from "./buttons";
 import { CurrencyDropdown } from "./selection";
 import { AmmOutcome, Cash } from "../../types";
 import { BigNumber as BN } from "bignumber.js";
@@ -146,7 +146,7 @@ export const AmountInput = ({
           disabled={disabled}
           onWheel={(e: any) => e?.target?.blur()}
         />
-        <TinyThemeButton text="Max" action={() => setMax()} />
+        <TinyButton text="Max" action={() => setMax()} />
         {!!currencyName && chosenCash !== SHARES && !showCurrencyDropdown && (
           <span className={Styles.CurrencyLabel}>
             {icon} {label}
