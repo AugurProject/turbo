@@ -410,8 +410,8 @@
   line-height: @size-20;
   color: var(--primary-text);
   padding: @size-16;
-  background: rgba(var(--simple-failed-rgb), 0.15);
-  border: @size-1 solid var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.15);
+  border: @size-1 solid var(--failed);
   border-radius: @size-8;
 }
 
@@ -420,8 +420,8 @@
   .text-16-bold;
 
   border: none;
-  background: rgba(var(--simple-failed-rgb), 0.15);
-  color: var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.15);
+  color: var(--failed);
   text-align: center;
   width: 100%;
   flex: 1;
@@ -484,8 +484,8 @@
 .Resolved {
   .ReportingStatusLabel;
 
-  background: rgba(var(--simple-failed-rgb), 0.10);
-  color: var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.10);
+  color: var(--failed);
 }
 
 .Version {
@@ -495,8 +495,8 @@
 .InSettlement {
   .ReportingStatusLabel;
 
-  background: rgba(var(--simple-warning-rgb), 0.10);
-  color: var(--simple-warning);
+  background: rgba(var(--warning-rgb), 0.10);
+  color: var(--warning);
 }
 
 .CurrencyTipIcon,
@@ -543,7 +543,7 @@
   border-radius: @size-8;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  border: @size-1 solid var(--simple-success);
+  border: @size-1 solid var(--success);
   padding: @size-16 @size-18;
 
   > div:first-of-type {
@@ -572,11 +572,11 @@
 
 .MovementLabel_Text {
   &_positive {
-    color: var(--simple-success);
+    color: var(--success);
   }
 
   &_negative {
-    color: var(--simple-failed);
+    color: var(--failed);
   }
 }
 

@@ -195,7 +195,7 @@
   }
 
   &.Error {
-    border: @size-1 solid var(--simple-failed);
+    border: @size-1 solid var(--failed);
   }
 }
 
@@ -293,7 +293,7 @@
 }
 
 .SelectedBorders {
-  border: @size-1 solid var(--simple-no);
+  border: @size-1 solid var(--sell);
 
   &.ShowAllHighlighted {
     border-left-width: 0;
@@ -382,11 +382,11 @@
   }
 
   &.Error {
-    border: @size-1 solid var(--simple-failed);
+    border: @size-1 solid var(--failed);
 
     &:hover,
     &:not(.Selected):hover {
-      border: @size-1 solid var(--simple-failed);
+      border: @size-1 solid var(--failed);
     }
   }
 
