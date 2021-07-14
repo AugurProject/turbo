@@ -1,8 +1,8 @@
 @import (reference) "~assets/styles/shared";
 
 .Dropdown {
-  border: @size-1 solid var(--theme-border);
-  border-radius: @border-radius-default;
+  .ThemeBorder;
+
   cursor: pointer;
   display: flex;
   position: relative;
@@ -17,8 +17,9 @@
   }
 
   > button {
+    .PrimaryBorderRadius;
+
     align-items: center;
-    border-radius: @border-radius-default;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
