@@ -11,7 +11,6 @@ import { SecondaryThemeButton, TextButton, WalletButton } from "../common/button
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
-// import { NETWORK_CHAIN_ID, portis, injected } from "../ConnectAccount/connectors";
 import { NETWORK_CHAIN_ID, injected } from "../ConnectAccount/connectors";
 import { Loader } from "../ConnectAccount/components/Loader";
 import { AccountDetails } from "../ConnectAccount/components/AccountDetails";

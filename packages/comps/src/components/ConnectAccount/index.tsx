@@ -167,11 +167,6 @@ const ConnectAccountButton = ({
   return <LoginButton {...buttonProps} />;
 };
 
-// export interface ConnectAccountProps {
-//   customClassForModal: object | null;
-
-// }
-
 export const ConnectAccount = ({
   customClassForModal = null,
   autoLogin,
