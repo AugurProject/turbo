@@ -11,7 +11,7 @@ import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
-import { useAppStatusStore, AppStatusStore } from "./app-status";
+import { AppStatusStore } from "./app-status";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,

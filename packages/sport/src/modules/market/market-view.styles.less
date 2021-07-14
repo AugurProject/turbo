@@ -1,9 +1,7 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .MarketView,
 .EmptyMarketView {
-  // .TwoTonePage;
-  // .TwoTonePageGrid;
   .SportsPage;
 
   > section {
@@ -40,7 +38,7 @@
         text-transform: uppercase;
       }
 
-      > div[class*='Outcomes'] {
+      > div[class*="Outcomes"] {
         display: none;
       }
 
@@ -84,13 +82,7 @@
       border-radius: @size-16;
       background: var(--tertiary-bg);
       background-size: 1600px 400px;
-      background-image: linear-gradient(
-        to right,
-        #edeff1 0%,
-        #f6f7f8 20%,
-        #edeff1 40%,
-        #edeff1 100%
-      );
+      background-image: linear-gradient(to right, #edeff1 0%, #f6f7f8 20%, #edeff1 40%, #edeff1 100%);
     }
   }
 
@@ -225,13 +217,13 @@
 
   > span > span {
     .text-12-semi-bold;
-    
+
     color: var(--primary-text);
   }
 }
 
 .WinningOutcomeLabel {
-  .SimpleBorder;
+  .ThemeBorder;
 
   border: @size-1 solid var(--tertiary-bg);
   background: var(--tertiary-bg);
@@ -273,7 +265,7 @@
 }
 
 .StatsRow {
-  .SimpleBorder;
+  .ThemeBorder;
 
   background: var(--primary-bg);
   display: flex;
@@ -333,7 +325,7 @@
   }
 
   > button {
-    .RoundedButton;
+    .PrimaryBorderRadius;
     .text-16-bold;
 
     background: none;
@@ -342,6 +334,13 @@
     padding: 0;
     text-decoration: underline;
     color: var(--primary-text);
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    outline: none;
 
     &:hover {
       border: none;
@@ -380,7 +379,7 @@
     padding-bottom: @size-72;
 
     > section {
-      &:first-of-type > div[class*='Outcomes'] {
+      &:first-of-type > div[class*="Outcomes"] {
         display: grid;
       }
 
@@ -452,7 +451,7 @@
         margin-bottom: @size-24;
       }
 
-      > section[class*='SimpleChartSection'] {
+      > section[class*="SimpleChartSection"] {
         margin-bottom: @size-16;
       }
     }

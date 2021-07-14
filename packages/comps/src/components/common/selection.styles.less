@@ -1,8 +1,8 @@
 @import (reference) "~assets/styles/shared";
 
 .Dropdown {
-  border: @size-1 solid var(--theme-border);
-  border-radius: @border-radius-default;
+  .ThemeBorder;
+
   cursor: pointer;
   display: flex;
   position: relative;
@@ -17,8 +17,9 @@
   }
 
   > button {
+    .PrimaryBorderRadius;
+
     align-items: center;
-    border-radius: @border-radius-default;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
@@ -74,7 +75,7 @@
     border-radius: @size-8;
 
     > div:first-of-type {
-      .SimpleBorder;
+      .ThemeBorder;
 
       background-color: var(--primary-bg);
       display: none;
@@ -161,7 +162,7 @@
 
   > button {
     .text-10-semi-bold;
-    .SimpleBorder;
+    .ThemeBorder;
 
     background: var(--tertiary-bg);
     padding: @size-12 @size-18 @size-12 @size-16;
@@ -247,10 +248,10 @@
     > span {
       .text-14;
 
-      border-bottom: @size-1 dotted var(--primary-text);;
+      border-bottom: @size-1 dotted var(--primary-text);
 
       &:hover {
-        border-bottom: @size-1 solid var(--primary-text);;
+        border-bottom: @size-1 solid var(--primary-text);
       }
     }
 
@@ -260,7 +261,7 @@
       width: @size-9;
 
       > path {
-        fill: var(--primary-text);;
+        fill: var(--primary-text);
       }
     }
   }
@@ -270,7 +271,7 @@
 
     > div:first-of-type {
       padding: @size-12 @size-16;
-    
+
       > button {
         .text-14;
 
@@ -408,7 +409,7 @@
 }
 
 .SharedSelectionItem {
-  .SimpleBorder;
+  .ThemeBorder;
 
   padding: @size-10 @size-12;
   display: flex;
@@ -483,6 +484,21 @@
   grid-gap: @size-4;
 
   > li > button {
-    .RoundedButton;
+    .ThemeBorder;
+    .text-12-semi-bold;
+
+    background: transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    grid-gap: @size-8;
+    outline: none;
+
+    &:hover {
+      border: @size-1 solid var(--secondary-text);
+    }
   }
 }

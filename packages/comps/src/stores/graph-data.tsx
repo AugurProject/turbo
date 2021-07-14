@@ -1,4 +1,3 @@
-// import React, { useEffect } from "react";
 import React from 'react';
 import { DEFAULT_GRAPH_DATA_STATE, STUBBED_GRAPH_DATA_ACTIONS } from "./constants";
 import { ApolloProvider } from "react-apollo";
