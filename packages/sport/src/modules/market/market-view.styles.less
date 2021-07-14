@@ -19,7 +19,7 @@
       > h2 {
         .text-36-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         margin: 0;
         padding: 0;
         overflow-wrap: break-word;
@@ -35,7 +35,7 @@
       > span:first-of-type {
         .text-16-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         margin-top: @size-12;
         text-transform: uppercase;
       }
@@ -58,7 +58,7 @@
         }
 
         > main {
-          background: var(--simple-light-bg);
+          background: var(--primary-bg);
         }
       }
     }
@@ -82,7 +82,7 @@
       .ShimmerEmptyBlock;
 
       border-radius: @size-16;
-      background: var(--simple-alternate-background);
+      background: var(--tertiary-bg);
       background-size: 1600px 400px;
       background-image: linear-gradient(
         to right,
@@ -197,10 +197,10 @@
   > a {
     .PrimaryBorderRadius;
 
-    border: @size-1 solid var(--simple-tertiary-text);
+    border: @size-1 solid var(--tertiary-text);
     height: @size-20;
     width: @size-20;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -214,27 +214,27 @@
       transform-origin: 50% 50%;
 
       > path {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
       }
     }
 
     &:hover {
-      border-color: var(--simple-primary-text);
+      border-color: var(--primary-text);
     }
   }
 
   > span > span {
     .text-12-semi-bold;
     
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 }
 
 .WinningOutcomeLabel {
   .SimpleBorder;
 
-  border: @size-1 solid var(--simple-alternate-background);
-  background: var(--simple-alternate-background);
+  border: @size-1 solid var(--tertiary-bg);
+  background: var(--tertiary-bg);
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
@@ -254,14 +254,14 @@
     &:first-of-type {
       .text-20-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       margin-bottom: @size-8;
     }
 
     &:last-of-type {
       .text-36-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
 
       > svg {
         height: @size-32;
@@ -275,7 +275,7 @@
 .StatsRow {
   .SimpleBorder;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
@@ -291,19 +291,19 @@
     grid-gap: @size-8;
 
     &:not(:last-of-type) {
-      border-right: @size-1 solid var(--simple-border);
+      border-right: @size-1 solid var(--theme-border);
     }
 
     > span:first-of-type {
       .text-16;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     > span:last-of-type {
       .text-20-semi-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 }
@@ -317,7 +317,7 @@
   > h4 {
     .text-20-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     line-height: @size-24;
     margin: 0 0 @size-24;
     margin-bottom: @size-18;
@@ -326,7 +326,7 @@
   > p {
     .text-14;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     line-height: @size-22;
     flex: 1;
     margin: 0 0 @size-12;
@@ -341,7 +341,7 @@
     line-height: 140%;
     padding: 0;
     text-decoration: underline;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
 
     &:hover {
       border: none;
@@ -359,7 +359,7 @@
   > span {
     .TableTitle;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-bottom: @size-24;
     display: flex;
     margin-top: @size-16;
@@ -435,7 +435,7 @@
     position: relative;
 
     > section:first-of-type {
-      background-color: var(--light-background-color);
+      background-color: var(--secondary-bg);
       padding: 0;
       max-width: unset;
       grid-gap: unset;
@@ -496,15 +496,15 @@
 
       text-decoration: none;
       margin-left: @size-4;
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     &:hover {
       > a {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
 
         &[disabled] {
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
         }
       }
     }

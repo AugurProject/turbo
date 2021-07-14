@@ -3,7 +3,7 @@
 .TopNav {
   align-items: center;
   background: transparent;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
@@ -36,7 +36,7 @@
 
   > section {
     align-items: center;
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     box-sizing: border-box;
     display: inline-grid;
     grid-template-columns: auto auto;
@@ -83,23 +83,23 @@
             .text-16-bold;
 
             text-transform: uppercase;
-            color: var(--simple-tertiary-text);
+            color: var(--tertiary-text);
             white-space: nowrap;
           }
 
           &:hover {
             > a {
-              color: var(--simple-primary-text);
+              color: var(--primary-text);
 
               &[disabled] {
-                color: var(--simple-tertiary-text);
+                color: var(--tertiary-text);
               }
             }
           }
 
           &.Active {
             > a {
-              color: var(--simple-primary-text);
+              color: var(--primary-text);
             }
           }
         }
@@ -131,7 +131,7 @@
   }
 
   &.TwoTone > section:last-of-type {
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
   }
 }
 
@@ -139,7 +139,7 @@
   .TopNav {
     &.OnMarketsView {
       &.TwoTone > section:last-of-type {
-        background: var(--light-background-color);
+        background: var(--secondary-bg);
       }
     }
     &.TwoTone > section:first-of-type {
@@ -177,8 +177,8 @@
         flex-flow: row nowrap;
         align-items: center;
         justify-content: center;
-        border-right: @size-1 solid var(--simple-secondary-text);
-        border-left: @size-1 solid var(--simple-secondary-text);
+        border-right: @size-1 solid var(--secondary-text);
+        border-left: @size-1 solid var(--secondary-text);
         height: @size-48;
         min-height: @size-48;
         max-height: @size-48;
@@ -199,9 +199,9 @@
           right: @size-2;
           top: @size-15;
           border-radius: @size-8;
-          border: @size-1 solid var(--simple-primary-text);
-          background: var(--simple-failed);
-          color: var(--simple-light-bg);
+          border: @size-1 solid var(--primary-text);
+          background: var(--failed);
+          color: var(--primary-bg);
           font-size: @size-8;
           font-weight: 500;
           line-height: @size-10;
@@ -242,15 +242,15 @@
   &.Open {
     > button {
       > svg > path {
-        stroke: var(--simple-tertiary-text);
-        fill: var(--simple-tertiary-text);
+        stroke: var(--tertiary-text);
+        fill: var(--tertiary-text);
       }
     }
   }
 
   > button {
     background-color: transparent;
-    border: @size-1 solid rgba(var(--simple-secondary-text-rgb), 0.50);
+    border: @size-1 solid rgba(var(--secondary-text-rgb), 0.50);
     border-bottom: 0;
     border-top: 0;
     border-radius: 0;
@@ -265,8 +265,8 @@
     cursor: pointer;
 
     > svg > path {
-      stroke: var(--simple-light-bg);
-      fill: var(--simple-light-bg);
+      stroke: var(--primary-bg);
+      fill: var(--primary-bg);
     }
 
     &:focus {
@@ -276,8 +276,8 @@
     &:hover,
     &:hover:not(:disabled) {
       > svg > path {
-        stroke: var(--simple-tertiary-text);
-        fill: var(--simple-tertiary-text);
+        stroke: var(--tertiary-text);
+        fill: var(--tertiary-text);
       }
     }
   }
@@ -288,7 +288,7 @@
   .SimpleBorder;
   .SecondaryBorderRadius;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   position: absolute;
   right: 0;
   top: @size-68;
@@ -307,25 +307,25 @@
     > label {
       .text-12-semi-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
       justify-content: space-between;
-      background: var(--light-background-color);
+      background: var(--secondary-bg);
       padding: @size-12 @size-14;
       text-transform: uppercase;
       margin: 0;
     }
 
     &:not(:first-of-type) > label {
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
     }
 
     > ul {
       display: flex;
       flex-flow: column nowrap;
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
 
       > li {
         padding: 0 @size-12;
@@ -342,17 +342,17 @@
         }
 
         &:hover {
-          background: var(--light-background-color);
+          background: var(--secondary-bg);
 
           > button {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
           }
         }
 
         > button {
           .text-14;
 
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
           border: 0;
           background: transparent;
           text-transform: capitalize;
@@ -370,7 +370,7 @@
           }
 
           &.Active {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
 
             > svg {
               display: block;
@@ -379,13 +379,13 @@
         }
 
         &:not(:last-of-type) > button {
-          border-bottom: @size-1 solid var(--simple-border);
+          border-bottom: @size-1 solid var(--theme-border);
         }
       }
     }
 
     > div {
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
       min-height: @size-44;
       max-height: @size-44;
       display: grid;
@@ -398,11 +398,11 @@
         .SimpleBorder;
 
         background: transparent;
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
 
         &.Active {
-          border-color: var(--simple-primary-text);
-          color: var(--simple-primary-text);
+          border-color: var(--primary-text);
+          color: var(--primary-text);
         }
       }
     }
@@ -426,7 +426,7 @@
 }
 
 .Selected {
-  background: var(--simple-alternate-background);
+  background: var(--tertiary-bg);
 }
 
 .MobileMenuButton {
@@ -443,7 +443,7 @@
   padding: none;
   background: transparent;
   border: 0;
-  border-left: @size-1 solid var(--simple-secondary-text);
+  border-left: @size-1 solid var(--secondary-text);
 
   > svg {
     width: @size-20;
@@ -457,19 +457,19 @@
 
 :root[theme="SPORTS"] {
   .TopNav {
-    background: var(--simple-primary-text);
+    background: var(--primary-text);
 
     > section {
-      background: var(--simple-primary-text);
-      border-color: var(--simple-secondary-text);
+      background: var(--primary-text);
+      border-color: var(--secondary-text);
 
       &:first-of-type {
         > a > section > svg > g > path:not(:first-of-type) {
-          fill: var(--simple-light-bg);
+          fill: var(--primary-bg);
         }
 
         > ol {
-          // border-top: @size-1 solid var(--simple-secondary-text);
+          // border-top: @size-1 solid var(--secondary-text);
 
           > li {
             display: flex;
@@ -487,10 +487,10 @@
 
             &:hover {
               > a {
-                color: var(--simple-light-bg);
+                color: var(--primary-bg);
 
                 &[disabled] {
-                  color: var(--simple-secondary-text);
+                  color: var(--secondary-text);
                 }
               }
             }
@@ -498,7 +498,7 @@
             &.Active,
             &.Active:hover {
               > a {
-                color: var(--simple-light-bg);
+                color: var(--primary-bg);
               }
             }
           }
@@ -516,7 +516,7 @@
           > span {
             .text-16-bold;
 
-            color: var(--simple-light-bg);
+            color: var(--primary-bg);
             margin-right: @size-16;
             margin-left: @size-24;
           }
@@ -527,7 +527,7 @@
 }
 
 .MobileMenu {
-  background: var(--simple-primary-text);
+  background: var(--primary-text);
   position: absolute;
   width: 100vw;
   height: 100vh;
@@ -558,7 +558,7 @@
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
-    border-bottom: @size-1 solid var(--simple-secondary-text);
+    border-bottom: @size-1 solid var(--secondary-text);
 
     > a {
       height: @size-64;
@@ -588,7 +588,7 @@
         width: @size-12;
 
         > path {
-          fill: var(--simple-light-bg);
+          fill: var(--primary-bg);
         }
       }
     }
@@ -602,7 +602,7 @@
 
     > ol {
       margin-top: @size-32;
-      border-bottom: @size-1 dashed var(--simple-secondary-text);
+      border-bottom: @size-1 dashed var(--secondary-text);
       display: flex;
       flex-flow: column nowrap;
       margin-bottom: @size-24;
@@ -613,11 +613,11 @@
         > a {
           .text-20-bold;
 
-          color: var(--simple-tertiary-text);
+          color: var(--tertiary-text);
         }
 
         &.Active > a {
-          color: var(--simple-light-bg);
+          color: var(--primary-bg);
         }
       }
     }
@@ -631,7 +631,7 @@
     flex-flow: row nowrap;
     align-items: center;
     justify-content: flex-end;
-    border-top: @size-1 solid var(--simple-secondary-text);
+    border-top: @size-1 solid var(--secondary-text);
     position: fixed;
     bottom: 0;
     width: 100vw;
@@ -661,24 +661,24 @@
   max-height: var(--tiny-button-height);
   padding: @size-4 @size-8;
   max-width: @size-76;
-  color: var(--simple-tertiary-text);
+  color: var(--tertiary-text);
   transition: width 0.25s ease-in-out;
   text-align: right;
 
   &:focus {
     max-width: unset;
     transition: width 0.25s ease-in-out;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 
   &.Active {
-    border-color: var(--simple-primary-text);
-    color: var(--simple-primary-text);
+    border-color: var(--primary-text);
+    color: var(--primary-text);
   }
 
   &.Error {
-    border-color: var(--simple-failed);
-    color: var(--simple-failed);
+    border-color: var(--failed);
+    color: var(--failed);
   }
 }
 
@@ -710,7 +710,7 @@
 
   > main > div > div {
     > section:first-of-type > div {
-      background: var(--light-background-color);
+      background: var(--secondary-bg);
 
       > div:first-of-type > span:first-of-type {
         .text-14-bold;
@@ -719,7 +719,7 @@
       > div:nth-of-type(2) > h3:last-of-type {
         .text-20-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
       }
 
       > div:last-of-type {
@@ -732,23 +732,23 @@
             margin-right: @size-4;
           }
           &:not(:focus) {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
 
             > svg {
               > path[fill],
               > g > path[fill] {
-                fill: var(--simple-primary-text);
+                fill: var(--primary-text);
               }
 
               > line,
               > path[stroke],
               > g > path[stroke] {
-                stroke: var(--simple-primary-text);
+                stroke: var(--primary-text);
               }
             }
 
             &:not(:hover):not(:focus):not(:disabled):not(:active) {
-              border-color: var(--simple-tertiary-text);
+              border-color: var(--tertiary-text);
             }
           }
         }
@@ -759,23 +759,23 @@
       flex-flow: row wrap;
 
       > button:not(:focus) {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
 
         > svg {
           > path[fill],
           > g > path[fill] {
-            fill: var(--simple-primary-text);
+            fill: var(--primary-text);
           }
 
           > line,
           > path[stroke],
           > g > path[stroke] {
-            stroke: var(--simple-primary-text);
+            stroke: var(--primary-text);
           }
         }
 
         &:not(:disabled):not(:hover):not(:active):not(:focus) {
-          border-color: var(--simple-tertiary-text);
+          border-color: var(--tertiary-text);
         }
       }
     }

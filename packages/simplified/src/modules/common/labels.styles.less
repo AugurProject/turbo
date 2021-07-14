@@ -6,13 +6,13 @@
   padding: 0 @size-36;
   border-radius: @size-8;
   height: @size-150;
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr;
 
   > div {
-    border-right: @size-1 solid var(--simple-border);
+    border-right: @size-1 solid var(--theme-border);
     padding: 0 @size-36;
 
     &:first-of-type {
@@ -49,7 +49,7 @@
       padding-right: @size-36;
 
       &:last-of-type {
-        border-right: @size-1 solid var(--simple-border);
+        border-right: @size-1 solid var(--theme-border);
       }
     }
   }
@@ -89,7 +89,7 @@
     .text-20-bold;
 
     text-transform: capitalize;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
 
     > svg {
       margin-right: @size-10;
@@ -101,11 +101,11 @@
 
     margin-top: @size-8;
     text-transform: capitalize;
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
   }
 
   &:not(:disabled):hover {
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
   }
 
   &:disabled {
@@ -118,7 +118,7 @@
   .text-14-semi-bold;
 
   align-items: center;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   flex-flow: row nowrap;
   margin-top: @size-12;
 
@@ -136,14 +136,14 @@
   > span:first-of-type {
     .text-20-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-bottom: @size-4;
   }
 
   > span:last-of-type {
     .text-16;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 }
 
@@ -193,8 +193,8 @@
   .text-16-bold;
 
   border: none;
-  background: rgba(var(--simple-failed-rgb), 0.15);
-  color: var(--simple-failed);
+  background: rgba(var(--failed-rgb), 0.15);
+  color: var(--failed);
   text-align: center;
   width: 100%;
   flex: 1;
@@ -226,8 +226,8 @@
 }
 
 .WarningBanner {
-  background: rgba(var(--simple-warning-rgb), 0.15);
-  color: var(--simple-warning);
+  background: rgba(var(--warning-rgb), 0.15);
+  color: var(--warning);
   word-break: normal;
   word-wrap: normal;
   white-space: normal;

@@ -3,7 +3,7 @@
 .MarketTableHeader {
   padding: @size-20 @size-32;
   display: block;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   min-width: @size-320;
 
   > a {
@@ -16,7 +16,7 @@
   > a > span:first-of-type {
     .text-16-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     flex: 1;
     margin-right: @size-12;
     text-decoration: none;
@@ -45,7 +45,7 @@
   > div:last-child {
     .text-10-semi-bold;
 
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     margin-top: @size-6;
   }
 
@@ -66,7 +66,7 @@
   .SimpleBorder;
 
   display: flex;
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   flex-direction: column;
   width: 100%;
   overflow: auto;
@@ -78,7 +78,7 @@
   > span {
     .EmptyMessage;
 
-    border-top: @size-1 solid var(--simple-border);
+    border-top: @size-1 solid var(--theme-border);
     min-width: @size-320;
   }
 }
@@ -89,7 +89,7 @@
   align-items: center;
 
   &:not(:last-of-type) {
-    border-bottom: @size-1 solid var(--simple-border);
+    border-bottom: @size-1 solid var(--theme-border);
   }
 
   > li {
@@ -111,7 +111,7 @@
   > li {
     .text-12-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: capitalize;
   }
 }
@@ -120,7 +120,7 @@
   > li {
     .text-12;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
   @media @breakpoint-mobile-tablet {
     padding: @size-20 @size-16;
@@ -213,7 +213,7 @@
   display: flex;
   justify-content: flex-end;
   padding: @size-20;
-  border-top: @size-1 solid var(--simple-border);
+  border-top: @size-1 solid var(--theme-border);
   min-width: @size-320;
 
   > button:not(:first-of-type) {
@@ -264,7 +264,7 @@
     > p {
       .text-14-bold;
 
-      color: var(--simple-warning);
+      color: var(--warning);
       margin: 0;
       padding: 0;
     }
@@ -332,7 +332,7 @@
 
       &.Selected,
       &:hover {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
 
       &:first-of-type {
@@ -403,14 +403,14 @@
 
     > span {
       cursor: pointer;
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
 
       &.Selected {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
 
       &:hover {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
     }
   }
@@ -450,7 +450,7 @@
   > li {
     > a {
       text-decoration: none;
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
 
     &:first-of-type {
@@ -461,10 +461,10 @@
 
     &:nth-of-type(1) > a,
     &:nth-of-type(5) > a {
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
 
       &:hover {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
     }
   }
