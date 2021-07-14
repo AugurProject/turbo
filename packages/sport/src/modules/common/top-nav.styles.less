@@ -177,8 +177,8 @@
         flex-flow: row nowrap;
         align-items: center;
         justify-content: center;
-        border-right: @size-1 solid var(--simple-secondary-text);
-        border-left: @size-1 solid var(--simple-secondary-text);
+        border-right: @size-1 solid var(--secondary-text);
+        border-left: @size-1 solid var(--secondary-text);
         height: @size-48;
         min-height: @size-48;
         max-height: @size-48;
@@ -250,7 +250,7 @@
 
   > button {
     background-color: transparent;
-    border: @size-1 solid rgba(var(--simple-secondary-text-rgb), 0.50);
+    border: @size-1 solid rgba(var(--secondary-text-rgb), 0.50);
     border-bottom: 0;
     border-top: 0;
     border-radius: 0;
@@ -352,7 +352,7 @@
         > button {
           .text-14;
 
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
           border: 0;
           background: transparent;
           text-transform: capitalize;
@@ -398,7 +398,7 @@
         .SimpleBorder;
 
         background: transparent;
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
 
         &.Active {
           border-color: var(--simple-primary-text);
@@ -443,7 +443,7 @@
   padding: none;
   background: transparent;
   border: 0;
-  border-left: @size-1 solid var(--simple-secondary-text);
+  border-left: @size-1 solid var(--secondary-text);
 
   > svg {
     width: @size-20;
@@ -461,7 +461,7 @@
 
     > section {
       background: var(--simple-primary-text);
-      border-color: var(--simple-secondary-text);
+      border-color: var(--secondary-text);
 
       &:first-of-type {
         > a > section > svg > g > path:not(:first-of-type) {
@@ -469,7 +469,7 @@
         }
 
         > ol {
-          // border-top: @size-1 solid var(--simple-secondary-text);
+          // border-top: @size-1 solid var(--secondary-text);
 
           > li {
             display: flex;
@@ -490,7 +490,7 @@
                 color: var(--simple-light-bg);
 
                 &[disabled] {
-                  color: var(--simple-secondary-text);
+                  color: var(--secondary-text);
                 }
               }
             }
@@ -558,7 +558,7 @@
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
-    border-bottom: @size-1 solid var(--simple-secondary-text);
+    border-bottom: @size-1 solid var(--secondary-text);
 
     > a {
       height: @size-64;
@@ -602,7 +602,7 @@
 
     > ol {
       margin-top: @size-32;
-      border-bottom: @size-1 dashed var(--simple-secondary-text);
+      border-bottom: @size-1 dashed var(--secondary-text);
       display: flex;
       flex-flow: column nowrap;
       margin-bottom: @size-24;
@@ -631,7 +631,7 @@
     flex-flow: row nowrap;
     align-items: center;
     justify-content: flex-end;
-    border-top: @size-1 solid var(--simple-secondary-text);
+    border-top: @size-1 solid var(--secondary-text);
     position: fixed;
     bottom: 0;
     width: 100vw;
@@ -719,7 +719,7 @@
       > div:nth-of-type(2) > h3:last-of-type {
         .text-20-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
       }
 
       > div:last-of-type {

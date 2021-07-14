@@ -72,7 +72,7 @@
   .text-12-semi-bold;
 
   background-color: transparent;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   min-height: @size-25;
   height: @size-25;
   max-height: @size-25;
@@ -93,13 +93,13 @@
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
     }
 
     &:active,
     &.Selected {
       background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
       color: var(--simple-primary-text);
     }
   }
@@ -123,7 +123,7 @@
     &:active,
     &.Selected {
       background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
     }
   }
 }
@@ -147,8 +147,8 @@
 
   &:disabled {
     > svg > path {
-      stroke: var(--simple-secondary-text);
-      fill: var(--simple-secondary-text);
+      stroke: var(--secondary-text);
+      fill: var(--secondary-text);
     }
   }
 }
@@ -177,7 +177,7 @@
     pointer-events: none;
     background: var(--light-background-color);
     border: @size-1 solid var(--simple-border);
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     // purposeful override for specifically just this button for readability.
     opacity: 1;
   }
@@ -236,7 +236,7 @@
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
     }
 
     &:active,
@@ -268,7 +268,7 @@
   border: none;
   text-transform: unset;
   text-decoration: underline;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   padding: 0;
   background-color: transparent;
   display: inline;
@@ -313,20 +313,20 @@
   }
 
   &:hover {
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
 
     > a {
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     > svg {
       > path {
         &:nth-child(odd) {
-          fill: var(--simple-secondary-text);
+          fill: var(--secondary-text);
         }
 
         &:nth-child(even) {
-          stroke: var(--simple-secondary-text);
+          stroke: var(--secondary-text);
         }
       }
     }
