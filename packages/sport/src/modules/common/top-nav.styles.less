@@ -265,8 +265,8 @@
     cursor: pointer;
 
     > svg > path {
-      stroke: var(--primary-bg);
-      fill: var(--primary-bg);
+      stroke: var(--inverted-primary-text);
+      fill: var(--inverted-primary-text);
     }
 
     &:focus {
@@ -374,6 +374,9 @@
 
             > svg {
               display: block;
+              > path {
+                fill: var(--primary-text);
+              }
             }
           }
         }

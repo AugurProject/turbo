@@ -220,7 +220,7 @@ button.FlipContent {
 .BetslipHeader {
   .SecondaryTopBorderRadius;
 
-  background: var(--primary-text);
+  background: var(--inverted-primary-bg);
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
@@ -255,23 +255,23 @@ button.FlipContent {
       border: @size-1 solid var(--tertiary-text);
       padding: @size-3 @size-5;
       margin-left: @size-8;
-      color: var(--primary-bg);
+      color: var(--inverted-primary-text);
     }
 
     &.isPopulated {
       > span {
-        color: var(--primary-bg);
+        color: var(--inverted-primary-text);
       }
     }
 
     &.SelectedView,
     &.SelectedView.isPopulated {
-      color: var(--primary-bg);
+      color: var(--inverted-primary-text);
 
       > span {
-        border: @size-1 solid var(--primary-bg);
-        background: var(--primary-bg);
-        color: var(--primary-text);
+        border: @size-1 solid var(--inverted-primary-text);
+        background: var(--inverted-primary-text);
+        color: var(--inverted-primary-bg);
       }
     }
   }
@@ -752,6 +752,7 @@ button.FlipContent {
     justify-content: center;
     text-transform: uppercase;
     cursor: pointer;
+    color: var(--primary-text);
 
     &:hover:not(:disabled) {
       border-color: var(--primary-text);
