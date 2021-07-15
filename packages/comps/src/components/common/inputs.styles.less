@@ -20,6 +20,10 @@
     width: @size-16;
     // input has padding, no need to space svg, instead space from left side.
     margin-left: @size-8;
+
+    > path {
+      fill: var(--primary-text);
+    }
   }
 
   > div {
@@ -34,6 +38,10 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    
+    > svg > path {
+      fill: var(--primary-text);
+    }
   }
 
   > input {
