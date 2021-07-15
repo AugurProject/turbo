@@ -6,12 +6,11 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
 import classNames from "classnames";
-import { NETWORK_NAMES } from "../../stores/constants";
 import { SecondaryThemeButton, TextButton, WalletButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
-import { NETWORK_CHAIN_ID, injected } from "../ConnectAccount/connectors";
+import { injected } from "../ConnectAccount/connectors";
 import { Loader } from "../ConnectAccount/components/Loader";
 import { AccountDetails } from "../ConnectAccount/components/AccountDetails";
 import { useActiveWeb3React } from "../ConnectAccount/hooks";
@@ -207,13 +206,18 @@ const ModalConnectWallet = ({
           text: wallet.name,
         };
 
-        if (isWeb3) {
+        if (key === 'WALLET_CONNECT') {
+          return {
+            ...commonWalletButtonProps,
+            text: 'WalletConnect'
+          };
+        }
+        else if (isWeb3) {
           return {
             ...commonWalletButtonProps,
             text: isMetamask ? commonWalletButtonProps.text : 'Injected Web3 provider'
           };
         }
-
         return {
           ...commonWalletButtonProps,
           text: "Install Metamask",
@@ -261,7 +265,7 @@ const ModalConnectWallet = ({
             <ErrorBlock
               text={
                 error instanceof UnsupportedChainIdError
-                  ? `Please connect your wallet to the ${NETWORK_NAMES[NETWORK_CHAIN_ID]} Ethereum network and refresh the page.`
+                  ? `You're connected to an unsupported network.`
                   : "Error connecting. Try refreshing the page."
               }
             />
