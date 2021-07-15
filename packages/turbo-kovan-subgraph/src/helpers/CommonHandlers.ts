@@ -63,6 +63,7 @@ export function handlePositionFromTradeEvent(
   positionBalanceEntity.sender = senderId;
 
   let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let absCollateralBigDecimal = event.params.collateral.abs().toBigDecimal().div(USDC_DECIMALS);
   let sharesBigDecimal = (event.params.shares.toBigDecimal()).div(SHARES_DECIMALS);
   positionBalanceEntity.shares = bigIntToHexString(event.params.shares);
   positionBalanceEntity.sharesBigInt = event.params.shares;
@@ -70,7 +71,7 @@ export function handlePositionFromTradeEvent(
   positionBalanceEntity.initCostUsd = bigIntToHexString(event.params.collateral);
   positionBalanceEntity.initCostUsdBigInt = event.params.collateral;
   positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
-  positionBalanceEntity.avgPrice = collateralBigDecimal.div(sharesBigDecimal);
+  positionBalanceEntity.avgPrice = absCollateralBigDecimal.div(sharesBigDecimal);
 
   positionBalanceEntity.save();
 }
@@ -79,7 +80,8 @@ export function handlePositionFromLiquidityChangedEvent(
   event: LiquidityChanged,
   positionFromAddLiquidity: boolean,
   sharesReturned: BigInt,
-  outcomeId: BigInt
+  outcomeId: BigInt,
+  liquidityCollateralPerShare: BigInt
 ): void {
   let id = event.transaction.hash.toHexString() + "-" + outcomeId.toHexString();
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
@@ -97,7 +99,9 @@ export function handlePositionFromLiquidityChangedEvent(
   positionBalanceEntity.market = marketId;
   positionBalanceEntity.sender = senderId;
 
-  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let collateral = liquidityCollateralPerShare * sharesReturned;
+  let collateralBigDecimal = collateral.toBigDecimal().div(USDC_DECIMALS);
+  let absCollateralBigDecimal = collateral.abs().toBigDecimal().div(USDC_DECIMALS);
   let sharesReturnedBigDecimal = (sharesReturned.toBigDecimal()).div(SHARES_DECIMALS);
   positionBalanceEntity.shares = bigIntToHexString(sharesReturned);
   positionBalanceEntity.sharesBigInt = sharesReturned;
@@ -105,7 +109,7 @@ export function handlePositionFromLiquidityChangedEvent(
   positionBalanceEntity.initCostUsd = bigIntToHexString(event.params.collateral);
   positionBalanceEntity.initCostUsdBigInt = event.params.collateral;
   positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
-  positionBalanceEntity.avgPrice = collateralBigDecimal.div(sharesReturnedBigDecimal);
+  positionBalanceEntity.avgPrice = absCollateralBigDecimal.div(sharesReturnedBigDecimal);
 
   positionBalanceEntity.save();
 }
@@ -131,6 +135,7 @@ export function handlePositionFromClaimWinningsEvent(
   positionBalanceEntity.sender = senderId;
 
   let initialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.toBigDecimal().div(USDC_DECIMALS);
+  let absInitialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.abs().toBigDecimal().div(USDC_DECIMALS);
   let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
   let payoutBigDecimal = event.params.payout.toBigDecimal().div(USDC_DECIMALS);
   let totalChangedUsd = event.params.payout - initialCostPerMarketEntity.sumOfInitialCost;
@@ -147,7 +152,7 @@ export function handlePositionFromClaimWinningsEvent(
   positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangedUsd);
   positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
   positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
-  positionBalanceEntity.avgPrice = initialCostBigDecimal.div(amountBigDecimal);
+  positionBalanceEntity.avgPrice = absInitialCostBigDecimal.div(amountBigDecimal);
   positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
 
   positionBalanceEntity.save();
