@@ -273,7 +273,6 @@ export const TopNav = () => {
     const amount = Object.keys(active).length;
     return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
   }, [Object.keys(active).length]);
-  console.log(theme !== THEME_OPTIONS.DARK);
   return (
     <section
       className={classNames(Styles.TopNav, {
