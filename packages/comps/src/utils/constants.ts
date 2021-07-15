@@ -348,3 +348,14 @@ export const MARKET_LOAD_TYPE = {
   SIMPLIFIED: "SIMPLIFIED",
   SPORT: "SPORT",
 };
+
+export const SPORTS_THEME_TYPES = {
+  SPORT_LIGHT: 'SPORTS',
+  SPORT_DARK: 'SPORTS_DARK',
+};
+  
+// TURBO uses :root styles, so THEME = null
+export const TURBO_THEME_TYPES = {
+  TURBO_LIGHT: null,
+  TURBO_DARK: 'TUBRO_DARK',
+};
