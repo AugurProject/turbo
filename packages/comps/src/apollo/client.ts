@@ -54,16 +54,16 @@ export async function getMarketsData() {
     });
   } catch (e) {
     console.error(e);
-    return {data: null, block: null, errors: e};
+    return { data: null, block: null, errors: e };
   }
 
   if (response) {
     if (response.errors) {
       console.error(JSON.stringify(response.errors, null, 1));
     }
-    return {data: response.data, block, errors: response?.errors }
+    return { data: response.data, block, errors: response?.errors };
   }
-  return {data: null, block: null, errors: null};
+  return { data: null, block: null, errors: null };
 }
 
 export async function searchMarkets(searchString, cb) {
