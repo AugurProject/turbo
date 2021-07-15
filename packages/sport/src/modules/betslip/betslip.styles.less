@@ -39,20 +39,20 @@
       &:not(:disabled) {
         background-color: var(--primary-text);
         border-color: var(--primary-text);
-        color: var(--primary-bg);
+        color: var(--inverted-primary-text);
 
         > svg > path {
-          fill: var(--primary-bg);
+          fill: var(--inverted-primary-text);
         }
         &:hover,
         &:focus,
         &:active {
           background-color: var(--primary-text);
           border-color: var(--primary-text);
-          color: var(--primary-bg);
+          color: var(--inverted-primary-text);
 
           > svg > path {
-            fill: var(--primary-bg);
+            fill: var(--inverted-primary-text);
           }
         }
       }
@@ -292,7 +292,7 @@ button.FlipContent {
       > h2 {
         .text-16-bold;
 
-        color: var(--primary-bg);
+        color: var(--inverted-primary-text);
         text-transform: capitalize;
         width: 100%;
         flex: 1 100%;
@@ -315,7 +315,7 @@ button.FlipContent {
           width: @size-16;
 
           > path {
-            fill: var(--primary-bg);
+            fill: var(--inverted-primary-text);
           }
         }
       }
