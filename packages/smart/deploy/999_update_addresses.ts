@@ -72,7 +72,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       address: mmaLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
-      fetcher: nbaFetcher.address,
+      fetcher: mmaFetcher.address,
     });
   }
 

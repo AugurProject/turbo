@@ -54,6 +54,7 @@ abstract contract Fetcher {
         uint256 creationTimestamp;
         uint256 endTime;
         OwnedERC20 winner;
+        uint256[] initialOdds;
     }
 
     struct DynamicMarketBundle {
@@ -96,6 +97,7 @@ abstract contract Fetcher {
         _bundle.endTime = _market.endTime;
         _bundle.winner = _market.winner;
         _bundle.pool = buildPoolBundle(_marketFactory, _ammFactory, _marketId);
+        _bundle.initialOdds = _market.initialOdds;
     }
 
     function buildDynamicMarketBundle(
@@ -340,7 +342,6 @@ contract MMAFetcher is Fetcher {
         _bundle.estimatedStartTime = _details.estimatedStartTime;
         _bundle.marketType = _details.marketType;
         _bundle.eventStatus = _details.eventStatus;
-        _bundle.headToHeadWeights = _details.headToHeadWeights;
     }
 
     function buildSpecificDynamicMarketBundle(

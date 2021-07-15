@@ -9,6 +9,8 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
   .addParam("homeTeamId", undefined, undefined, types.string)
   .addParam("awayTeamId", undefined, undefined, types.string)
   .addParam("startTimestamp", undefined, undefined, types.string)
+  .addParam("moneylineHome", undefined, undefined, types.string)
+  .addParam("moneylineAway", undefined, undefined, types.string)
   .addParam("homeSpread", undefined, undefined, types.string)
   .addParam("totalScore", undefined, undefined, types.string)
   .addParam("createSpread", undefined, undefined, types.boolean)
@@ -17,7 +19,19 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
 
   .setAction(
     async (
-      { eventId, homeTeamId, awayTeamId, startTimestamp, homeSpread, totalScore, createSpread, createTotal, index },
+      {
+        eventId,
+        homeTeamId,
+        awayTeamId,
+        startTimestamp,
+        moneylineHome,
+        moneylineAway,
+        homeSpread,
+        totalScore,
+        createSpread,
+        createTotal,
+        index,
+      },
       hre
     ) => {
       const { ethers } = hre;
@@ -34,6 +48,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
         homeTeamId,
         awayTeamId,
         startTimestamp,
+        [moneylineHome, moneylineAway],
         homeSpread,
         totalScore,
         createSpread,

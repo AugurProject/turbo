@@ -77,15 +77,13 @@ describe("AMMFactory", () => {
       .div(1000)
       .add(60 * 60 * 24); // one day
     const description = "Who will win Wrestlemania III?";
-    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols);
-
-    const basis = BigNumber.from(10).pow(18);
-    const weights = [basis.mul(2).div(2), basis.mul(49).div(2), basis.mul(49).div(2)];
+    const odds = calcWeights([2, 49, 49]);
+    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols, odds);
 
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
-    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
+    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
 
     const bPoolAddress = await ammFactory.getPool(marketFactory.address, marketId);
     bPool = BPool__factory.attach(bPoolAddress).connect(signer);
@@ -400,3 +398,12 @@ describe("AMMFactory", () => {
     await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, signer.address);
   });
 });
+
+function calcWeights(ratios: number[]): BigNumber[] {
+  const basis = BigNumber.from(10).pow(18);
+  const max = basis.mul(50);
+
+  const total = ratios.reduce((total, x) => total + x, 0);
+  const factor = max.div(total); // TODO this doesn't work if total is too large
+  return ratios.map((r) => factor.mul(r));
+}

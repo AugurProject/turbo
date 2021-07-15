@@ -25,21 +25,22 @@ export type MarketFactoryContractName =
   | "CryptoMarketFactory"
   | "TrustedMarketFactory";
 export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "";
-
-export const marketFactoryTypeToContractName: { [Property in MarketFactoryType]: MarketFactoryContractName } = {
+export const marketFactoryTypeToContractName: {
+  [Property in MarketFactoryType]: MarketFactoryContractName;
+} = {
   SportsLink: "SportsLinkMarketFactory",
   MMALink: "MMALinkMarketFactory",
   Crypto: "CryptoMarketFactory",
   Trusted: "TrustedMarketFactory",
 };
-
-export const marketFactoryTypeToFetcherName: { [Property in MarketFactoryType]: FetcherContractName } = {
+export const marketFactoryTypeToFetcherName: {
+  [Property in MarketFactoryType]: FetcherContractName;
+} = {
   SportsLink: "NBAFetcher",
   MMALink: "MMAFetcher",
   Crypto: "",
   Trusted: "",
 };
-
 export enum ChainId {
   Mainnet = 1,
   Ropsten = 3,
@@ -94,6 +95,33 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "MMALink",
+        address: "0x32D7c4D23ca8520A22fCF759505dEd07546314a9",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
+        fetcher: "0x4D8EEcE37100D7C280d21DBCDBb1dC1DED16B1eB",
+        description: "mma",
+        version: "2021-07-20.0",
+      },
+      {
+        type: "Crypto",
+        address: "0xcc2f7557B35154d45532cCE9CA2F88B87358a3c8",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
+        fetcher: "",
+        description: "crypto prices",
+        version: "2021-07-20.0",
+      },
+      {
+        type: "SportsLink",
+        address: "0x5524863C74404FC2776Bacb633F3D91fF8143df8",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
+        fetcher: "0x576937347484521B84D780743369a2487E83bB37",
+        description: "mlb and nba",
+        version: "2021-07-20.0",
+      },
+      {
         type: "Crypto",
         address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
@@ -139,6 +167,6 @@ export const addresses: AddressMapping = {
         version: "v1.0.0-beta.7",
       },
     ],
-    info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
+    info: { uploadBlockNumber: 16560448, graphName: "mumbai" },
   },
 };

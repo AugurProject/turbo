@@ -70,6 +70,7 @@ interface StaticMarketBundle {
   creationTimestamp: BigNumberish;
   endTime: BigNumberish;
   winner: string;
+  initialOdds: BigNumberish[];
 }
 
 interface RawStaticMarketBundle {
@@ -80,6 +81,7 @@ interface RawStaticMarketBundle {
   creationTimestamp: BigNumberish;
   endTime: BigNumberish;
   winner: string;
+  initialOdds: BigNumberish[];
 }
 
 function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMarketBundle {
@@ -91,6 +93,7 @@ function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMarketBundl
     creationTimestamp: raw.creationTimestamp,
     endTime: raw.endTime,
     winner: raw.winner,
+    initialOdds: raw.initialOdds,
   };
 }
 
@@ -203,7 +206,6 @@ interface MMAStaticMarketBundle extends StaticMarketBundle {
   awayFighterId: BigNumberish;
   estimatedStartTime: BigNumberish;
   marketType: BigNumberish;
-  headToHeadWeights: BigNumberish[];
   eventStatus: BigNumberish;
 }
 
@@ -216,7 +218,6 @@ interface RawMMAStaticMarketBundle {
   awayFighterId: BigNumberish;
   estimatedStartTime: BigNumberish;
   marketType: BigNumberish;
-  headToHeadWeights: BigNumberish[];
   eventStatus: BigNumberish;
 }
 
@@ -230,7 +231,6 @@ export function createMMAStaticMarketBundle(raw: RawMMAStaticMarketBundle): MMAS
     awayFighterId: raw.awayFighterId,
     estimatedStartTime: raw.estimatedStartTime,
     marketType: raw.marketType,
-    headToHeadWeights: raw.headToHeadWeights,
     eventStatus: raw.eventStatus,
   };
   delete bundle.super;

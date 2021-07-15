@@ -54,14 +54,11 @@ contract AMMFactory is BNum {
         AbstractMarketFactory _marketFactory,
         uint256 _marketId,
         uint256 _initialLiquidity,
-        uint256[] memory _weights,
         address _lpTokenRecipient
     ) public returns (uint256) {
         require(pools[address(_marketFactory)][_marketId] == BPool(0), "Pool already created");
 
         AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
-
-        require(_weights.length == _market.shareTokens.length, "Must have one weight for each share token");
 
         //  Turn collateral into shares
         IERC20Full _collateral = _marketFactory.collateral();
@@ -84,7 +81,7 @@ contract AMMFactory is BNum {
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
             _token.approve(address(_pool), MAX_UINT);
-            _pool.bind(address(_token), _sets, _weights[i]);
+            _pool.bind(address(_token), _sets, _market.initialOdds[i]);
         }
 
         // Set the swap fee.

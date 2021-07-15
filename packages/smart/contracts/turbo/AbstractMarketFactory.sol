@@ -64,6 +64,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         uint256 protocolFee;
         uint256 stakerFee;
         uint256 creationTimestamp;
+        uint256[] initialOdds;
     }
     Market[] internal markets;
 
@@ -91,8 +92,13 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         _collateral.approve(address(_feePot), MAX_UINT);
 
         // First market is always empty so that marketid zero means "no market"
-        string[] memory _nothing = new string[](0);
-        markets.push(makeMarket(address(0), _nothing, _nothing, 0));
+        makeEmptyMarket();
+    }
+
+    function makeEmptyMarket() internal {
+        string[] memory _noStrings = new string[](0);
+        uint256[] memory _noUint256s = new uint256[](0);
+        markets.push(makeMarket(address(0), _noStrings, _noStrings, 0, _noUint256s));
     }
 
     // function createMarket(address _settlementAddress, uint256 _endTime, ...) public returns (uint256);
@@ -104,7 +110,7 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
     // Can check market existence of the return struct by checking that shareTokens[0] isn't the null address
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id >= markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
+            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0, new uint256[](0));
         } else {
             return markets[_id];
         }
@@ -240,7 +246,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
         address _settlementAddress,
         string[] memory _names,
         string[] memory _symbols,
-        uint256 _endTime
+        uint256 _endTime,
+        uint256[] memory _initialOdds
     ) internal returns (Market memory _market) {
         _market = Market(
             _settlementAddress,
@@ -250,7 +257,8 @@ abstract contract AbstractMarketFactory is TurboShareTokenFactory, Ownable {
             settlementFee,
             protocolFee,
             stakerFee,
-            block.timestamp
+            block.timestamp,
+            _initialOdds
         );
     }
 
