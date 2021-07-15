@@ -393,6 +393,10 @@
       grid-gap: @size-4;
       padding: @size-8 @size-16;
 
+      &.ThemeSelection {
+        grid-template-columns: auto auto auto;
+      }
+
       > button {
         .text-12-semi-bold;
         .ThemeBorder;
@@ -455,6 +459,7 @@
   }
 }
 
+:root[theme="SPORTS_DARK"],
 :root[theme="SPORTS"] {
   .TopNav {
     background: var(--primary-text);
