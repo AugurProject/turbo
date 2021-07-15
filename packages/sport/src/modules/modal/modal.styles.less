@@ -1,7 +1,7 @@
 @import (reference) "~assets/styles/shared";
 
 .ModalView {
-  background-color: rgba(var(--primary-text-rgb), 0.40);
+  background-color: rgba(var(--primary-text-rgb), 0.4);
   height: 100vh;
   position: fixed;
   width: 100vw;
@@ -85,7 +85,7 @@
 
         > li {
           .text-14;
-          
+
           line-height: 140%;
         }
       }
@@ -217,10 +217,12 @@
     > svg {
       width: @size-16;
       height: @size-16;
+
+      > path {
+        fill: var(--primary-text);
+      }
     }
   }
-
-  
 
   &:hover {
     color: var(--primary-text);

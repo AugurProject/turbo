@@ -265,8 +265,8 @@
     cursor: pointer;
 
     > svg > path {
-      stroke: var(--primary-bg);
-      fill: var(--primary-bg);
+      stroke: var(--inverted-primary-text);
+      fill: var(--inverted-primary-text);
     }
 
     &:focus {
@@ -374,6 +374,9 @@
 
             > svg {
               display: block;
+              > path {
+                fill: var(--primary-text);
+              }
             }
           }
         }
@@ -462,15 +465,15 @@
 :root[theme="SPORTS_DARK"],
 :root[theme="SPORTS"] {
   .TopNav {
-    background: var(--primary-text);
+    background: var(--inverted-primary-bg);
 
     > section {
-      background: var(--primary-text);
+      background: var(--inverted-primary-bg);
       border-color: var(--secondary-text);
 
       &:first-of-type {
         > a > section > svg > g > path:not(:first-of-type) {
-          fill: var(--primary-bg);
+          fill: var(--inverted-primary-text);
         }
 
         > ol {
@@ -492,7 +495,7 @@
 
             &:hover {
               > a {
-                color: var(--primary-bg);
+                color: var(--inverted-primary-text);
 
                 &[disabled] {
                   color: var(--secondary-text);
@@ -503,7 +506,7 @@
             &.Active,
             &.Active:hover {
               > a {
-                color: var(--primary-bg);
+                color: var(--inverted-primary-text);
               }
             }
           }
@@ -521,7 +524,7 @@
           > span {
             .text-16-bold;
 
-            color: var(--primary-bg);
+            color: var(--inverted-primary-text);
             margin-right: @size-16;
             margin-left: @size-24;
           }
@@ -532,7 +535,7 @@
 }
 
 .MobileMenu {
-  background: var(--primary-text);
+  background: var(--inverted-primary-bg);
   position: absolute;
   width: 100vw;
   height: 100vh;
@@ -593,7 +596,7 @@
         width: @size-12;
 
         > path {
-          fill: var(--primary-bg);
+          fill: var(--inverted-primary-text);
         }
       }
     }
@@ -622,7 +625,7 @@
         }
 
         &.Active > a {
-          color: var(--primary-bg);
+          color: var(--inverted-primary-text);
         }
       }
     }

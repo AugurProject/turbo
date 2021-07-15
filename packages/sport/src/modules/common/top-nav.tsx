@@ -196,13 +196,11 @@ export const SettingsButton = () => {
                 customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
                 text={THEME_OPTIONS.DARK}
                 action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
-                disabled
               />
               <TinyThemeButton
                 customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
                 text={THEME_OPTIONS.AUTO}
                 action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
-                disabled
               />
             </div>
           </li>
@@ -222,6 +220,7 @@ export const TopNav = () => {
   } = useAppStatusStore();
   const {
     sidebarType,
+    settings: { theme },
     actions: { setSidebar },
   } = useSportsStore();
   const {
@@ -274,7 +273,6 @@ export const TopNav = () => {
     const amount = Object.keys(active).length;
     return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
   }, [Object.keys(active).length]);
-
   return (
     <section
       className={classNames(Styles.TopNav, {
@@ -317,7 +315,7 @@ export const TopNav = () => {
               },
               isMobile: false,
               buttonOptions: {
-                invert: true,
+                invert: theme !== THEME_OPTIONS.DARK,
               },
             }}
           />
@@ -371,7 +369,7 @@ export const TopNav = () => {
               [Styles.SportsAccountDetails]: true,
             },
             buttonOptions: {
-              invert: true,
+              invert: theme !== THEME_OPTIONS.DARK,
               small: true,
             },
           }}
