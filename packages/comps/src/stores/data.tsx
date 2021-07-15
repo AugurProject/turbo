@@ -5,13 +5,14 @@ import {
   PARA_CONFIG,
   NETWORK_BLOCK_REFRESH_TIME,
   MARKET_IGNORE_LIST,
+  MULTICALL_MARKET_IGNORE_LIST,
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos, fillMarketsData } from "../utils/contract-calls";
+import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
-import { useAppStatusStore, AppStatusStore } from "./app-status";
+import { AppStatusStore } from "./app-status";
 import { MARKET_FACTORY_TYPES } from "../utils/constants";
 
 export const DataContext = React.createContext({
@@ -59,12 +60,10 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         try {
           const {data, block, errors} = await getMarketsData();
           //console.log(data, block, errors);
-          for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
-            const key = Object.keys(GRAPH_MARKETS)[i];
-            const graphMarkets = data[key];
-            const { marketInfos: filledMarkets, exchanges: filledExchanges } = await fillMarketsData(graphMarkets, cashes, provider, account, GRAPH_MARKETS[key], Number(block))
-            infos = { markets: { ...infos.markets, ...filledMarkets }, ammExchanges: { ...infos.ammExchanges, ...filledExchanges }, blocknumber: Number(block) };
-          };
+          const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
+          
+          throw new Error('test failover');
+
           return infos;
         } catch (e) {
           // failover use multicalls
@@ -75,7 +74,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
             damm,
             cashes,
             userAccount,
-            MARKET_IGNORE_LIST,
+            MULTICALL_MARKET_IGNORE_LIST,
             loadType,
             dblock
           );
