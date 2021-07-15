@@ -145,12 +145,6 @@ const useHandleTheming = (state) => {
         }
         break;
       }
-      case THEME_OPTIONS.LIGHT: {
-        if (htmlTheme !== SPORTS_THEME_TYPES.SPORT_LIGHT) {
-          setHTMLTheme(SPORTS_THEME_TYPES.SPORT_LIGHT);
-        }
-        break;
-      }
       case THEME_OPTIONS.DARK: {
         if (htmlTheme !== SPORTS_THEME_TYPES.SPORT_DARK) {
           setHTMLTheme(SPORTS_THEME_TYPES.SPORT_DARK);
@@ -158,10 +152,11 @@ const useHandleTheming = (state) => {
         break;
       }
       default:
+        if (htmlTheme !== SPORTS_THEME_TYPES.SPORT_LIGHT) {
+          setHTMLTheme(SPORTS_THEME_TYPES.SPORT_LIGHT);
+        }
         break;
     }
-
-    console.log("how often are we hitting this...");
   }, [blocknumber, theme]);
 };
 

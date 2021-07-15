@@ -212,6 +212,218 @@
   --tiny-button-text-transform: uppercase;
 }
 
+:root[theme="SPORTS_DARK"] {
+  // text
+  --secondary-text: #555577;
+  --secondary-text-rgb: 85, 85, 119;
+  --tertiary-text: #9c9cb4;
+  --tertiary-text-rgb: 156, 156, 180;
+  // backgrounds
+  --primary-bg: #ffffff;
+  --primary-bg-rgb: 255, 255, 255;
+  --secondary-bg: #f5f5f8;
+  --secondary-bg-rgb: 245, 245, 248;
+  --tertiary-bg: #fafafc;
+  --tertiary-bg-rgb: 250, 250, 252;
+  // misc
+  --theme-border: #d1d1d9;
+  --theme-border-rgb: 209, 209, 217;
+  --theme-focus: #1b91ff;
+  --theme-focus-rgb: 27, 145, 255;
+  //status
+  --failed: #ff4e27;
+  --failed-rgb: 255, 78, 39;
+  --warning: #f59300;
+  --warning-rgb: 245, 147, 0;
+  --success: #0cce8d;
+  --success-rgb: 12, 206, 141;
+  //trading
+  --buy: #5a8bee;
+  --buy-rgb: 90, 139, 238;
+  --sell: #ec343f;
+  --sell-rgb: 236, 52, 63;
+
+  // outcomes
+  --theme-outcome-0: #ff4e27;
+  --theme-outcome-1: #fcbd43;
+  --theme-outcome-2: #48ebb5;
+  --theme-outcome-3: #ff56b1;
+  --theme-outcome-4: #ff8ded;
+  --theme-outcome-5: #1b91ff;
+  --theme-outcome-6: #09cfe1;
+  --theme-outcome-7: #ae5dff;
+  // invalid / outcome 0: #FF4E27  / rgba(255, 78, 39, 1)
+  // outcome 1: #FCBD43 / rgba(252, 189, 67, 1)
+  // outcome 2: #48EBB5 / rgba(72, 235, 181, 1)
+  // outcome 3: #FF56B1 / rgba(255, 86, 177, 1)
+  // outcome 4: #FF8DED / rgba(255, 141, 237, 1)
+  // outcome 5: #1B91FF / rgba(27, 145, 255, 1)
+  // outcome 6: #09CFE1 / rgba(9, 207, 225, 1)
+  // outcome 7: #AE5DFF / rgba(174, 93, 255, 1)
+
+  --dark-button-theme-color: var(--primary-text);
+  --light-button-theme-color: var(--primary-bg);
+  --tiny-dark-button-theme-color: var(--secondary-text);
+  --tiny-light-button-theme-color: var(--theme-border);
+  --theme-focus-box-shadow: 0 0 0 @size-1 var(--theme-focus);
+  --primary-button-theme-color: var(--success);
+  --primary-button-theme-background-color: rgba(var(--success-rgb), 0.15);
+  --inverted-primary-button-theme-background-color: rgba(var(--success-rgb), 0.3);
+  --secondary-button-theme-background-color: transparent;
+  --inverted-secondary-button-theme-background-color: transparent;
+  // This example is going to assume sportsbook values for now.
+  --primary-button-background: var(--primary-button-theme-background-color);
+  --primary-button-border-color: var(--primary-button-theme-color);
+  --primary-button-border: @size-1 solid var(--primary-button-border-color);
+  --primary-button-text-color: var(--dark-button-theme-color);
+
+  --primary-button-background-hover: var(--dark-button-theme-color);
+  --primary-button-border-color-hover: var(--dark-button-theme-color);
+  --primary-button-border-hover: @size-1 solid var(--primary-button-border-color-hover);
+  --primary-button-text-color-hover: var(--light-button-theme-color);
+
+  --primary-button-background-focus: var(--primary-button-theme-background-color);
+  --primary-button-border-color-focus: var(--theme-focus);
+  --primary-button-border-focus: @size-1 solid var(--primary-button-border-color-focus);
+  --primary-button-text-color-focus: var(--dark-button-theme-color);
+
+  --primary-button-background-pressed: var(--dark-button-theme-color);
+  --primary-button-border-color-pressed: var(--dark-button-theme-color);
+  --primary-button-border-pressed: @size-1 solid var(--primary-button-border-color-pressed);
+  --primary-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-primary-button-background: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color: var(--primary-button-theme-color);
+  --inverted-primary-button-border: @size-1 solid var(--inverted-primary-button-border-color);
+  --inverted-primary-button-text-color: var(--light-button-theme-color);
+
+  --inverted-primary-button-background-hover: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-hover: var(--light-button-theme-color);
+  --inverted-primary-button-border-hover: @size-1 solid var(--inverted-primary-button-border-color-hover);
+  --inverted-primary-button-text-color-hover: var(--dark-button-theme-color);
+
+  --inverted-primary-button-background-focus: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color-focus: var(--theme-focus);
+  --inverted-primary-button-border-focus: @size-1 solid var(--inverted-primary-button-border-color-focus);
+  --inverted-primary-button-text-color-focus: var(--light-button-theme-color) f;
+
+  --inverted-primary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-pressed: var(--light-button-theme-color);
+  --inverted-primary-button-border-pressed: @size-1 solid var(--inverted-primary-button-border-color-pressed);
+  --inverted-primary-button-text-color-pressed: var(--dark-button-theme-color);
+
+  // This example is going to assume sportsbook values for now.
+  --secondary-button-background: var(--secondary-button-theme-background-color);
+  --secondary-button-border-color: var(--dark-button-theme-color);
+  --secondary-button-border: @size-1 solid var(--secondary-button-border-color);
+  --secondary-button-text-color: var(--dark-button-theme-color);
+
+  --secondary-button-background-hover: var(--dark-button-theme-color);
+  --secondary-button-border-color-hover: var(--dark-button-theme-color);
+  --secondary-button-border-hover: @size-1 solid var(--secondary-button-border-color-hover);
+  --secondary-button-text-color-hover: var(--light-button-theme-color);
+
+  --secondary-button-background-focus: var(--secondary-button-theme-background-color);
+  --secondary-button-border-color-focus: var(--theme-focus);
+  --secondary-button-border-focus: @size-1 solid var(--secondary-button-border-color-focus);
+  --secondary-button-text-color-focus: var(--dark-button-theme-color);
+
+  --secondary-button-background-pressed: var(--dark-button-theme-color);
+  --secondary-button-border-color-pressed: var(--dark-button-theme-color);
+  --secondary-button-border-pressed: @size-1 solid var(--secondary-button-border-color-pressed);
+  --secondary-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background: var(--secondary-button-theme-background-color);
+  --inverted-secondary-button-border-color: var(--light-button-theme-color);
+  --inverted-secondary-button-border: @size-1 solid var(--inverted-secondary-button-border-color);
+  --inverted-secondary-button-text-color: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background-hover: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-hover: var(--light-button-theme-color);
+  --inverted-secondary-button-border-hover: @size-1 solid var(--inverted-secondary-button-border-color-hover);
+  --inverted-secondary-button-text-color-hover: var(--dark-button-theme-color);
+
+  --inverted-secondary-button-background-focus: var(--secondary-button-theme-background-color);
+  --inverted-secondary-button-border-color-focus: var(--theme-focus);
+  --inverted-secondary-button-border-focus: @size-1 solid var(--inverted-secondary-button-border-color-focus);
+  --inverted-secondary-button-text-color-focus: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-pressed: var(--light-button-theme-color);
+  --inverted-secondary-button-border-pressed: @size-1 solid var(--inverted-secondary-button-border-color-pressed);
+  --inverted-secondary-button-text-color-pressed: var(--dark-button-theme-color);
+
+  // This example is going to assume sportsbook values for now.
+  --tiny-button-background: var(--light-button-theme-color);
+  --tiny-button-border-color: var(--tiny-light-button-theme-color);
+  --tiny-button-border: @size-1 solid var(--tiny-button-border-color);
+  --tiny-button-text-color: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-hover: var(--light-button-theme-color);
+  --tiny-button-border-color-hover: var(--dark-button-theme-color);
+  --tiny-button-border-hover: @size-1 solid var(--tiny-button-border-color-hover);
+  --tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-focus: var(--light-button-theme-color);
+  --tiny-button-border-color-focus: var(--theme-focus);
+  --tiny-button-border-focus: @size-1 solid var(--tiny-button-border-color-focus);
+  --tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-pressed: var(--dark-button-theme-color);
+  --tiny-button-border-color-pressed: var(--dark-button-theme-color);
+  --tiny-button-border-pressed: @size-1 solid var(--tiny-button-border-color-pressed);
+  --tiny-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-tiny-button-background: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color: var(--tiny-light-button-theme-color);
+  --inverted-tiny-button-border: @size-1 solid var(--inverted-tiny-button-border-color);
+  --inverted-tiny-button-text-color: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-hover: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-hover: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-hover: @size-1 solid var(--inverted-tiny-button-border-color-hover);
+  --inverted-tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-focus: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-focus: var(--theme-focus);
+  --inverted-tiny-button-border-focus: @size-1 solid var(--inverted-tiny-button-border-color-focus);
+  --inverted-tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-pressed: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-color-pressed: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-pressed: @size-1 solid var(--inverted-tiny-button-border-color-pressed);
+  --inverted-tiny-button-text-color-pressed: var(--light-button-theme-color);
+
+  --button-disabled-opacity: 0.5;
+  --theme-button-border-radius: @size-3;
+  --normal-button-flex-flow: row nowrap;
+  --normal-button-flex-flow-reverse: row-reverse wrap;
+  --normal-button-icon-margin: 0 0 0 @size-4;
+  --normal-button-icon-margin-reverse: 0 @size-4 0 0;
+
+  --normal-button-height: @size-44;
+  --normal-button-padding: @size-8 @size-24;
+  --normal-button-svg-height: @size-24;
+  --normal-button-svg-width: @size-24;
+  --normal-button-font-size: @size-14;
+  --normal-button-font-weight: 700;
+
+  --small-button-height: @size-36;
+  --small-button-padding: @size-6 @size-16;
+  --small-button-svg-height: @size-16;
+  --small-button-svg-width: @size-16;
+  --small-button-font-size: @size-10;
+  --small-button-font-weight: 600;
+
+  --tiny-button-height: @size-28;
+  --tiny-button-padding: @size-4 @size-8;
+  --tiny-button-svg-height: @size-16;
+  --tiny-button-svg-width: @size-16;
+  --tiny-button-font-size: @size-12;
+  --tiny-button-font-weight: 600;
+  --tiny-button-text-transform: uppercase;
+}
+
 @color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3)
   var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
 

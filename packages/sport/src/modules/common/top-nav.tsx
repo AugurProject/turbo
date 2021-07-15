@@ -196,11 +196,13 @@ export const SettingsButton = () => {
                 customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
                 text={THEME_OPTIONS.DARK}
                 action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
+                disabled
               />
               <TinyThemeButton
                 customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
                 text={THEME_OPTIONS.AUTO}
                 action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
+                disabled
               />
             </div>
           </li>

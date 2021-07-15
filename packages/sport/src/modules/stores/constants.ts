@@ -20,7 +20,7 @@ export const DEFAULT_SPORT_STATE = {
     timeFormat: Constants.TWELVE_HOUR_TIME,
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
     showLiquidMarkets: true,
-    theme: THEME_OPTIONS.LIGHT, 
+    theme: THEME_OPTIONS.LIGHT,
   },
   marketEvents: {},
   filteredEvents: [],
