@@ -681,7 +681,7 @@ export const getUserBalances = async (
           dataKey: exchange.marketId,
           collection: LP_TOKEN_COLLECTION,
           decimals: 18,
-          marketid: exchange.marketId,
+          marketId: exchange.marketId,
           totalSupply: exchange?.totalSupply,
         },
       },
