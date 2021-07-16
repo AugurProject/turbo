@@ -1,5 +1,5 @@
 {
-  "name": "mlb-create",
+  "name": "nba-resolve",
   "initiators": [
     {
       "type": "web"
@@ -15,15 +15,15 @@
     {
       "type": "augur-adapter",
       "params": {
-        "sport": "mlb",
-        "method": "create",
+        "sport": "nba",
+        "method": "resolve",
         "startBuffer": 86400,
         "affiliateIds": [
           9,
           3
         ],
         "daysInAdvance": 7,
-        "contractAddress": "${MLB_MARKET_FACTORY}"
+        "contractAddress": "${NBA_MARKET_FACTORY}"
       }
     }
   ]

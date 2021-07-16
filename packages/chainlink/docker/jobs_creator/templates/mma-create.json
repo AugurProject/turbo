@@ -1,5 +1,5 @@
 {
-  "name": "mma-resolve",
+  "name": "mma-create",
   "initiators": [
     {
       "type": "web"
@@ -16,7 +16,7 @@
       "type": "augur-adapter",
       "params": {
         "sport": "mma",
-        "method": "resolve",
+        "method": "create",
         "startBuffer": 86400,
         "affiliateIds": [
           9,

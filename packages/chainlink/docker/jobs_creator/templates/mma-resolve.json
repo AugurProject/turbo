@@ -1,5 +1,5 @@
 {
-  "name": "mlb-resolve",
+  "name": "mma-resolve",
   "initiators": [
     {
       "type": "web"
@@ -15,7 +15,7 @@
     {
       "type": "augur-adapter",
       "params": {
-        "sport": "mlb",
+        "sport": "mma",
         "method": "resolve",
         "startBuffer": 86400,
         "affiliateIds": [
@@ -23,7 +23,7 @@
           3
         ],
         "daysInAdvance": 7,
-        "contractAddress": "${MLB_MARKET_FACTORY}"
+        "contractAddress": "${MMA_MARKET_FACTORY}"
       }
     }
   ]
