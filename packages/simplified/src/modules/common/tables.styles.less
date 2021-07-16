@@ -212,6 +212,7 @@
 .FooterSharedStyles {
   display: flex;
   justify-content: flex-end;
+  flex-flow: row wrap;
   padding: @size-20;
   border-top: @size-1 solid var(--theme-border);
   min-width: @size-320;
@@ -229,6 +230,60 @@
       &:not(:first-of-type) {
         margin-left: @size-8;
       }
+    }
+  }
+}
+
+.BonusReward {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1 100%;
+  min-height: @size-116;
+  height: @size-116;
+  max-height: @size-116;
+
+  > h4 {
+    .text-14-semi-bold;
+
+    line-height: @size-20;
+    height: @size-20;
+
+    &:last-of-type {
+      align-self: flex-end;
+    }
+  }
+
+  > p {
+    .text-10-semi-bold;
+
+    color: var(--secondary-text);
+    line-height: @size-14;
+    height: @size-14;
+
+    &:last-of-type {
+      align-self: flex-end;
+    }
+  }
+
+  > span {
+    background: rgba(var(--success-rgb), 0.15);
+    border-radius: @size-32;
+    min-height: @size-8;
+    max-height: @size-8;
+    flex: 1 100%;
+    position: relative;
+    margin: @size-12 0;
+
+    > span {
+      background: var(--success);
+      border-radius: @size-32;
+      min-height: @size-8;
+      max-height: @size-8;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: @size-120;
+
     }
   }
 }
