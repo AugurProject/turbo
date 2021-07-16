@@ -660,7 +660,7 @@ export const WinnerMedal = (
 );
 
 export const MaticIcon = (
-  <svg viewBox="0 0 20 20">
+  <svg viewBox="-1 -1 22 22">
     <path fillRule="evenodd" clipRule="evenodd" d="M8.64575 9.15782L9.98547 12.3014L11.9795 11.0852L11.981 11.0846V8.65039L8.64575 9.15782Z" fill="#2BBDF7"/>
     <path fillRule="evenodd" clipRule="evenodd" d="M14.5608 6.82549L13.3162 6.3295L11.9861 6.21582V13.7804L13.9815 14.9972L15.5566 11.5869L14.5632 8.28931L14.5608 6.82549Z" fill="#2891F9"/>
     <path fillRule="evenodd" clipRule="evenodd" d="M14.4357 6.21875L13.9735 7.43522H13.9729V14.9989L15.9687 13.7824V6.21875H14.4357Z" fill="#2BBDF7"/>
