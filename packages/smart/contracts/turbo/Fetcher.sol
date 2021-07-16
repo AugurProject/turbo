@@ -34,6 +34,7 @@ abstract contract Fetcher {
         uint256 protocolFee;
         FeePot feePot;
         CollateralBundle collateral;
+        uint256 marketCount;
     }
 
     struct PoolBundle {
@@ -62,16 +63,6 @@ abstract contract Fetcher {
         OwnedERC20 winner;
     }
 
-    function calcEnd(
-        address _marketFactory,
-        uint256 _offset,
-        uint256 _total
-    ) internal view returns (uint256 _end) {
-        uint256 _max = AbstractMarketFactory(_marketFactory).marketCount();
-        _end = _offset + _total;
-        if (_end > _max) _end = _max;
-    }
-
     function buildCollateralBundle(IERC20Full _collateral) internal view returns (CollateralBundle memory _bundle) {
         _bundle.addr = address(_collateral);
         _bundle.symbol = _collateral.symbol();
@@ -89,6 +80,7 @@ abstract contract Fetcher {
         _bundle.protocolFee = _marketFactory.protocolFee();
         _bundle.feePot = _marketFactory.feePot();
         _bundle.collateral = buildCollateralBundle(_marketFactory.collateral());
+        _bundle.marketCount = _marketFactory.marketCount();
     }
 
     function buildStaticMarketBundle(
@@ -135,18 +127,25 @@ abstract contract Fetcher {
         _bundle.weights = _ammFactory.getPoolWeights(_marketFactory, _marketId);
     }
 
+    // Starts from the end of the markets list because newer markets are more interesting.
     // _offset is skipping all markets, not just interesting markets
     function listOfInterestingMarkets(
         address _marketFactory,
         uint256 _offset,
         uint256 _total
     ) internal view returns (uint256[] memory _interestingMarketIds) {
-        _offset++; // market in 0th index is fake
         _interestingMarketIds = new uint256[](_total);
+        uint256 _max = AbstractMarketFactory(_marketFactory).marketCount() - 1;
 
-        uint256 _max = AbstractMarketFactory(_marketFactory).marketCount();
+        // No remaining markets so return nothing. (needed to avoid integer underflow below)
+        if (_offset > _max) {
+            return new uint256[](0);
+        }
+
+        // Starts at the end, less offset.
+        // Stops before the 0th market since that market is always fake.
         uint256 n = 0;
-        for (uint256 _marketId = _offset; _marketId < _max; _marketId++) {
+        for (uint256 _marketId = _max - _offset; _marketId > 0; _marketId--) {
             if (n >= _total) break;
             if (openOrHasWinningShares(AbstractMarketFactory(_marketFactory), _marketId)) {
                 _interestingMarketIds[n] = _marketId;
@@ -156,8 +155,9 @@ abstract contract Fetcher {
 
         if (_total > n) {
             assembly {
+                // shortens array
                 mstore(_interestingMarketIds, n)
-            } // shortens array
+            }
         }
     }
 

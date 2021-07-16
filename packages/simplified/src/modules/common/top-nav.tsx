@@ -3,7 +3,6 @@ import { useLocation } from "react-router";
 import Styles from "./top-nav.styles.less";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-import { Toasts } from "../toasts/toasts";
 import { useSimplifiedStore } from "../stores/simplified";
 import {
   Icons,
@@ -17,6 +16,7 @@ import {
   Constants,
   LinkLogo,
   Components,
+  Toasts,
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;

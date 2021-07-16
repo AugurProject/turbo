@@ -7,9 +7,9 @@
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
-  height: @sports-top-bar-height;
-  min-height: @sports-top-bar-height;
-  max-height: @sports-top-bar-height;
+  height: var(--theme-top-bar-height);
+  min-height: var(--theme-top-bar-height);
+  max-height: var(--theme-top-bar-height);
   width: 100vw;
   position: fixed;
   z-index: @above-all-content;
@@ -43,13 +43,13 @@
     flex: 1;
     grid-gap: @size-16;
     width: 100%;
-    height: @sports-top-nav-height;
-    min-height: @sports-top-nav-height;
-    max-height: @sports-top-nav-height;
+    height: var(--theme-top-bar-height);
+    min-height: var(--theme-top-bar-height);
+    max-height: var(--theme-top-bar-height);
 
     &:first-of-type {
       max-width: @size-912;
-      padding-left: @sports-gutter;
+      padding-left: var(--theme-gutter);
       grid-template-columns: 0fr 1fr;
       grid-gap: @size-80;
 
@@ -108,7 +108,7 @@
 
     &:last-of-type {
       max-width: @size-528;
-      padding-right: @sports-gutter;
+      padding-right: var(--theme-gutter);
       grid-gap: @size-8;
       align-items: center;
       justify-content: flex-end;
@@ -265,8 +265,8 @@
     cursor: pointer;
 
     > svg > path {
-      stroke: var(--primary-bg);
-      fill: var(--primary-bg);
+      stroke: var(--inverted-primary-text);
+      fill: var(--inverted-primary-text);
     }
 
     &:focus {
@@ -285,7 +285,7 @@
 
 .SettingsMenu {
   .FixedBoxShadow;
-  .SimpleBorder;
+  .ThemeBorder;
   .SecondaryBorderRadius;
 
   background: var(--primary-bg);
@@ -374,6 +374,9 @@
 
             > svg {
               display: block;
+              > path {
+                fill: var(--primary-text);
+              }
             }
           }
         }
@@ -393,9 +396,13 @@
       grid-gap: @size-4;
       padding: @size-8 @size-16;
 
+      &.ThemeSelection {
+        grid-template-columns: auto auto auto;
+      }
+
       > button {
         .text-12-semi-bold;
-        .SimpleBorder;
+        .ThemeBorder;
 
         background: transparent;
         color: var(--secondary-text);
@@ -455,17 +462,18 @@
   }
 }
 
+:root[theme="SPORTS_DARK"],
 :root[theme="SPORTS"] {
   .TopNav {
-    background: var(--primary-text);
+    background: var(--inverted-primary-bg);
 
     > section {
-      background: var(--primary-text);
+      background: var(--inverted-primary-bg);
       border-color: var(--secondary-text);
 
       &:first-of-type {
         > a > section > svg > g > path:not(:first-of-type) {
-          fill: var(--primary-bg);
+          fill: var(--inverted-primary-text);
         }
 
         > ol {
@@ -487,7 +495,7 @@
 
             &:hover {
               > a {
-                color: var(--primary-bg);
+                color: var(--inverted-primary-text);
 
                 &[disabled] {
                   color: var(--secondary-text);
@@ -498,7 +506,7 @@
             &.Active,
             &.Active:hover {
               > a {
-                color: var(--primary-bg);
+                color: var(--inverted-primary-text);
               }
             }
           }
@@ -516,7 +524,7 @@
           > span {
             .text-16-bold;
 
-            color: var(--primary-bg);
+            color: var(--inverted-primary-text);
             margin-right: @size-16;
             margin-left: @size-24;
           }
@@ -527,7 +535,7 @@
 }
 
 .MobileMenu {
-  background: var(--primary-text);
+  background: var(--inverted-primary-bg);
   position: absolute;
   width: 100vw;
   height: 100vh;
@@ -588,7 +596,7 @@
         width: @size-12;
 
         > path {
-          fill: var(--primary-bg);
+          fill: var(--inverted-primary-text);
         }
       }
     }
@@ -617,7 +625,7 @@
         }
 
         &.Active > a {
-          color: var(--primary-bg);
+          color: var(--inverted-primary-text);
         }
       }
     }
@@ -654,7 +662,7 @@
 }
 
 .CustomBetSizeInput {
-  .SimpleBorder;
+  .ThemeBorder;
   .text-12-semi-bold;
 
   background: transparent;

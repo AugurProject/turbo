@@ -11,6 +11,7 @@ import { MATIC_MUMBAI, tryAutoLogin } from "./utils";
 import { Spinner } from "../common/spinner";
 import { MATIC_RPC_DATA, MATIC_MUMBAI_RPC_DATA } from "../ConnectAccount/constants/index";
 import { PARA_CONFIG } from "../../stores/constants";
+import { useUserStore } from "../../stores/user";
 
 // @ts-ignore
 const ethereum = window.ethereum;
@@ -67,13 +68,15 @@ const ConnectAccountButton = ({
   const [isOnMatic, setIsOnMatic] = useState(true);
   const pendingTransaction = transactions.filter((tx) => tx.status === TX_STATUS.PENDING);
   const hasPendingTransaction = pendingTransaction.length > 0 || false;
+  const { loginAccount } = useUserStore();
+  const [isWalletConnect, setIsWalletConnect] = useState(false);
 
   const maticCheck = () => {
     if (!ethereum || !ethereum.chainId) {
       return; // No injected MM to check
     }
 
-    if (ethereum && ethereum?.chainId === RPC_DATA?.chainId) {
+    if ((ethereum && ethereum?.chainId === RPC_DATA?.chainId)) {
       setIsOnMatic(true);
     } else {
       setIsOnMatic(false);
@@ -109,8 +112,9 @@ const ConnectAccountButton = ({
   useEffect(() => {
     if (account) {
       updateLoginAccount(activeWeb3);
+      setIsWalletConnect(!!loginAccount?.connector?.walletConnectProvider);
     }
-  }, [account, activeWeb3.library, activeWeb3.connector, activeWeb3.chainId, activeWeb3.error, activeWeb3.active]);
+  }, [loginAccount, account, activeWeb3.library, activeWeb3.connector, activeWeb3.chainId, activeWeb3.error, activeWeb3.active]);
 
   let buttonProps = {
     action: () =>
@@ -128,7 +132,9 @@ const ConnectAccountButton = ({
     buttonOptions,
   };
 
-  if (!isOnMatic) {
+  if (!account) {
+    return <LoginButton {...buttonProps} />;
+  } else if (!isOnMatic && !isWalletConnect) {
     buttonProps = {
       ...buttonProps,
       action: () => {
@@ -166,11 +172,6 @@ const ConnectAccountButton = ({
 
   return <LoginButton {...buttonProps} />;
 };
-
-// export interface ConnectAccountProps {
-//   customClassForModal: object | null;
-
-// }
 
 export const ConnectAccount = ({
   customClassForModal = null,

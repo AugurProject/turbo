@@ -1,9 +1,9 @@
-@color-brand: #2AE7A8;
-@color-brand-secondary: #FFFFFF;
-@color-twitter: #55ACEE;
-@color-twitter-2: #FFFFFF;
-@color-facebook: #3B5998;
-@color-facebook-2: #FFFFFF;
+@color-brand: #2ae7a8;
+@color-brand-secondary: #ffffff;
+@color-twitter: #55acee;
+@color-twitter-2: #ffffff;
+@color-facebook: #3b5998;
+@color-facebook-2: #ffffff;
 
 :root {
   // branding
@@ -15,55 +15,60 @@
   --color-facebook: @color-facebook;
   --color-facebook-2: @color-facebook-2;
   // text
-  --primary-text: #15171A;
+  --primary-text: #15171a;
   --primary-text-rgb: 21, 23, 26;
-  --secondary-text: #8B959E;
+  --secondary-text: #8b959e;
   --secondary-text-rgb: 139, 149, 158;
   --tertiary-text: hsl(208, 9%, 58%);
   --tertiary-text-rgb: 139, 149, 158;
+  --inverted-primary-text: #ffffff;
+  --inverted-primary-text-rgb: 255, 255, 255;
   // backgrounds
-  --primary-bg: #FFFFFF;
+  --primary-bg: #ffffff;
   --primary-bg-rgb: 255, 255, 255;
-  --secondary-bg: #F6F7F8;
+  --secondary-bg: #f6f7f8;
   --secondary-bg-rgb: 246, 247, 248;
-  --tertiary-bg: #EDEFF1;
+  --tertiary-bg: #edeff1;
   --tertiary-bg-rgb: 237, 239, 241;
+  --inverted-primary-bg: #15171a;
+  --inverted-primary-bg-rgb: 21, 23, 26;
   // misc
-  --theme-border: #DBE1E7;
+  --theme-border: #dbe1e7;
   --theme-border-rgb: 219, 225, 231;
-  --theme-focus: #1B91FF;
+  --theme-focus: #1b91ff;
   --theme-focus-rgb: 27, 145, 255;
   // status
-  --failed: #FF3E13;
+  --failed: #ff3e13;
   --failed-rgb: 255, 62, 19;
-  --warning: #F59300;
+  --warning: #f59300;
   --warning-rgb: 245, 147, 0;
-  --success: #05B169;
+  --success: #05b169;
   --success-rgb: 5, 177, 105;
   // trading
-  --buy: #05B169;
+  --buy: #05b169;
   --buy-rgb: 5, 177, 105;
-  --sell: #8A8A8A;
+  --sell: #8a8a8a;
   --sell-rgb: 255, 125, 94;
   // outcomes
-  --theme-outcome-0: #58586B;
-  --theme-outcome-1: #05B169;
-  --theme-outcome-2: #FF7D5E;
-  --theme-outcome-3: #73D2DE;
+  --theme-outcome-0: #58586b;
+  --theme-outcome-1: #05b169;
+  --theme-outcome-2: #ff7d5e;
+  --theme-outcome-3: #73d2de;
   --theme-outcome-4: #218380;
-  --theme-outcome-5: #FFBC42;
-  --theme-outcome-6: #D81159;
-  --theme-outcome-7: #1F71B5;
+  --theme-outcome-5: #ffbc42;
+  --theme-outcome-6: #d81159;
+  --theme-outcome-7: #1f71b5;
   // categories
-  --medical-color: #73D2DE;
-  --finance-color: #FF7D5E;
-  --entertainment-color: #FFBC42;
-  --politics-color: #1F71B5;
+  --medical-color: #73d2de;
+  --finance-color: #ff7d5e;
+  --entertainment-color: #ffbc42;
+  --politics-color: #1f71b5;
   --crypto-color: #218380;
-  --sports-color: #D81159;
+  --sports-color: #d81159;
 }
 
-@color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3) var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
+@color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3)
+  var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
 
 .generate-trading-indexed-color-outcome-classes(@rules) {
   each(@color-outcome-list, {

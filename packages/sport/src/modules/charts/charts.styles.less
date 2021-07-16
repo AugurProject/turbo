@@ -148,7 +148,7 @@
       .highcharts-crosshair {
         stroke: var(--primary-text);
 
-        opacity: .3;
+        opacity: 0.3;
       }
 
       .highcharts-tooltip {
@@ -327,7 +327,7 @@
 }
 
 .SelectOutcomeButton {
-  .RoundedButton;
+  .ThemeBorder;
   .text-14;
 
   background: transparent;
@@ -338,6 +338,17 @@
   white-space: nowrap;
   text-transform: capitalize;
   grid-gap: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+
+  &:hover {
+    border: @size-1 solid var(--secondary-text);
+  }
 
   &:disabled,
   &:disabled:hover {

@@ -293,7 +293,11 @@ export const MultiButtonSelection = ({ options, selection, setSelection }) => (
   <ul className={Styles.MultiButtonSelection}>
     {options.map(({ id, label }) => (
       <li key={`option-${id}`}>
-        <TinyButton text={label} selected={selection === id} action={() => selection !== id && setSelection(id)} />
+        <TinyButton
+          text={label}
+          selected={selection === id }
+          action={() => selection !== id && setSelection(id)}
+        />
       </li>
     ))}
   </ul>

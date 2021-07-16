@@ -93,40 +93,8 @@ input[type=number] {
 
   ::-webkit-scrollbar-thumb {
     background: var(--primary-text);
-    border-radius: @border-radius-full-round;
+    border-radius: @size-100;
   }
-}
-
-.RoundedButton {
-  .SimpleBorder;
-  .text-12-semi-bold;
-
-  background: transparent;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-  grid-gap: @size-8;
-  outline: none;
-
-  &:hover {
-    border: @size-1 solid var(--secondary-text);
-  }
-}
-
-.RoundedLabel {
-  .RoundedButton;
-  .text-16;
-
-  color: var(--primary-text);
-  line-height: 140%;
-  height: @size-44;
-  min-height: @size-44;
-  max-height: @size-44;
-  white-space: nowrap;
-  padding: 0 @size-16;
 }
 
 .EmptyMessage {
@@ -147,10 +115,10 @@ input[type=number] {
   background: var(--secondary-bg);
   background-image: linear-gradient(
     to right,
-    #f6f7f8 0%,
-    #edeef1 20%,
-    #f6f7f8 40%,
-    #f6f7f8 100%
+    var(--primary-bg) 0%,
+    var(--tertiary-bg) 20%,
+    var(--primary-bg) 40%,
+    var(--primary-bg) 100%
   );
   background-repeat: no-repeat;
   background-size: 800px 104px;

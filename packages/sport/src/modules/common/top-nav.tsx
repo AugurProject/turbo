@@ -21,7 +21,7 @@ import {
   Links,
 } from "@augurproject/comps";
 import { useBetslipStore } from "../stores/betslip";
-import { ACTIVE_BETS } from "../constants";
+import { ACTIVE_BETS, THEME_OPTIONS } from "../constants";
 import { CategoriesArea } from "../categories/categories";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck, XIcon } = Icons;
@@ -30,13 +30,13 @@ const { generateTooltip } = LabelComps;
 const { ConnectAccount } = CompsConnectAccount;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC } = Constants;
+const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC, TIME_TYPE, ODDS_TYPE } = Constants;
 
 const BETSIZE_ODDS_TO_DISPLAY_TIP = `The dollar amount shown under each odd represents the amount that can be taken at the odds shown. You can take greater than this amount, but it will impact the odds. To increase the amount, change the percentage. For example: 10% is displaying the odds you would receive if wanting to buy up to 10% of the available liquidity.`;
 
 export const SettingsButton = () => {
   const {
-    settings: { oddsFormat, timeFormat, betSizeToOdds },
+    settings: { oddsFormat, timeFormat, betSizeToOdds, theme },
     actions: { updateSettings },
   } = useSportsStore();
   const { account } = useUserStore();
@@ -63,8 +63,8 @@ export const SettingsButton = () => {
 
   useEffect(() => {
     const viewVersion = isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100);
-    const customTrimmed = custom.replace("%","");
-    if (customTrimmed !== viewVersion && account && customTrimmed === '') {
+    const customTrimmed = custom.replace("%", "");
+    if (customTrimmed !== viewVersion && account && customTrimmed === "") {
       setCustom(`${viewVersion}%`);
     }
   }, [account, betSizeToOdds]);
@@ -78,7 +78,7 @@ export const SettingsButton = () => {
             <label htmlFor="timeFormat">Time Format</label>
             <ul id="timeFormat">
               <>
-                {Object.entries(Constants.TIME_TYPE).map(([timeName, timeType]) => (
+                {Object.entries(TIME_TYPE).map(([timeName, timeType]) => (
                   <li key={timeName}>
                     <button
                       className={classNames({ [Styles.Active]: timeType === timeFormat })}
@@ -96,7 +96,7 @@ export const SettingsButton = () => {
             <label htmlFor="oddsFormat">Odds Format</label>
             <ul id="oddsFormat">
               <>
-                {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
+                {Object.keys(ODDS_TYPE).map((oddType) => (
                   <li key={oddType}>
                     <button
                       className={classNames({ [Styles.Active]: oddType === oddsFormat })}
@@ -115,7 +115,7 @@ export const SettingsButton = () => {
               Bet Size to odds display
               {generateTooltip(BETSIZE_ODDS_TO_DISPLAY_TIP, "betsize-odds-tooltip")}
             </label>
-            <div>
+            <div id="betSize">
               <TinyThemeButton
                 customClass={{ [Styles.Active]: 0.05 === Number(betSizeToOdds) }}
                 action={() => {
@@ -184,6 +184,26 @@ export const SettingsButton = () => {
               />
             </div>
           </li>
+          <li>
+            <label htmlFor="Theme">Theme</label>
+            <div className={Styles.ThemeSelection} id="Theme">
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.LIGHT }}
+                text={THEME_OPTIONS.LIGHT}
+                action={() => updateSettings({ theme: THEME_OPTIONS.LIGHT }, account)}
+              />
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
+                text={THEME_OPTIONS.DARK}
+                action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
+              />
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
+                text={THEME_OPTIONS.AUTO}
+                action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
+              />
+            </div>
+          </li>
         </ul>
       )}
     </div>
@@ -200,6 +220,7 @@ export const TopNav = () => {
   } = useAppStatusStore();
   const {
     sidebarType,
+    settings: { theme },
     actions: { setSidebar },
   } = useSportsStore();
   const {
@@ -252,7 +273,6 @@ export const TopNav = () => {
     const amount = Object.keys(active).length;
     return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
   }, [Object.keys(active).length]);
-
   return (
     <section
       className={classNames(Styles.TopNav, {
@@ -295,7 +315,7 @@ export const TopNav = () => {
               },
               isMobile: false,
               buttonOptions: {
-                invert: true,
+                invert: theme !== THEME_OPTIONS.DARK,
               },
             }}
           />
@@ -349,7 +369,7 @@ export const TopNav = () => {
               [Styles.SportsAccountDetails]: true,
             },
             buttonOptions: {
-              invert: true,
+              invert: theme !== THEME_OPTIONS.DARK,
               small: true,
             },
           }}
