@@ -36,7 +36,6 @@ const {
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
 } = Components;
 const {
-  YES_NO,
   BUY,
   USDC,
   SHARES,

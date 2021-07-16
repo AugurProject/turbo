@@ -35,7 +35,6 @@ const {
   TX_STATUS,
   BUY,
   SELL,
-  YES_NO,
   TradingDirection,
   RESOLVED_MARKET,
 } = Constants;
