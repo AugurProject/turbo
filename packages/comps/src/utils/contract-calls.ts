@@ -54,6 +54,7 @@ import {
   MARKET_LOAD_TYPE,
   MARKET_FACTORY_TYPES,
   SPORTS_MARKET_TYPE,
+  GRAPH_MARKETS,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1384,17 +1385,16 @@ export const getERC1155ApprovedForAll = async (
 };
 
 const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
-const isOldMarketFactory = (address) => {
-  const factories = marketFactories();
-  const oldest = factories.find((f) => f.version === OLDEST_MARKET_FACTORY_VER);
-  if (!oldest) return false;
-  return address.toUpperCase() === oldest.address.toUpperCase();
-};
-
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
   if (loadtype === MARKET_LOAD_TYPE.SPORT)
     return PARA_CONFIG.marketFactories.filter((c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO);
   return PARA_CONFIG.marketFactories;
+};
+
+const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {
+  const factory = marketFactories().find((m) => m.address.toLowerCase() === marketFactoryAddress.toLowerCase());
+  if (!factory) return null;
+  return factory;
 };
 
 export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
@@ -1408,7 +1408,7 @@ export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
 };
 
 // stop updating resolved markets
-const addResolvedMarketToList = (
+const addToIgnoreList = (
   ignoreList: { [factory: string]: number[] },
   factoryAddress: string,
   marketIndexs: number[] | number
@@ -1446,94 +1446,76 @@ export const getMarketInfos = async (
       )
     )
   );
-  let existingEvents = [];
+
   // first market infos get all markets with liquidity
-  const marketInfos = allMarkets.reduce(
-    (p, { markets: marketInfos, ammExchanges: exchanges, blocknumber, factoryAddress }) => {
-      // only take liquidity markets from first batch
-      const ignores = ignoreList[factoryAddress.toUpperCase()] || [];
-      const isOld = isOldMarketFactory(factoryAddress);
-      if (isOld && !ignores?.length) {
-        const noLiquidityMarketIndexes: number[] = Object.keys(exchanges).reduce(
-          (p, id) => (!exchanges[id]?.hasLiquidity ? [...p, Number(exchanges[id].turboId)] : p),
-          []
-        );
-        const liquidityMarkets = Object.keys(marketInfos).reduce(
-          (p, id) =>
-            !noLiquidityMarketIndexes.includes(marketInfos[id].turboId) ? { ...p, [id]: marketInfos[id] } : p,
-          {}
-        );
-        const liquidityExchanges = Object.keys(exchanges).reduce(
-          (p, id) => (!noLiquidityMarketIndexes.includes(exchanges[id].turboId) ? { ...p, [id]: exchanges[id] } : p),
-          {}
-        );
-        existingEvents = Object.keys(liquidityMarkets).map((id) => liquidityMarkets[id].eventId);
-        // ignore non liquid markets from old market factory, grab first of market infos to get factory address
-        addResolvedMarketToList(ignoreList, factoryAddress, noLiquidityMarketIndexes);
+  let filteredMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
+  let exchanges = allMarkets.reduce((p, data) => ({ ...p, ...data.ammExchanges }), {});
+  const newBlocknumber = allMarkets.reduce((p, data) => (p > data.blocknumber ? p : data.blocknumber), 0);
+  if (Object.keys(ignoreList).length === 0) {
+    const { markets: fMarkets, ammExchanges: filteredExchanges } = await setIgnoreRemoveMarketList(
+      filteredMarkets,
+      ignoreList,
+      loadtype
+    );
+    filteredMarkets = fMarkets;
+    exchanges = filteredExchanges;
+  }
 
-        return {
-          markets: { ...p.markets, ...liquidityMarkets },
-          ammExchanges: { ...p.ammExchanges, ...liquidityExchanges },
-          blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
-        };
-      }
+  return { markets: filteredMarkets, ammExchanges: exchanges, blocknumber: newBlocknumber };
+};
 
-      // only update open markets after initial load
-      const ids = Object.keys(marketInfos)
-        .filter((id) => marketInfos[id]?.hasWinner)
-        .map((id) => Number(marketInfos[id]?.turboId));
+const setIgnoreRemoveMarketList = async (
+  allMarkets: MarketInfos,
+  ignoreList: { [factory: string]: number[] },
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
+  // <Removal> resolved markets with no liquidity
+  const nonLiqResolvedMarkets = Object.values(allMarkets).filter((m) => !m.amm.hasLiquidity && m.hasWinner);
 
-      // hide mlb spread and over/under markets
-      const hiddenMarketsIds =
-        loadtype === MARKET_LOAD_TYPE.SPORT
-          ? []
-          : Object.keys(marketInfos)
-              .filter((id) => isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
-              .map((id) => Number(marketInfos[id]?.turboId));
-
-      // filter out dup eventIds
-      const existingEventIds = Object.keys(marketInfos)
-        .filter((id) => existingEvents.includes(marketInfos[id]?.eventId))
-        .map((id) => Number(marketInfos[id]?.turboId));
-
-      // If the target home spread is exactly zero then it will be set to 0.5, which is 5 in the contract.
-      const marketSpreadZeroIds = Object.keys(marketInfos)
-        .filter(
-          (id) =>
-            marketInfos[id].sportsMarketType === SPORTS_MARKET_TYPE.SPREAD &&
-            marketInfos[id].spreadLine === 0 &&
-            marketInfos[id].amm.hasLiquidity === false
-        )
-        .map((id) => Number(marketInfos[id]?.turboId));
-
-      addResolvedMarketToList(ignoreList, factoryAddress, [
-        ...ids,
-        ...hiddenMarketsIds,
-        ...existingEventIds,
-        ...marketSpreadZeroIds,
-      ]);
-
-      const filteredMarketIds = Object.keys(marketInfos).reduce(
-        (p, id) =>
-          marketSpreadZeroIds.includes(marketInfos[id]?.turboId) ||
-          existingEvents.includes(marketInfos[id]?.eventId) ||
-          (loadtype !== MARKET_LOAD_TYPE.SPORT &&
-            isIgnoredMarket(marketInfos[id]?.sportId, marketInfos[id]?.sportsMarketType))
-            ? p
-            : { ...p, [id]: marketInfos[id] },
-        {}
-      );
-
-      return {
-        markets: { ...p.markets, ...filteredMarketIds },
-        ammExchanges: { ...p.ammExchanges, ...exchanges },
-        blocknumber: blocknumber > p.blocknumber ? blocknumber : p.blocknumber,
-        ignoreList,
-      };
-    },
-    { markets, ammExchanges, blocknumber }
+  // <Removal> speard marketw with zero line
+  const zeroSpreadMarkets = Object.values(allMarkets).filter(
+    (m) => m?.sportsMarketType === SPORTS_MARKET_TYPE.SPREAD && m?.spreadLine === 0 && m.amm.hasLiquidity === false
   );
-  return marketInfos;
+
+  // <Removal> MLB spread and over/under
+  const ignoredSportsMarkets =
+    loadtype === MARKET_LOAD_TYPE.SPORT
+      ? []
+      : Object.values(allMarkets).filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType));
+
+  // <Removal> same eventIds, market with liquidity wins
+  const existingEvents = Object.values(allMarkets)
+    .filter((m) => m.amm.hasLiquidity && m.version === OLDEST_MARKET_FACTORY_VER)
+    .map((m) => m.eventId);
+  const dupEventMarkets = Object.values(allMarkets).filter(
+    (m) => existingEvents.includes(m.eventId) && m.version !== OLDEST_MARKET_FACTORY_VER
+  );
+
+  const ignoreRemovedMarkets = [
+    ...nonLiqResolvedMarkets,
+    ...zeroSpreadMarkets,
+    ...ignoredSportsMarkets,
+    ...dupEventMarkets,
+  ].reduce((p, m) => ({ ...p, [m.marketFactoryAddress]: [...(p[m.marketFactoryAddress] || []), m.turboId] }), {});
+
+  Object.keys(ignoreRemovedMarkets).forEach((factoryAddress) =>
+    addToIgnoreList(ignoreList, factoryAddress, ignoreRemovedMarkets[factoryAddress])
+  );
+
+  const filteredMarkets = Object.keys(allMarkets).reduce(
+    (p, id) =>
+      (ignoreRemovedMarkets[allMarkets[id].marketFactoryAddress] || []).includes(allMarkets[id].turboId)
+        ? p
+        : { ...p, [id]: allMarkets[id] },
+    {}
+  );
+  // <Ignore> resolved markets
+  Object.values(filteredMarkets)
+    .filter((m) => m.hasWinner)
+    .forEach((m) => addToIgnoreList(ignoreList, m.marketFactoryAddress, [m.turboId]));
+
+  const exchanges = Object.values(filteredMarkets).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
+  return { markets: filteredMarkets, ammExchanges: exchanges };
 };
 
 export const getFactoryMarketInfo = async (
@@ -1597,6 +1579,7 @@ const retrieveMarkets = async (
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
   const ammFactoryAddress = ammFactoryContract.address;
   const ammFactoryAbi = extractABI(ammFactoryContract);
+  const marketFactoryData = getMarketFactoryData(factoryAddress);
 
   const contractMarketsCall: ContractCallContext[] = indexes.reduce(
     (p, index) => [
@@ -1699,7 +1682,10 @@ const retrieveMarkets = async (
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketDetails = details[m.marketId];
-      marketInfos[m.marketId] = deriveMarketInfo(m, marketDetails, marketFactoryType);
+      marketInfos[m.marketId] = {
+        ...deriveMarketInfo(m, marketDetails, marketFactoryType),
+        version: marketFactoryData.version,
+      };
     });
   }
 
@@ -1719,6 +1705,150 @@ const retrieveMarkets = async (
   }
 
   return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
+};
+
+export const fillGraphMarketsData = async (
+  graphMarkets: { [type: string]: MarketInfos[] },
+  cashes: Cashes,
+  provider: Web3Provider,
+  account: string,
+  blocknumber: number,
+  ignoreList: { [factory: string]: number[] },
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
+  let marketInfos = {};
+  let exchanges = {};
+  let newBlocknumber = 0;
+  for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
+    const key = Object.keys(GRAPH_MARKETS)[i];
+    const gMarkets = graphMarkets[key];
+    if (gMarkets.length > 0) {
+      const { markets: filledMarkets, blocknumber } = await fillMarketsData(
+        gMarkets,
+        cashes,
+        provider,
+        account,
+        GRAPH_MARKETS[key],
+        blocknumber
+      );
+      marketInfos = { ...marketInfos, ...filledMarkets };
+      newBlocknumber = blocknumber;
+    }
+  }
+  if (Object.keys(ignoreList)?.length === 0) {
+    const { markets, ammExchanges } = await setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
+    marketInfos = markets;
+    exchanges = ammExchanges;
+  }
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
+};
+
+const fillMarketsData = async (
+  markets: MarketInfos[],
+  cashes: Cashes,
+  provider: Web3Provider,
+  account: string,
+  marketFactoryType: string,
+  blocknumber
+): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
+  if (!markets || markets?.length === 0) return { marketInfos: {}, exchanges: {}, blocknumber };
+  const POOLS = "pools";
+  const factoryAddress = Object.values(markets)[0].market.marketFactory;
+  const marketFactoryData = getMarketFactoryData(factoryAddress);
+  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
+  const marketFactoryAddress = marketFactoryContract.address;
+  const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
+  const ammFactoryAddress = ammFactoryContract.address;
+  const ammFactoryAbi = extractABI(ammFactoryContract);
+
+  const contractMarketsCall: ContractCallContext[] = markets
+    .map((m) => m.market.marketIndex)
+    .reduce(
+      (p, index) => [
+        ...p,
+        {
+          reference: `${ammFactoryAddress}-${index}-pools`,
+          contractAddress: ammFactoryAddress,
+          abi: ammFactoryAbi,
+          calls: [
+            {
+              reference: `${ammFactoryAddress}-${index}-pools`,
+              methodName: POOLS,
+              methodParameters: [marketFactoryAddress, index],
+              context: {
+                index,
+                marketFactoryAddress,
+              },
+            },
+          ],
+        },
+      ],
+      []
+    );
+
+  let exchanges = {};
+  const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
+    console.error(`fillMarketDatas`, e);
+    throw e;
+  });
+
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
+    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
+
+    if (method === POOLS) {
+      const id = data === NULL_ADDRESS ? null : data;
+      exchanges[marketId] = {
+        marketId,
+        id,
+        marketFactoryAddress,
+        turboId: context.index,
+        feeDecimal: "0",
+        feeRaw: "0",
+        feeInPercent: "0",
+        transactions: [], // to be filled in the future
+        trades: {}, // to be filled in the future
+        cash,
+        ammFactoryAddress,
+      };
+    }
+  }
+
+  let marketInfos = {};
+  if (markets.length > 0) {
+    markets.forEach((m) => {
+      const market = {
+        ...m,
+        ...decodeMarket(m, marketFactoryType),
+        marketFactoryAddress: m.market.marketFactory,
+        turboId: m.market.marketIndex,
+        version: marketFactoryData.version,
+      };
+      delete market.market;
+      marketInfos[m.marketId] = deriveMarketInfo(market, market, marketFactoryType);
+    });
+  }
+
+  const newBlocknumber = marketsResult.blocknumber;
+
+  if (Object.keys(exchanges).length > 0) {
+    exchanges = await retrieveExchangeInfos(
+      exchanges,
+      marketInfos,
+      marketFactoryAddress,
+      ammFactoryContract,
+      provider,
+      account,
+      factoryAddress,
+      marketFactoryType
+    );
+  }
+
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
@@ -1981,7 +2111,7 @@ const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: str
   return outcomePrices;
 };
 
-const decodeMarket = (marketData: any, marketFactoryType: string) => {
+export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
@@ -1995,7 +2125,6 @@ const decodeMarket = (marketData: any, marketFactoryType: string) => {
   return {
     endTimestamp: new BN(String(endTime)).toNumber(),
     creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
-    marketType: "Categorical", // categorical markets
     numTicks: NUM_TICKS_STANDARD,
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
     hasWinner,

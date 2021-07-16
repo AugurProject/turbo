@@ -224,7 +224,6 @@ const MarketView = ({ defaultMarket = null }) => {
           selectedOutcome={amm?.ammOutcomes[2]}
           showAllHighlighted
           setSelectedOutcome={() => null}
-          marketType={YES_NO}
           orderType={BUY}
           ammCash={amm?.cash}
           dontFilterInvalid

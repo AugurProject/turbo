@@ -10,6 +10,17 @@ export const GET_BLOCK = gql`
   }
 `;
 
+export const GET_LATEST_BLOCK = gql`
+  query blocksAround {
+    blocks(orderBy: timestamp, orderDirection: desc) {
+      id
+      number
+      timestamp
+      parentHash
+    }
+  }
+`;
+
 export const SEARCH_MARKETS = gql`
   query searchMarkets($query: String) {
     marketSearch(text: $query) {
@@ -18,149 +29,61 @@ export const SEARCH_MARKETS = gql`
   }
 `;
 
-// Get all markets except CATEGORICAL
-// https://thegraph.com/explorer/subgraph/augurproject/augur-turbo-kovan
-const AMM_enters = gql`
-  fragment AMM_enters on AMMExchange {
-    enters {
-      id
-      sender {
-        id
-      }
-      tx_hash
+export const GET_MARKETS = gql`
+  query {
+    teamSportsMarkets {
+      marketId: id
       timestamp
-      yesShares
-      noShares
-      price
-      cash
-    }
-  }
-`;
-
-const AMM_exits = gql`
-  fragment AMM_exits on AMMExchange {
-    exits {
-      id
-      sender {
+      endTime
+      winner
+      eventId
+      homeTeamId
+      awayTeamId
+      marketType
+      value0: overUnderTotal
+      estimatedStartTime
+      market: marketId {
         id
+        marketFactory
+        marketIndex
       }
-      tx_hash
-      price
+      shareTokens
+      creator
+    }
+    cryptoMarkets {
+      marketId: id
+      market: marketId {
+        id
+        marketFactory
+        marketIndex
+      }
       timestamp
-      yesShares
-      noShares
-      cash
+      endTime
+      winner
+      creationPrice
+      marketType
+      coinIndex
+      shareTokens
+      creator
     }
-  }
-`;
-
-const AMM_addLiquidity = gql`
-  fragment AMM_addLiquidity on AMMExchange {
-    addLiquidity {
-      id
-      sender {
+    mmaMarkets {
+      marketId: id
+      market: marketId {
         id
+        marketFactory
+        marketIndex
       }
-      tx_hash
       timestamp
-      yesShares
-      noShares
-      cash
-      cashValue
-      lpTokens
-      noShareCashValue
-      yesShareCashValue
-      netShares
-    }
-  }
-`;
-
-const AMM_removeLiquidity = gql`
-  fragment AMM_removeLiquidity on AMMExchange {
-    removeLiquidity {
-      id
-      sender {
-        id
-      }
-      tx_hash
-      timestamp
-      yesShares
-      noShares
-      cashValue
-      noShareCashValue
-      yesShareCashValue
-    }
-  }
-`;
-
-const AMM_common = gql`
-  fragment AMM_common on AMMExchange {
-    id
-    shareToken {
-      id
-      cash {
-        id
-      }
-    }
-    volumeYes
-    volumeNo
-    percentageYes
-    percentageNo
-    liquidity
-    liquidityYes
-    liquidityNo
-    liquidityInvalid
-    totalSupply
-    cashBalance
-  }
-`;
-
-export const CurrentMarket_fields = gql`
-  {
-    markets {
-      id
-      addLiquidity {
-        id
-        marketId {
-          id
-        }
-        sender {
-          id
-        }
-        transactionHash
-        timestamp
-        collateral
-        lpTokens
-        sharesReturned
-      }
-      removeLiquidity {
-        id
-        marketId {
-          id
-        }
-        sender {
-          id
-        }
-        transactionHash
-        timestamp
-        sharesReturned
-        outcomes {
-          id
-        }
-      }
-      trades {
-        id
-        marketId {
-          id
-        }
-        user
-        outcome
-        collateral
-        price
-        shares
-        timestamp
-        transactionHash
-      }
+      endTime
+      eventId
+      homeFighterName
+      awayFighterName
+      homeFighterId
+      awayFighterId
+      winner
+      shareTokens
+      creator
+      marketType
     }
   }
 `;
@@ -240,54 +163,6 @@ export const GET_TRANSACTIONS = gql`
       }
     }
   }
-`;
-
-const ParaShareToken_fields = gql`
-  fragment ParaShareToken_fields on ParaShareToken {
-    id
-    cash {
-      id
-      decimals
-      symbol
-    }
-  }
-`;
-
-const HistoricMarket_fields = gql`
-  fragment HistoricMarket_fields on Market {
-    id
-    description
-    endTimestamp
-    status
-    amms {
-      ...AMM_common
-      ...AMM_enters
-      ...AMM_exits
-      ...AMM_swaps
-    }
-  }
-  ${AMM_common}
-  ${AMM_enters}
-  ${AMM_exits}
-  ${AMM_addLiquidity}
-  ${AMM_removeLiquidity}
-`;
-
-export const GET_MARKETS = (block) => gql`
-  query getMarkets($marketType: MarketType = YES_NO) {
-    markets(where: { marketType: $marketType, description_not: null, fee_lte: 20000000000000000 }) {
-      ...CurrentMarket_fields
-    }
-    past: markets(block: { number: ${block}}, where: { marketType: $marketType, description_not: null }) {
-      ...HistoricMarket_fields
-    }
-    paraShareTokens {
-      ...ParaShareToken_fields
-    }
-  }
-  ${CurrentMarket_fields}
-  ${HistoricMarket_fields}
-  ${ParaShareToken_fields}
 `;
 
 export const ETH_PRICE = gql`
