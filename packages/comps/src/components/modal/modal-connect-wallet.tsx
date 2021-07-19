@@ -233,15 +233,26 @@ const ModalConnectWallet = ({
     setWalletList(getWalletButtons());
   }, [getWalletButtons]);
 
+  const disconnectWalletConenct = () => {
+    if ((connector as any)?.walletConnectProvider && error) {
+      (connector as any)?.walletConnectProvider?.disconnect();
+      logout();
+    }
+  }
+
   return (
     <section className={classNames(customClassForModal)}>
       <Header
-        closeModal={closeModal}
+        closeModal={() => {
+          disconnectWalletConenct();
+          closeModal();
+        }}
         title={
           walletView !== WALLET_VIEWS.ACCOUNT ? (
             <span
               className={Styles.HeaderLink}
               onClick={() => {
+                disconnectWalletConenct();
                 setPendingError(false);
                 setWalletView(WALLET_VIEWS.ACCOUNT);
               }}
