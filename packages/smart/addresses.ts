@@ -139,6 +139,6 @@ export const addresses: AddressMapping = {
         version: "v1.0.0-beta.7",
       },
     ],
-    info: { uploadBlockNumber: 15758544, graphName: "mumbai" },
+    info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
   },
 };
