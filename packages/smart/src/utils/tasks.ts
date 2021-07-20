@@ -30,14 +30,10 @@ export const bignumber: CLIArgumentType<ethers.BigNumber> = {
 export async function getERC20Name(contract: IERC20Full): Promise<string | null> {
   let name: string | null = null;
 
-  try {
-    name = await contract.name();
-  } catch (e) {}
+  name = await contract.name().catch((e) => null);
   if (name) return name;
 
-  try {
-    name = await contract.symbol();
-  } catch (e) {}
+  name = await contract.symbol().catch((e) => null);
 
   return name; // may be a string or null
 }
