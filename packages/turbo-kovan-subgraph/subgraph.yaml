@@ -163,7 +163,7 @@ dataSources:
       source:
         address: '0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD'
         abi: AmmFactory
-        startBlock: 15758544
+        startBlock: 14691785
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -191,7 +191,7 @@ dataSources:
       source:
         address: '0x4225c4fe9A02706C7beC927A3DB25f29E273b3d1'
         abi: AbstractMarketFactory
-        startBlock: 15758544
+        startBlock: 14691785
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -214,7 +214,7 @@ dataSources:
       source:
         address: '0x8860542771F787dD8B2c8f9134662751DE2F664f'
         abi: AmmFactory
-        startBlock: 15758544
+        startBlock: 13994149
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -242,7 +242,7 @@ dataSources:
       source:
         address: '0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF'
         abi: AbstractMarketFactory
-        startBlock: 15758544
+        startBlock: 13994149
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -288,7 +288,7 @@ dataSources:
       source:
         address: '0x4225c4fe9A02706C7beC927A3DB25f29E273b3d1'
         abi: SportsLinkMarketFactory
-        startBlock: 15758544
+        startBlock: 14691785
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
@@ -311,7 +311,7 @@ dataSources:
       source:
         address: '0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF'
         abi: SportsLinkMarketFactory
-        startBlock: 15758544
+        startBlock: 13994149
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
