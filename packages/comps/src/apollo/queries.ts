@@ -99,13 +99,9 @@ export const GET_TRANSACTIONS = gql`
         transactionHash
         outcomeId
         avgPrice
-        initCostUsd
-        initCostUsdBigInt
-        initCostUsdBigDecimal
-        shares
-        sharesBigDecimal
-        payout
-        payoutBigDecimal
+        initCostUsd: initCostUsdBigDecimal
+        shares: sharesBigDecimal
+        payout: payoutBigDecimal
         totalChangeUsd
         settlementFee
         market {
