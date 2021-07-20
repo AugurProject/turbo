@@ -14,6 +14,8 @@ export const GET_LATEST_BLOCK = gql`
   query blocksAround {
     blocks(orderBy: timestamp, orderDirection: desc) {
       id
+      number
+      timestamp
     }
   }
 `;
