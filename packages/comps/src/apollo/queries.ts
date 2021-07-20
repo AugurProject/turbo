@@ -16,7 +16,6 @@ export const GET_LATEST_BLOCK = gql`
       id
       number
       timestamp
-      parentHash
     }
   }
 `;
@@ -91,6 +90,24 @@ export const GET_MARKETS = gql`
 export const GET_TRANSACTIONS = gql`
   query getTransactions($account: String) {
     senders(where: { id: $account }) {
+      positionBalance(where: { open: false }) {
+        id
+        hasClaimed
+        positionFromAddLiquidity
+        positionFromRemoveLiquidity
+        timestamp
+        transactionHash
+        outcomeId
+        avgPrice
+        initCostUsd: initCostUsdBigDecimal
+        shares: sharesBigDecimal
+        payout: payoutBigDecimal
+        totalChangeUsd
+        settlementFee
+        market {
+          id
+        }
+      }
       claimedFees {
         id
         collateral
