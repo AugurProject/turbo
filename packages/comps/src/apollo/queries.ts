@@ -104,9 +104,7 @@ export const GET_TRANSACTIONS = gql`
         payout: payoutBigDecimal
         totalChangeUsd
         settlementFee
-        market {
-          id
-        }
+        marketId
       }
       claimedFees {
         id
