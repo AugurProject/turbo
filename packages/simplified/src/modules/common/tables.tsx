@@ -516,7 +516,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   } = useSimplifiedStore();
   const { account } = useUserStore();
   const { transactions } = useDataStore();
-  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
+  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange?.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
   const isfinal = isMarketFinal(market);
   return (
@@ -589,7 +589,7 @@ export const PositionsLiquidityViewSwitcher = ({
   const market = ammExchange?.market;
 
   const positions = marketShares
-    ? ((Object.values(marketShares) as unknown[]) as {
+    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
         ammExchange: AmmExchange;
         positions: PositionBalance[];
         claimableWinnings: Winnings;
