@@ -1,7 +1,6 @@
 version: "3.3"
 
 services:
-
   db:
     container_name: chainlink-db
     image: postgres
@@ -12,33 +11,33 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
   node:
     container_name: chainlink-node
     image: smartcontract/chainlink:0.10.9
-    command: local start -p /chainlink/.password -a /chainlink/.api
+    command: local n -p /chainlink/.password -a /chainlink/.api
     networks:
       - link
     ports:
       - "6688:6688"
     environment:
-      SESSION_TIMEOUT: 15h0m0s
       DEFAULT_HTTP_TIMEOUT: 1h
       ROOT: /chainlink
       LOG_LEVEL: debug
-      ETH_CHAIN_ID: 80001
-      MIN_OUTGOING_CONFIRMATIONS: 2
-      LINK_CONTRACT_ADDRESS: 0xa36085F69e2889c224210F603D836748e7dC0088
-      CHAINLINK_PORT: "6688"
+      CHAINLINK_TLS_PORT: 0
       SECURE_COOKIES: "false"
-      GAS_UPDATER_ENABLED: "true"
       ALLOW_ORIGINS: "*"
       DATABASE_URL: postgresql://postgres:password@db:5432/postgres?sslmode=disable
-      CLIENT_NODE_URL: "http://localhost:6688"
+      CLIENT_NODE_URL: "http://node:6688"
+      ADMIN_CREDENTIALS_FILE: /chainlink/.api
     env_file: chainlink-node.env
     volumes:
       - "./:/chainlink"
     restart: always
+    depends_on:
+      db:
+        condition: service_healthy
 
   augur-adapter:
     container_name: augur-adapter
