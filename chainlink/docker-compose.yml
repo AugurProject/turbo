@@ -1,6 +1,10 @@
 version: "3.3"
 
 services:
+  credentials-generator:
+    image: augurproject/chainlink-credential-generator:latest
+    volumes:
+      - chainlink:/chainlink
   db:
     container_name: chainlink-db
     image: postgres
@@ -33,11 +37,13 @@ services:
       ADMIN_CREDENTIALS_FILE: /chainlink/.api
     env_file: chainlink-node.env
     volumes:
-      - "./:/chainlink"
+      - chainlink:/chainlink
     restart: always
     depends_on:
       db:
         condition: service_healthy
+      credentials-generator:
+        condition: service_completed_successfully
 
   augur-adapter:
     container_name: augur-adapter
@@ -57,6 +63,9 @@ services:
         package: "@chainlink/augur-adapter"
       labels:
         com.chainlinklabs.external-adapter-type: composites      
-    
+
+volumes:
+  chainlink:
+
 networks:
   link:
