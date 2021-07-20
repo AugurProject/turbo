@@ -11,6 +11,7 @@ import {
   Components,
   getCategoryIconLabel,
 } from "@augurproject/comps";
+import { TopBanner } from '../common/top-banner';
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
@@ -250,6 +251,7 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
+        {!isLogged && <TopBanner />}
         <ul>
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />

@@ -37,6 +37,7 @@ export const MOCK_PROMPT_SIGNATURE = ({ name = "404 NAME NOT FOUND", action = "t
   windowRef.confirm(`Mock Sign a transaction ${action} ${name}?`);
 
 export const Betslip = () => {
+  const { isLogged } = useAppStatusStore();
   const {
     sidebarType,
     actions: { setSidebar },
@@ -79,7 +80,7 @@ export const Betslip = () => {
       })}
     >
       <div ref={betslipRef}>
-        <SecondaryThemeButton
+      {isLogged && <SecondaryThemeButton
           text={`Betslip (${counts[0]})`}
           icon={SimpleChevron}
           small
@@ -87,7 +88,7 @@ export const Betslip = () => {
             handleToggle(BETSLIP);
             setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
           }}
-        />
+        />}
         {counts[0] > 0 && (
           <div className={Styles.MobileBetslipButtonContainer}>
             <PrimaryThemeButton
