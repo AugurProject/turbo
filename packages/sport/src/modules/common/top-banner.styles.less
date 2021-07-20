@@ -1,0 +1,49 @@
+@import (reference) '~assets/styles/shared';
+
+.TopBanner {
+  .SecondaryBorderRadius;
+
+  min-height: @size-148;
+  height: @size-148;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: @size-24;
+  background-position-y: center;
+  background-position-x: 60%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url("../../assets/images/top-banner-mobile.png"); 
+
+  > h1 {
+    .text-36-semi-bold;
+
+    margin: 0;
+    color: var(--inverted-primary-text);
+  }
+
+  @media @breakpoint-mobile-tablet {
+    min-height: @size-85;
+    border-radius: @size-6;
+    height: @size-85;
+    background-repeat-x: repeat;
+    background-size: contain;
+    background-position-x: left;
+    background-color: var(--inverted-primary-bg);
+
+    > h1 {
+      .text-24-semi-bold;
+    }
+  }
+
+  @media @breakpoint-mobile {
+    background-position-x: 60%;
+    background-size: cover;
+
+    > h1 {
+      .text-16-semi-bold;
+    }
+  }
+}
