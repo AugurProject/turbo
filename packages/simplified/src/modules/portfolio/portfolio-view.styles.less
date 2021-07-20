@@ -79,10 +79,11 @@
 }
 
 .RewardsSection {
+  .PrimaryBorderRadius;
+
   padding: @size-15 @size-24;
   background-color: var(--color-brand-secondary);
-  border: @size-1 solid var(--simple-border);
-  border-radius: var(--theme-primary-radius);
+  border: @size-1 solid var(--theme-border);
   display: grid;
   grid-template-columns: 1fr auto;
   grid-gap: @size-16;
@@ -101,7 +102,7 @@
     > span:nth-of-type(2) {
       .text-10-semi-bold;
 
-      color: var(--color-secondary-text);
+      color: var(--secondary-text);
     }
   }
 

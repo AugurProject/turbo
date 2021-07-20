@@ -15,28 +15,37 @@ import {
   PARA_CONFIG,
   Constants,
   LinkLogo,
+  Toasts,
   Formatter,
+  LabelComps,
   Links,
 } from "@augurproject/comps";
 import { useBetslipStore } from "../stores/betslip";
-import { ACTIVE_BETS } from "../constants";
+import { ACTIVE_BETS, THEME_OPTIONS } from "../constants";
 import { CategoriesArea } from "../categories/categories";
 const { MarketsLink } = Links;
 const { GearIcon, ThreeLinesIcon, SimpleCheck, XIcon } = Icons;
 const { TinyThemeButton } = ButtonComps;
+const { generateTooltip } = LabelComps;
 const { ConnectAccount } = CompsConnectAccount;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC } = Constants;
+const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC, TIME_TYPE, ODDS_TYPE } = Constants;
+
+const BETSIZE_ODDS_TO_DISPLAY_TIP = `The dollar amount shown under each odd represents the amount that can be taken at the odds shown. You can take greater than this amount, but it will impact the odds. To increase the amount, change the percentage. For example: 10% is displaying the odds you would receive if wanting to buy up to 10% of the available liquidity.`;
 
 export const SettingsButton = () => {
   const {
-    settings: { oddsFormat, timeFormat, betSizeToOdds },
+    settings: { oddsFormat, timeFormat, betSizeToOdds, theme },
     actions: { updateSettings },
   } = useSportsStore();
   const { account } = useUserStore();
+  const isPresetBetSizeOdds = [0.05, 0.1].includes(Number(betSizeToOdds));
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
+  const customBetSizeInputRef = useRef(null);
+  const [custom, setCustom] = useState(isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100));
+  const [customError, setCustomError] = useState(false);
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
@@ -52,6 +61,14 @@ export const SettingsButton = () => {
     };
   });
 
+  useEffect(() => {
+    const viewVersion = isPresetBetSizeOdds ? "" : String(Number(betSizeToOdds) * 100);
+    const customTrimmed = custom.replace("%", "");
+    if (customTrimmed !== viewVersion && account && customTrimmed === "") {
+      setCustom(`${viewVersion}%`);
+    }
+  }, [account, betSizeToOdds]);
+
   return (
     <div className={classNames(Styles.SettingsMenuWrapper, { [Styles.Open]: open })}>
       <button onClick={() => setOpened(!open)}>{GearIcon}</button>
@@ -61,7 +78,7 @@ export const SettingsButton = () => {
             <label htmlFor="timeFormat">Time Format</label>
             <ul id="timeFormat">
               <>
-                {Object.entries(Constants.TIME_TYPE).map(([timeName, timeType]) => (
+                {Object.entries(TIME_TYPE).map(([timeName, timeType]) => (
                   <li key={timeName}>
                     <button
                       className={classNames({ [Styles.Active]: timeType === timeFormat })}
@@ -79,7 +96,7 @@ export const SettingsButton = () => {
             <label htmlFor="oddsFormat">Odds Format</label>
             <ul id="oddsFormat">
               <>
-                {Object.keys(Constants.ODDS_TYPE).map((oddType) => (
+                {Object.keys(ODDS_TYPE).map((oddType) => (
                   <li key={oddType}>
                     <button
                       className={classNames({ [Styles.Active]: oddType === oddsFormat })}
@@ -94,22 +111,96 @@ export const SettingsButton = () => {
             </ul>
           </li>
           <li>
-            <label htmlFor="betSize">Bet Size to odds display</label>
-            <div>
+            <label htmlFor="betSize">
+              Bet Size to odds display
+              {generateTooltip(BETSIZE_ODDS_TO_DISPLAY_TIP, "betsize-odds-tooltip")}
+            </label>
+            <div id="betSize">
               <TinyThemeButton
-                customClass={{ [Styles.Active]: ".05" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".05" && updateSettings({ betSizeToOdds: ".05" }, account)}
+                customClass={{ [Styles.Active]: 0.05 === Number(betSizeToOdds) }}
+                action={() => {
+                  if (betSizeToOdds !== ".05") {
+                    updateSettings({ betSizeToOdds: ".05" }, account);
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
                 text="5%"
               />
               <TinyThemeButton
-                customClass={{ [Styles.Active]: ".10" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".10" && updateSettings({ betSizeToOdds: ".10" }, account)}
+                customClass={{ [Styles.Active]: 0.1 === Number(betSizeToOdds) }}
+                action={() => {
+                  if (betSizeToOdds !== ".10") {
+                    updateSettings({ betSizeToOdds: ".10" }, account);
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
                 text="10%"
               />
+              <input
+                ref={customBetSizeInputRef}
+                type="text"
+                className={classNames(Styles.CustomBetSizeInput, {
+                  [Styles.Active]: !isPresetBetSizeOdds && !customError,
+                  [Styles.Error]: customError,
+                })}
+                value={custom}
+                min={1}
+                step={1}
+                max={99}
+                maxLength="2"
+                inputMode="numeric"
+                placeholder="Custom %"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    customBetSizeInputRef?.current?.blur();
+                  }
+                }}
+                onChange={(e) => {
+                  const cleanNumber = Number(/^[0-9]*$/.exec(e.target.value.replace("%", ""))?.[0]);
+                  if (cleanNumber < 100 && cleanNumber >= 1) {
+                    updateSettings({ betSizeToOdds: String(cleanNumber / 100) }, account);
+                    customError && setCustomError(false);
+                  } else {
+                    setCustomError(true);
+                  }
+                  setCustom(!isNaN(cleanNumber) ? `${String(cleanNumber)}` : custom);
+                }}
+                onBlur={(e) => {
+                  if (!isPresetBetSizeOdds) {
+                    if (customError) {
+                      const oddsScaled = Number(betSizeToOdds) * 100;
+                      setCustom(`${String(oddsScaled)}%`);
+                      setCustomError(false);
+                    } else {
+                      setCustom(`${custom.replace("%", "")}%`);
+                    }
+                  } else if (isPresetBetSizeOdds) {
+                    setCustom("");
+                    setCustomError(false);
+                  }
+                }}
+              />
+            </div>
+          </li>
+          <li>
+            <label htmlFor="Theme">Theme</label>
+            <div className={Styles.ThemeSelection} id="Theme">
               <TinyThemeButton
-                customClass={{ [Styles.Active]: ".15" === betSizeToOdds }}
-                action={() => betSizeToOdds !== ".15" && updateSettings({ betSizeToOdds: ".15" }, account)}
-                text="15%"
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.LIGHT }}
+                text={THEME_OPTIONS.LIGHT}
+                action={() => updateSettings({ theme: THEME_OPTIONS.LIGHT }, account)}
+              />
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
+                text={THEME_OPTIONS.DARK}
+                action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
+              />
+              <TinyThemeButton
+                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
+                text={THEME_OPTIONS.AUTO}
+                action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
               />
             </div>
           </li>
@@ -129,6 +220,7 @@ export const TopNav = () => {
   } = useAppStatusStore();
   const {
     sidebarType,
+    settings: { theme },
     actions: { setSidebar },
   } = useSportsStore();
   const {
@@ -181,7 +273,6 @@ export const TopNav = () => {
     const amount = Object.keys(active).length;
     return amount > 1 ? (amount > 99 ? "99+" : amount) : null;
   }, [Object.keys(active).length]);
-
   return (
     <section
       className={classNames(Styles.TopNav, {
@@ -219,9 +310,12 @@ export const TopNav = () => {
               autoLogin,
               transactions,
               setModal,
+              customClassForModal: {
+                [Styles.SportsAccountDetails]: true,
+              },
               isMobile: false,
               buttonOptions: {
-                invert: true,
+                invert: theme !== THEME_OPTIONS.DARK,
               },
             }}
           />
@@ -271,8 +365,11 @@ export const TopNav = () => {
             transactions,
             setModal,
             isMobile: true,
+            customClassForModal: {
+              [Styles.SportsAccountDetails]: true,
+            },
             buttonOptions: {
-              invert: true,
+              invert: theme !== THEME_OPTIONS.DARK,
               small: true,
             },
           }}
@@ -289,6 +386,7 @@ export const TopNav = () => {
         </button>
         <MobileMenu />
       </article>
+      <Toasts />
     </section>
   );
 };

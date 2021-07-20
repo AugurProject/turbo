@@ -1,7 +1,7 @@
 import { useReducer } from "react";
 import { BETSLIP_ACTIONS, DEFAULT_BETSLIP_STATE, BETSLIP_STATE_KEYS, DEFAULT_BET } from "./constants";
 import { BETSLIP, ACTIVE_BETS } from "../constants";
-import { windowRef, Stores } from "@augurproject/comps";
+import { windowRef, Stores, UserStore } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware },
 } = Stores;
@@ -34,19 +34,21 @@ export function BetslipReducer(state, action) {
       break;
     }
     case ADD_BET: {
-      const { bet } = action;
-      const betId = `${bet.marketId}-${bet.id}`;
-      updatedState[BETS] = {
-        ...updatedState[BETS],
-        [betId]: {
-          ...DEFAULT_BET,
-          ...bet,
-          betId,
-          timestamp,
-        },
-      };
-      // always make sure to switch to betslip when adding bets.
-      updatedState[SELECTED_VIEW] = BETSLIP;
+      if (UserStore.get().account) {
+        const { bet } = action;
+        const betId = `${bet.marketId}-${bet.id}`;
+        updatedState[BETS] = {
+          ...updatedState[BETS],
+          [betId]: {
+            ...DEFAULT_BET,
+            ...bet,
+            betId,
+            timestamp,
+          },
+        };
+        // always make sure to switch to betslip when adding bets.
+        updatedState[SELECTED_VIEW] = BETSLIP;
+      }
       break;
     }
     case REMOVE_BET: {

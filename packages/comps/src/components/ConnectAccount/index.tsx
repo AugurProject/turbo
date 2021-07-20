@@ -11,6 +11,7 @@ import { MATIC_MUMBAI, tryAutoLogin } from "./utils";
 import { Spinner } from "../common/spinner";
 import { MATIC_RPC_DATA, MATIC_MUMBAI_RPC_DATA } from "../ConnectAccount/constants/index";
 import { PARA_CONFIG } from "../../stores/constants";
+import { useUserStore } from "../../stores/user";
 
 // @ts-ignore
 const ethereum = window.ethereum;
@@ -30,7 +31,7 @@ const LoginButton = ({ action, text, icon, darkMode, className, buttonOptions }:
     icon={icon}
     ariaLabel={`account info button, account: ${text}`}
     customClass={className}
-    {...{...buttonOptions}}
+    {...{ ...buttonOptions }}
   />
 );
 
@@ -57,6 +58,7 @@ const ConnectAccountButton = ({
   isMobile,
   setModal,
   buttonOptions = null,
+  customClassForModal = null,
 }) => {
   const networkId = PARA_CONFIG.networkId;
   const RPC_DATA = Number(networkId) === MATIC_MUMBAI ? MATIC_MUMBAI_RPC_DATA : MATIC_RPC_DATA;
@@ -66,13 +68,15 @@ const ConnectAccountButton = ({
   const [isOnMatic, setIsOnMatic] = useState(true);
   const pendingTransaction = transactions.filter((tx) => tx.status === TX_STATUS.PENDING);
   const hasPendingTransaction = pendingTransaction.length > 0 || false;
+  const { loginAccount } = useUserStore();
+  const [isWalletConnect, setIsWalletConnect] = useState(false);
 
   const maticCheck = () => {
     if (!ethereum || !ethereum.chainId) {
       return; // No injected MM to check
     }
 
-    if (ethereum && ethereum?.chainId === RPC_DATA?.chainId) {
+    if ((ethereum && ethereum?.chainId === RPC_DATA?.chainId)) {
       setIsOnMatic(true);
     } else {
       setIsOnMatic(false);
@@ -87,6 +91,7 @@ const ConnectAccountButton = ({
       } catch (error) {
         setModal({
           type: MODAL_CONNECT_TO_POLYGON,
+          customClassForModal,
         });
       }
     }
@@ -107,8 +112,9 @@ const ConnectAccountButton = ({
   useEffect(() => {
     if (account) {
       updateLoginAccount(activeWeb3);
+      setIsWalletConnect(!!loginAccount?.connector?.walletConnectProvider);
     }
-  }, [account, activeWeb3.library, activeWeb3.connector, activeWeb3.chainId, activeWeb3.error, activeWeb3.active]);
+  }, [loginAccount?.connector?.walletConnectProvider, account, activeWeb3.library, activeWeb3.connector, activeWeb3.chainId, activeWeb3.error, activeWeb3.active]);
 
   let buttonProps = {
     action: () =>
@@ -117,6 +123,7 @@ const ConnectAccountButton = ({
         darkMode,
         autoLogin,
         transactions,
+        customClassForModal,
       }),
     className: null,
     darkMode,
@@ -125,7 +132,9 @@ const ConnectAccountButton = ({
     buttonOptions,
   };
 
-  if (!isOnMatic) {
+  if (!account) {
+    return <LoginButton {...buttonProps} />;
+  } else if (!isOnMatic && !isWalletConnect) {
     buttonProps = {
       ...buttonProps,
       action: () => {
@@ -165,6 +174,7 @@ const ConnectAccountButton = ({
 };
 
 export const ConnectAccount = ({
+  customClassForModal = null,
   autoLogin,
   updateLoginAccount,
   darkMode = false,
@@ -181,5 +191,6 @@ export const ConnectAccount = ({
     isMobile={isMobile}
     setModal={setModal}
     buttonOptions={buttonOptions}
+    customClassForModal={customClassForModal}
   />
 );

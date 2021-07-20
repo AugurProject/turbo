@@ -332,6 +332,12 @@ export const MARKET_FACTORY_TYPES = {
   MMALINK: "MMALink",
 };
 
+export const GRAPH_MARKETS = {
+  cryptoMarkets: MARKET_FACTORY_TYPES.CRYPTO,
+  mmaMarkets: MARKET_FACTORY_TYPES.MMALINK,
+  teamSportsMarkets: MARKET_FACTORY_TYPES.SPORTSLINK,
+};
+
 export const SPORTS_MARKET_TYPE_LABELS = {
   [SPORTS_MARKET_TYPE.SPREAD]: "Spread",
   [SPORTS_MARKET_TYPE.MONEY_LINE]: "Money Line",
@@ -347,4 +353,15 @@ export const MMA_MARKET_TYPE = {
 export const MARKET_LOAD_TYPE = {
   SIMPLIFIED: "SIMPLIFIED",
   SPORT: "SPORT",
+};
+
+export const SPORTS_THEME_TYPES = {
+  SPORT_LIGHT: "SPORTS",
+  SPORT_DARK: "SPORTS_DARK",
+};
+
+// TURBO uses :root styles, so THEME = null
+export const TURBO_THEME_TYPES = {
+  TURBO_LIGHT: null,
+  TURBO_DARK: "TUBRO_DARK",
 };

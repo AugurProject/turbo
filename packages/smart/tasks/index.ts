@@ -15,3 +15,6 @@ export * from "./setSportsLinkNode";
 export * from "./createSportsLinkMarket";
 export * from "./whoami";
 export * from "./createCryptoMarkets";
+export * from "./getOwner";
+export * from "./setOwner";
+export * from "./getMarket";

@@ -6,13 +6,11 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
 import classNames from "classnames";
-import { NETWORK_NAMES } from "../../stores/constants";
-import { SecondaryButton, TextButton, WalletButton } from "../common/buttons";
+import { SecondaryThemeButton, TextButton, WalletButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
-// import { NETWORK_CHAIN_ID, portis, injected } from "../ConnectAccount/connectors";
-import { NETWORK_CHAIN_ID, injected } from "../ConnectAccount/connectors";
+import { injected } from "../ConnectAccount/connectors";
 import { Loader } from "../ConnectAccount/components/Loader";
 import { AccountDetails } from "../ConnectAccount/components/AccountDetails";
 import { useActiveWeb3React } from "../ConnectAccount/hooks";
@@ -70,7 +68,7 @@ const PendingWalletView = ({
       {error ? (
         <div>
           <span>Error connecting.</span>
-          <SecondaryButton
+          <SecondaryThemeButton
             action={() => {
               setPendingError(false);
               connector && tryActivation(connector);
@@ -115,7 +113,7 @@ export interface ModalConnectWalletProps {
   autoLogin: boolean;
   transactions: any;
   isLogged: boolean;
-  isMobile: boolean;
+  customClassForModal: object | null;
   closeModal: Function;
   removeTransaction: Function;
   logout: Function;
@@ -128,12 +126,12 @@ const ModalConnectWallet = ({
   autoLogin,
   transactions,
   isLogged,
-  isMobile,
   closeModal,
   removeTransaction,
   logout,
   updateTxFailed,
   updateMigrated,
+  customClassForModal,
 }: ModalConnectWalletProps) => {
   const { active, account, connector, activate, error } = useWeb3React();
   const { deactivate } = useActiveWeb3React();
@@ -208,13 +206,18 @@ const ModalConnectWallet = ({
           text: wallet.name,
         };
 
-        if (isWeb3) {
+        if (key === 'WALLET_CONNECT') {
+          return {
+            ...commonWalletButtonProps,
+            text: 'WalletConnect'
+          };
+        }
+        else if (isWeb3) {
           return {
             ...commonWalletButtonProps,
             text: isMetamask ? commonWalletButtonProps.text : 'Injected Web3 provider'
           };
         }
-
         return {
           ...commonWalletButtonProps,
           text: "Install Metamask",
@@ -230,15 +233,26 @@ const ModalConnectWallet = ({
     setWalletList(getWalletButtons());
   }, [getWalletButtons]);
 
+  const disconnectWalletConenct = () => {
+    if ((connector as any)?.walletConnectProvider && error) {
+      (connector as any)?.walletConnectProvider?.disconnect();
+      logout();
+    }
+  }
+
   return (
-    <section>
+    <section className={classNames(customClassForModal)}>
       <Header
-        closeModal={closeModal}
+        closeModal={() => {
+          disconnectWalletConenct();
+          closeModal();
+        }}
         title={
           walletView !== WALLET_VIEWS.ACCOUNT ? (
             <span
               className={Styles.HeaderLink}
               onClick={() => {
+                disconnectWalletConenct();
                 setPendingError(false);
                 setWalletView(WALLET_VIEWS.ACCOUNT);
               }}
@@ -262,7 +276,7 @@ const ModalConnectWallet = ({
             <ErrorBlock
               text={
                 error instanceof UnsupportedChainIdError
-                  ? `Please connect your wallet to the ${NETWORK_NAMES[NETWORK_CHAIN_ID]} Ethereum network and refresh the page.`
+                  ? `You're connected to an unsupported network.`
                   : "Error connecting. Try refreshing the page."
               }
             />

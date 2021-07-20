@@ -3,15 +3,39 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
+  AbstractMarketFactory,
+  AMMFactory,
+  AMMFactory__factory,
+  BFactory__factory,
   Cash,
   Cash__factory,
+  FeePot,
   FeePot__factory,
+  MMAFetcher,
+  MMAFetcher__factory,
+  MMALinkMarketFactory,
+  MMALinkMarketFactory__factory,
+  NBAFetcher,
+  NBAFetcher__factory,
+  OwnedERC20__factory,
   SportsLinkMarketFactory,
   SportsLinkMarketFactory__factory,
-  OwnedERC20__factory,
 } from "../typechain";
-import { BigNumber } from "ethers";
-import { calcShareFactor, SportsLinkEventStatus } from "../src";
+import { BigNumber, BigNumberish } from "ethers";
+import {
+  createNBADynamicMarketBundle,
+  createNBAMarketFactoryBundle,
+  createNBAStaticMarketBundle,
+  calcShareFactor,
+  NULL_ADDRESS,
+  SportsLinkEventStatus,
+  createMMAMarketFactoryBundle,
+  createMMAStaticMarketBundle,
+  createMMADynamicMarketBundle,
+} from "../src";
+
+const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
+const ZERO = BigNumber.from(0);
 
 describe("LinkFactory", () => {
   let signer: SignerWithAddress;
@@ -26,22 +50,25 @@ describe("LinkFactory", () => {
   const homeSpread = 40;
   const overUnderTotal = 60;
   const sportId = 4;
+  const smallFee = BigNumber.from(10).pow(16);
 
   const now = BigNumber.from(Date.now()).div(1000);
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
   let collateral: Cash;
+  let feePot: FeePot;
   let marketFactory: SportsLinkMarketFactory;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
 
+  let shareFactor: BigNumber;
+
   it("is deployable", async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    const smallFee = BigNumber.from(10).pow(16);
-    const shareFactor = calcShareFactor(await collateral.decimals());
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
@@ -222,3 +249,551 @@ describe("LinkFactory NoContest", () => {
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[0]); // No Contest
   });
 });
+
+describe("NBA fetcher", () => {
+  let signer: SignerWithAddress;
+
+  before(async () => {
+    [signer] = await ethers.getSigners();
+  });
+
+  let fetcher: NBAFetcher;
+  let ammFactory: AMMFactory;
+  let collateral: Cash;
+  let feePot: FeePot;
+
+  const eventId = 9001;
+  const smallFee = BigNumber.from(10).pow(16);
+
+  let marketFactory: SportsLinkMarketFactory;
+
+  let h2hMarketId: BigNumberish;
+  let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
+  let h2hMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
+  let spMarketId: BigNumberish;
+  let spMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
+  let spMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
+
+  before(async () => {
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+
+    const now = BigNumber.from(Date.now()).div(1000);
+    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      calcShareFactor(await collateral.decimals()),
+      feePot.address,
+      smallFee,
+      smallFee,
+      signer.address,
+      smallFee,
+      signer.address, // pretending the deployer is a link node for testing purposes
+      4
+    );
+
+    const bFactory = await new BFactory__factory(signer).deploy();
+    const swapFee = smallFee;
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+
+    await marketFactory.createMarket(
+      eventId,
+      42,
+      1881,
+      now.add(60 * 60 * 24), // one day
+      40,
+      60,
+      true,
+      false
+    );
+    h2hMarketId = BigNumber.from(1);
+    h2hMarket = await marketFactory.getMarket(h2hMarketId);
+    h2hMarketDetails = await marketFactory.getMarketDetails(h2hMarketId);
+
+    spMarketId = BigNumber.from(2);
+    spMarket = await marketFactory.getMarket(spMarketId);
+    spMarketDetails = await marketFactory.getMarketDetails(spMarketId);
+
+    const initialLiquidity = dollars(10000);
+    await collateral.approve(ammFactory.address, initialLiquidity);
+    await collateral.faucet(initialLiquidity);
+    const weights = calcWeights([2, 49, 49]);
+    await ammFactory.createPool(marketFactory.address, h2hMarketId, initialLiquidity, weights, signer.address);
+  });
+
+  it("is deployable", async () => {
+    fetcher = await new NBAFetcher__factory(signer).deploy();
+    expect(await fetcher.marketType()).to.equal("NBA");
+    expect(await fetcher.version()).to.be.a("string");
+  });
+
+  it("fetchInitial [0,50]", async () => {
+    const offset = 0;
+    const total = 50;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
+    expect(marketBundles[1], "market bundle @ index 1").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: h2hMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+      shareTokens: h2hMarket.shareTokens,
+      creationTimestamp: h2hMarket.creationTimestamp,
+      endTime: h2hMarket.endTime,
+      winner: h2hMarket.winner,
+      // NBA-specific
+      eventId: h2hMarketDetails.eventId,
+      homeTeamId: h2hMarketDetails.homeTeamId,
+      awayTeamId: h2hMarketDetails.awayTeamId,
+      estimatedStartTime: h2hMarketDetails.estimatedStartTime,
+      marketType: h2hMarketDetails.marketType,
+      value0: h2hMarketDetails.value0,
+      // NBA-specific, also dynamic
+      eventStatus: h2hMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchInitial [0,1]", async () => {
+    const offset = 0;
+    const total = 1;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: spMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+      shareTokens: spMarket.shareTokens,
+      creationTimestamp: spMarket.creationTimestamp,
+      endTime: spMarket.endTime,
+      winner: spMarket.winner,
+      // NBA-specific
+      eventId: spMarketDetails.eventId,
+      homeTeamId: spMarketDetails.homeTeamId,
+      awayTeamId: spMarketDetails.awayTeamId,
+      estimatedStartTime: spMarketDetails.estimatedStartTime,
+      marketType: spMarketDetails.marketType,
+      value0: spMarketDetails.value0,
+      // NBA-specific, also dynamic
+      eventStatus: spMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchInitial [1,1]", async () => {
+    const offset = 1;
+    const total = 1;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: h2hMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+      shareTokens: h2hMarket.shareTokens,
+      creationTimestamp: h2hMarket.creationTimestamp,
+      endTime: h2hMarket.endTime,
+      winner: h2hMarket.winner,
+      // NBA-h2hecific
+      eventId: h2hMarketDetails.eventId,
+      homeTeamId: h2hMarketDetails.homeTeamId,
+      awayTeamId: h2hMarketDetails.awayTeamId,
+      estimatedStartTime: h2hMarketDetails.estimatedStartTime,
+      marketType: h2hMarketDetails.marketType,
+      value0: h2hMarketDetails.value0,
+      // NBA-h2hecific, also dynamic
+      eventStatus: h2hMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [0,50]", async () => {
+    const offset = 0;
+    const total = 50;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
+    expect(marketBundles[1], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: h2hMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+      winner: h2hMarket.winner,
+      eventStatus: h2hMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [0,1]", async () => {
+    const offset = 0;
+    const total = 1;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: spMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+      winner: spMarket.winner,
+      eventStatus: spMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [1,1]", async () => {
+    const offset = 1;
+    const total = 1;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: h2hMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+      winner: h2hMarket.winner,
+      eventStatus: h2hMarketDetails.eventStatus,
+    });
+  });
+});
+
+describe("MMA fetcher", () => {
+  let signer: SignerWithAddress;
+
+  before(async () => {
+    [signer] = await ethers.getSigners();
+  });
+
+  let fetcher: MMAFetcher;
+  let ammFactory: AMMFactory;
+  let collateral: Cash;
+  let feePot: FeePot;
+
+  const smallFee = BigNumber.from(10).pow(16);
+
+  let marketFactory: MMALinkMarketFactory;
+
+  let firstMarketId: BigNumberish;
+  let firstMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
+  let firstMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
+  let secondMarketId: BigNumberish;
+  let secondMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
+  let secondMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
+
+  before(async () => {
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+
+    const now = BigNumber.from(Date.now()).div(1000);
+    marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      calcShareFactor(await collateral.decimals()),
+      feePot.address,
+      smallFee,
+      smallFee,
+      signer.address,
+      smallFee,
+      signer.address, // pretending the deployer is a link node for testing purposes
+      7
+    );
+
+    const bFactory = await new BFactory__factory(signer).deploy();
+    const swapFee = smallFee;
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+
+    await marketFactory.createMarket(
+      1880,
+      "Troy",
+      19,
+      "Abed",
+      1402,
+      now.add(60 * 60 * 24), // one day
+      [-10, +400]
+    );
+    await marketFactory.createMarket(
+      7155,
+      "Annie",
+      19,
+      "Britta",
+      1402,
+      now.add(60 * 60 * 24), // one day
+      [+30, -20]
+    );
+
+    firstMarketId = BigNumber.from(1);
+    firstMarket = await marketFactory.getMarket(firstMarketId);
+    firstMarketDetails = await marketFactory.getMarketDetails(firstMarketId);
+
+    secondMarketId = BigNumber.from(2);
+    secondMarket = await marketFactory.getMarket(secondMarketId);
+    secondMarketDetails = await marketFactory.getMarketDetails(secondMarketId);
+
+    const initialLiquidity = dollars(10000);
+    await collateral.approve(ammFactory.address, initialLiquidity);
+    await collateral.faucet(initialLiquidity);
+    const weights = calcWeights([2, 49, 49]);
+    await ammFactory.createPool(marketFactory.address, firstMarketId, initialLiquidity, weights, signer.address);
+  });
+
+  it("is deployable", async () => {
+    fetcher = await new MMAFetcher__factory(signer).deploy();
+    expect(await fetcher.marketType()).to.equal("MMA");
+    expect(await fetcher.version()).to.be.a("string");
+  });
+
+  it("fetchInitial [0,50]", async () => {
+    const offset = 0;
+    const total = 50;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
+    expect(marketBundles[1], "market bundle @ index 1").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: firstMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
+      shareTokens: firstMarket.shareTokens,
+      creationTimestamp: firstMarket.creationTimestamp,
+      endTime: firstMarket.endTime,
+      winner: firstMarket.winner,
+      // MMA-specific
+      eventId: firstMarketDetails.eventId,
+      homeFighterName: firstMarketDetails.homeFighterName,
+      homeFighterId: firstMarketDetails.homeFighterId,
+      awayFighterName: firstMarketDetails.awayFighterName,
+      awayFighterId: firstMarketDetails.awayFighterId,
+      estimatedStartTime: firstMarketDetails.estimatedStartTime,
+      marketType: firstMarketDetails.marketType,
+      headToHeadWeights: firstMarketDetails.headToHeadWeights,
+      // MMA-specific, also dynamic
+      eventStatus: firstMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchInitial [0,1]", async () => {
+    const offset = 0;
+    const total = 1;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: secondMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, secondMarketId),
+      shareTokens: secondMarket.shareTokens,
+      creationTimestamp: secondMarket.creationTimestamp,
+      endTime: secondMarket.endTime,
+      winner: secondMarket.winner,
+      // MMA-specific
+      eventId: secondMarketDetails.eventId,
+      homeFighterName: secondMarketDetails.homeFighterName,
+      homeFighterId: secondMarketDetails.homeFighterId,
+      awayFighterName: secondMarketDetails.awayFighterName,
+      awayFighterId: secondMarketDetails.awayFighterId,
+      estimatedStartTime: secondMarketDetails.estimatedStartTime,
+      marketType: secondMarketDetails.marketType,
+      headToHeadWeights: firstMarketDetails.headToHeadWeights,
+      // MMA-specific, also dynamic
+      eventStatus: secondMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchInitial [1,1]", async () => {
+    const offset = 1;
+    const total = 1;
+    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
+    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
+      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
+    );
+
+    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: firstMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
+      shareTokens: firstMarket.shareTokens,
+      creationTimestamp: firstMarket.creationTimestamp,
+      endTime: firstMarket.endTime,
+      winner: firstMarket.winner,
+      // MMA-h2hecific
+      eventId: firstMarketDetails.eventId,
+      homeFighterName: firstMarketDetails.homeFighterName,
+      homeFighterId: firstMarketDetails.homeFighterId,
+      awayFighterName: firstMarketDetails.awayFighterName,
+      awayFighterId: firstMarketDetails.awayFighterId,
+      estimatedStartTime: firstMarketDetails.estimatedStartTime,
+      marketType: firstMarketDetails.marketType,
+      headToHeadWeights: firstMarketDetails.headToHeadWeights,
+      // MMA-h2hecific, also dynamic
+      eventStatus: firstMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [0,50]", async () => {
+    const offset = 0;
+    const total = 50;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
+    expect(marketBundles[1], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: firstMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
+      winner: firstMarket.winner,
+      eventStatus: firstMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [0,1]", async () => {
+    const offset = 0;
+    const total = 1;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: secondMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, secondMarketId),
+      winner: secondMarket.winner,
+      eventStatus: secondMarketDetails.eventStatus,
+    });
+  });
+
+  it("fetchDynamic [1,1]", async () => {
+    const offset = 1;
+    const total = 1;
+    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+
+    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
+    expect(marketBundles.length, "market bundles length").to.equal(1);
+    expect(marketBundles[0], "market bundle").to.deep.equal({
+      factory: marketFactory.address,
+      marketId: firstMarketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
+      winner: firstMarket.winner,
+      eventStatus: firstMarketDetails.eventStatus,
+    });
+  });
+});
+
+function calcWeights(ratios: number[]): BigNumber[] {
+  const basis = BigNumber.from(10).pow(18);
+  const max = basis.mul(50);
+
+  const total = ratios.reduce((total, x) => total + x, 0);
+  const factor = max.div(total); // TODO this doesn't work if total is too large
+  return ratios.map((r) => factor.mul(r));
+}
+
+function dollars(howManyDollars: number): BigNumber {
+  const basis = BigNumber.from(10).pow(6);
+  return basis.mul(howManyDollars);
+}
+
+type UnPromisify<T> = T extends Promise<infer U> ? U : T;
+
+type CheckableMarketFactory = SportsLinkMarketFactory | MMALinkMarketFactory;
+
+async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
+  return {
+    sportId: await marketFactory.sportId(),
+    shareFactor: await marketFactory.shareFactor(),
+    feePot: feePot.address,
+    protocolFee: await marketFactory.protocolFee(),
+    settlementFee: await marketFactory.settlementFee(),
+    stakerFee: await marketFactory.stakerFee(),
+    collateral: {
+      addr: collateral.address,
+      symbol: await collateral.symbol(),
+      decimals: await collateral.decimals(),
+    },
+    marketCount: await marketFactory.marketCount(),
+  };
+}
+
+async function makePoolCheck(ammFactory: AMMFactory, marketFactory: CheckableMarketFactory, marketId: BigNumberish) {
+  const addr = await ammFactory.getPool(marketFactory.address, marketId);
+  if (addr === NULL_ADDRESS) {
+    return {
+      addr,
+      tokenRatios: [],
+      balances: [],
+      weights: [],
+      swapFee: ZERO,
+      totalSupply: ZERO,
+    };
+  } else {
+    return {
+      addr,
+      tokenRatios: await ammFactory.tokenRatios(marketFactory.address, marketId),
+      balances: await ammFactory.getPoolBalances(marketFactory.address, marketId),
+      weights: await ammFactory.getPoolWeights(marketFactory.address, marketId),
+      swapFee: await ammFactory.getSwapFee(marketFactory.address, marketId),
+      totalSupply: INITIAL_TOTAL_SUPPLY_OF_BPOOL,
+    };
+  }
+}

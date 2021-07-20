@@ -49,6 +49,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     args,
     log: true,
   });
+
+  await deployments.deploy("NBAFetcher", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 };
 
 func.tags = ["SportsLinkMarketFactory"];

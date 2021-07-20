@@ -5,12 +5,16 @@ import {
   PARA_CONFIG,
   NETWORK_BLOCK_REFRESH_TIME,
   MARKET_IGNORE_LIST,
+  MULTICALL_MARKET_IGNORE_LIST,
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos } from "../utils/contract-calls";
-import { getAllTransactions } from "../apollo/client";
+import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
+import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
+import { AppStatusStore } from "./app-status";
+import { MARKET_FACTORY_TYPES } from "../utils/constants";
+
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -22,7 +26,11 @@ export const DataStore = {
   get: () => ({ ...DEFAULT_DATA_STATE }),
   actions: STUBBED_DATA_ACTIONS,
 };
-
+const GRAPH_MARKETS = {
+  "cryptoMarkets": MARKET_FACTORY_TYPES.CRYPTO,
+  "mmaMarkets": MARKET_FACTORY_TYPES.MMALINK,
+  "teamSportsMarkets": MARKET_FACTORY_TYPES.SPORTSLINK,
+}
 export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
@@ -44,21 +52,48 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
     let isMounted = true;
     let intervalId = null;
     const getMarkets = async () => {
+      const { account: userAccount, loginAccount } = UserStore.get();
+      const { isRpcDown } = AppStatusStore.get();
+      const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
+      const provider = loginAccount?.library || defaultProvider?.current;
+      let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
-        const { account: userAccount, loginAccount } = UserStore.get();
-        const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-        const provider = loginAccount?.library || defaultProvider?.current;
-        return await getMarketInfos(
-          provider,
-          dmarkets,
-          damm,
-          cashes,
-          userAccount,
-          MARKET_IGNORE_LIST,
-          loadType,
-          dblock
-        );
+        try {
+          const {data, block, errors} = await getMarketsData();
+          //console.log(data, block, errors);
+          const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
+          
+          // Throwing now until graph data can consistently pull all markets
+          throw new Error('Temporary Graph Failover');
+
+          return infos;
+        } catch (e) {
+          // failover use multicalls
+          console.log('failover to use multicall', e);
+          infos = await getMarketInfos(
+            provider,
+            dmarkets,
+            damm,
+            cashes,
+            userAccount,
+            MULTICALL_MARKET_IGNORE_LIST,
+            loadType,
+            dblock
+          );
+
+        }
+        if (isRpcDown) {
+          AppStatusStore.actions.setIsRpcDown(false);
+        }
+        return infos;
       } catch (e) {
+        if (e.data?.error?.details) {
+          if (e.data?.error?.details.toLowerCase().indexOf('rate limit') !== -1) {
+            if (e.data?.error?.data?.rate_violated.toLowerCase().indexOf('700 per 1 minute') !== -1) {
+              AppStatusStore.actions.setIsRpcDown(true);
+            }
+          }
+        }
         console.log("error getting market data", e);
       }
       return { markets: {}, ammExchanges: {}, blocknumber: null };

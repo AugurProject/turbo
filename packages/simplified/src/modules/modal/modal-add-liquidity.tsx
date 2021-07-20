@@ -36,7 +36,6 @@ const {
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
 } = Components;
 const {
-  YES_NO,
   BUY,
   USDC,
   SHARES,
@@ -533,7 +532,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   outcomes={outcomes}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
-                  marketType={YES_NO}
                   orderType={BUY}
                   nonSelectable
                   editable={mustSetPrices}

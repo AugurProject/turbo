@@ -37,7 +37,7 @@ const {
   Utils: { keyedObjToArray },
 } = Stores;
 const { UsdIcon } = Icons;
-const { PrimaryButton } = ButtonComps;
+const { PrimaryThemeButton } = ButtonComps;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash): {total: BigNumber, ids: string[], address: string}[] => {
   const factories = claimbleMarketsPerCash.reduce(
@@ -194,7 +194,7 @@ export const ClaimWinningsSection = () => {
     <div className={Styles.ClaimableWinningsSection}>
       {isLogged && MarketFactoryTotals.length > 0 && (
         MarketFactoryTotals.map(factory => (
-        <PrimaryButton
+        <PrimaryThemeButton
           key={factory.address}
           text={
             !pendingClaim
@@ -220,7 +220,7 @@ export const ClaimWinningsSection = () => {
         />)))}
       {isLogged && hasClaimableFees && (
         MarketFactoryTotals.map(factory => (
-        <PrimaryButton
+        <PrimaryThemeButton
           text={!pendingClaimFees ? `Claim Fees (${
             formatCash(claimableFees, USDC).full
           })` : `Waiting for Confirmation`}
@@ -258,7 +258,6 @@ export const PortfolioView = () => {
       <section>
         <NetworkMismatchBanner />
         <AppViewStats small />
-        <RewardsSection />
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}

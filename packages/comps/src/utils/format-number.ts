@@ -175,30 +175,6 @@ export function formatLpTokens(num: NumStrBigNumber, opts: FormattedNumberOption
   return formattedShares;
 }
 
-export function formatMarketShares(
-  marketType: string,
-  num: NumStrBigNumber,
-  opts: FormattedNumberOptions = {}
-): FormattedNumber {
-  let decimals = SHARES_NUMBER_OF_DECIMALS;
-  if (marketType === SCALAR) {
-    decimals = SHARES_SCALAR_NUMBER_OF_DECIMALS;
-  }
-  const formattedShares = formatNumber(num, {
-    decimals: decimals,
-    decimalsRounded: decimals,
-    denomination: (v) => `${v} Shares`,
-    minimized: false,
-    zeroStyled: false,
-    blankZero: false,
-    roundDown: true,
-    bigUnitPostfix: true,
-    ...opts,
-  });
-
-  return formattedShares;
-}
-
 export function formatBestPrice(
   num: NumStrBigNumber,
   tickSize: number,
@@ -249,7 +225,7 @@ export function formatDai(num: NumStrBigNumber, opts: FormattedNumberOptions = {
   });
 }
 
-export function formatLiquidity(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+export function formatLiquidity(num: NumStrBigNumber = "0", opts: FormattedNumberOptions = {}): FormattedNumber {
   let value = num;
   if (createBigNumber(value).lt(DUST_LIQUIDITY_AMOUNT)) value = "0.00";
   return formatNumber(value, {

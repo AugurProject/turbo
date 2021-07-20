@@ -99,11 +99,13 @@ export const STUBBED_APP_STATUS_ACTIONS = {
   setModal: (modal) => {},
   closeModal: () => {},
   setIsLogged: (account) => {},
+  setIsRpcDown: (rpcDown) => {},
 };
 
 export const DEFAULT_APP_STATUS_STATE: AppStatusState = {
   isMobile: false,
   isLogged: false,
+  isRpcDown: false,
   modal: {},
 };
 
@@ -111,6 +113,7 @@ export const APP_STATE_KEYS = {
   IS_MOBILE: "isMobile",
   MODAL: "modal",
   IS_LOGGED: "isLogged",
+  IS_RPC_DOWN: "isRpcDown",
 };
 
 export const APP_STATUS_ACTIONS = {
@@ -118,6 +121,7 @@ export const APP_STATUS_ACTIONS = {
   SET_MODAL: "SET_MODAL",
   CLOSE_MODAL: "CLOSE_MODAL",
   SET_IS_LOGGED: "SET_IS_LOGGED",
+  SET_RPC_DOWN: "SET_RPC_DOWN",
 };
 
 export const MOCK_APP_STATUS_STATE = {
@@ -175,3 +179,4 @@ export const NETWORK_BLOCK_REFRESH_TIME = {
 // used to store markets to ignore, in format
 // { [marketfactory]: [market_indexes] }
 export const MARKET_IGNORE_LIST = {};
+export const MULTICALL_MARKET_IGNORE_LIST = {};

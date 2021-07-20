@@ -3,7 +3,6 @@ import { useLocation } from "react-router";
 import Styles from "./top-nav.styles.less";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
-import { Toasts } from "../toasts/toasts";
 import { useSimplifiedStore } from "../stores/simplified";
 import {
   Icons,
@@ -17,10 +16,11 @@ import {
   Constants,
   LinkLogo,
   Components,
+  Toasts,
 } from "@augurproject/comps";
 const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
-const { SecondaryButton } = ButtonComps;
+const { SecondaryThemeButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
 const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
 const { ToggleSwitch } = Components;
@@ -51,7 +51,7 @@ export const SettingsButton = () => {
 
   return (
     <div className={Styles.SettingsMenuWrapper}>
-      <SecondaryButton label="Settings" action={() => setOpened(!open)} icon={GearIcon} />
+      <SecondaryThemeButton title="Settings" action={() => setOpened(!open)} icon={GearIcon} />
       {open && (
         <ul className={Styles.SettingsMenu} ref={settingsRef}>
           <li>

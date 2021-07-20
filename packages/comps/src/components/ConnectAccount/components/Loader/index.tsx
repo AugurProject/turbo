@@ -17,7 +17,6 @@ export const Loader = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       stroke={stroke}
-      // {...rest}
       className={Styles.animate}
       style={{
         height: size,

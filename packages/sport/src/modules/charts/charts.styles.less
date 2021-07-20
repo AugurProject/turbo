@@ -3,7 +3,7 @@
 .PriceHistoryChart {
   .SecondaryBottomBorderRadius;
 
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
   border-top: 0;
   display: flex;
   flex-flow: column nowrap;
@@ -11,7 +11,7 @@
   max-width: 100vw;
   height: @size-240;
   max-height: @size-240;
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   padding: 0 @size-4;
 
   div {
@@ -26,7 +26,7 @@
 
         > span {
           flex: 1 100%;
-          border: @size-1 solid var(--simple-border);
+          border: @size-1 solid var(--theme-border);
           border-radius: @size-8;
           background: rgba(250, 251, 252, 0.9);
           padding: @size-8;
@@ -34,7 +34,7 @@
           > h5 {
             .text-12;
 
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
             margin: 0;
             padding: 0;
             margin-bottom: @size-4;
@@ -87,31 +87,31 @@
         .text-12;
 
         font-weight: 400;
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
 
         > text,
         > text > tspan {
           .text-12;
 
           font-weight: 400;
-          fill: var(--simple-primary-text);
+          fill: var(--primary-text);
         }
       }
 
       .highcharts-crosshair-label {
-        background-color: var(--color-module-background);
+        background-color: var(--primary-text);
         border-radius: @size-5;
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         font-size: @size-10;
         z-index: @above-all-content;
         // ugh... we need !important here because inline styles are inserted.
         > text {
-          color: var(--simple-primary-text) !important;
-          fill: var(--simple-primary-text) !important;
+          color: var(--primary-text) !important;
+          fill: var(--primary-text) !important;
 
           > tspan {
-            color: var(--simple-primary-text) !important;
-            fill: var(--simple-primary-text) !important;
+            color: var(--primary-text) !important;
+            fill: var(--primary-text) !important;
           }
         }
       }
@@ -124,12 +124,12 @@
         > text {
           .text-12;
 
-          fill: var(--simple-primary-text);
+          fill: var(--primary-text);
           transform: translateX(@size-38);
 
           > tspan {
-            color: var(--simple-primary-text);
-            fill: var(--simple-primary-text);
+            color: var(--primary-text);
+            fill: var(--primary-text);
           }
         }
       }
@@ -141,14 +141,14 @@
       g.highcharts-xaxis-labels > g.highcharts-crosshair-label > text {
         .mono-9;
 
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
         transform: translateY(@size-4);
       }
 
       .highcharts-crosshair {
-        stroke: var(--simple-chart-color);
+        stroke: var(--primary-text);
 
-        opacity: 1;
+        opacity: 0.3;
       }
 
       .highcharts-tooltip {
@@ -245,8 +245,8 @@
       text.highcharts-title > tspan {
         .text-10;
 
-        color: var(--simple-primary-text);
-        fill: var(--simple-primary-text);
+        color: var(--primary-text);
+        fill: var(--primary-text);
         text-transform: capitalize;
       }
     }
@@ -274,14 +274,14 @@
   > div:first-of-type {
     .SecondaryTopBorderRadius;
 
-    border: @size-1 solid var(--simple-border);
+    border: @size-1 solid var(--theme-border);
     border-bottom: 0;
     display: flex;
     flex-flow: row-reverse nowrap;
     width: 100%;
     justify-content: space-between;
     align-items: center;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     padding: @size-16;
 
     @media @breakpoint-mobile {
@@ -327,17 +327,28 @@
 }
 
 .SelectOutcomeButton {
-  .RoundedButton;
+  .ThemeBorder;
   .text-14;
 
   background: transparent;
-  color: var(--simple-primary-text);
-  height: @size-44;
+  color: var(--primary-text);
+  height: @size-36;
   padding: 0 @size-8;
   flex: 0 auto;
   white-space: nowrap;
   text-transform: capitalize;
   grid-gap: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+
+  &:hover {
+    border: @size-1 solid var(--secondary-text);
+  }
 
   &:disabled,
   &:disabled:hover {
@@ -347,9 +358,9 @@
   }
 
   > span {
-    border: @size-2 solid var(--simple-border-dk);
+    border: @size-2 solid var(--theme-border);
     border-radius: @size-4;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     height: @size-20;
     width: @size-20;
     min-height: @size-20;
@@ -369,24 +380,24 @@
   > b {
     .text-16-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin-left: @size-8;
   }
 
   &:hover:not([class*="isSelected_"]) {
     > span {
-      border: @size-2 solid var(--simple-border-dk);
+      border: @size-2 solid var(--theme-border);
       background: transparent;
 
       > svg {
         height: @size-12;
         width: @size-12;
         margin: auto;
-        background: var(--simple-secondary-text);
+        background: var(--secondary-text);
         border-radius: 0;
 
         > path {
-          fill: var(--simple-secondary-text);
+          fill: var(--secondary-text);
         }
       }
     }
@@ -407,64 +418,48 @@
 }
 
 .isSelected_0 {
-  border-color: var(--theme-outcome-0);
-
   > span {
     background: var(--theme-outcome-0);
   }
 }
 
 .isSelected_1 {
-  border-color: var(--theme-outcome-1);
-
   > span {
     background: var(--theme-outcome-1);
   }
 }
 
 .isSelected_2 {
-  border-color: var(--theme-outcome-2);
-
   > span {
     background: var(--theme-outcome-2);
   }
 }
 
 .isSelected_3 {
-  border-color: var(--theme-outcome-3);
-
   > span {
     background: var(--theme-outcome-3);
   }
 }
 
 .isSelected_4 {
-  border-color: var(--theme-outcome-4);
-
   > span {
     background: var(--theme-outcome-4);
   }
 }
 
 .isSelected_5 {
-  border-color: var(--theme-outcome-5);
-
   > span {
     background: var(--theme-outcome-5);
   }
 }
 
 .isSelected_6 {
-  border-color: var(--theme-outcome-6);
-
   > span {
     background: var(--theme-outcome-6);
   }
 }
 
 .isSelected_7 {
-  border-color: var(--theme-outcome-7);
-
   > span {
     background: var(--theme-outcome-7);
   }

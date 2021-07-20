@@ -11,7 +11,7 @@ import {
   SimpleBalance,
   Winnings,
 } from "../types";
-import { getClaimAllMessage } from '../portfolio/portfolio-view';
+import { getClaimAllMessage } from "../portfolio/portfolio-view";
 import {
   useAppStatusStore,
   useDataStore,
@@ -28,7 +28,7 @@ import { useSimplifiedStore } from "../stores/simplified";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner },
   PaginationComps: { sliceByPage, Pagination },
-  ButtonComps: { PrimaryButton, SecondaryButton, TinyButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
@@ -175,7 +175,12 @@ export const PositionFooter = ({
   const hasWinner = amm?.market?.hasWinner;
   const disableClaim =
     pendingClaim ||
-    Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
+    Boolean(
+      transactions.find(
+        (t) =>
+          t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))
+      )
+    );
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
@@ -283,7 +288,7 @@ export const PositionFooter = ({
         {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
       </span>
       {hasCompleteSets && !hasWinner && (
-        <PrimaryButton
+        <PrimaryThemeButton
           text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
           action={cashOut}
           subText={pendingCashOut && AWAITING_CONFIRM_SUBTEXT}
@@ -292,11 +297,10 @@ export const PositionFooter = ({
       )}
       {claimableWinnings && (
         <>
-          <PrimaryButton
+          <PrimaryThemeButton
             text={
               !pendingClaim
-                ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
-                })`
+                ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full})`
                 : AWAITING_CONFIRM
             }
             subText={pendingClaim && AWAITING_CONFIRM_SUBTEXT}
@@ -307,7 +311,7 @@ export const PositionFooter = ({
       )}
       {showTradeButton && (
         <MarketLink id={marketId} ammId={amm?.id}>
-          <SecondaryButton text="trade" />
+          <SecondaryThemeButton text="trade" />
         </MarketLink>
       )}
     </div>
@@ -321,16 +325,18 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
-  const positions = marketShares ?
-    ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    } [])
-    .filter(position => (
-      showResolvedPositions ||
-      position?.claimableWinnings ||
-      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
+  const positions = marketShares
+    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
+    : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
@@ -425,6 +431,18 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
   );
 };
 
+const BonusReward = () => (
+  <article className={Styles.BonusReward}>
+    <h4>Bonus Reward</h4>
+    <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
+    <span>
+      <span />
+    </span>
+    <h4>Bonus Unlocks</h4>
+    <p>11 July (4d, 2h, 32m)</p>
+  </article>
+);
+
 export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const {
     actions: { setModal },
@@ -432,7 +450,8 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const isfinal = isMarketFinal(market);
   return (
     <div className={Styles.LiquidityFooter}>
-      <PrimaryButton
+      {false && <BonusReward />}
+      <PrimaryThemeButton
         text="Remove Liquidity"
         action={() =>
           setModal({
@@ -443,11 +462,12 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
           })
         }
       />
-      <SecondaryButton
+      <SecondaryThemeButton
         text={isfinal ? "Market Resolved" : "Add Liquidity"}
         disabled={isfinal}
         action={() =>
-          !isfinal && setModal({
+          !isfinal &&
+          setModal({
             type: MODAL_ADD_LIQUIDITY,
             market,
             currency: market?.amm?.cash?.name,
@@ -466,18 +486,18 @@ export const AllLiquidityTable = ({ page }) => {
   const { ammExchanges, markets } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
-      ammExchange: ammExchanges[ammId],
-      market: markets[ammId],
-      lpTokens: lpTokens[ammId],
-    }))
+        ammExchange: ammExchanges[ammId],
+        market: markets[ammId],
+        lpTokens: lpTokens[ammId],
+      }))
     : [];
   const liquiditiesViz = sliceByPage(liquidities, page, POSITIONS_LIQUIDITY_LIMIT).map((liquidity) => {
     return (
       <LiquidityTable
-        key={`${liquidity.market.marketId}-liquidityTable`}
-        market={liquidity.market}
-        ammExchange={liquidity.ammExchange}
-        lpTokens={liquidity.lpTokens}
+        key={`${liquidity?.market?.marketId}-liquidityTable`}
+        market={liquidity?.market}
+        ammExchange={liquidity?.ammExchange}
+        lpTokens={liquidity?.lpTokens}
       />
     );
   });
@@ -506,7 +526,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
       {!lpTokens && (
         <span>
           No liquidity to show
-          <PrimaryButton
+          <PrimaryThemeButton
             action={() => {
               if (isLogged) {
                 setModal({
@@ -568,22 +588,24 @@ export const PositionsLiquidityViewSwitcher = ({
   }
   const market = ammExchange?.market;
 
-  const positions = marketShares ?
-    ((Object.values(marketShares) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    } [])
-    .filter(position => (
-      showResolvedPositions ||
-      position?.claimableWinnings ||
-      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
+  const positions = marketShares
+    ? ((Object.values(marketShares) as unknown[]) as {
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
+    : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-      ammExchange: ammExchanges[marketId],
-      market: markets[marketId],
-      lpTokens: lpTokens[marketId],
-    }))
+        ammExchange: ammExchanges[marketId],
+        market: markets[marketId],
+        lpTokens: lpTokens[marketId],
+      }))
     : [];
 
   const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
@@ -623,7 +645,7 @@ export const PositionsLiquidityViewSwitcher = ({
           {LIQUIDITY}
         </span>
         {showActivityButton && (
-          <TinyButton
+          <TinyThemeButton
             action={() => {
               setTableView(null);
               setActivity();

@@ -1,0 +1,62 @@
+version: "3.3"
+
+services:
+  db:
+    container_name: chainlink-db
+    image: postgres
+    networks:
+      - link
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+  node:
+    container_name: chainlink-node
+    image: smartcontract/chainlink:0.10.9
+    command: local n -p /chainlink/.password -a /chainlink/.api
+    networks:
+      - link
+    ports:
+      - "6688:6688"
+    environment:
+      DEFAULT_HTTP_TIMEOUT: 1h
+      ROOT: /chainlink
+      LOG_LEVEL: debug
+      CHAINLINK_TLS_PORT: 0
+      SECURE_COOKIES: "false"
+      ALLOW_ORIGINS: "*"
+      DATABASE_URL: postgresql://postgres:password@db:5432/postgres?sslmode=disable
+      CLIENT_NODE_URL: "http://node:6688"
+      ADMIN_CREDENTIALS_FILE: /chainlink/.api
+    env_file: chainlink-node.env
+    volumes:
+      - "./:/chainlink"
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+
+  augur-adapter:
+    container_name: augur-adapter
+    image: augur-adapter:0.0.1
+    networks:
+      - link
+    ports:
+      - "8080:8080"
+    env_file: augur-adapter.env
+    environment:
+      LOG_LEVEL: debug
+    build:
+      context: ../../external-adapters-js
+      dockerfile: ./Dockerfile
+      args:
+        location: ./packages/composites/augur
+        package: "@chainlink/augur-adapter"
+      labels:
+        com.chainlinklabs.external-adapter-type: composites      
+    
+networks:
+  link:

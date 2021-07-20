@@ -48,8 +48,29 @@ export const Betslip = () => {
     bets,
     actions: { toggleSelectedView },
   } = useBetslipStore();
+  const betslipRef = useRef(null);
   const counts = [Object.keys(bets).length, Object.keys(active).length];
   const handleToggle = (type) => selectedView !== type && toggleSelectedView();
+
+  useEffect(() => {
+    const handleWindowOnClick = (event) => {
+      if (
+        sidebarType === SIDEBAR_TYPES.BETSLIP &&
+        !!event.target &&
+        betslipRef?.current !== null &&
+        !betslipRef?.current?.contains(event.target)
+      ) {
+        setSidebar(null);
+      }
+    };
+
+    window.addEventListener("click", handleWindowOnClick);
+
+    return () => {
+      window.removeEventListener("click", handleWindowOnClick);
+    };
+  });
+
   return (
     <section
       className={classNames(Styles.Betslip, {
@@ -57,8 +78,8 @@ export const Betslip = () => {
         [Styles.NavOpen]: sidebarType === SIDEBAR_TYPES.NAVIGATION,
       })}
     >
-      <div>
-        <PrimaryThemeButton
+      <div ref={betslipRef}>
+        <SecondaryThemeButton
           text={`Betslip (${counts[0]})`}
           icon={SimpleChevron}
           small
@@ -79,10 +100,18 @@ export const Betslip = () => {
           </div>
         )}
         <BetslipHeader {...{ counts, handleToggle }} />
-        {selectedView === BETSLIP ? <BetslipMain /> : <ActiveBetsMain />}
-        <BuyApprovals />
-        {oddsChangedMessage && selectedView === BETSLIP && (
-          <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>
+        {selectedView === BETSLIP ? (
+          <>
+            <BetslipMain />
+            <BuyApprovals />
+            {oddsChangedMessage && 
+              <div className={Styles.OddsChangedMessage}>
+                {oddsChangedMessage}
+              </div>
+            }
+          </>
+        ) : (
+          <ActiveBetsMain />
         )}
         <BetslipFooter />
       </div>
@@ -186,11 +215,11 @@ export const ActiveBetsMain = () => {
         ))}
     </main>
   ) : (
-    <EmptyBetslip />
+    <EmptyBetslip loggedMessage="You have no active bets" />
   );
 };
 
-export const EmptyBetslip = () => {
+export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => {
   const {
     isLogged,
     actions: { setModal },
@@ -198,7 +227,7 @@ export const EmptyBetslip = () => {
   const { transactions } = useUserStore();
   const content = isLogged ? (
     <>
-      <p>Need help placing a bet?</p>
+      <p>{loggedMessage}</p>
     </>
   ) : (
     <>
@@ -453,6 +482,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     ? `PENDING $${cashout}`
     : `CASHOUT: $${cashout}`;
 
+  const isPositiveCashout = Number(bet.wager) < Number(cashout);
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
@@ -477,7 +507,12 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        <div className={classNames(Styles.Cashout, txStatus.class)}>
+        <div
+          className={classNames(Styles.Cashout, txStatus.class, {
+            [Styles.Positive]: canCashOut && isPositiveCashout,
+            [Styles.Negative]: canCashOut && !isPositiveCashout,
+          })}
+        >
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
           <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
             {buttonName}

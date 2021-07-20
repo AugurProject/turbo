@@ -1,4 +1,4 @@
-import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE, BETSLIP, BETSIZE_TO_ODDS } from "../constants";
+import { DEFAULT_MARKET_VIEW_SETTINGS, SETTINGS_SLIPPAGE, BETSLIP, BETSIZE_TO_ODDS, THEME_OPTIONS } from "../constants";
 import { Constants } from "@augurproject/comps";
 
 export const STUBBED_SPORT_ACTIONS = {
@@ -20,6 +20,7 @@ export const DEFAULT_SPORT_STATE = {
     timeFormat: Constants.TWELVE_HOUR_TIME,
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
     showLiquidMarkets: true,
+    theme: THEME_OPTIONS.LIGHT,
   },
   marketEvents: {},
   filteredEvents: [],

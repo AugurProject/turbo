@@ -24,6 +24,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
   const cryptoMarketFactory = await deployments.get("CryptoMarketFactory");
   const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory");
+
+  const nbaFetcher = await deployments.get("NBAFetcher");
+  const mmaFetcher = await deployments.get("MMAFetcher");
+
   const ammFactory = await deployments.get("AMMFactory");
 
   // If the AMMFactory was deployed then use its block number.
@@ -46,6 +50,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       address: sportsLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
+      fetcher: nbaFetcher.address,
     });
   }
   if (!hasFactory(marketFactories, cryptoMarketFactory.address)) {
@@ -56,6 +61,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       address: cryptoMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
+      fetcher: "", // TODO
     });
   }
   if (!hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
@@ -66,6 +72,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       address: mmaLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
+      fetcher: nbaFetcher.address,
     });
   }
 

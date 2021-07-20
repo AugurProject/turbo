@@ -23,7 +23,7 @@
   justify-content: center;
 
   > div {
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     border-radius: 50%;
     margin-top: @size-80;
     margin-bottom: @size-16;
@@ -43,14 +43,14 @@
   > h3 {
     .text-14-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin: 0;
   }
 
   > p {
     .text-14;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin: 0;
     margin-top: @size-1;
     margin-bottom: @size-11;
@@ -60,10 +60,10 @@
 }
 
 .EventBetTable {
-  .SimpleBorder;
+  .ThemeBorder;
   .SecondaryBorderRadius;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
 
   > header {
     .SecondaryTopBorderRadius;
@@ -81,7 +81,7 @@
       > h4 {
         .text-16-bold;
   
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         flex: 1;
         display: flex;
         flex-flow: row nowrap;
@@ -92,7 +92,7 @@
     > span {
       .text-12-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       text-transform: uppercase;
     }
   }
@@ -106,14 +106,14 @@
     display: grid;
     grid-template-columns: 2fr 0.33fr 0.33fr 0.33fr 1fr 1fr;
     grid-gap: @size-4;
-    border-top: @size-1 solid var(--simple-border);
+    border-top: @size-1 solid var(--theme-border);
     min-height: @size-64;
     padding: 0 @size-16;
 
     > li {
       .text-12;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       text-align: right;
       align-items: flex-end;
 
@@ -127,14 +127,14 @@
         > span:first-of-type {
           .text-14-bold;
 
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
           margin-bottom: @size-4;
         }
 
         > span:last-of-type {
           .text-12;
 
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
         }
       }
 
@@ -150,14 +150,26 @@
           padding: @size-3 @size-6;
           min-height: @size-20;
           max-height: @size-20;
+          color: var(--primary-text);
 
           &.CanCashOut {
+            &.PositiveCashout {
+              background: rgba(var(--success-rgb), 0.15);
+              border-color: var(--success);
+            }
+            &.NegativeCashout {
+              background: rgba(var(--failed-rgb), 0.15);
+              border-color: var(--failed);
+            }
+            
             &:hover:not(:disabled) {
-              border-color: var(--simple-primary-text);
-              background: var(--simple-primary-text);
-              color: var(--simple-light-bg);
+              border-color: var(--primary-text);
+              background: var(--primary-text);
+              color: var(--primary-bg);
             }
           }
+
+          
         }
       }
     }
@@ -168,12 +180,12 @@
 
     &:first-of-type {
       min-height: @size-40;
-      background: var(--alternate-background-color);
+      background: var(--tertiary-bg);
 
       > li {
         .text-10-semi-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         text-transform: uppercase;
       }
     }

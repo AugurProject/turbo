@@ -17,15 +17,14 @@ const NO_CONTEST_TIE = "Draw/No Contest";
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
-    awayTeamId: coAwayTeamId,
+    awayFighterId: coAwayTeamId,
     eventId: coEventId,
-    homeTeamId: coHomeTeamId,
+    homeFighterId: coHomeTeamId,
     estimatedStartTime,
-    marketType,
+    marketType = "0",
   } = marketData;
   // translate market data
-  const eventIdValue = new BN(String(coEventId)).toString(16); // could be used to group events
-  const eventId = `0${eventIdValue}`.slice(-32); // just grab the last 32
+  const eventId = String(coEventId._hex || coEventId);
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
@@ -57,7 +56,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   };
 };
 
-export const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
+const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
   const marketOutcome = getMarketOutcome(sportsMarketType, outcomeId);
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
@@ -122,7 +121,7 @@ const getMarketOutcome = (sportsMarketType: number, outcomeId: number): string =
 
 const decodeOutcomes = (
   market: MarketInfo,
-  shareTokens: string[],
+  shareTokens: string[] = [],
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number

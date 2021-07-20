@@ -4,3 +4,4 @@ export * from "./utils/constants";
 export * from "./utils/common-functions";
 export * from "./utils/fake-coin";
 export * from "./utils/crypto-timing";
+export * from "./fetcher";

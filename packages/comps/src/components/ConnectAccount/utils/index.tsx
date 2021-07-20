@@ -7,7 +7,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { UnsupportedChainIdError } from "@web3-react/core";
 import { PARA_CONFIG } from "../../../stores/constants";
 
-const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
+const ETHERSCAN_PREFIXES = {
   1: "",
   3: "ropsten.",
   4: "rinkeby.",
@@ -39,7 +39,7 @@ export const getDefaultProvider = () => {
   const rpcData = getRpcData();
   if (!defaultProvider){
     defaultProvider = new ethers.providers.StaticJsonRpcProvider(
-      rpcData.rpcUrls[0],
+      rpcData.rpcUrls[2],
       Number(PARA_CONFIG.networkId)
     );
   }
@@ -64,8 +64,7 @@ export function getChainExplorerLink(
   if (chainId === Number(MATIC_MAINNET)) {
     prefix = "https://polygonscan.com"
   } else if (chainId === Number(MATIC_MUMBAI)) {
-    // TODO can replace with polygonscan once mumbai support comes
-    prefix = "https://explorer-mumbai.maticvigil.com";
+    prefix = "https://mumbai.polygonscan.com";
   } else {
     prefix = `https://${ETHERSCAN_PREFIXES[chainId] || ETHERSCAN_PREFIXES[1]}etherscan.io`;
   }
