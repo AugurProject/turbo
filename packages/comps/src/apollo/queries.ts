@@ -18,23 +18,6 @@ export const GET_LATEST_BLOCK = gql`
   }
 `;
 
-// Get all markets except CATEGORICAL
-// https://thegraph.com/explorer/subgraph/augurproject/augur-turbo-mumbai
-const AMM_enters = gql`
-  fragment AMM_enters on AMMExchange {
-    enters {
-      id
-      sender {
-        id
-      }
-      tx_hash
-      number
-      timestamp
-      parentHash
-    }
-  }
-`;
-
 export const SEARCH_MARKETS = gql`
   query searchMarkets($query: String) {
     marketSearch(text: $query) {
