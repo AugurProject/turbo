@@ -232,6 +232,13 @@ const calcWeights = (prices: string[]): string[] => {
   return results;
 };
 
+export const calcPricesFromOdds = (initialOdds: string[], outcomes: AmmOutcome[]) => {
+  // convert odds to prices and set prices on outcomes
+  const populatedOutcomes = calculatePrices({ outcomes, winner: null}, initialOdds, []);
+  console.log('populatedOutcomes', populatedOutcomes);
+  return populatedOutcomes;
+}
+
 export async function getRemoveLiquidity(
   amm: AmmExchange,
   provider: Web3Provider,
@@ -1430,6 +1437,8 @@ export const getMarketInfos = async (
   blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
+  console.log('factories', factories);
+  
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
       getFactoryMarketInfo(
@@ -2112,7 +2121,7 @@ const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: str
 };
 
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
-  const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp } = marketData;
+  const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp, initialOdds } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
@@ -2134,6 +2143,7 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
     shareTokens,
     creator,
     marketFactoryType,
+    initialOdds
   };
 };
 
