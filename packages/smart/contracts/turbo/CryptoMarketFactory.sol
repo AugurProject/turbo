@@ -117,6 +117,9 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     // If markets do not exist for coin, create them.
     // If markets for coin are ready to resolve, resolve them and create new markets.
     // Else, error.
+    //
+    // Assume that _roundIds has a dummy value at index 0, and is 1 indexed like the
+    // coins array.
     function createAndResolveMarkets(uint256 _roundIds[], uint256 _nextResolutionTime) public {
         require(msg.sender == linkNode, "Only link node can create markets");
         // If market creation was stopped then it can be started again.
