@@ -98,7 +98,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         _coinIndex = coins.length;
         coins.push(_coin);
 
-        createAndResolveMarketsForCoin(_coinIndex);
+        createAndResolveMarketsForCoin(_coinIndex, 0, 0);
     }
 
     function getCoin(uint256 _coinIndex) public view returns (Coin memory _coin) {
@@ -193,9 +193,15 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     }
 
     function getPrice(Coin memory _coin, uint256 _roundId) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
-        (, int256 _rawPrice, , , ) = _coin.priceFeed.getRoundData(_roundId);
-        require(_rawPrice >= 0, "Price from feed is negative");
-        _fullPrice = uint256(_rawPrice);
+        if (_roundId == 0) {
+          (, int256 _rawPrice, , , ) = _coin.priceFeed.getLatestRoundData();
+          require(_rawPrice >= 0, "Price from feed is negative");
+          _fullPrice = uint256(_rawPrice);
+        } else {
+          (, int256 _rawPrice, , , ) = _coin.priceFeed.getRoundData(_roundId);
+          require(_rawPrice >= 0, "Price from feed is negative");
+          _fullPrice = uint256(_rawPrice);
+        }
 
         // The precision is how many decimals the price has. Zero is dollars, 2 includes cents, 3 is tenths of a cent, etc.
         // Our resolution rules want a certain precision. Like BTC is to the dollar and MATIC is to the cent.
