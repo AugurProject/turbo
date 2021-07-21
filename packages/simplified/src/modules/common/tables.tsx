@@ -33,7 +33,7 @@ const {
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
+const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares, canAddLiquidity } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
 const { timeSinceTimestamp, getMarketEndtimeFull } = DateUtils;
 const {
@@ -448,11 +448,13 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
     actions: { setModal },
   } = useAppStatusStore();
   const isfinal = isMarketFinal(market);
+  const canAddLiq = canAddLiquidity(market);
   return (
     <div className={Styles.LiquidityFooter}>
       {false && <BonusReward />}
       <PrimaryThemeButton
         text="Remove Liquidity"
+        disabled={!canAddLiq}
         action={() =>
           setModal({
             type: MODAL_ADD_LIQUIDITY,
@@ -464,7 +466,7 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
       />
       <SecondaryThemeButton
         text={isfinal ? "Market Resolved" : "Add Liquidity"}
-        disabled={isfinal}
+        disabled={isfinal || !canAddLiq}
         action={() =>
           !isfinal &&
           setModal({

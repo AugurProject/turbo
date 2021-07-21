@@ -128,7 +128,7 @@ export async function estimateAddLiquidityPool(
 
   if (!ammAddress) {
     console.log("est add init", marketFactoryAddress, turboId, amount, weights, account);
-    results = await ammFactoryContract.callStatic.createPool(marketFactoryAddress, turboId, amount, weights, account);
+    results = await ammFactoryContract.callStatic.createPool(marketFactoryAddress, turboId, amount, account);
     tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(results || "0")));
   } else {
     // todo: get what the min lp token out is
@@ -1392,6 +1392,14 @@ export const getERC1155ApprovedForAll = async (
 };
 
 const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
+const OLD_MARKET_FACTORY_VER = "v1.0.0";
+
+export const canAddLiquidity = (market: MarketInfo): boolean => {
+  const initLiquidity = !market?.amm?.id
+  if (!initLiquidity) return true;
+  return version !== OLDEST_MARKET_FACTORY_VER && version !== OLD_MARKET_FACTORY_VER;
+}
+
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
   if (loadtype === MARKET_LOAD_TYPE.SPORT)
     return PARA_CONFIG.marketFactories.filter((c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO);
