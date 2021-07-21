@@ -454,7 +454,6 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
       {false && <BonusReward />}
       <PrimaryThemeButton
         text="Remove Liquidity"
-        disabled={!canAddLiq}
         action={() =>
           setModal({
             type: MODAL_ADD_LIQUIDITY,
