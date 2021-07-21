@@ -1585,6 +1585,7 @@ const retrieveMarkets = async (
   const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
+  console.log('marketFactoryAbi', marketFactoryAbi)
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
   const ammFactoryAddress = ammFactoryContract.address;
   const ammFactoryAbi = extractABI(ammFactoryContract);
@@ -2143,7 +2144,7 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
     shareTokens,
     creator,
     marketFactoryType,
-    initialOdds
+    initialOdds: initialOdds ? initialOdds.map(i => String(i)) : undefined
   };
 };
 
