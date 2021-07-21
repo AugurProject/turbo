@@ -234,8 +234,8 @@ const calcWeights = (prices: string[]): string[] => {
 
 export const calcPricesFromOdds = (initialOdds: string[], outcomes: AmmOutcome[]) => {
   // convert odds to prices and set prices on outcomes
-  const populatedOutcomes = calculatePrices({ outcomes, winner: null}, initialOdds, []);
-  console.log('populatedOutcomes', populatedOutcomes);
+  const outcomePrices = calculatePrices({ outcomes, winner: null}, initialOdds, []);
+  const populatedOutcomes = outcomes.map((o, i) => ({...o, price: outcomePrices[i]}));
   return populatedOutcomes;
 }
 
@@ -1437,7 +1437,6 @@ export const getMarketInfos = async (
   blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
-  console.log('factories', factories);
   
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
@@ -1585,7 +1584,6 @@ const retrieveMarkets = async (
   const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
-  console.log('marketFactoryAbi', marketFactoryAbi)
   const ammFactoryContract = getAmmFactoryContract(provider, ammFactory, account);
   const ammFactoryAddress = ammFactoryContract.address;
   const ammFactoryAbi = extractABI(ammFactoryContract);

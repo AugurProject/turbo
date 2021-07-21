@@ -537,11 +537,11 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   setSelectedOutcome={() => null}
                   orderType={BUY}
                   nonSelectable
-                  editable={mustSetPrices}
+                  editable={mustSetPrices && !hasInitialOdds}
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   dontFilterInvalid
-                  hasLiquidity={!mustSetPrices}
+                  hasLiquidity={!mustSetPrices || hasInitialOdds}
                   marketFactoryType={market?.marketFactoryType}
                 />
               </>
