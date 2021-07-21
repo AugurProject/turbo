@@ -68,8 +68,8 @@ import {
   Cash__factory,
   BPool,
   BPool__factory,
-  AbstractMarketFactory,
-  AbstractMarketFactory__factory,
+  AbstractMarketFactoryV2,
+  AbstractMarketFactoryV2__factory,
   calcSellCompleteSets,
   estimateBuy,
   MarketFactory,
@@ -1339,8 +1339,8 @@ const getAbstractMarketFactoryContract = (
   library: Web3Provider,
   address: string,
   account?: string
-): AbstractMarketFactory => {
-  return AbstractMarketFactory__factory.connect(address, getProviderOrSigner(library, account));
+): AbstractMarketFactoryV2 => {
+  return AbstractMarketFactoryV2__factory.connect(address, getProviderOrSigner(library, account));
 };
 
 const getBalancerPoolContract = (library: Web3Provider, address: string, account?: string): BPool => {

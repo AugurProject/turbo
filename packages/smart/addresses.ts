@@ -10,7 +10,8 @@ export interface Addresses {
   };
 }
 export interface MarketFactory {
-  type: MarketFactoryType;
+  type: MarketFactoryType; // matches market factories that share markets
+  subtype: MarketFactorySubType; // for determining which ABI to use
   address: string;
   collateral: string;
   ammFactory: string;
@@ -19,6 +20,7 @@ export interface MarketFactory {
   version?: string; // release version. for humans to read
 }
 export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto";
+export type MarketFactorySubType = "V1" | "V2";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactory"
   | "MMALinkMarketFactory"
@@ -74,6 +76,7 @@ export const addresses: AddressMapping = {
         description: "mlb and nba",
         version: "v1.0.0",
         type: "SportsLink",
+        subtype: "V1",
         address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
@@ -83,6 +86,7 @@ export const addresses: AddressMapping = {
         description: "mlb and nba",
         version: "v1.0.0-beta.7",
         type: "SportsLink",
+        subtype: "V1",
         address: "0xd9AD92f448bf89eF1Fe1b2BcF0aBE7221Bb79652",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
@@ -97,6 +101,7 @@ export const addresses: AddressMapping = {
     marketFactories: [
       {
         type: "MMALink",
+        subtype: "V2",
         address: "0x32D7c4D23ca8520A22fCF759505dEd07546314a9",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
@@ -106,6 +111,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "Crypto",
+        subtype: "V2",
         address: "0xcc2f7557B35154d45532cCE9CA2F88B87358a3c8",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
@@ -115,6 +121,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "SportsLink",
+        subtype: "V2",
         address: "0x5524863C74404FC2776Bacb633F3D91fF8143df8",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
@@ -124,6 +131,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "Crypto",
+        subtype: "V1",
         address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
@@ -133,6 +141,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "SportsLink",
+        subtype: "V1",
         address: "0x203fdF154b636D834ABC015Ca6Dc9C6127659c58",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
@@ -142,6 +151,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "MMALink",
+        subtype: "V1",
         address: "0x6884938f3488CC020400FFAEFC75C37fb3FEf003",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
@@ -151,6 +161,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "SportsLink",
+        subtype: "V1",
         address: "0x4225c4fe9A02706C7beC927A3DB25f29E273b3d1",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x43556B27e6Cd1c01Cd0945c5d53077dc1bB05FfD",
@@ -160,6 +171,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "SportsLink",
+        subtype: "V1",
         address: "0x1ac5742415c071f376C81F6e2A7fE56eA19fb3dF",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x8860542771F787dD8B2c8f9134662751DE2F664f",

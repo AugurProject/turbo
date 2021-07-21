@@ -3,7 +3,13 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import { Addresses, graphChainNames, addresses as originalAddresses, ChainId, MarketFactory } from "../addresses";
+import {
+  Addresses,
+  graphChainNames,
+  addresses as originalAddresses,
+  ChainId,
+  MarketFactory,
+} from "../addresses";
 import { isHttpNetworkConfig } from "../tasks";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -47,6 +53,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "mlb and nba",
       type: "SportsLink",
+      subtype: "V2",
       address: sportsLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
@@ -58,6 +65,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "crypto prices",
       type: "Crypto",
+      subtype: "V1",
       address: cryptoMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
@@ -69,6 +77,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "mma",
       type: "MMALink",
+      subtype: "V1",
       address: mmaLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
