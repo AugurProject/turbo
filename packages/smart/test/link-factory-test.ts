@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
-  AbstractMarketFactory,
+  AbstractMarketFactoryV2,
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
@@ -18,8 +18,8 @@ import {
   NBAFetcher,
   NBAFetcher__factory,
   OwnedERC20__factory,
-  SportsLinkMarketFactory,
-  SportsLinkMarketFactory__factory,
+  SportsLinkMarketFactoryV2,
+  SportsLinkMarketFactoryV2__factory,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
@@ -58,7 +58,7 @@ describe("LinkFactory", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -70,7 +70,7 @@ describe("LinkFactory", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -192,7 +192,7 @@ describe("LinkFactory NoContest", () => {
 
   const eventId = 9001;
 
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -210,7 +210,7 @@ describe("LinkFactory NoContest", () => {
     const overUnderTotal = 60;
     const sportId = 4;
 
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -269,7 +269,7 @@ describe("NBA fetcher", () => {
   const eventId = 9001;
   const smallFee = BigNumber.from(10).pow(16);
 
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
 
   let h2hMarketId: BigNumberish;
   let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
@@ -284,7 +284,7 @@ describe("NBA fetcher", () => {
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
     const now = BigNumber.from(Date.now()).div(1000);
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),
@@ -765,7 +765,7 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
-type CheckableMarketFactory = SportsLinkMarketFactory | MMALinkMarketFactory;
+type CheckableMarketFactory = SportsLinkMarketFactoryV2 | MMALinkMarketFactory;
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {

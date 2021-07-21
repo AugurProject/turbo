@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces, MarketFactoryType } from "..";
-import { SportsLinkMarketFactory, MMALinkMarketFactory } from "../typechain";
+import { SportsLinkMarketFactoryV2, MMALinkMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -35,7 +35,7 @@ async function sportsLink(signer: Signer, contracts: ContractInterfaces, confirm
   ];
 
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "SportsLink")]
-    .marketFactory as SportsLinkMarketFactory;
+    .marketFactory as SportsLinkMarketFactoryV2;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -119,7 +119,7 @@ async function mmaLink(signer: Signer, contracts: ContractInterfaces, confirmati
 
 export async function createSportsLinkMarket(
   signer: Signer,
-  marketFactory: SportsLinkMarketFactory,
+  marketFactory: SportsLinkMarketFactoryV2,
   startTime: BigNumberish,
   eventId: BigNumberish,
   homeId: BigNumberish,

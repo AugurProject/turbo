@@ -4,12 +4,12 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract SportsLinkMarketFactory is AbstractMarketFactory, CalculateLinesToBPoolOdds {
+contract SportsLinkMarketFactoryV2 is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -93,7 +93,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory, CalculateLinesToBPool
         address _linkNode,
         uint256 _sportId
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,

@@ -3,8 +3,8 @@ import {
   AMMFactory__factory,
   Cash,
   Cash__factory,
-  SportsLinkMarketFactory,
-  SportsLinkMarketFactory__factory,
+  SportsLinkMarketFactoryV2,
+  SportsLinkMarketFactoryV2__factory,
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
   CryptoMarketFactory__factory,
@@ -30,7 +30,7 @@ export interface ContractInterfaces {
   }[];
 }
 export type MarketFactoryContract =
-  | SportsLinkMarketFactory
+  | SportsLinkMarketFactoryV2
   | MMALinkMarketFactory
   | TrustedMarketFactory
   | CryptoMarketFactory;
@@ -58,7 +58,7 @@ export function instantiateMarketFactory(
 ): MarketFactoryContract {
   switch (type) {
     case "SportsLink":
-      return SportsLinkMarketFactory__factory.connect(address, signerOrProvider);
+      return SportsLinkMarketFactoryV2__factory.connect(address, signerOrProvider);
     case "MMALink":
       return MMALinkMarketFactory__factory.connect(address, signerOrProvider);
     case "Trusted":

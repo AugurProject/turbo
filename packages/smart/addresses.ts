@@ -64,6 +64,7 @@ export const graphChainNames: {
 type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
+
 export const addresses: AddressMapping = {
   137: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",

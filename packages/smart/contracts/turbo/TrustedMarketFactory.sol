@@ -4,11 +4,11 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract TrustedMarketFactory is AbstractMarketFactory, CalculateLinesToBPoolOdds {
+contract TrustedMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
 
     event MarketCreated(uint256 id, address creator, uint256 _endTime, string description, string[] outcomes);
@@ -29,7 +29,7 @@ contract TrustedMarketFactory is AbstractMarketFactory, CalculateLinesToBPoolOdd
         address _protocol,
         uint256 _protocolFee
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,

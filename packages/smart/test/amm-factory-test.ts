@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
-  AbstractMarketFactory,
+  AbstractMarketFactoryV2,
   AMMFactory,
   AMMFactory__factory,
   TrustedMarketFactory,
@@ -110,7 +110,7 @@ describe("AMMFactory", () => {
 
     const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactory,
-      (marketFactory as unknown) as AbstractMarketFactory,
+      (marketFactory as unknown) as AbstractMarketFactoryV2,
       marketId.toString(),
       _outcome,
       _setsInForCollateral.toString()
@@ -188,7 +188,7 @@ describe("AMMFactory", () => {
 
       const result = await buyWithValues(
         ammFactory as AMMFactory,
-        (marketFactory as unknown) as AbstractMarketFactory,
+        (marketFactory as unknown) as AbstractMarketFactoryV2,
         marketId.toNumber(),
         1,
         collateralIn.toString()

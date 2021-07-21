@@ -16,7 +16,7 @@ import {
   FeePot,
   AMMFactory__factory,
   BFactory__factory,
-  AbstractMarketFactory,
+  AbstractMarketFactoryV2,
   BPool__factory,
 } from "../typechain";
 import feedABI from "../abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json";
@@ -287,7 +287,7 @@ describe("CryptoFactory", () => {
       const setsInForCollateral = await marketFactory.calcShares(usdcBasis.mul(5));
       const [tokenAmountOut, shareTokensIn] = await calculateSellCompleteSetsWithValues(
         ammFactory,
-        (marketFactory as unknown) as AbstractMarketFactory,
+        (marketFactory as unknown) as AbstractMarketFactoryV2,
         ethPriceMarketId.toString(),
         PriceUpDownOutcome.Above,
         setsInForCollateral.toString()

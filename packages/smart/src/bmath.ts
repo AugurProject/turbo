@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { AbstractMarketFactory, AMMFactory } from "../typechain";
+import { AbstractMarketFactoryV2, AMMFactory } from "../typechain";
 
 const BONE = BigNumber.from(10).pow(18);
 const MIN_BPOW_BASE = BigNumber.from(1);
@@ -285,7 +285,7 @@ export function calculateSellCompleteSets(
 
 export async function calculateSellCompleteSetsWithValues(
   _ammFactory: AMMFactory,
-  _marketFactory: AbstractMarketFactory,
+  _marketFactory: AbstractMarketFactoryV2,
   _marketId: string,
   _outcome: number,
   _shareTokensIn: string
@@ -390,7 +390,7 @@ function buy(
 
 export async function buyWithValues(
   _ammFactory: AMMFactory,
-  _marketFactory: AbstractMarketFactory,
+  _marketFactory: AbstractMarketFactoryV2,
   _marketId: number,
   _outcome: number,
   _shareTokensIn: string

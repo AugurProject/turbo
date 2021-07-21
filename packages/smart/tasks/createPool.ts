@@ -4,7 +4,7 @@ import "hardhat/types/config";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, ethers, Signer } from "ethers";
 import {
-  AbstractMarketFactory__factory,
+  AbstractMarketFactoryV2__factory,
   AMMFactory__factory,
   BPool,
   BPool__factory,
@@ -68,7 +68,7 @@ export async function createPool(
   confirmations: number
 ): Promise<BPool> {
   const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signer);
-  const marketFactory = AbstractMarketFactory__factory.connect(marketFactoryAddress, signer);
+  const marketFactory = AbstractMarketFactoryV2__factory.connect(marketFactoryAddress, signer);
   const lpTokenRecipient = await signer.getAddress();
 
   await ammFactory
