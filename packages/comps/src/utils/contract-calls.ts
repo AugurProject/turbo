@@ -190,7 +190,7 @@ export async function addLiquidityPool(
     minLpTokenAllowed
   );
   if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, weights, account, {
+    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
       // gasLimit: "800000",
       // gasPrice: "10000000000",
     });
@@ -1391,13 +1391,15 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
+// adding constants here with special logic
 const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
 const OLD_MARKET_FACTORY_VER = "v1.0.0";
 
 export const canAddLiquidity = (market: MarketInfo): boolean => {
   const initLiquidity = !market?.amm?.id
   if (!initLiquidity) return true;
-  return version !== OLDEST_MARKET_FACTORY_VER && version !== OLD_MARKET_FACTORY_VER;
+  const v = market?.version !== OLDEST_MARKET_FACTORY_VER && market?.version !== OLD_MARKET_FACTORY_VER;
+  return v;
 }
 
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
