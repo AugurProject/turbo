@@ -120,22 +120,22 @@ contract CryptoMarketFactory is AbstractMarketFactory {
     //
     // Assume that _roundIds has a dummy value at index 0, and is 1 indexed like the
     // coins array.
-    function createAndResolveMarkets(uint256 _roundIds[], uint256 _nextResolutionTime) public {
+    function createAndResolveMarkets(uint80[] calldata _roundIds, uint256 _nextResolutionTime) public {
         require(msg.sender == linkNode, "Only link node can create markets");
         // If market creation was stopped then it can be started again.
         // If market creation wasn't stopped then you must wait for market end time to resolve.
         require(nextResolutionTime == 0 || block.timestamp >= nextResolutionTime, "Must wait for market resolution");
 
-        uint256 resolutionTime = nextResolutionTime;
+        uint256 _resolutionTime = nextResolutionTime;
         nextResolutionTime = _nextResolutionTime;
 
         // Start at 1 to skip the fake Coin in the 0 index
         for (uint256 i = 1; i < coins.length; i++) {
-            createAndResolveMarketsForCoin(i, resolutionTime, roundIds[i]);
+            createAndResolveMarketsForCoin(i, _resolutionTime, _roundIds[i]);
         }
     }
 
-    function createAndResolveMarketsForCoin(uint256 _coinIndex, uint256 resolutionTime, uint256 _roundId) internal {
+    function createAndResolveMarketsForCoin(uint256 _coinIndex, uint256 resolutionTime, uint80 _roundId) internal {
         Coin memory _coin = coins[_coinIndex];
         (uint256 _fullPrice, uint256 _newPrice) = getPrice(_coin, _roundId);
 
@@ -195,9 +195,9 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }
 
-    function getPrice(Coin memory _coin, uint256 _roundId) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
+    function getPrice(Coin memory _coin, uint80 _roundId) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
         if (_roundId == 0) {
-          (, int256 _rawPrice, , , ) = _coin.priceFeed.getLatestRoundData();
+          (, int256 _rawPrice, , , ) = _coin.priceFeed.latestRoundData();
           require(_rawPrice >= 0, "Price from feed is negative");
           _fullPrice = uint256(_rawPrice);
         } else {
