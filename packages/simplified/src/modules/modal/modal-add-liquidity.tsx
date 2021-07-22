@@ -194,7 +194,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     items.length > 0 && items[0].outcomeId === 0 ? items.slice(1).concat(items.slice(0, 1)) : items;
 
   const getCreateBreakdown = (isRemove = false) => {
-    console.log("in getCreateBreakdown", breakdown, breakdown.minAmounts);
     const fullBreakdown = [
       ...orderMinAmountsForDisplay(breakdown.minAmounts)
         .filter((m) => !m.hide)
@@ -217,7 +216,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         svg: MaticIcon,
       });
     }
-    console.log("returning", fullBreakdown);
     return fullBreakdown;
   };
 
