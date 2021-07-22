@@ -59,7 +59,56 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
+    mmaMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
+      marketId: id
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      creationTimestamp: timestamp
+      endTime
+      eventId
+      homeFighterName
+      awayFighterName
+      homeFighterId
+      awayFighterId
+      winner
+      shareTokens
+      creator
+      marketType
+    }
+    resolved_teamSportsMarkets: teamSportsMarkets(
+      where: { winner_not: null }
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
+      marketId: id
+      creationTimestamp: timestamp
+      endTime
+      winner
+      eventId
+      homeTeamId
+      awayTeamId
+      marketType
+      value0: overUnderTotal
+      estimatedStartTime
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      shareTokens
+      creator
+    }
+    resolved_cryptoMarkets: cryptoMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
+      marketId: id
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      creationTimestamp: timestamp
+      endTime
+      winner
+      creationPrice
+      marketType
+      coinIndex
+      shareTokens
+      creator
+    }
+    resolved_mmaMarkets: mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
