@@ -5,7 +5,7 @@ import { Header } from "./common";
 import { useHistory } from "react-router";
 import { InfoNumbers } from "../market/trading-form";
 import classNames from "classnames";
-import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "../types";
+import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "@augurproject/comps/build/types";
 import { BigNumber as BN } from "bignumber.js";
 import {
   ContractCalls,

@@ -191,6 +191,7 @@ export interface InvalidPool {
 }
 export interface AmmExchange {
   id: string;
+  turboId: number;
   marketId: string;
   market: MarketInfo;
   liquidity: string;
