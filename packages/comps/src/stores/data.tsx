@@ -59,12 +59,13 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
         try {
+          // Throwing now until graph data can consistently pull all markets
+          throw new Error('Temporary Graph Failover');
+
           const {data, block, errors} = await getMarketsData();
           //console.log(data, block, errors);
           const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
           
-          // Throwing now until graph data can consistently pull all markets
-          throw new Error('Temporary Graph Failover');
 
           return infos;
         } catch (e) {

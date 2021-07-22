@@ -16,7 +16,7 @@ import {
   FeePot,
   AMMFactory__factory,
   BFactory__factory,
-  AbstractMarketFactory,
+  AbstractMarketFactoryV2,
   BPool__factory,
 } from "../typechain";
 import feedABI from "../abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json";
@@ -269,17 +269,11 @@ describe("CryptoFactory", () => {
 
   describe("trading", () => {
     it("can create pool", async () => {
-      const basis = BigNumber.from(10).pow(18);
-      const weights = [
-        basis.mul(50).div(2), // 50% above
-        basis.mul(50).div(2), // 50% not-above
-      ];
-
       const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
       await collateral.faucet(initialLiquidity);
       await collateral.approve(ammFactory.address, initialLiquidity);
 
-      await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, weights, signer.address);
+      await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, signer.address);
     });
 
     it("can buy shares", async () => {
@@ -293,7 +287,7 @@ describe("CryptoFactory", () => {
       const setsInForCollateral = await marketFactory.calcShares(usdcBasis.mul(5));
       const [tokenAmountOut, shareTokensIn] = await calculateSellCompleteSetsWithValues(
         ammFactory,
-        (marketFactory as unknown) as AbstractMarketFactory,
+        (marketFactory as unknown) as AbstractMarketFactoryV2,
         ethPriceMarketId.toString(),
         PriceUpDownOutcome.Above,
         setsInForCollateral.toString()

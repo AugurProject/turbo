@@ -10,12 +10,14 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
+  ContractCalls
 } from "@augurproject/comps";
 import { TopBanner } from '../common/top-banner';
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
+const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
   MarketCardComps: { LoadingMarketCard },
@@ -228,7 +230,8 @@ const MarketsView = () => {
 
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
-    if (!amm.id && isLogged) {
+    const canAddLiq = canAddLiquidity(market);
+    if (isLogged && canAddLiq) {
       setModal({
         type: MODAL_ADD_LIQUIDITY,
         market,

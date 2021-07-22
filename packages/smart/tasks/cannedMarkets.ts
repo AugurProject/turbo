@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces, MarketFactoryType } from "..";
-import { SportsLinkMarketFactory, MMALinkMarketFactory } from "../typechain";
+import { SportsLinkMarketFactoryV2, MMALinkMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
 import { BigNumber, BigNumberish, ContractTransaction, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -18,21 +18,29 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
 });
 
 async function sportsLink(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
-  const sportsLinkMarkets = [
-    { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -50, ou: 2000 },
-    { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -30, ou: 300 },
-    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 10, ou: 500 },
-    { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -30, ou: 30 },
-    { eventId: "0x12f001", homeId: 0x67, awayId: 0x68, spread: 0, ou: 10 },
+  interface MarketSpecifier {
+    eventId: string;
+    homeId: number;
+    awayId: number;
+    spread: number;
+    ou: number;
+    h2h: [number, number];
+  }
+  const sportsLinkMarkets: MarketSpecifier[] = [
+    { eventId: "0xaf2a", homeId: 0x1, awayId: 0x2, spread: -50, ou: 2000, h2h: [-100, +600] },
+    { eventId: "0xa1123c", homeId: 0x30, awayId: 0x2f, spread: -30, ou: 300, h2h: [-120, +130] },
+    { eventId: "0xb2011c", homeId: 0x51, awayId: 0x52, spread: 10, ou: 500, h2h: [+400, -60] },
+    { eventId: "0xc3444c", homeId: 0x66, awayId: 0x65, spread: -30, ou: 30, h2h: [-90, +210] },
+    { eventId: "0x12f001", homeId: 0x67, awayId: 0x68, spread: 0, ou: 10, h2h: [+800, -500] },
   ];
 
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "SportsLink")]
-    .marketFactory as SportsLinkMarketFactory;
+    .marketFactory as SportsLinkMarketFactoryV2;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
   try {
-    for (const { eventId, homeId, awayId, spread, ou } of sportsLinkMarkets) {
+    for (const { eventId, homeId, awayId, spread, ou, h2h } of sportsLinkMarkets) {
       console.log("Creating market:");
       console.log(`    Event ID: ${eventId}`);
       console.log(`    Home ID: ${homeId}`);
@@ -46,6 +54,7 @@ async function sportsLink(signer: Signer, contracts: ContractInterfaces, confirm
         eventId,
         homeId,
         awayId,
+        h2h,
         spread,
         ou,
         confirmations
@@ -110,17 +119,18 @@ async function mmaLink(signer: Signer, contracts: ContractInterfaces, confirmati
 
 export async function createSportsLinkMarket(
   signer: Signer,
-  marketFactory: SportsLinkMarketFactory,
+  marketFactory: SportsLinkMarketFactoryV2,
   startTime: BigNumberish,
   eventId: BigNumberish,
   homeId: BigNumberish,
   awayId: BigNumberish,
+  headToHeadLines: [BigNumberish, BigNumberish],
   homeSpreadTarget: BigNumberish,
   overUnderTarget: BigNumberish,
   confirmations: number
 ) {
   return marketFactory
-    .createMarket(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget, true, true)
+    .createMarket(eventId, homeId, awayId, startTime, homeSpreadTarget, overUnderTarget, true, true, headToHeadLines)
     .then((tx: ContractTransaction) => tx.wait(confirmations));
 }
 

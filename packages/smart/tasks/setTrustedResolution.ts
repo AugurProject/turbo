@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 
 import "hardhat/types/config";
-import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory } from "..";
+import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactoryV2 } from "..";
 import { makeSigner } from "./deploy";
 import { sleep } from "../src";
 
@@ -18,7 +18,7 @@ task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory
     const network = await ethers.provider.getNetwork();
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
-    const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactoryV2;
     await marketFactory.trustedSetResolution(marketId, outcomes);
     await sleep(10000);
     const market = await marketFactory.getMarket(marketId);

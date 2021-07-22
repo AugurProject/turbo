@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../balancer/BFactory.sol";
 import "../libraries/SafeMathUint256.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "../balancer/BNum.sol";
 
 contract AMMFactory is BNum {
@@ -51,17 +51,14 @@ contract AMMFactory is BNum {
     }
 
     function createPool(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         uint256 _initialLiquidity,
-        uint256[] memory _weights,
         address _lpTokenRecipient
     ) public returns (uint256) {
         require(pools[address(_marketFactory)][_marketId] == BPool(0), "Pool already created");
 
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
-
-        require(_weights.length == _market.shareTokens.length, "Must have one weight for each share token");
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
         //  Turn collateral into shares
         IERC20Full _collateral = _marketFactory.collateral();
@@ -84,7 +81,7 @@ contract AMMFactory is BNum {
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             OwnedERC20 _token = _market.shareTokens[i];
             _token.approve(address(_pool), MAX_UINT);
-            _pool.bind(address(_token), _sets, _weights[i]);
+            _pool.bind(address(_token), _sets, _market.initialOdds[i]);
         }
 
         // Set the swap fee.
@@ -122,7 +119,7 @@ contract AMMFactory is BNum {
     }
 
     function addLiquidity(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         uint256 _collateralIn,
         uint256 _minLPTokensOut,
@@ -131,7 +128,7 @@ contract AMMFactory is BNum {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
         //  Turn collateral into shares
         IERC20Full _collateral = _marketFactory.collateral();
@@ -191,7 +188,7 @@ contract AMMFactory is BNum {
     }
 
     function removeLiquidity(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         uint256 _lpTokensIn,
         uint256 _minCollateralOut,
@@ -200,7 +197,7 @@ contract AMMFactory is BNum {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
         _pool.transferFrom(msg.sender, address(this), _lpTokensIn);
 
@@ -252,7 +249,7 @@ contract AMMFactory is BNum {
     }
 
     function buy(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         uint256 _outcome,
         uint256 _collateralIn,
@@ -261,7 +258,7 @@ contract AMMFactory is BNum {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
 
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
         IERC20Full _collateral = _marketFactory.collateral();
         _collateral.transferFrom(msg.sender, address(this), _collateralIn);
@@ -298,7 +295,7 @@ contract AMMFactory is BNum {
     }
 
     function sellForCollateral(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         uint256 _outcome,
         uint256[] memory _shareTokensIn,
@@ -306,7 +303,7 @@ contract AMMFactory is BNum {
     ) external returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         require(_pool != BPool(0), "Pool needs to be created");
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
         uint256 _setsOut = MAX_UINT;
         uint256 _totalUndesiredTokensIn = 0;
@@ -365,7 +362,7 @@ contract AMMFactory is BNum {
     // Returns an array of token values for the outcomes of the market, relative to the first outcome.
     // So the first outcome is 10**18 and all others are higher or lower.
     // Prices can be derived due to the fact that the total of all outcome shares equals one collateral, possibly with a scaling factor,
-    function tokenRatios(AbstractMarketFactory _marketFactory, uint256 _marketId)
+    function tokenRatios(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId)
         external
         view
         returns (uint256[] memory)
@@ -376,7 +373,7 @@ contract AMMFactory is BNum {
             return new uint256[](0);
         }
 
-        AbstractMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
         address _basisToken = address(_market.shareTokens[0]);
         uint256[] memory _ratios = new uint256[](_market.shareTokens.length);
         _ratios[0] = 10**18;
@@ -387,7 +384,7 @@ contract AMMFactory is BNum {
         return _ratios;
     }
 
-    function getPoolBalances(AbstractMarketFactory _marketFactory, uint256 _marketId)
+    function getPoolBalances(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId)
         external
         view
         returns (uint256[] memory)
@@ -406,7 +403,7 @@ contract AMMFactory is BNum {
         return _balances;
     }
 
-    function getPoolWeights(AbstractMarketFactory _marketFactory, uint256 _marketId)
+    function getPoolWeights(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId)
         external
         view
         returns (uint256[] memory)
@@ -425,13 +422,13 @@ contract AMMFactory is BNum {
         return _weights;
     }
 
-    function getSwapFee(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256) {
+    function getSwapFee(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId) external view returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
         return _pool.getSwapFee();
     }
 
     function getPoolTokenBalance(
-        AbstractMarketFactory _marketFactory,
+        AbstractMarketFactoryV2 _marketFactory,
         uint256 _marketId,
         address whom
     ) external view returns (uint256) {
@@ -439,7 +436,7 @@ contract AMMFactory is BNum {
         return _pool.balanceOf(whom);
     }
 
-    function getPool(AbstractMarketFactory _marketFactory, uint256 _marketId) external view returns (BPool) {
+    function getPool(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId) external view returns (BPool) {
         return pools[address(_marketFactory)][_marketId];
     }
 }
