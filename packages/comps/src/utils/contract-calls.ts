@@ -139,10 +139,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-            outcomeId: i,
-            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-          }))
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1137,17 +1137,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-        .times(sharesAddLiquidity.shares)
-        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+      .times(sharesAddLiquidity.shares)
+      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-        .times(outcomeLiquidityShares)
-        .div(totalShares)
-        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+      .times(outcomeLiquidityShares)
+      .div(totalShares)
+      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   const timestamp = [
@@ -1469,8 +1469,11 @@ const setIgnoreRemoveMarketList = async (
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
 ): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
+  if (Object.values(allMarkets).filter(m => !m.amm).length > 0) {
+    console.log('allMarkets', Object.values(allMarkets).filter(m => !m.amm));
+  }
   // <Removal> resolved markets with no liquidity
-  const nonLiqResolvedMarkets = Object.values(allMarkets).filter((m) => !m.amm.hasLiquidity && m.hasWinner);
+  const nonLiqResolvedMarkets = Object.values(allMarkets).filter((m) => !m?.amm?.hasLiquidity && m?.hasWinner);
 
   // <Removal> speard marketw with zero line
   const zeroSpreadMarkets = Object.values(allMarkets).filter(
@@ -1736,6 +1739,7 @@ export const fillGraphMarketsData = async (
     }
   }
   if (Object.keys(ignoreList)?.length === 0) {
+    console.log('marketInfos', marketInfos)
     const { markets, ammExchanges } = await setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
     marketInfos = markets;
     exchanges = ammExchanges;
@@ -1753,43 +1757,43 @@ const fillMarketsData = async (
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
   if (!markets || markets?.length === 0) return { marketInfos: {}, exchanges: {}, blocknumber };
   const POOLS = "pools";
-  const factoryAddress = Object.values(markets)[0].market.marketFactory;
-  const marketFactoryData = getMarketFactoryData(factoryAddress);
-  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
-  const marketFactoryAddress = marketFactoryContract.address;
-  const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
-  const ammFactoryAddress = ammFactoryContract.address;
-  const ammFactoryAbi = extractABI(ammFactoryContract);
+  const marketFactories = Array.from(new Set(Object.values(markets).map(m => m.marketFactoryAddress)));
+  const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
 
-  const contractMarketsCall: ContractCallContext[] = markets
-    .map((m) => m.market.marketIndex)
-    .reduce(
-      (p, index) => [
-        ...p,
-        {
-          reference: `${ammFactoryAddress}-${index}-pools`,
+    console.log('factoryAddress', factoryAddress)
+    const marketFactoryData = getMarketFactoryData(factoryAddress);
+    const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
+    const ammFactoryAddress = ammFactoryContract.address;
+    const ammFactoryAbi = extractABI(ammFactoryContract);
+
+    const calls: ContractCallContext[] = markets.filter(m => m.marketFactoryAddress === factoryAddress)
+      .map(
+        ({ turboId, marketFactoryAddress }) =>
+        ({
+          reference: `${ammFactoryAddress}-${turboId}-pools`,
           contractAddress: ammFactoryAddress,
           abi: ammFactoryAbi,
           calls: [
             {
-              reference: `${ammFactoryAddress}-${index}-pools`,
+              reference: `${ammFactoryAddress}-${turboId}-pools`,
               methodName: POOLS,
-              methodParameters: [marketFactoryAddress, index],
+              methodParameters: [marketFactoryAddress, turboId],
               context: {
-                index,
+                index: turboId,
                 marketFactoryAddress,
+                ammFactoryAddress,
               },
             },
           ],
-        },
-      ],
-      []
-    );
+        }),
+      );
+    return [...p, ...calls];
+  }, [])
 
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
   const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error(`fillMarketDatas`, e);
+    console.error(`fillMarketDatas`, contractMarketsCall, e);
     throw e;
   });
 
@@ -1802,10 +1806,11 @@ const fillMarketsData = async (
 
     if (method === POOLS) {
       const id = data === NULL_ADDRESS ? null : data;
+      console.log('adding marketId to exchanges', marketId);
       exchanges[marketId] = {
         marketId,
         id,
-        marketFactoryAddress,
+        marketFactoryAddress: context.marketFactoryAddress,
         turboId: context.index,
         feeDecimal: "0",
         feeRaw: "0",
@@ -1813,7 +1818,7 @@ const fillMarketsData = async (
         transactions: [], // to be filled in the future
         trades: {}, // to be filled in the future
         cash,
-        ammFactoryAddress,
+        ammFactoryAddress: context.ammFactoryAddress,
       };
     }
   }
@@ -1821,14 +1826,12 @@ const fillMarketsData = async (
   let marketInfos = {};
   if (markets.length > 0) {
     markets.forEach((m) => {
+      const marketFactoryData = getMarketFactoryData(m.marketFactoryAddress);
       const market = {
         ...m,
         ...decodeMarket(m, marketFactoryType),
-        marketFactoryAddress: m.market.marketFactory,
-        turboId: m.market.marketIndex,
         version: marketFactoryData.version,
       };
-      delete market.market;
       marketInfos[m.marketId] = deriveMarketInfo(market, market, marketFactoryType);
     });
   }
@@ -2058,6 +2061,10 @@ const retrieveExchangeInfos = async (
     const fee = new BN(String(fees[marketId] || DEFAULT_AMM_FEE_RAW)).toFixed();
     const balancesRaw = balances[marketId] || [];
     const weights = poolWeights[marketId];
+    if (!market) {
+      console.log('exchange id', exchange.id, 'exchange marketId', exchange.marketId, 'marketId', marketId, market, exchange, marketInfos)
+      console.log(new Set(Object.values(marketInfos).map(m => m.marketFactoryAddress)));
+    }
     exchange.ammOutcomes = market.outcomes.map((o, i) => ({
       price: exchange.id ? String(outcomePrices[i]) : "",
       ratioRaw: exchange.id ? getArrayValue(ratios[marketId], i) : "",
@@ -2098,6 +2105,10 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
 
 const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: string[] = []): string[] => {
   let outcomePrices = [];
+  if (!market) {
+    console.error('market object undefined');
+    return [];
+  }
   const { outcomes, hasWinner } = market;
   if (hasWinner) {
     return outcomes.map((outcome) => (outcome.isWinner ? "1" : "0"));
@@ -2114,7 +2125,7 @@ const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: str
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
-  const hasWinner = winner !== NULL_ADDRESS;
+  const hasWinner = winner !== NULL_ADDRESS && winner !== null;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
 
   const creatorFee = new BN(String(onChainFee))

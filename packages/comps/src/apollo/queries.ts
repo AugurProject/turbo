@@ -30,9 +30,9 @@ export const SEARCH_MARKETS = gql`
 
 export const GET_MARKETS = gql`
   query {
-    teamSportsMarkets {
+    teamSportsMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc) {
       marketId: id
-      timestamp
+      creationTimestamp: timestamp
       endTime
       winner
       eventId
@@ -41,22 +41,16 @@ export const GET_MARKETS = gql`
       marketType
       value0: overUnderTotal
       estimatedStartTime
-      market: marketId {
-        id
-        marketFactory
-        marketIndex
-      }
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
       shareTokens
       creator
     }
-    cryptoMarkets {
+    cryptoMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc)  {
       marketId: id
-      market: marketId {
-        id
-        marketFactory
-        marketIndex
-      }
-      timestamp
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      creationTimestamp: timestamp
       endTime
       winner
       creationPrice
@@ -65,14 +59,11 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    mmaMarkets {
+    mmaMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc)  {
       marketId: id
-      market: marketId {
-        id
-        marketFactory
-        marketIndex
-      }
-      timestamp
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      creationTimestamp: timestamp
       endTime
       eventId
       homeFighterName

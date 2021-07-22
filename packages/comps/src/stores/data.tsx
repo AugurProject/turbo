@@ -26,11 +26,7 @@ export const DataStore = {
   get: () => ({ ...DEFAULT_DATA_STATE }),
   actions: STUBBED_DATA_ACTIONS,
 };
-const GRAPH_MARKETS = {
-  "cryptoMarkets": MARKET_FACTORY_TYPES.CRYPTO,
-  "mmaMarkets": MARKET_FACTORY_TYPES.MMALINK,
-  "teamSportsMarkets": MARKET_FACTORY_TYPES.SPORTSLINK,
-}
+
 export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
@@ -64,7 +60,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
           const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
           
           // Throwing now until graph data can consistently pull all markets
-          throw new Error('Temporary Graph Failover');
+          // throw new Error('Temporary Graph Failover');
 
           return infos;
         } catch (e) {
