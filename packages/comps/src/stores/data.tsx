@@ -13,8 +13,6 @@ import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { AppStatusStore } from "./app-status";
-import { MARKET_FACTORY_TYPES } from "../utils/constants";
-
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -26,11 +24,7 @@ export const DataStore = {
   get: () => ({ ...DEFAULT_DATA_STATE }),
   actions: STUBBED_DATA_ACTIONS,
 };
-const GRAPH_MARKETS = {
-  "cryptoMarkets": MARKET_FACTORY_TYPES.CRYPTO,
-  "mmaMarkets": MARKET_FACTORY_TYPES.MMALINK,
-  "teamSportsMarkets": MARKET_FACTORY_TYPES.SPORTSLINK,
-}
+
 export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
@@ -59,13 +53,15 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
         try {
-          // Throwing now until graph data can consistently pull all markets
-          throw new Error('Temporary Graph Failover');
-
           const {data, block, errors} = await getMarketsData();
-          //console.log(data, block, errors);
+          //console.log('GRAPH DATA', data, block, errors);
+          if (errors) {
+            throw new Error(`Graph returned error ${errors}`);
+          }
           const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
-          
+
+          // Throwing now until graph data can consistently pull all markets
+          //throw new Error('Temporary Graph Failover');
 
           return infos;
         } catch (e) {

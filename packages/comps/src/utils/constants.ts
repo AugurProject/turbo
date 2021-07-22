@@ -336,6 +336,9 @@ export const GRAPH_MARKETS = {
   cryptoMarkets: MARKET_FACTORY_TYPES.CRYPTO,
   mmaMarkets: MARKET_FACTORY_TYPES.MMALINK,
   teamSportsMarkets: MARKET_FACTORY_TYPES.SPORTSLINK,
+  resolved_cryptoMarkets: MARKET_FACTORY_TYPES.CRYPTO,
+  resolved_mmaMarkets: MARKET_FACTORY_TYPES.MMALINK,
+  resolved_teamSportsMarkets: MARKET_FACTORY_TYPES.SPORTSLINK,
 };
 
 export const SPORTS_MARKET_TYPE_LABELS = {
