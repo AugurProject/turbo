@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { calcShareFactor } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash__factory, MMALinkMarketFactory__factory } from "../typechain";
+import { Cash__factory, MMAMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -29,22 +29,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = hre.network.config.deployConfig?.protocol || deployer;
   const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const sportId = 7;
-
-  const args: Parameters<MMALinkMarketFactory__factory["deploy"]> = [
+  const args: Parameters<MMAMarketFactory__factory["deploy"]> = [
     owner,
     collateral.address,
     shareFactor,
     feePot.address,
-    stakerFee,
-    settlementFee,
+    [stakerFee, settlementFee, protocolFee],
     protocol,
-    protocolFee,
     linkNode,
-    sportId,
   ];
 
-  await deployments.deploy("MMALinkMarketFactory", {
+  await deployments.deploy("MMAMarketFactory", {
     from: deployer,
     args,
     log: true,
@@ -57,7 +52,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 };
 
-func.tags = ["MMALinkMarketFactory"];
+func.tags = ["MMAMarketFactory"];
 func.dependencies = ["Tokens", "FeePot", "BFactory"];
 
 export default func;

@@ -4,26 +4,19 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactoryV2.sol";
+import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
-
 import "@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
-import "../libraries/CalculateLinesToBPoolOdds.sol";
+import "../libraries/various.sol";
 
-contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
+contract CryptoMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
-    event MarketCreated(
-        uint256 id,
-        address creator,
-        uint256 indexed endTime,
-        MarketType marketType,
-        uint256 indexed coinIndex,
-        uint256 price
-    );
-    event MarketResolved(uint256 id, address winner);
+    event CoinAdded(uint256 indexed id, string name);
+
+    event NewPrices(uint256 indexed nextResolutionTime, uint256[] markets, uint256[] prices);
 
     struct Coin {
         string name;
@@ -59,23 +52,10 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         IERC20Full _collateral,
         uint256 _shareFactor,
         FeePot _feePot,
-        uint256 _stakerFee,
-        uint256 _settlementFee,
+        uint256[3] memory _fees,
         address _protocol,
-        uint256 _protocolFee,
         address _linkNode
-    )
-        AbstractMarketFactoryV2(
-            _owner,
-            _collateral,
-            _shareFactor,
-            _feePot,
-            _stakerFee,
-            _settlementFee,
-            _protocol,
-            _protocolFee
-        )
-    {
+    ) AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol) Versioned("v1.2.0") {
         linkNode = _linkNode;
 
         string memory _name = "";
@@ -96,6 +76,7 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         Coin memory _coin = makeCoin(_name, _priceFeed, _imprecision);
         _coinIndex = coins.length;
         coins.push(_coin);
+        emit CoinAdded(_coinIndex, _name);
     }
 
     function getCoin(uint256 _coinIndex) public view returns (Coin memory _coin) {
@@ -128,17 +109,21 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         uint256 _resolutionTime = nextResolutionTime;
         nextResolutionTime = _nextResolutionTime;
 
+        uint256[] memory _prices = new uint256[](coins.length - 1);
+        uint256[] memory _newMarketIds = new uint256[](coins.length - 1);
         // Start at 1 to skip the fake Coin in the 0 index
         for (uint256 i = 1; i < coins.length; i++) {
-            createAndResolveMarketsForCoin(i, _resolutionTime, _roundIds[i]);
+            (_prices[i - 1], _newMarketIds[i - 1]) = createAndResolveMarketsForCoin(i, _resolutionTime, _roundIds[i]);
         }
+
+        emit NewPrices(nextResolutionTime, _newMarketIds, _prices);
     }
 
     function createAndResolveMarketsForCoin(
         uint256 _coinIndex,
         uint256 _resolutionTime,
         uint80 _roundId
-    ) internal {
+    ) internal returns (uint256 _price, uint256 _newMarketId) {
         Coin memory _coin = coins[_coinIndex];
         (uint256 _fullPrice, uint256 _newPrice) = getPrice(_coin, _roundId, _resolutionTime);
 
@@ -152,15 +137,14 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
 
         // link node sets nextResolutionTime to zero to signify "do not create markets after resolution"
         if (nextResolutionTime == 0) {
-            return;
+            return (0, 0);
         }
 
         // create markets
-        coins[_coinIndex].currentMarkets[uint256(MarketType.PriceUpDown)] = createPriceUpDownMarket(
-            _coinIndex,
-            linkNode,
-            _newPrice
-        );
+        _newMarketId = createPriceUpDownMarket(_coinIndex, linkNode, _newPrice);
+        coins[_coinIndex].currentMarkets[uint256(MarketType.PriceUpDown)] = _newMarketId;
+
+        return (_newPrice, _newMarketId);
     }
 
     function resolvePriceUpDownMarket(
@@ -170,16 +154,15 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
     ) internal {
         uint256 _marketId = _coin.currentMarkets[uint256(MarketType.PriceUpDown)];
 
-        OwnedERC20 _winner;
+        uint256 _winningOutcome;
         if (_newPrice > _coin.price) {
-            _winner = markets[_marketId].shareTokens[uint256(PriceUpDownOutcome.Above)];
+            _winningOutcome = uint256(PriceUpDownOutcome.Above);
         } else {
-            _winner = markets[_marketId].shareTokens[uint256(PriceUpDownOutcome.NotAbove)];
+            _winningOutcome = uint256(PriceUpDownOutcome.NotAbove);
         }
 
-        markets[_marketId].winner = _winner;
+        endMarket(_marketId, _winningOutcome);
         marketDetails[_marketId].resolutionPrice = _fullPrice;
-        emit MarketResolved(_marketId, address(_winner));
     }
 
     function createPriceUpDownMarket(
@@ -191,11 +174,8 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         _outcomes[uint256(PriceUpDownOutcome.Above)] = "Above";
         _outcomes[uint256(PriceUpDownOutcome.NotAbove)] = "Not Above";
 
-        uint256 _nextResolutionTime = nextResolutionTime;
-        _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _nextResolutionTime, evenOdds(false, 2)));
+        _id = startMarket(_creator, _outcomes, evenOdds(false, 2), true);
         marketDetails[_id] = MarketDetails(MarketType.PriceUpDown, _coinIndex, _newPrice, 0);
-        emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }
 
     // Returns the price based on a few factors.
@@ -255,10 +235,6 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
     ) internal pure returns (Coin memory _coin) {
         uint256[1] memory _currentMarkets = [uint256(0)];
         _coin = Coin(_name, _priceFeed, 0, _imprecision, _currentMarkets);
-    }
-
-    function resolveMarket(uint256) public pure override {
-        require(false, "Use createAndResolveMarkets");
     }
 
     // The roundId is the encoding of two parts: the phase and the phase-specific round id.

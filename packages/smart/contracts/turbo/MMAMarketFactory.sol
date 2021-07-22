@@ -9,23 +9,11 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/various.sol";
 
-// NFL is standard except ties are fine: they become NoContestOrDraw.
-// As a consequence, half points are not added to the lines.
-contract NFLMarketFactory is
-    AbstractMarketFactoryV3,
-    EventualView,
-    Facing,
-    Spreadable,
-    Hurdlable,
-    UsesScores,
-    Versioned
-{
+contract MMAMarketFactory is AbstractMarketFactoryV3, EventualView, SaysWhoWon, Facing, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
     uint256 constant HeadToHead = 0;
-    uint256 constant Spread = 1;
-    uint256 constant OverUnder = 2;
     string constant InvalidName = "No Contest / Draw";
 
     constructor(
@@ -41,8 +29,6 @@ contract NFLMarketFactory is
         Versioned("v1.2.0")
         Linked(_linkNode)
         Facing(HeadToHead, InvalidName)
-        Spreadable(Spread, InvalidName)
-        Hurdlable(OverUnder, InvalidName)
     {}
 
     function createMarket(
@@ -52,8 +38,6 @@ contract NFLMarketFactory is
         string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
-        int256 _homeSpread,
-        int256 _totalScore,
         int256[2] memory _moneylines // [home,away]
     ) public onlyLinkNode returns (uint256[] memory _marketIds) {
         // Cannot create markets for an event twice.
@@ -63,7 +47,7 @@ contract NFLMarketFactory is
         makeSportsEvent(
             _eventId,
             _marketIds,
-            build3Lines(_homeSpread, _totalScore),
+            build1Line(),
             _startTimestamp,
             _homeTeamId,
             _awayTeamId,
@@ -77,20 +61,26 @@ contract NFLMarketFactory is
         string memory _homeTeamName,
         string memory _awayTeamName
     ) internal returns (uint256[] memory _marketIds) {
-        _marketIds = new uint256[](3);
-
+        _marketIds = new uint256[](1);
         _marketIds[HeadToHead] = makeHeadToHeadMarket(_moneylines, _homeTeamName, _awayTeamName);
-        _marketIds[Spread] = makeSpreadMarket(_homeTeamName, _awayTeamName);
-        _marketIds[OverUnder] = makeOverUnderMarket();
     }
 
-    function resolveValidEvent(
-        SportsEvent memory _event,
-        uint256 _homeScore,
-        uint256 _awayScore
-    ) internal override {
-        resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
-        resolveSpreadMarket(_event.markets[Spread], _event.lines[Spread], _homeScore, _awayScore);
-        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[Spread], _homeScore, _awayScore);
+    function resolveValidEvent(SportsEvent memory _event, uint256 _whoWon) internal override {
+        resolveHeadToHeadMarket(_event.markets[HeadToHead], _whoWon);
+    }
+
+    function resolveHeadToHeadMarket(uint256 _marketId, uint256 _whoWon) internal {
+        uint256 _shareTokenIndex = calcHeadToHeadWinner(_whoWon);
+        endMarket(_marketId, _shareTokenIndex);
+    }
+
+    function calcHeadToHeadWinner(uint256 _whoWon) internal pure returns (uint256) {
+        if (WhoWonHome == _whoWon) {
+            return HeadToHeadHome;
+        } else if (WhoWonAway == _whoWon) {
+            return HeadToHeadAway;
+        } else {
+            return NoContest; // shouldn't happen here
+        }
     }
 }

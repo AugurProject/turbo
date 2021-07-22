@@ -9,8 +9,8 @@ import {
   TrustedMarketFactory__factory,
   CryptoMarketFactory__factory,
   CryptoMarketFactory,
-  MMALinkMarketFactory,
-  MMALinkMarketFactory__factory,
+  MMAMarketFactory,
+  MMAMarketFactory__factory,
   SportsLinkMarketFactoryV1__factory,
   SportsLinkMarketFactoryV1,
   NFLMarketFactory__factory,
@@ -37,7 +37,7 @@ export interface ContractInterfaces {
 export type MarketFactoryContract =
   | SportsLinkMarketFactoryV1
   | SportsLinkMarketFactoryV2
-  | MMALinkMarketFactory
+  | MMAMarketFactory
   | TrustedMarketFactory
   | CryptoMarketFactory
   | NFLMarketFactory;
@@ -70,7 +70,7 @@ export function instantiateMarketFactory(
     if (subtype === "V1") return SportsLinkMarketFactoryV1__factory.connect(address, signerOrProvider);
     if (subtype === "V2") return SportsLinkMarketFactoryV2__factory.connect(address, signerOrProvider);
   }
-  if (type === "MMALink") return MMALinkMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "MMALink") return MMAMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);

@@ -9,9 +9,10 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/various.sol";
 
-// NFL is standard except ties are fine: they become NoContestOrDraw.
-// As a consequence, half points are not added to the lines.
-contract NFLMarketFactory is
+// NCAA-FB is identical to NFL except there are no ties.
+// As a consequence, spread and over-under lines add a half-point,
+// and the invalid outcome is just No Contest.
+contract NCAAFBMarketFactory is
     AbstractMarketFactoryV3,
     EventualView,
     Facing,
@@ -26,7 +27,7 @@ contract NFLMarketFactory is
     uint256 constant HeadToHead = 0;
     uint256 constant Spread = 1;
     uint256 constant OverUnder = 2;
-    string constant InvalidName = "No Contest / Draw";
+    string constant InvalidName = "No Contest";
 
     constructor(
         address _owner,
@@ -91,6 +92,6 @@ contract NFLMarketFactory is
     ) internal override {
         resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
         resolveSpreadMarket(_event.markets[Spread], _event.lines[Spread], _homeScore, _awayScore);
-        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[Spread], _homeScore, _awayScore);
+        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[OverUnder], _homeScore, _awayScore);
     }
 }

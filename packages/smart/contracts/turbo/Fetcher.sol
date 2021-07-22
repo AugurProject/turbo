@@ -4,22 +4,18 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactoryV2.sol";
+import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
-import "./MMALinkMarketFactory.sol";
+import "./MMAMarketFactory.sol";
 import "./AMMFactory.sol";
 import "./CryptoMarketFactory.sol";
-import "./SportsLinkMarketFactoryV2.sol";
+import "./NBAMarketFactory.sol";
 
 // Helper contract for grabbing huge amounts of data without overloading multicall.
 abstract contract Fetcher {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
-
-    function marketType() public virtual returns (string memory);
-
-    function version() public virtual returns (string memory);
 
     struct CollateralBundle {
         address addr;
@@ -47,21 +43,28 @@ abstract contract Fetcher {
     }
 
     struct StaticMarketBundle {
-        AbstractMarketFactoryV2 factory;
+        AbstractMarketFactoryV3 factory;
         uint256 marketId;
         PoolBundle pool;
         OwnedERC20[] shareTokens;
         uint256 creationTimestamp;
-        uint256 endTime;
         OwnedERC20 winner;
         uint256[] initialOdds;
     }
 
     struct DynamicMarketBundle {
-        AbstractMarketFactoryV2 factory;
+        AbstractMarketFactoryV3 factory;
         uint256 marketId;
         PoolBundle pool;
         OwnedERC20 winner;
+    }
+
+    string public marketType;
+    string public version;
+
+    constructor(string memory _type, string memory _version) {
+        marketType = _type;
+        version = _version;
     }
 
     function buildCollateralBundle(IERC20Full _collateral) internal view returns (CollateralBundle memory _bundle) {
@@ -70,7 +73,7 @@ abstract contract Fetcher {
         _bundle.decimals = _collateral.decimals();
     }
 
-    function buildMarketFactoryBundle(AbstractMarketFactoryV2 _marketFactory)
+    function buildMarketFactoryBundle(AbstractMarketFactoryV3 _marketFactory)
         internal
         view
         returns (MarketFactoryBundle memory _bundle)
@@ -85,27 +88,26 @@ abstract contract Fetcher {
     }
 
     function buildStaticMarketBundle(
-        AbstractMarketFactoryV2 _marketFactory,
+        AbstractMarketFactoryV3 _marketFactory,
         AMMFactory _ammFactory,
         uint256 _marketId
     ) internal view returns (StaticMarketBundle memory _bundle) {
-        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
         _bundle.factory = _marketFactory;
         _bundle.marketId = _marketId;
         _bundle.shareTokens = _market.shareTokens;
         _bundle.creationTimestamp = _market.creationTimestamp;
-        _bundle.endTime = _market.endTime;
         _bundle.winner = _market.winner;
         _bundle.pool = buildPoolBundle(_marketFactory, _ammFactory, _marketId);
         _bundle.initialOdds = _market.initialOdds;
     }
 
     function buildDynamicMarketBundle(
-        AbstractMarketFactoryV2 _marketFactory,
+        AbstractMarketFactoryV3 _marketFactory,
         AMMFactory _ammFactory,
         uint256 _marketId
     ) internal view returns (DynamicMarketBundle memory _bundle) {
-        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
 
         _bundle.factory = _marketFactory;
         _bundle.marketId = _marketId;
@@ -114,7 +116,7 @@ abstract contract Fetcher {
     }
 
     function buildPoolBundle(
-        AbstractMarketFactoryV2 _marketFactory,
+        AbstractMarketFactoryV3 _marketFactory,
         AMMFactory _ammFactory,
         uint256 _marketId
     ) internal view returns (PoolBundle memory _bundle) {
@@ -137,7 +139,7 @@ abstract contract Fetcher {
         uint256 _total
     ) internal view returns (uint256[] memory _interestingMarketIds) {
         _interestingMarketIds = new uint256[](_total);
-        uint256 _max = AbstractMarketFactoryV2(_marketFactory).marketCount() - 1;
+        uint256 _max = AbstractMarketFactoryV3(_marketFactory).marketCount() - 1;
 
         // No remaining markets so return nothing. (needed to avoid integer underflow below)
         if (_offset > _max) {
@@ -149,7 +151,7 @@ abstract contract Fetcher {
         uint256 n = 0;
         for (uint256 _marketId = _max - _offset; _marketId > 0; _marketId--) {
             if (n >= _total) break;
-            if (openOrHasWinningShares(AbstractMarketFactoryV2(_marketFactory), _marketId)) {
+            if (openOrHasWinningShares(AbstractMarketFactoryV3(_marketFactory), _marketId)) {
                 _interestingMarketIds[n] = _marketId;
                 n++;
             }
@@ -163,46 +165,43 @@ abstract contract Fetcher {
         }
     }
 
-    function openOrHasWinningShares(AbstractMarketFactoryV2 _marketFactory, uint256 _marketId)
+    function openOrHasWinningShares(AbstractMarketFactoryV3 _marketFactory, uint256 _marketId)
         internal
         view
         returns (bool)
     {
-        AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
         if (_market.winner == OwnedERC20(address(0))) return true; // open
         return _market.winner.totalSupply() > 0; // has winning shares
     }
 }
 
-contract NBAFetcher is Fetcher {
-    function marketType() public pure override returns (string memory) {
-        return "NBA";
-    }
-
-    function version() public pure override returns (string memory) {
-        return "TBD";
-    }
-
+abstract contract SportsFetcher is Fetcher {
     struct SpecificMarketFactoryBundle {
         MarketFactoryBundle super;
-        uint256 sportId;
     }
 
-    struct SpecificStaticMarketBundle {
-        StaticMarketBundle super;
-        uint256 eventId;
+    struct StaticEventBundle {
+        uint256 id;
+        StaticMarketBundle[] markets;
+        int256[] lines;
+        uint256 estimatedStartTime;
         uint256 homeTeamId;
         uint256 awayTeamId;
-        uint256 estimatedStartTime;
-        SportsLinkMarketFactoryV2.MarketType marketType;
-        int256 value0;
+        string homeTeamName;
+        string awayTeamName;
         // Dynamics
-        SportsLinkMarketFactoryV2.EventStatus eventStatus;
+        Eventual.SportsEventStatus status;
+        uint256 homeScore;
+        uint256 awayScore;
     }
 
-    struct SpecificDynamicMarketBundle {
-        DynamicMarketBundle super;
-        SportsLinkMarketFactoryV2.EventStatus eventStatus;
+    struct DynamicEventBundle {
+        uint256 id;
+        Eventual.SportsEventStatus status;
+        DynamicMarketBundle[] markets;
+        uint256 homeScore;
+        uint256 awayScore;
     }
 
     function buildSpecificMarketFactoryBundle(address _marketFactory)
@@ -210,40 +209,9 @@ contract NBAFetcher is Fetcher {
         view
         returns (SpecificMarketFactoryBundle memory _bundle)
     {
-        _bundle.super = buildMarketFactoryBundle(SportsLinkMarketFactoryV2(_marketFactory));
-        _bundle.sportId = SportsLinkMarketFactoryV2(_marketFactory).sportId();
+        _bundle.super = buildMarketFactoryBundle(NBAMarketFactory(_marketFactory));
     }
 
-    function buildSpecificStaticMarketBundle(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _marketId
-    ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
-        SportsLinkMarketFactoryV2.MarketDetails memory _details =
-            SportsLinkMarketFactoryV2(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildStaticMarketBundle(SportsLinkMarketFactoryV2(_marketFactory), _ammFactory, _marketId);
-        _bundle.eventId = _details.eventId;
-        _bundle.homeTeamId = _details.homeTeamId;
-        _bundle.awayTeamId = _details.awayTeamId;
-        _bundle.estimatedStartTime = _details.estimatedStartTime;
-        _bundle.marketType = _details.marketType;
-        _bundle.value0 = _details.value0;
-        _bundle.eventStatus = _details.eventStatus;
-    }
-
-    function buildSpecificDynamicMarketBundle(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _marketId
-    ) internal view returns (SpecificDynamicMarketBundle memory _bundle) {
-        SportsLinkMarketFactoryV2.MarketDetails memory _details =
-            SportsLinkMarketFactoryV2(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildDynamicMarketBundle(SportsLinkMarketFactoryV2(_marketFactory), _ammFactory, _marketId);
-        _bundle.eventStatus = _details.eventStatus;
-    }
-
-    // NOTE: Copy-paste fetchInitial and fetchDynamic for each Fetcher.
-    //       Implement the buildSpecific* methods and Specific*Bundle structs.
     function fetchInitial(
         address _marketFactory,
         AMMFactory _ammFactory,
@@ -254,18 +222,12 @@ contract NBAFetcher is Fetcher {
         view
         returns (
             SpecificMarketFactoryBundle memory _marketFactoryBundle,
-            SpecificStaticMarketBundle[] memory _marketBundles
+            StaticEventBundle[] memory _eventBundles,
+            uint256 _lowestEventIndex
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
-
-        uint256[] memory _marketIds = listOfInterestingMarkets(_marketFactory, _offset, _total);
-
-        _total = _marketIds.length;
-        _marketBundles = new SpecificStaticMarketBundle[](_total);
-        for (uint256 i; i < _total; i++) {
-            _marketBundles[i] = buildSpecificStaticMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
-        }
+        (_eventBundles, _lowestEventIndex) = buildStaticEventBundles(_marketFactory, _ammFactory, _offset, _total);
     }
 
     function fetchDynamic(
@@ -273,138 +235,175 @@ contract NBAFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _offset,
         uint256 _total
-    ) public view returns (SpecificDynamicMarketBundle[] memory _bundles) {
-        uint256[] memory _marketIds = listOfInterestingMarkets(_marketFactory, _offset, _total);
+    ) public view returns (DynamicEventBundle[] memory _bundles, uint256 _lowestEventIndex) {
+        (_bundles, _lowestEventIndex) = buildDynamicEventBundles(_marketFactory, _ammFactory, _offset, _total);
+    }
 
-        _total = _marketIds.length;
-        _bundles = new SpecificDynamicMarketBundle[](_total);
+    function buildStaticEventBundles(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _offset,
+        uint256 _total
+    ) internal view returns (StaticEventBundle[] memory _bundles, uint256 _lowestEventIndex) {
+        uint256[] memory _eventIds;
+        (_eventIds, _lowestEventIndex) = listOfInterestingEvents(_marketFactory, _offset, _total);
+
+        _total = _eventIds.length;
+        _bundles = new StaticEventBundle[](_total);
         for (uint256 i; i < _total; i++) {
-            _bundles[i] = buildSpecificDynamicMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
+            _bundles[i] = buildStaticEventBundle(_marketFactory, _ammFactory, _eventIds[i]);
         }
+    }
+
+    function buildDynamicEventBundles(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _offset,
+        uint256 _total
+    ) internal view returns (DynamicEventBundle[] memory _bundles, uint256 _lowestEventIndex) {
+        uint256[] memory _eventIds;
+        (_eventIds, _lowestEventIndex) = listOfInterestingEvents(_marketFactory, _offset, _total);
+
+        _total = _eventIds.length;
+        _bundles = new DynamicEventBundle[](_total);
+        for (uint256 i; i < _total; i++) {
+            _bundles[i] = buildDynamicEventBundle(_marketFactory, _ammFactory, _eventIds[i]);
+        }
+    }
+
+    function buildStaticEventBundle(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _eventId
+    ) public view returns (StaticEventBundle memory _bundle) {
+        Eventual.SportsEvent memory _event = Eventual(_marketFactory).getSportsEvent(_eventId);
+
+        StaticMarketBundle[] memory _markets = new StaticMarketBundle[](_event.markets.length);
+        for (uint256 i = 0; i < _markets.length; i++) {
+            _markets[i] = buildStaticMarketBundle(
+                AbstractMarketFactoryV3(_marketFactory),
+                _ammFactory,
+                _event.markets[i]
+            );
+        }
+
+        _bundle.id = _eventId;
+        _bundle.status = _event.status;
+        _bundle.markets = _markets;
+        _bundle.lines = _event.lines;
+        _bundle.estimatedStartTime = _event.estimatedStartTime;
+        _bundle.homeTeamId = _event.homeTeamId;
+        _bundle.awayTeamId = _event.awayTeamId;
+        _bundle.homeTeamName = _event.homeTeamName;
+        _bundle.awayTeamName = _event.awayTeamName;
+        _bundle.homeScore = _event.homeScore;
+        _bundle.awayScore = _event.awayScore;
+    }
+
+    function buildDynamicEventBundle(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _eventId
+    ) public view returns (DynamicEventBundle memory _bundle) {
+        Eventual.SportsEvent memory _event = Eventual(_marketFactory).getSportsEvent(_eventId);
+
+        DynamicMarketBundle[] memory _markets = new DynamicMarketBundle[](_event.markets.length);
+        for (uint256 i = 0; i < _markets.length; i++) {
+            _markets[i] = buildDynamicMarketBundle(
+                AbstractMarketFactoryV3(_marketFactory),
+                _ammFactory,
+                _event.markets[i]
+            );
+        }
+
+        _bundle.id = _eventId;
+        _bundle.markets = _markets;
+        _bundle.status = _event.status;
+        _bundle.homeScore = _event.homeScore;
+        _bundle.awayScore = _event.awayScore;
+    }
+
+    // Starts from the end of the events list because newer events are more interesting.
+    // _offset is skipping all events, not just interesting events
+    function listOfInterestingEvents(
+        address _marketFactory,
+        uint256 _offset,
+        uint256 _total
+    ) internal view returns (uint256[] memory _interestingEventIds, uint256 _eventIndex) {
+        _interestingEventIds = new uint256[](_total);
+
+        uint256 _eventCount = Eventual(_marketFactory).eventCount();
+
+        // No events so return nothing. (needed to avoid integer underflow below)
+        if (_eventCount == 0) {
+            return (new uint256[](0), 0);
+        }
+
+        uint256 _max = _eventCount;
+
+        // No remaining events so return nothing. (needed to avoid integer underflow below)
+        if (_offset > _max) {
+            return (new uint256[](0), 0);
+        }
+
+        uint256 _collectedEvents = 0;
+        _eventIndex = _max - _offset;
+        while (true) {
+            if (_collectedEvents >= _total) break;
+            if (_eventIndex == 0) break;
+
+            _eventIndex--; // starts out one too high, so this works
+
+            (Eventual.SportsEvent memory _event, uint256 _eventId) =
+                Eventual(_marketFactory).getSportsEventByIndex(_eventIndex);
+
+            if (isEventInteresting(_event, AbstractMarketFactoryV3(_marketFactory))) {
+                _interestingEventIds[_collectedEvents] = _eventId;
+                _collectedEvents++;
+            }
+        }
+
+        if (_total > _collectedEvents) {
+            assembly {
+                // shortens array
+                mstore(_interestingEventIds, _collectedEvents)
+            }
+        }
+    }
+
+    function isEventInteresting(Eventual.SportsEvent memory _event, AbstractMarketFactoryV3 _marketFactory)
+        private
+        view
+        returns (bool)
+    {
+        for (uint256 i = 0; i < _event.markets.length; i++) {
+            uint256 _marketId = _event.markets[i];
+            if (openOrHasWinningShares(_marketFactory, _marketId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
-contract MMAFetcher is Fetcher {
-    function marketType() public pure override returns (string memory) {
-        return "MMA";
-    }
+contract NBAFetcher is SportsFetcher {
+    constructor() Fetcher("NBA", "TBD") {}
+}
 
-    function version() public pure override returns (string memory) {
-        return "TBD";
-    }
+contract MLBFetcher is SportsFetcher {
+    constructor() Fetcher("MLB", "TBD") {}
+}
 
-    struct SpecificMarketFactoryBundle {
-        MarketFactoryBundle super;
-        uint256 sportId;
-    }
+contract MMAFetcher is SportsFetcher {
+    constructor() Fetcher("MMA", "TBD") {}
+}
 
-    struct SpecificStaticMarketBundle {
-        StaticMarketBundle super;
-        uint256 eventId;
-        string homeFighterName;
-        uint256 homeFighterId;
-        string awayFighterName;
-        uint256 awayFighterId;
-        uint256 estimatedStartTime;
-        MMALinkMarketFactory.MarketType marketType;
-        uint256[3] headToHeadWeights; // derived from moneyline
-        // Dynamics
-        MMALinkMarketFactory.EventStatus eventStatus;
-    }
-
-    struct SpecificDynamicMarketBundle {
-        DynamicMarketBundle super;
-        MMALinkMarketFactory.EventStatus eventStatus;
-    }
-
-    function buildSpecificMarketFactoryBundle(address _marketFactory)
-        internal
-        view
-        returns (SpecificMarketFactoryBundle memory _bundle)
-    {
-        _bundle.super = buildMarketFactoryBundle(MMALinkMarketFactory(_marketFactory));
-        _bundle.sportId = MMALinkMarketFactory(_marketFactory).sportId();
-    }
-
-    function buildSpecificStaticMarketBundle(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _marketId
-    ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
-        MMALinkMarketFactory.MarketDetails memory _details =
-            MMALinkMarketFactory(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildStaticMarketBundle(MMALinkMarketFactory(_marketFactory), _ammFactory, _marketId);
-        _bundle.eventId = _details.eventId;
-        _bundle.homeFighterName = _details.homeFighterName;
-        _bundle.homeFighterId = _details.homeFighterId;
-        _bundle.awayFighterName = _details.awayFighterName;
-        _bundle.awayFighterId = _details.awayFighterId;
-        _bundle.estimatedStartTime = _details.estimatedStartTime;
-        _bundle.marketType = _details.marketType;
-        _bundle.eventStatus = _details.eventStatus;
-    }
-
-    function buildSpecificDynamicMarketBundle(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _marketId
-    ) internal view returns (SpecificDynamicMarketBundle memory _bundle) {
-        MMALinkMarketFactory.MarketDetails memory _details =
-            MMALinkMarketFactory(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildDynamicMarketBundle(MMALinkMarketFactory(_marketFactory), _ammFactory, _marketId);
-        _bundle.eventStatus = _details.eventStatus;
-    }
-
-    // NOTE: Copy-paste fetchInitial and fetchDynamic for each Fetcher.
-    //       Implement the buildSpecific* methods and Specific*Bundle structs.
-    function fetchInitial(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _offset,
-        uint256 _total
-    )
-        public
-        view
-        returns (
-            SpecificMarketFactoryBundle memory _marketFactoryBundle,
-            SpecificStaticMarketBundle[] memory _marketBundles
-        )
-    {
-        _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
-
-        uint256[] memory _marketIds = listOfInterestingMarkets(_marketFactory, _offset, _total);
-
-        _total = _marketIds.length;
-        _marketBundles = new SpecificStaticMarketBundle[](_total);
-        for (uint256 i; i < _total; i++) {
-            _marketBundles[i] = buildSpecificStaticMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
-        }
-    }
-
-    function fetchDynamic(
-        address _marketFactory,
-        AMMFactory _ammFactory,
-        uint256 _offset,
-        uint256 _total
-    ) public view returns (SpecificDynamicMarketBundle[] memory _bundles) {
-        uint256[] memory _marketIds = listOfInterestingMarkets(_marketFactory, _offset, _total);
-
-        _total = _marketIds.length;
-        _bundles = new SpecificDynamicMarketBundle[](_total);
-        for (uint256 i; i < _total; i++) {
-            _bundles[i] = buildSpecificDynamicMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
-        }
-    }
+contract NFLFetcher is SportsFetcher {
+    constructor() Fetcher("NFL", "TBD") {}
 }
 
 contract CryptoFetch is Fetcher {
-    function marketType() public pure override returns (string memory) {
-        return "Crypto";
-    }
-
-    function version() public pure override returns (string memory) {
-        return "TBD";
-    }
+    constructor() Fetcher("Crypto", "TBD") {}
 
     struct SpecificMarketFactoryBundle {
         MarketFactoryBundle super;
@@ -412,7 +411,7 @@ contract CryptoFetch is Fetcher {
 
     struct SpecificStaticMarketBundle {
         StaticMarketBundle super;
-        CryptoMarketFactory.MarketType marketType;
+        uint8 marketType;
         uint256 coinIndex;
         uint256 creationPrice;
         // Dynamics
@@ -440,7 +439,7 @@ contract CryptoFetch is Fetcher {
         CryptoMarketFactory.MarketDetails memory _details =
             CryptoMarketFactory(_marketFactory).getMarketDetails(_marketId);
         _bundle.super = buildStaticMarketBundle(CryptoMarketFactory(_marketFactory), _ammFactory, _marketId);
-        _bundle.marketType = _details.marketType;
+        _bundle.marketType = uint8(_details.marketType);
         _bundle.creationPrice = _details.creationPrice;
         _bundle.coinIndex = _details.coinIndex;
         _bundle.resolutionPrice = _details.resolutionPrice;

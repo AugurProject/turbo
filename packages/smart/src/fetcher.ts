@@ -68,7 +68,6 @@ interface StaticMarketBundle {
   pool: FetcherPool;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
-  endTime: BigNumberish;
   winner: string;
   initialOdds: BigNumberish[];
 }
@@ -79,7 +78,6 @@ interface RawStaticMarketBundle {
   pool: RawFetcherPool;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
-  endTime: BigNumberish;
   winner: string;
   initialOdds: BigNumberish[];
 }
@@ -91,7 +89,6 @@ function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMarketBundl
     pool: createFetcherPool(raw.pool),
     shareTokens: raw.shareTokens,
     creationTimestamp: raw.creationTimestamp,
-    endTime: raw.endTime,
     winner: raw.winner,
     initialOdds: raw.initialOdds,
   };
@@ -120,90 +117,88 @@ function createDynamicMarketBundle(raw: RawDynamicMarketBundle): DynamicMarketBu
   };
 }
 
-// NBA
+// Sports
 
-interface NBAMarketFactoryBundle extends MarketFactoryBundle {
-  sportId: BigNumberish;
-}
+interface SportsMarketFactoryBundle extends MarketFactoryBundle {}
 
-export function createNBAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): NBAMarketFactoryBundle {
+export function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
   return {
     ...createMarketFactoryBundle(raw[0]),
-    sportId: BigNumber.from(raw[1]),
   };
 }
 
-interface NBAStaticMarketBundle extends StaticMarketBundle {
-  eventId: BigNumberish;
+interface StaticSportsEventBundle {
+  id: BigNumberish;
+  markets: StaticMarketBundle[];
+  lines: BigNumberish[];
+  estimatedStartTime: BigNumberish;
   homeTeamId: BigNumberish;
   awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  value0: BigNumberish;
-  eventStatus: BigNumberish;
+  homeTeamName: string;
+  awayTeamName: string;
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
 }
 
-interface RawNBAStaticMarketBundle {
-  super: RawStaticMarketBundle;
-  eventId: BigNumberish;
-  homeTeamId: BigNumberish;
-  awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  value0: BigNumberish;
-  eventStatus: BigNumberish;
+interface RawStaticSportsEventBundle extends Omit<StaticSportsEventBundle, "markets"> {
+  markets: RawStaticMarketBundle[];
 }
 
-export function createNBAStaticMarketBundle(raw: RawNBAStaticMarketBundle): NBAStaticMarketBundle {
-  const bundle: NBAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
-    ...createStaticMarketBundle(raw.super),
-    eventId: raw.eventId,
+interface DynamicSportsEventBundle {
+  id: BigNumberish;
+  markets: DynamicMarketBundle[];
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
+}
+
+interface RawDynamicSportsEventBundle extends Omit<DynamicSportsEventBundle, "markets"> {
+  markets: RawDynamicMarketBundle[];
+}
+
+export function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
+  return {
+    id: raw.id,
+    markets: raw.markets.map((m) => createStaticMarketBundle(m)),
+    lines: raw.lines,
+    estimatedStartTime: raw.estimatedStartTime,
     homeTeamId: raw.homeTeamId,
     awayTeamId: raw.awayTeamId,
-    estimatedStartTime: raw.estimatedStartTime,
-    marketType: raw.marketType,
-    value0: raw.value0,
-    eventStatus: raw.eventStatus,
+    homeTeamName: raw.homeTeamName,
+    awayTeamName: raw.awayTeamName,
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
   };
-  delete bundle.super;
-  return bundle;
 }
 
-interface NBADynamicMarketBundle extends DynamicMarketBundle {
-  eventStatus: BigNumberish;
-}
-
-interface RawNBADynamicMarketBundle {
-  super: RawDynamicMarketBundle;
-  eventStatus: BigNumberish;
-}
-
-export function createNBADynamicMarketBundle(raw: RawNBADynamicMarketBundle): NBADynamicMarketBundle {
+export function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
   return {
-    ...createDynamicMarketBundle(raw.super),
-    eventStatus: raw.eventStatus,
+    id: raw.id,
+    markets: raw.markets.map((m) => createDynamicMarketBundle(m)),
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
   };
 }
 
 // MMA
 
-interface MMAMarketFactoryBundle extends MarketFactoryBundle {
-  sportId: BigNumberish;
-}
+interface MMAMarketFactoryBundle extends MarketFactoryBundle {}
 
-export function createMMAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): MMAMarketFactoryBundle {
+export function createMMAMarketFactoryBundle(raw: [RawMarketFactoryBundle]): MMAMarketFactoryBundle {
   return {
     ...createMarketFactoryBundle(raw[0]),
-    sportId: BigNumber.from(raw[1]),
   };
 }
 
 interface MMAStaticMarketBundle extends StaticMarketBundle {
   eventId: BigNumberish;
-  homeFighterName: string;
-  homeFighterId: BigNumberish;
-  awayFighterName: string;
-  awayFighterId: BigNumberish;
+  homeTeamName: string;
+  homeTeamId: BigNumberish;
+  awayTeamName: string;
+  awayTeamId: BigNumberish;
   estimatedStartTime: BigNumberish;
   marketType: BigNumberish;
   eventStatus: BigNumberish;
@@ -212,10 +207,10 @@ interface MMAStaticMarketBundle extends StaticMarketBundle {
 interface RawMMAStaticMarketBundle {
   super: RawStaticMarketBundle;
   eventId: BigNumberish;
-  homeFighterName: string;
-  homeFighterId: BigNumberish;
-  awayFighterName: string;
-  awayFighterId: BigNumberish;
+  homeTeamName: string;
+  homeTeamId: BigNumberish;
+  awayTeamName: string;
+  awayTeamId: BigNumberish;
   estimatedStartTime: BigNumberish;
   marketType: BigNumberish;
   eventStatus: BigNumberish;
@@ -225,10 +220,10 @@ export function createMMAStaticMarketBundle(raw: RawMMAStaticMarketBundle): MMAS
   const bundle: MMAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
     ...createStaticMarketBundle(raw.super),
     eventId: raw.eventId,
-    homeFighterName: raw.homeFighterName,
-    homeFighterId: raw.homeFighterId,
-    awayFighterName: raw.awayFighterName,
-    awayFighterId: raw.awayFighterId,
+    homeTeamName: raw.homeTeamName,
+    homeTeamId: raw.homeTeamId,
+    awayTeamName: raw.awayTeamName,
+    awayTeamId: raw.awayTeamId,
     estimatedStartTime: raw.estimatedStartTime,
     marketType: raw.marketType,
     eventStatus: raw.eventStatus,

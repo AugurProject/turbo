@@ -3,7 +3,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
-  AbstractMarketFactoryV2,
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
@@ -11,33 +10,45 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
-  MMAFetcher,
-  MMAFetcher__factory,
-  MMALinkMarketFactory,
-  MMALinkMarketFactory__factory,
+  MMAMarketFactory,
   NBAFetcher,
   NBAFetcher__factory,
+  NBAMarketFactory,
+  NBAMarketFactory__factory,
   OwnedERC20__factory,
-  SportsLinkMarketFactoryV2,
-  SportsLinkMarketFactoryV2__factory,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
-  createNBADynamicMarketBundle,
-  createNBAMarketFactoryBundle,
-  createNBAStaticMarketBundle,
   calcShareFactor,
   NULL_ADDRESS,
   SportsLinkEventStatus,
-  createMMAMarketFactoryBundle,
-  createMMAStaticMarketBundle,
-  createMMADynamicMarketBundle,
+  createSportsMarketFactoryBundle,
+  createStaticSportsEventBundle,
+  createDynamicSportsEventBundle,
 } from "../src";
 
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
 const ZERO = BigNumber.from(0);
+const BASIS = BigNumber.from(10).pow(18);
+enum Market {
+  HeadToHead = 0,
+  Spread = 1,
+  OverUnder = 2,
+}
+enum Outcome {
+  NoContest = 0,
 
-describe("LinkFactory", () => {
+  AwayWon = 1,
+  HomeWon = 2,
+
+  SpreadLesser = 1,
+  SpreadGreater = 2,
+
+  TotalOver = 1,
+  TotalUnder = 2,
+}
+
+describe("NBA", () => {
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -47,10 +58,11 @@ describe("LinkFactory", () => {
   const eventId = 9001;
   const homeTeamId = 42;
   const awayTeamId = 1881;
+  const homeTeamName = "hom";
+  const awayTeamName = "awa";
   const moneylines: [number, number] = [-130, +270]; // [home,away]
-  const homeSpread = 40;
+  const homeSpread = 20;
   const overUnderTotal = 60;
-  const sportId = 4;
   const smallFee = BigNumber.from(10).pow(16);
 
   const now = BigNumber.from(Date.now()).div(1000);
@@ -58,7 +70,7 @@ describe("LinkFactory", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: SportsLinkMarketFactoryV2;
+  let marketFactory: NBAMarketFactory;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -70,40 +82,40 @@ describe("LinkFactory", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
       feePot.address,
-      smallFee,
-      smallFee,
+      [smallFee, smallFee, smallFee],
       signer.address,
-      smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     expect(await marketFactory.getOwner()).to.equal(signer.address);
     expect(await marketFactory.feePot()).to.equal(feePot.address);
     expect(await marketFactory.collateral()).to.equal(collateral.address);
+    expect(await marketFactory.settlementFee()).to.equal(smallFee);
+    expect(await marketFactory.stakerFee()).to.equal(smallFee);
+    expect(await marketFactory.protocolFee()).to.equal(smallFee);
   });
 
   it("can create markets", async () => {
     await marketFactory.createMarket(
       eventId,
+      homeTeamName,
       homeTeamId,
+      awayTeamName,
       awayTeamId,
       estimatedStartTime,
       homeSpread,
       overUnderTotal,
-      true,
-      true,
       moneylines
     );
 
-    const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
+    const filter = marketFactory.filters.MarketCreated(null, null, null);
     const logs = await marketFactory.queryFilter(filter);
-    expect(logs.length).to.equal(3);
+    expect(logs.length, "market created logs length").to.equal(3);
     const [headToHeadLog, spreadLog, overUnderLog] = logs.map((log) => log.args);
 
     [headToHeadMarketId] = headToHeadLog;
@@ -122,10 +134,10 @@ describe("LinkFactory", () => {
     );
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await away.symbol()).to.equal("Away");
-    expect(await away.name()).to.equal("Away");
-    expect(await home.symbol()).to.equal("Home");
-    expect(await home.name()).to.equal("Home");
+    expect(await away.symbol()).to.equal(awayTeamName);
+    expect(await away.name()).to.equal(awayTeamName);
+    expect(await home.symbol()).to.equal(homeTeamName);
+    expect(await home.name()).to.equal(homeTeamName);
   });
 
   it("spread market is correct", async () => {
@@ -133,13 +145,10 @@ describe("LinkFactory", () => {
     const [noContest, away, home] = spreadMarket.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
     expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await away.symbol()).to.equal("Away");
-    expect(await away.name()).to.equal("Away");
-    expect(await home.symbol()).to.equal("Home");
-    expect(await home.name()).to.equal("Home");
-
-    const details = await marketFactory.getMarketDetails(spreadMarketId);
-    expect(details.value0).to.equal(homeSpread + 5); // add 5 to avoid a round number
+    expect(await away.symbol()).to.equal(awayTeamName);
+    expect(await away.name()).to.equal(awayTeamName);
+    expect(await home.symbol()).to.equal(homeTeamName);
+    expect(await home.name()).to.equal(homeTeamName);
   });
 
   it("over under market is correct", async () => {
@@ -153,9 +162,26 @@ describe("LinkFactory", () => {
     expect(await under.name()).to.equal("Under");
     expect(await over.symbol()).to.equal("Over");
     expect(await over.name()).to.equal("Over");
+  });
 
-    const details = await marketFactory.getMarketDetails(overUnderMarketId);
-    expect(details.value0).to.equal(overUnderTotal + 5);
+  it("event is correct", async () => {
+    const sportsEvent = await marketFactory.getSportsEvent(eventId);
+    expect(sportsEvent.status, "status").to.equal(SportsLinkEventStatus.Scheduled);
+    expect(sportsEvent.markets.length, "markets.length").to.equal(3);
+    expect(sportsEvent.markets[Market.HeadToHead], "markets[0]").to.equal(headToHeadMarketId);
+    expect(sportsEvent.markets[Market.Spread], "markets[1]").to.equal(spreadMarketId);
+    expect(sportsEvent.markets[Market.OverUnder], "markets[2]").to.equal(overUnderMarketId);
+    expect(sportsEvent.lines.length, "lines.length").to.equal(3);
+    expect(sportsEvent.lines[Market.HeadToHead], "lines[0]").to.equal(0);
+    expect(sportsEvent.lines[Market.Spread], "lines[1]").to.equal(homeSpread + 5);
+    expect(sportsEvent.lines[Market.OverUnder], "lines[2]").to.equal(overUnderTotal + 5);
+    expect(sportsEvent.estimatedStartTime, "estimatedStartTime").to.equal(estimatedStartTime);
+    expect(sportsEvent.homeTeamId, "homeTeamId").to.equal(homeTeamId);
+    expect(sportsEvent.awayTeamId, "awayTeamId").to.equal(awayTeamId);
+    expect(sportsEvent.homeTeamName, "homeTeamName").to.equal(homeTeamName);
+    expect(sportsEvent.awayTeamName, "awayTeamName").to.equal(awayTeamName);
+    expect(sportsEvent.homeScore, "homeScore").to.equal(0);
+    expect(sportsEvent.awayScore, "awayScore").to.equal(0);
   });
 
   it("lists resolvable events", async () => {
@@ -165,16 +191,16 @@ describe("LinkFactory", () => {
   });
 
   it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Final, 100, 20);
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, homeTeamId, awayTeamId, 60, 30);
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
-    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
+    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[Outcome.HomeWon]);
 
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
-    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[2]); // home spread greater
+    expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[Outcome.SpreadGreater]);
 
     const overUnderMarket = await marketFactory.getMarket(overUnderMarketId);
-    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[1]); // over
+    expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[Outcome.TotalOver]);
   });
 
   it("stops listing resolved events", async () => {
@@ -191,8 +217,10 @@ describe("LinkFactory NoContest", () => {
   });
 
   const eventId = 9001;
+  const homeTeamId = 42;
+  const awayTeamId = 1881;
 
-  let marketFactory: SportsLinkMarketFactoryV2;
+  let marketFactory: NBAMarketFactory;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -203,41 +231,35 @@ describe("LinkFactory NoContest", () => {
 
     const now = BigNumber.from(Date.now()).div(1000);
     const estimatedStartTime = now.add(60 * 60 * 24); // one day
-    const homeTeamId = 42;
-    const awayTeamId = 1881;
     const moneylines: [number, number] = [-130, +270]; // [home,away]
     const homeSpread = 40;
     const overUnderTotal = 60;
-    const sportId = 4;
 
-    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
       feePot.address,
-      smallFee,
-      smallFee,
+      [smallFee, smallFee, smallFee],
       signer.address,
-      smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     await marketFactory.createMarket(
       eventId,
+      "hi",
       homeTeamId,
+      "buye",
       awayTeamId,
       estimatedStartTime,
       homeSpread,
       overUnderTotal,
-      true,
-      true,
       moneylines
     );
   });
 
   it("can resolve markets as No Contest", async () => {
-    await marketFactory.trustedResolveMarkets(eventId, SportsLinkEventStatus.Postponed, 0, 0);
+    await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Postponed, homeTeamId, awayTeamId, 0, 0);
 
     const headToHeadMarketId = 1;
     const spreadMarketId = 2;
@@ -254,7 +276,7 @@ describe("LinkFactory NoContest", () => {
   });
 });
 
-describe("NBA fetcher", () => {
+describe("Sports fetcher", () => {
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -266,17 +288,24 @@ describe("NBA fetcher", () => {
   let collateral: Cash;
   let feePot: FeePot;
 
-  const eventId = 9001;
+  const eventId = BigNumber.from(9001);
+  const homeTeamId = BigNumber.from(1881);
+  const awayTeamId = BigNumber.from(40);
+  const homeTeamName = "nom";
+  const awayTeamName = "who?";
+  const homeSpreadLine = BigNumber.from(65);
+  const totalScoreLine = BigNumber.from(90);
   const smallFee = BigNumber.from(10).pow(16);
+  let estimatedStartTime: BigNumber;
 
-  let marketFactory: SportsLinkMarketFactoryV2;
+  let marketFactory: NBAMarketFactory;
 
   let h2hMarketId: BigNumberish;
   let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let h2hMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
   let spMarketId: BigNumberish;
   let spMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let spMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
+  let ouMarketId: BigNumberish;
+  let ouMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
 
   before(async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -284,41 +313,54 @@ describe("NBA fetcher", () => {
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
     const now = BigNumber.from(Date.now()).div(1000);
-    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
+    estimatedStartTime = now.add(60 * 60 * 24); // one day
+    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),
       feePot.address,
-      smallFee,
-      smallFee,
+      [smallFee, smallFee, smallFee],
       signer.address,
-      smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
-      4
+      signer.address // pretending the deployer is a link node for testing purposes
     );
 
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
 
+    // least interesting (earliest) event
     await marketFactory.createMarket(
-      eventId,
-      42,
-      1881,
-      now.add(60 * 60 * 24), // one day
-      40,
-      60,
-      true,
-      false,
+      eventId.add(1),
+      homeTeamName,
+      homeTeamId,
+      awayTeamName,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpreadLine,
+      totalScoreLine,
       [+100, -110]
     );
-    h2hMarketId = BigNumber.from(1);
-    h2hMarket = await marketFactory.getMarket(h2hMarketId);
-    h2hMarketDetails = await marketFactory.getMarketDetails(h2hMarketId);
 
-    spMarketId = BigNumber.from(2);
+    // most interesting (latest) event
+    await marketFactory.createMarket(
+      eventId,
+      homeTeamName,
+      homeTeamId,
+      awayTeamName,
+      awayTeamId,
+      estimatedStartTime,
+      homeSpreadLine,
+      totalScoreLine,
+      [+100, -110]
+    );
+    h2hMarketId = BigNumber.from(4);
+    h2hMarket = await marketFactory.getMarket(h2hMarketId);
+
+    spMarketId = BigNumber.from(5);
     spMarket = await marketFactory.getMarket(spMarketId);
-    spMarketDetails = await marketFactory.getMarketDetails(spMarketId);
+
+    ouMarketId = BigNumber.from(6);
+    ouMarket = await marketFactory.getMarket(ouMarketId);
 
     const initialLiquidity = dollars(10000);
     await collateral.approve(ammFactory.address, initialLiquidity);
@@ -335,426 +377,266 @@ describe("NBA fetcher", () => {
   it("fetchInitial [0,50]", async () => {
     const offset = 0;
     const total = 50;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       offset,
       total
     );
 
-    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(lowestEventIndex, "lowest event index").to.equal(0);
+
+    const marketFactoryBundle = createSportsMarketFactoryBundle(rawFactoryBundle);
     expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
       await marketFactoryBundleCheck(marketFactory, collateral, feePot)
     );
 
-    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
-    expect(marketBundles[1], "market bundle @ index 1").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: h2hMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-      shareTokens: h2hMarket.shareTokens,
-      creationTimestamp: h2hMarket.creationTimestamp,
-      endTime: h2hMarket.endTime,
-      winner: h2hMarket.winner,
-      initialOdds: [
-        BigNumber.from(10).pow(18),
-        BigNumber.from("0x015be9b4a9bdbf11db"),
-        BigNumber.from("0x014c1943b94c64ee24"),
+    const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
+    const event = await marketFactory.getSportsEvent(eventId);
+
+    expect(eventBundles.length, "event bundles length").to.equal(2);
+    expect(eventBundles[0], "event bundles 0").to.deep.equal({
+      id: eventId,
+      markets: [
+        {
+          factory: marketFactory.address,
+          marketId: h2hMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+          shareTokens: h2hMarket.shareTokens,
+          creationTimestamp: h2hMarket.creationTimestamp,
+          winner: h2hMarket.winner,
+          initialOdds: [
+            BigNumber.from(10).pow(18),
+            BigNumber.from("0x015be9b4a9bdbf11db"),
+            BigNumber.from("0x014c1943b94c64ee24"),
+          ],
+        },
+        {
+          factory: marketFactory.address,
+          marketId: spMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+          shareTokens: spMarket.shareTokens,
+          creationTimestamp: spMarket.creationTimestamp,
+          winner: spMarket.winner,
+          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
+        },
+        {
+          factory: marketFactory.address,
+          marketId: ouMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
+          shareTokens: ouMarket.shareTokens,
+          creationTimestamp: ouMarket.creationTimestamp,
+          winner: ouMarket.winner,
+          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
+        },
       ],
-      // NBA-specific
-      eventId: h2hMarketDetails.eventId,
-      homeTeamId: h2hMarketDetails.homeTeamId,
-      awayTeamId: h2hMarketDetails.awayTeamId,
-      estimatedStartTime: h2hMarketDetails.estimatedStartTime,
-      marketType: h2hMarketDetails.marketType,
-      value0: h2hMarketDetails.value0,
-      // NBA-specific, also dynamic
-      eventStatus: h2hMarketDetails.eventStatus,
+      lines: [BigNumber.from(0), homeSpreadLine, totalScoreLine.add(5)],
+      estimatedStartTime: event.estimatedStartTime,
+      homeTeamId: event.homeTeamId,
+      awayTeamId: event.awayTeamId,
+      homeTeamName: event.homeTeamName,
+      awayTeamName: event.awayTeamName,
+      status: event.status,
+      homeScore: event.homeScore,
+      awayScore: event.awayScore,
     });
   });
 
   it("fetchInitial [0,1]", async () => {
     const offset = 0;
     const total = 1;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       offset,
       total
     );
 
-    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(lowestEventIndex, "lowest event index").to.equal(1);
+
+    const marketFactoryBundle = createSportsMarketFactoryBundle(rawFactoryBundle);
     expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
       await marketFactoryBundleCheck(marketFactory, collateral, feePot)
     );
 
-    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: spMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-      shareTokens: spMarket.shareTokens,
-      creationTimestamp: spMarket.creationTimestamp,
-      endTime: spMarket.endTime,
-      winner: spMarket.winner,
-      initialOdds: [
-        BigNumber.from(10).pow(18),
-        BigNumber.from("0x0154017c3185120000"),
-        BigNumber.from("0x0154017c3185120000"),
+    const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
+    const event = await marketFactory.getSportsEvent(eventId);
+
+    expect(eventBundles.length, "event bundles length").to.equal(1);
+    expect(eventBundles[0], "event bundles 0").to.be.deep.equal({
+      id: eventId, // most interesting event
+      markets: [
+        {
+          factory: marketFactory.address,
+          marketId: h2hMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+          shareTokens: h2hMarket.shareTokens,
+          creationTimestamp: h2hMarket.creationTimestamp,
+          winner: h2hMarket.winner,
+          initialOdds: [
+            BigNumber.from(10).pow(18),
+            BigNumber.from("0x015be9b4a9bdbf11db"),
+            BigNumber.from("0x014c1943b94c64ee24"),
+          ],
+        },
+        {
+          factory: marketFactory.address,
+          marketId: spMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+          shareTokens: spMarket.shareTokens,
+          creationTimestamp: spMarket.creationTimestamp,
+          winner: spMarket.winner,
+          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
+        },
+        {
+          factory: marketFactory.address,
+          marketId: ouMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
+          shareTokens: ouMarket.shareTokens,
+          creationTimestamp: ouMarket.creationTimestamp,
+          winner: ouMarket.winner,
+          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
+        },
       ],
-      // NBA-specific
-      eventId: spMarketDetails.eventId,
-      homeTeamId: spMarketDetails.homeTeamId,
-      awayTeamId: spMarketDetails.awayTeamId,
-      estimatedStartTime: spMarketDetails.estimatedStartTime,
-      marketType: spMarketDetails.marketType,
-      value0: spMarketDetails.value0,
-      // NBA-specific, also dynamic
-      eventStatus: spMarketDetails.eventStatus,
+      lines: [BigNumber.from(0), homeSpreadLine, totalScoreLine.add(5)],
+      estimatedStartTime: event.estimatedStartTime,
+      homeTeamId: event.homeTeamId,
+      awayTeamId: event.awayTeamId,
+      homeTeamName: event.homeTeamName,
+      awayTeamName: event.awayTeamName,
+      status: event.status,
+      homeScore: event.homeScore,
+      awayScore: event.awayScore,
     });
   });
 
   it("fetchInitial [1,1]", async () => {
     const offset = 1;
     const total = 1;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       offset,
       total
     );
 
-    const marketFactoryBundle = createNBAMarketFactoryBundle(rawFactoryBundle);
+    expect(lowestEventIndex, "lowest event index").to.equal(0);
+
+    const marketFactoryBundle = createSportsMarketFactoryBundle(rawFactoryBundle);
     expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
       await marketFactoryBundleCheck(marketFactory, collateral, feePot)
     );
 
-    const marketBundles = rawMarketBundles.map(createNBAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: h2hMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-      shareTokens: h2hMarket.shareTokens,
-      creationTimestamp: h2hMarket.creationTimestamp,
-      endTime: h2hMarket.endTime,
-      winner: h2hMarket.winner,
-      initialOdds: [
-        BigNumber.from(10).pow(18),
-        BigNumber.from("0x015be9b4a9bdbf11db"),
-        BigNumber.from("0x014c1943b94c64ee24"),
+    const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
+
+    expect(eventBundles.length, "event bundles length").to.equal(1);
+    expect(eventBundles[0].id, "event bundles 0 id").to.equal(eventId.add(1)); // least interesting event
+  });
+
+  it("fetchDynamic [0,50]", async () => {
+    const offset = 0;
+    const total = 50;
+    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
+
+    expect(lowestEventIndex, "lowest event index").to.equal(0);
+
+    const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
+    const event = await marketFactory.getSportsEvent(eventId);
+
+    expect(eventBundles.length, "event bundles length").to.equal(2);
+    expect(eventBundles[0], "event bundle").to.deep.equal({
+      id: eventId,
+      markets: [
+        {
+          factory: marketFactory.address,
+          marketId: h2hMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+          winner: h2hMarket.winner,
+        },
+        {
+          factory: marketFactory.address,
+          marketId: spMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+          winner: spMarket.winner,
+        },
+        {
+          factory: marketFactory.address,
+          marketId: ouMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
+          winner: ouMarket.winner,
+        },
       ],
-      // NBA-h2hecific
-      eventId: h2hMarketDetails.eventId,
-      homeTeamId: h2hMarketDetails.homeTeamId,
-      awayTeamId: h2hMarketDetails.awayTeamId,
-      estimatedStartTime: h2hMarketDetails.estimatedStartTime,
-      marketType: h2hMarketDetails.marketType,
-      value0: h2hMarketDetails.value0,
-      // NBA-h2hecific, also dynamic
-      eventStatus: h2hMarketDetails.eventStatus,
-    });
-  });
-
-  it("fetchDynamic [0,50]", async () => {
-    const offset = 0;
-    const total = 50;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
-
-    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
-    expect(marketBundles[1], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: h2hMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-      winner: h2hMarket.winner,
-      eventStatus: h2hMarketDetails.eventStatus,
+      status: event.status,
+      homeScore: event.homeScore,
+      awayScore: event.awayScore,
     });
   });
 
   it("fetchDynamic [0,1]", async () => {
     const offset = 0;
     const total = 1;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
+    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      total
+    );
 
-    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: spMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-      winner: spMarket.winner,
-      eventStatus: spMarketDetails.eventStatus,
+    expect(lowestEventIndex, "lowest event index").to.equal(1);
+
+    const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
+    const event = await marketFactory.getSportsEvent(eventId);
+
+    expect(eventBundles.length, "event bundles length").to.equal(1);
+    expect(eventBundles[0], "event bundle").to.deep.equal({
+      id: eventId,
+      markets: [
+        {
+          factory: marketFactory.address,
+          marketId: h2hMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
+          winner: h2hMarket.winner,
+        },
+        {
+          factory: marketFactory.address,
+          marketId: spMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
+          winner: spMarket.winner,
+        },
+        {
+          factory: marketFactory.address,
+          marketId: ouMarketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
+          winner: ouMarket.winner,
+        },
+      ],
+      status: event.status,
+      homeScore: event.homeScore,
+      awayScore: event.awayScore,
     });
   });
 
   it("fetchDynamic [1,1]", async () => {
     const offset = 1;
     const total = 1;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
-
-    const marketBundles = rawMarketBundles.map(createNBADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: h2hMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-      winner: h2hMarket.winner,
-      eventStatus: h2hMarketDetails.eventStatus,
-    });
-  });
-});
-
-describe("MMA fetcher", () => {
-  let signer: SignerWithAddress;
-
-  before(async () => {
-    [signer] = await ethers.getSigners();
-  });
-
-  let fetcher: MMAFetcher;
-  let ammFactory: AMMFactory;
-  let collateral: Cash;
-  let feePot: FeePot;
-
-  const smallFee = BigNumber.from(10).pow(16);
-
-  let marketFactory: MMALinkMarketFactory;
-
-  let firstMarketId: BigNumberish;
-  let firstMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let firstMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
-  let secondMarketId: BigNumberish;
-  let secondMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let secondMarketDetails: UnPromisify<ReturnType<typeof marketFactory.getMarketDetails>>;
-
-  before(async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-
-    const now = BigNumber.from(Date.now()).div(1000);
-    marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
-      signer.address,
-      collateral.address,
-      calcShareFactor(await collateral.decimals()),
-      feePot.address,
-      smallFee,
-      smallFee,
-      signer.address,
-      smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
-      7
-    );
-
-    const bFactory = await new BFactory__factory(signer).deploy();
-    const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
-
-    await marketFactory.createMarket(
-      1880,
-      "Troy",
-      19,
-      "Abed",
-      1402,
-      now.add(60 * 60 * 24), // one day
-      [-10, +400]
-    );
-    await marketFactory.createMarket(
-      7155,
-      "Annie",
-      19,
-      "Britta",
-      1402,
-      now.add(60 * 60 * 24), // one day
-      [+30, -20]
-    );
-
-    firstMarketId = BigNumber.from(1);
-    firstMarket = await marketFactory.getMarket(firstMarketId);
-    firstMarketDetails = await marketFactory.getMarketDetails(firstMarketId);
-
-    secondMarketId = BigNumber.from(2);
-    secondMarket = await marketFactory.getMarket(secondMarketId);
-    secondMarketDetails = await marketFactory.getMarketDetails(secondMarketId);
-
-    const initialLiquidity = dollars(10000);
-    await collateral.approve(ammFactory.address, initialLiquidity);
-    await collateral.faucet(initialLiquidity);
-    await ammFactory.createPool(marketFactory.address, firstMarketId, initialLiquidity, signer.address);
-  });
-
-  it("is deployable", async () => {
-    fetcher = await new MMAFetcher__factory(signer).deploy();
-    expect(await fetcher.marketType()).to.equal("MMA");
-    expect(await fetcher.version()).to.be.a("string");
-  });
-
-  it("fetchInitial [0,50]", async () => {
-    const offset = 0;
-    const total = 50;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
+    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
       offset,
       total
     );
 
-    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
-    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
-      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
-    );
+    expect(lowestEventIndex, "lowest event index").to.equal(0);
 
-    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
-    expect(marketBundles[1], "market bundle @ index 1").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: firstMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
-      shareTokens: firstMarket.shareTokens,
-      creationTimestamp: firstMarket.creationTimestamp,
-      endTime: firstMarket.endTime,
-      winner: firstMarket.winner,
-      initialOdds: firstMarket.initialOdds,
-      // MMA-specific
-      eventId: firstMarketDetails.eventId,
-      homeFighterName: firstMarketDetails.homeFighterName,
-      homeFighterId: firstMarketDetails.homeFighterId,
-      awayFighterName: firstMarketDetails.awayFighterName,
-      awayFighterId: firstMarketDetails.awayFighterId,
-      estimatedStartTime: firstMarketDetails.estimatedStartTime,
-      marketType: firstMarketDetails.marketType,
-      // MMA-specific, also dynamic
-      eventStatus: firstMarketDetails.eventStatus,
-    });
-  });
+    const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
 
-  it("fetchInitial [0,1]", async () => {
-    const offset = 0;
-    const total = 1;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
-      marketFactory.address,
-      ammFactory.address,
-      offset,
-      total
-    );
-
-    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
-    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
-      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
-    );
-
-    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: secondMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, secondMarketId),
-      shareTokens: secondMarket.shareTokens,
-      creationTimestamp: secondMarket.creationTimestamp,
-      endTime: secondMarket.endTime,
-      winner: secondMarket.winner,
-      initialOdds: secondMarket.initialOdds,
-      // MMA-specific
-      eventId: secondMarketDetails.eventId,
-      homeFighterName: secondMarketDetails.homeFighterName,
-      homeFighterId: secondMarketDetails.homeFighterId,
-      awayFighterName: secondMarketDetails.awayFighterName,
-      awayFighterId: secondMarketDetails.awayFighterId,
-      estimatedStartTime: secondMarketDetails.estimatedStartTime,
-      marketType: secondMarketDetails.marketType,
-      // MMA-specific, also dynamic
-      eventStatus: secondMarketDetails.eventStatus,
-    });
-  });
-
-  it("fetchInitial [1,1]", async () => {
-    const offset = 1;
-    const total = 1;
-    const [rawFactoryBundle, rawMarketBundles] = await fetcher.fetchInitial(
-      marketFactory.address,
-      ammFactory.address,
-      offset,
-      total
-    );
-
-    const marketFactoryBundle = createMMAMarketFactoryBundle(rawFactoryBundle);
-    expect(marketFactoryBundle, "market factory bundle").to.deep.equal(
-      await marketFactoryBundleCheck(marketFactory, collateral, feePot)
-    );
-
-    const marketBundles = rawMarketBundles.map(createMMAStaticMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: firstMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
-      shareTokens: firstMarket.shareTokens,
-      creationTimestamp: firstMarket.creationTimestamp,
-      endTime: firstMarket.endTime,
-      winner: firstMarket.winner,
-      initialOdds: firstMarket.initialOdds,
-      // MMA-h2hecific
-      eventId: firstMarketDetails.eventId,
-      homeFighterName: firstMarketDetails.homeFighterName,
-      homeFighterId: firstMarketDetails.homeFighterId,
-      awayFighterName: firstMarketDetails.awayFighterName,
-      awayFighterId: firstMarketDetails.awayFighterId,
-      estimatedStartTime: firstMarketDetails.estimatedStartTime,
-      marketType: firstMarketDetails.marketType,
-      // MMA-h2hecific, also dynamic
-      eventStatus: firstMarketDetails.eventStatus,
-    });
-  });
-
-  it("fetchDynamic [0,50]", async () => {
-    const offset = 0;
-    const total = 50;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
-
-    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(2); // h2h and spread
-    expect(marketBundles[1], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: firstMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
-      winner: firstMarket.winner,
-      eventStatus: firstMarketDetails.eventStatus,
-    });
-  });
-
-  it("fetchDynamic [0,1]", async () => {
-    const offset = 0;
-    const total = 1;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
-
-    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: secondMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, secondMarketId),
-      winner: secondMarket.winner,
-      eventStatus: secondMarketDetails.eventStatus,
-    });
-  });
-
-  it("fetchDynamic [1,1]", async () => {
-    const offset = 1;
-    const total = 1;
-    const rawMarketBundles = await fetcher.fetchDynamic(marketFactory.address, ammFactory.address, offset, total);
-
-    const marketBundles = rawMarketBundles.map(createMMADynamicMarketBundle);
-    expect(marketBundles.length, "market bundles length").to.equal(1);
-    expect(marketBundles[0], "market bundle").to.deep.equal({
-      factory: marketFactory.address,
-      marketId: firstMarketId,
-      pool: await makePoolCheck(ammFactory, marketFactory, firstMarketId),
-      winner: firstMarket.winner,
-      eventStatus: firstMarketDetails.eventStatus,
-    });
+    expect(eventBundles.length, "event bundles length").to.equal(1);
+    expect(eventBundles[0].id, "event bundle 0 id").to.equal(eventId.add(1)); // least interesting event
   });
 });
 
@@ -765,11 +647,10 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
-type CheckableMarketFactory = SportsLinkMarketFactoryV2 | MMALinkMarketFactory;
+type CheckableMarketFactory = NBAMarketFactory | MMAMarketFactory;
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {
-    sportId: await marketFactory.sportId(),
     shareFactor: await marketFactory.shareFactor(),
     feePot: feePot.address,
     protocolFee: await marketFactory.protocolFee(),

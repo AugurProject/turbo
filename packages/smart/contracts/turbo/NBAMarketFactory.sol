@@ -9,9 +9,7 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/various.sol";
 
-// NFL is standard except ties are fine: they become NoContestOrDraw.
-// As a consequence, half points are not added to the lines.
-contract NFLMarketFactory is
+contract NBAMarketFactory is
     AbstractMarketFactoryV3,
     EventualView,
     Facing,
@@ -26,7 +24,7 @@ contract NFLMarketFactory is
     uint256 constant HeadToHead = 0;
     uint256 constant Spread = 1;
     uint256 constant OverUnder = 2;
-    string constant InvalidName = "No Contest / Draw";
+    string constant InvalidName = "No Contest";
 
     constructor(
         address _owner,
@@ -38,7 +36,7 @@ contract NFLMarketFactory is
         address _linkNode
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
-        Versioned("v1.2.0")
+        Versioned("1.2.0")
         Linked(_linkNode)
         Facing(HeadToHead, InvalidName)
         Spreadable(Spread, InvalidName)
@@ -57,7 +55,7 @@ contract NFLMarketFactory is
         int256[2] memory _moneylines // [home,away]
     ) public onlyLinkNode returns (uint256[] memory _marketIds) {
         // Cannot create markets for an event twice.
-        require(sportsEvents[_eventId].status == SportsEventStatus.Unknown);
+        require(sportsEvents[_eventId].status == SportsEventStatus.Unknown, "event exists");
 
         _marketIds = makeMarkets(_moneylines, _homeTeamName, _awayTeamName);
         makeSportsEvent(

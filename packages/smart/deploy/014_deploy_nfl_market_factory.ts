@@ -29,19 +29,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = hre.network.config.deployConfig?.protocol || deployer;
   const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const sportId = 1;
-
   const args: Parameters<NFLMarketFactory__factory["deploy"]> = [
     owner,
     collateral.address,
     shareFactor,
     feePot.address,
-    stakerFee,
-    settlementFee,
+    [stakerFee, settlementFee, protocolFee],
     protocol,
-    protocolFee,
     linkNode,
-    sportId,
   ];
 
   await deployments.deploy("NFLMarketFactory", {

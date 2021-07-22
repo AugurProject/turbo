@@ -33,10 +33,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     collateral.address,
     shareFactor,
     feePot.address,
-    stakerFee,
-    settlementFee,
+    [stakerFee, settlementFee, protocolFee],
     protocol,
-    protocolFee,
     linkNode,
   ];
 

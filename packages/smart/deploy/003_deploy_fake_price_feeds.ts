@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { FAKE_COINS } from "../src";
+import { COIN_DECIMALS, COIN_SYMBOLS, coinDeploymentName, coinDescription } from "../src";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
@@ -15,11 +15,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 
   const version = 3; // arbitrary
-  for (const coin of FAKE_COINS) {
-    await deployments.deploy(coin.deploymentName, {
+  for (const symbol of COIN_SYMBOLS) {
+    await deployments.deploy(coinDeploymentName(symbol), {
       contract: "FakePriceFeed",
       from: deployer,
-      args: [coin.decimals, coin.description, version],
+      args: [COIN_DECIMALS, coinDescription(symbol), version],
       log: true,
     });
   }

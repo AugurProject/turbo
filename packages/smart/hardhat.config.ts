@@ -4,6 +4,7 @@ import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
 import "hardhat-docgen";
 import "@tenderly/hardhat-tenderly";
+import "hardhat-gas-reporter";
 
 import { HardhatUserConfig } from "hardhat/config";
 import "./tasks";

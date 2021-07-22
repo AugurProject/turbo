@@ -21,7 +21,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory").catch(() => undefined);
   const cryptoMarketFactory = await deployments.get("CryptoMarketFactory").catch(() => undefined);
-  const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory").catch(() => undefined);
+  const mmaMarketFactory = await deployments.get("MMAMarketFactory").catch(() => undefined);
   const nflMarketFactory = await deployments.get("NFLMarketFactory").catch(() => undefined);
 
   const nbaFetcher = await deployments.get("NBAFetcher").catch(() => undefined);
@@ -61,13 +61,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       fetcher: "", // TODO
     });
   }
-  if (mmaLinkMarketFactory && !hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
+  if (mmaMarketFactory && !hasFactory(marketFactories, mmaMarketFactory.address)) {
     marketFactories.unshift({
       version,
       description: "mma",
       type: "MMALink",
-      subtype: "V2",
-      address: mmaLinkMarketFactory.address,
+      subtype,
+      address: mmaMarketFactory.address,
       collateral,
       ammFactory: ammFactory?.address || "",
       fetcher: mmaFetcher?.address ?? "",

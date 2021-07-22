@@ -7,33 +7,25 @@ import "../balancer/BPool.sol";
 import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
 
-abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
+abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable {
     using SafeMathUint256 for uint256;
 
-    // Should always have ID. Others are optional.
-    // event MarketCreated(uint256 id, address settlementAddress, uint256 endTime, ...);
-
-    // Should always have ID. Others are optional.
-    // event MarketResolved(uint256 id, ...);
+    event MarketCreated(uint256 id, string[] names, uint256[] initialOdds);
+    event MarketResolved(uint256 id, address winner, uint256 winnerIndex, string winnerName);
+    event MarketActivated(uint256 id);
 
     event SharesMinted(uint256 id, uint256 amount, address receiver);
     event SharesBurned(uint256 id, uint256 amount, address receiver);
     event WinningsClaimed(
         uint256 id,
         address winningOutcome,
+        uint256 winningIndex,
+        string winningName,
         uint256 amount,
         uint256 settlementFee,
         uint256 payout,
         address indexed receiver
     );
-
-    event SettlementFeeClaimed(address settlementAddress, uint256 amount, address indexed receiver);
-    event ProtocolFeeClaimed(address protocol, uint256 amount);
-
-    event ProtocolChanged(address protocol);
-    event ProtocolFeeChanged(uint256 fee);
-    event SettlementFeeChanged(uint256 fee);
-    event StakerFeeChanged(uint256 fee);
 
     IERC20Full public collateral;
     FeePot public feePot;
@@ -58,12 +50,14 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
     struct Market {
         address settlementAddress;
         OwnedERC20[] shareTokens;
-        uint256 endTime;
         OwnedERC20 winner;
+        uint256 winnerIndex;
         uint256 settlementFee;
         uint256 protocolFee;
         uint256 stakerFee;
         uint256 creationTimestamp;
+        uint256[] initialOdds;
+        bool active; // false if not ready to use or if resolved
     }
     Market[] internal markets;
 
@@ -74,37 +68,30 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         IERC20Full _collateral,
         uint256 _shareFactor,
         FeePot _feePot,
-        uint256 _stakerFee,
-        uint256 _settlementFee,
-        address _protocol,
-        uint256 _protocolFee
+        uint256[3] memory _fees, // staker, settlement, protocol
+        address _protocol
     ) {
         owner = _owner; // controls fees for new markets
         collateral = _collateral;
         shareFactor = _shareFactor;
         feePot = _feePot;
-        stakerFee = _stakerFee;
-        settlementFee = _settlementFee;
+        stakerFee = _fees[0];
+        settlementFee = _fees[1];
+        protocolFee = _fees[2];
         protocol = _protocol;
-        protocolFee = _protocolFee;
 
         _collateral.approve(address(_feePot), MAX_UINT);
 
         // First market is always empty so that marketid zero means "no market"
-        string[] memory _nothing = new string[](0);
-        markets.push(makeMarket(address(0), _nothing, _nothing, 0));
+        markets.push(makeEmptyMarket());
     }
-
-    // function createMarket(address _settlementAddress, uint256 _endTime, ...) public returns (uint256);
-
-    function resolveMarket(uint256 _id) public virtual;
 
     // Returns an empty struct if the market doesn't exist.
     // Can check market existence before calling this by comparing _id against markets.length.
     // Can check market existence of the return struct by checking that shareTokens[0] isn't the null address
     function getMarket(uint256 _id) public view returns (Market memory) {
         if (_id >= markets.length) {
-            return Market(address(0), new OwnedERC20[](0), 0, OwnedERC20(0), 0, 0, 0, 0);
+            return makeEmptyMarket();
         } else {
             return markets[_id];
         }
@@ -122,8 +109,8 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         uint256 _shareToMint,
         address _receiver
     ) public {
-        require(markets.length > _id, "No such market");
-        require(!isMarketResolved(_id), "Cannot mint shares for resolved market");
+        require(markets.length > _id);
+        require(markets[_id].active);
 
         uint256 _cost = calcCost(_shareToMint);
         collateral.transferFrom(msg.sender, address(this), _cost);
@@ -141,8 +128,8 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         uint256 _sharesToBurn,
         address _receiver
     ) public returns (uint256) {
-        require(markets.length > _id, "No such market");
-        require(!isMarketResolved(_id), "Cannot burn shares for resolved market");
+        require(markets.length > _id);
+        require(markets[_id].active);
 
         Market memory _market = markets[_id];
         for (uint256 _i = 0; _i < _market.shareTokens.length; _i++) {
@@ -164,10 +151,7 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
     }
 
     function claimWinnings(uint256 _id, address _receiver) public returns (uint256) {
-        if (!isMarketResolved(_id)) {
-            // errors if market does not exist or is not resolved or resolvable
-            resolveMarket(_id);
-        }
+        require(isMarketResolved(_id), "market unresolved");
 
         Market memory _market = markets[_id];
         uint256 _winningShares = _market.winner.trustedBurnAll(msg.sender);
@@ -180,7 +164,19 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         accumulatedSettlementFees[_market.settlementAddress] += _settlementFee;
         collateral.transfer(_receiver, _payout);
 
-        emit WinningsClaimed(_id, address(_market.winner), _winningShares, _settlementFee, _payout, _receiver);
+        uint256 _winningIndex = _market.winnerIndex;
+        string memory _winningName = _market.winner.name();
+
+        emit WinningsClaimed(
+            _id,
+            address(_market.winner),
+            _winningIndex,
+            _winningName,
+            _winningShares,
+            _settlementFee,
+            _payout,
+            _receiver
+        );
         return _payout;
     }
 
@@ -197,35 +193,30 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         if (_fees > 0) {
             accumulatedSettlementFees[msg.sender] = 0;
             collateral.transfer(_receiver, _fees);
-            emit SettlementFeeClaimed(msg.sender, _fees, _receiver);
         }
         return _fees;
     }
 
     function claimProtocolFees() public returns (uint256) {
-        require(msg.sender == protocol || msg.sender == address(this), "Only protocol can claim protocol fee");
+        require(msg.sender == protocol || msg.sender == address(this));
         uint256 _fees = accumulatedProtocolFee;
         if (_fees > 0) {
             accumulatedProtocolFee = 0;
             collateral.transfer(protocol, _fees);
-            emit ProtocolFeeClaimed(protocol, _fees);
         }
         return _fees;
     }
 
     function setSettlementFee(uint256 _newFee) external onlyOwner {
         settlementFee = _newFee;
-        emit SettlementFeeChanged(_newFee);
     }
 
     function setStakerFee(uint256 _newFee) external onlyOwner {
         stakerFee = _newFee;
-        emit StakerFeeChanged(_newFee);
     }
 
     function setProtocolFee(uint256 _newFee) external onlyOwner {
         protocolFee = _newFee;
-        emit ProtocolFeeChanged(_newFee);
     }
 
     function setProtocol(address _newProtocol, bool _claimFirst) external onlyOwner {
@@ -233,25 +224,53 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
             claimProtocolFees();
         }
         protocol = _newProtocol;
-        emit ProtocolChanged(_newProtocol);
     }
 
-    function makeMarket(
+    function startMarket(
         address _settlementAddress,
         string[] memory _names,
-        string[] memory _symbols,
-        uint256 _endTime
-    ) internal returns (Market memory _market) {
-        _market = Market(
-            _settlementAddress,
-            createShareTokens(_names, _symbols, address(this)),
-            _endTime,
-            OwnedERC20(0),
-            settlementFee,
-            protocolFee,
-            stakerFee,
-            block.timestamp
+        uint256[] memory _initialOdds,
+        bool _active
+    ) internal returns (uint256 _marketId) {
+        _marketId = markets.length;
+        markets.push(
+            Market(
+                _settlementAddress,
+                createShareTokens(_names, address(this)),
+                OwnedERC20(0),
+                0,
+                settlementFee,
+                protocolFee,
+                stakerFee,
+                block.timestamp,
+                _initialOdds,
+                _active
+            )
         );
+        emit MarketCreated(_marketId, _names, _initialOdds);
+        if (_active) {
+            emit MarketActivated(_marketId);
+        }
+    }
+
+    function activateMarket(uint256 _marketId) internal {
+        markets[_marketId].active = true;
+        emit MarketActivated(_marketId);
+    }
+
+    function makeEmptyMarket() private pure returns (Market memory) {
+        OwnedERC20[] memory _tokens = new OwnedERC20[](0);
+        uint256[] memory _initialOdds = new uint256[](0);
+        return Market(address(0), _tokens, OwnedERC20(0), 0, 0, 0, 0, 0, _initialOdds, false);
+    }
+
+    function endMarket(uint256 _marketId, uint256 _winningOutcome) internal {
+        OwnedERC20 _winner = markets[_marketId].shareTokens[_winningOutcome];
+        markets[_marketId].winner = _winner;
+        markets[_marketId].active = false;
+        markets[_marketId].winnerIndex = _winningOutcome;
+        string memory _outcomeName = _winner.name();
+        emit MarketResolved(_marketId, address(_winner), _winningOutcome, _outcomeName);
     }
 
     function isMarketResolved(uint256 _id) public view returns (bool) {
@@ -259,36 +278,10 @@ abstract contract AbstractMarketFactoryV1 is TurboShareTokenFactoryV1, Ownable {
         return _market.winner != OwnedERC20(0);
     }
 
-    // Only usable off-chain. Gas cost can easily eclipse block limit.
-    function listUnresolvedMarkets() public view returns (uint256[] memory) {
-        uint256 _totalUnresolved = 0;
-        for (uint256 i = 0; i < markets.length; i++) {
-            if (!isMarketResolved(i)) {
-                _totalUnresolved++;
-            }
-        }
-
-        uint256[] memory _marketIds = new uint256[](_totalUnresolved);
-
-        uint256 n = 0;
-        for (uint256 i = 0; i < markets.length; i++) {
-            if (n >= _totalUnresolved) break;
-
-            if (!isMarketResolved(i)) {
-                _marketIds[n] = i;
-                n++;
-            }
-        }
-
-        return _marketIds;
-    }
-
     // shares => collateral
+    // Shares must be both greater than (or equal to) and divisible by shareFactor.
     function calcCost(uint256 _shares) public view returns (uint256) {
-        require(
-            _shares >= shareFactor && _shares % shareFactor == 0,
-            "Shares must be both greater than (or equal to) and divisible by shareFactor"
-        );
+        require(_shares >= shareFactor && _shares % shareFactor == 0);
         return _shares / shareFactor;
     }
 
