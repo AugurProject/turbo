@@ -23,6 +23,7 @@ export const MARKET_TYPES = [
   "Trusted",
   "Crypto",
   "SportsLink",
+  "MMALink",
   "MMA",
   "NBA",
   "MLB",
@@ -40,6 +41,7 @@ export type MarketFactoryContractName =
   | "NBAMarketFactory"
   | "MLBMarketFactory"
   | "MMAMarketFactory"
+  | "MMALinkMarketFactoryV2"
   | "CryptoMarketFactory"
   | "FuturesMarketFactory"
   | "TrustedMarketFactory";
@@ -57,6 +59,7 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   MLB: "MLBMarketFactory",
   NBA: "NBAMarketFactory",
   MMA: "MMAMarketFactory",
+  MMALink: "MMALinkMarketFactoryV2",
   Crypto: "CryptoMarketFactory",
   Futures: "FuturesMarketFactory",
   Trusted: "TrustedMarketFactory",
@@ -65,6 +68,7 @@ export const marketFactoryTypeToFetcherName: {
   [Property in MarketFactoryType]: FetcherContractName;
 } = {
   SportsLink: "",
+  MMALink: "",
   MMA: "MMAFetcher",
   NFL: "NFLFetcher",
   MLB: "MLBFetcher",

@@ -413,6 +413,61 @@ describe("Sports fetcher", () => {
   });
 });
 
+describe("Sports fetcher no markets", () => {
+  let signer: SignerWithAddress;
+
+  before(async () => {
+    [signer] = await ethers.getSigners();
+  });
+
+  let fetcher: NBAFetcher;
+  let ammFactory: AMMFactory;
+  let collateral: Cash;
+  let feePot: FeePot;
+
+  const smallFee = BigNumber.from(10).pow(16);
+
+  let marketFactory: NBAMarketFactory;
+
+  before(async () => {
+    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
+    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
+    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+
+    const now = BigNumber.from(Date.now()).div(1000);
+    const estimatedStartTime = now.add(60 * 60 * 24); // one day
+    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      calcShareFactor(await collateral.decimals()),
+      feePot.address,
+      [smallFee, smallFee, smallFee],
+      signer.address,
+      signer.address // pretending the deployer is a link node for testing purposes
+    );
+
+    const bFactory = await new BFactory__factory(signer).deploy();
+    const swapFee = smallFee;
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+
+    fetcher = await new NBAFetcher__factory(signer).deploy();
+  });
+
+  it("initial", async () => {
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+
+    expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
+    expect(markets, "markets").to.deep.equal([]
+    );
+  });
+
+  it("dynamic", async () => {
+    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 50);
+
+    expect(markets, "markets").to.deep.equal([]);
+  });
+});
+
 function dollars(howManyDollars: number): BigNumber {
   const basis = BigNumber.from(10).pow(6);
   return basis.mul(howManyDollars);
@@ -515,25 +570,6 @@ async function eventDynamicBundleCheck(
       }
     )
   );
-  //
-  //
-  // async function market(marketId: BigNumberish) {
-  //   const market = await marketFactory.getMarket(marketId);
-  //   return {
-  //     factory: marketFactory.address,
-  //     marketId,
-  //     pool: await makePoolCheck(ammFactory, marketFactory, marketId),
-  //     winner: market.winner,
-  //   };
-  // }
-  //
-  // return {
-  //   id: eventId,
-  //   markets: await Promise.all(event.markets.map(market)),
-  //   status: event.status,
-  //   homeScore: event.homeScore,
-  //   awayScore: event.awayScore,
-  // };
 }
 
 async function makePoolCheck(ammFactory: AMMFactory, marketFactory: CheckableMarketFactory, marketId: BigNumberish) {
