@@ -202,7 +202,6 @@ const MarketView = ({ defaultMarket = null }) => {
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
       <section>
-        {/* <NetworkMismatchBanner /> */}
         {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
           <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>

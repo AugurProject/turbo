@@ -13,8 +13,7 @@ import { MATIC_RPC_DATA, MATIC_MUMBAI_RPC_DATA } from "../ConnectAccount/constan
 import { PARA_CONFIG } from "../../stores/constants";
 import { useUserStore } from "../../stores/user";
 
-// @ts-ignore
-const ethereum = window.ethereum;
+const ethereum = (window as any).ethereum;
 
 export interface LoginButtonProps {
   action: Function;

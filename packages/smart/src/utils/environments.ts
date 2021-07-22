@@ -33,7 +33,7 @@ const marketFactoryGraphNames: {
 };
 
 function generateJsonEnvironments() {
-  const networks = Object.keys(originalAddresses);
+  const networks: string[] = Object.keys(originalAddresses);
   fs.mkdirSync("environments", { recursive: true });
   for (let i = 0; i < networks.length; i++) {
     const key = Number(networks[i]) as ChainId;
@@ -70,10 +70,8 @@ function generateJsonEnvironments() {
         }
       }
     }
-    // @ts-ignore
     const file = JSON.stringify(addresses);
-    // @ts-ignore
-    fs.writeFileSync(`environments/${graphChainNames[networks[i]]}.json`, file);
+    fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);
   }
 }
 
