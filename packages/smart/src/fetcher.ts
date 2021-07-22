@@ -1,4 +1,190 @@
 import { BigNumber, BigNumberish } from "ethers";
+import { AMMFactory, Sport, SportsFetcher } from "../typechain";
+
+// Sports
+
+export async function fetchInitialSports(
+  fetcher: SportsFetcher,
+  marketFactory: Sport,
+  ammFactory: AMMFactory,
+  initialOffset: BigNumberish = 0,
+  bundleSize: BigNumberish = 50
+): Promise<{ factoryBundle: SportsMarketFactoryBundle; markets: InitialSportsMarket[] }> {
+  const eventCount = await marketFactory.eventCount();
+
+  let factoryBundle: SportsMarketFactoryBundle | undefined;
+  let eventBundles: StaticSportsEventBundle[] = [];
+
+  for (let offset = BigNumber.from(initialOffset); ; ) {
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      bundleSize
+    );
+
+    if (!factoryBundle) factoryBundle = createSportsMarketFactoryBundle(rawFactoryBundle);
+    eventBundles = eventBundles.concat(rawEventBundles.map(createStaticSportsEventBundle));
+
+    if (lowestEventIndex.eq(0)) break;
+    offset = eventCount.sub(lowestEventIndex);
+  }
+
+  const markets: InitialSportsMarket[] = [];
+  for (const event of eventBundles) {
+    for (const market of event.markets) {
+      markets.push({
+        ...market,
+        eventId: event.id,
+        eventStatus: event.status,
+        estimatedStartTime: event.estimatedStartTime,
+        lines: event.lines,
+        home: {
+          id: event.homeTeamId,
+          name: event.homeTeamName,
+          score: event.homeScore,
+        },
+        away: {
+          id: event.awayTeamId,
+          name: event.awayTeamName,
+          score: event.awayScore,
+        },
+      });
+    }
+  }
+
+  return { factoryBundle, markets };
+}
+
+export async function fetchDynamicSports(
+  fetcher: SportsFetcher,
+  marketFactory: Sport,
+  ammFactory: AMMFactory,
+  initialOffset: BigNumberish = 0,
+  bundleSize: BigNumberish = 50
+) {
+  const eventCount = await marketFactory.eventCount();
+
+  let eventBundles: DynamicSportsEventBundle[] = [];
+
+  for (let offset = BigNumber.from(initialOffset); ; ) {
+    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      bundleSize
+    );
+
+    eventBundles = eventBundles.concat(rawEventBundles.map(createDynamicSportsEventBundle));
+
+    if (lowestEventIndex.eq(0)) break;
+    offset = eventCount.sub(lowestEventIndex);
+  }
+
+  const markets: DynamicSportsMarket[] = [];
+  for (const event of eventBundles) {
+    for (const market of event.markets) {
+      markets.push({
+        ...market,
+        eventId: event.id,
+        eventStatus: event.status,
+        home: {
+          score: event.homeScore,
+        },
+        away: {
+          score: event.awayScore,
+        },
+      });
+    }
+  }
+
+  return { markets };
+}
+
+export interface InitialSportsMarket extends StaticMarketBundle {
+  eventId: BigNumberish;
+  eventStatus: BigNumberish;
+  estimatedStartTime: BigNumberish;
+  lines: BigNumberish[];
+  home: SportsTeam;
+  away: SportsTeam;
+}
+export interface DynamicSportsMarket extends DynamicMarketBundle {
+  eventId: BigNumberish;
+  eventStatus: BigNumberish;
+  home: { score: BigNumberish };
+  away: { score: BigNumberish };
+}
+
+interface SportsTeam {
+  id: BigNumberish;
+  name: string;
+  score: BigNumberish;
+}
+
+function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
+  return {
+    ...createMarketFactoryBundle(raw[0]),
+  };
+}
+
+function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
+  return {
+    id: raw.id,
+    markets: raw.markets.map((m) => createStaticMarketBundle(m)),
+    lines: raw.lines,
+    estimatedStartTime: raw.estimatedStartTime,
+    homeTeamId: raw.homeTeamId,
+    awayTeamId: raw.awayTeamId,
+    homeTeamName: raw.homeTeamName,
+    awayTeamName: raw.awayTeamName,
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
+  };
+}
+
+function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
+  return {
+    id: raw.id,
+    markets: raw.markets.map((m) => createDynamicMarketBundle(m)),
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
+  };
+}
+
+interface SportsMarketFactoryBundle extends MarketFactoryBundle {}
+
+interface StaticSportsEventBundle {
+  id: BigNumberish;
+  markets: StaticMarketBundle[];
+  lines: BigNumberish[];
+  estimatedStartTime: BigNumberish;
+  homeTeamId: BigNumberish;
+  awayTeamId: BigNumberish;
+  homeTeamName: string;
+  awayTeamName: string;
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
+}
+
+interface RawStaticSportsEventBundle extends Omit<StaticSportsEventBundle, "markets"> {
+  markets: RawStaticMarketBundle[];
+}
+
+interface DynamicSportsEventBundle {
+  id: BigNumberish;
+  markets: DynamicMarketBundle[];
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
+}
+
+interface RawDynamicSportsEventBundle extends Omit<DynamicSportsEventBundle, "markets"> {
+  markets: RawDynamicMarketBundle[];
+}
 
 // Common
 
@@ -68,7 +254,6 @@ interface StaticMarketBundle {
   pool: FetcherPool;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
-  endTime: BigNumberish;
   winner: string;
   initialOdds: BigNumberish[];
 }
@@ -79,7 +264,6 @@ interface RawStaticMarketBundle {
   pool: RawFetcherPool;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
-  endTime: BigNumberish;
   winner: string;
   initialOdds: BigNumberish[];
 }
@@ -91,7 +275,6 @@ function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMarketBundl
     pool: createFetcherPool(raw.pool),
     shareTokens: raw.shareTokens,
     creationTimestamp: raw.creationTimestamp,
-    endTime: raw.endTime,
     winner: raw.winner,
     initialOdds: raw.initialOdds,
   };
@@ -117,138 +300,5 @@ function createDynamicMarketBundle(raw: RawDynamicMarketBundle): DynamicMarketBu
     marketId: raw.marketId,
     pool: createFetcherPool(raw.pool),
     winner: raw.winner,
-  };
-}
-
-// NBA
-
-interface NBAMarketFactoryBundle extends MarketFactoryBundle {
-  sportId: BigNumberish;
-}
-
-export function createNBAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): NBAMarketFactoryBundle {
-  return {
-    ...createMarketFactoryBundle(raw[0]),
-    sportId: BigNumber.from(raw[1]),
-  };
-}
-
-interface NBAStaticMarketBundle extends StaticMarketBundle {
-  eventId: BigNumberish;
-  homeTeamId: BigNumberish;
-  awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  value0: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-interface RawNBAStaticMarketBundle {
-  super: RawStaticMarketBundle;
-  eventId: BigNumberish;
-  homeTeamId: BigNumberish;
-  awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  value0: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-export function createNBAStaticMarketBundle(raw: RawNBAStaticMarketBundle): NBAStaticMarketBundle {
-  const bundle: NBAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
-    ...createStaticMarketBundle(raw.super),
-    eventId: raw.eventId,
-    homeTeamId: raw.homeTeamId,
-    awayTeamId: raw.awayTeamId,
-    estimatedStartTime: raw.estimatedStartTime,
-    marketType: raw.marketType,
-    value0: raw.value0,
-    eventStatus: raw.eventStatus,
-  };
-  delete bundle.super;
-  return bundle;
-}
-
-interface NBADynamicMarketBundle extends DynamicMarketBundle {
-  eventStatus: BigNumberish;
-}
-
-interface RawNBADynamicMarketBundle {
-  super: RawDynamicMarketBundle;
-  eventStatus: BigNumberish;
-}
-
-export function createNBADynamicMarketBundle(raw: RawNBADynamicMarketBundle): NBADynamicMarketBundle {
-  return {
-    ...createDynamicMarketBundle(raw.super),
-    eventStatus: raw.eventStatus,
-  };
-}
-
-// MMA
-
-interface MMAMarketFactoryBundle extends MarketFactoryBundle {
-  sportId: BigNumberish;
-}
-
-export function createMMAMarketFactoryBundle(raw: [RawMarketFactoryBundle, BigNumberish]): MMAMarketFactoryBundle {
-  return {
-    ...createMarketFactoryBundle(raw[0]),
-    sportId: BigNumber.from(raw[1]),
-  };
-}
-
-interface MMAStaticMarketBundle extends StaticMarketBundle {
-  eventId: BigNumberish;
-  homeFighterName: string;
-  homeFighterId: BigNumberish;
-  awayFighterName: string;
-  awayFighterId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-interface RawMMAStaticMarketBundle {
-  super: RawStaticMarketBundle;
-  eventId: BigNumberish;
-  homeFighterName: string;
-  homeFighterId: BigNumberish;
-  awayFighterName: string;
-  awayFighterId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-export function createMMAStaticMarketBundle(raw: RawMMAStaticMarketBundle): MMAStaticMarketBundle {
-  const bundle: MMAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
-    ...createStaticMarketBundle(raw.super),
-    eventId: raw.eventId,
-    homeFighterName: raw.homeFighterName,
-    homeFighterId: raw.homeFighterId,
-    awayFighterName: raw.awayFighterName,
-    awayFighterId: raw.awayFighterId,
-    estimatedStartTime: raw.estimatedStartTime,
-    marketType: raw.marketType,
-    eventStatus: raw.eventStatus,
-  };
-  delete bundle.super;
-  return bundle;
-}
-
-interface MMADynamicMarketBundle extends DynamicMarketBundle {
-  eventStatus: BigNumberish;
-}
-
-interface RawMMADynamicMarketBundle {
-  super: RawDynamicMarketBundle;
-  eventStatus: BigNumberish;
-}
-
-export function createMMADynamicMarketBundle(raw: RawMMADynamicMarketBundle): MMADynamicMarketBundle {
-  return {
-    ...createDynamicMarketBundle(raw.super),
-    eventStatus: raw.eventStatus,
   };
 }

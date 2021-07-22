@@ -1,7 +1,6 @@
 import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
-import { smockit } from "@eth-optimism/smock";
 import { BigNumber, BigNumberish } from "ethers";
 
 import {
@@ -11,21 +10,21 @@ import {
   OwnedERC20__factory,
   CryptoMarketFactory__factory,
   CryptoMarketFactory,
-  AggregatorV3Interface,
   AMMFactory,
   FeePot,
   AMMFactory__factory,
   BFactory__factory,
   AbstractMarketFactoryV2,
   BPool__factory,
+  FakePriceFeed,
+  FakePriceFeed__factory,
 } from "../typechain";
-import feedABI from "../abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json";
 import { calcShareFactor, CryptoMarketType, NULL_ADDRESS } from "../src";
 import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 
-describe.only("CryptoFactory", () => {
+describe("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -55,8 +54,8 @@ describe.only("CryptoFactory", () => {
   let ammFactory: AMMFactory;
   let ethPriceMarketId: BigNumber;
   let btcPriceMarketId: BigNumber;
-  let ethPriceFeed: FeedManagement;
-  let btcPriceFeed: FeedManagement;
+  let ethPriceFeed: FakePriceFeed;
+  let btcPriceFeed: FakePriceFeed;
   let ethPrice: number;
   let btcPrice: number;
 
@@ -66,8 +65,8 @@ describe.only("CryptoFactory", () => {
 
   before("price feeds", async () => {
     currentRound = new RoundManagement(2, 50);
-    ethPriceFeed = new FeedManagement(await smockit(feedABI));
-    btcPriceFeed = new FeedManagement(await smockit(feedABI));
+    ethPriceFeed = await new FakePriceFeed__factory(signer).deploy(8, "ETH", 1);
+    btcPriceFeed = await new FakePriceFeed__factory(signer).deploy(8, "BTC", 1);
   });
 
   before("other contracts", async () => {
@@ -91,10 +90,8 @@ describe.only("CryptoFactory", () => {
       collateral.address,
       shareFactor,
       feePot.address,
-      stakerFee,
-      settlementFee,
+      [stakerFee, settlementFee, protocolFee],
       protocol,
-      protocolFee,
       linkNode
     );
 
@@ -126,16 +123,15 @@ describe.only("CryptoFactory", () => {
     nextResolutionTime = firstResolutionTime;
     ethPrice = 2400;
     btcPrice = 60000;
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1, nextResolutionTime.sub(1));
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 1e7, nextResolutionTime.sub(1));
-
+    await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8 - 1, 0, nextResolutionTime.sub(1), 0);
+    await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8 - 1e7, 0, nextResolutionTime.sub(1), 0);
     await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
   });
 
-  it("MarketCreated logs are correct", async () => {
+  it("CoinAdded logs are correct", async () => {
     // Adding coins creates markets so no need to make such calls here. Just verify that they worked.
 
-    const filter = marketFactory.filters.MarketCreated(null, null, null, null, null, null);
+    const filter = marketFactory.filters.CoinAdded(null, null);
     const logs = await marketFactory.queryFilter(filter);
     expect(logs.length, "number of logs").to.equal(2);
     const [ethLog, btcLog] = logs.map((log) => log.args);
@@ -146,27 +142,18 @@ describe.only("CryptoFactory", () => {
     expect(ethPriceMarketId, "eth market id").to.equal(1);
     expect(btcPriceMarketId, "btc market id").to.equal(2);
 
-    const { creator, endTime, marketType, coinIndex, price } = ethLog;
-    expect(creator, "creator").to.equal(signer.address);
-    expect(endTime, "endTime").to.equal(nextResolutionTime);
-    expect(marketType, "marketType").to.equal(CryptoMarketType.PriceUpTo);
+    const { id: coinIndex, name } = ethLog;
     expect(coinIndex, "coinIndex").to.equal(CoinIndex.ETH);
-    expect(price, "price").to.equal(ethPrice);
+    expect(name, "name").to.equal("ETH");
   });
 
-  it("can index MarketCreated by coin", async () => {
-    const filter = marketFactory.filters.MarketCreated(null, null, null, null, CoinIndex.ETH, null);
+  it("can index CoinAdded by coin", async () => {
+    const filter = marketFactory.filters.CoinAdded(CoinIndex.ETH, null);
     const logs = await marketFactory.queryFilter(filter);
     expect(logs.length).to.equal(1);
     const [ethLog] = logs.map((log) => log.args);
     const [marketId] = ethLog;
     expect(marketId).to.equal(ethPriceMarketId);
-  });
-
-  it("can index MarketCreated by resolution time", async () => {
-    const filter = marketFactory.filters.MarketCreated(null, null, nextResolutionTime, null, null, null);
-    const logs = await marketFactory.queryFilter(filter);
-    expect(logs.length).to.equal(2);
   });
 
   it("Coins data structure is correct", async () => {
@@ -197,7 +184,6 @@ describe.only("CryptoFactory", () => {
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
     expect(market.shareTokens.length).to.equal(2);
-    expect(market.endTime).to.equal(nextResolutionTime);
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
@@ -216,7 +202,6 @@ describe.only("CryptoFactory", () => {
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
     expect(market.shareTokens.length).to.equal(2);
-    expect(market.endTime).to.equal(nextResolutionTime);
     expect(market.winner).to.equal(NULL_ADDRESS);
     expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
     expect(marketDetails.coinIndex).to.equal(CoinIndex.BTC);
@@ -233,8 +218,8 @@ describe.only("CryptoFactory", () => {
     ethPrice = 2500;
     btcPrice = 55000;
     currentRound = currentRound.nextRound();
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1e8 + 1, nextResolutionTime);
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 2, nextResolutionTime);
+    await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8 - 1e8 + 1, 0, nextResolutionTime, 0);
+    await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8 - 2, 0, nextResolutionTime, 0);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
     nextResolutionTime = nextResolutionTime.add(cadence);
 
@@ -254,6 +239,15 @@ describe.only("CryptoFactory", () => {
     expect(nextResolutionTime, "resolution time").to.equal(await marketFactory.nextResolutionTime());
   });
 
+  it("NewPrices log, by resolution time", async () => {
+    const filter = marketFactory.filters.NewPrices(nextResolutionTime, null, null);
+    const logs = await marketFactory.queryFilter(filter);
+    expect(logs.length).to.equal(1);
+    const [log] = logs;
+
+    expect(log); // TODO
+  });
+
   it("new ETH price market is correct", async () => {
     ethPriceMarketId = BigNumber.from(3);
     const market = await marketFactory.getMarket(ethPriceMarketId);
@@ -263,12 +257,11 @@ describe.only("CryptoFactory", () => {
     const ethCoin = await marketFactory.getCoin(CoinIndex.ETH);
     expect(ethCoin.currentMarkets[0], "ethcoin market 0").to.equal(ethPriceMarketId);
 
-    expect(market.endTime, "endTime").to.equal(nextResolutionTime);
     expect(market.winner, "winner").to.equal(NULL_ADDRESS);
-    expect(marketDetails.marketType, "marketType").to.equal(CryptoMarketType.PriceUpTo);
-    expect(marketDetails.coinIndex, "coinIndex").to.equal(CoinIndex.ETH);
-    expect(marketDetails.creationPrice, "creationPrice").to.equal(ethPrice);
-    expect(marketDetails.resolutionPrice, "resolutionPrice").to.equal(0);
+    expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
+    expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
+    expect(marketDetails.creationPrice).to.equal(ethPrice);
+    expect(marketDetails.resolutionPrice).to.equal(0);
 
     expect(await above.symbol()).to.equal("Above");
     expect(await above.name()).to.equal("Above");
@@ -347,15 +340,15 @@ describe.only("CryptoFactory", () => {
     // * currentRound is the round of the current markets
 
     currentRound = currentRound.nextRound();
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
+    await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime, 0);
+    await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime, 0);
 
     // Current state:
     // * currentRound is 1 round ahead of the current markets
 
     currentRound = currentRound.nextRound();
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(1));
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime.add(1));
+    await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime.add(1), 0);
+    await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime.add(1), 0);
 
     // Current state:
     // * currentRound is 2 rounds ahead of the current markets
@@ -397,60 +390,36 @@ describe.only("CryptoFactory", () => {
     ethPrice = 2500;
     btcPrice = 55000;
     currentRound = currentRound.nextRound();
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
+    await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime, 0);
+    await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime, 0);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
     await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
 
     expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(7);
   });
+
+  describe("resolution failures", () => {
+    it("won't resolve if the given round isn't the earliest after nextResolutionTime", async () => {
+      ethPrice = 2500;
+      btcPrice = 55000;
+      currentRound = currentRound.nextRound();
+      await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime.add(1), 0);
+      currentRound = currentRound.nextRound();
+      await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime.add(2), 0);
+
+      nextResolutionTime = nextResolutionTime.add(cadence);
+      await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+
+      nextResolutionTime = nextResolutionTime.add(cadence);
+      await expect(
+        marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime)
+      ).to.eventually.be.rejectedWith(
+        "VM Exception while processing transaction: revert Must use first round after resolution time"
+      );
+    });
+  });
 });
-
-class FeedManagement {
-  rounds: { [roundId: string]: { price: BigNumberish; updatedAt: BigNumberish } } = {};
-  latestRoundId: BigNumber = BigNumber.from(0);
-
-  constructor(public feed: AggregatorV3Interface) {
-    feed.smocked.decimals.will.return.with(8);
-
-    feed.smocked.getRoundData.will.return.with((roundId: BigNumberish) => {
-      return this.mockRoundData(roundId);
-    });
-
-    feed.smocked.latestRoundData.will.return.with(() => {
-      return this.mockRoundData(this.latestRoundId);
-    });
-  }
-
-  private mockRoundData(roundId: BigNumberish) {
-    roundId = BigNumber.from(roundId).toString();
-    const round = this.rounds[roundId];
-
-    if (!round) {
-      const msg = `Mock doesn't have return data for round id ${roundId}`;
-      console.error(msg);
-      throw Error(msg);
-    }
-
-    const { price, updatedAt } = round;
-    const startedAt = 0;
-    return [roundId, price, startedAt, updatedAt, roundId];
-  }
-
-  public get address(): string {
-    return this.feed.address;
-  }
-
-  setRoundData(roundId: BigNumberish, price: BigNumberish, updatedAt: BigNumberish) {
-    roundId = BigNumber.from(roundId);
-
-    if (this.latestRoundId.lt(roundId)) this.latestRoundId = roundId;
-
-    roundId = roundId.toString();
-    this.rounds[roundId] = { price, updatedAt };
-  }
-}
 
 class RoundManagement {
   readonly phase: BigNumber;

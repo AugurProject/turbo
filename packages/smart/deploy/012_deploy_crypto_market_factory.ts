@@ -1,42 +1,28 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber } from "ethers";
-import { calcShareFactor, getUpcomingFriday4pmET } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash__factory, CryptoMarketFactory__factory } from "../typechain";
+import { CryptoMarketFactory__factory } from "../typechain";
+import { getCollateral, getFees, getSpecialAddresses } from "../src/utils/deploy";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
+  if (!isHttpNetworkConfig(hre.network.config)) return;
+
   const { deployments } = hre;
-
-  if (!isHttpNetworkConfig(hre.network.config)) {
-    return; // skip tests and internal deploy
-  }
-
+  const config: HttpNetworkConfig = hre.network.config;
   const signer = await makeSigner(hre);
   const deployer = await signer.getAddress();
-
-  const collateralAddress =
-    hre.network.config.deployConfig?.externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
-  const collateral = Cash__factory.connect(collateralAddress, signer);
-  const shareFactor = calcShareFactor(await collateral.decimals());
-
   const feePot = await deployments.get("FeePot");
-  const stakerFee = 0;
-  const settlementFee = BigNumber.from(10).pow(14).mul(5); // 0.05%
-  const protocolFee = 0;
-
-  const protocol = hre.network.config.deployConfig?.protocol || deployer;
-  const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
+  const { collateral, shareFactor } = await getCollateral(signer, deployments, config);
+  const { protocol, linkNode } = getSpecialAddresses(config, deployer);
+  const fees = getFees();
 
   const args: Parameters<CryptoMarketFactory__factory["deploy"]> = [
     deployer, // initial owner must be deployer for coins to be addable
     collateral.address,
     shareFactor,
     feePot.address,
-    stakerFee,
-    settlementFee,
+    fees,
     protocol,
-    protocolFee,
     linkNode,
   ];
 

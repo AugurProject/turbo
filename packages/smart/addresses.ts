@@ -19,31 +19,62 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto" | "NFL";
-export type MarketFactorySubType = "V1" | "V2";
+export const MARKET_TYPES = [
+  "Trusted",
+  "Crypto",
+  "SportsLink",
+  "MMALink",
+  "MMA",
+  "NBA",
+  "MLB",
+  "NFL",
+  "Futures",
+] as const;
+export type MarketFactoryType = typeof MARKET_TYPES[number];
+// V1 was the first
+// V2 includes initial odds
+// V3 is after the major refactor
+export type MarketFactorySubType = "V1" | "V2" | "V3";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactoryV2"
   | "NFLMarketFactory"
-  | "MMALinkMarketFactory"
+  | "NBAMarketFactory"
+  | "MLBMarketFactory"
+  | "MMAMarketFactory"
+  | "MMALinkMarketFactoryV2"
   | "CryptoMarketFactory"
+  | "FuturesMarketFactory"
   | "TrustedMarketFactory";
-export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "";
-export const marketFactoryTypeToContractName: {
+export type FetcherContractName =
+  | "NBAFetcher"
+  | "MMAFetcher"
+  | "NFLFetcher"
+  | "MLBFetcher"
+  | "";
+export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
   SportsLink: "SportsLinkMarketFactoryV2",
   NFL: "NFLMarketFactory",
-  MMALink: "MMALinkMarketFactory",
+  MLB: "MLBMarketFactory",
+  NBA: "NBAMarketFactory",
+  MMA: "MMAMarketFactory",
+  MMALink: "MMALinkMarketFactoryV2",
   Crypto: "CryptoMarketFactory",
+  Futures: "FuturesMarketFactory",
   Trusted: "TrustedMarketFactory",
 };
 export const marketFactoryTypeToFetcherName: {
   [Property in MarketFactoryType]: FetcherContractName;
 } = {
-  SportsLink: "NBAFetcher",
-  MMALink: "MMAFetcher",
-  NFL: "NBAFetcher",
+  SportsLink: "",
+  MMALink: "",
+  MMA: "MMAFetcher",
+  NFL: "NFLFetcher",
+  MLB: "MLBFetcher",
+  NBA: "NBAFetcher",
   Crypto: "",
+  Futures: "",
   Trusted: "",
 };
 export enum ChainId {
@@ -76,7 +107,7 @@ export const addresses: AddressMapping = {
     marketFactories: [
       {
         type: "SportsLink",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xA76C803c1D3B4cc31b1B964f29357BbF23B6D6f7",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
@@ -85,8 +116,8 @@ export const addresses: AddressMapping = {
         version: "v1.1.0",
       },
       {
-        type: "MMALink",
-        subtype: "V2",
+        type: "MMA",
+        subtype: "V3",
         address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
@@ -112,64 +143,64 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "Futures",
+        subtype: "V3",
+        address: "0xAB3a1F44CaD7Ff730F737d4014feDbd339a0381E",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "",
+        description: "futures",
+        version: "refactor-2021.08.19",
+      },
+      {
+        type: "MLB",
+        subtype: "V3",
+        address: "0x29F0614f39Af492FFC2624A5fa9eBb9cff4f7778",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
+        description: "mlb",
+        version: "refactor-2021.08.19",
+      },
+      {
+        type: "NBA",
+        subtype: "V3",
+        address: "0x181F843c1CBB73a99301827d8F076e6beF943625",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
+        description: "nba",
+        version: "refactor-2021.08.19",
+      },
+      {
         type: "NFL",
-        subtype: "V2",
-        address: "0x8524e46E1B0823Ba23454e211e05A4C488020ABC",
+        subtype: "V3",
+        address: "0x48cb89F115A7c256a3520AAd4c9b5fA2841614C4",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
-        fetcher: "0xC5C415cb7eC3ca7dcC26ca7a3fC1126A07122Ec7",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "nfl",
-        version: "FILL THIS OUT",
+        version: "refactor-2021.08.19",
       },
       {
-        type: "MMALink",
-        subtype: "V2",
-        address: "0xA45b74B3544dC6dF01CdbA38558C1E914779Ac8A",
+        type: "MMA",
+        subtype: "V3",
+        address: "0x0045FC078bb60510185CBA39f2eA352C92C0c179",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
-        fetcher: "0x2a507840577A7f896C1e190701390c1b08037c61",
-        description: "mma",
-        version: "FILL THIS OUT",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
+        description: "mma/ufc",
+        version: "refactor-2021.08.19",
       },
       {
         type: "Crypto",
-        subtype: "V2",
-        address: "0x615b63ea5a6dAE1e996E3a69aC70042B1D8f8517",
+        subtype: "V3",
+        address: "0x9894aC8e14b44b81B08d5d84CFE5b93B8114F25b",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "",
         description: "crypto prices",
-        version: "FILL THIS OUT",
-      },
-      {
-        type: "Crypto",
-        subtype: "V2",
-        address: "0x8105DFaDBE4a09f52EbF98eB68e31a33C898Fc74",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
-        fetcher: "",
-        description: "crypto prices",
-        version: "v1.1.0",
-      },
-      {
-        type: "SportsLink",
-        subtype: "V2",
-        address: "0x27394CD54b4c7f545B0e55cBB89DC0A09b41543C",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
-        fetcher: "0xC5C415cb7eC3ca7dcC26ca7a3fC1126A07122Ec7",
-        description: "mlb and nba",
-        version: "FILL THIS OUT",
-      },
-      {
-        type: "MMALink",
-        subtype: "V2",
-        address: "0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
-        fetcher: "0x9f1DB2B2C81eAF3F96D8d942e2D515dE17975A2A",
-        description: "mma",
-        version: "v1.1.0",
+        version: "refactor-2021.08.19",
       },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },

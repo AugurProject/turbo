@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types"
 import { DeployFunction } from "hardhat-deploy/types";
 import { isHttpNetworkConfig, makeSigner, PriceFeedConfig } from "../tasks";
 import { CryptoMarketFactory, CryptoMarketFactory__factory } from "../typechain";
-import { FAKE_COINS } from "../src";
+import { COIN_IMPRECISIONS, COIN_SYMBOLS, coinDeploymentName } from "../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -55,10 +55,10 @@ async function getCoinList(
     return priceFeeds;
   } else {
     return await Promise.all(
-      FAKE_COINS.map(async (coin) => ({
-        symbol: coin.symbol,
-        priceFeedAddress: (await deployments.get(coin.deploymentName)).address,
-        imprecision: coin.imprecision,
+      COIN_SYMBOLS.map(async (symbol) => ({
+        symbol,
+        priceFeedAddress: (await deployments.get(coinDeploymentName(symbol))).address,
+        imprecision: COIN_IMPRECISIONS[symbol],
       }))
     );
   }
