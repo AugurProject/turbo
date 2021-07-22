@@ -141,13 +141,13 @@ export const ApprovalButton = ({
   amm,
   cash,
   actionType,
-  isApproved,
+  isApproved = false,
   shareToken = null,
 }: {
   amm?: AmmExchange;
   cash: Cash;
   actionType: ApprovalAction;
-  isApproved: boolean;
+  isApproved?: boolean;
   shareToken?: string;
 }) => {
   const [isPendingTx, setIsPendingTx] = useState(false);

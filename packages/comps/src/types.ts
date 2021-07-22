@@ -681,6 +681,8 @@ export interface GraphDataState {
   transactions?: any;
 }
 
+export interface DataState extends GraphDataState {};
+
 export interface UserState {
   account: string;
   balances: UserBalances;
@@ -714,6 +716,8 @@ export interface LiquidityBreakdown {
   minAmountsRaw?: string[];
   minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
   poolPct?: string;
+  lpTokens?: string;
+  cashAmount?: string;
 }
 
 export interface MarketFactoryConfig {
