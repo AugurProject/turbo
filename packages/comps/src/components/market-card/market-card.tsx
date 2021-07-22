@@ -34,10 +34,10 @@ export const LoadingMarketCard = () => {
 };
 
 export const MarketCard = ({ marketId, markets, ammExchanges, ...props }) => {
-  const market = useMemo(() => markets[marketId], [marketId, markets]);
-  const amm = useMemo(() => ammExchanges[marketId], [marketId, ammExchanges]);
+  const market: MarketInfo = useMemo(() => markets[marketId], [marketId, markets]);
+  const amm: AmmExchange = useMemo(() => ammExchanges[marketId], [marketId, ammExchanges]);
   if (!market) return <LoadingMarketCard />;
-  return <MarketCardView market={market as MarketInfo} amm={amm as AmmExchange} {...props} />;
+  return <MarketCardView {...{ amm, market, ...props}} />;
 };
 
 export const combineOutcomeData = (ammOutcomes: AmmOutcome[], marketOutcomes: MarketOutcome[]) => {
@@ -161,9 +161,6 @@ export const MarketCardView = ({
       className={classNames(Styles.MarketCard, {
         [Styles.NoLiquidity]: !amm?.id,
       })}
-      onClick={() => {
-        // !amm?.id && !isMarketFinal(market) && handleNoLiquidity(market);
-      }}
     >
       <MarketLink id={marketId} dontGoToMarket={false}>
         <article
