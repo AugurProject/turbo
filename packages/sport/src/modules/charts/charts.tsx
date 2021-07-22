@@ -236,7 +236,6 @@ export const PriceHistoryChart = ({
         chart.redraw();
       }
     }
-    // eslint-disable-next-line
   }, [selectedOutcomes, options, priceTimeArray]);
 
   useEffect(() => {
