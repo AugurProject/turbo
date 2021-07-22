@@ -1446,29 +1446,29 @@ export const getMarketInfos = async (
       )
     )
   );
-
+  console.log('all markets', allMarkets);
   // first market infos get all markets with liquidity
   let filteredMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
-  let exchanges = allMarkets.reduce((p, data) => ({ ...p, ...data.ammExchanges }), {});
   const newBlocknumber = allMarkets.reduce((p, data) => (p > data.blocknumber ? p : data.blocknumber), 0);
+  console.log('filtered markets', Object.values(filteredMarkets).length);
   if (Object.keys(ignoreList).length === 0) {
-    const { markets: fMarkets, ammExchanges: filteredExchanges } = await setIgnoreRemoveMarketList(
+    filteredMarkets = setIgnoreRemoveMarketList(
       filteredMarkets,
       ignoreList,
       loadtype
     );
-    filteredMarkets = fMarkets;
-    exchanges = filteredExchanges;
   }
 
+  const exchanges = Object.values(filteredMarkets).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
+  console.log('returning markets', Object.values(filteredMarkets).length);
   return { markets: filteredMarkets, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
-const setIgnoreRemoveMarketList = async (
+const setIgnoreRemoveMarketList = (
   allMarkets: MarketInfos,
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
-): { markets: MarketInfos; ammExchanges: AmmExchanges } => {
+): MarketInfos => {
   if (Object.values(allMarkets).filter(m => !m.amm).length > 0) {
     console.log('allMarkets', Object.values(allMarkets).filter(m => !m.amm));
   }
@@ -1512,13 +1512,13 @@ const setIgnoreRemoveMarketList = async (
         : { ...p, [id]: allMarkets[id] },
     {}
   );
+
   // <Ignore> resolved markets
   Object.values(filteredMarkets)
     .filter((m) => m.hasWinner)
     .forEach((m) => addToIgnoreList(ignoreList, m.marketFactoryAddress, [m.turboId]));
 
-  const exchanges = Object.values(filteredMarkets).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
-  return { markets: filteredMarkets, ammExchanges: exchanges };
+  return filteredMarkets;
 };
 
 export const getFactoryMarketInfo = async (
@@ -1544,7 +1544,7 @@ export const getFactoryMarketInfo = async (
 
   if (indexes.length === 0) return { markets, ammExchanges, blocknumber, factoryAddress };
 
-  const { marketInfos, exchanges, blocknumber: newBlocknumber } = await retrieveMarkets(
+  const { marketInfos, exchanges, blocknumber: newBlocknumber } = retrieveMarkets(
     indexes,
     cashes,
     provider,
@@ -1692,6 +1692,7 @@ const retrieveMarkets = async (
     });
   }
 
+  console.log('marketInfos', marketInfos)
   const newBlocknumber = marketsResult.blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
@@ -1702,7 +1703,6 @@ const retrieveMarkets = async (
       ammFactoryContract,
       provider,
       account,
-      factoryAddress,
       marketFactoryType
     );
   }
@@ -1738,29 +1738,26 @@ export const fillGraphMarketsData = async (
       newBlocknumber = blocknumber;
     }
   }
-  if (Object.keys(ignoreList)?.length === 0) {
-    console.log('marketInfos', marketInfos)
-    const { markets, ammExchanges } = await setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
-    marketInfos = markets;
-    exchanges = ammExchanges;
+  if (Object.keys(ignoreList).length === 0) {
+    marketInfos = setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
   }
+  exchanges = Object.values(marketInfos).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
 const fillMarketsData = async (
-  markets: MarketInfos[],
+  markets: MarketInfo[],
   cashes: Cashes,
   provider: Web3Provider,
   account: string,
   marketFactoryType: string,
   blocknumber
-): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
-  if (!markets || markets?.length === 0) return { marketInfos: {}, exchanges: {}, blocknumber };
+): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number }> => {
+  if (!markets || markets?.length === 0) return { markets: {}, ammExchanges: {}, blocknumber };
   const POOLS = "pools";
   const marketFactories = Array.from(new Set(Object.values(markets).map(m => m.marketFactoryAddress)));
   const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
 
-    console.log('factoryAddress', factoryAddress)
     const marketFactoryData = getMarketFactoryData(factoryAddress);
     const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
     const ammFactoryAddress = ammFactoryContract.address;
@@ -1792,10 +1789,7 @@ const fillMarketsData = async (
 
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error(`fillMarketDatas`, contractMarketsCall, e);
-    throw e;
-  });
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1806,7 +1800,6 @@ const fillMarketsData = async (
 
     if (method === POOLS) {
       const id = data === NULL_ADDRESS ? null : data;
-      console.log('adding marketId to exchanges', marketId);
       exchanges[marketId] = {
         marketId,
         id,
@@ -1823,9 +1816,9 @@ const fillMarketsData = async (
     }
   }
 
-  let marketInfos = {};
+  let marketInfos: MarketInfos = {};
   if (markets.length > 0) {
-    markets.forEach((m) => {
+    markets.forEach(m => {
       const marketFactoryData = getMarketFactoryData(m.marketFactoryAddress);
       const market = {
         ...m,
@@ -1839,16 +1832,22 @@ const fillMarketsData = async (
   const newBlocknumber = marketsResult.blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
-    exchanges = await retrieveExchangeInfos(
-      exchanges,
-      marketInfos,
-      marketFactoryAddress,
-      ammFactoryContract,
-      provider,
-      account,
-      factoryAddress,
-      marketFactoryType
-    );
+    const fetchExchanges: AmmExchanges[] = await Promise.all(marketFactories.map(marketFactoryAddress => {
+      const marketFactoryData = getMarketFactoryData(marketFactoryAddress);
+      const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
+      const factoryExchanges = Object.values(exchanges).filter(e => e.marketFactoryAddress === marketFactoryAddress).reduce((p, e) => ({...p, [e.marketId]: e}), {});
+      const factoryMarkets = Object.values(marketInfos).filter(e => e.marketFactoryAddress === marketFactoryAddress).reduce((p, e) => ({...p, [e.marketId]: e}), {});
+      return retrieveExchangeInfos(
+        factoryExchanges,
+        factoryMarkets,
+        marketFactoryAddress,
+        ammFactoryContract,
+        provider,
+        account,
+        marketFactoryData.type
+      );
+    }));
+    exchanges = fetchExchanges.reduce((p, exs) => ({...p, ...exs}), {});
   }
 
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
@@ -1905,11 +1904,9 @@ const retrieveExchangeInfos = async (
   ammFactory: AMMFactory,
   provider: Web3Provider,
   account: string,
-  factoryAddress: string,
   marketFactoryType: string
-): Market[] => {
+): AmmExchange[] => {
   const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
-
   const GET_RATIOS = "tokenRatios";
   const GET_BALANCES = "getPoolBalances";
   const GET_FEE = "getSwapFee";
@@ -1920,7 +1917,7 @@ const retrieveExchangeInfos = async (
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
-  const marketFactoryContract = getMarketFactoryContract(provider, factoryAddress, marketFactoryType, account);
+  const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryAddress, marketFactoryType, account);
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractPricesCall: ContractCallContext[] = existingIndexes.reduce(
     (p, index) => [
@@ -2031,7 +2028,7 @@ const retrieveExchangeInfos = async (
     ...shareFactorCalls,
     ...contractPricesCall,
   ]).catch((e) => {
-    console.error("retrieveExchangeInfos", e);
+    console.error("retrieve ExchangeInfos", e);
     throw e;
   });
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
