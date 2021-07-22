@@ -9,6 +9,7 @@ import { EventBetsSection } from "../common/tables";
 import { DailyFutureSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
+import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
 
@@ -114,8 +115,7 @@ const useEventPositionsData = () => {
   const marketIds = Array.from(
     new Set(
       Object.entries(active)
-        .map(([txhash, bet]) => {
-          // @ts-ignore
+        .map(([txhash, bet]: [string, BetType]) => {
           return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
         })
         .filter((i) => i)
@@ -126,9 +126,8 @@ const useEventPositionsData = () => {
   );
   const eventPositionsData = events.reduce((acc, event) => {
     const out = { ...acc };
-    const bets = Object.entries(active).reduce((a, [txhash, bet]) => {
+    const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
       let result = { ...a };
-      // @ts-ignore
       const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
       if (event?.marketIds?.includes(marketId)) {
         result[txhash] = bet;
@@ -177,7 +176,6 @@ export const PortfolioView = () => {
           <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
           <SearchInput
             value={filter}
-            // @ts-ignore
             onChange={(e) => setFilter(e.target.value)}
             clearValue={() => setFilter("")}
           />
@@ -185,7 +183,13 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
-        <SecondaryThemeButton text="MY BETS" reverseContent icon={SimpleChevron} action={() => setShowActivity(!showActivity)} small />
+        <SecondaryThemeButton
+          text="MY BETS"
+          reverseContent
+          icon={SimpleChevron}
+          action={() => setShowActivity(!showActivity)}
+          small
+        />
         <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />

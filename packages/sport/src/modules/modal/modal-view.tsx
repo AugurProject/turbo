@@ -52,9 +52,7 @@ const ModalView = () => {
 
   const handleKeyDown = (e) => {
     if (e.keyCode === ESCAPE_KEYCODE) {
-      // @ts-ignore
       if (modal && modal.cb) {
-        // @ts-ignore
         modal.cb();
       }
       closeModal();

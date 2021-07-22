@@ -291,7 +291,6 @@ const MarketsView = () => {
       </ul>
       <SearchInput
         value={filter}
-        // @ts-ignore
         onChange={(e) => setFilter(e.target.value)}
         clearValue={() => setFilter("")}
         showFilter={showFilter}
