@@ -586,7 +586,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < MULTI_CALL_LIMIT) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", e);
+      console.error("multicall", contractCalls, e);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -599,7 +599,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, chunk ${chunk}`, e);
+        console.error(`multicall, chunk`, chunk, e);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -1617,7 +1617,38 @@ const retrieveMarkets = async (
           },
         ],
       },
-
+      {
+        reference: `${marketFactoryAddress}-${index}-details`,
+        contractAddress: marketFactoryAddress,
+        abi: marketFactoryAbi,
+        calls: [
+          {
+            reference: `${marketFactoryAddress}-${index}`,
+            methodName: GET_MARKET_DETAILS,
+            methodParameters: [index],
+            context: {
+              index,
+              marketFactoryAddress,
+            },
+          },
+        ],
+      },
+      {
+        reference: `${ammFactoryAddress}-${index}-pools`,
+        contractAddress: ammFactoryAddress,
+        abi: ammFactoryAbi,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${index}-pools`,
+            methodName: POOLS,
+            methodParameters: [marketFactoryAddress, index],
+            context: {
+              index,
+              marketFactoryAddress,
+            },
+          },
+        ],
+      },
     ],
     []
   );
@@ -1626,11 +1657,8 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  
-  console.log('calls', contractMarketsCall)
-  
   const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error(`retrieveMarkets`, e);
+    console.error(`retrieveMarkets`, contractMarketsCall, e);
     throw e;
   });
 
