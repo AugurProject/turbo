@@ -10,7 +10,9 @@ import {
   CryptoMarketFactory__factory,
   CryptoMarketFactory,
   MMALinkMarketFactory,
-  MMALinkMarketFactory__factory, SportsLinkMarketFactoryV1__factory, SportsLinkMarketFactoryV1
+  MMALinkMarketFactory__factory,
+  SportsLinkMarketFactoryV1__factory,
+  SportsLinkMarketFactoryV1,
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -41,11 +43,13 @@ export function buildContractInterfaces(signerOrProvider: Signer | Provider, cha
   const contractAddresses = addresses[chainId];
   if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${chainId} not found.`);
 
-  const MarketFactories = contractAddresses.marketFactories.map(({ type, subtype, address, ammFactory: ammFactoryAddress }) => {
-    const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, subtype, address, signerOrProvider);
-    const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
-    return { marketFactory, ammFactory, marketFactoryType: type, marketFactorySubType: subtype };
-  });
+  const MarketFactories = contractAddresses.marketFactories.map(
+    ({ type, subtype, address, ammFactory: ammFactoryAddress }) => {
+      const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, subtype, address, signerOrProvider);
+      const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+      return { marketFactory, ammFactory, marketFactoryType: type, marketFactorySubType: subtype };
+    }
+  );
 
   return {
     ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
@@ -67,5 +71,5 @@ export function instantiateMarketFactory(
   if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
 
-  throw Error(`No market factory matching type=${type} subtype=${subtype}`)
+  throw Error(`No market factory matching type=${type} subtype=${subtype}`);
 }

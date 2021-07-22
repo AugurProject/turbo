@@ -3,13 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import {
-  Addresses,
-  graphChainNames,
-  addresses as originalAddresses,
-  ChainId,
-  MarketFactory,
-} from "../addresses";
+import { Addresses, graphChainNames, addresses as originalAddresses, ChainId, MarketFactory } from "../addresses";
 import { isHttpNetworkConfig } from "../tasks";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

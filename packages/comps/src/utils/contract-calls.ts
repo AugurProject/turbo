@@ -234,10 +234,10 @@ const calcWeights = (prices: string[]): string[] => {
 
 export const calcPricesFromOdds = (initialOdds: string[], outcomes: AmmOutcome[]) => {
   // convert odds to prices and set prices on outcomes
-  const outcomePrices = calculatePrices({ outcomes, winner: null}, initialOdds, []);
-  const populatedOutcomes = outcomes.map((o, i) => ({...o, price: outcomePrices[i]}));
+  const outcomePrices = calculatePrices({ outcomes, winner: null }, initialOdds, []);
+  const populatedOutcomes = outcomes.map((o, i) => ({ ...o, price: outcomePrices[i] }));
   return populatedOutcomes;
-}
+};
 
 export async function getRemoveLiquidity(
   amm: AmmExchange,
@@ -1331,7 +1331,12 @@ const getMarketFactoryContract = (
   marketFactoryData: MarketFactory,
   account?: string
 ): MarketFactoryContract => {
-  return instantiateMarketFactory(marketFactoryData.type, marketFactoryData.subtype, marketFactoryData.address, getProviderOrSigner(library, account));
+  return instantiateMarketFactory(
+    marketFactoryData.type,
+    marketFactoryData.subtype,
+    marketFactoryData.address,
+    getProviderOrSigner(library, account)
+  );
 };
 
 const getAbstractMarketFactoryContract = (
@@ -1395,11 +1400,11 @@ const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
 const SUB_OLD_VERSION = "V1";
 
 export const canAddLiquidity = (market: MarketInfo): boolean => {
-  const initLiquidity = !market?.amm?.id
+  const initLiquidity = !market?.amm?.id;
   if (!initLiquidity) return true;
   const data = getMarketFactoryData(market.marketFactoryAddress);
-  return data?.subtype !== SUB_OLD_VERSION;  
-}
+  return data?.subtype !== SUB_OLD_VERSION;
+};
 
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] => {
   if (loadtype === MARKET_LOAD_TYPE.SPORT)
@@ -1446,7 +1451,7 @@ export const getMarketInfos = async (
   blocknumber: number
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
-  
+
   const allMarkets = await Promise.all(
     factories.map(({ type, address, ammFactory }) =>
       getFactoryMarketInfo(
@@ -2126,7 +2131,15 @@ const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: str
 };
 
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
-  const { shareTokens, endTime, winner, creator, settlementFee: onChainFee, creationTimestamp, initialOdds } = marketData;
+  const {
+    shareTokens,
+    endTime,
+    winner,
+    creator,
+    settlementFee: onChainFee,
+    creationTimestamp,
+    initialOdds,
+  } = marketData;
   const winningOutcomeId: string = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS;
   const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
@@ -2148,7 +2161,7 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
     shareTokens,
     creator,
     marketFactoryType,
-    initialOdds: initialOdds ? initialOdds.map(i => String(i)) : undefined
+    initialOdds: initialOdds ? initialOdds.map((i) => String(i)) : undefined,
   };
 };
 

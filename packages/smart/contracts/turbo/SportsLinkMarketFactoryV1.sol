@@ -92,16 +92,16 @@ contract SportsLinkMarketFactoryV1 is AbstractMarketFactoryV1 {
         address _linkNode,
         uint256 _sportId
     )
-    AbstractMarketFactoryV1(
-        _owner,
-        _collateral,
-        _shareFactor,
-        _feePot,
-        _stakerFee,
-        _settlementFee,
-        _protocol,
-        _protocolFee
-    )
+        AbstractMarketFactoryV1(
+            _owner,
+            _collateral,
+            _shareFactor,
+            _feePot,
+            _stakerFee,
+            _settlementFee,
+            _protocol,
+            _protocolFee
+        )
     {
         linkNode = _linkNode;
         sportId = _sportId;
