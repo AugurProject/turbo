@@ -681,7 +681,7 @@ export interface GraphDataState {
   transactions?: any;
 }
 
-export interface DataState extends GraphDataState {};
+export interface DataState extends GraphDataState {}
 
 export interface UserState {
   account: string;
