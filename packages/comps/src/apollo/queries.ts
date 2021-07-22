@@ -30,7 +30,7 @@ export const SEARCH_MARKETS = gql`
 
 export const GET_MARKETS = gql`
   query {
-    teamSportsMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc) {
+    teamSportsMarkets(where: { winner: null }, orderBy: marketIndex, orderDirection: desc) {
       marketId: id
       creationTimestamp: timestamp
       endTime
@@ -46,7 +46,7 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    cryptoMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc)  {
+    cryptoMarkets(where: { winner: null }, orderBy: marketIndex, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
@@ -59,7 +59,7 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    mmaMarkets(where: {winner: null}, orderBy: marketIndex, orderDirection: desc)  {
+    mmaMarkets(where: { winner: null }, orderBy: marketIndex, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
