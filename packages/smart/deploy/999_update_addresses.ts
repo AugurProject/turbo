@@ -3,7 +3,17 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import { Addresses, graphChainNames, addresses as originalAddresses, ChainId, MarketFactory } from "../addresses";
+import {
+  Addresses,
+  graphChainNames,
+  addresses as originalAddresses,
+  ChainId,
+  MarketFactory,
+  FetcherContractName,
+  MARKET_FACTORY_TYPE_TO_CONTRACT_NAME,
+  MarketFactoryType,
+  MarketFactorySubType,
+} from "../addresses";
 import { ExternalAddresses, isHttpNetworkConfig } from "../tasks";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
@@ -18,73 +28,43 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const collateral = externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
   const reputationToken = externalAddresses?.reputationToken || (await deployments.get("Reputation")).address;
   const balancerFactory = externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
-
-  const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory").catch(() => undefined);
-  const cryptoMarketFactory = await deployments.get("CryptoMarketFactory").catch(() => undefined);
-  const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory").catch(() => undefined);
-  const nflMarketFactory = await deployments.get("NFLMarketFactory").catch(() => undefined);
-
-  const nbaFetcher = await deployments.get("NBAFetcher").catch(() => undefined);
-  const mmaFetcher = await deployments.get("MMAFetcher").catch(() => undefined);
-
+  // Until Rewards, one AMM factory can handle all market factories.
   const ammFactory = await deployments.get("AMMFactory").catch(() => undefined);
 
   const uploadBlockNumber = await getUploadBlockNumber(chainId as ChainId, deployments);
 
   const version = "FILL THIS OUT"; // version of a particular market factory
-  const subtype = "V2"; // tells the UI which API features are available V2 indicates initialOdds.
+  const subtype: MarketFactorySubType = "V3";
+
+  async function includeMarketFactory(type: MarketFactoryType, fetcherName: FetcherContractName, description: string) {
+    const factoryName = MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type];
+    const marketFactory = await deployments.get(factoryName).catch(() => undefined);
+    const fetcher = await deployments.get(fetcherName).catch(() => undefined);
+
+    if (marketFactory && !hasFactory(marketFactories, marketFactory.address)) {
+      marketFactories.unshift({
+        version,
+        description,
+        type,
+        subtype,
+        address: marketFactory.address,
+        collateral,
+        ammFactory: ammFactory?.address || "",
+        fetcher: fetcher?.address || "",
+      });
+    }
+  }
+
+  const sportsFetcher = "NBAFetcher"; // the sports are similar enough that one fetcher works for all of them
 
   // Add new market factories. Only new ones.
   const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];
-
-  if (sportsLinkMarketFactory && !hasFactory(marketFactories, sportsLinkMarketFactory.address)) {
-    marketFactories.unshift({
-      version,
-      description: "mlb and nba",
-      type: "SportsLink",
-      subtype,
-      address: sportsLinkMarketFactory.address,
-      collateral,
-      ammFactory: ammFactory?.address || "",
-      fetcher: nbaFetcher?.address || "",
-    });
-  }
-  if (cryptoMarketFactory && !hasFactory(marketFactories, cryptoMarketFactory.address)) {
-    marketFactories.unshift({
-      version,
-      description: "crypto prices",
-      type: "Crypto",
-      subtype,
-      address: cryptoMarketFactory.address,
-      collateral,
-      ammFactory: ammFactory?.address || "",
-      fetcher: "", // TODO
-    });
-  }
-  if (mmaLinkMarketFactory && !hasFactory(marketFactories, mmaLinkMarketFactory.address)) {
-    marketFactories.unshift({
-      version,
-      description: "mma",
-      type: "MMALink",
-      subtype: "V2",
-      address: mmaLinkMarketFactory.address,
-      collateral,
-      ammFactory: ammFactory?.address || "",
-      fetcher: mmaFetcher?.address ?? "",
-    });
-  }
-  if (nflMarketFactory && !hasFactory(marketFactories, nflMarketFactory.address)) {
-    marketFactories.unshift({
-      version,
-      description: "nfl",
-      type: "NFL",
-      subtype: "V2",
-      address: nflMarketFactory.address,
-      collateral,
-      ammFactory: ammFactory?.address || "",
-      fetcher: nbaFetcher?.address || "", // uses nba because nfl is very similar to nba/mlb
-    });
-  }
+  await includeMarketFactory("Crypto", "", "crypto prices");
+  await includeMarketFactory("MMA", sportsFetcher, "mma/ufc");
+  await includeMarketFactory("NFL", sportsFetcher, "nfl");
+  await includeMarketFactory("NBA", sportsFetcher, "nba");
+  await includeMarketFactory("MLB", sportsFetcher, "mlb");
+  await includeMarketFactory("Futures", "", "futures");
 
   const addresses: Addresses = {
     reputationToken,

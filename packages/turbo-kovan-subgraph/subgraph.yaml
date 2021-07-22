@@ -220,7 +220,7 @@ dataSources:
           - MarketResolved
         abis:
           - name: MmaMarketFactory
-            file: ./abis/MMALinkMarketFactory.json
+            file: ./abis/MMAMarketFactory.json
         eventHandlers:
           - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,string,uint256,string,uint256,uint256)
             handler: handleMarketCreatedEvent

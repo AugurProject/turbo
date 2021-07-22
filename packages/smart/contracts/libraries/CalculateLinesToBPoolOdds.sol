@@ -8,6 +8,24 @@ abstract contract CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
+    uint256 constant MAX_BPOOL_WEIGHT = 50e18;
+
+    function ratioOdds(uint256[] memory _proportions) internal pure returns (uint256[] memory _odds) {
+        uint256 _total = sum(_proportions);
+
+        _odds = new uint256[](_proportions.length);
+        for (uint256 i = 0; i < _proportions.length; i++) {
+            _odds[i] = (MAX_BPOOL_WEIGHT).mul(_proportions[i]).div(_total);
+            require(_odds[i] >= 1e18, "min outcome weight is 2%");
+        }
+    }
+
+    function sum(uint256[] memory _numbers) private pure returns (uint256 _sum) {
+        for (uint256 i = 0; i < _numbers.length; i++) {
+            _sum += _numbers[i];
+        }
+    }
+
     function evenOdds(bool _invalid, uint256 _outcomes) internal pure returns (uint256[] memory _odds) {
         uint256 _size = _outcomes + (_invalid ? 1 : 0);
         _odds = new uint256[](_size);
@@ -29,8 +47,9 @@ abstract contract CalculateLinesToBPoolOdds {
         _odds1 = uint256(49e18).mul(_odds1).div(_total);
         _odds2 = uint256(49e18).mul(_odds2).div(_total);
 
-        require(_odds1 >= 1e18, "Moneyline odds are too skewed: would have under 2% odds");
-        require(_odds2 >= 1e18, "Moneyline odds are too skewed: would have under 2% odds");
+        // Moneyline odds are too skewed: would have under 2% odds.
+        require(_odds1 >= 1e18);
+        require(_odds2 >= 1e18);
 
         _odds = new uint256[](3);
         _odds[0] = 1e18; // Invalid, 2%
