@@ -52,11 +52,6 @@ const applyFiltersAndSort = (
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
-  // // immediately sort by event id and turbo id.
-  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
-  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  // );
-
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
       const { title, description, categories, outcomes } = market;
@@ -166,7 +161,6 @@ const applyFiltersAndSort = (
     return output;
   }, []);
 
-  // setFilteredMarkets(updatedFilteredMarkets);
   setFilteredEvents(updatedEvents);
 };
 
@@ -187,7 +181,6 @@ const MarketsView = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  // const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
   const marketKeys = Object.keys(markets);
 

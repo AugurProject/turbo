@@ -215,7 +215,7 @@ export interface WarningBannerProps {
   title: string;
   subtitle: string;
   className: string;
-  onClose: Function;
+  onClose?: Function;
 }
 
 export const WarningBanner = ({ title, subtitle, className, onClose }: WarningBannerProps) => {

@@ -1,16 +1,6 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./tables.styles.less";
 import classNames from "classnames";
-import {
-  AmmExchange,
-  AmmTransaction,
-  LPTokenBalance,
-  MarketInfo,
-  PositionBalance,
-  SimpleBalance,
-  Winnings,
-} from "../types";
 import { getClaimAllMessage } from "../portfolio/portfolio-view";
 import {
   useAppStatusStore,
@@ -23,6 +13,17 @@ import {
   Components,
   Stores,
 } from "@augurproject/comps";
+import {
+  AmmExchange,
+  AmmTransaction,
+  LPTokenBalance,
+  MarketInfo,
+  PositionBalance,
+  SimpleBalance,
+  Winnings,
+  UserState,
+  FormattedNumber,
+} from "@augurproject/comps/build/types";
 import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
 const {
@@ -54,6 +55,7 @@ const {
 } = Stores;
 
 interface PositionsTableProps {
+  key?: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
   positions: PositionBalance[];
@@ -62,6 +64,7 @@ interface PositionsTableProps {
 }
 
 interface LiquidityTableProps {
+  key?: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
   lpTokens?: SimpleBalance;
@@ -73,6 +76,7 @@ const MarketTableHeader = ({
   market: { startTimestamp, title, description, marketId },
   ammExchange,
 }: {
+  timeFormat: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
 }) => (
@@ -128,7 +132,14 @@ const PositionHeader = () => {
   );
 };
 
-const PositionRow = ({ position, hasLiquidity = true }: { position: PositionBalance; hasLiquidity: boolean }) => (
+const PositionRow = ({
+  position,
+  hasLiquidity = true,
+}: {
+  position: PositionBalance;
+  hasLiquidity: boolean;
+  key?: string;
+}) => (
   <ul className={Styles.PositionRow}>
     <li>{position.outcomeName}</li>
     <li>{formatSimpleShares(position.quantity).formattedValue}</li>
@@ -199,7 +210,7 @@ export const PositionFooter = ({
   const claim = async () => {
     if (amm && account) {
       setPendingClaim(true);
-      claimWinnings(account, loginAccount?.library, [turboId], marketFactoryAddress)
+      claimWinnings(account, loginAccount?.library, [String(turboId)], marketFactoryAddress)
         .then((response) => {
           // handle transaction response here
           setPendingClaim(false);
@@ -241,7 +252,7 @@ export const PositionFooter = ({
       account,
       loginAccount?.library,
       balances?.marketShares[marketId]?.outcomeSharesRaw,
-      turboId,
+      String(turboId),
       amm?.shareFactor,
       amm?.marketFactoryAddress
     )
@@ -321,7 +332,7 @@ export const PositionFooter = ({
 export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     balances: { marketShares },
-  } = useUserStore();
+  }: UserState = useUserStore();
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
@@ -384,7 +395,7 @@ export const PositionTable = ({
         {positions &&
           positions
             .filter((p) => p.visible)
-            .map((position, id) => <PositionRow key={id} position={position} hasLiquidity={hasLiquidity} />)}
+            .map((position, id) => <PositionRow key={String(id)} position={position} hasLiquidity={hasLiquidity} />)}
         <PositionFooter showTradeButton={!singleMarket} market={market} claimableWinnings={claimableWinnings} />
       </div>
       {!seenMarketPositionWarningAdd &&
@@ -570,7 +581,7 @@ export const PositionsLiquidityViewSwitcher = ({
   const [page, setPage] = useState(1);
   const {
     balances: { lpTokens, marketShares },
-  } = useUserStore();
+  }: UserState = useUserStore();
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
@@ -762,8 +773,15 @@ const TransactionsHeader = ({ selectedType, setSelectedType, sortUp, setSortUp }
   );
 };
 
+interface ProcessedAmmTransaction extends AmmTransaction {
+  displayCollateral: FormattedNumber;
+  displayShares?: string;
+  timestamp: string;
+}
+
 interface TransactionProps {
-  transaction: AmmTransaction;
+  key?: string;
+  transaction: ProcessedAmmTransaction;
 }
 
 const TX_PAGE_LIMIT = 10;
@@ -778,7 +796,7 @@ const TransactionRow = ({ transaction }: TransactionProps) => (
     <li>
       <AddressLink account={transaction.sender} short />
     </li>
-    <li>{timeSinceTimestamp(transaction.timestamp)}</li>
+    <li>{timeSinceTimestamp(Number(transaction.timestamp))}</li>
   </ul>
 );
 

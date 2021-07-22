@@ -1,11 +1,10 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./modal.styles.less";
 import { Header } from "./common";
 import { useHistory } from "react-router";
 import { InfoNumbers } from "../market/trading-form";
 import classNames from "classnames";
-import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "../types";
+import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo, DataState } from "@augurproject/comps/build/types";
 import { BigNumber as BN } from "bignumber.js";
 import {
   ContractCalls,
@@ -105,7 +104,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes, ammExchanges, blocknumber } = useDataStore();
+  const { cashes, ammExchanges, blocknumber }: DataState = useDataStore();
   const history = useHistory();
 
   let amm = ammExchanges[market.marketId];
@@ -189,28 +188,34 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     }
   }
 
-  const getCreateBreakdown = (isRemove) => {
+  const orderMinAmountsForDisplay = (
+    items: { amount: string; outcomeId: number; hide: boolean }[] = []
+  ): { amount: string; outcomeId: number; hide: boolean }[] =>
+    items.length > 0 && items[0].outcomeId === 0 ? items.slice(1).concat(items.slice(0, 1)) : items;
+
+  const getCreateBreakdown = (isRemove = false) => {
     const fullBreakdown = [
-      ...orderOutcomesForDisplay(breakdown.minAmounts)
+      ...orderMinAmountsForDisplay(breakdown.minAmounts)
         .filter((m) => !m.hide)
         .map((m) => ({
           label: `${market.outcomes[m.outcomeId]?.name} Shares`,
           value: `${formatSimpleShares(m.amount).formatted}`,
+          svg: null,
         })),
       {
         label: isRemove ? "USDC" : "LP tokens",
         value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
+        svg: null,
       },
     ];
-    const pendingRewards = balances?.pendingRewards?.[marketId]?.balance || "0";
+    const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
     if (pendingRewards !== "0") {
       fullBreakdown.push({
         label: `LP Rewards`,
         value: `${formatEther(pendingRewards).formatted}`,
-        svg: MaticIcon
-      })
+        svg: MaticIcon,
+      });
     }
-
     return fullBreakdown;
   };
 
@@ -496,9 +501,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           <main>
             {!LIQUIDITY_STRINGS[modalType].cantEditAmount && (
               <>
-                {LIQUIDITY_STRINGS[modalType].amountSubtitle && (
-                  <span className={Styles.SmallLabel}>{LIQUIDITY_STRINGS[modalType].amountSubtitle}</span>
-                )}
                 <AmountInput
                   ammCash={cash}
                   updateInitialAmount={(amount) => updateAmount(amount)}

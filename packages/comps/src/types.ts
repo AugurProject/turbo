@@ -191,6 +191,7 @@ export interface InvalidPool {
 }
 export interface AmmExchange {
   id: string;
+  turboId: number;
   marketId: string;
   market: MarketInfo;
   liquidity: string;
@@ -562,7 +563,10 @@ export interface SimpleBalance {
 export interface LPTokenBalance extends SimpleBalance {
   initCostUsd?: string;
   usdValue?: string;
+  poolPct?: string;
+  marketId?: string;
 }
+
 export interface LPTokens {
   [marketId: string]: LPTokenBalance;
 }
@@ -677,6 +681,8 @@ export interface GraphDataState {
   transactions?: any;
 }
 
+export interface DataState extends GraphDataState {}
+
 export interface UserState {
   account: string;
   balances: UserBalances;
@@ -710,6 +716,8 @@ export interface LiquidityBreakdown {
   minAmountsRaw?: string[];
   minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
   poolPct?: string;
+  lpTokens?: string;
+  cashAmount?: string;
 }
 
 export interface MarketFactoryConfig {
