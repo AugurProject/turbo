@@ -280,6 +280,7 @@ export interface MarketInfo {
   coinIndex?: string;
   price?: string;
   spreadOuLine?: number;
+  initialOdds: string[];
 }
 
 export interface MarketOutcome {
