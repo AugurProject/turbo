@@ -64,8 +64,8 @@ export function instantiateMarketFactory(
     if (subtype === "V2") return SportsLinkMarketFactoryV2__factory.connect(address, signerOrProvider);
   }
   if (type === "MMALink") return MMALinkMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "Crypto") CryptoMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "Trusted") TrustedMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
 
   throw Error(`No market factory matching type=${type} subtype=${subtype}`)
 }
