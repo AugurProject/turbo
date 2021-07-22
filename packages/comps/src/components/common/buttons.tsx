@@ -281,6 +281,7 @@ export interface BaseThemeButtonProps {
   ariaLabel?: string;
   href?: string;
   key?: string;
+  selected?: boolean;
 }
 
 export const BaseThemeButton = ({
@@ -293,6 +294,7 @@ export const BaseThemeButton = ({
   action = () => {},
   disabled = false,
   title,
+  selected = false,
   buttonType,
   invert = false,
   reverseContent = false,
@@ -322,6 +324,7 @@ export const BaseThemeButton = ({
         [Styles.Inverted]: invert,
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
+        [Styles.Selected]: selected,
       },
       customClass
     ),

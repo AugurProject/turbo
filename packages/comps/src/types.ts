@@ -562,7 +562,10 @@ export interface SimpleBalance {
 export interface LPTokenBalance extends SimpleBalance {
   initCostUsd?: string;
   usdValue?: string;
+  poolPct?: string;
+  marketId?: string;
 }
+
 export interface LPTokens {
   [marketId: string]: LPTokenBalance;
 }
