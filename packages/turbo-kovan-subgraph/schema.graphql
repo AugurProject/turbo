@@ -32,6 +32,8 @@ type Market @entity {
 type TeamSportsMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String
@@ -49,6 +51,8 @@ type TeamSportsMarket @entity {
 type MmaMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String
@@ -67,6 +71,8 @@ type MmaMarket @entity {
 type CryptoMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String

@@ -1,6 +1,6 @@
 import { InitialCostPerMarket, PositionBalance } from "../../generated/schema";
 import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
-import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { WinningsClaimed } from "../../generated/AbstractMarketFactory/AbstractMarketFactory";
 import { BigInt } from "@graphprotocol/graph-ts/index";
@@ -16,6 +16,7 @@ export function getOrCreatePositionBalance (
     entity = new PositionBalance(id);
     entity.sharesBigInt = ZERO;
     entity.initCostUsdBigInt = ZERO;
+    entity.payoutBigInt = ZERO;
     entity.log = new Array<string>();
 
     if (save) {
@@ -90,8 +91,15 @@ export function handlePositionFromTradeEvent(
       positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostUsdBigInt);
       positionBalanceEntity.initCostUsdBigInt = initialCostUsdBigInt;
       positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
-      positionBalanceEntity.avgPrice = absCollateralBigDecimal.div(sharesBigDecimal);
+      positionBalanceEntity.avgPrice = sharesBigDecimal > DUST_POSITION_AMOUNT_BIG_DECIMAL ? absCollateralBigDecimal.div(sharesBigDecimal) : positionBalanceEntity.avgPrice;
       positionBalanceEntity.open = sharesBigInt > ZERO;
+
+      if (!buy) {
+        let payoutBigInt = positionBalanceEntity.payoutBigInt + collateral;
+        positionBalanceEntity.payout = bigIntToHexString(payoutBigInt);
+        positionBalanceEntity.payoutBigInt = payoutBigInt;
+        positionBalanceEntity.payoutBigDecimal = payoutBigInt.toBigDecimal().div(USDC_DECIMALS);
+      }
 
       positionBalanceEntity.save();
     }
@@ -144,7 +152,7 @@ export function handlePositionFromLiquidityChangedEvent(
       positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostUsdBigInt);
       positionBalanceEntity.initCostUsdBigInt = initialCostUsdBigInt;
       positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
-      positionBalanceEntity.avgPrice = absCollateralBigDecimal.div(sharesReturnedBigDecimal);
+      positionBalanceEntity.avgPrice = sharesReturnedBigDecimal > DUST_POSITION_AMOUNT_BIG_DECIMAL ? absCollateralBigDecimal.div(sharesReturnedBigDecimal) : positionBalanceEntity.avgPrice;
       positionBalanceEntity.open = sharesBigInt > ZERO;
 
       positionBalanceEntity.save();
@@ -187,7 +195,8 @@ export function handlePositionFromClaimWinningsEvent(
       let initialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.toBigDecimal().div(USDC_DECIMALS);
       let absInitialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.abs().toBigDecimal().div(USDC_DECIMALS);
       let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
-      let payoutBigDecimal = event.params.payout.toBigDecimal().div(USDC_DECIMALS);
+      let absPayoutBigInt = positionBalanceEntity.payoutBigInt + event.params.payout.abs();
+      let payoutBigDecimal = absPayoutBigInt.toBigDecimal().div(USDC_DECIMALS);
       let totalChangedUsd = event.params.payout - initialCostPerMarketEntity.sumOfInitialCost;
       let totalChangeUsdBigDecimal = totalChangedUsd.toBigDecimal().div(USDC_DECIMALS);
       positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
@@ -196,8 +205,8 @@ export function handlePositionFromClaimWinningsEvent(
       positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarketEntity.sumOfInitialCost);
       positionBalanceEntity.initCostUsdBigInt = initialCostPerMarketEntity.sumOfInitialCost;
       positionBalanceEntity.initCostUsdBigDecimal = initialCostBigDecimal;
-      positionBalanceEntity.payout = bigIntToHexString(event.params.payout);
-      positionBalanceEntity.payoutBigInt = event.params.payout;
+      positionBalanceEntity.payout = bigIntToHexString(absPayoutBigInt);
+      positionBalanceEntity.payoutBigInt = absPayoutBigInt;
       positionBalanceEntity.payoutBigDecimal = payoutBigDecimal;
       positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangedUsd);
       positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
