@@ -140,6 +140,8 @@ dataSources:
         abis:
           - name: CryptoMarketFactory
             file: ./abis/CryptoMarketFactory.json
+          - name: MmaMarketFactory
+            file: ./abis/MMAMarketFactory.json
         eventHandlers:
           - event: MarketCreated(uint256,address,indexed uint256,uint8,indexed uint256,uint256)
             handler: handleMarketCreatedEvent

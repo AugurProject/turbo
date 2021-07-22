@@ -9,7 +9,7 @@ import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract MMALinkMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
+contract MMALinkMarketFactoryV2 is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 

@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { addresses, ChainId, marketFactoryTypeToContractName, marketFactoryTypeToFetcherName } from "../addresses";
+import { addresses, ChainId, MARKET_FACTORY_TYPE_TO_CONTRACT_NAME, marketFactoryTypeToFetcherName } from "../addresses";
 
 task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
   const { chainId } = await hre.ethers.provider.getNetwork();
@@ -33,7 +33,7 @@ task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
     });
 
     contracts.push({
-      name: marketFactoryTypeToContractName[type],
+      name: MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type],
       address,
     });
 

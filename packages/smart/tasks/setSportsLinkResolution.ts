@@ -19,7 +19,7 @@ task("setSportsLinkResolution", "Set market resolution for the SportsLinkMarketF
     const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
     const { MarketFactories } = contracts;
     const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactoryV2;
-    await marketFactory.trustedResolveMarkets(eventid, SportsLinkEventStatus.Final, homescore, awayscore);
+    await marketFactory.resolveEvent(eventid, SportsLinkEventStatus.Final, homescore, awayscore);
     await sleep(10000);
     const market = await marketFactory.getMarket(marketid);
     console.log(`Set trusted resolution: ${market.winner}`);

@@ -20,7 +20,6 @@ describe("AMMFactory", () => {
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
-  const outcomeSymbols = ["NO CONTEST", "HH", "UT"];
   const outcomeNames = ["No Contest", "Hulk Hogan", "Undertaker"];
 
   const usdcBasis = BigNumber.from(10).pow(6);
@@ -60,21 +59,16 @@ describe("AMMFactory", () => {
       collateral.address,
       shareFactor,
       feePot.address,
-      stakerFee,
-      settlementFee,
-      signer.address,
-      protocolFee
+      [stakerFee, settlementFee, protocolFee],
+      signer.address
     );
 
     bFactory = (await ethers.getContract("BFactory")) as BFactory;
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
 
-    const endTime = BigNumber.from(Date.now())
-      .div(1000)
-      .add(60 * 60 * 24); // one day
     const description = "Who will win Wrestlemania III?";
     const odds = calcWeights([2, 49, 49]);
-    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols, odds);
+    await marketFactory.createMarket(signer.address, description, outcomeNames, odds);
 
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
