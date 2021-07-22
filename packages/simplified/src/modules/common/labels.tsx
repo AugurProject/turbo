@@ -15,10 +15,12 @@ import {
   ButtonComps,
   Stores,
   Links,
-  createBigNumber
+  createBigNumber,
+  ContractCalls
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
+const { canAddLiquidity } = ContractCalls;
 const {
   Utils: { isMarketFinal }
 } = Stores;
@@ -78,6 +80,7 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
     isLogged,
     actions: { setModal },
   } = useAppStatusStore();
+  const canAddLiq = canAddLiquidity(market);
   return (
     <PrimaryThemeButton
       customClass={Styles.AddLiquidityButton}
@@ -92,7 +95,7 @@ export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
           });
         }
       }}
-      disabled={!isLogged || isMarketFinal(market)}
+      disabled={!isLogged || isMarketFinal(market) || !canAddLiq}
       text="add liquidity"
       subText="earn fees as a liquidity provider"
     />

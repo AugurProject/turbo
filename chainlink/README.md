@@ -4,7 +4,7 @@ This directory is for running a chainlink node for testing the adapter.
 1. Create several files containing secrets. They're listed below.
 2. Run `docker-compose up`. 
    You may have to install python packages. It will show you which if it errors.
-3. Go to https://localhost:8080 to load the app. Sign in or sign up, as needed.
+3. Go to https://localhost:6688 to load the app. Sign in or sign up, as needed.
 4. Create a bridge:
 
 | Field                    | Value                      |

@@ -24,6 +24,7 @@ const {
   addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
+  calcPricesFromOdds,
 } = ContractCalls;
 const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
@@ -110,8 +111,10 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
+  const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
+  const initialOutcomes = hasInitialOdds ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes) : amm?.ammOutcomes || [];
 
-  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(amm?.ammOutcomes || []));
+  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
   const [showBackView, setShowBackView] = useState(false);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -427,7 +430,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     [CREATE]: {
       header: "add liquidity",
       showTradingFee: false,
-      setOdds: true,
+      setOdds: !hasInitialOdds,
       setOddsTitle: "Set the price (between 0.02 to 1.0)",
       editableOutcomes: true,
       setFees: false, // set false for version 0
@@ -536,11 +539,11 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   setSelectedOutcome={() => null}
                   orderType={BUY}
                   nonSelectable
-                  editable={mustSetPrices}
+                  editable={mustSetPrices && !hasInitialOdds}
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   dontFilterInvalid
-                  hasLiquidity={!mustSetPrices}
+                  hasLiquidity={!mustSetPrices || hasInitialOdds}
                   marketFactoryType={market?.marketFactoryType}
                 />
               </>

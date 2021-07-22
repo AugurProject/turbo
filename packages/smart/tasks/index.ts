@@ -18,3 +18,6 @@ export * from "./createCryptoMarkets";
 export * from "./getOwner";
 export * from "./setOwner";
 export * from "./getMarket";
+export * from "./faucetCash";
+export * from "./transferERC20";
+export * from "./approveERC20";

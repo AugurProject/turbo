@@ -53,7 +53,6 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
         try {
-
           const {data, block, errors} = await getMarketsData();
           //console.log('GRAPH DATA', data, block, errors);
           if (errors) {

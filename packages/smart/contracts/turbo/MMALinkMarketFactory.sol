@@ -4,11 +4,12 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract MMALinkMarketFactory is AbstractMarketFactory {
+contract MMALinkMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -43,7 +44,6 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 estimatedStartTime;
         MarketType marketType;
         EventStatus eventStatus;
-        uint256[3] headToHeadWeights; // derived from moneyline
     }
     // MarketId => MarketDetails
     mapping(uint256 => MarketDetails) internal marketDetails;
@@ -54,6 +54,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         uint256 homeFighterId;
         uint256 awayFighterId;
         uint256 startTime;
+        EventStatus eventStatus;
     }
 
     // EventId => EventDetails
@@ -75,7 +76,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         address _linkNode,
         uint256 _sportId
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,
@@ -97,7 +98,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         string memory _awayFighterName,
         uint256 _awayFighterId,
         uint256 _startTimestamp,
-        int256[2] memory _moneylines
+        int256[2] memory _moneylines // [home,away]
     ) public {
         require(msg.sender == linkNode, "Only link node can create markets");
 
@@ -123,6 +124,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         events[_eventId].homeFighterId = _homeFighterId;
         events[_eventId].awayFighterId = _awayFighterId;
         events[_eventId].startTime = _startTimestamp;
+        events[_eventId].eventStatus = EventStatus.Scheduled;
         listOfEvents.push(_eventId);
     }
 
@@ -135,7 +137,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         string memory _awayTeamName,
         uint256 _awayFighterId,
         uint256 _startTimestamp,
-        int256[2] memory _moneylines
+        int256[2] memory _moneylines // [home,away]
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[uint256(HeadToHeadOutcome.NoContest)] = "No Contest";
@@ -143,7 +145,10 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         _outcomes[uint256(HeadToHeadOutcome.Home)] = _homeTeamName;
 
         uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
+        // moneylines is [home,away] but the outcomes are listed [NC,away,home] so they must be reversed
+        markets.push(
+            makeMarket(_creator, _outcomes, _outcomes, _endTime, oddsFromLines(_moneylines[1], _moneylines[0]))
+        );
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamName,
@@ -152,8 +157,7 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
             _awayFighterId,
             _startTimestamp,
             MarketType.HeadToHead,
-            EventStatus.Scheduled,
-            deriveHeadToHeadWeights(_moneylines)
+            EventStatus.Scheduled
         );
         emit MarketCreated(
             _id,
@@ -170,17 +174,11 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         return _id;
     }
 
-    function deriveHeadToHeadWeights(int256[2] memory _moneylines) internal pure returns (uint256[3] memory _weights) {
-        _weights[0] = 1e18; // 2%
-        _weights[1] = 24.5e18; // 49%
-        _weights[2] = 24.5e18; // 49%
-    }
-
     enum WhoWon {Unknown, Home, Away, Draw}
 
     function trustedResolveMarkets(
         uint256 _eventId,
-        uint256 _eventStatus,
+        EventStatus _eventStatus,
         uint256 _homeFighterId,
         uint256 _awayFighterId,
         WhoWon _whoWon
@@ -196,17 +194,19 @@ contract MMALinkMarketFactory is AbstractMarketFactory {
         } else {
             resolveHeadToHeadMarket(_event.markets[0], _whoWon);
         }
+
+        events[_eventId].eventStatus = _eventStatus;
     }
 
     function eventIsNoContest(
         EventDetails memory _event,
-        uint256 _eventStatus,
+        EventStatus _eventStatus,
         uint256 _homeFighterId,
         uint256 _awayFighterId,
         WhoWon _whoWon
     ) internal pure returns (bool) {
         bool _draw = _whoWon == WhoWon.Draw;
-        bool _notFinal = EventStatus(_eventStatus) != EventStatus.Final;
+        bool _notFinal = _eventStatus != EventStatus.Final;
         bool _unstableHomeFighterId = _event.homeFighterId != _homeFighterId;
         bool _unstableAwayFighterId = _event.awayFighterId != _awayFighterId;
         return _draw || _notFinal || _unstableHomeFighterId || _unstableAwayFighterId;

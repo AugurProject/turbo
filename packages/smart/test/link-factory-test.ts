@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
-  AbstractMarketFactory,
+  AbstractMarketFactoryV2,
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
@@ -18,8 +18,8 @@ import {
   NBAFetcher,
   NBAFetcher__factory,
   OwnedERC20__factory,
-  SportsLinkMarketFactory,
-  SportsLinkMarketFactory__factory,
+  SportsLinkMarketFactoryV2,
+  SportsLinkMarketFactoryV2__factory,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
@@ -47,6 +47,7 @@ describe("LinkFactory", () => {
   const eventId = 9001;
   const homeTeamId = 42;
   const awayTeamId = 1881;
+  const moneylines: [number, number] = [-130, +270]; // [home,away]
   const homeSpread = 40;
   const overUnderTotal = 60;
   const sportId = 4;
@@ -57,7 +58,7 @@ describe("LinkFactory", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -69,7 +70,7 @@ describe("LinkFactory", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -96,7 +97,8 @@ describe("LinkFactory", () => {
       homeSpread,
       overUnderTotal,
       true,
-      true
+      true,
+      moneylines
     );
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, eventId, null, null, null, null);
@@ -190,7 +192,7 @@ describe("LinkFactory NoContest", () => {
 
   const eventId = 9001;
 
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -203,11 +205,12 @@ describe("LinkFactory NoContest", () => {
     const estimatedStartTime = now.add(60 * 60 * 24); // one day
     const homeTeamId = 42;
     const awayTeamId = 1881;
+    const moneylines: [number, number] = [-130, +270]; // [home,away]
     const homeSpread = 40;
     const overUnderTotal = 60;
     const sportId = 4;
 
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -228,7 +231,8 @@ describe("LinkFactory NoContest", () => {
       homeSpread,
       overUnderTotal,
       true,
-      true
+      true,
+      moneylines
     );
   });
 
@@ -265,7 +269,7 @@ describe("NBA fetcher", () => {
   const eventId = 9001;
   const smallFee = BigNumber.from(10).pow(16);
 
-  let marketFactory: SportsLinkMarketFactory;
+  let marketFactory: SportsLinkMarketFactoryV2;
 
   let h2hMarketId: BigNumberish;
   let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
@@ -280,7 +284,7 @@ describe("NBA fetcher", () => {
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
     const now = BigNumber.from(Date.now()).div(1000);
-    marketFactory = await new SportsLinkMarketFactory__factory(signer).deploy(
+    marketFactory = await new SportsLinkMarketFactoryV2__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),
@@ -305,7 +309,8 @@ describe("NBA fetcher", () => {
       40,
       60,
       true,
-      false
+      false,
+      [+100, -110]
     );
     h2hMarketId = BigNumber.from(1);
     h2hMarket = await marketFactory.getMarket(h2hMarketId);
@@ -318,8 +323,7 @@ describe("NBA fetcher", () => {
     const initialLiquidity = dollars(10000);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await collateral.faucet(initialLiquidity);
-    const weights = calcWeights([2, 49, 49]);
-    await ammFactory.createPool(marketFactory.address, h2hMarketId, initialLiquidity, weights, signer.address);
+    await ammFactory.createPool(marketFactory.address, h2hMarketId, initialLiquidity, signer.address);
   });
 
   it("is deployable", async () => {
@@ -353,6 +357,11 @@ describe("NBA fetcher", () => {
       creationTimestamp: h2hMarket.creationTimestamp,
       endTime: h2hMarket.endTime,
       winner: h2hMarket.winner,
+      initialOdds: [
+        BigNumber.from(10).pow(18),
+        BigNumber.from("0x015be9b4a9bdbf11db"),
+        BigNumber.from("0x014c1943b94c64ee24"),
+      ],
       // NBA-specific
       eventId: h2hMarketDetails.eventId,
       homeTeamId: h2hMarketDetails.homeTeamId,
@@ -390,6 +399,11 @@ describe("NBA fetcher", () => {
       creationTimestamp: spMarket.creationTimestamp,
       endTime: spMarket.endTime,
       winner: spMarket.winner,
+      initialOdds: [
+        BigNumber.from(10).pow(18),
+        BigNumber.from("0x0154017c3185120000"),
+        BigNumber.from("0x0154017c3185120000"),
+      ],
       // NBA-specific
       eventId: spMarketDetails.eventId,
       homeTeamId: spMarketDetails.homeTeamId,
@@ -427,6 +441,11 @@ describe("NBA fetcher", () => {
       creationTimestamp: h2hMarket.creationTimestamp,
       endTime: h2hMarket.endTime,
       winner: h2hMarket.winner,
+      initialOdds: [
+        BigNumber.from(10).pow(18),
+        BigNumber.from("0x015be9b4a9bdbf11db"),
+        BigNumber.from("0x014c1943b94c64ee24"),
+      ],
       // NBA-h2hecific
       eventId: h2hMarketDetails.eventId,
       homeTeamId: h2hMarketDetails.homeTeamId,
@@ -564,8 +583,7 @@ describe("MMA fetcher", () => {
     const initialLiquidity = dollars(10000);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await collateral.faucet(initialLiquidity);
-    const weights = calcWeights([2, 49, 49]);
-    await ammFactory.createPool(marketFactory.address, firstMarketId, initialLiquidity, weights, signer.address);
+    await ammFactory.createPool(marketFactory.address, firstMarketId, initialLiquidity, signer.address);
   });
 
   it("is deployable", async () => {
@@ -599,6 +617,7 @@ describe("MMA fetcher", () => {
       creationTimestamp: firstMarket.creationTimestamp,
       endTime: firstMarket.endTime,
       winner: firstMarket.winner,
+      initialOdds: firstMarket.initialOdds,
       // MMA-specific
       eventId: firstMarketDetails.eventId,
       homeFighterName: firstMarketDetails.homeFighterName,
@@ -607,7 +626,6 @@ describe("MMA fetcher", () => {
       awayFighterId: firstMarketDetails.awayFighterId,
       estimatedStartTime: firstMarketDetails.estimatedStartTime,
       marketType: firstMarketDetails.marketType,
-      headToHeadWeights: firstMarketDetails.headToHeadWeights,
       // MMA-specific, also dynamic
       eventStatus: firstMarketDetails.eventStatus,
     });
@@ -638,6 +656,7 @@ describe("MMA fetcher", () => {
       creationTimestamp: secondMarket.creationTimestamp,
       endTime: secondMarket.endTime,
       winner: secondMarket.winner,
+      initialOdds: secondMarket.initialOdds,
       // MMA-specific
       eventId: secondMarketDetails.eventId,
       homeFighterName: secondMarketDetails.homeFighterName,
@@ -646,7 +665,6 @@ describe("MMA fetcher", () => {
       awayFighterId: secondMarketDetails.awayFighterId,
       estimatedStartTime: secondMarketDetails.estimatedStartTime,
       marketType: secondMarketDetails.marketType,
-      headToHeadWeights: firstMarketDetails.headToHeadWeights,
       // MMA-specific, also dynamic
       eventStatus: secondMarketDetails.eventStatus,
     });
@@ -677,6 +695,7 @@ describe("MMA fetcher", () => {
       creationTimestamp: firstMarket.creationTimestamp,
       endTime: firstMarket.endTime,
       winner: firstMarket.winner,
+      initialOdds: firstMarket.initialOdds,
       // MMA-h2hecific
       eventId: firstMarketDetails.eventId,
       homeFighterName: firstMarketDetails.homeFighterName,
@@ -685,7 +704,6 @@ describe("MMA fetcher", () => {
       awayFighterId: firstMarketDetails.awayFighterId,
       estimatedStartTime: firstMarketDetails.estimatedStartTime,
       marketType: firstMarketDetails.marketType,
-      headToHeadWeights: firstMarketDetails.headToHeadWeights,
       // MMA-h2hecific, also dynamic
       eventStatus: firstMarketDetails.eventStatus,
     });
@@ -740,15 +758,6 @@ describe("MMA fetcher", () => {
   });
 });
 
-function calcWeights(ratios: number[]): BigNumber[] {
-  const basis = BigNumber.from(10).pow(18);
-  const max = basis.mul(50);
-
-  const total = ratios.reduce((total, x) => total + x, 0);
-  const factor = max.div(total); // TODO this doesn't work if total is too large
-  return ratios.map((r) => factor.mul(r));
-}
-
 function dollars(howManyDollars: number): BigNumber {
   const basis = BigNumber.from(10).pow(6);
   return basis.mul(howManyDollars);
@@ -756,7 +765,7 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
-type CheckableMarketFactory = SportsLinkMarketFactory | MMALinkMarketFactory;
+type CheckableMarketFactory = SportsLinkMarketFactoryV2 | MMALinkMarketFactory;
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {
