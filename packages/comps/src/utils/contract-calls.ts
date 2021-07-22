@@ -592,7 +592,7 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, chunk ${chunk}`, e);
+        console.error(`multicall, chunking ${chunk.length} calls`, e);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -758,10 +758,7 @@ export const getUserBalances = async (
     ...contractLpBalanceCall,
     ...contractAmmFactoryApprovals,
   ];
-  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls).catch((e) => {
-    console.error("getUserBalances", e);
-    throw e;
-  });
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls);
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
@@ -1635,10 +1632,7 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error(`retrieve Markets`, e);
-    throw e;
-  });
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1865,10 +1859,8 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     ],
   }));
   const balances = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall).catch((e) => {
-    console.error("exchangesHaveLiquidity", e);
-    throw e;
-  });
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -2020,10 +2012,7 @@ const retrieveExchangeInfos = async (
     ...contractMarketsCall,
     ...shareFactorCalls,
     ...contractPricesCall,
-  ]).catch((e) => {
-    console.error("retrieve ExchangeInfos", e);
-    throw e;
-  });
+  ]);
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
