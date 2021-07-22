@@ -233,7 +233,6 @@ export interface AmmExchange {
   weights: string[];
   marketFactoryAddress: string;
   ammFactoryAddress: string;
-  turboId: number;
 }
 
 export interface Cashes {
