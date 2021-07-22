@@ -130,16 +130,6 @@ export const addresses: AddressMapping = {
         version: "2021-07-20.0",
       },
       {
-        type: "Crypto",
-        subtype: "V1",
-        address: "0xC05CeF624827E0372195E84D2F45235cf058A2F6",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
-        fetcher: "",
-        description: "crypto prices",
-        version: "2021-07-01.0",
-      },
-      {
         type: "SportsLink",
         subtype: "V1",
         address: "0x203fdF154b636D834ABC015Ca6Dc9C6127659c58",
@@ -148,16 +138,6 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "mlb and nba",
         version: "2021-07-01.0",
-      },
-      {
-        type: "MMALink",
-        subtype: "V1",
-        address: "0x6884938f3488CC020400FFAEFC75C37fb3FEf003",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xeC82F887613AFf163949A0b56b7e67222952c92d",
-        fetcher: "",
-        description: "mma",
-        version: "2021-06-30.0",
       },
       {
         type: "SportsLink",
