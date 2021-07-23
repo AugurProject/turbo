@@ -125,6 +125,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         // If market creation was stopped then it can be started again.
         // If market creation wasn't stopped then you must wait for market end time to resolve.
         require(nextResolutionTime == 0 || block.timestamp >= nextResolutionTime, "Must wait for market resolution");
+        require(_roundIds.length == coins.length, "Must specify one roundId for each coin");
 
         uint256 _resolutionTime = nextResolutionTime;
         nextResolutionTime = _nextResolutionTime;
@@ -135,9 +136,13 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         }
     }
 
-    function createAndResolveMarketsForCoin(uint256 _coinIndex, uint256 resolutionTime, uint80 _roundId) internal {
+    function createAndResolveMarketsForCoin(
+        uint256 _coinIndex,
+        uint256 _resolutionTime,
+        uint80 _roundId
+    ) internal {
         Coin memory _coin = coins[_coinIndex];
-        (uint256 _fullPrice, uint256 _newPrice) = getPrice(_coin, _roundId);
+        (uint256 _fullPrice, uint256 _newPrice) = getPrice(_coin, _roundId, _resolutionTime);
 
         // resolve markets
         if (_coin.currentMarkets[uint256(MarketType.PriceUpDown)] != 0) {
@@ -195,15 +200,29 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }
 
-    function getPrice(Coin memory _coin, uint80 _roundId) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
+    // Returns the price based on a few factors.
+    // If _roundId is zero then it returns the latest price.
+    // Else, it returns the price for that round,
+    //       but errors if that isn't the first round after the resolution time.
+    // The price is then altered to match the desired precision.
+    function getPrice(
+        Coin memory _coin,
+        uint80 _roundId,
+        uint256 _resolutionTime
+    ) internal view returns (uint256 _fullPrice, uint256 _truncatedPrice) {
         if (_roundId == 0) {
-          (, int256 _rawPrice, , , ) = _coin.priceFeed.latestRoundData();
-          require(_rawPrice >= 0, "Price from feed is negative");
-          _fullPrice = uint256(_rawPrice);
+            (, int256 _rawPrice, , , ) = _coin.priceFeed.latestRoundData();
+            require(_rawPrice >= 0, "Price from feed is negative");
+            _fullPrice = uint256(_rawPrice);
         } else {
-          (, int256 _rawPrice, , , ) = _coin.priceFeed.getRoundData(_roundId);
-          require(_rawPrice >= 0, "Price from feed is negative");
-          _fullPrice = uint256(_rawPrice);
+            (, int256 _rawPrice, , uint256 updatedAt, ) = _coin.priceFeed.getRoundData(_roundId);
+            require(_rawPrice >= 0, "Price from feed is negative");
+            require(updatedAt >= _resolutionTime, "Price hasn't been updated yet");
+
+            (, , , uint256 _previousRoundTime, ) = _coin.priceFeed.getRoundData(previousRound(_roundId));
+            require(_previousRoundTime < _resolutionTime, "Must use first round after resolution time");
+
+            _fullPrice = uint256(_rawPrice);
         }
 
         // The precision is how many decimals the price has. Zero is dollars, 2 includes cents, 3 is tenths of a cent, etc.
@@ -239,5 +258,18 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
     function resolveMarket(uint256) public pure override {
         require(false, "Use createAndResolveMarkets");
+    }
+
+    // The roundId is the encoding of two parts: the phase and the phase-specific round id.
+    // To find the previous roundId:
+    // 1. extract the phase and phase-specific round (I call these _phaseId and _roundId)
+    // 2. decrement the phase-specific round
+    // 3. re-encode the phase and phase-specific round.
+    uint256 private constant PHASE_OFFSET = 64;
+
+    function previousRound(uint80 _fullRoundId) internal pure returns (uint80) {
+        uint256 _phaseId = uint256(uint16(_fullRoundId >> PHASE_OFFSET));
+        uint64 _roundId = uint64(_fullRoundId) - 1;
+        return uint80((_phaseId << PHASE_OFFSET) | _roundId);
     }
 }

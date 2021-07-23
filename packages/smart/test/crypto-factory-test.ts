@@ -42,6 +42,7 @@ describe("CryptoFactory", () => {
   const firstResolutionTime = now.add(60 * 60 * 24); // normally would be Friday 4pm PST but just do a day in the future
   const cadence = 60 * 60 * 24 * 7; // one week
   let nextResolutionTime = firstResolutionTime;
+  let currentRound: RoundManagement;
 
   const smallFee = BigNumber.from(10).pow(16);
   const usdcBasis = BigNumber.from(10).pow(6);
@@ -54,8 +55,8 @@ describe("CryptoFactory", () => {
   let ammFactory: AMMFactory;
   let ethPriceMarketId: BigNumber;
   let btcPriceMarketId: BigNumber;
-  let ethPriceFeed: AggregatorV3Interface;
-  let btcPriceFeed: AggregatorV3Interface;
+  let ethPriceFeed: FeedManagement;
+  let btcPriceFeed: FeedManagement;
   let ethPrice: number;
   let btcPrice: number;
 
@@ -64,11 +65,9 @@ describe("CryptoFactory", () => {
   });
 
   before("price feeds", async () => {
-    ethPriceFeed = await smockit(feedABI);
-    btcPriceFeed = await smockit(feedABI);
-
-    ethPriceFeed.smocked.decimals.will.return.with(8);
-    btcPriceFeed.smocked.decimals.will.return.with(8);
+    currentRound = new RoundManagement(2, 50);
+    ethPriceFeed = new FeedManagement(await smockit(feedABI));
+    btcPriceFeed = new FeedManagement(await smockit(feedABI));
   });
 
   before("other contracts", async () => {
@@ -114,13 +113,13 @@ describe("CryptoFactory", () => {
 
   it("Can add a coin, which creates a market", async () => {
     ethPrice = 2400;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1, 1, 1, 1]);
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1, nextResolutionTime.sub(1));
     await marketFactory.addCoin("ETH", ethPriceFeed.address, 0);
   });
 
   it("Can add a second coin, which creates another market", async () => {
     btcPrice = 60000;
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 1e7, 1, 1, 1]);
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 1e7, nextResolutionTime.sub(1));
     await marketFactory.addCoin("BTC", btcPriceFeed.address, 0);
   });
 
@@ -224,25 +223,26 @@ describe("CryptoFactory", () => {
   it("can resolve and recreate markets", async () => {
     ethPrice = 2500;
     btcPrice = 55000;
-    ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8 - 1e8 + 1, 1, 1, 1]);
-    btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8 - 2, 1, 1, 1]);
+    currentRound = currentRound.nextRound();
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1e8 + 1, nextResolutionTime);
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 2, nextResolutionTime);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
     nextResolutionTime = nextResolutionTime.add(cadence);
-    await marketFactory.createAndResolveMarkets(nextResolutionTime);
+    await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
 
     const ethPriceMarket = await marketFactory.getMarket(ethPriceMarketId);
     const ethPriceMarketDetails = await marketFactory.getMarketDetails(ethPriceMarketId);
     const btcPriceMarket = await marketFactory.getMarket(btcPriceMarketId);
     const btcPriceMarketDetails = await marketFactory.getMarketDetails(btcPriceMarketId);
 
-    expect(ethPriceMarket.winner).to.equal(ethPriceMarket.shareTokens[PriceUpDownOutcome.Above]);
-    expect(ethPriceMarketDetails.resolutionPrice).to.equal(249900000001);
+    expect(ethPriceMarket.winner, "eth winner").to.equal(ethPriceMarket.shareTokens[PriceUpDownOutcome.Above]);
+    expect(ethPriceMarketDetails.resolutionPrice, "eth resolution price").to.equal(249900000001);
 
-    expect(btcPriceMarket.winner).to.equal(btcPriceMarket.shareTokens[PriceUpDownOutcome.NotAbove]);
-    expect(btcPriceMarketDetails.resolutionPrice).to.equal(5499999999998);
+    expect(btcPriceMarket.winner, "btc winner").to.equal(btcPriceMarket.shareTokens[PriceUpDownOutcome.NotAbove]);
+    expect(btcPriceMarketDetails.resolutionPrice, "btc resolution price").to.equal(5499999999998);
 
-    expect(await marketFactory.nextResolutionTime()).to.equal(nextResolutionTime);
+    expect(nextResolutionTime, "resolution time").to.equal(await marketFactory.nextResolutionTime());
   });
 
   it("new ETH price market is correct", async () => {
@@ -252,14 +252,14 @@ describe("CryptoFactory", () => {
     const [above, notAbove] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
 
     const ethCoin = await marketFactory.getCoin(CoinIndex.ETH);
-    expect(ethCoin.currentMarkets[0]).to.equal(ethPriceMarketId);
+    expect(ethCoin.currentMarkets[0], "ethcoin market 0").to.equal(ethPriceMarketId);
 
-    expect(market.endTime).to.equal(nextResolutionTime);
-    expect(market.winner).to.equal(NULL_ADDRESS);
-    expect(marketDetails.marketType).to.equal(CryptoMarketType.PriceUpTo);
-    expect(marketDetails.coinIndex).to.equal(CoinIndex.ETH);
-    expect(marketDetails.creationPrice).to.equal(ethPrice);
-    expect(marketDetails.resolutionPrice).to.equal(0);
+    expect(market.endTime, "endTime").to.equal(nextResolutionTime);
+    expect(market.winner, "winner").to.equal(NULL_ADDRESS);
+    expect(marketDetails.marketType, "marketType").to.equal(CryptoMarketType.PriceUpTo);
+    expect(marketDetails.coinIndex, "coinIndex").to.equal(CoinIndex.ETH);
+    expect(marketDetails.creationPrice, "creationPrice").to.equal(ethPrice);
+    expect(marketDetails.resolutionPrice, "resolutionPrice").to.equal(0);
 
     expect(await above.symbol()).to.equal("Above");
     expect(await above.name()).to.equal("Above");
@@ -338,15 +338,80 @@ describe("CryptoFactory", () => {
     it("can resolve without creating", async () => {
       ethPrice = 2500;
       btcPrice = 55000;
-      ethPriceFeed.smocked.latestRoundData.will.return.with([1, ethPrice * 1e8, 1, 1, 1]);
-      btcPriceFeed.smocked.latestRoundData.will.return.with([1, btcPrice * 1e8, 1, 1, 1]);
+      currentRound = currentRound.nextRound();
+      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
+      btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
       await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
       expect(await marketFactory.marketCount(), "market count before final resolution").to.equal(5);
 
-      await marketFactory.createAndResolveMarkets(0);
+      // it's the final resolution because the nextResolutionTime is set to zero
+      await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], 0);
 
       expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(5);
     });
   });
 });
+
+class FeedManagement {
+  rounds: { [roundId: string]: { price: BigNumberish; updatedAt: BigNumberish } } = {};
+  latestRoundId: BigNumber = BigNumber.from(0);
+
+  constructor(public feed: AggregatorV3Interface) {
+    feed.smocked.decimals.will.return.with(8);
+
+    feed.smocked.getRoundData.will.return.with((roundId: BigNumberish) => {
+      return this.mockRoundData(roundId);
+    });
+
+    feed.smocked.latestRoundData.will.return.with(() => {
+      return this.mockRoundData(this.latestRoundId);
+    });
+  }
+
+  private mockRoundData(roundId: BigNumberish) {
+    roundId = BigNumber.from(roundId).toString();
+    const round = this.rounds[roundId];
+
+    if (!round) throw Error(`Mock doesn't have return data for round id ${roundId}`);
+
+    const { price, updatedAt } = round;
+    const startedAt = 0;
+    return [roundId, price, startedAt, updatedAt, roundId];
+  }
+
+  public get address(): string {
+    return this.feed.address;
+  }
+
+  setRoundData(roundId: BigNumberish, price: BigNumberish, updatedAt: BigNumberish) {
+    roundId = BigNumber.from(roundId);
+
+    if (this.latestRoundId.lt(roundId)) this.latestRoundId = roundId;
+
+    roundId = roundId.toString();
+    this.rounds[roundId] = { price, updatedAt };
+  }
+}
+
+class RoundManagement {
+  readonly phase: BigNumber;
+  readonly justRound: BigNumber;
+
+  constructor(phase: BigNumberish, justRound: BigNumberish) {
+    this.phase = BigNumber.from(phase);
+    this.justRound = BigNumber.from(justRound);
+  }
+
+  public get id() {
+    return this.phase.shl(64).or(this.justRound);
+  }
+
+  public nextRound(): RoundManagement {
+    return new RoundManagement(this.phase, this.justRound.add(1));
+  }
+
+  public prevRound(): RoundManagement {
+    return new RoundManagement(this.phase, this.justRound.sub(1));
+  }
+}
