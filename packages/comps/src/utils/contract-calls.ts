@@ -1588,6 +1588,8 @@ const retrieveMarkets = async (
   const GET_MARKET_DETAILS = "getMarketDetails";
   const POOLS = "pools";
   const marketFactoryData = getMarketFactoryData(factoryAddress);
+  if (!marketFactoryData) return [];
+
   const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
   const marketFactoryAddress = marketFactoryContract.address;
   const marketFactoryAbi = extractABI(marketFactoryContract);
@@ -1764,6 +1766,8 @@ const fillMarketsData = async (
   const marketFactories = Array.from(new Set(Object.values(markets).map((m) => m.marketFactoryAddress)));
   const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
     const marketFactoryData = getMarketFactoryData(factoryAddress);
+    if (!marketFactoryData) return p;
+
     const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
     const ammFactoryAddress = ammFactoryContract.address;
     const ammFactoryAbi = extractABI(ammFactoryContract);
@@ -1823,12 +1827,14 @@ const fillMarketsData = async (
   if (markets.length > 0) {
     markets.forEach((m) => {
       const marketFactoryData = getMarketFactoryData(m.marketFactoryAddress);
-      const market = {
-        ...m,
-        ...decodeMarket(m, marketFactoryType),
-        version: marketFactoryData.version,
-      };
-      marketInfos[m.marketId] = deriveMarketInfo(market, market, marketFactoryType);
+      if (marketFactoryData) {
+        const market = {
+          ...m,
+          ...decodeMarket(m, marketFactoryType),
+          version: marketFactoryData.version,
+        };
+        marketInfos[m.marketId] = deriveMarketInfo(market, market, marketFactoryType);
+      }
     });
   }
 
@@ -1838,22 +1844,24 @@ const fillMarketsData = async (
     const fetchExchanges: AmmExchanges[] = await Promise.all(
       marketFactories.map((marketFactoryAddress) => {
         const marketFactoryData = getMarketFactoryData(marketFactoryAddress);
-        const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
-        const factoryExchanges = Object.values(exchanges)
-          .filter((e) => e.marketFactoryAddress === marketFactoryAddress)
-          .reduce((p, e) => ({ ...p, [e.marketId]: e }), {});
-        const factoryMarkets = Object.values(marketInfos)
-          .filter((e) => e.marketFactoryAddress === marketFactoryAddress)
-          .reduce((p, e) => ({ ...p, [e.marketId]: e }), {});
-        return retrieveExchangeInfos(
-          factoryExchanges,
-          factoryMarkets,
-          marketFactoryAddress,
-          ammFactoryContract,
-          provider,
-          account,
-          marketFactoryData.type
-        );
+        if (marketFactoryData) {
+          const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
+          const factoryExchanges = Object.values(exchanges)
+            .filter((e) => e.marketFactoryAddress === marketFactoryAddress)
+            .reduce((p, e) => ({ ...p, [e.marketId]: e }), {});
+          const factoryMarkets = Object.values(marketInfos)
+            .filter((e) => e.marketFactoryAddress === marketFactoryAddress)
+            .reduce((p, e) => ({ ...p, [e.marketId]: e }), {});
+          return retrieveExchangeInfos(
+            factoryExchanges,
+            factoryMarkets,
+            marketFactoryAddress,
+            ammFactoryContract,
+            provider,
+            account,
+            marketFactoryData
+          );
+        }
       })
     );
     exchanges = fetchExchanges.reduce((p, exs) => ({ ...p, ...exs }), {});
@@ -1924,6 +1932,8 @@ const retrieveExchangeInfos = async (
   const existingIndexes = Object.keys(exchanges)
     .filter((k) => exchanges[k].id && exchanges[k]?.totalSupply !== "0")
     .map((k) => exchanges[k].turboId);
+  if (!marketFactoryData) return [];
+
   const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
   const marketFactoryAbi = extractABI(marketFactoryContract);
   const contractPricesCall: ContractCallContext[] = existingIndexes.reduce(
