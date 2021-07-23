@@ -214,6 +214,11 @@ type InitialCostPerMarket @entity {
   id: ID!
   sender: Sender
   market: Market
+  outcome: String
+  sharesFromTrades: BigInt
+  sharesFromTradesBigDecimal: BigDecimal
   sumOfInitialCost: BigInt!
+  sumOfInitialCostBigDecimal: BigDecimal
+  avgPrice: BigDecimal
   log: [String!]
 }
