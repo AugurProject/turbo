@@ -52,7 +52,7 @@
 
   > header {
     padding: 0 @size-8 0 @size-32;
-    border-bottom: @size-1 solid var(--simple-border);
+    border-bottom: @size-1 solid var(--theme-border);
     height: @size-72;
 
     > h2 {
@@ -82,7 +82,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      border: @size-1 solid var(--simple-border);
+      border: @size-1 solid var(--theme-border);
       
       padding: @size-16;
 
@@ -100,7 +100,7 @@
         > span {
           .text-14-semi-bold;
 
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
 
         > button {
@@ -152,13 +152,13 @@
   }
 
   > footer {
-    background-color: var(--light-background-color);
+    background-color: var(--secondary-bg);
     padding: @size-24;
 
     > span {
       .text-16-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     > .Transactions {
@@ -180,7 +180,7 @@
         > span:last-of-type {
           .text-12-semi-bold;
 
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
           margin-left: auto;
           cursor: pointer;
         }
@@ -209,7 +209,7 @@
             height: @size-12;
 
             > path {
-              fill: var(--simple-secondary-text);
+              fill: var(--secondary-text);
             }
           }
 
@@ -226,7 +226,7 @@
               > path,
               > polyline,
               > line {
-                stroke: var(--simple-secondary-text);
+                stroke: var(--secondary-text);
               }
             }
           }
@@ -239,14 +239,14 @@
             &.Success > svg {
               > path,
               > polyline {
-                stroke: var(--simple-success);
+                stroke: var(--success);
               }
             }
 
             &.Failure > svg {
               > circle,
               > line {
-                stroke: var(--simple-failed);
+                stroke: var(--failed);
               }
             }
           }

@@ -1,12 +1,12 @@
 @import (reference) "~assets/styles/shared.less";
 
 .SportsMarketCard {
-  .SimpleBorder;
+  .ThemeBorder;
   .SecondaryBorderRadius;
 
   min-height: 224px;
   height: min-content;
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   padding: @size-12;
   display: grid;
   grid-gap: @size-8;
@@ -16,13 +16,13 @@
     flex-flow: column nowrap;
 
     &:hover {
-      text-decoration: underlineg;
+      text-decoration: underline;
     }
 
     > span:last-of-type:not(:first-of-type) {
       .text-12-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       text-transform: uppercase;
       display: flex;
       flex-flow: row nowrap;
@@ -55,7 +55,7 @@
     &:nth-of-type(2) {
       .text-12-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       text-transform: uppercase;
     }
 
@@ -68,18 +68,18 @@
 .SportsCardTitle {
   .text-16-bold;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
 }
 
 .SportsCardOutcomes {
-  .SimpleBorder;
+  .ThemeBorder;
 
   > header {
     .PrimaryTopBorderRadius;
 
     align-items: center;
-    background: var(--light-background-color);
-    border-bottom: @size-1 solid var(--simple-border);
+    background: var(--secondary-bg);
+    border-bottom: @size-1 solid var(--theme-border);
     display: flex;
     flex-flow: row nowrap;
     padding: @size-8;
@@ -90,7 +90,7 @@
     > span {
       .text-10-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       text-transform: uppercase;
     }
   }
@@ -154,7 +154,7 @@
   @media @breakpoint-mobile-tablet {
     &.MarketPage {
       > main > div {
-        background: var(--simple-light-bg);
+        background: var(--primary-bg);
       }
     }
   }
@@ -171,8 +171,8 @@
   flex-flow: row wrap;
   align-items: center;
   padding: @size-8;
-  background: var(--simple-light-bg);
-  border-top: @size-1 solid var(--simple-border);
+  background: var(--primary-bg);
+  border-top: @size-1 solid var(--theme-border);
 
   > span {
     .text-14-bold;
@@ -189,10 +189,10 @@
 }
 
 .SportsOutcomeButton {
-  .SimpleBorder;
+  .ThemeBorder;
 
-  border-color: var(--simple-border);
-  background: var(--light-background-color);
+  border-color: var(--theme-border);
+  background: var(--secondary-bg);
   min-height: @size-66;
   padding: @size-8;
   display: grid;
@@ -203,18 +203,18 @@
   > label {
     .text-14-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 1;
     grid-row: span 2;
   }
 
   > button {
     .text-10-semi-bold;
-    .SimpleBorder;
+    .ThemeBorder;
 
-    border-color: var(--simple-yes);
-    background: rgba(var(--simple-yes-rgb), 0.15);
-    color: var(--simple-primary-text);
+    border-color: var(--buy);
+    background: rgba(var(--buy-rgb), 0.15);
+    color: var(--primary-text);
     min-height: @size-36;
     display: flex;
     flex-flow: column nowrap;
@@ -233,7 +233,7 @@
 
     &:not(:disabled) {
       &:hover {
-        background: rgba(var(--simple-yes-rgb), 0.30);
+        background: rgba(var(--buy-rgb), 0.30);
       }
 
       &:focus {
@@ -245,7 +245,7 @@
   > span {
     .text-10;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 2;
     grid-row: 2;
     text-align: center;
@@ -264,7 +264,7 @@
     align-items: center;
     border: 0;
     background: transparent;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     display: flex;
     flex-flow: row nowrap;
     white-space: nowrap;
@@ -273,6 +273,10 @@
 
     > svg {
       margin-right: @size-4;
+
+      > g > path {
+        stroke: var(--secondary-text);
+      }
     }
   }
 
@@ -291,17 +295,17 @@
 }
 
 .SportsCardComboOutcomes {
-  .SimpleBorder;
+  .ThemeBorder;
 
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-  background: var(--light-background-color);
+  background: var(--secondary-bg);
 
   > header {
     .PrimaryTopBorderRadius;
 
-    background: var(--simple-alternate-background);
+    background: var(--tertiary-bg);
     min-height: @size-30;
     max-height: @size-30;
     align-items: center;
@@ -313,7 +317,7 @@
     > span {
       .text-10-semi-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
       white-space: nowrap;
       text-align: center;
     }
@@ -325,7 +329,7 @@
     width: 100%;
 
     > article {
-      border-top: @size-1 solid var(--simple-border);
+      border-top: @size-1 solid var(--theme-border);
       display: grid;
       grid-gap: @size-2 @size-8;
       grid-template-columns: 1fr 10.5% 10.5% 10.5%;
@@ -337,18 +341,18 @@
       > label {
         .text-14-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         grid-column: 1;
         grid-row: span 2;
         margin-bottom: 0;
       }
 
       > button {
-        .SimpleBorder;
+        .ThemeBorder;
 
         align-items: center;
-        border-color: var(--simple-yes);
-        background: rgba(var(--simple-yes-rgb), 0.15);
+        border-color: var(--buy);
+        background: rgba(var(--buy-rgb), 0.15);
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
@@ -363,7 +367,7 @@
 
         &:not(:disabled) {
           &:hover {
-            background: rgba(var(--simple-yes-rgb), 0.30);
+            background: rgba(var(--buy-rgb), 0.30);
           }
 
           &:focus {
@@ -374,12 +378,12 @@
         > span:first-of-type {
           .text-12;
 
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
 
           > b {
             .text-12-bold;
 
-            color: var(--simple-secondary-text);
+            color: var(--secondary-text);
             margin-right: @size-4;
           }
         }
@@ -387,14 +391,14 @@
         > span:last-of-type {
           .text-10-semi-bold;
 
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
       }
 
       > span {
         .text-10;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         text-align: center;
       }
     }
@@ -430,7 +434,7 @@
 
     &.MarketPage {
       > section > section > main > div {
-        background: var(--simple-light-bg);
+        background: var(--primary-bg);
       }
     }
   }
@@ -441,7 +445,7 @@
 
   &.MarketPage {
     > main {
-      background: var(--simple-light-bg);
+      background: var(--primary-bg);
     }
   }
 }

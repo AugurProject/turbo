@@ -239,7 +239,6 @@ export interface OutcomesGridProps {
   outcomes: AmmOutcome[];
   selectedOutcome?: AmmOutcome;
   setSelectedOutcome: Function;
-  marketType: string;
   orderType?: string;
   showAllHighlighted?: boolean;
   nonSelectable?: boolean;

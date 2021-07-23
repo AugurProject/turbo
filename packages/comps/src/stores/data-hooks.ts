@@ -13,7 +13,7 @@ export function DataReducer(state, action) {
     case UPDATE_TRANSACTIONS: {
       const { transactions } = action;
       const marketKeysFromTransactions = Object.keys(transactions).filter(
-        (key) => !["userAddress", "claimedFees", "claimedProceeds"].includes(key)
+        (key) => !["userAddress", "claimedFees", "claimedProceeds", "positionBalance"].includes(key)
       );
       const unKeyedUpdates = marketKeysFromTransactions.map((marketId) => {
         const hasWinner = updatedState?.markets[marketId]?.hasWinner;

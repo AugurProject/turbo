@@ -4,13 +4,14 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 
 import "@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract CryptoMarketFactory is AbstractMarketFactory {
+contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -65,7 +66,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
         address _linkNode,
         uint256 _firstResolutionTime
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,
@@ -186,7 +187,7 @@ contract CryptoMarketFactory is AbstractMarketFactory {
 
         uint256 _nextResolutionTime = nextResolutionTime;
         _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _nextResolutionTime));
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _nextResolutionTime, evenOdds(false, 2)));
         marketDetails[_id] = MarketDetails(MarketType.PriceUpDown, _coinIndex, _newPrice, 0);
         emit MarketCreated(_id, _creator, _nextResolutionTime, MarketType.PriceUpDown, _coinIndex, _newPrice);
     }

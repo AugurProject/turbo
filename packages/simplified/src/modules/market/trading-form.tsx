@@ -35,7 +35,6 @@ const {
   TX_STATUS,
   BUY,
   SELL,
-  YES_NO,
   TradingDirection,
   RESOLVED_MARKET,
 } = Constants;
@@ -138,7 +137,6 @@ const formatBreakdown = (isBuy: boolean, breakdown: EstimateTradeResult | null, 
 
 interface TradingFormProps {
   amm: any;
-  marketType?: string;
   initialSelectedOutcome: AmmOutcome | any;
 }
 
@@ -148,7 +146,7 @@ interface CanTradeProps {
   subText?: string | null;
 }
 
-const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: TradingFormProps) => {
+const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
   const { isLogged } = useAppStatusStore();
   const { cashes, blocknumber } = useDataStore();
   const {
@@ -390,7 +388,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
             setSelectedOutcome(outcome);
             setAmount("");
           }}
-          marketType={marketType}
           orderType={orderType}
           ammCash={ammCash}
           dontFilterInvalid

@@ -4,11 +4,12 @@ pragma abicoder v2;
 
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
 
-contract SportsLinkMarketFactory is AbstractMarketFactory {
+contract SportsLinkMarketFactoryV2 is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -92,7 +93,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         address _linkNode,
         uint256 _sportId
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,
@@ -115,7 +116,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         int256 _homeSpread,
         uint256 _totalScore,
         bool _makeSpread,
-        bool _makeTotalScore
+        bool _makeTotalScore,
+        int256[2] memory _moneylines // [home,away]
     ) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
@@ -124,8 +126,16 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
 
         _ids = events[_eventId].markets;
 
-        if (_ids[0] == 0) {
-            _ids[0] = createHeadToHeadMarket(_creator, _endTime, _eventId, _homeTeamId, _awayTeamId, _startTimestamp);
+        if (_ids[0] == 0 && _moneylines[0] != 0 && _moneylines[1] != 0) {
+            _ids[0] = createHeadToHeadMarket(
+                _creator,
+                _endTime,
+                _eventId,
+                _homeTeamId,
+                _awayTeamId,
+                _startTimestamp,
+                _moneylines
+            );
         }
 
         if (_ids[1] == 0 && _makeSpread) {
@@ -166,7 +176,8 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         uint256 _eventId,
         uint256 _homeTeamId,
         uint256 _awayTeamId,
-        uint256 _startTimestamp
+        uint256 _startTimestamp,
+        int256[2] memory _moneylines // [home,away]
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[uint256(HeadToHeadOutcome.NoContest)] = "No Contest";
@@ -174,7 +185,10 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         _outcomes[uint256(HeadToHeadOutcome.Home)] = "Home";
 
         uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
+        // moneylines is [home,away] but the outcomes are listed [NC,away,home] so they must be reversed
+        markets.push(
+            makeMarket(_creator, _outcomes, _outcomes, _endTime, oddsFromLines(_moneylines[1], _moneylines[0]))
+        );
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -222,7 +236,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         }
 
         uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,
@@ -268,7 +282,7 @@ contract SportsLinkMarketFactory is AbstractMarketFactory {
         }
 
         uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime));
+        markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
         marketDetails[_id] = MarketDetails(
             _eventId,
             _homeTeamId,

@@ -1,9 +1,9 @@
 @import (reference) '~assets/styles/shared';
 
 .ToggleSwitch {
-  .SimpleBorder;
+  .ThemeBorder;
 
-  background-color: var(--simple-light-bg);
+  background-color: var(--primary-bg);
   display: flex;
   position: relative;
   width: @size-68;
@@ -24,28 +24,28 @@
     padding: 0 @size-8;
 
     &:first-of-type {
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
 
       &:hover {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
     }
 
     &:last-of-type {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 
   > div {
-    .SimpleBorder;
+    .ThemeBorder;
 
     position: absolute;
     z-index: 1;
     display: inline-block;
     width: @size-34;
     height: @size-25;
-    background-color: var(--simple-alternate-background);
-    border: @size-1 solid var(--simple-secondary-text);
+    background-color: var(--tertiary-bg);
+    border: @size-1 solid var(--secondary-text);
     transform: translateX(100%);
     transition: all 0.1s linear 0s;
   }
@@ -53,14 +53,14 @@
   &.On {
     > span {
       &:first-of-type {
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
 
       &:last-of-type {
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
 
         &:hover {
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
       }
     }
@@ -81,15 +81,15 @@
       padding: @size-12 @size-24;
 
       &:first-of-type {
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
 
         &:hover {
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
       }
 
       &:last-of-type {
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
       }
     }
 
@@ -98,22 +98,22 @@
       height: @size-46;
       margin-top: -@size-1;
       border-color: transparent;
-      background-color: var(--simple-primary-text);
+      background-color: var(--primary-text);
       margin-left: -@size-1;
     }
 
     &.On {
       > span {
         &:last-of-type {
-          color: var(--simple-secondary-text);
+          color: var(--secondary-text);
 
           &:hover {
-            color: var(--simple-primary-text);
+            color: var(--primary-text);
           }
         }
 
         &:first-of-type {
-          color: var(--simple-light-bg);
+          color: var(--primary-bg);
         }
       }
 

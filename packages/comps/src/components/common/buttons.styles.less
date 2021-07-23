@@ -2,11 +2,11 @@
 
 .Button {
   .text-16-bold;
-  .SimpleBorder;
+  .ThemeBorder;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   padding: 0 @size-16;
-  background-color: var(--light-background-color);
+  background-color: var(--secondary-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -61,8 +61,8 @@
 
     &:focus-visible {
       outline: 0;
-      border: @size-1 solid var(--simple-focus-color);
-      box-shadow: inset 0 0 0 @size-2 var(--simple-focus-color);
+      border: @size-1 solid var(--theme-focus-color);
+      box-shadow: inset 0 0 0 @size-2 var(--theme-focus-color);
     }
   }
 }
@@ -72,7 +72,7 @@
   .text-12-semi-bold;
 
   background-color: transparent;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   min-height: @size-25;
   height: @size-25;
   max-height: @size-25;
@@ -93,14 +93,14 @@
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
     }
 
     &:active,
     &.Selected {
-      background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--simple-secondary-text);
-      color: var(--simple-primary-text);
+      background-color: var(--tertiary-bg);
+      border: @size-1 solid var(--secondary-text);
+      color: var(--primary-text);
     }
   }
 }
@@ -109,11 +109,11 @@
   .TinyButton;
 
   background-color: transparent;
-  border: @size-1 solid var(--simple-border);
+  border: @size-1 solid var(--theme-border);
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
-      background-color: var(--simple-alternate-background);
+      background-color: var(--tertiary-bg);
     }
 
     &:focus {
@@ -122,8 +122,8 @@
 
     &:active,
     &.Selected {
-      background-color: var(--simple-alternate-background);
-      border: @size-1 solid var(--simple-secondary-text);
+      background-color: var(--tertiary-bg);
+      border: @size-1 solid var(--secondary-text);
     }
   }
 }
@@ -147,8 +147,8 @@
 
   &:disabled {
     > svg > path {
-      stroke: var(--simple-secondary-text);
-      fill: var(--simple-secondary-text);
+      stroke: var(--secondary-text);
+      fill: var(--secondary-text);
     }
   }
 }
@@ -157,8 +157,8 @@
   .Button;
   .text-20-bold;
 
-  background: var(--simple-primary-text);
-  color: var(--simple-light-bg);
+  background: var(--primary-text);
+  color: var(--primary-bg);
   min-height: @size-68;
   height: @size-68;
   max-height: @size-68;
@@ -170,22 +170,22 @@
   }
 
   &:hover {
-    background-color: rgba(var(--simple-primary-text-rgb), 0.85);
+    background-color: rgba(var(--primary-text-rgb), 0.85);
   }
 
   &.Disabled {
     pointer-events: none;
-    background: var(--light-background-color);
-    border: @size-1 solid var(--simple-border);
-    color: var(--simple-secondary-text);
+    background: var(--secondary-bg);
+    border: @size-1 solid var(--theme-border);
+    color: var(--secondary-text);
     // purposeful override for specifically just this button for readability.
     opacity: 1;
   }
 
   &.Error {
     pointer-events: none;
-    color: var(--simple-failed);
-    background: rgba(var(--simple-failed-rgb), 0.15);
+    color: var(--failed);
+    background: rgba(var(--failed-rgb), 0.15);
     opacity: 1;
     border: 0;
   }
@@ -196,8 +196,8 @@
   .text-20-bold;
 
   color: var(--color-brand-secondary);
-  background-color: var(--simple-primary-text);
-  border: @size-1 solid var(--simple-border);
+  background-color: var(--primary-text);
+  border: @size-1 solid var(--theme-border);
   min-height: @size-68;
   height: @size-68;
   max-height: @size-68;
@@ -205,11 +205,11 @@
   &:not(:disabled):not(.Disabled):focus {
     .Focused;
 
-    background-color: var(--simple-primary-text);
+    background-color: var(--primary-text);
   }
 
   &:not(:disabled):not(.Disabled):active {
-    background-color: var(--simple-alternate-background);
+    background-color: var(--tertiary-bg);
   }
 }
 
@@ -236,7 +236,7 @@
 
   &:not(:disabled):not(.Disabled) {
     &:hover {
-      border: @size-1 solid var(--simple-secondary-text);
+      border: @size-1 solid var(--secondary-text);
     }
 
     &:active,
@@ -268,26 +268,26 @@
   border: none;
   text-transform: unset;
   text-decoration: underline;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   padding: 0;
   background-color: transparent;
   display: inline;
 }
 
 .SearchButton {
-  .SimpleBorder;
+  .ThemeBorder;
 
   padding: @size-12 @size-16;
 
   &.Selected {
-    background: var(--simple-alternate-background);
+    background: var(--tertiary-bg);
   }
 }
 
 .ExternalLinkButton {
   .text-10-semi-bold;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   border: 0;
   background: transparent;
   text-transform: uppercase;
@@ -302,31 +302,31 @@
 
     > path {
       &:nth-child(odd) {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
         stroke: none;
       }
 
       &:nth-child(even) {
-        stroke: var(--simple-primary-text);
+        stroke: var(--primary-text);
       }
     }
   }
 
   &:hover {
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
 
     > a {
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     > svg {
       > path {
         &:nth-child(odd) {
-          fill: var(--simple-secondary-text);
+          fill: var(--secondary-text);
         }
 
         &:nth-child(even) {
-          stroke: var(--simple-secondary-text);
+          stroke: var(--secondary-text);
         }
       }
     }
@@ -686,9 +686,9 @@
 
       &:before {
         background: linear-gradient(0deg, transparent 50%, var(transparent) 100%) 0% 0%,
-          linear-gradient(90deg, rgba(var(--simple-light-bg-rgb), 0.50) 0%, rgba(var(--simple-light-bg-rgb), 0.75) 100%) 100% 0%,
-          linear-gradient(180deg, rgba(var(--simple-light-bg-rgb), 0.75) 0%, var(--simple-light-bg) 100%) 100% 100%,
-          linear-gradient(270deg, var(--simple-light-bg) 0%, var(--simple-light-bg) 100%) 0% 100%;
+          linear-gradient(90deg, rgba(var(--primary-bg-rgb), 0.50) 0%, rgba(var(--primary-bg-rgb), 0.75) 100%) 100% 0%,
+          linear-gradient(180deg, rgba(var(--primary-bg-rgb), 0.75) 0%, var(--primary-bg) 100%) 100% 100%,
+          linear-gradient(270deg, var(--primary-bg) 0%, var(--primary-bg) 100%) 0% 100%;
       }
       &:after {
         background: black;
@@ -718,7 +718,7 @@
           background: transparent;
 
           &:after {
-            background: var(--simple-light-bg);
+            background: var(--primary-bg);
           }
         }
 

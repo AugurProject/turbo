@@ -15,7 +15,7 @@ html {
   font-size: @size-16;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--light-background-color);
+  background: var(--secondary-bg);
 }
 
 ul,
@@ -26,7 +26,7 @@ ol {
 }
 
 body {
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   font-family: @Inter;
   font-size: @size-16;
   font-style: normal;
@@ -39,7 +39,7 @@ body {
 }
 
 label {
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   display: block;
   margin-bottom: @size-10;
 
@@ -60,7 +60,7 @@ a {
 input,
 textarea {
   border: @size-1 solid transparent;
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   display: block;
   font-family: @Inter;
   padding: @size-12 @size-16;
@@ -71,7 +71,7 @@ textarea {
   }
 
   &::placeholder {
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     font-family: @Inter;
   }
 }
@@ -92,49 +92,17 @@ input[type=number] {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--simple-primary-text);
-    border-radius: @border-radius-full-round;
+    background: var(--primary-text);
+    border-radius: @size-100;
   }
-}
-
-.RoundedButton {
-  .SimpleBorder;
-  .text-12-semi-bold;
-
-  background: transparent;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-  grid-gap: @size-8;
-  outline: none;
-
-  &:hover {
-    border: @size-1 solid var(--simple-secondary-text);
-  }
-}
-
-.RoundedLabel {
-  .RoundedButton;
-  .text-16;
-
-  color: var(--simple-primary-text);
-  line-height: 140%;
-  height: @size-44;
-  min-height: @size-44;
-  max-height: @size-44;
-  white-space: nowrap;
-  padding: 0 @size-16;
 }
 
 .EmptyMessage {
   .text-12;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   padding: @size-20 0;
-  background-color: var(--simple-light-bg);
+  background-color: var(--primary-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -144,13 +112,13 @@ input[type=number] {
 
 .ShimmerEmptyBlock {
   border-radius: @size-8;
-  background: var(--light-background-color);
+  background: var(--secondary-bg);
   background-image: linear-gradient(
     to right,
-    #f6f7f8 0%,
-    #edeef1 20%,
-    #f6f7f8 40%,
-    #f6f7f8 100%
+    var(--primary-bg) 0%,
+    var(--tertiary-bg) 20%,
+    var(--primary-bg) 40%,
+    var(--primary-bg) 100%
   );
   background-repeat: no-repeat;
   background-size: 800px 104px;

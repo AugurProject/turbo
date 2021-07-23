@@ -258,7 +258,6 @@ export const PortfolioView = () => {
       <section>
         <NetworkMismatchBanner />
         <AppViewStats small />
-        <RewardsSection />
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}

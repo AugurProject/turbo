@@ -9,17 +9,17 @@
 
     > h2,
     > h3 {
-      color: var(--simple-light-bg);
+      color: var(--primary-bg);
     }
     > article:last-of-type {
-      border-bottom: @size-1 dashed var(--simple-secondary-text);
+      border-bottom: @size-1 dashed var(--secondary-text);
     }
   }
 
   > h2 {
     .text-20-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: uppercase;
     margin: 0;
     margin-bottom: @size-32;
@@ -29,7 +29,7 @@
   > h3 {
     .text-14-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: uppercase;
     margin: 0;
   }
@@ -44,7 +44,7 @@
     }
 
     &:last-of-type {
-      border-bottom: @size-1 solid var(--simple-border);
+      border-bottom: @size-1 solid var(--theme-border);
     }
   }
 }
@@ -57,25 +57,25 @@
   flex-flow: row nowrap;
   background: transparent;
   border: 0;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   text-transform: uppercase;
   // to actually get alignment right.
   line-height: @size-14;
   cursor: pointer;
 
   &:hover {
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
 
     > span {
-      border-color: var(--simple-primary-text);
+      border-color: var(--primary-text);
     }
   }
 
   > span {
     .PrimaryBorderRadius;
 
-    background: var(--simple-light-bg);
-    border: @size-1 solid var(--simple-tertiary-text);
+    background: var(--primary-bg);
+    border: @size-1 solid var(--tertiary-text);
     height: @size-20;
     width: @size-20;
     margin-right: @size-8;
@@ -91,7 +91,7 @@
       transform-origin: 50% 50%;
 
       > path {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
       }
     }
   }
@@ -99,10 +99,10 @@
 
 .NumberBox {
   .text-10;
-  .SimpleBorder;
+  .ThemeBorder;
 
-  background: var(--simple-light-bg);
-  color: var(--simple-secondary-text);
+  background: var(--primary-bg);
+  color: var(--secondary-text);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -144,13 +144,13 @@
 
       > path[fill],
       > g > path[fill] {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
       }
 
       > line,
       > path[stroke],
       > g > path[stroke] {
-        stroke: var(--simple-primary-text);
+        stroke: var(--primary-text);
       }
     }
 
@@ -164,53 +164,53 @@
 
     &:hover {
       > span {
-        border-color: var(--simple-primary-text);
-        color: var(--simple-primary-text);
+        border-color: var(--primary-text);
+        color: var(--primary-text);
       }
     }
 
     &.SelectedCategory {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
 
       > span {
-        border-color: var(--simple-primary-text);
-        color: var(--simple-primary-text);
+        border-color: var(--primary-text);
+        color: var(--primary-text);
       }
     }
   }
 
   > h4 {
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 
   > button {
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
 
     &:hover {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
   }
 }
 
 .CategoriesArea.Inverted {
   .RemoveCategoryButton {
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
   
     &:hover {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
   
       > span {
-        border-color: var(--simple-primary-text);
+        border-color: var(--primary-text);
       }
     }
   
     > span {
-      background: var(--simple-light-bg);
-      border: @size-1 solid var(--simple-tertiary-text);
+      background: var(--primary-bg);
+      border: @size-1 solid var(--tertiary-text);
   
       > svg {
         > path {
-          fill: var(--simple-primary-text);
+          fill: var(--primary-text);
         }
       }
     }
@@ -222,64 +222,64 @@
       > svg {
         > path[fill],
         > g > path[fill] {
-          fill: var(--simple-tertiary-text);
+          fill: var(--tertiary-text);
         }
 
         > line,
         > path[stroke],
         > g > path[stroke] {
-          stroke: var(--simple-tertiary-text);
+          stroke: var(--tertiary-text);
         }
       }
 
       > span {
         .NumberBox;
 
-        border: @size-1 solid var(--simple-secondary-text);
-        background: var(--simple-primary-text);
-        color: var(--simple-light-bg);
+        border: @size-1 solid var(--secondary-text);
+        background: var(--primary-text);
+        color: var(--primary-bg);
       }
 
       &:hover {
         > span {
-          border-color: var(--simple-light-bg);
-          color: var(--simple-light-bg);
+          border-color: var(--primary-bg);
+          color: var(--primary-bg);
         }
       }
 
       &.SelectedCategory {
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
 
         > span {
-          background: var(--simple-light-bg);
-          border-color: var(--simple-light-bg);
-          color: var(--simple-primary-text);
+          background: var(--primary-bg);
+          border-color: var(--primary-bg);
+          color: var(--primary-text);
         }
 
         > svg {
           > path[fill],
           > g > path[fill] {
-            fill: var(--simple-light-bg);
+            fill: var(--primary-bg);
           }
   
           > line,
           > path[stroke],
           > g > path[stroke] {
-            stroke: var(--simple-light-bg);
+            stroke: var(--primary-bg);
           }
         }
       }
     }
 
     > h4 {
-      color: var(--simple-light-bg);
+      color: var(--primary-bg);
     }
 
     > button {
-      color: var(--simple-tertiary-text);
+      color: var(--tertiary-text);
 
       &:hover {
-        color: var(--simple-light-bg);
+        color: var(--primary-bg);
       }
     }
   }
@@ -288,7 +288,7 @@
 .CategoriesTrail {
   .text-10-semi-bold;
 
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
   text-transform: uppercase;
   display: flex;
   flex-flow: row nowrap;
@@ -317,14 +317,14 @@
   max-height: @size-40;
   align-items: center;
   justify-content: center;
-  background: var(--simple-primary-text);
+  background: var(--primary-text);
 
   > button {
     .text-14-bold;
 
-    border: @size-1 solid var(--simple-border);
-    background: var(--simple-light-bg);
-    color: var(--simple-secondary-text);
+    border: @size-1 solid var(--theme-border);
+    background: var(--primary-bg);
+    color: var(--secondary-text);
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
@@ -335,8 +335,8 @@
     cursor: pointer;
 
     &.Selected {
-      border-color: var(--simple-primary-text);
-      color: var(--simple-primary-text);
+      border-color: var(--primary-text);
+      color: var(--primary-text);
     }
 
     &:first-of-type {

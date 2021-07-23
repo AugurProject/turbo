@@ -75,6 +75,11 @@ export const ENTER_AMOUNT = "Enter Amount";
 
 export const SETTINGS_SLIPPAGE = "1";
 export const BETSIZE_TO_ODDS = ".10";
+export const THEME_OPTIONS = {
+  LIGHT: "Light",
+  DARK: "Dark",
+  AUTO: "Auto",
+};
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",

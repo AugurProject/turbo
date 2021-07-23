@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { calcShareFactor } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash__factory, SportsLinkMarketFactory__factory } from "../typechain";
+import { Cash__factory, SportsLinkMarketFactoryV2__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -31,7 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const sportId = 4;
 
-  const args: Parameters<SportsLinkMarketFactory__factory["deploy"]> = [
+  const args: Parameters<SportsLinkMarketFactoryV2__factory["deploy"]> = [
     owner,
     collateral.address,
     shareFactor,
@@ -47,6 +47,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   await deployments.deploy("SportsLinkMarketFactory", {
     from: deployer,
     args,
+    log: true,
+  });
+
+  await deployments.deploy("NBAFetcher", {
+    from: deployer,
+    args: [],
     log: true,
   });
 };

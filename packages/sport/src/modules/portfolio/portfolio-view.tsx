@@ -9,6 +9,7 @@ import { EventBetsSection } from "../common/tables";
 import { DailyFutureSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
+import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
 
@@ -114,8 +115,7 @@ const useEventPositionsData = () => {
   const marketIds = Array.from(
     new Set(
       Object.entries(active)
-        .map(([txhash, bet]) => {
-          // @ts-ignore
+        .map(([txhash, bet]: [string, BetType]) => {
           return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
         })
         .filter((i) => i)
@@ -126,9 +126,8 @@ const useEventPositionsData = () => {
   );
   const eventPositionsData = events.reduce((acc, event) => {
     const out = { ...acc };
-    const bets = Object.entries(active).reduce((a, [txhash, bet]) => {
+    const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
       let result = { ...a };
-      // @ts-ignore
       const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
       if (event?.marketIds?.includes(marketId)) {
         result[txhash] = bet;
@@ -177,7 +176,6 @@ export const PortfolioView = () => {
           <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
           <SearchInput
             value={filter}
-            // @ts-ignore
             onChange={(e) => setFilter(e.target.value)}
             clearValue={() => setFilter("")}
           />
@@ -185,7 +183,13 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
-        <SecondaryThemeButton text="MY BETS" reverseContent icon={SimpleChevron} action={() => setShowActivity(!showActivity)} small />
+        <SecondaryThemeButton
+          text="MY BETS"
+          reverseContent
+          icon={SimpleChevron}
+          action={() => setShowActivity(!showActivity)}
+          small
+        />
         <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />
@@ -195,120 +199,3 @@ export const PortfolioView = () => {
 };
 
 export default PortfolioView;
-/*
-const date = new Date();
-const now = Math.floor(date.getTime() / 1000);
-const MET = {
-  ML: "MoneyLine",
-  SP: "Spread",
-  OU: "Over / Under",
-};
-
-const MOCK_EVENT_POSITIONS_DATA = {
-  "0xdeadbeef-0": {
-    eventId: "0xdeadbeef-0",
-    eventTitle: "River Plate vs Boca Juniors",
-    eventStartTime: now,
-    bets: {
-      "0xfaketxhash01": {
-        marketId: "0xfakeMarket01",
-        marketEventType: MET.SP,
-        name: "River Plate, +2",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: "70.00",
-        timestamp: now - 2000,
-        cashoutAmount: "0.00",
-        canCashOut: true,
-      },
-      "0xfaketxhash02": {
-        marketId: "0xfakeMarket02",
-        marketEventType: MET.ML,
-        name: "River Plate",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: null,
-        timestamp: now - 2500,
-        cashoutAmount: "5.60",
-        canCashOut: false,
-      },
-      "0xfaketxhash03": {
-        marketId: "0xfakeMarket03",
-        marketEventType: MET.SP,
-        name: "Event Canceled",
-        id: 0,
-        wager: "10.00",
-        price: "0.125",
-        toWin: "70.00",
-        timestamp: now - 3050,
-        cashoutAmount: "0.00",
-        canCashOut: true,
-      },
-    },
-  },
-  "0xdeadbeef-1": {
-    eventId: "0xdeadbeef-1",
-    eventTitle: "Dallas Mavericks Vs. Houston Rockets",
-    eventStartTime: now - 1000,
-    bets: {
-      "0xfaketxhash04": {
-        marketId: "0xfakeMarket4",
-        marketEventType: MET.ML,
-        name: "Dallas Mavericks",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: "70.00",
-        timestamp: now - 2000,
-        cashoutAmount: "0.00",
-        canCashOut: true,
-      },
-    },
-  },
-  "0xdeadbeef-2": {
-    eventId: "0xdeadbeef-2",
-    eventTitle: "Chicago Bulls Vs. Brooklyn Nets",
-    eventStartTime: now - 5000,
-    bets: {
-      "0xfaketxhash05": {
-        marketId: "0xfakeMarket05",
-        marketEventType: MET.SP,
-        name: "Chicago Bulls, +5",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: "70.00",
-        timestamp: now - 7000,
-        cashoutAmount: "0.00",
-        canCashOut: true,
-      },
-      "0xfaketxhash06": {
-        marketId: "0xfakeMarket06",
-        marketEventType: `${MET.OU} 220.5`,
-        name: "Chicago Bulls, Over 220.5",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: null,
-        timestamp: now - 7500,
-        cashoutAmount: "5.60",
-        canCashOut: false,
-      },
-      "0xfaketxhash07": {
-        marketId: "0xfakeMarket07",
-        marketEventType: MET.ML,
-        name: "Chicago Bulls",
-        id: 1,
-        wager: "10.00",
-        price: "0.125",
-        toWin: "70.00",
-        timestamp: now - 8050,
-        cashoutAmount: "0.00",
-        canCashOut: false,
-      },
-    },
-  },
-};
-*/

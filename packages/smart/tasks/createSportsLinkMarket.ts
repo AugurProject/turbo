@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config";
 
 import "hardhat/types/config";
-import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactory } from "..";
+import { buildContractInterfaces, ContractInterfaces, SportsLinkMarketFactoryV2 } from "..";
 import { makeSigner } from "./deploy";
 
 task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
@@ -9,6 +9,8 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
   .addParam("homeTeamId", undefined, undefined, types.string)
   .addParam("awayTeamId", undefined, undefined, types.string)
   .addParam("startTimestamp", undefined, undefined, types.string)
+  .addParam("moneylineHome", undefined, undefined, types.string)
+  .addParam("moneylineAway", undefined, undefined, types.string)
   .addParam("homeSpread", undefined, undefined, types.string)
   .addParam("totalScore", undefined, undefined, types.string)
   .addParam("createSpread", undefined, undefined, types.boolean)
@@ -17,7 +19,19 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
 
   .setAction(
     async (
-      { eventId, homeTeamId, awayTeamId, startTimestamp, homeSpread, totalScore, createSpread, createTotal, index },
+      {
+        eventId,
+        homeTeamId,
+        awayTeamId,
+        startTimestamp,
+        moneylineHome,
+        moneylineAway,
+        homeSpread,
+        totalScore,
+        createSpread,
+        createTotal,
+        index,
+      },
       hre
     ) => {
       const { ethers } = hre;
@@ -26,7 +40,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
       const network = await ethers.provider.getNetwork();
       const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
       const { MarketFactories } = contracts;
-      const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
+      const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactoryV2;
 
       console.log("Creating market");
       await marketFactory.createMarket(
@@ -34,6 +48,7 @@ task("createSportsLinkMarket", "Create market for the SportsLinkMarketFactory")
         homeTeamId,
         awayTeamId,
         startTimestamp,
+        [moneylineHome, moneylineAway],
         homeSpread,
         totalScore,
         createSpread,

@@ -1,11 +1,11 @@
 @import (reference) '~assets/styles/shared';
 
 .Toast {
-  .SimpleBorder;
+  .ThemeBorder;
   .FixedBoxShadow;
 
   align-items: baseline;
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   display: grid;
   grid-gap: @size-8;
   grid-template-columns: 0fr 1fr 0fr;
@@ -61,18 +61,18 @@
   }
 
   &.Confirmed {
-    border: @size-1 solid var(--simple-success);
+    border: @size-1 solid var(--success);
 
     > span {
-      color: var(--simple-success);
+      color: var(--success);
     }
   }
 
   &.Failed {
-    border: @size-1 solid var(--simple-failed);
+    border: @size-1 solid var(--failed);
 
     > span {
-      color: var(--simple-failed);
+      color: var(--failed);
     }
   }
 
@@ -80,7 +80,7 @@
     .limit-lines(1);
     .text-12-semi-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 2;
     grid-row: 1;
     margin: 0;
@@ -96,7 +96,7 @@
     .limit-lines(2);
     .text-12;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     grid-column: 1 / span 3;
     grid-row: 2;
     padding: 0;
@@ -138,7 +138,7 @@
     .text-12-semi-bold;
 
     align-self: flex-end;
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     grid-column: 1;
     grid-row: 3;
     text-transform: capitalize;
@@ -146,7 +146,7 @@
     white-space: nowrap;
 
     &:hover {
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
     }
 
     @media @breakpoint-mobile-tablet {

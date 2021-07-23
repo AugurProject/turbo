@@ -1,10 +1,10 @@
-@import (reference) '~assets/styles/shared';
-@import (reference) '~modules/common/buttons.styles.less';
+@import (reference) "~assets/styles/shared";
+@import (reference) "~modules/common/buttons.styles.less";
 
 div.Sidebar {
   @media @breakpoint-mobile-tablet {
     position: fixed;
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     z-index: @above-all-content-top-layer;
     top: 0;
     bottom: 0;
@@ -17,16 +17,15 @@ div.Sidebar {
     height: 100%;
     grid-template-rows: @size-72 auto @size-72;
   }
-
 }
 
 .Header {
   padding: 0 @size-16;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   display: flex;
-  height: @simple-top-bar-height;
-  min-height: @simple-top-bar-height;
-  max-height: @simple-top-bar-height;
+  height: var(--theme-top-bar-height);
+  min-height: var(--theme-top-bar-height);
+  max-height: var(--theme-top-bar-height);
   align-content: center;
   justify-content: center;
   align-items: center;
@@ -61,7 +60,7 @@ div.Sidebar {
   grid-column: 1;
   grid-row: 2;
   overflow: auto;
-  
+
   > div:not(:last-of-type) {
     margin-bottom: @size-24;
   }
@@ -74,13 +73,13 @@ div.Sidebar {
       > a {
         .text-30-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         text-decoration: none;
       }
 
       &.Active {
         > a {
-          color: var(--simple-primary-text);
+          color: var(--primary-text);
         }
       }
     }
@@ -88,7 +87,7 @@ div.Sidebar {
 }
 
 .Footer {
-  border-top: @size-1 solid var(--simple-border);
+  border-top: @size-1 solid var(--theme-border);
   display: flex;
   justify-content: space-between;
   padding: @size-12 @size-16;

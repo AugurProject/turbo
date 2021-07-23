@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import Styles from "./categories.styles.less";
 import classNames from "classnames";
 import { Icons, Constants, Formatter } from "@augurproject/comps";
+import { MarketInfo } from "@augurproject/comps/build/types";
 import { useSportsStore } from "modules/stores/sport";
 
 const { SPORTS, POLITICS } = Constants;
@@ -22,8 +23,7 @@ const handleCategoryMap = (categoriesToPull = [], pullFrom = {}) =>
   }, {});
 
 const determineCount = (category, markets) =>
-  Object.entries(markets).filter(([marketId, marketInfo]) =>
-    // @ts-ignore
+  Object.entries(markets).filter(([marketId, marketInfo]: [string, MarketInfo]) =>
     marketInfo?.categories.some((c) => c.toLowerCase() === category.toLowerCase())
   ).length;
 
@@ -117,8 +117,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
   const secondaryCategory = subCategories[0];
   const filteredLeaves = useMemo(
     () =>
-      Object.entries(markets).reduce((acc, [marketId, marketInfo]) => {
-        // @ts-ignore
+      Object.entries(markets).reduce((acc, [marketId, marketInfo]: [string, MarketInfo]) => {
         const { categories } = marketInfo;
         if (
           secondaryCategory &&
@@ -153,8 +152,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
             })}
             onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
           >
-            {/* @ts-ignore */}
-            {subInfo?.icon} {subLabel} <span>{formatCategoryCount(determineCount(subLabel, markets))}</span>
+            {(subInfo as any)?.icon} {subLabel} <span>{formatCategoryCount(determineCount(subLabel, markets))}</span>
           </button>
         ))}
       {!!subCategories.length && (

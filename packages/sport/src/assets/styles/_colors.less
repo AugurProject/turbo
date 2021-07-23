@@ -1,54 +1,49 @@
-// theme divided values
-// TRADING is default theme, hence root by itself.
-// branding
-@color-brand: #2AE7A8;
-@color-brand-secondary: #FFFFFF;
-
 :root[theme="SPORTS"] {
-
   // text
-  --simple-primary-text: #0E0E21;
-  --simple-primary-text-rgb: 14, 14, 33;
-  --simple-secondary-text: #555577;
-  --simple-secondary-text-rgb: 85, 85, 119;
-  --simple-tertiary-text: #9C9CB4;
-  --simple-tertiary-text-rgb: 156, 156, 180;
-
+  --primary-text: #0e0e21;
+  --primary-text-rgb: 14, 14, 33;
+  --secondary-text: #555577;
+  --secondary-text-rgb: 85, 85, 119;
+  --tertiary-text: #9c9cb4;
+  --tertiary-text-rgb: 156, 156, 180;
+  --inverted-primary-text: #ffffff;
+  --inverted-primary-text-rgb: 255, 255, 255;
   // backgrounds
-  --simple-light-bg: #FFFFFF;
-  --simple-light-bg-rgb: 255, 255, 255;
-  --light-background-color: #F5F5F8;
-  --light-background-color-rgb: 245, 245, 248;
-  --simple-alternate-background: #FAFAFC;
-  --simple-alternate-background-rgb: 250, 250, 252;
-
-  // borders/actions
-  --simple-border: #D1D1D9;
-  --simple-focus-color: #1B91FF;
-
-  // status
-  --simple-failed: #FF4E27;
-  --simple-failed-rgb: 255, 78, 39;
-  --simple-warning: #F59300;
-  --simple-warning-rgb: 245, 147, 0;
-  --simple-success: #0CCE8D;
-  --simple-success-rgb: 12, 206, 141;
-
-  // trading
-  --simple-yes: #5A8BEE;
-  --simple-yes-rgb: 90, 139, 238;
-  --simple-no: #EC343F;
-  --simple-no-rgb: 236, 52, 63;
+  --primary-bg: #ffffff;
+  --primary-bg-rgb: 255, 255, 255;
+  --secondary-bg: #f5f5f8;
+  --secondary-bg-rgb: 245, 245, 248;
+  --tertiary-bg: #fafafc;
+  --tertiary-bg-rgb: 250, 250, 252;
+  --inverted-primary-bg: #0e0e21;
+  --inverted-primary-bg-rgb: 14, 14, 33;
+  // misc
+  --theme-border: #d1d1d9;
+  --theme-border-rgb: 209, 209, 217;
+  --theme-focus: #1b91ff;
+  --theme-focus-rgb: 27, 145, 255;
+  //status
+  --failed: #ff4e27;
+  --failed-rgb: 255, 78, 39;
+  --warning: #f59300;
+  --warning-rgb: 245, 147, 0;
+  --success: #0cce8d;
+  --success-rgb: 12, 206, 141;
+  //trading
+  --buy: #5a8bee;
+  --buy-rgb: 90, 139, 238;
+  --sell: #ec343f;
+  --sell-rgb: 236, 52, 63;
 
   // outcomes
-  --theme-outcome-0: #FF4E27;
-  --theme-outcome-1: #FCBD43;
-  --theme-outcome-2: #48EBB5;
-  --theme-outcome-3: #FF56B1;
-  --theme-outcome-4: #FF8DED;
-  --theme-outcome-5: #1B91FF;
-  --theme-outcome-6: #09CFE1;
-  --theme-outcome-7: #AE5DFF;
+  --theme-outcome-0: #ff4e27;
+  --theme-outcome-1: #fcbd43;
+  --theme-outcome-2: #48ebb5;
+  --theme-outcome-3: #ff56b1;
+  --theme-outcome-4: #ff8ded;
+  --theme-outcome-5: #1b91ff;
+  --theme-outcome-6: #09cfe1;
+  --theme-outcome-7: #ae5dff;
   // invalid / outcome 0: #FF4E27  / rgba(255, 78, 39, 1)
   // outcome 1: #FCBD43 / rgba(252, 189, 67, 1)
   // outcome 2: #48EBB5 / rgba(72, 235, 181, 1)
@@ -58,15 +53,14 @@
   // outcome 6: #09CFE1 / rgba(9, 207, 225, 1)
   // outcome 7: #AE5DFF / rgba(174, 93, 255, 1)
 
-  --dark-button-theme-color: #0e0e21;
-  --light-button-theme-color: #ffffff;
-  --tiny-dark-button-theme-color: #555577;
-  --tiny-light-button-theme-color: #d1d1d9;
-  --theme-focus-border-color: #1b91ff;
-  --theme-focus-box-shadow: 0 0 0 @size-1 var(--theme-focus-border-color);
-  --primary-button-theme-color: #0cce8d;
-  --primary-button-theme-background-color: rgba(12, 206, 141, 0.15);
-  --inverted-primary-button-theme-background-color: rgba(12, 206, 141, 0.3);
+  --dark-button-theme-color: var(--primary-text);
+  --light-button-theme-color: var(--primary-bg);
+  --tiny-dark-button-theme-color: var(--secondary-text);
+  --tiny-light-button-theme-color: var(--theme-border);
+  --theme-focus-box-shadow: 0 0 0 @size-1 var(--theme-focus);
+  --primary-button-theme-color: var(--success);
+  --primary-button-theme-background-color: rgba(var(--success-rgb), 0.15);
+  --inverted-primary-button-theme-background-color: rgba(var(--success-rgb), 0.3);
   --secondary-button-theme-background-color: transparent;
   --inverted-secondary-button-theme-background-color: transparent;
   // This example is going to assume sportsbook values for now.
@@ -81,7 +75,7 @@
   --primary-button-text-color-hover: var(--light-button-theme-color);
 
   --primary-button-background-focus: var(--primary-button-theme-background-color);
-  --primary-button-border-color-focus: var(--theme-focus-border-color);
+  --primary-button-border-color-focus: var(--theme-focus);
   --primary-button-border-focus: @size-1 solid var(--primary-button-border-color-focus);
   --primary-button-text-color-focus: var(--dark-button-theme-color);
 
@@ -101,7 +95,7 @@
   --inverted-primary-button-text-color-hover: var(--dark-button-theme-color);
 
   --inverted-primary-button-background-focus: var(--inverted-primary-button-theme-background-color);
-  --inverted-primary-button-border-color-focus: var(--theme-focus-border-color);
+  --inverted-primary-button-border-color-focus: var(--theme-focus);
   --inverted-primary-button-border-focus: @size-1 solid var(--inverted-primary-button-border-color-focus);
   --inverted-primary-button-text-color-focus: var(--light-button-theme-color) f;
 
@@ -122,7 +116,7 @@
   --secondary-button-text-color-hover: var(--light-button-theme-color);
 
   --secondary-button-background-focus: var(--secondary-button-theme-background-color);
-  --secondary-button-border-color-focus: var(--theme-focus-border-color);
+  --secondary-button-border-color-focus: var(--theme-focus);
   --secondary-button-border-focus: @size-1 solid var(--secondary-button-border-color-focus);
   --secondary-button-text-color-focus: var(--dark-button-theme-color);
 
@@ -142,7 +136,7 @@
   --inverted-secondary-button-text-color-hover: var(--dark-button-theme-color);
 
   --inverted-secondary-button-background-focus: var(--secondary-button-theme-background-color);
-  --inverted-secondary-button-border-color-focus: var(--theme-focus-border-color);
+  --inverted-secondary-button-border-color-focus: var(--theme-focus);
   --inverted-secondary-button-border-focus: @size-1 solid var(--inverted-secondary-button-border-color-focus);
   --inverted-secondary-button-text-color-focus: var(--light-button-theme-color);
 
@@ -163,7 +157,7 @@
   --tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
 
   --tiny-button-background-focus: var(--light-button-theme-color);
-  --tiny-button-border-color-focus: var(--theme-focus-border-color);
+  --tiny-button-border-color-focus: var(--theme-focus);
   --tiny-button-border-focus: @size-1 solid var(--tiny-button-border-color-focus);
   --tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
 
@@ -183,7 +177,7 @@
   --inverted-tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
 
   --inverted-tiny-button-background-focus: var(--light-button-theme-color);
-  --inverted-tiny-button-border-color-focus: var(--theme-focus-border-color);
+  --inverted-tiny-button-border-color-focus: var(--theme-focus);
   --inverted-tiny-button-border-focus: @size-1 solid var(--inverted-tiny-button-border-color-focus);
   --inverted-tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
 
@@ -222,7 +216,225 @@
   --tiny-button-text-transform: uppercase;
 }
 
-@color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3) var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
+:root[theme="SPORTS_DARK"] {
+  // text
+  --primary-text: #f4f3f4;
+  --primary-text-rgb: 244, 243, 244;
+  --secondary-text: #b3b3b3;
+  --secondary-text-rgb: 179, 179, 179;
+  --tertiary-text: #767678;
+  --tertiary-text-rgb: 118, 118, 120;
+  --inverted-primary-text: #f4f3f4;
+  // backgrounds
+  --primary-bg: #1b1a1e;
+  --primary-bg-rgb: 27, 26, 30;
+  --secondary-bg: #252429;
+  --secondary-bg-rgb: 37, 36, 41;
+  --tertiary-bg: #201f23;
+  --tertiary-bg-rgb: 32, 31, 35;
+  --inverted-primary-bg: #040416;
+  --inverted-primary-bg-rgb: 4, 4, 22;
+  // misc
+  --theme-border: #383838;
+  --theme-border-rgb: 56, 56, 56;
+  --theme-focus: #1b91ff;
+  --theme-focus-rgb: 27, 145, 255;
+  //status
+  --failed: #ff4e27;
+  --failed-rgb: 255, 78, 39;
+  --warning: #f59300;
+  --warning-rgb: 245, 147, 0;
+  --success: #0cce8d;
+  --success-rgb: 12, 206, 141;
+  //trading
+  --buy: #55b3f8;
+  --buy-rgb: 85, 179, 248;
+  --sell: #ec343f;
+  --sell-rgb: 236, 52, 63;
+
+  // outcomes
+  --theme-outcome-0: #ff4e27;
+  --theme-outcome-1: #fcbd43;
+  --theme-outcome-2: #48ebb5;
+  --theme-outcome-3: #ff56b1;
+  --theme-outcome-4: #ff8ded;
+  --theme-outcome-5: #1b91ff;
+  --theme-outcome-6: #09cfe1;
+  --theme-outcome-7: #ae5dff;
+  // invalid / outcome 0: #FF4E27  / rgba(255, 78, 39, 1)
+  // outcome 1: #FCBD43 / rgba(252, 189, 67, 1)
+  // outcome 2: #48EBB5 / rgba(72, 235, 181, 1)
+  // outcome 3: #FF56B1 / rgba(255, 86, 177, 1)
+  // outcome 4: #FF8DED / rgba(255, 141, 237, 1)
+  // outcome 5: #1B91FF / rgba(27, 145, 255, 1)
+  // outcome 6: #09CFE1 / rgba(9, 207, 225, 1)
+  // outcome 7: #AE5DFF / rgba(174, 93, 255, 1)
+
+  --dark-button-theme-color: var(--primary-text);
+  --light-button-theme-color: var(--primary-bg);
+  --tiny-dark-button-theme-color: var(--secondary-text);
+  --tiny-light-button-theme-color: var(--theme-border);
+  --theme-focus-box-shadow: 0 0 0 @size-1 var(--theme-focus);
+  --primary-button-theme-color: var(--success);
+  --primary-button-theme-background-color: rgba(var(--success-rgb), 0.15);
+  --inverted-primary-button-theme-background-color: rgba(var(--success-rgb), 0.3);
+  --secondary-button-theme-background-color: transparent;
+  --inverted-secondary-button-theme-background-color: transparent;
+  // This example is going to assume sportsbook values for now.
+  --primary-button-background: var(--primary-button-theme-background-color);
+  --primary-button-border-color: var(--primary-button-theme-color);
+  --primary-button-border: @size-1 solid var(--primary-button-border-color);
+  --primary-button-text-color: var(--dark-button-theme-color);
+
+  --primary-button-background-hover: var(--dark-button-theme-color);
+  --primary-button-border-color-hover: var(--dark-button-theme-color);
+  --primary-button-border-hover: @size-1 solid var(--primary-button-border-color-hover);
+  --primary-button-text-color-hover: var(--light-button-theme-color);
+
+  --primary-button-background-focus: var(--primary-button-theme-background-color);
+  --primary-button-border-color-focus: var(--theme-focus);
+  --primary-button-border-focus: @size-1 solid var(--primary-button-border-color-focus);
+  --primary-button-text-color-focus: var(--dark-button-theme-color);
+
+  --primary-button-background-pressed: var(--dark-button-theme-color);
+  --primary-button-border-color-pressed: var(--dark-button-theme-color);
+  --primary-button-border-pressed: @size-1 solid var(--primary-button-border-color-pressed);
+  --primary-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-primary-button-background: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color: var(--primary-button-theme-color);
+  --inverted-primary-button-border: @size-1 solid var(--inverted-primary-button-border-color);
+  --inverted-primary-button-text-color: var(--light-button-theme-color);
+
+  --inverted-primary-button-background-hover: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-hover: var(--light-button-theme-color);
+  --inverted-primary-button-border-hover: @size-1 solid var(--inverted-primary-button-border-color-hover);
+  --inverted-primary-button-text-color-hover: var(--dark-button-theme-color);
+
+  --inverted-primary-button-background-focus: var(--inverted-primary-button-theme-background-color);
+  --inverted-primary-button-border-color-focus: var(--theme-focus);
+  --inverted-primary-button-border-focus: @size-1 solid var(--inverted-primary-button-border-color-focus);
+  --inverted-primary-button-text-color-focus: var(--light-button-theme-color) f;
+
+  --inverted-primary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-primary-button-border-color-pressed: var(--light-button-theme-color);
+  --inverted-primary-button-border-pressed: @size-1 solid var(--inverted-primary-button-border-color-pressed);
+  --inverted-primary-button-text-color-pressed: var(--dark-button-theme-color);
+
+  // This example is going to assume sportsbook values for now.
+  --secondary-button-background: var(--secondary-button-theme-background-color);
+  --secondary-button-border-color: var(--dark-button-theme-color);
+  --secondary-button-border: @size-1 solid var(--secondary-button-border-color);
+  --secondary-button-text-color: var(--dark-button-theme-color);
+
+  --secondary-button-background-hover: var(--dark-button-theme-color);
+  --secondary-button-border-color-hover: var(--dark-button-theme-color);
+  --secondary-button-border-hover: @size-1 solid var(--secondary-button-border-color-hover);
+  --secondary-button-text-color-hover: var(--light-button-theme-color);
+
+  --secondary-button-background-focus: var(--secondary-button-theme-background-color);
+  --secondary-button-border-color-focus: var(--theme-focus);
+  --secondary-button-border-focus: @size-1 solid var(--secondary-button-border-color-focus);
+  --secondary-button-text-color-focus: var(--dark-button-theme-color);
+
+  --secondary-button-background-pressed: var(--dark-button-theme-color);
+  --secondary-button-border-color-pressed: var(--dark-button-theme-color);
+  --secondary-button-border-pressed: @size-1 solid var(--secondary-button-border-color-pressed);
+  --secondary-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background: var(--secondary-button-theme-background-color);
+  --inverted-secondary-button-border-color: var(--light-button-theme-color);
+  --inverted-secondary-button-border: @size-1 solid var(--inverted-secondary-button-border-color);
+  --inverted-secondary-button-text-color: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background-hover: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-hover: var(--light-button-theme-color);
+  --inverted-secondary-button-border-hover: @size-1 solid var(--inverted-secondary-button-border-color-hover);
+  --inverted-secondary-button-text-color-hover: var(--dark-button-theme-color);
+
+  --inverted-secondary-button-background-focus: var(--secondary-button-theme-background-color);
+  --inverted-secondary-button-border-color-focus: var(--theme-focus);
+  --inverted-secondary-button-border-focus: @size-1 solid var(--inverted-secondary-button-border-color-focus);
+  --inverted-secondary-button-text-color-focus: var(--light-button-theme-color);
+
+  --inverted-secondary-button-background-pressed: var(--light-button-theme-color);
+  --inverted-secondary-button-border-color-pressed: var(--light-button-theme-color);
+  --inverted-secondary-button-border-pressed: @size-1 solid var(--inverted-secondary-button-border-color-pressed);
+  --inverted-secondary-button-text-color-pressed: var(--dark-button-theme-color);
+
+  // This example is going to assume sportsbook values for now.
+  --tiny-button-background: var(--light-button-theme-color);
+  --tiny-button-border-color: var(--tiny-light-button-theme-color);
+  --tiny-button-border: @size-1 solid var(--tiny-button-border-color);
+  --tiny-button-text-color: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-hover: var(--light-button-theme-color);
+  --tiny-button-border-color-hover: var(--dark-button-theme-color);
+  --tiny-button-border-hover: @size-1 solid var(--tiny-button-border-color-hover);
+  --tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-focus: var(--light-button-theme-color);
+  --tiny-button-border-color-focus: var(--theme-focus);
+  --tiny-button-border-focus: @size-1 solid var(--tiny-button-border-color-focus);
+  --tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
+
+  --tiny-button-background-pressed: var(--dark-button-theme-color);
+  --tiny-button-border-color-pressed: var(--dark-button-theme-color);
+  --tiny-button-border-pressed: @size-1 solid var(--tiny-button-border-color-pressed);
+  --tiny-button-text-color-pressed: var(--light-button-theme-color);
+
+  --inverted-tiny-button-background: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color: var(--tiny-light-button-theme-color);
+  --inverted-tiny-button-border: @size-1 solid var(--inverted-tiny-button-border-color);
+  --inverted-tiny-button-text-color: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-hover: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-hover: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-hover: @size-1 solid var(--inverted-tiny-button-border-color-hover);
+  --inverted-tiny-button-text-color-hover: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-focus: var(--light-button-theme-color);
+  --inverted-tiny-button-border-color-focus: var(--theme-focus);
+  --inverted-tiny-button-border-focus: @size-1 solid var(--inverted-tiny-button-border-color-focus);
+  --inverted-tiny-button-text-color-focus: var(--tiny-dark-button-theme-color);
+
+  --inverted-tiny-button-background-pressed: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-color-pressed: var(--dark-button-theme-color);
+  --inverted-tiny-button-border-pressed: @size-1 solid var(--inverted-tiny-button-border-color-pressed);
+  --inverted-tiny-button-text-color-pressed: var(--light-button-theme-color);
+
+  --button-disabled-opacity: 0.5;
+  --theme-button-border-radius: @size-3;
+  --normal-button-flex-flow: row nowrap;
+  --normal-button-flex-flow-reverse: row-reverse wrap;
+  --normal-button-icon-margin: 0 0 0 @size-4;
+  --normal-button-icon-margin-reverse: 0 @size-4 0 0;
+
+  --normal-button-height: @size-44;
+  --normal-button-padding: @size-8 @size-24;
+  --normal-button-svg-height: @size-24;
+  --normal-button-svg-width: @size-24;
+  --normal-button-font-size: @size-14;
+  --normal-button-font-weight: 700;
+
+  --small-button-height: @size-36;
+  --small-button-padding: @size-6 @size-16;
+  --small-button-svg-height: @size-16;
+  --small-button-svg-width: @size-16;
+  --small-button-font-size: @size-10;
+  --small-button-font-weight: 600;
+
+  --tiny-button-height: @size-28;
+  --tiny-button-padding: @size-4 @size-8;
+  --tiny-button-svg-height: @size-16;
+  --tiny-button-svg-width: @size-16;
+  --tiny-button-font-size: @size-12;
+  --tiny-button-font-weight: 600;
+  --tiny-button-text-transform: uppercase;
+}
+
+@color-outcome-list: var(--theme-outcome-0) var(--theme-outcome-1) var(--theme-outcome-2) var(--theme-outcome-3)
+  var(--theme-outcome-4) var(--theme-outcome-5) var(--theme-outcome-6) var(--theme-outcome-7);
 
 .generate-trading-indexed-color-outcome-classes(@rules) {
   each(@color-outcome-list, {

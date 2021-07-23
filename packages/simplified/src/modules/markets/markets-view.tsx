@@ -13,10 +13,12 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
+  ContractCalls
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
+const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SearchButton, SecondaryThemeButton },
@@ -217,7 +219,8 @@ const MarketsView = () => {
 
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
-    if (!amm.id && isLogged) {
+    const canAddLiq = canAddLiquidity(market);
+    if (isLogged && canAddLiq) {
       setModal({
         type: MODAL_ADD_LIQUIDITY,
         market,
@@ -291,7 +294,6 @@ const MarketsView = () => {
       </ul>
       <SearchInput
         value={filter}
-        // @ts-ignore
         onChange={(e) => setFilter(e.target.value)}
         clearValue={() => setFilter("")}
         showFilter={showFilter}
@@ -404,3 +406,4 @@ export const SubCategoriesFilter = () => {
     </div>
   );
 };
+

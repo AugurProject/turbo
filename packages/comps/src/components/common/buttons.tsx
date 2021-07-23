@@ -141,13 +141,13 @@ export const ApprovalButton = ({
   amm,
   cash,
   actionType,
-  isApproved,
+  isApproved = false,
   shareToken = null,
 }: {
   amm?: AmmExchange;
   cash: Cash;
   actionType: ApprovalAction;
-  isApproved: boolean;
+  isApproved?: boolean;
   shareToken?: string;
 }) => {
   const [isPendingTx, setIsPendingTx] = useState(false);
@@ -281,6 +281,7 @@ export interface BaseThemeButtonProps {
   ariaLabel?: string;
   href?: string;
   key?: string;
+  selected?: boolean;
 }
 
 export const BaseThemeButton = ({
@@ -293,6 +294,7 @@ export const BaseThemeButton = ({
   action = () => {},
   disabled = false,
   title,
+  selected = false,
   buttonType,
   invert = false,
   reverseContent = false,
@@ -306,7 +308,7 @@ export const BaseThemeButton = ({
     <>
       <span>{text}</span>
       {icon}
-      <span>{subText}</span>
+      {subText && <span>{subText}</span>}
     </>
   );
   const props = {
@@ -322,6 +324,7 @@ export const BaseThemeButton = ({
         [Styles.Inverted]: invert,
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
+        [Styles.Selected]: selected,
       },
       customClass
     ),

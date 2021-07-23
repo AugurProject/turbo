@@ -1,7 +1,7 @@
 @import (reference) "~assets/styles/shared";
 
 .ModalView {
-  background-color: rgba(var(--simple-primary-text-rgb), 0.40);
+  background-color: rgba(var(--primary-text-rgb), 0.4);
   height: 100vh;
   position: fixed;
   width: 100vw;
@@ -11,7 +11,7 @@
   align-items: center;
 
   > div {
-    .SimpleBorder;
+    .ThemeBorder;
     .SecondaryBorderRadius;
 
     align-items: center;
@@ -22,7 +22,7 @@
     width: fit-content;
     min-width: @size-288;
     margin: 0 @size-16;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     overflow: hidden;
   }
 
@@ -72,7 +72,7 @@
       > h4 {
         .text-14-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         margin-bottom: @size-16;
       }
 
@@ -85,7 +85,7 @@
 
         > li {
           .text-14;
-          
+
           line-height: 140%;
         }
       }
@@ -97,8 +97,8 @@
   }
 
   > footer {
-    border-top: @size-1 solid var(--simple-border);
-    background: var(--simple-alternate-background);
+    border-top: @size-1 solid var(--theme-border);
+    background: var(--tertiary-bg);
     min-height: @size-72;
     height: @size-72;
     max-height: @size-72;
@@ -113,7 +113,7 @@
 }
 
 .LineBreak {
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   padding-bottom: @size-24;
 
   > span {
@@ -125,7 +125,7 @@
 .SmallLabel {
   .text-16-semi-bold;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   display: flex;
 
   > span {
@@ -164,7 +164,7 @@
   display: flex;
   align-items: center;
   flex: 1;
-  border-bottom: @size-1 solid var(--simple-border);
+  border-bottom: @size-1 solid var(--theme-border);
   min-height: @size-55;
   padding: 0 @size-22;
   width: 100%;
@@ -172,12 +172,12 @@
   z-index: @above-all-content;
   height: @size-55;
   max-height: @size-55;
-  color: var(--simple-secondary-text);
+  color: var(--secondary-text);
 
   > span {
     .text-16-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-transform: capitalize;
     flex: 1;
   }
@@ -192,13 +192,13 @@
       .text-16;
 
       text-transform: capitalize;
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
 
     > span:last-of-type {
       .text-20-semi-bold;
 
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       margin-top: @size-4;
     }
   }
@@ -217,17 +217,19 @@
     > svg {
       width: @size-16;
       height: @size-16;
+
+      > path {
+        fill: var(--primary-text);
+      }
     }
   }
 
-  
-
   &:hover {
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
 
     > svg {
       > path {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
       }
     }
   }
@@ -236,10 +238,10 @@
 .FooterText {
   .text-14;
 
-  color: var(--simple-primary-text);
+  color: var(--primary-text);
   padding: @size-24;
-  background-color: var(--light-background-color);
-  border-top: @size-1 solid var(--simple-border);
+  background-color: var(--secondary-bg);
+  border-top: @size-1 solid var(--theme-border);
   line-height: @size-22;
   border-radius: @size-16;
   border-top-left-radius: 0;
@@ -253,18 +255,18 @@
 }
 
 .MarketTitle {
-  .SimpleBorder;
+  .ThemeBorder;
 
   padding: @size-16;
   display: flex;
   flex-direction: column;
-  background-color: var(--light-background-color);
+  background-color: var(--secondary-bg);
 
   > span:first-of-type {
     .text-14-semi-bold;
 
     margin-bottom: @size-8;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
   }
 
   > span:last-of-type > span {
@@ -276,14 +278,14 @@
 
       display: flex;
       flex-direction: column;
-      color: var(--simple-primary-text);
+      color: var(--primary-text);
       margin-bottom: @size-2;
     }
 
     > span:nth-of-type(2) {
       .text-10-bold;
 
-      color: var(--simple-secondary-text);
+      color: var(--secondary-text);
     }
   }
 }
@@ -291,39 +293,3 @@
 .HeaderLink {
   cursor: pointer;
 }
-
-// .ModalConnectWallet {
-//   padding: @size-24 @size-16;
-//   max-width: 900px;
-//   width: 900px;
-
-//   @media @breakpoint-mobile {
-//     width: calc(100vw - @size-32);
-//   }
-
-//   > ul {
-//     margin-bottom: @size-16;
-
-//     > li:not(:last-of-type) {
-//       margin-bottom: @size-8;
-//     }
-//   }
-
-//   > .LearnMore {
-//     .text-16-semi-bold;
-
-//     margin-left: @size-16;
-//   }
-
-//   > .PendingWalletView {
-//     > button {
-//       margin-top: @size-16;
-//       pointer-events: none;
-//       cursor: none;
-//     }
-//   }
-
-//   &.Account {
-//     padding: 0;
-//   }
-// }

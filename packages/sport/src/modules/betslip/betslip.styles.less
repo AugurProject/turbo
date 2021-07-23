@@ -9,11 +9,11 @@
   > div {
     .SecondaryBorderRadius;
 
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     box-shadow: var(--theme-box-shadow);
     min-height: 440px;
     max-height: 85vh;
-    border: @size-1 solid var(--simple-border);
+    border: @size-1 solid var(--theme-border);
     margin: @size-32 @size-32 @size-32 0;
     width: @betslip-width;
     position: fixed;
@@ -37,22 +37,22 @@
       }
 
       &:not(:disabled) {
-        background-color: var(--simple-primary-text);
-        border-color: var(--simple-primary-text);
-        color: var(--simple-light-bg);
+        background-color: var(--primary-text);
+        border-color: var(--primary-text);
+        color: var(--inverted-primary-text);
 
         > svg > path {
-          fill: var(--simple-light-bg);
+          fill: var(--inverted-primary-text);
         }
         &:hover,
         &:focus,
         &:active {
-          background-color: var(--simple-primary-text);
-          border-color: var(--simple-primary-text);
-          color: var(--simple-light-bg);
+          background-color: var(--primary-text);
+          border-color: var(--primary-text);
+          color: var(--inverted-primary-text);
 
           > svg > path {
-            fill: var(--simple-light-bg);
+            fill: var(--inverted-primary-text);
           }
         }
       }
@@ -63,8 +63,8 @@
     }
 
     > footer {
-      border-top: @size-1 solid var(--simple-border);
-      background: var(--light-background-color);
+      border-top: @size-1 solid var(--theme-border);
+      background: var(--secondary-bg);
       padding: @size-10 @size-12;
       display: grid;
       grid-gap: @size-12 @size-8;
@@ -73,7 +73,7 @@
       > p {
         .text-12;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         grid-column: span 2;
         text-align: center;
 
@@ -85,7 +85,7 @@
       > a {
         .text-10-semi-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         grid-column: span 2;
         display: flex;
         flex-flow: row nowrap;
@@ -101,7 +101,7 @@
           margin-right: @size-8;
 
           > path {
-            fill: var(--simple-primary-text);
+            fill: var(--primary-text);
           }
         }
       }
@@ -134,7 +134,7 @@
     &.Open {
       left: 0;
       right: 0;
-      background: rgba(var(--simple-primary-text-rgb), 0.40);
+      background: rgba(var(--primary-text-rgb), 0.40);
       width: 100vw;
 
       > div {
@@ -220,7 +220,7 @@ button.FlipContent {
 .BetslipHeader {
   .SecondaryTopBorderRadius;
 
-  background: var(--simple-primary-text);
+  background: var(--inverted-primary-bg);
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
@@ -238,7 +238,7 @@ button.FlipContent {
     .text-14-semi-bold;
 
     background: transparent;
-    color: var(--simple-tertiary-text);
+    color: var(--tertiary-text);
     border: none;
     display: flex;
     flex-flow: row nowrap;
@@ -252,26 +252,26 @@ button.FlipContent {
       .text-10;
       .PrimaryBorderRadius;
 
-      border: @size-1 solid var(--simple-tertiary-text);
+      border: @size-1 solid var(--tertiary-text);
       padding: @size-3 @size-5;
       margin-left: @size-8;
-      color: var(--simple-light-bg);
+      color: var(--inverted-primary-text);
     }
 
     &.isPopulated {
       > span {
-        color: var(--simple-light-bg);
+        color: var(--inverted-primary-text);
       }
     }
 
     &.SelectedView,
     &.SelectedView.isPopulated {
-      color: var(--simple-light-bg);
+      color: var(--inverted-primary-text);
 
       > span {
-        border: @size-1 solid var(--simple-light-bg);
-        background: var(--simple-light-bg);
-        color: var(--simple-primary-text);
+        border: @size-1 solid var(--inverted-primary-text);
+        background: var(--inverted-primary-text);
+        color: var(--inverted-primary-bg);
       }
     }
   }
@@ -292,7 +292,7 @@ button.FlipContent {
       > h2 {
         .text-16-bold;
 
-        color: var(--simple-light-bg);
+        color: var(--inverted-primary-text);
         text-transform: capitalize;
         width: 100%;
         flex: 1 100%;
@@ -315,7 +315,7 @@ button.FlipContent {
           width: @size-16;
 
           > path {
-            fill: var(--simple-light-bg);
+            fill: var(--inverted-primary-text);
           }
         }
       }
@@ -335,7 +335,7 @@ button.FlipContent {
   margin-bottom: auto;
 
   > div {
-    background: var(--light-background-color);
+    background: var(--secondary-bg);
     border-radius: 50%;
     margin-top: @size-80;
     margin-bottom: @size-16;
@@ -349,20 +349,24 @@ button.FlipContent {
     > svg {
       height: @size-40;
       width: @size-40;
+
+      > g > path {
+        stroke: var(--primary-text);
+      }
     }
   }
 
   > h3 {
     .text-14-bold;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin: 0;
   }
 
   > p {
     .text-14;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     margin: 0;
     margin-top: @size-1;
     margin-bottom: @size-11;
@@ -383,7 +387,7 @@ button.FlipContent {
 }
 
 .EditableBet {
-  .SimpleBorder;
+  .ThemeBorder;
   .SecondaryBorderRadius;
 
   width: 100%;
@@ -393,9 +397,9 @@ button.FlipContent {
     .SecondaryTopBorderRadius;
 
     min-height: @size-30;
-    background: var(--light-background-color);
-    color: var(--simple-primary-text);
-    border-bottom: @size-1 solid var(--simple-border);
+    background: var(--secondary-bg);
+    color: var(--primary-text);
+    border-bottom: @size-1 solid var(--theme-border);
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -405,7 +409,7 @@ button.FlipContent {
   > main {
     .SecondaryBottomBorderRadius;
 
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     padding: @size-12;
     display: grid;
     grid-template-columns: 1fr;
@@ -420,7 +424,7 @@ button.FlipContent {
       > h6 {
         .text-12-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         margin: 0;
         padding: 0;
       }
@@ -428,7 +432,7 @@ button.FlipContent {
       > span {
         .text-12-bold;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
         padding: @size-1 @size-2;
         margin-left: auto;
       }
@@ -448,13 +452,13 @@ button.FlipContent {
           width: @size-15;
 
           > path {
-            stroke: var(--simple-secondary-text);
+            stroke: var(--secondary-text);
           }
         }
 
         &:hover {
           > svg > path {
-            stroke: var(--simple-primary-text);
+            stroke: var(--primary-text);
           }
         }
       }
@@ -481,14 +485,14 @@ button.FlipContent {
     padding: 0;
     margin: 0;
     grid-column: span 2;
-    color: var(--simple-failed);
+    color: var(--failed);
   }
 }
 
 .LabeledInput {
-  .SimpleBorder;
+  .ThemeBorder;
 
-  background: var(--simple-light-bg);
+  background: var(--primary-bg);
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -502,7 +506,7 @@ button.FlipContent {
   &:before {
     .text-14;
 
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     content: "$";
     position: absolute;
     left: @size-4;
@@ -512,9 +516,9 @@ button.FlipContent {
     .text-10-semi-bold;
 
     text-transform: uppercase;
-    color: var(--simple-secondary-text);
+    color: var(--secondary-text);
     padding: 0 @size-4;
-    background: var(--simple-light-bg);
+    background: var(--primary-bg);
     position: absolute;
     display: flex;
     flex-flow: column nowrap;
@@ -533,7 +537,7 @@ button.FlipContent {
 
     border: 0;
     background: transparent;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     text-align: center;
     padding: @size-8 @size-12;
     min-height: @size-36;
@@ -552,15 +556,15 @@ button.FlipContent {
 
 // only make wager red on error
 .Invalid:not(:last-of-type) {
-  border-color: var(--simple-failed);
+  border-color: var(--failed);
 
   &:before {
-    color: var(--simple-failed);
+    color: var(--failed);
   }
 
   > div,
   > input:not(:focus) {
-    color: var(--simple-failed);
+    color: var(--failed);
   }
 
   > input:focus {
@@ -568,20 +572,20 @@ button.FlipContent {
   }
 
   > span {
-    color: var(--simple-failed);
+    color: var(--failed);
   }
 }
 
 .OddsChange {
-  background: rgba(var(--simple-warning-rgb), 0.30);
+  background: rgba(var(--warning-rgb), 0.30);
 }
 
 .OddsChangedMessage {
   .text-10-semi-bold;
 
-  color: var(--simple-primary-text);
-  background: rgba(var(--simple-warning-rgb), 0.30);
-  border-top: @size-1 solid var(--simple-border);
+  color: var(--primary-text);
+  background: rgba(var(--warning-rgb), 0.30);
+  border-top: @size-1 solid var(--theme-border);
   padding: @size-6 @size-12;
   display: flex;
   flex-flow: row nowrap;
@@ -599,12 +603,12 @@ button.FlipContent {
         width: @size-16;
 
         > path {
-          stroke: var(--simple-warning);
+          stroke: var(--warning);
         }
       }
 
       &:hover > svg > path {
-        stroke: var(--simple-warning);
+        stroke: var(--warning);
       }
     }
   }
@@ -619,7 +623,7 @@ button.FlipContent {
 
         > path {
           stroke: unset;
-          fill: var(--simple-success);
+          fill: var(--success);
         }
       }
 
@@ -633,15 +637,15 @@ button.FlipContent {
 
   &.Failed {
     > main {
-      background: rgba(var(--simple-failed-rgb), 0.15);
+      background: rgba(var(--failed-rgb), 0.15);
 
       > div:first-of-type > button {
         > svg > path {
-          stroke: var(--simple-failed);
+          stroke: var(--failed);
         }
 
         &:hover > svg > path {
-          stroke: var(--simple-failed);
+          stroke: var(--failed);
           stroke-width: 2px;
         }
       }
@@ -651,14 +655,14 @@ button.FlipContent {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        color: var(--simple-failed);
+        color: var(--failed);
 
         > button {
           .text-12-bold;
 
           border: none;
           background: none;
-          color: var(--simple-failed);
+          color: var(--failed);
           margin-left: @size-4;
           cursor: pointer;
 
@@ -687,14 +691,14 @@ button.FlipContent {
       &:first-of-type {
         .text-10-semi-bold;
 
-        color: var(--simple-secondary-text);
+        color: var(--secondary-text);
         text-transform: uppercase;
       }
 
       &:last-of-type {
         .text-12;
 
-        color: var(--simple-primary-text);
+        color: var(--primary-text);
       }
     }
 
@@ -722,7 +726,7 @@ button.FlipContent {
     align-items: center;
     justify-content: center;
     margin-right: auto;
-    color: var(--simple-primary-text);
+    color: var(--primary-text);
     height: @size-20;
     min-height: @size-20;
     max-height: @size-20;
@@ -733,13 +737,13 @@ button.FlipContent {
       margin-right: @size-4;
 
       > path {
-        fill: var(--simple-primary-text);
+        fill: var(--primary-text);
       }
     }
   }
 
   > button {
-    .SimpleBorder;
+    .ThemeBorder;
     .text-10-semi-bold;
 
     background: transparent;
@@ -752,11 +756,12 @@ button.FlipContent {
     justify-content: center;
     text-transform: uppercase;
     cursor: pointer;
+    color: var(--primary-text);
 
     &:hover:not(:disabled) {
-      border-color: var(--simple-primary-text);
-      background: var(--simple-primary-text);
-      color: var(--simple-light-bg);
+      border-color: var(--primary-text);
+      background: var(--primary-text);
+      color: var(--primary-bg);
     }
 
     &:disabled {
@@ -766,15 +771,15 @@ button.FlipContent {
 
   &.Positive {
     > button {
-      background: rgba(var(--simple-success-rgb), 0.15);
-      border-color: var(--simple-success);
+      background: rgba(var(--success-rgb), 0.15);
+      border-color: var(--success);
     }
   }
 
   &.Negative {
     > button {
-      background: rgba(var(--simple-failed-rgb), 0.15);
-      border-color: var(--simple-failed);
+      background: rgba(var(--failed-rgb), 0.15);
+      border-color: var(--failed);
     }
   }
 }

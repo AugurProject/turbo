@@ -12,13 +12,13 @@ const COINS: { [index: string]: { name: string; decimals: number; priceFeedUrl: 
 };
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
-  const { coinIndex, creationPrice } = marketData;
+  const { coinIndex, creationPrice, endTime } = marketData;
   const { endTimestamp } = market;
-  const tokenIndes = new BN(String(coinIndex)).toNumber();
-  const coinInfo = COINS[String(tokenIndes)];
+  const tokenInds = new BN(String(coinIndex)).toNumber();
+  const coinInfo = COINS[String(tokenInds)];
   const displayPrice = new BN(String(creationPrice)).div(new BN(10).pow(Number(coinInfo.decimals))); //.decimalPlaces(0, 1);
   const tokenPrice = formatCashPrice(displayPrice, "USDC", { decimals: coinInfo.decimals });
-  const eventId = `${tokenIndes}-${creationPrice}-${endTimestamp}`;
+  const eventId = `${tokenInds}-${creationPrice}-${endTimestamp || endTime}`;
 
   const categories = [CRYPTO, coinInfo.name, ""];
 
@@ -35,7 +35,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     eventId,
     price: tokenPrice.full,
     startTimestamp: null,
-    coinIndex: String(tokenIndes),
+    coinIndex: String(tokenInds),
   };
 };
 
@@ -49,7 +49,7 @@ export const getResolutionRules = (market: MarketInfo): string[] => {
   return resolutionRules(market?.coinIndex, market?.price, market?.endTimestamp);
 };
 
-const decodeOutcomes = (market: MarketInfo, shareTokens: string[]) => {
+const decodeOutcomes = (market: MarketInfo, shareTokens: string[] = []) => {
   return shareTokens.map((shareToken, i) => {
     return {
       id: i,

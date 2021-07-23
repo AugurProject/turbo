@@ -1,5 +1,5 @@
 import ApolloClient from "apollo-boost";
-import { GET_MARKETS, GET_BLOCK, CASH_TOKEN_DATA, CurrentMarket_fields } from "./queries";
+import { GET_MARKETS, GET_BLOCK, GET_LATEST_BLOCK } from "./queries";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Cash } from "../types";
@@ -43,43 +43,27 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
-export async function getMarketsData(updateHeartbeat) {
-  const cashes = getCashesInfo();
+export async function getMarketsData() {
   const clientConfig = getClientConfig();
   let response = null;
-  let responseUsd = null;
   let block = null;
   try {
-    block = await getPastDayBlockNumber(clientConfig.blockClient);
-    response = await augurV2Client(clientConfig.augurClient).query({
-      query: GET_MARKETS(block),
-      variables: {
-        block: {
-          number: block,
-        },
-      },
+    block = await getCurrentBlockNumber(clientConfig.blockClient);
+    response = await augurV2Client(clientConfig.turboClient).query({
+      query: GET_MARKETS,
     });
-    responseUsd = await getCashTokenData(cashes);
   } catch (e) {
     console.error(e);
-    updateHeartbeat(null, null, e);
+    return { data: null, block: null, errors: e };
   }
 
-  if (!responseUsd) return updateHeartbeat(null, null, "Data could not be retreived");
   if (response) {
     if (response.errors) {
       console.error(JSON.stringify(response.errors, null, 1));
     }
-
-    updateHeartbeat(
-      {
-        ...response.data,
-        cashes: responseUsd,
-      },
-      block,
-      response?.errors
-    );
+    return { data: response.data, block, errors: response?.errors };
   }
+  return { data: null, block: null, errors: null };
 }
 
 export async function searchMarkets(searchString, cb) {
@@ -105,35 +89,6 @@ export async function searchMarkets(searchString, cb) {
     }
     if (response?.data?.marketSearch) cb(null, [...response.data.marketSearch?.map((market) => market.id)]);
     else cb(null, []);
-  }
-}
-
-export async function getTransactions(cb) {
-  const clientConfig = getClientConfig();
-  let response = null;
-  try {
-    response = await augurV2Client(clientConfig.turboClient).query({
-      query: CurrentMarket_fields,
-    });
-  } catch (e) {
-    cb({});
-    console.error(e);
-  }
-
-  if (response) {
-    if (response.errors) {
-      console.error(JSON.stringify(response.errors, null, 1));
-    }
-    if (response?.data?.markets) {
-      const processed = response.data.markets.reduce((acc, item) => {
-        let update = acc;
-        update[item.id] = item;
-        return update;
-      }, {});
-      cb(processed);
-    } else {
-      cb({});
-    }
   }
 }
 
@@ -176,7 +131,7 @@ export async function getAllTransactions(account = "0x0", cb) {
       const processedSenders =
         response?.data?.senders?.length > 0
           ? { ...response.data.senders[0], userAddress: account }
-          : { claimedProceeds: [], claimedFees: [], userAddress: account };
+          : { claimedProceeds: [], claimedFees: [], positionBalance: [], userAddress: account };
       cb({ ...processedMarkets, ...processedSenders });
     }
   }
@@ -205,29 +160,12 @@ export async function getBlockFromTimestamp(timestamp, url) {
   return result ? result?.data?.blocks?.[0]?.number : 0;
 }
 
-const getCashTokenData = async (cashes: Cash[]): Promise<{ [address: string]: Cash }> => {
-  const bulkResults = await Promise.all(
-    cashes.map(async (cash) => {
-      let usdPrice = await client.query({
-        query: CASH_TOKEN_DATA,
-        variables: {
-          tokenAddr: cash?.address,
-        },
-        fetchPolicy: "cache-first",
-      });
-      let tokenData = { usdPrice: usdPrice?.data?.tokenDayDatas[0], ...cash };
-      if (!tokenData.usdPrice) {
-        // TODO: remove this, used only form kovan testing
-        tokenData = {
-          ...cash,
-          usdPrice: cash?.name === ETH ? "1300" : "1",
-        };
-      }
-      return tokenData;
-    })
-  );
-  return (bulkResults || []).reduce((p, a) => ({ ...p, [a.address]: a }), {});
-};
+export async function getCurrentBlockNumber(url) {
+  const result = await blockClient(url).query({
+    query: GET_LATEST_BLOCK,
+  });
+  return result ? result?.data?.blocks?.[0]?.number : 0;
+}
 
 // https://thegraph.com/explorer/subgraph/augurproject/augur-v2-staging
 // kovan playground
@@ -247,50 +185,19 @@ const getClientConfig = (): { augurClient: string; blockClient: string; turboCli
     },
     "80001": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",
-      blockClient: "",
+      blockClient: "https://api.thegraph.com/subgraphs/name/x0swapsubgraph/matic-blocks", // didn't find a block for mumbai, using matic
       turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-mumbai",
       network: "mumbai",
     },
     "137": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",
-      blockClient: "",
+      blockClient: "https://api.thegraph.com/subgraphs/name/x0swapsubgraph/matic-blocks",
       turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-matic",
       network: "matic",
     },
   };
   return clientConfig[Number(networkId)];
 };
-
-// const paraCashes = {
-//   "1": {
-//     networkId: "1",
-//     Cashes: [
-//       {
-//         name: "ETH",
-//         displayDecimals: 4,
-//       },
-//       {
-//         name: "USDC",
-//         displayDecimals: 2,
-//       },
-//     ],
-//     network: "mainnet",
-//   },
-//   "42": {
-//     networkId: "42",
-//     Cashes: [
-//       {
-//         name: "ETH",
-//         displayDecimals: 4,
-//       },
-//       {
-//         name: "USDC",
-//         displayDecimals: 2,
-//       },
-//     ],
-//     network: "kovan",
-//   },
-// };
 
 const getCashesInfo = (): Cash[] => {
   // this prob wont be used
