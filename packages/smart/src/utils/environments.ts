@@ -2,34 +2,41 @@ import fs from "fs";
 import { addresses as originalAddresses, Addresses, ChainId, graphChainNames, MarketFactory } from "../../addresses";
 
 interface EnvironmentMarketFactory extends MarketFactory {
-  ammFactoryGraphName?: string;
+  ammFactoryGraphName: string;
   marketFactoryGraphName: string;
 }
 
 interface EnvironmentAddresses extends Addresses {
   [index: string]: any;
   marketFactories: EnvironmentMarketFactory[];
-  teamSportsMarketFactories: EnvironmentMarketFactory[];
-  mmaMarketFactories: EnvironmentMarketFactory[];
-  cryptoMarketFactories: EnvironmentMarketFactory[];
+  teamSportsMarketFactoriesV1: EnvironmentMarketFactory[];
+  teamSportsMarketFactoriesV2: EnvironmentMarketFactory[];
+  mmaMarketFactoriesV1: EnvironmentMarketFactory[];
+  mmaMarketFactoriesV2: EnvironmentMarketFactory[];
+  cryptoMarketFactoriesV1: EnvironmentMarketFactory[];
+  cryptoMarketFactoriesV2: EnvironmentMarketFactory[];
 }
 
 const marketFactoryTypes: {
-  [index: string]: string | null;
+  [index: string]: string;
 } = {
-  SportsLink: "teamSportsMarketFactories",
-  MMALink: "mmaMarketFactories",
-  Crypto: "cryptoMarketFactories",
-  Trusted: null,
+  SportsLinkV1: "teamSportsMarketFactoriesV1",
+  SportsLinkV2: "teamSportsMarketFactoriesV2",
+  MMALinkV1: "mmaMarketFactoriesV1",
+  MMALinkV2: "mmaMarketFactoriesV2",
+  CryptoV1: "cryptoMarketFactoriesV1",
+  CryptoV2: "cryptoMarketFactoriesV2",
 };
 
 const marketFactoryGraphNames: {
-  [index: string]: string | null;
+  [index: string]: string;
 } = {
-  SportsLink: "SportsLinkMarketFactory",
-  MMALink: "MmaMarketFactory",
-  Crypto: "CryptoMarketFactory",
-  Trusted: null,
+  SportsLinkV1: "SportsLinkMarketFactoryV1",
+  SportsLinkV2: "SportsLinkMarketFactoryV2",
+  MMALinkV1: "MmaMarketFactoryV1",
+  MMALinkV2: "MmaMarketFactoryV2",
+  CryptoV1: "CryptoMarketFactoryV1",
+  CryptoV2: "CryptoMarketFactoryV2",
 };
 
 function generateJsonEnvironments() {
@@ -37,38 +44,54 @@ function generateJsonEnvironments() {
   fs.mkdirSync("environments", { recursive: true });
   for (let i = 0; i < networks.length; i++) {
     const key = Number(networks[i]) as ChainId;
-    const addresses = originalAddresses[key] as EnvironmentAddresses;
-    addresses.cryptoMarketFactories = [];
-    for (let j = 0; j < addresses?.marketFactories.length; j++) {
-      addresses.marketFactories[j].ammFactoryGraphName = j === 0 ? "AmmFactory" : `AmmFactory${j + 1}`;
-      addresses.marketFactories[j].marketFactoryGraphName =
-        j === 0 ? "AbstractMarketFactory" : `AbstractMarketFactory${j + 1}`;
-
-      const marketFactoryType = addresses.marketFactories[j].type;
-      const hasMarketFactoryType = Object.prototype.hasOwnProperty.call(marketFactoryTypes, marketFactoryType);
-      const marketFactoryTypeName = hasMarketFactoryType ? marketFactoryTypes[marketFactoryType] : null;
-      if (marketFactoryTypeName) {
-        if (!addresses[marketFactoryTypeName]) {
-          addresses[marketFactoryTypeName] = [];
+    let addresses = originalAddresses[key] as EnvironmentAddresses;
+    addresses.marketFactories = addresses.marketFactories.map((marketFactory, index) => ({
+      ...marketFactory,
+      ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
+      marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`
+    }));
+    let v1abstractMarketFactories = addresses.marketFactories
+      .filter(({ subtype }) => subtype === "V1")
+      .map((marketFactory, index) => ({
+        ...marketFactory,
+        marketFactoryGraphName: index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index
+      }));
+    let v2abstractMarketFactories = addresses.marketFactories
+      .filter(({ subtype }) => subtype === "V2")
+      .map((marketFactory, index) => ({
+        ...marketFactory,
+        marketFactoryGraphName: index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index
+      }));
+    addresses.marketFactories = [
+      ...v1abstractMarketFactories,
+      ...v2abstractMarketFactories
+    ];
+    let specificMarketFactories: {
+      [key: string]: EnvironmentMarketFactory[];
+    } = {};
+    addresses.marketFactories.forEach(marketFactory => {
+      let marketFactoryType = marketFactory.type + marketFactory.subtype;
+      let marketFactoryName = marketFactoryTypes[marketFactoryType];
+      let marketFactoryGraphName = marketFactoryGraphNames[marketFactoryType];
+      if (marketFactoryName) {
+        if (!specificMarketFactories[marketFactoryName]) {
+          specificMarketFactories[marketFactoryName] = [];
         }
-
-        const specificFactory = { ...addresses.marketFactories[j] };
-        delete specificFactory.ammFactoryGraphName;
-
-        const hasMarketFactoryGraphName = Object.prototype.hasOwnProperty.call(
-          marketFactoryGraphNames,
-          marketFactoryType
-        );
-        const marketFactoryGraphName = hasMarketFactoryGraphName ? marketFactoryGraphNames[marketFactoryType] : null;
-
-        if (marketFactoryGraphName) {
-          specificFactory.marketFactoryGraphName =
-            addresses[marketFactoryTypeName].length === 0
-              ? marketFactoryGraphName
-              : `${marketFactoryGraphName}${j + 1}`;
-          addresses[marketFactoryTypeName].push(specificFactory);
-        }
+        specificMarketFactories[marketFactoryName].push({
+          ...marketFactory,
+          marketFactoryGraphName: marketFactoryGraphName
+        })
       }
+    });
+    Object.keys(specificMarketFactories).forEach(key => {
+      specificMarketFactories[key] = specificMarketFactories[key].map((marketFactory, index) => ({
+        ...marketFactory,
+        marketFactoryGraphName: index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index
+      }))
+    });
+    addresses = {
+      ...addresses,
+      ...specificMarketFactories
     }
     const file = JSON.stringify(addresses);
     fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);

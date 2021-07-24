@@ -5,7 +5,7 @@ import {
   MarketCreated,
   MarketResolved,
   SportsLinkMarketFactory as SportsLinkMarketFactoryContract
-} from "../../generated/SportsLinkMarketFactory/SportsLinkMarketFactory";
+} from "../../generated/SportsLinkMarketFactoryV1/SportsLinkMarketFactory";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
   let contract = SportsLinkMarketFactoryContract.bind(contractAddress);

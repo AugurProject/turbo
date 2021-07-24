@@ -5,7 +5,7 @@ import {
   MarketCreated,
   MarketResolved,
   MmaMarketFactory as MmaMarketFactoryContract
-} from "../../generated/MmaMarketFactory/MmaMarketFactory";
+} from "../../generated/MmaMarketFactoryV2/MmaMarketFactory";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
   let contract = MmaMarketFactoryContract.bind(contractAddress);

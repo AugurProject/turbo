@@ -1,8 +1,8 @@
-import { SettlementFeeClaimed, WinningsClaimed } from "../../generated/AbstractMarketFactory/AbstractMarketFactory";
+import { SettlementFeeClaimed, WinningsClaimed } from "../../generated/AbstractMarketFactoryV2/AbstractMarketFactory";
 import { bigIntToHexString } from "../utils";
 import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
-import { handlePositionFromClaimWinningsEvent } from "../helpers/CommonHandlers";
+import { handlePositionFromClaimWinningsEventV2 } from "../helpers/CommonHandlers";
 
 export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -21,7 +21,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
 
-  handlePositionFromClaimWinningsEvent(event);
+  handlePositionFromClaimWinningsEventV2(event);
 
   entity.save();
 }
