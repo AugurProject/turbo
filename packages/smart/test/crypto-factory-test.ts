@@ -351,6 +351,27 @@ describe("CryptoFactory", () => {
       expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(5);
     });
   });
+
+  describe("resolution failures", () => {
+    it("won't resolve if the given round isn't the earliest after nextResolutionTime", async () => {
+      ethPrice = 2500;
+      btcPrice = 55000;
+      currentRound = currentRound.nextRound();
+      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(1));
+      currentRound = currentRound.nextRound();
+      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(2));
+
+      nextResolutionTime = nextResolutionTime.add(cadence);
+      await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+
+      nextResolutionTime = nextResolutionTime.add(cadence);
+      await expect(
+        marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime)
+      ).to.eventually.be.rejectedWith(
+        "VM Exception while processing transaction: revert Must use first round after resolution time"
+      );
+    });
+  });
 });
 
 class FeedManagement {
