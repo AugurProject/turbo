@@ -108,9 +108,6 @@ export const ApproveButton = (props: ButtonProps) => (
 export const WalletButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.WalletButton, props.className)} />
 );
-export const TextButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.TextButton, props.className)} />
-);
 
 export const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
 
@@ -288,7 +285,7 @@ export const BaseThemeButton = ({
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
         [Styles.Selected]: selected,
-        [Styles.IconOnly]: !text && !subText
+        [Styles.IconOnly]: !text && !subText,
       },
       customClass
     ),
