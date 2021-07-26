@@ -143,33 +143,6 @@
   }
 }
 
-.ApproveButton {
-  .Button;
-  .text-20-bold;
-
-  color: var(--color-brand-secondary);
-  background-color: var(--primary-text);
-  border: @size-1 solid var(--theme-border);
-  min-height: @size-68;
-  height: @size-68;
-  max-height: @size-68;
-
-  &:not(:disabled):not(.Disabled):focus {
-    .Focused;
-
-    background-color: var(--primary-text);
-  }
-
-  &:not(:disabled):not(.Disabled):active {
-    background-color: var(--tertiary-bg);
-  }
-}
-
-.Approval button {
-  margin-top: @size-16;
-  width: 100%;
-}
-
 .BaseNormalButton {
   .text-default;
 

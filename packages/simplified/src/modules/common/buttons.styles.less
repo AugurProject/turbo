@@ -49,6 +49,30 @@
   }
 }
 
+.ApproveButton {
+  color: var(--inverted-primary-text);
+  background-color: var(--primary-text);
+  border: @size-1 solid var(--theme-border);
+  min-height: @size-68;
+  height: @size-68;
+  max-height: @size-68;
+
+  > span {
+    .text-20-bold;
+  }
+
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    .Focused;
+
+    background-color: var(--primary-text);
+  }
+
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--tertiary-bg);
+  }
+}
+
 .Focused {
   &:not(:disabled):not(.Disabled) {
     &:focus {
