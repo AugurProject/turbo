@@ -1527,8 +1527,8 @@ const setIgnoreRemoveMarketList = (
   Object.values(filteredMarkets)
     .filter((m) => m.hasWinner)
     .forEach((m) => addToIgnoreList(ignoreList, m.marketFactoryAddress, [m.turboId]));
-  console.log("filteredMarkets", filteredMarkets);
-  return filteredMarkets;
+
+    return filteredMarkets;
 };
 
 export const getFactoryMarketInfo = async (
