@@ -276,13 +276,6 @@ const MarketsView = () => {
           options={marketStatusItems}
           defaultValue={reportingState}
         />
-        {/* <SquareDropdown
-          onChange={(value) => {
-            updateMarketsViewSettings({ currency: value });
-          }}
-          options={currencyItems}
-          defaultValue={currency}
-        /> */}
         <SearchButton
           selected={showFilter}
           action={() => {

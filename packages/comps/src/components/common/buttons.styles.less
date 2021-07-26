@@ -259,55 +259,6 @@
   }
 }
 
-.ExternalLinkButton {
-  .text-10-semi-bold;
-
-  color: var(--primary-text);
-  border: 0;
-  background: transparent;
-  text-transform: uppercase;
-  display: inline-flex;
-
-  > svg {
-    margin-left: @size-4;
-    height: @size-10;
-    width: @size-10;
-    margin-top: auto;
-    margin-bottom: auto;
-
-    > path {
-      &:nth-child(odd) {
-        fill: var(--primary-text);
-        stroke: none;
-      }
-
-      &:nth-child(even) {
-        stroke: var(--primary-text);
-      }
-    }
-  }
-
-  &:hover {
-    color: var(--secondary-text);
-
-    > a {
-      color: var(--secondary-text);
-    }
-
-    > svg {
-      > path {
-        &:nth-child(odd) {
-          fill: var(--secondary-text);
-        }
-
-        &:nth-child(even) {
-          stroke: var(--secondary-text);
-        }
-      }
-    }
-  }
-}
-
 .ThemeButtonRadius {
   border-radius: var(--theme-button-border-radius);
 }
@@ -392,6 +343,12 @@
     > svg {
       height: var(--tiny-button-svg-height);
       width: var(--tiny-button-svg-width);
+    }
+  }
+
+  &.IconOnly {
+    > svg {
+      margin: 0;
     }
   }
 }

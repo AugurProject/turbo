@@ -1,7 +1,7 @@
 import React, { ReactNode, useState, useCallback, useEffect } from "react";
 import Styles from "./buttons.styles.less";
 import classNames from "classnames";
-import { Arrow, SearchIcon, ViewIcon } from "./icons";
+import { SearchIcon } from "./icons";
 import { Spinner } from "./spinner";
 import { ApprovalAction, ApprovalState } from "../../utils/constants";
 import { AmmExchange, Cash } from "../../types";
@@ -218,7 +218,7 @@ export const ApprovalButton = ({
 };
 
 export const SearchButton = (props) => (
-  <Button {...props} icon={SearchIcon} className={classNames(Styles.SearchButton, props.className)} />
+  <SecondaryThemeButton {...props} icon={SearchIcon} customClass={classNames(Styles.SearchButton, props.className)} />
 );
 
 export enum BUTTON_TYPES {
@@ -288,6 +288,7 @@ export const BaseThemeButton = ({
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
         [Styles.Selected]: selected,
+        [Styles.IconOnly]: !text && !subText
       },
       customClass
     ),
