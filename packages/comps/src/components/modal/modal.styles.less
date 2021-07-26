@@ -12,8 +12,8 @@
 
   > div {
     .ThemeBorder;
+    .TertiaryBorderRadius;
 
-    border-radius: @size-16;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -187,9 +187,8 @@
 
 .Header {
   .text-20-bold;
+  .TertiaryTopBorderRadius;
 
-  border-top-left-radius: @size-16;
-  border-top-right-radius: @size-16;
   display: flex;
   align-items: center;
   flex: 1;
@@ -261,15 +260,13 @@
 
 .FooterText {
   .text-14;
+  .TertiaryBottomBorderRadius;
 
   color: var(--primary-text);
   padding: @size-24;
   background-color: var(--secondary-bg);
   border-top: @size-1 solid var(--theme-border);
   line-height: @size-22;
-  border-radius: @size-16;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
   margin-top: @size-24;
 
   > span:first-of-type {
@@ -304,6 +301,52 @@
   cursor: pointer;
 }
 
+.WalletButton {
+  .text-16-bold;
+  .ThemeBorder;
+  .TertiaryBorderRadius;
+
+  color: var(--primary-text);
+  min-height: @size-56;
+  height: @size-56;
+  max-height: @size-56;
+  padding: 0 @size-24;
+  background-color: var(--primary-bg);
+  justify-content: space-between;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  text-transform: capitalize;
+
+  > img {
+    max-height: @size-24;
+  }
+
+  &:not(:disabled):not(.Disabled) {
+    &:hover {
+      border: @size-1 solid var(--secondary-text);
+    }
+
+    &:active,
+    &.Selected {
+      padding: 0 @size-24 0 @size-28;
+      border: @size-1 solid var(--color-brand);
+      position: relative;
+
+      &:before {
+        content: "";
+        position: absolute;
+        left: @size-12;
+        width: @size-8;
+        height: @size-8;
+        border-radius: 50%;
+        background-color: var(--color-brand);
+      }
+    }
+  }
+}
+
 .ModalConnectWallet {
   padding: @size-24 @size-16;
   max-width: @size-420;
@@ -316,8 +359,14 @@
   > ul {
     margin-bottom: @size-16;
 
-    > li:not(:last-of-type) {
-      margin-bottom: @size-8;
+    > li {
+      > button {
+        .WalletButton;
+      }
+
+      &:not(:last-of-type) {
+        margin-bottom: @size-8;
+      }
     }
   }
 
@@ -337,6 +386,8 @@
 
   > .PendingWalletView {
     > button {
+      .WalletButton;
+
       margin-top: @size-16;
       pointer-events: none;
       cursor: none;

@@ -6,7 +6,7 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
 import classNames from "classnames";
-import { SecondaryThemeButton, WalletButton } from "../common/buttons";
+import { SecondaryThemeButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
@@ -40,7 +40,7 @@ const WalletList = ({ walletList }) => (
   <ul>
     {walletList.map((wallet) => (
       <li key={wallet.key}>
-        <WalletButton {...wallet} />
+        <SecondaryThemeButton {...wallet} />
       </li>
     ))}
   </ul>
@@ -94,7 +94,7 @@ const PendingWalletView = ({
           }
 
           return (
-            <WalletButton
+            <SecondaryThemeButton
               id={`connect-${key}`}
               key={key}
               text={wallet.name}

@@ -193,46 +193,6 @@
   width: 100%;
 }
 
-.WalletButton {
-  .Button;
-
-  width: 100%;
-  min-height: @size-56;
-  height: @size-56;
-  max-height: @size-56;
-  padding: 0 @size-24;
-  border-radius: @size-16;
-  background-color: var(--color-brand-secondary);
-  justify-content: space-between;
-
-  > img {
-    max-height: @size-24;
-  }
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      border: @size-1 solid var(--secondary-text);
-    }
-
-    &:active,
-    &.Selected {
-      padding: 0 @size-24 0 @size-28;
-      border: @size-1 solid var(--color-brand);
-      position: relative;
-
-      &:before {
-        content: "";
-        position: absolute;
-        left: @size-12;
-        width: @size-8;
-        height: @size-8;
-        border-radius: 50%;
-        background-color: var(--color-brand);
-      }
-    }
-  }
-}
-
 .SearchButton {
   .ThemeBorder;
 
@@ -594,7 +554,7 @@
 
       &:before {
         background: linear-gradient(0deg, transparent 50%, var(transparent) 100%) 0% 0%,
-          linear-gradient(90deg, rgba(var(--primary-bg-rgb), 0.50) 0%, rgba(var(--primary-bg-rgb), 0.75) 100%) 100% 0%,
+          linear-gradient(90deg, rgba(var(--primary-bg-rgb), 0.5) 0%, rgba(var(--primary-bg-rgb), 0.75) 100%) 100% 0%,
           linear-gradient(180deg, rgba(var(--primary-bg-rgb), 0.75) 0%, var(--primary-bg) 100%) 100% 100%,
           linear-gradient(270deg, var(--primary-bg) 0%, var(--primary-bg) 100%) 0% 100%;
       }
@@ -629,7 +589,6 @@
             background: var(--primary-bg);
           }
         }
-
       }
 
       &:focus-within {

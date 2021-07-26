@@ -105,9 +105,6 @@ export const BuySellButton = (props: ButtonProps) => (
 export const ApproveButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.ApproveButton, props.className)} />
 );
-export const WalletButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.WalletButton, props.className)} />
-);
 
 export const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
 
