@@ -105,29 +105,6 @@
   }
 }
 
-.TinyTransparentButton {
-  .TinyButton;
-
-  background-color: transparent;
-  border: @size-1 solid var(--theme-border);
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      background-color: var(--tertiary-bg);
-    }
-
-    &:focus {
-      background-color: transparent;
-    }
-
-    &:active,
-    &.Selected {
-      background-color: var(--tertiary-bg);
-      border: @size-1 solid var(--secondary-text);
-    }
-  }
-}
-
 .BuySellButton {
   .Button;
   .text-20-bold;
@@ -191,20 +168,6 @@
 .Approval button {
   margin-top: @size-16;
   width: 100%;
-}
-
-.SearchButton {
-  .ThemeBorder;
-
-  padding: @size-12 @size-16;
-
-  &.Selected {
-    background: var(--tertiary-bg);
-  }
-}
-
-.ThemeButtonRadius {
-  border-radius: var(--theme-button-border-radius);
 }
 
 .BaseNormalButton {

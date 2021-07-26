@@ -13,7 +13,7 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
-  ContractCalls
+  ContractCalls,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 
@@ -21,8 +21,8 @@ import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryThemeButton },
-  Icons: { FilterIcon },
+  ButtonComps: { SecondaryThemeButton },
+  Icons: { FilterIcon, SearchIcon },
   MarketCardComps: { LoadingMarketCard, MarketCard },
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
@@ -164,6 +164,10 @@ const applyFiltersAndSort = (
   const scheduled = updatedFilteredMarkets.filter((m) => !isExpired(m));
   setFilteredMarkets([...scheduled, ...expired]);
 };
+
+const SearchButton = (props) => (
+  <SecondaryThemeButton {...{ ...props, icon: SearchIcon, customClass: Styles.SearchButton }} />
+);
 
 const MarketsView = () => {
   const {
@@ -399,4 +403,3 @@ export const SubCategoriesFilter = () => {
     </div>
   );
 };
-

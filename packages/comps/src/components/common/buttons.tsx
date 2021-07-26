@@ -1,7 +1,6 @@
 import React, { ReactNode, useState, useCallback, useEffect } from "react";
 import Styles from "./buttons.styles.less";
 import classNames from "classnames";
-import { SearchIcon } from "./icons";
 import { Spinner } from "./spinner";
 import { ApprovalAction, ApprovalState } from "../../utils/constants";
 import { AmmExchange, Cash } from "../../types";
@@ -210,10 +209,6 @@ export const ApprovalButton = ({
     />
   );
 };
-
-export const SearchButton = (props) => (
-  <SecondaryThemeButton {...props} icon={SearchIcon} customClass={classNames(Styles.SearchButton, props.className)} />
-);
 
 export enum BUTTON_TYPES {
   PRIMARY = "Primary",
