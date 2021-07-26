@@ -1492,9 +1492,10 @@ const setIgnoreRemoveMarketList = (
   );
 
   // <Removal> MLB spread and over/under
+  // <Removal> for sportsbook removing crypto
   const ignoredSportsMarkets =
     loadtype === MARKET_LOAD_TYPE.SPORT
-      ? []
+      ? Object.values(allMarkets).filter(({ marketFactoryType }) => marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO)
       : Object.values(allMarkets).filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType));
 
   // <Removal> same eventIds, market with liquidity wins
@@ -1740,6 +1741,7 @@ export const fillGraphMarketsData = async (
         provider,
         account,
         GRAPH_MARKETS[key],
+        ignoreList,
         blocknumber
       );
       marketInfos = { ...marketInfos, ...filledMarkets };
@@ -1749,6 +1751,7 @@ export const fillGraphMarketsData = async (
   if (Object.keys(ignoreList).length === 0) {
     marketInfos = setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
   }
+  
   exchanges = Object.values(marketInfos).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
@@ -1759,11 +1762,13 @@ const fillMarketsData = async (
   provider: Web3Provider,
   account: string,
   marketFactoryType: string,
+  ignoreList: { [factory: string]: number[] },
   blocknumber
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number }> => {
   if (!markets || markets?.length === 0) return { markets: {}, ammExchanges: {}, blocknumber };
   const POOLS = "pools";
   const marketFactories = Array.from(new Set(Object.values(markets).map((m) => m.marketFactoryAddress)));
+  const filteredMarkets = markets.filter((m) => !(ignoreList[m.marketFactoryAddress.toUpperCase()] || []).includes(m.turboId));
   const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
     const marketFactoryData = getMarketFactoryData(factoryAddress);
     if (!marketFactoryData) return p;
@@ -1771,8 +1776,7 @@ const fillMarketsData = async (
     const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
     const ammFactoryAddress = ammFactoryContract.address;
     const ammFactoryAbi = extractABI(ammFactoryContract);
-
-    const calls: ContractCallContext[] = markets
+    const calls: ContractCallContext[] = filteredMarkets
       .filter((m) => m.marketFactoryAddress === factoryAddress)
       .map(({ turboId, marketFactoryAddress }) => ({
         reference: `${ammFactoryAddress}-${turboId}-pools`,
@@ -1824,8 +1828,8 @@ const fillMarketsData = async (
   }
 
   let marketInfos: MarketInfos = {};
-  if (markets.length > 0) {
-    markets.forEach((m) => {
+  if (filteredMarkets.length > 0) {
+    filteredMarkets.forEach((m) => {
       const marketFactoryData = getMarketFactoryData(m.marketFactoryAddress);
       if (marketFactoryData) {
         const market = {

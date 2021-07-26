@@ -13,6 +13,7 @@ import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { AppStatusStore } from "./app-status";
+import { MARKET_LOAD_TYPE } from "../utils/constants";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -25,7 +26,7 @@ export const DataStore = {
   actions: STUBBED_DATA_ACTIONS,
 };
 
-export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
+export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account } = useUserStore();
