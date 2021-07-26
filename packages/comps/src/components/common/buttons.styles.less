@@ -180,6 +180,10 @@
     box-shadow: var(--theme-focus-box-shadow);
   }
 
+  &.NoHighlight:not(:disabled):not(:active):focus-within {
+    box-shadow: none;
+  }
+
   &:disabled {
     opacity: var(--button-disabled-opacity);
     cursor: not-allowed;

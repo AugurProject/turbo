@@ -91,9 +91,6 @@ const Button = ({
   );
 };
 
-export const TinyButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
-);
 export const BuySellButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.BuySellButton, props.className)} />
 );
@@ -119,10 +116,12 @@ export interface BaseThemeButtonProps {
   invert?: boolean;
   reverseContent?: boolean;
   small?: boolean;
+  tiny?: boolean;
   ariaLabel?: string;
   href?: string;
   key?: string;
   selected?: boolean;
+  noHighlight?: boolean;
 }
 
 export const BaseThemeButton = ({
@@ -140,8 +139,10 @@ export const BaseThemeButton = ({
   invert = false,
   reverseContent = false,
   small = false,
+  tiny = false,
   ariaLabel,
   href = null,
+  noHighlight = false,
 }: BaseThemeButtonProps) => {
   const content = customContent ? (
     customContent
@@ -165,8 +166,10 @@ export const BaseThemeButton = ({
         [Styles.Inverted]: invert,
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
+        [Styles.Tiny]: tiny,
         [Styles.Selected]: selected,
         [Styles.IconOnly]: !text && !subText,
+        [Styles.NoHighlight]: noHighlight,
       },
       customClass
     ),
@@ -180,6 +183,10 @@ export const BaseThemeButton = ({
     <button {...{ ...props }}>{content}</button>
   );
 };
+
+export const TinyButton = (props: ButtonProps) => (
+  <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
+);
 
 export const PrimaryThemeButton = (props: BaseThemeButtonProps) => (
   <BaseThemeButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />

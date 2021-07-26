@@ -7,7 +7,7 @@ import ChevronFlip from "./chevron-flip";
 import { useSimplifiedStore } from "../stores/simplified";
 
 const { generateTooltip } = LabelComps;
-const { TinyButton } = ButtonComps;
+const { TinyThemeButton } = ButtonComps;
 
 export const Slippage = () => {
   const {
@@ -65,7 +65,7 @@ export const Slippage = () => {
       <ul>
         <div>
           <li>
-            <TinyButton
+            <TinyThemeButton
               text="0.5%"
               action={() => {
                 updateSettings({ slippage: "0.5" }, account);
@@ -73,11 +73,12 @@ export const Slippage = () => {
                 setError("");
               }}
               selected={isSelectedArray[0]}
-              className={ButtonStyles.TinyTransparentButton}
+              noHighlight
+              customClass={ButtonStyles.TinyTransparentButton}
             />
           </li>
           <li>
-            <TinyButton
+            <TinyThemeButton
               text="1%"
               action={() => {
                 updateSettings({ slippage: "1" }, account);
@@ -85,11 +86,12 @@ export const Slippage = () => {
                 setError("");
               }}
               selected={isSelectedArray[1]}
-              className={ButtonStyles.TinyTransparentButton}
+              noHighlight
+              customClass={ButtonStyles.TinyTransparentButton}
             />
           </li>
           <li>
-            <TinyButton
+            <TinyThemeButton
               text="2%"
               action={() => {
                 updateSettings({ slippage: "2" }, account);
@@ -97,11 +99,12 @@ export const Slippage = () => {
                 setError("");
               }}
               selected={isSelectedArray[2]}
-              className={ButtonStyles.TinyTransparentButton}
+              noHighlight
+              customClass={ButtonStyles.TinyTransparentButton}
             />
           </li>
           <li>
-            <TinyButton
+            <TinyThemeButton
               text="3%"
               action={() => {
                 updateSettings({ slippage: "3" }, account);
@@ -109,7 +112,8 @@ export const Slippage = () => {
                 setError("");
               }}
               selected={isSelectedArray[3]}
-              className={ButtonStyles.TinyTransparentButton}
+              noHighlight
+              customClass={ButtonStyles.TinyTransparentButton}
             />
           </li>
           <div
