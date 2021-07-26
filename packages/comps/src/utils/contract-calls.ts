@@ -1732,9 +1732,9 @@ export const fillGraphMarketsData = async (
   let newBlocknumber = 0;
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
-    const gMarkets = graphMarkets[key];
-    if (gMarkets.length > 0) {
-      const { markets: filledMarkets, blocknumber } = await fillMarketsData(
+    const gMarkets = graphMarkets?.[key];
+    if (gMarkets?.length > 0) {
+      const { markets: filledMarkets, blocknumber: updatedBlocknumber } = await fillMarketsData(
         gMarkets,
         cashes,
         provider,
@@ -1743,7 +1743,7 @@ export const fillGraphMarketsData = async (
         blocknumber
       );
       marketInfos = { ...marketInfos, ...filledMarkets };
-      newBlocknumber = blocknumber;
+      newBlocknumber = updatedBlocknumber;
     }
   }
   if (Object.keys(ignoreList).length === 0) {

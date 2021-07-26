@@ -13,6 +13,7 @@ import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
 import { getAllTransactions, getMarketsData } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { AppStatusStore } from "./app-status";
+import { MARKET_LOAD_TYPE } from "../utils/constants";
 
 export const DataContext = React.createContext({
   ...DEFAULT_DATA_STATE,
@@ -25,7 +26,7 @@ export const DataStore = {
   actions: STUBBED_DATA_ACTIONS,
 };
 
-export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
+export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children }: any) => {
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const { account } = useUserStore();
@@ -53,12 +54,24 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
       let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
       try {
         try {
-          const {data, block, errors} = await getMarketsData();
-          //console.log('GRAPH DATA', data, block, errors);
+          const { data, block, errors } = await getMarketsData();
+          // remove crypto data if sports.
+          if (loadType === MARKET_LOAD_TYPE.SPORT) {
+            delete data.cryptoMarkets;
+            delete data.resolved_cryptoMarkets;
+          }
           if (errors) {
             throw new Error(`Graph returned error ${errors}`);
           }
-          const infos = await fillGraphMarketsData(data, cashes, provider, account, Number(block), MARKET_IGNORE_LIST, loadType)
+          const infos = await fillGraphMarketsData(
+            data,
+            cashes,
+            provider,
+            account,
+            Number(block),
+            MARKET_IGNORE_LIST,
+            loadType
+          );
 
           // Throwing now until graph data can consistently pull all markets
           //throw new Error('Temporary Graph Failover');
@@ -66,7 +79,7 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
           return infos;
         } catch (e) {
           // failover use multicalls
-          console.log('failover to use multicall', e);
+          console.log("failover to use multicall", e);
           infos = await getMarketInfos(
             provider,
             dmarkets,
@@ -77,7 +90,6 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
             loadType,
             dblock
           );
-
         }
         if (isRpcDown) {
           AppStatusStore.actions.setIsRpcDown(false);
@@ -85,8 +97,8 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
         return infos;
       } catch (e) {
         if (e.data?.error?.details) {
-          if (e.data?.error?.details.toLowerCase().indexOf('rate limit') !== -1) {
-            if (e.data?.error?.data?.rate_violated.toLowerCase().indexOf('700 per 1 minute') !== -1) {
+          if (e.data?.error?.details.toLowerCase().indexOf("rate limit") !== -1) {
+            if (e.data?.error?.data?.rate_violated.toLowerCase().indexOf("700 per 1 minute") !== -1) {
               AppStatusStore.actions.setIsRpcDown(true);
             }
           }
@@ -97,10 +109,16 @@ export const DataProvider = ({ loadType = "SIMPLIFIED", children }: any) => {
     };
 
     getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-      isMounted && blocknumber && blocknumber > DataStore.get().blocknumber && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+      isMounted &&
+        blocknumber &&
+        blocknumber > DataStore.get().blocknumber &&
+        updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
       intervalId = setInterval(() => {
         getMarkets().then(({ markets, ammExchanges, blocknumber }) => {
-          isMounted && blocknumber && blocknumber > DataStore.get().blocknumber && updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
+          isMounted &&
+            blocknumber &&
+            blocknumber > DataStore.get().blocknumber &&
+            updateDataHeartbeat({ ammExchanges, cashes, markets }, blocknumber, null);
         });
       }, NETWORK_BLOCK_REFRESH_TIME[networkId]);
     });
