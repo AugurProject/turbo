@@ -1751,7 +1751,7 @@ export const fillGraphMarketsData = async (
   if (Object.keys(ignoreList).length === 0) {
     marketInfos = setIgnoreRemoveMarketList(marketInfos, ignoreList, loadtype);
   }
-  
+
   exchanges = Object.values(marketInfos).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
@@ -1768,7 +1768,9 @@ const fillMarketsData = async (
   if (!markets || markets?.length === 0) return { markets: {}, ammExchanges: {}, blocknumber };
   const POOLS = "pools";
   const marketFactories = Array.from(new Set(Object.values(markets).map((m) => m.marketFactoryAddress)));
-  const filteredMarkets = markets.filter((m) => !(ignoreList[m.marketFactoryAddress.toUpperCase()] || []).includes(m.turboId));
+  const filteredMarkets = markets.filter(
+    (m) => !(ignoreList[m.marketFactoryAddress.toUpperCase()] || []).includes(m.turboId)
+  );
   const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
     const marketFactoryData = getMarketFactoryData(factoryAddress);
     if (!marketFactoryData) return p;
