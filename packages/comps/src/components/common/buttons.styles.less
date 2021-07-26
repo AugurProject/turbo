@@ -128,31 +128,6 @@
   }
 }
 
-.DirectionButton {
-  align-items: center;
-  border: 0;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-
-  &.Left {
-    > svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  &:focus {
-    outline: 0;
-  }
-
-  &:disabled {
-    > svg > path {
-      stroke: var(--secondary-text);
-      fill: var(--secondary-text);
-    }
-  }
-}
-
 .BuySellButton {
   .Button;
   .text-20-bold;
@@ -404,10 +379,6 @@
       height: var(--small-button-svg-height);
       width: var(--small-button-svg-width);
     }
-
-    // &:not(:disabled):not(:active):focus-within {
-      // padding: var(--small-button-padding-focus);
-    // }
   }
 
   &.Tiny {
@@ -422,10 +393,6 @@
       height: var(--tiny-button-svg-height);
       width: var(--tiny-button-svg-width);
     }
-
-    // &:not(:disabled):not(:active):focus-within {
-    //   padding: var(--tiny-button-padding-focus);
-    // }
   }
 }
 

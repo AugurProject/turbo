@@ -96,7 +96,6 @@ const Button = ({
   );
 };
 
-
 export const TinyButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
 );
@@ -111,26 +110,6 @@ export const WalletButton = (props: ButtonProps) => (
 );
 export const TextButton = (props: ButtonProps) => (
   <Button {...props} className={classNames(Styles.TextButton, props.className)} />
-);
-
-export interface DirectionButtonProps {
-  action: Function;
-  disabled?: boolean;
-  title?: string;
-  left?: boolean;
-}
-
-export const DirectionButton = ({ action, disabled, title, left }: DirectionButtonProps) => (
-  <button
-    onClick={(e) => action(e)}
-    className={classNames(Styles.DirectionButton, {
-      [Styles.Left]: left,
-    })}
-    disabled={disabled}
-    title={title}
-  >
-    {Arrow}
-  </button>
 );
 
 export const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
@@ -242,22 +221,6 @@ export const SearchButton = (props) => (
   <Button {...props} icon={SearchIcon} className={classNames(Styles.SearchButton, props.className)} />
 );
 
-export interface ExternalLinkButtonProps {
-  label: string;
-  URL?: string;
-}
-
-export const ExternalLinkButton = ({ label, URL }: ExternalLinkButtonProps) => (
-  <button className={Styles.ExternalLinkButton}>
-    {URL && (
-      <a href={URL} target="_blank" rel="noopener noreferrer">
-        {label}
-      </a>
-    )}
-    {ViewIcon}
-  </button>
-);
-
 export enum BUTTON_TYPES {
   PRIMARY = "Primary",
   SECONDARY = "Secondary",
@@ -330,7 +293,13 @@ export const BaseThemeButton = ({
     ),
   };
 
-  return href ? <a target="_blank" {...{ ...props, href }}>{content}</a> : <button {...{ ...props }}>{content}</button>;
+  return href ? (
+    <a target="_blank" {...{ ...props, href }}>
+      {content}
+    </a>
+  ) : (
+    <button {...{ ...props }}>{content}</button>
+  );
 };
 
 export const PrimaryThemeButton = (props: BaseThemeButtonProps) => (
