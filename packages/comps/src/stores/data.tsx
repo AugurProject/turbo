@@ -55,11 +55,6 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       try {
         try {
           const { data, block, errors } = await getMarketsData();
-          // remove crypto data if sports.
-          if (loadType === MARKET_LOAD_TYPE.SPORT) {
-            delete data.cryptoMarkets;
-            delete data.resolved_cryptoMarkets;
-          }
           if (errors) {
             throw new Error(`Graph returned error ${errors}`);
           }

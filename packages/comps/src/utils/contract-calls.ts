@@ -1490,11 +1490,10 @@ const setIgnoreRemoveMarketList = (
   const zeroSpreadMarkets = Object.values(allMarkets).filter(
     (m) => m?.sportsMarketType === SPORTS_MARKET_TYPE.SPREAD && m?.spreadLine === 0 && m.amm.hasLiquidity === false
   );
-
-  // <Removal> MLB spread and over/under
+  // <Removal> MLB spread and over/under || non sportsbook markets
   const ignoredSportsMarkets =
     loadtype === MARKET_LOAD_TYPE.SPORT
-      ? []
+      ? Object.values(allMarkets).filter(({ marketFactoryType }) => marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO)
       : Object.values(allMarkets).filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType));
 
   // <Removal> same eventIds, market with liquidity wins
@@ -1528,7 +1527,7 @@ const setIgnoreRemoveMarketList = (
   Object.values(filteredMarkets)
     .filter((m) => m.hasWinner)
     .forEach((m) => addToIgnoreList(ignoreList, m.marketFactoryAddress, [m.turboId]));
-
+  console.log("filteredMarkets", filteredMarkets);
   return filteredMarkets;
 };
 
