@@ -2,9 +2,9 @@ import { useReducer } from "react";
 import { APP_STATUS_ACTIONS, MOCK_APP_STATUS_STATE, APP_STATE_KEYS } from "./constants";
 import { windowRef } from "../utils/window-ref";
 import { dispatchMiddleware } from "./utils";
-const { SET_IS_MOBILE, SET_MODAL, CLOSE_MODAL, SET_IS_LOGGED, SET_RPC_DOWN } = APP_STATUS_ACTIONS;
+const { SET_IS_MOBILE, SET_MODAL, CLOSE_MODAL, SET_IS_LOGGED, SET_RPC_DOWN, SET_DEGRADED } = APP_STATUS_ACTIONS;
 
-const { IS_MOBILE, MODAL, IS_LOGGED, IS_RPC_DOWN } = APP_STATE_KEYS;
+const { IS_MOBILE, MODAL, IS_LOGGED, IS_RPC_DOWN, IS_DEGRADED } = APP_STATE_KEYS;
 
 export function AppStatusReducer(state, action) {
   const updatedState = { ...state };
@@ -31,6 +31,11 @@ export function AppStatusReducer(state, action) {
       updatedState[IS_RPC_DOWN] = Boolean(isRpcDown);
       break;
     }
+    case SET_DEGRADED: {
+      const { isDegraded } = action;
+      updatedState[IS_DEGRADED] = Boolean(isDegraded);
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
@@ -51,6 +56,7 @@ export const useAppStatus = (defaultState = MOCK_APP_STATUS_STATE) => {
       closeModal: () => dispatch({ type: CLOSE_MODAL }),
       setIsLogged: (account) => dispatch({ type: SET_IS_LOGGED, account }),
       setIsRpcDown: (isRpcDown) => dispatch({ type: SET_RPC_DOWN, isRpcDown }),
+      setIsDegraded: (isDegraded) => dispatch({ type: SET_DEGRADED, isDegraded }),
     },
   };
 };

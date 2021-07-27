@@ -663,6 +663,7 @@ export interface AppStatusState {
   isMobile: boolean;
   isLogged: boolean;
   isRpcDown: boolean;
+  isDegraded: boolean;
   modal: Modal;
 }
 

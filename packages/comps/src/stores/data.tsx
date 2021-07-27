@@ -48,7 +48,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     let intervalId = null;
     const getMarkets = async () => {
       const { account: userAccount, loginAccount } = UserStore.get();
-      const { isRpcDown } = AppStatusStore.get();
+      const { isRpcDown, isDegraded } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
       const provider = loginAccount?.library || defaultProvider?.current;
       let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
@@ -71,9 +71,16 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
           // Throwing now until graph data can consistently pull all markets
           //throw new Error('Temporary Graph Failover');
 
+          if (isDegraded) {
+            AppStatusStore.actions.setIsDegraded(false);
+          }
           return infos;
         } catch (e) {
           // failover use multicalls
+          if (!isDegraded) {
+            AppStatusStore.actions.setIsDegraded(true);
+          }
+  
           console.log("failover to use multicall", e);
           infos = await getMarketInfos(
             provider,

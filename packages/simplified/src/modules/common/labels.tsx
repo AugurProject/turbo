@@ -131,7 +131,7 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
 
 export const NetworkMismatchBanner = () => {
   const { errors } = useDataStore();
-  const { isRpcDown } = useAppStatusStore();
+  const { isRpcDown, isDegraded } = useAppStatusStore();
   const { loginAccount, balances } = useUserStore();
   const { error } = useWeb3React();
   const { networkId } = PARA_CONFIG;
@@ -185,6 +185,13 @@ export const NetworkMismatchBanner = () => {
         >
           MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
       </article>}
+      {isDegraded && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          Degraded Service. Some data will be slow to load or unavailable.
+      </article>}      
     </>
   );
 };
