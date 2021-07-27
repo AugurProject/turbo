@@ -23,7 +23,6 @@ export interface BaseThemeButtonProps {
   invert?: boolean;
   reverseContent?: boolean;
   small?: boolean;
-  tiny?: boolean;
   ariaLabel?: string;
   href?: string;
   key?: string;
