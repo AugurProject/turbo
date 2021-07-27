@@ -73,6 +73,56 @@
   }
 }
 
+.BuySellButton {
+  border: @size-1 solid var(--theme-border);
+  background: var(--primary-text);
+  color: var(--inverted-primary-text);
+  min-height: @size-68;
+  height: @size-68;
+  max-height: @size-68;
+  flex-flow: column nowrap;
+  padding: 0 @size-16;
+
+  > span {
+    .text-20-bold;
+
+    text-transform: none;
+  }
+
+  &:hover {
+    background-color: rgba(var(--primary-text-rgb), 0.85);
+  }
+
+  &:disabled {
+    pointer-events: none;
+    background: var(--secondary-bg);
+    border: @size-1 solid var(--theme-border);
+    color: var(--secondary-text);
+    // purposeful override for specifically just this button for readability.
+    opacity: 1;
+  }
+
+  &.Error {
+    pointer-events: none;
+    color: var(--failed);
+    background: rgba(var(--failed-rgb), 0.15);
+    opacity: 1;
+    border: 0;
+  }
+
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    .Focused;
+
+    background-color: var(--primary-text);
+    color: var(--inverted-primary-text);
+  }
+
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--tertiary-bg);
+  }
+}
+
 .Focused {
   &:not(:disabled):not(.Disabled) {
     &:focus {

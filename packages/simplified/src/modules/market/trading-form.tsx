@@ -24,7 +24,7 @@ const {
   Icons: { CloseIcon },
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
-  ButtonComps: { BuySellButton, SecondaryThemeButton },
+  ButtonComps: { SecondaryThemeButton },
   BuySellToggleSwitch,
 } = Components;
 const { formatCash, formatCashPrice, formatPercent, formatSimpleShares } = Formatter;
@@ -421,12 +421,13 @@ const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
             }}
           />
         )}
-        <BuySellButton
+        <SecondaryThemeButton
           disabled={canMakeTrade.disabled || !isApprovedTrade}
           action={makeTrade}
           text={canMakeTrade.actionText}
           subText={canMakeTrade.subText}
           error={buttonError}
+          customClass={ButtonStyles.BuySellButton}
         />
       </div>
     </div>

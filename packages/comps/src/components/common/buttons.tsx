@@ -1,99 +1,6 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import Styles from "./buttons.styles.less";
 import classNames from "classnames";
-import { Spinner } from "./spinner";
-
-export interface ButtonProps {
-  id?: string;
-  text?: string;
-  subText?: string | null;
-  className?: string;
-  disabled?: boolean;
-  action?: Function;
-  icon?: ReactNode;
-  selected?: boolean;
-  href?: string;
-  target?: string;
-  rel?: string;
-  error?: string;
-  title?: string;
-  darkTheme?: boolean;
-  pending?: boolean;
-  key?: string;
-  label?: string;
-}
-
-const Button = ({
-  id,
-  text,
-  subText,
-  className,
-  disabled,
-  action,
-  icon,
-  selected,
-  href,
-  error,
-  title,
-  target = "_blank",
-  rel = "noopener noreferrer",
-  pending,
-  label,
-}: ButtonProps) => {
-  return href ? (
-    <a
-      id={id}
-      title={title}
-      href={href}
-      aria-label={label}
-      className={classNames(
-        Styles.Button,
-        {
-          [Styles.TextAndIcon]: text && icon,
-          [Styles.Disabled]: disabled,
-          [Styles.Selected]: selected,
-          [Styles.Error]: error && error !== "",
-          [Styles.subText]: subText && subText.length > 0,
-        },
-        className
-      )}
-      onClick={(e) => action && action(e)}
-      target={target}
-      rel={rel}
-    >
-      {error && error !== "" ? error : text}
-      {icon && icon}
-      {subText && <span>{subText}</span>}
-    </a>
-  ) : (
-    <button
-      id={id}
-      title={title}
-      aria-label={label}
-      className={classNames(
-        Styles.Button,
-        {
-          [Styles.TextAndIcon]: text && icon,
-          [Styles.Disabled]: disabled || pending,
-          [Styles.Selected]: selected,
-          [Styles.Error]: error && error !== "",
-          [Styles.subText]: subText && subText.length > 0,
-        },
-        className
-      )}
-      onClick={(e) => action && action(e)}
-    >
-      {pending && <Spinner />}
-      {!pending && (error && error !== "" ? error : text)}
-      {!pending && icon && icon}
-      {!pending && subText && <span>{subText}</span>}
-    </button>
-  );
-};
-
-export const BuySellButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.BuySellButton, props.className)} />
-);
 
 export enum BUTTON_TYPES {
   PRIMARY = "Primary",
@@ -122,6 +29,7 @@ export interface BaseThemeButtonProps {
   key?: string;
   selected?: boolean;
   noHighlight?: boolean;
+  error?: string;
 }
 
 export const BaseThemeButton = ({
@@ -142,12 +50,14 @@ export const BaseThemeButton = ({
   ariaLabel,
   href = null,
   noHighlight = false,
+  error
 }: BaseThemeButtonProps) => {
+  const hasError = error && error !== '';
   const content = customContent ? (
     customContent
   ) : (
     <>
-      <span>{text}</span>
+      <span>{hasError ? error : text}</span>
       {icon}
       {subText && <span>{subText}</span>}
     </>
@@ -165,6 +75,7 @@ export const BaseThemeButton = ({
         [Styles.Inverted]: invert,
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
+        [Styles.Error]: hasError,
         [Styles.Selected]: selected,
         [Styles.IconOnly]: !text && !subText,
         [Styles.NoHighlight]: noHighlight,

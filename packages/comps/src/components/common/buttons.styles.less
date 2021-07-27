@@ -151,6 +151,14 @@
     cursor: not-allowed;
   }
 
+  &.Error {
+    pointer-events: none;
+    color: var(--failed);
+    background: rgba(var(--failed-rgb), 0.15);
+    opacity: 1;
+    border: 0;
+  }
+
   &.Reversed {
     flex-flow: var(--normal-button-flex-flow-reverse);
 
