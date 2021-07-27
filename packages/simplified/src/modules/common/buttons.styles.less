@@ -1,51 +1,76 @@
 @import (reference) '~assets/styles/shared';
 
-.Button {
-  .text-16-bold;
-  .ThemeBorder;
-
-  color: var(--primary-text);
-  padding: 0 @size-16;
-  background-color: var(--secondary-bg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-transform: capitalize;
-  cursor: pointer;
-  min-height: @size-48;
-  height: @size-48;
-  max-height: @size-48;
-  outline: none;
-
-  &:focus {
-    outline: none;
-  }
-
-  > div > img {
-    max-height: @size-16;
-  }
+.ApproveButton {
+  color: var(--inverted-primary-text);
+  background-color: var(--primary-text);
+  border: @size-1 solid var(--theme-border);
+  min-height: @size-68;
+  height: @size-68;
+  max-height: @size-68;
 
   > span {
-    .text-12-semi-bold;
+    .text-20-bold;
   }
 
-  &.TextAndIcon {
-    > svg,
-    > div {
-      margin-left: @size-8;
-    }
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    .Focused;
 
-    > div {
-      display: flex;
-    }
+    background-color: var(--primary-text);
   }
 
-  .Focused;
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--tertiary-bg);
+  }
+}
 
-  &:disabled,
-  &.Disabled {
+.BuySellButton {
+  border: @size-1 solid var(--theme-border);
+  background: var(--primary-text);
+  color: var(--inverted-primary-text);
+  min-height: @size-68;
+  height: @size-68;
+  max-height: @size-68;
+  flex-flow: column nowrap;
+  padding: 0 @size-16;
+
+  > span {
+    .text-20-bold;
+
+    text-transform: none;
+  }
+
+  &:hover {
+    background-color: rgba(var(--primary-text-rgb), 0.85);
+  }
+
+  &:disabled {
     pointer-events: none;
-    opacity: .5;
+    background: var(--secondary-bg);
+    border: @size-1 solid var(--theme-border);
+    color: var(--secondary-text);
+    // purposeful override for specifically just this button for readability.
+    opacity: 1;
+  }
+
+  &.Error {
+    pointer-events: none;
+    color: var(--failed);
+    background: rgba(var(--failed-rgb), 0.15);
+    opacity: 1;
+    border: 0;
+  }
+
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    .Focused;
+
+    background-color: var(--primary-text);
+    color: var(--inverted-primary-text);
+  }
+
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--tertiary-bg);
   }
 }
 
@@ -63,47 +88,7 @@
   }
 }
 
-.TinyButton {
-  .Button;
-  .text-12-semi-bold;
-
-  background-color: transparent;
-  color: var(--secondary-text);
-  min-height: @size-25;
-  height: @size-25;
-  max-height: @size-25;
-  padding: 0 @size-8;
-  flex-direction: row-reverse;
-  grid-gap: 0;
-  white-space: nowrap;
-  
-  > svg {
-    max-width: @size-16;
-    max-height: @size-16;
-  }
-
-  &.TextAndIcon > svg {
-    margin-left: 0;
-    margin-right: @size-4;
-  }
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      border: @size-1 solid var(--secondary-text);
-    }
-
-    &:active,
-    &.Selected {
-      background-color: var(--tertiary-bg);
-      border: @size-1 solid var(--secondary-text);
-      color: var(--primary-text);
-    }
-  }
-}
-
 .TinyTransparentButton {
-  .TinyButton;
-
   background-color: transparent;
   border: 0;
 

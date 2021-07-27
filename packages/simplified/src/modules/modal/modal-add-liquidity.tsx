@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./modal.styles.less";
+import ButtonStyles from '../common/buttons.styles.less';
 import { Header } from "./common";
 import { useHistory } from "react-router";
-import { InfoNumbers } from "../market/trading-form";
+import { InfoNumbers, ApprovalButton } from "../market/trading-form";
 import classNames from "classnames";
 import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo, DataState } from "@augurproject/comps/build/types";
 import { BigNumber as BN } from "bignumber.js";
@@ -29,7 +30,7 @@ const {
 const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
   Icons: { BackIcon },
-  ButtonComps: { ApprovalButton, BuySellButton },
+  ButtonComps: { SecondaryThemeButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   LabelComps: { generateTooltip, WarningBanner },
@@ -569,7 +570,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               </>
             )}
 
-            <BuySellButton
+            <SecondaryThemeButton
               action={() => setShowBackView(true)}
               disabled={!isApproved || inputFormError !== ""}
               error={buttonError}
@@ -587,6 +588,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                     : INVALID_PRICE_ADD_UP_SUBTEXT
                   : null
               }
+              customClass={ButtonStyles.BuySellButton}
             />
             <div className={Styles.FooterText}>
               {LIQUIDITY_STRINGS[modalType].footerText}
@@ -633,7 +635,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                 }
               />
             )}
-            <BuySellButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} />
+            <SecondaryThemeButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} customClass={ButtonStyles.BuySellButton} />
             {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
             )}

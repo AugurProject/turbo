@@ -2,8 +2,8 @@
 
 .SearchInput {
   .ThemeBorder;
+  .TertiaryBorderRadius;
 
-  border-radius: @size-16;
   background: var(--primary-bg);
   color: var(--primary-text);
   display: flex;
@@ -45,11 +45,11 @@
   }
 
   > input {
+    .TertiaryBorderRadius;
     .text-16-bold;
 
     background: var(--primary-bg);
     color: var(--primary-text);
-    border-radius: @size-16;
     border: 0;
 
     &:focus,
