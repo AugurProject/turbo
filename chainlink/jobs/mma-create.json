@@ -3,6 +3,12 @@
   "initiators": [
     {
       "type": "web"
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=EDT * */4 * * *"
+      }
     }
   ],
   "tasks": [
