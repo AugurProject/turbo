@@ -1,0 +1,24 @@
+{
+  "name": "mma-create",
+  "initiators": [
+    {
+      "type": "web"
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "mma",
+        "method": "create",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${MMA_MARKET_FACTORY}"
+      }
+    }
+  ]
+}

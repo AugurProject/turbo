@@ -1,0 +1,17 @@
+{
+  "name": "crypto-poke",
+  "initiators": [
+    {
+      "type": "web"
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "method": "poke",
+        "contractAddress": "${CRYPTO_MARKET_FACTORY}"
+      }
+    }
+  ]
+}

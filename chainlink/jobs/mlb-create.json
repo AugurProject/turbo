@@ -1,0 +1,24 @@
+{
+  "name": "mlb-create",
+  "initiators": [
+    {
+      "type": "web"
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "mlb",
+        "method": "create",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${MLB_MARKET_FACTORY}"
+      }
+    }
+  ]
+}

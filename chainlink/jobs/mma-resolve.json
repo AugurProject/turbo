@@ -1,0 +1,24 @@
+{
+  "name": "mma-resolve",
+  "initiators": [
+    {
+      "type": "web"
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "mma",
+        "method": "resolve",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${MMA_MARKET_FACTORY}"
+      }
+    }
+  ]
+}
