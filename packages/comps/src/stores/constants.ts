@@ -116,7 +116,7 @@ export const APP_STATE_KEYS = {
   MODAL: "modal",
   IS_LOGGED: "isLogged",
   IS_RPC_DOWN: "isRpcDown",
-  IS_DEGRADED: "isDegraded"
+  IS_DEGRADED: "isDegraded",
 };
 
 export const APP_STATUS_ACTIONS = {
@@ -125,7 +125,7 @@ export const APP_STATUS_ACTIONS = {
   CLOSE_MODAL: "CLOSE_MODAL",
   SET_IS_LOGGED: "SET_IS_LOGGED",
   SET_RPC_DOWN: "SET_RPC_DOWN",
-  SET_DEGRADED: "SET_DEGRADED"
+  SET_DEGRADED: "SET_DEGRADED",
 };
 
 export const MOCK_APP_STATUS_STATE = {
