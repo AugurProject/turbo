@@ -139,7 +139,6 @@ export const BaseThemeButton = ({
   invert = false,
   reverseContent = false,
   small = false,
-  tiny = false,
   ariaLabel,
   href = null,
   noHighlight = false,
@@ -166,7 +165,6 @@ export const BaseThemeButton = ({
         [Styles.Inverted]: invert,
         [Styles.Reversed]: reverseContent,
         [Styles.Small]: small,
-        [Styles.Tiny]: tiny,
         [Styles.Selected]: selected,
         [Styles.IconOnly]: !text && !subText,
         [Styles.NoHighlight]: noHighlight,
@@ -183,10 +181,6 @@ export const BaseThemeButton = ({
     <button {...{ ...props }}>{content}</button>
   );
 };
-
-export const TinyButton = (props: ButtonProps) => (
-  <Button {...props} className={classNames(Styles.TinyButton, props.className)} />
-);
 
 export const PrimaryThemeButton = (props: BaseThemeButtonProps) => (
   <BaseThemeButton {...{ buttonType: BUTTON_TYPES.PRIMARY, ...props }} />

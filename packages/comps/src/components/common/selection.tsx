@@ -12,7 +12,7 @@ import {
   SimpleCheck,
 } from "./icons";
 import { USDC, ETH, COMING_SOON } from "../../utils/constants";
-import { TinyButton } from "./buttons";
+import { TinyThemeButton } from "./buttons";
 import { generateTooltip } from "./labels";
 
 export interface NameValuePair {
@@ -293,10 +293,11 @@ export const MultiButtonSelection = ({ options, selection, setSelection }) => (
   <ul className={Styles.MultiButtonSelection}>
     {options.map(({ id, label }) => (
       <li key={`option-${id}`}>
-        <TinyButton
+        <TinyThemeButton
           text={label}
           selected={selection === id }
           action={() => selection !== id && setSelection(id)}
+          noHighlight
         />
       </li>
     ))}

@@ -67,44 +67,6 @@
   }
 }
 
-.TinyButton {
-  .Button;
-  .text-12-semi-bold;
-
-  background-color: transparent;
-  color: var(--secondary-text);
-  min-height: @size-25;
-  height: @size-25;
-  max-height: @size-25;
-  padding: 0 @size-8;
-  flex-direction: row-reverse;
-  grid-gap: 0;
-  white-space: nowrap;
-
-  > svg {
-    max-width: @size-16;
-    max-height: @size-16;
-  }
-
-  &.TextAndIcon > svg {
-    margin-left: 0;
-    margin-right: @size-4;
-  }
-
-  &:not(:disabled):not(.Disabled) {
-    &:hover {
-      border: @size-1 solid var(--secondary-text);
-    }
-
-    &:active,
-    &.Selected {
-      background-color: var(--tertiary-bg);
-      border: @size-1 solid var(--secondary-text);
-      color: var(--primary-text);
-    }
-  }
-}
-
 .BuySellButton {
   .Button;
   .text-20-bold;
@@ -631,7 +593,8 @@
       }
     }
 
-    &:active {
+    &:active,
+    &.Selected {
       background: var(--tiny-button-background-pressed);
       border: var(--tiny-button-border-pressed);
       color: var(--tiny-button-text-color-pressed);
