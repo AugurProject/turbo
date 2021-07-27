@@ -316,10 +316,27 @@
 }
 
 .MobileMenuButton {
-  .Button;
+  .ThemeBorder;
 
   max-width: @size-56;
   min-width: @size-56;
   width: @size-56;
+  max-height: @size-48;
+  min-height: @size-48;
+  height: @size-48;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
   padding: none;
+  background: transparent;
+
+  > svg {
+    width: @size-20;
+    height: @size-16;
+
+    > path {
+      fill: var(--primary-text);
+    }
+  }
 }

@@ -1,54 +1,5 @@
 @import (reference) '~assets/styles/shared';
 
-.Button {
-  .text-16-bold;
-  .ThemeBorder;
-
-  color: var(--primary-text);
-  padding: 0 @size-16;
-  background-color: var(--secondary-bg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-transform: capitalize;
-  cursor: pointer;
-  min-height: @size-48;
-  height: @size-48;
-  max-height: @size-48;
-  outline: none;
-
-  &:focus {
-    outline: none;
-  }
-
-  > div > img {
-    max-height: @size-16;
-  }
-
-  > span {
-    .text-12-semi-bold;
-  }
-
-  &.TextAndIcon {
-    > svg,
-    > div {
-      margin-left: @size-8;
-    }
-
-    > div {
-      display: flex;
-    }
-  }
-
-  .Focused;
-
-  &:disabled,
-  &.Disabled {
-    pointer-events: none;
-    opacity: .5;
-  }
-}
-
 .ApproveButton {
   color: var(--inverted-primary-text);
   background-color: var(--primary-text);
