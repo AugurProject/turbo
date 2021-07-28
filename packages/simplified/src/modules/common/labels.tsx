@@ -1,21 +1,15 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import Styles from "./labels.styles.less";
-import { useLocation } from "react-router";
 import classNames from "classnames";
-import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import {
   useAppStatusStore,
-  useDataStore,
   useUserStore,
   Icons,
   Utils,
   Constants,
-  PARA_CONFIG,
   LabelComps,
   ButtonComps,
   Stores,
-  Links,
-  createBigNumber,
   ContractCalls
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
@@ -28,15 +22,11 @@ const {
   CREATE,
   USDC,
   MODAL_ADD_LIQUIDITY,
-  MARKET,
   ADD,
-  DUST_POSITION_AMOUNT,
 } = Constants;
-const { ExternalLink } = Links;
 const { ValueLabel } = LabelComps;
 const { PrimaryThemeButton } = ButtonComps;
 const {
-  PathUtils: { parsePath },
   Formatter: { formatCash },
 } = Utils;
 const { USDCIcon, EthIcon } = Icons;
@@ -61,10 +51,6 @@ export const AppViewStats = ({ small }) => {
     isLogged,
     showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly,
   ]);
-  // const ethValue = useMemo(
-  //   () => handleValue(balances?.ETH?.balance || 0, ETH),
-  //   [balances?.ETH?.balance]
-  // );
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
   return (
     <div className={classNames(Styles.AppStats, { [Styles.small]: small })}>
@@ -126,72 +112,5 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
       {currency === USDC ? USDCIcon : EthIcon}
       {`Create this market in ${currency}`}
     </button>
-  );
-};
-
-export const NetworkMismatchBanner = () => {
-  const { errors } = useDataStore();
-  const { isRpcDown, isDegraded } = useAppStatusStore();
-  const { loginAccount, balances } = useUserStore();
-  const { error } = useWeb3React();
-  const { networkId } = PARA_CONFIG;
-  const location = useLocation();
-  const path = parsePath(location.pathname)[0];
-  const { chainId } = loginAccount || {};
-  const isNetworkMismatch = useMemo(() => !!chainId && String(networkId) !== String(chainId), [chainId, networkId]);
-  const isGraphError = !!errors;
-  const unsupportedChainIdError = error && error instanceof UnsupportedChainIdError;
-
-  useEffect(() => {
-    // in the event of an error, scroll to top to force banner to be seen.
-    if (isNetworkMismatch || isGraphError || unsupportedChainIdError) {
-      document.getElementById("mainContent")?.scrollTo(0, 0);
-      window.scrollTo(0, 1);
-    }
-  }, [isNetworkMismatch, isGraphError, unsupportedChainIdError]);
-  const needMoreMatic = Boolean(loginAccount?.account) && Boolean(balances?.ETH?.balance) && Boolean(createBigNumber(balances?.ETH?.balance).lte(DUST_POSITION_AMOUNT));
-
-  return (
-    <>
-      {(isNetworkMismatch || unsupportedChainIdError) && (
-        <article
-          className={classNames(Styles.NetworkMismatch, {
-            [Styles.Market]: path === MARKET,
-          })}
-        >
-          You're connected to an unsupported network
-        </article>
-      )}
-      {isGraphError && (
-        <article
-          className={classNames(Styles.NetworkMismatch, {
-            [Styles.Market]: path === MARKET,
-          })}
-        >
-          Unable to retrieve market data
-        </article>
-      )}
-      {needMoreMatic && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
-            [Styles.Market]: path === MARKET,
-          })}
-        >
-          You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://help.augur.net" />
-      </article>}
-      {isRpcDown && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
-            [Styles.Market]: path === MARKET,
-          })}
-        >
-          MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
-      </article>}
-      {isDegraded && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
-            [Styles.Market]: path === MARKET,
-          })}
-        >
-          Degraded Service. Some data will be slow to load or unavailable.
-      </article>}      
-    </>
   );
 };

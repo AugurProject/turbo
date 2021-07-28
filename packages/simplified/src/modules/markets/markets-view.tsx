@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Styles from "./markets-view.styles.less";
-import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
+import { AppViewStats } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
 import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
@@ -26,6 +26,7 @@ const {
   MarketCardComps: { LoadingMarketCard, MarketCard },
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
+  LabelComps: { NetworkMismatchBanner },
 } = Components;
 const {
   SIDEBAR_TYPES,

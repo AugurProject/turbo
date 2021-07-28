@@ -4,7 +4,7 @@ import Styles from "./market-view.styles.less";
 import ButtonStyles from '../common/buttons.styles.less';
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
-import { AddLiquidity, NetworkMismatchBanner } from "../common/labels";
+import { AddLiquidity } from "../common/labels";
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
 import {
@@ -26,7 +26,7 @@ import { MARKETS } from "modules/constants";
 import { Link } from "react-router-dom";
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
+  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel, NetworkMismatchBanner },
   Icons: { ConfirmedCheck },
   ButtonComps: { SecondaryThemeButton },
   InputComps: { OutcomesGrid },

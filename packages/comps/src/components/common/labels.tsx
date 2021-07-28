@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import Styles from "./labels.styles.less";
+import { useLocation } from "react-router";
 import classNames from "classnames";
 import { CATEGORIES_ICON_MAP } from "./category-icons-map";
 import ReactTooltip from "react-tooltip";
 import TooltipStyles from "./tooltip.styles.less";
 import { HelpIcon, AugurBlankIcon, EthIcon, UsdIcon, WarningIcon, XIcon, InvalidFlagIcon } from "./icons";
-import { MARKET_STATUS } from "../../utils/constants";
+import { DUST_POSITION_AMOUNT, MARKET, MARKET_STATUS } from "../../utils/constants";
 import { FormattedNumber } from "../../types";
+import { useWeb3React, UnsupportedChainIdError } from "@web3-react/core";
+import { useDataStore } from '../../stores/data';
+import { useAppStatusStore } from '../../stores/app-status';
+import { useUserStore } from '../../stores/user';
+import { PARA_CONFIG } from '../../stores/constants';
+import { createBigNumber } from '../../utils/create-big-number';
+import { ExternalLink } from "../../utils/links/links";
+import parsePath from "../../utils/links/parse-path";
 
 export interface ValueLabelProps {
   large?: boolean;
@@ -253,4 +262,71 @@ export const MovementLabel = ({ value, numberValue }: MovementLabelProps) => {
   const formattedString = handlePlusMinus(value.full);
 
   return <div className={`${textColorStyle}`}>{formattedString}</div>;
+};
+
+export const NetworkMismatchBanner = () => {
+  const { errors } = useDataStore();
+  const { isRpcDown, isDegraded } = useAppStatusStore();
+  const { loginAccount, balances } = useUserStore();
+  const { error } = useWeb3React();
+  const { networkId } = PARA_CONFIG;
+  const location = useLocation();
+  const path = parsePath(location.pathname)[0];
+  const { chainId } = loginAccount || {};
+  const isNetworkMismatch = useMemo(() => !!chainId && String(networkId) !== String(chainId), [chainId, networkId]);
+  const isGraphError = !!errors;
+  const unsupportedChainIdError = error && error instanceof UnsupportedChainIdError;
+
+  useEffect(() => {
+    // in the event of an error, scroll to top to force banner to be seen.
+    if (isNetworkMismatch || isGraphError || unsupportedChainIdError) {
+      document.getElementById("mainContent")?.scrollTo(0, 0);
+      window.scrollTo(0, 1);
+    }
+  }, [isNetworkMismatch, isGraphError, unsupportedChainIdError]);
+  const needMoreMatic = Boolean(loginAccount?.account) && Boolean(balances?.ETH?.balance) && Boolean(createBigNumber(balances?.ETH?.balance).lte(DUST_POSITION_AMOUNT));
+
+  return (
+    <>
+      {(isNetworkMismatch || unsupportedChainIdError) && (
+        <article
+          className={classNames(Styles.NetworkMismatch, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          You're connected to an unsupported network
+        </article>
+      )}
+      {isGraphError && (
+        <article
+          className={classNames(Styles.NetworkMismatch, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          Unable to retrieve market data
+        </article>
+      )}
+      {needMoreMatic && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://help.augur.net" />
+      </article>}
+      {isRpcDown && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
+      </article>}
+      {isDegraded && <article
+          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          Degraded Service. Some data will be slow to load or unavailable.
+      </article>}      
+    </>
+  );
 };
