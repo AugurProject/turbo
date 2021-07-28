@@ -171,7 +171,7 @@ describe("MMA Factory", () => {
     expect(awayFighterId).to.equal(awayFighterId);
     expect(startTime).to.equal(startTime);
     expect(eventStatus).to.equal(2); // Final
-  })
+  });
 
   describe("LinkFactory NoContest", () => {
     let signer: SignerWithAddress;
