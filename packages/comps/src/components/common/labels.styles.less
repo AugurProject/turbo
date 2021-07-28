@@ -642,6 +642,10 @@
     margin-top: 0;
     max-height: unset;
     height: unset;
+
+    &:first-of-type:not(.Market) {
+      margin-top: 0;
+    }
   }
 
   &.Market {
@@ -667,7 +671,7 @@
     text-decoration: underline;
   }
 
-  @media @breakpoint-mobile {
+  @media @breakpoint-mobile-tablet {
     display: inline;
     height: unset;
     max-height: unset;
@@ -683,6 +687,11 @@
     min-height: @size-46;
     height: @size-46;
     margin-top: 0;
+
+    @media @breakpoint-mobile-tablet {
+      height: unset;
+      max-height: unset;
+    }
 
     &.Market {
       margin-top: 0;
