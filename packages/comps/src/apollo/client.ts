@@ -48,7 +48,7 @@ export async function getMarketsData() {
   let response = null;
   let block = null;
   try {
-    block = await getCurrentBlockNumber(clientConfig.blockClient);
+    block = null; // will be needed in future, await getCurrentBlockNumber(clientConfig.blockClient);
     response = await augurV2Client(clientConfig.turboClient).query({
       query: GET_MARKETS,
     });
