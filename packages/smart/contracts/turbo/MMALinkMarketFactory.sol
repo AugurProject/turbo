@@ -288,9 +288,8 @@ contract MMALinkMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolO
         return _unresolved;
     }
 
-    function getEventMarkets(uint256 _eventId) external view returns (uint256[1] memory) {
-        uint256[1] memory _event = events[_eventId].markets;
-        return _event;
+    function getEvent(uint256 _eventId) external view returns (EventDetails memory _event) {
+        _event = events[_eventId];
     }
 
     function setLinkNode(address _newLinkNode) external onlyOwner {
