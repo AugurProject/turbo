@@ -1730,7 +1730,7 @@ export const fillGraphMarketsData = async (
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
   let marketInfos = {};
   let exchanges = {};
-  let newBlocknumber = 0;
+  let newBlocknumber = blocknumber;
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
     const gMarkets = graphMarkets?.[key];
@@ -1742,10 +1742,10 @@ export const fillGraphMarketsData = async (
         account,
         GRAPH_MARKETS[key],
         ignoreList,
-        blocknumber
+        newBlocknumber
       );
       marketInfos = { ...marketInfos, ...filledMarkets };
-      newBlocknumber = updatedBlocknumber;
+      newBlocknumber = updatedBlocknumber ? updatedBlocknumber : blocknumber;
     }
   }
   if (Object.keys(ignoreList).length === 0) {
@@ -1844,7 +1844,7 @@ const fillMarketsData = async (
     });
   }
 
-  const newBlocknumber = marketsResult.blocknumber;
+  const newBlocknumber = marketsResult?.blocknumber ? marketsResult.blocknumber : blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
     const fetchExchanges: AmmExchanges[] = await Promise.all(
@@ -1873,7 +1873,7 @@ const fillMarketsData = async (
     exchanges = fetchExchanges.reduce((p, exs) => ({ ...p, ...exs }), {});
   }
 
-  return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
+  return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
