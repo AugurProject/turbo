@@ -24,6 +24,7 @@ const {
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
   Icons: { WinnerMedal, SimpleChevron },
   InputComps: { SearchInput },
+  LabelComps: { NetworkMismatchBanner },
 } = Components;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber; ids: string[]; address: string }[] => {
@@ -162,6 +163,7 @@ export const PortfolioView = () => {
     >
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
+        <NetworkMismatchBanner />
         <ClaimWinningsSection />
         <ul className={Styles.FilterSearchNav}>
           <SquareDropdown

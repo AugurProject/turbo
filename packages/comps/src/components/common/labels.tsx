@@ -297,7 +297,7 @@ export const NetworkMismatchBanner = () => {
           You're connected to an unsupported network
         </article>
       )}
-      {isGraphError && (
+      {/* {isGraphError && ( */}
         <article
           className={classNames(Styles.NetworkMismatch, {
             [Styles.Market]: path === MARKET,
@@ -305,7 +305,7 @@ export const NetworkMismatchBanner = () => {
         >
           Unable to retrieve market data
         </article>
-      )}
+      {/* )} */}
       {needMoreMatic && <article
           className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
             [Styles.Market]: path === MARKET,

@@ -25,7 +25,7 @@ import { Link } from "react-router-dom";
 import { MarketEvent } from "../stores/constants";
 const {
   SEO,
-  LabelComps: { ReportingStateLabel },
+  LabelComps: { ReportingStateLabel, NetworkMismatchBanner },
   Icons: { ConfirmedCheck, SimpleChevron },
 } = Components;
 const { MarketsLink } = Links;
@@ -202,6 +202,7 @@ const MarketView = ({ defaultMarket = null }) => {
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
       <section>
+        <NetworkMismatchBanner />
         {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
           <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>
