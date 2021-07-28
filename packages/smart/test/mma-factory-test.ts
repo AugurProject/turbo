@@ -129,7 +129,7 @@ describe("MMA Factory", () => {
       estimatedStartTime,
       [moneylineHome, moneylineAway]
     );
-    const [marketId] = await marketFactory.getEventMarkets(thisEventId);
+    const [marketId] = (await marketFactory.getEvent(thisEventId)).markets;
     await marketFactory.trustedResolveMarkets(
       thisEventId,
       SportsLinkEventStatus.Final,
@@ -152,7 +152,7 @@ describe("MMA Factory", () => {
       estimatedStartTime,
       [moneylineHome, moneylineAway]
     );
-    const [marketId] = await marketFactory.getEventMarkets(thisEventId);
+    const [marketId] = (await marketFactory.getEvent(thisEventId)).markets;
     await marketFactory.trustedResolveMarkets(
       thisEventId,
       SportsLinkEventStatus.Final,
@@ -163,6 +163,15 @@ describe("MMA Factory", () => {
     const headToHeadMarket = await marketFactory.getMarket(marketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[0]); // draw
   });
+
+  it("getters", async () => {
+    const { markets, homeFighterId, awayFighterId, startTime, eventStatus } = await marketFactory.getEvent(eventId);
+    expect(markets.length).to.equal(1);
+    expect(homeFighterId).to.equal(homeFighterId);
+    expect(awayFighterId).to.equal(awayFighterId);
+    expect(startTime).to.equal(startTime);
+    expect(eventStatus).to.equal(2); // Final
+  })
 
   describe("LinkFactory NoContest", () => {
     let signer: SignerWithAddress;
