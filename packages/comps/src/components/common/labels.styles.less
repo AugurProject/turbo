@@ -629,8 +629,12 @@
   min-height: @size-48;
   height: @size-48;
   margin-bottom: @size-16;
-  margin-top: -@size-24;
+  margin-top: 0;
   white-space: nowrap;
+
+  &:first-of-type:not(.Market) {
+    margin-top: -@size-24;
+  }
 
   @media @breakpoint-mobile-tablet {
     .text-14-semi-bold;
@@ -639,10 +643,10 @@
   }
 
   &.Market {
-    margin-bottom: -@size-24;
+    margin-bottom: @size-12;
 
     @media @breakpoint-mobile-tablet {
-      margin-bottom: @size-16;
+      margin-bottom: @size-12;
     }
   }
 }
@@ -671,10 +675,15 @@
 :root[theme="SPORTS"],
 :root[theme="SPORTS_DARK"] {
   .NetworkMismatch {
+    .text-14-bold;
+
+    max-height: @size-46;
+    min-height: @size-46;
+    height: @size-46;
     margin-top: 0;
 
     &.Market {
-      margin-top: -@size-8;
+      margin-top: 0;
       margin-bottom: @size-16;
     }
   }
