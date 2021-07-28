@@ -23,6 +23,7 @@ const {
   MarketCardComps: { LoadingMarketCard },
   PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
+  LabelComps: { NetworkMismatchBanner },
 } = Components;
 const {
   ALL_CURRENCIES,
@@ -247,6 +248,7 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
+        <NetworkMismatchBanner />
         {!isLogged && <TopBanner />}
         <ul>
           {subCategories.length > 0 && (
