@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
+import ButtonStyles from '../common/buttons.styles.less';
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
-import { AddLiquidity, NetworkMismatchBanner } from "../common/labels";
+import { AddLiquidity } from "../common/labels";
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
 import {
@@ -25,9 +26,9 @@ import { MARKETS } from "modules/constants";
 import { Link } from "react-router-dom";
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
+  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel, NetworkMismatchBanner },
   Icons: { ConfirmedCheck },
-  ButtonComps: { BuySellButton },
+  ButtonComps: { SecondaryThemeButton },
   InputComps: { OutcomesGrid },
 } = Components;
 const { getResolutionRules } = DerivedMarketData;
@@ -242,7 +243,7 @@ const MarketView = ({ defaultMarket = null }) => {
           <span>Transactions</span>
           <TransactionsTable transactions={marketTransactions} />
         </div>
-        <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
+        <SecondaryThemeButton text="Buy / Sell" action={() => setShowTradingForm(true)} customClass={ButtonStyles.BuySellButton} />
       </section>
       <section
         className={classNames({

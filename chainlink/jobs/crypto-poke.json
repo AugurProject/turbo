@@ -1,0 +1,29 @@
+{
+  "name": "crypto-poke",
+  "initiators": [
+    {
+      "type": "web"
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 1 20 * * 5"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 1 21 * * 5"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "method": "poke",
+        "contractAddress": "${CRYPTO_MARKET_FACTORY}"
+      }
+    }
+  ]
+}

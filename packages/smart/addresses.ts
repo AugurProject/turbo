@@ -102,12 +102,12 @@ export const addresses: AddressMapping = {
       {
         type: "MMALink",
         subtype: "V2",
-        address: "0x32D7c4D23ca8520A22fCF759505dEd07546314a9",
+        address: "0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
-        fetcher: "0x4D8EEcE37100D7C280d21DBCDBb1dC1DED16B1eB",
+        fetcher: "0x9f1DB2B2C81eAF3F96D8d942e2D515dE17975A2A",
         description: "mma",
-        version: "2021-07-20.0",
+        version: "2021-07-28.0",
       },
       {
         type: "Crypto",

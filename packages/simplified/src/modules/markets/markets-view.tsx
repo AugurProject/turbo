@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Styles from "./markets-view.styles.less";
-import { AppViewStats, NetworkMismatchBanner } from "../common/labels";
+import { AppViewStats } from "../common/labels";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
 import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
@@ -13,7 +13,7 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
-  ContractCalls
+  ContractCalls,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 
@@ -21,11 +21,12 @@ import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { SearchButton, SecondaryThemeButton },
-  Icons: { FilterIcon },
+  ButtonComps: { SecondaryThemeButton },
+  Icons: { FilterIcon, SearchIcon },
   MarketCardComps: { LoadingMarketCard, MarketCard },
   PaginationComps: { sliceByPage, Pagination },
   InputComps: { SearchInput },
+  LabelComps: { NetworkMismatchBanner },
 } = Components;
 const {
   SIDEBAR_TYPES,
@@ -165,6 +166,10 @@ const applyFiltersAndSort = (
   setFilteredMarkets([...scheduled, ...expired]);
 };
 
+const SearchButton = (props) => (
+  <SecondaryThemeButton {...{ ...props, icon: SearchIcon, customClass: Styles.SearchButton }} />
+);
+
 const MarketsView = () => {
   const {
     isMobile,
@@ -276,13 +281,6 @@ const MarketsView = () => {
           options={marketStatusItems}
           defaultValue={reportingState}
         />
-        {/* <SquareDropdown
-          onChange={(value) => {
-            updateMarketsViewSettings({ currency: value });
-          }}
-          options={currencyItems}
-          defaultValue={currency}
-        /> */}
         <SearchButton
           selected={showFilter}
           action={() => {
@@ -406,4 +404,3 @@ export const SubCategoriesFilter = () => {
     </div>
   );
 };
-

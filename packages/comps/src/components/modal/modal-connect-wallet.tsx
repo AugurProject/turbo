@@ -6,7 +6,7 @@ import { AbstractConnector } from "@web3-react/abstract-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
 import classNames from "classnames";
-import { SecondaryThemeButton, TextButton, WalletButton } from "../common/buttons";
+import { SecondaryThemeButton } from "../common/buttons";
 import { ErrorBlock } from "../common/labels";
 import { isSafari } from "../ConnectAccount/utils";
 import { SUPPORTED_WALLETS } from "../ConnectAccount/constants";
@@ -40,7 +40,7 @@ const WalletList = ({ walletList }) => (
   <ul>
     {walletList.map((wallet) => (
       <li key={wallet.key}>
-        <WalletButton {...wallet} />
+        <SecondaryThemeButton {...wallet} />
       </li>
     ))}
   </ul>
@@ -94,7 +94,7 @@ const PendingWalletView = ({
           }
 
           return (
-            <WalletButton
+            <SecondaryThemeButton
               id={`connect-${key}`}
               key={key}
               text={wallet.name}
@@ -206,16 +206,15 @@ const ModalConnectWallet = ({
           text: wallet.name,
         };
 
-        if (key === 'WALLET_CONNECT') {
+        if (key === "WALLET_CONNECT") {
           return {
             ...commonWalletButtonProps,
-            text: 'WalletConnect'
+            text: "WalletConnect",
           };
-        }
-        else if (isWeb3) {
+        } else if (isWeb3) {
           return {
             ...commonWalletButtonProps,
-            text: isMetamask ? commonWalletButtonProps.text : 'Injected Web3 provider'
+            text: isMetamask ? commonWalletButtonProps.text : "Injected Web3 provider",
           };
         }
         return {
@@ -238,7 +237,7 @@ const ModalConnectWallet = ({
       (connector as any)?.walletConnectProvider?.disconnect();
       logout();
     }
-  }
+  };
 
   return (
     <section className={classNames(customClassForModal)}>
@@ -305,7 +304,10 @@ const ModalConnectWallet = ({
             <>
               {walletList && <WalletList walletList={walletList} />}
               <div className={Styles.LearnMore}>
-                New to Ethereum? <TextButton href="https://ethereum.org/wallets/" text="Learn more about wallets" />
+                New to Ethereum?{" "}
+                <a href="https://ethereum.org/wallets/" target="_blank" rel="noopener noreferrer">
+                  Learn more about wallets
+                </a>
               </div>
             </>
           )}
