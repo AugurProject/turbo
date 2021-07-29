@@ -10,7 +10,7 @@ import { approveOrCashOut } from "../utils";
 import { CASHOUT_NOT_AVAILABLE, USDC } from "../constants";
 import { EmptyBetslipIcon } from "../betslip/betslip";
 const {
-  Formatter: { formatDai, formatCash },
+  Formatter: { formatCash },
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
