@@ -28,7 +28,9 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
         <p>Once you start betting your bets will appear on this page</p>
       </section>
     );
-  const EventDataEntries = Object.entries(eventPositionData);
+  const EventDataEntries = Object.entries(eventPositionData).sort(
+    ([aId, aEvent]: any, [bId, bEvent]: any) => bEvent?.eventStartTime - aEvent?.eventStartTime
+  );
   return (
     <section className={Styles.EventBetsSection}>
       {EventDataEntries.map(([EventId, Event]) => (
@@ -83,13 +85,14 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, wager, cashout }) => { 
+  const determineClasses = ({ canCashOut, wager, cashout }) => {
     const isPositive = Number(wager) < Number(cashout);
-    return ({
-    [Styles.CanCashOut]: canCashOut,
-    [Styles.PositiveCashout]: isPositive,
-    [Styles.NegativeCashout]: !isPositive
-  })};
+    return {
+      [Styles.CanCashOut]: canCashOut,
+      [Styles.PositiveCashout]: isPositive,
+      [Styles.NegativeCashout]: !isPositive,
+    };
+  };
 
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
