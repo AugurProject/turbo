@@ -145,6 +145,7 @@ export const GET_TRANSACTIONS = gql`
         totalChangeUsd
         settlementFee
         marketId
+        open
       }
       claimedFees {
         id
