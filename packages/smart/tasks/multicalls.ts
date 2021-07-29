@@ -10,7 +10,7 @@ task("multicalls", "get total supply for bpool contract")
   .addParam("marketindex", "market index", undefined, types.int)
   .setAction(
     async ({ marketfactoryaddress, marketindex }: { marketfactoryaddress: string; marketindex: number }, hre) => {
-      const NULL_ADDRESS: string = "0x0000000000000000000000000000000000000000";
+      const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
       const { ethers } = hre;
       const signer = await makeSigner(hre);
       const network = await ethers.provider.getNetwork();
