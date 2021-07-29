@@ -109,51 +109,112 @@ export const ClaimWinningsSection = () => {
   );
 };
 
-const useEventPositionsData = () => {
-  const { markets } = useDataStore();
+const useEventPositionsData = (sortBy: string, search: string) => {
+  const {
+    markets,
+    transactions: { positionBalance },
+  } = useDataStore();
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
-  const marketIds = Array.from(
-    new Set(
-      Object.entries(active)
-        .map(([txhash, bet]: [string, BetType]) => {
-          return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
-        })
-        .filter((i) => i)
-    )
-  );
-  const events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId))).map(
-    (eventId) => marketEvents[eventId]
-  );
-  const eventPositionsData = events.reduce((acc, event) => {
-    const out = { ...acc };
-    const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
-      let result = { ...a };
-      const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
-      if (event?.marketIds?.includes(marketId)) {
-        result[txhash] = bet;
-      }
-      return result;
+  let marketIds = null;
+  let events = null;
+  let eventPositionsData = null;
+  if (sortBy === OPEN) {
+    marketIds = Array.from(
+      new Set(
+        Object.entries(active)
+          .map(([txhash, bet]: [string, BetType]) => {
+            return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
+          })
+          .filter((i) => i)
+      )
+    );
+    events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId)))
+      .map((eventId) => marketEvents[eventId])
+      .filter((v) => v);
+    eventPositionsData = events.reduce((acc, event) => {
+      const out = { ...acc };
+      const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
+        let result = { ...a };
+        const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
+        if (event?.marketIds?.includes(marketId)) {
+          result[txhash] = bet;
+        }
+        return result;
+      }, {});
+      out[event?.eventId] = {
+        eventId: event?.eventId,
+        eventTitle: event?.description,
+        eventStartTime: event?.startTimestamp,
+        bets,
+        marketIds: event?.marketIds,
+      };
+      return out;
     }, {});
-    out[event?.eventId] = {
-      eventId: event?.eventId,
-      eventTitle: event?.description,
-      eventStartTime: event?.startTimestamp,
-      bets,
-      marketIds: event?.marketIds,
-    };
-    return out;
-  }, {});
+  } else {
+    marketIds = Array.from(new Set(positionBalance?.map((p) => p?.marketId))).filter((v) => v);
+    events = Array.from(new Set(marketIds?.map((marketId: string) => markets?.[marketId]?.eventId)))
+      .map((eventId) => marketEvents[eventId])
+      .filter((v) => v);
+    eventPositionsData = events.reduce((acc, event) => {
+      const out = { ...acc };
+      const bets = positionBalance.reduce((a, test) => {
+        let result = { ...a };
+        if (event?.marketIds?.includes(test?.marketId)) {
+          const market = markets[test?.marketId];
+          const betId = `${test.marketId}-${parseInt(test?.outcomeId)}`;
+          result[betId || test?.id] = {
+            ...test,
+            wager: test?.initCostUsd,
+            price: test?.avgPrice,
+            name: market?.outcomes?.[parseInt(test?.outcomeId)]?.name,
+            betId,
+            toWin: test?.payout,
+            cashoutAmount: test?.payout,
+            canCashOut: true,
+          };
+        }
+        return result;
+      }, {});
+      out[event?.eventId] = {
+        eventId: event?.eventId,
+        eventTitle: event?.description,
+        eventStartTime: event?.startTimestamp,
+        bets,
+        marketIds: event?.marketIds,
+      };
+      return out;
+    }, {});
+  }
+  if (!!search) {
+    eventPositionsData = Object.entries(eventPositionsData)
+      .filter(([eventID, event]: any) => {
+        const searchRegex = new RegExp(search, "i");
+        const { eventTitle, eventStartTime, bets } = event;
+        const eventStart = new Date(eventStartTime * 1000);
+        const matchEventTitle = searchRegex.test(eventTitle);
+        const matchDate = searchRegex.test(eventStart.toString());
+        const matchOutcomes = searchRegex.test(
+          JSON.stringify(Object.entries(bets).map(([betId, bet]: any) => bet?.name))
+        );
+        return matchEventTitle || matchDate || matchOutcomes;
+      })
+      .reduce((acc, [eventId, event]) => {
+        const out = { ...acc };
+        out[eventId] = event;
+        return out;
+      }, {});
+  }
   return eventPositionsData;
 };
 
 export const PortfolioView = () => {
   useScrollToTopOnMount();
   const [filter, setFilter] = useState("");
-  const [soryBy, setSortBy] = useState(OPEN);
+  const [sortBy, setSortBy] = useState(OPEN);
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [showActivity, setShowActivity] = useState(false);
-  const eventPositionsData = useEventPositionsData();
+  const eventPositionsData = useEventPositionsData(sortBy, filter);
 
   return (
     <div
@@ -171,16 +232,12 @@ export const PortfolioView = () => {
               setSortBy(value);
             }}
             options={marketStatusItems}
-            defaultValue={soryBy}
+            defaultValue={sortBy}
             preLabel="Market Status"
           />
           <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
-          <SearchInput
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            clearValue={() => setFilter("")}
-          />
+          <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
         </ul>
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
