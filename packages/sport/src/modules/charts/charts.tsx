@@ -223,7 +223,6 @@ export const PriceHistoryChart = ({
       const series =
         priceTimeArray.length === 0 ? [] : handleSeries(priceTimeArray, selectedOutcomes, formattedOutcomes);
       if (!chart || chart?.renderTo !== chartContainer) {
-        // @ts-ignore
         Highcharts.stockChart(chartContainer, { ...options, series });
       } else {
         series?.forEach((seriesObj, index) => {
@@ -236,7 +235,6 @@ export const PriceHistoryChart = ({
         chart.redraw();
       }
     }
-    // eslint-disable-next-line
   }, [selectedOutcomes, options, priceTimeArray]);
 
   useEffect(() => {
@@ -246,7 +244,6 @@ export const PriceHistoryChart = ({
     return () => {
       Highcharts.charts
         .find(
-          // @ts-ignore
           (chart: HighcartsChart) => chart?.renderTo === chartContainer
         )
         ?.destroy();
@@ -388,7 +385,6 @@ const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostR
           },
         },
       },
-      // @ts-ignore
       data,
       visible: isSelected,
     };
@@ -466,12 +462,11 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
       const {
         settings: { timeFormat, oddsFormat },
       } = SportStore.get();
-      // @ts-ignore
-      const date = `${getDayFormat(this.x)}, ${getTimeFormat(this.x, timeFormat)}`;
+      const that = (this as any);
+      const date = `${getDayFormat(that.x)}, ${getTimeFormat(that.x, timeFormat)}`;
       let out = `<h5>${date}</h5><ul>`;
 
-      // @ts-ignore
-      this.points.forEach((point) => {
+      that.points.forEach((point) => {
         const odds = convertToOdds(convertToNormalizedPrice({ price: point.y }), oddsFormat).full;
         out += `<li><span style="color:${point.color}">&#9679;</span><b>${point.series.name}</b><span>${
           odds
@@ -490,7 +485,6 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
 });
 
 export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) =>
-  // @ts-ignore
   orderOutcomesForDisplay(amm.ammOutcomes).map((outcome, outcomeIdx) => ({
     ...outcome,
     outcomeIdx,

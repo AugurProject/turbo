@@ -1,7 +1,7 @@
 @import (reference) "~assets/styles/shared";
 
 .ModalView {
-  background-color: rgba(var(--primary-text-rgb), 0.40);
+  background-color: rgba(var(--primary-text-rgb), 0.4);
   height: 100vh;
   position: fixed;
   width: 100vw;
@@ -12,8 +12,8 @@
 
   > div {
     .ThemeBorder;
+    .TertiaryBorderRadius;
 
-    border-radius: @size-16;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -126,16 +126,15 @@
         > button:last-of-type,
         > div:first-of-type {
           margin-top: 0;
-          
+
           &[class*="MarketTitle"] {
             margin-top: @size-16;
           }
         }
-    
+
         > div:nth-of-type(2) {
           margin-top: 0;
         }
-   
       }
     }
   }
@@ -192,9 +191,8 @@
 
 .Header {
   .text-20-bold;
+  .TertiaryTopBorderRadius;
 
-  border-top-left-radius: @size-16;
-  border-top-right-radius: @size-16;
   display: flex;
   align-items: center;
   flex: 1;
@@ -265,6 +263,7 @@
 }
 
 .FooterText {
+  .TertiaryBottomBorderRadius;
   .text-14;
 
   color: var(--primary-text);
@@ -272,9 +271,6 @@
   background-color: var(--secondary-bg);
   border-top: @size-1 solid var(--theme-border);
   line-height: @size-22;
-  border-radius: @size-16;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
   margin-top: @size-24;
 
   > span:first-of-type {
@@ -282,6 +278,18 @@
     display: flex;
     font-weight: 600;
   }
+
+  > a:first-of-type {
+    .text-16-semi-bold;
+
+    text-transform: unset;
+    text-decoration: underline;
+    color: var(--secondary-text);
+  }
+}
+
+.MarginTop {
+  margin-top: @size-24;
 }
 
 .MarketTitle {
@@ -322,40 +330,4 @@
 
 .HeaderLink {
   cursor: pointer;
-}
-
-.ModalConnectWallet {
-  padding: @size-24 @size-16;
-  max-width: @size-420;
-  width: @size-420;
-
-  @media @breakpoint-mobile {
-    width: calc(100vw - @size-32);
-  }
-
-  > ul {
-    margin-bottom: @size-16;
-
-    > li:not(:last-of-type) {
-      margin-bottom: @size-8;
-    }
-  }
-
-  > .LearnMore {
-    .text-16-semi-bold;
-
-    margin-left: @size-16;
-  }
-
-  > .PendingWalletView {
-    > button {
-      margin-top: @size-16;
-      pointer-events: none;
-      cursor: none;
-    }
-  }
-
-  &.Account {
-    padding: 0;
-  }
 }

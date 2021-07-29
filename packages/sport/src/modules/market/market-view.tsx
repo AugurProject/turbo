@@ -25,7 +25,7 @@ import { Link } from "react-router-dom";
 import { MarketEvent } from "../stores/constants";
 const {
   SEO,
-  LabelComps: { ReportingStateLabel },
+  LabelComps: { ReportingStateLabel, NetworkMismatchBanner },
   Icons: { ConfirmedCheck, SimpleChevron },
 } = Components;
 const { MarketsLink } = Links;
@@ -194,7 +194,8 @@ const MarketView = ({ defaultMarket = null }) => {
     );
 
   const details = getResolutionRules(market.sportsMarketType);
-  const { reportingState, title, description, startTimestamp, winner } = market;
+  const { reportingState, startTimestamp, winner } = market;
+  const { description } = marketEvent;
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   
   const isFinalized = isMarketFinal(market);
@@ -202,13 +203,12 @@ const MarketView = ({ defaultMarket = null }) => {
     <div className={Styles.MarketView}>
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
       <section>
-        {/* <NetworkMismatchBanner /> */}
+        <NetworkMismatchBanner />
         {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
           <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>
           <CategoriesTrail {...{ ...market }} />
         </div>
-        {!!title && <h1>{title}</h1>}
         {!!description && <h2>{description}</h2>}
         {!!startTimestamp && <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>}
         {isFinalized && winningOutcome && <WinningOutcomeLabel winningOutcome={winningOutcome} />}

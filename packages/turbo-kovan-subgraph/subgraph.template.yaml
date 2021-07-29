@@ -50,7 +50,7 @@ dataSources:
           - SettlementFeeClaimed
         abis:
           - name: AbstractMarketFactory
-            file: ./abis/AbstractMarketFactory.json
+            file: ./abis/AbstractMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
@@ -75,7 +75,7 @@ dataSources:
           - MarketResolved
         abis:
           - name: SportsLinkMarketFactory
-            file: ./abis/SportsLinkMarketFactory.json
+            file: ./abis/SportsLinkMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,uint256,uint256,uint256,int256)
             handler: handleMarketCreatedEvent

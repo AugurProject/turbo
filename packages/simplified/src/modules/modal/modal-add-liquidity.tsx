@@ -1,11 +1,11 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./modal.styles.less";
+import ButtonStyles from '../common/buttons.styles.less';
 import { Header } from "./common";
 import { useHistory } from "react-router";
-import { InfoNumbers } from "../market/trading-form";
+import { InfoNumbers, ApprovalButton } from "../market/trading-form";
 import classNames from "classnames";
-import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo } from "../types";
+import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo, DataState } from "@augurproject/comps/build/types";
 import { BigNumber as BN } from "bignumber.js";
 import {
   ContractCalls,
@@ -25,18 +25,18 @@ const {
   addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
+  calcPricesFromOdds,
 } = ContractCalls;
 const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
   Icons: { BackIcon },
-  ButtonComps: { ApprovalButton, BuySellButton },
+  ButtonComps: { SecondaryThemeButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   LabelComps: { generateTooltip, WarningBanner },
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
 } = Components;
 const {
-  YES_NO,
   BUY,
   USDC,
   SHARES,
@@ -106,14 +106,16 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { cashes, ammExchanges, blocknumber } = useDataStore();
+  const { cashes, ammExchanges, blocknumber }: DataState = useDataStore();
   const history = useHistory();
 
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
+  const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
+  const initialOutcomes = hasInitialOdds ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes) : amm?.ammOutcomes || [];
 
-  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(amm?.ammOutcomes || []));
+  const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
   const [showBackView, setShowBackView] = useState(false);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -190,28 +192,34 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     }
   }
 
-  const getCreateBreakdown = (isRemove) => {
+  const orderMinAmountsForDisplay = (
+    items: { amount: string; outcomeId: number; hide: boolean }[] = []
+  ): { amount: string; outcomeId: number; hide: boolean }[] =>
+    items.length > 0 && items[0].outcomeId === 0 ? items.slice(1).concat(items.slice(0, 1)) : items;
+
+  const getCreateBreakdown = (isRemove = false) => {
     const fullBreakdown = [
-      ...orderOutcomesForDisplay(breakdown.minAmounts)
+      ...orderMinAmountsForDisplay(breakdown.minAmounts)
         .filter((m) => !m.hide)
         .map((m) => ({
           label: `${market.outcomes[m.outcomeId]?.name} Shares`,
           value: `${formatSimpleShares(m.amount).formatted}`,
+          svg: null,
         })),
       {
         label: isRemove ? "USDC" : "LP tokens",
         value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
+        svg: null,
       },
     ];
-    const pendingRewards = balances?.pendingRewards?.[marketId]?.balance || "0";
+    const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
     if (pendingRewards !== "0") {
       fullBreakdown.push({
         label: `LP Rewards`,
         value: `${formatEther(pendingRewards).formatted}`,
-        svg: MaticIcon
-      })
+        svg: MaticIcon,
+      });
     }
-
     return fullBreakdown;
   };
 
@@ -423,7 +431,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     [CREATE]: {
       header: "add liquidity",
       showTradingFee: false,
-      setOdds: true,
+      setOdds: !hasInitialOdds,
       setOddsTitle: "Set the price (between 0.02 to 1.0)",
       editableOutcomes: true,
       setFees: false, // set false for version 0
@@ -497,9 +505,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           <main>
             {!LIQUIDITY_STRINGS[modalType].cantEditAmount && (
               <>
-                {LIQUIDITY_STRINGS[modalType].amountSubtitle && (
-                  <span className={Styles.SmallLabel}>{LIQUIDITY_STRINGS[modalType].amountSubtitle}</span>
-                )}
                 <AmountInput
                   ammCash={cash}
                   updateInitialAmount={(amount) => updateAmount(amount)}
@@ -533,14 +538,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                   outcomes={outcomes}
                   selectedOutcome={null}
                   setSelectedOutcome={() => null}
-                  marketType={YES_NO}
                   orderType={BUY}
                   nonSelectable
-                  editable={mustSetPrices}
+                  editable={mustSetPrices && !hasInitialOdds}
                   setEditableValue={(price, index) => setPrices(price, index)}
                   ammCash={cash}
                   dontFilterInvalid
-                  hasLiquidity={!mustSetPrices}
+                  hasLiquidity={!mustSetPrices || hasInitialOdds}
                   marketFactoryType={market?.marketFactoryType}
                 />
               </>
@@ -566,7 +570,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               </>
             )}
 
-            <BuySellButton
+            <SecondaryThemeButton
               action={() => setShowBackView(true)}
               disabled={!isApproved || inputFormError !== ""}
               error={buttonError}
@@ -584,6 +588,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                     : INVALID_PRICE_ADD_UP_SUBTEXT
                   : null
               }
+              customClass={ButtonStyles.BuySellButton}
             />
             <div className={Styles.FooterText}>
               {LIQUIDITY_STRINGS[modalType].footerText}
@@ -630,7 +635,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                 }
               />
             )}
-            <BuySellButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} />
+            <SecondaryThemeButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} customClass={ButtonStyles.BuySellButton} />
             {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
             )}

@@ -158,9 +158,8 @@
 
 .Header {
   .text-20-bold;
+  .SecondaryTopBorderRadius;
 
-  border-top-left-radius: @size-16;
-  border-top-right-radius: @size-16;
   display: flex;
   align-items: center;
   flex: 1;
@@ -237,15 +236,13 @@
 
 .FooterText {
   .text-14;
+  .SecondaryBottomBorderRadius;
 
   color: var(--primary-text);
   padding: @size-24;
   background-color: var(--secondary-bg);
   border-top: @size-1 solid var(--theme-border);
   line-height: @size-22;
-  border-radius: @size-16;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
   margin-top: @size-24;
 
   > span:first-of-type {
@@ -293,39 +290,3 @@
 .HeaderLink {
   cursor: pointer;
 }
-
-// .ModalConnectWallet {
-//   padding: @size-24 @size-16;
-//   max-width: 900px;
-//   width: 900px;
-
-//   @media @breakpoint-mobile {
-//     width: calc(100vw - @size-32);
-//   }
-
-//   > ul {
-//     margin-bottom: @size-16;
-
-//     > li:not(:last-of-type) {
-//       margin-bottom: @size-8;
-//     }
-//   }
-
-//   > .LearnMore {
-//     .text-16-semi-bold;
-
-//     margin-left: @size-16;
-//   }
-
-//   > .PendingWalletView {
-//     > button {
-//       margin-top: @size-16;
-//       pointer-events: none;
-//       cursor: none;
-//     }
-//   }
-
-//   &.Account {
-//     padding: 0;
-//   }
-// }

@@ -42,6 +42,10 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                 ts.factory.createStringLiteral(marketFactory.type)
                               ),
                               context.factory.createPropertyAssignment(
+                                "subtype",
+                                ts.factory.createStringLiteral(marketFactory.subtype)
+                              ),
+                              context.factory.createPropertyAssignment(
                                 "address",
                                 ts.factory.createStringLiteral(marketFactory.address)
                               ),

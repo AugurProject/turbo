@@ -1,6 +1,6 @@
 import { task, types } from "hardhat/config";
 import { buildContractInterfaces, ContractInterfaces } from "..";
-import { SportsLinkMarketFactory } from "../typechain";
+import { SportsLinkMarketFactoryV2 } from "../typechain";
 import { makeSigner } from "./deploy";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -14,7 +14,7 @@ task("pokeLinkCreateMLB", "create MLB markets")
 
     const { MarketFactories } = contracts;
 
-    const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactory;
+    const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactoryV2;
 
     console.log("Poking sports market factory to create new markets for MLB");
     const response = await marketFactory.pokeMarketCreatorMLB();

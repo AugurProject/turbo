@@ -82,7 +82,15 @@ describe("Turbo", () => {
       .div(1000)
       .add(60 * 60 * 24); // one day
     const description = "test market";
-    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols);
+    const odds = [
+      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
+      basis.mul(2).div(2), // Invalid at 2%
+      basis.mul(24).div(2), // All at 24%
+      basis.mul(25).div(2), // Some at 25%
+      basis.mul(25).div(2), // Few at 25%
+      basis.mul(24).div(2), // None at 24%
+    ];
+    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols, odds);
 
     const filter = marketFactory.filters.MarketCreated(null, null, null, null, null);
     const logs = await marketFactory.queryFilter(filter);
@@ -138,18 +146,10 @@ describe("Turbo", () => {
   it("can make an AMM", async () => {
     bFactory = await new BFactory__factory(signer).deploy();
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
-    const weights = [
-      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
-      basis.mul(2).div(2), // Invalid at 2%
-      basis.mul(24).div(2), // All at 24%
-      basis.mul(25).div(2), // Some at 25%
-      basis.mul(25).div(2), // Few at 25%
-      basis.mul(24).div(2), // None at 24%
-    ];
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
-    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, weights, signer.address);
+    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
     pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     // Don't know why user gets this many LP tokens but it shouldn't matter.
     expect(await pool.balanceOf(signer.address)).to.equal(

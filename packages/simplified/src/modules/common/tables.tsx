@@ -1,17 +1,7 @@
-// @ts-nocheck
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./tables.styles.less";
 import classNames from "classnames";
-import {
-  AmmExchange,
-  AmmTransaction,
-  LPTokenBalance,
-  MarketInfo,
-  PositionBalance,
-  SimpleBalance,
-  Winnings,
-} from "../types";
-import { getClaimAllMessage } from '../portfolio/portfolio-view';
+import { getClaimAllMessage } from "../portfolio/portfolio-view";
 import {
   useAppStatusStore,
   useDataStore,
@@ -23,6 +13,17 @@ import {
   Components,
   Stores,
 } from "@augurproject/comps";
+import {
+  AmmExchange,
+  AmmTransaction,
+  LPTokenBalance,
+  MarketInfo,
+  PositionBalance,
+  SimpleBalance,
+  Winnings,
+  UserState,
+  FormattedNumber,
+} from "@augurproject/comps/build/types";
 import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
 const {
@@ -33,7 +34,7 @@ const {
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
+const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares, canAddLiquidity } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
 const { timeSinceTimestamp, getMarketEndtimeFull } = DateUtils;
 const {
@@ -54,6 +55,7 @@ const {
 } = Stores;
 
 interface PositionsTableProps {
+  key?: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
   positions: PositionBalance[];
@@ -62,6 +64,7 @@ interface PositionsTableProps {
 }
 
 interface LiquidityTableProps {
+  key?: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
   lpTokens?: SimpleBalance;
@@ -73,6 +76,7 @@ const MarketTableHeader = ({
   market: { startTimestamp, title, description, marketId },
   ammExchange,
 }: {
+  timeFormat: string;
   market: MarketInfo;
   ammExchange: AmmExchange;
 }) => (
@@ -128,7 +132,14 @@ const PositionHeader = () => {
   );
 };
 
-const PositionRow = ({ position, hasLiquidity = true }: { position: PositionBalance; hasLiquidity: boolean }) => (
+const PositionRow = ({
+  position,
+  hasLiquidity = true,
+}: {
+  position: PositionBalance;
+  hasLiquidity: boolean;
+  key?: string;
+}) => (
   <ul className={Styles.PositionRow}>
     <li>{position.outcomeName}</li>
     <li>{formatSimpleShares(position.quantity).formattedValue}</li>
@@ -175,7 +186,12 @@ export const PositionFooter = ({
   const hasWinner = amm?.market?.hasWinner;
   const disableClaim =
     pendingClaim ||
-    Boolean(transactions.find((t) => t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))));
+    Boolean(
+      transactions.find(
+        (t) =>
+          t.status === TX_STATUS.PENDING && (t.hash === pendingClaimHash || t.message === getClaimAllMessage(ammCash))
+      )
+    );
   const disableCashOut =
     pendingCashOut ||
     (pendingCashOutHash &&
@@ -194,7 +210,7 @@ export const PositionFooter = ({
   const claim = async () => {
     if (amm && account) {
       setPendingClaim(true);
-      claimWinnings(account, loginAccount?.library, [turboId], marketFactoryAddress)
+      claimWinnings(account, loginAccount?.library, [String(turboId)], marketFactoryAddress)
         .then((response) => {
           // handle transaction response here
           setPendingClaim(false);
@@ -236,7 +252,7 @@ export const PositionFooter = ({
       account,
       loginAccount?.library,
       balances?.marketShares[marketId]?.outcomeSharesRaw,
-      turboId,
+      String(turboId),
       amm?.shareFactor,
       amm?.marketFactoryAddress
     )
@@ -295,8 +311,7 @@ export const PositionFooter = ({
           <PrimaryThemeButton
             text={
               !pendingClaim
-                ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full
-                })`
+                ? `Claim Winnings (${formatCash(claimableWinnings?.claimableBalance, amm?.cash?.name).full})`
                 : AWAITING_CONFIRM
             }
             subText={pendingClaim && AWAITING_CONFIRM_SUBTEXT}
@@ -317,20 +332,22 @@ export const PositionFooter = ({
 export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     balances: { marketShares },
-  } = useUserStore();
+  }: UserState = useUserStore();
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
-  const positions = marketShares ?
-    ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    } [])
-    .filter(position => (
-      showResolvedPositions ||
-      position?.claimableWinnings ||
-      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
+  const positions = marketShares
+    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
+    : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
@@ -378,7 +395,7 @@ export const PositionTable = ({
         {positions &&
           positions
             .filter((p) => p.visible)
-            .map((position, id) => <PositionRow key={id} position={position} hasLiquidity={hasLiquidity} />)}
+            .map((position, id) => <PositionRow key={String(id)} position={position} hasLiquidity={hasLiquidity} />)}
         <PositionFooter showTradeButton={!singleMarket} market={market} claimableWinnings={claimableWinnings} />
       </div>
       {!seenMarketPositionWarningAdd &&
@@ -425,13 +442,27 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
   );
 };
 
+const BonusReward = () => (
+  <article className={Styles.BonusReward}>
+    <h4>Bonus Reward</h4>
+    <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
+    <span>
+      <span />
+    </span>
+    <h4>Bonus Unlocks</h4>
+    <p>11 July (4d, 2h, 32m)</p>
+  </article>
+);
+
 export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
   const {
     actions: { setModal },
   } = useAppStatusStore();
   const isfinal = isMarketFinal(market);
+  const canAddLiq = canAddLiquidity(market);
   return (
     <div className={Styles.LiquidityFooter}>
+      {false && <BonusReward />}
       <PrimaryThemeButton
         text="Remove Liquidity"
         action={() =>
@@ -445,9 +476,10 @@ export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
       />
       <SecondaryThemeButton
         text={isfinal ? "Market Resolved" : "Add Liquidity"}
-        disabled={isfinal}
+        disabled={isfinal || !canAddLiq}
         action={() =>
-          !isfinal && setModal({
+          !isfinal &&
+          setModal({
             type: MODAL_ADD_LIQUIDITY,
             market,
             currency: market?.amm?.cash?.name,
@@ -466,18 +498,18 @@ export const AllLiquidityTable = ({ page }) => {
   const { ammExchanges, markets } = useDataStore();
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((ammId) => ({
-      ammExchange: ammExchanges[ammId],
-      market: markets[ammId],
-      lpTokens: lpTokens[ammId],
-    }))
+        ammExchange: ammExchanges[ammId],
+        market: markets[ammId],
+        lpTokens: lpTokens[ammId],
+      }))
     : [];
   const liquiditiesViz = sliceByPage(liquidities, page, POSITIONS_LIQUIDITY_LIMIT).map((liquidity) => {
     return (
       <LiquidityTable
-        key={`${liquidity.market.marketId}-liquidityTable`}
-        market={liquidity.market}
-        ammExchange={liquidity.ammExchange}
-        lpTokens={liquidity.lpTokens}
+        key={`${liquidity?.market?.marketId}-liquidityTable`}
+        market={liquidity?.market}
+        ammExchange={liquidity?.ammExchange}
+        lpTokens={liquidity?.lpTokens}
       />
     );
   });
@@ -496,7 +528,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   } = useSimplifiedStore();
   const { account } = useUserStore();
   const { transactions } = useDataStore();
-  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange.cash);
+  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange?.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
   const isfinal = isMarketFinal(market);
   return (
@@ -550,7 +582,7 @@ export const PositionsLiquidityViewSwitcher = ({
   const [page, setPage] = useState(1);
   const {
     balances: { lpTokens, marketShares },
-  } = useUserStore();
+  }: UserState = useUserStore();
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
@@ -568,22 +600,24 @@ export const PositionsLiquidityViewSwitcher = ({
   }
   const market = ammExchange?.market;
 
-  const positions = marketShares ?
-    ((Object.values(marketShares) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    } [])
-    .filter(position => (
-      showResolvedPositions ||
-      position?.claimableWinnings ||
-      (!showResolvedPositions && !position.ammExchange.market.hasWinner))) : [];
+  const positions = marketShares
+    ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
+    : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-      ammExchange: ammExchanges[marketId],
-      market: markets[marketId],
-      lpTokens: lpTokens[marketId],
-    }))
+        ammExchange: ammExchanges[marketId],
+        market: markets[marketId],
+        lpTokens: lpTokens[marketId],
+      }))
     : [];
 
   const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
@@ -740,8 +774,15 @@ const TransactionsHeader = ({ selectedType, setSelectedType, sortUp, setSortUp }
   );
 };
 
+interface ProcessedAmmTransaction extends AmmTransaction {
+  displayCollateral: FormattedNumber;
+  displayShares?: string;
+  timestamp: string;
+}
+
 interface TransactionProps {
-  transaction: AmmTransaction;
+  key?: string;
+  transaction: ProcessedAmmTransaction;
 }
 
 const TX_PAGE_LIMIT = 10;
@@ -756,7 +797,7 @@ const TransactionRow = ({ transaction }: TransactionProps) => (
     <li>
       <AddressLink account={transaction.sender} short />
     </li>
-    <li>{timeSinceTimestamp(transaction.timestamp)}</li>
+    <li>{timeSinceTimestamp(Number(transaction.timestamp))}</li>
   </ul>
 );
 

@@ -332,6 +332,15 @@ export const MARKET_FACTORY_TYPES = {
   MMALINK: "MMALink",
 };
 
+export const GRAPH_MARKETS = {
+  cryptoMarkets: MARKET_FACTORY_TYPES.CRYPTO,
+  mmaMarkets: MARKET_FACTORY_TYPES.MMALINK,
+  teamSportsMarkets: MARKET_FACTORY_TYPES.SPORTSLINK,
+  resolved_cryptoMarkets: MARKET_FACTORY_TYPES.CRYPTO,
+  resolved_mmaMarkets: MARKET_FACTORY_TYPES.MMALINK,
+  resolved_teamSportsMarkets: MARKET_FACTORY_TYPES.SPORTSLINK,
+};
+
 export const SPORTS_MARKET_TYPE_LABELS = {
   [SPORTS_MARKET_TYPE.SPREAD]: "Spread",
   [SPORTS_MARKET_TYPE.MONEY_LINE]: "Money Line",

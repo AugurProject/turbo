@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import ModalAddLiquidity from './modal-add-liquidity';
-import { useHistory } from 'react-router';
-import Styles from './modal.styles.less';
-import { MODAL_ADD_LIQUIDITY, MODAL_CONNECT_TO_POLYGON } from '../constants';
-import { Constants, Components, Modals, useUserStore, useAppStatusStore } from '@augurproject/comps';
+import React, { useEffect, useState } from "react";
+import ModalAddLiquidity from "./modal-add-liquidity";
+import { useHistory } from "react-router";
+import Styles from "./modal.styles.less";
+import { MODAL_ADD_LIQUIDITY, MODAL_CONNECT_TO_POLYGON } from "../constants";
+import { Constants, Modals, useUserStore, useAppStatusStore } from "@augurproject/comps";
 
 const { ModalConnectWallet } = Modals;
 
-function selectModal(
-  type,
-  modal,
-  logout,
-  closeModal,
-  removeTransaction,
-  isLogged,
-  isMobile
-) {
+function selectModal(type, modal, logout, closeModal, removeTransaction, isLogged, isMobile) {
   switch (type) {
     case MODAL_ADD_LIQUIDITY:
       return <ModalAddLiquidity {...modal} />;
@@ -34,7 +26,14 @@ function selectModal(
       return (
         <section className={Styles.ModalView}>
           <div className={Styles.FooterText}>
-            Unable to connect to Polygon. <Components.ButtonComps.TextButton href="https://docs.matic.network/docs/develop/metamask/config-matic" text="Please change your network provider to Polygon." />
+            Unable to connect to Polygon.{" "}
+            <a
+              href="https://docs.matic.network/docs/develop/metamask/config-matic"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Please change your network provider to Polygon.
+            </a>
           </div>
         </section>
       );
@@ -60,9 +59,7 @@ const ModalView = () => {
 
   const handleKeyDown = (e) => {
     if (e.keyCode === ESCAPE_KEYCODE) {
-      // @ts-ignore
       if (modal && modal.cb) {
-        // @ts-ignore
         modal.cb();
       }
       closeModal();
@@ -70,17 +67,17 @@ const ModalView = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
     return history.listen((location) => {
-      if (history.action === 'PUSH') {
+      if (history.action === "PUSH") {
         setLocationKeys([location.key]);
       }
 
-      if (history.action === 'POP') {
+      if (history.action === "POP") {
         if (locationKeys[1] === location.key) {
           setLocationKeys(([_, ...keys]) => keys);
 
@@ -94,15 +91,7 @@ const ModalView = () => {
     });
   }, [locationKeys]);
 
-  const Modal = selectModal(
-    modal.type,
-    modal,
-    logout,
-    closeModal,
-    removeTransaction,
-    isLogged,
-    isMobile
-  );
+  const Modal = selectModal(modal.type, modal, logout, closeModal, removeTransaction, isLogged, isMobile);
 
   return (
     <section className={Styles.ModalView}>

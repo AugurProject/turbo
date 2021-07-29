@@ -10,16 +10,20 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
+  ContractCalls
 } from "@augurproject/comps";
+import { TopBanner } from '../common/top-banner';
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
+const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
   MarketCardComps: { LoadingMarketCard },
   PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
+  LabelComps: { NetworkMismatchBanner },
 } = Components;
 const {
   ALL_CURRENCIES,
@@ -50,11 +54,6 @@ const applyFiltersAndSort = (
   { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
-
-  // // immediately sort by event id and turbo id.
-  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
-  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  // );
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
@@ -165,7 +164,6 @@ const applyFiltersAndSort = (
     return output;
   }, []);
 
-  // setFilteredMarkets(updatedFilteredMarkets);
   setFilteredEvents(updatedEvents);
 };
 
@@ -186,7 +184,6 @@ const MarketsView = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  // const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
   const marketKeys = Object.keys(markets);
 
@@ -234,7 +231,8 @@ const MarketsView = () => {
 
   const handleNoLiquidity = (market: MarketInfo) => {
     const { amm } = market;
-    if (!amm.id && isLogged) {
+    const canAddLiq = canAddLiquidity(market);
+    if (isLogged && canAddLiq) {
       setModal({
         type: MODAL_ADD_LIQUIDITY,
         market,
@@ -250,6 +248,8 @@ const MarketsView = () => {
       <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
+        <NetworkMismatchBanner />
+        {!isLogged && <TopBanner />}
         <ul>
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />

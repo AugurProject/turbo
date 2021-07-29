@@ -3,13 +3,14 @@ pragma solidity 0.7.6;
 pragma abicoder v2;
 
 import "../balancer/BPool.sol";
-import "./AbstractMarketFactory.sol";
+import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/IERC20Full.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
 
 // IMPORTANT: This can *ONLY* be used for testing.
 //            The spot price is extremely manipulable.
-contract TestPriceMarketFactory is AbstractMarketFactory {
+contract TestPriceMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
 
     event MarketCreated(uint256 id, address creator, uint256 endTime, uint256 spotPrice);
@@ -38,7 +39,7 @@ contract TestPriceMarketFactory is AbstractMarketFactory {
         IERC20Full _tokenIn,
         IERC20Full _tokenOut
     )
-        AbstractMarketFactory(
+        AbstractMarketFactoryV2(
             _owner,
             _collateral,
             _shareFactor,
@@ -69,7 +70,7 @@ contract TestPriceMarketFactory is AbstractMarketFactory {
         _symbols[1] = string("HIGH");
 
         uint256 _id = markets.length;
-        markets.push(makeMarket(_creator, _names, _symbols, _endTime));
+        markets.push(makeMarket(_creator, _names, _symbols, _endTime, evenOdds(false, 2)));
         marketDetails.push(MarketDetails(_spotPrice, 0));
 
         emit MarketCreated(_id, _creator, _endTime, _spotPrice);

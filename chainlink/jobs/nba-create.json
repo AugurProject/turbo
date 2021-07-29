@@ -1,0 +1,30 @@
+{
+  "name": "nba-create",
+  "initiators": [
+    {
+      "type": "web"
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC * */4 * * *"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "nba",
+        "method": "create",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${NBA_MARKET_FACTORY}"
+      }
+    }
+  ]
+}

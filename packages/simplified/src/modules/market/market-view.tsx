@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
+import ButtonStyles from '../common/buttons.styles.less';
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
-// eslint-disable-next-line
-import { AddLiquidity, NetworkMismatchBanner } from "../common/labels";
-// eslint-disable-next-line
+import { AddLiquidity } from "../common/labels";
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
 import {
@@ -19,7 +18,7 @@ import {
   ProcessData,
   Stores,
 } from "@augurproject/comps";
-import type { MarketInfo, AmmOutcome, MarketOutcome } from "@augurproject/comps/build/types";
+import type { MarketInfo, AmmOutcome, MarketOutcome, AmmExchange } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { useSimplifiedStore } from "../stores/simplified";
 import makePath from "@augurproject/comps/build/utils/links/make-path";
@@ -27,14 +26,13 @@ import { MARKETS } from "modules/constants";
 import { Link } from "react-router-dom";
 const {
   SEO,
-  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel },
+  LabelComps: { CategoryIcon, CategoryLabel, CurrencyLabel, ReportingStateLabel, NetworkMismatchBanner },
   Icons: { ConfirmedCheck },
-  ButtonComps: { BuySellButton },
+  ButtonComps: { SecondaryThemeButton },
   InputComps: { OutcomesGrid },
 } = Components;
 const { getResolutionRules } = DerivedMarketData;
-// eslint-disable-next-line
-const { YES_NO, BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
+const { BUY, MARKET_ID_PARAM_NAME, DefaultMarketOutcomes } = Constants;
 const {
   Utils: { isMarketFinal },
 } = Stores;
@@ -144,14 +142,9 @@ const MarketView = ({ defaultMarket = null }) => {
   } = useSimplifiedStore();
   const { cashes, markets, ammExchanges, transactions } = useDataStore();
   useScrollToTopOnMount();
-  // @ts-ignore
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
 
-  // const endTimeDate = useMemo(() => getMarketEndtimeDate(market?.endTimestamp), [market?.endTimestamp]);
   const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
-  // add end time data full to market details when design is ready
-  // const endTimeDateFull = useMemo(() => getMarketEndtimeFull(market?.endTimestamp), [market?.endTimestamp]);
-  // @ts-ignore
   const amm: AmmExchange = ammExchanges[marketId];
 
   useEffect(() => {
@@ -214,17 +207,12 @@ const MarketView = ({ defaultMarket = null }) => {
             <span>Liquidity</span>
             <span>{marketHasNoLiquidity ? "-" : formatLiquidity(amm?.liquidityUSD || "0.00").full}</span>
           </li>
-          {/* <li>
-            <span>Expires</span>
-            <span>{endTimeDate}</span>
-          </li> */}
         </ul>
         <OutcomesGrid
           outcomes={amm?.ammOutcomes}
           selectedOutcome={amm?.ammOutcomes[2]}
           showAllHighlighted
           setSelectedOutcome={() => null}
-          marketType={YES_NO}
           orderType={BUY}
           ammCash={amm?.cash}
           dontFilterInvalid
@@ -255,7 +243,7 @@ const MarketView = ({ defaultMarket = null }) => {
           <span>Transactions</span>
           <TransactionsTable transactions={marketTransactions} />
         </div>
-        <BuySellButton text="Buy / Sell" action={() => setShowTradingForm(true)} />
+        <SecondaryThemeButton text="Buy / Sell" action={() => setShowTradingForm(true)} customClass={ButtonStyles.BuySellButton} />
       </section>
       <section
         className={classNames({

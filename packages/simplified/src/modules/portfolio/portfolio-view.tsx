@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Styles from './portfolio-view.styles.less';
 import Activity from './activity';
 import { PositionsLiquidityViewSwitcher } from '../common/tables';
-import { AppViewStats, NetworkMismatchBanner } from '../common/labels';
+import { AppViewStats } from '../common/labels';
 import {
   ContractCalls,
   Formatter,
@@ -12,6 +12,7 @@ import {
   Stores,
   SEO,
   ButtonComps,
+  LabelComps,
   Utils,
 } from '@augurproject/comps';
 import { PORTFOLIO_HEAD_TAGS } from '../seo-config';
@@ -23,7 +24,7 @@ import { MaticIcon } from "@augurproject/comps/build/components/common/icons";
 const {
   Formatter: { formatCash },
 } = Utils;
-
+const { NetworkMismatchBanner } = LabelComps;
 const { claimWinnings, claimFees } = ContractCalls;
 const { formatEther } = Formatter;
 const { ACTIVITY, TABLES, TX_STATUS, USDC } = Constants;
@@ -258,7 +259,6 @@ export const PortfolioView = () => {
       <section>
         <NetworkMismatchBanner />
         <AppViewStats small />
-        <RewardsSection />
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}

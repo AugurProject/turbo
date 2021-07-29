@@ -47,6 +47,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "mlb and nba",
       type: "SportsLink",
+      subtype: "V2",
       address: sportsLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
@@ -58,6 +59,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "crypto prices",
       type: "Crypto",
+      subtype: "V1",
       address: cryptoMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
@@ -69,10 +71,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       version,
       description: "mma",
       type: "MMALink",
+      subtype: "V1",
       address: mmaLinkMarketFactory.address,
       collateral,
       ammFactory: ammFactory.address,
-      fetcher: nbaFetcher.address,
+      fetcher: mmaFetcher.address,
     });
   }
 

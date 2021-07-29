@@ -26,7 +26,6 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     value0,
     marketType,
   } = marketData;
-  // translate market data
   const eventIdValue = new BN(String(coEventId)).toString(16); // could be used to group events
   const eventId = `0${eventIdValue}`.slice(-32); // just grab the last 32
   const homeTeamId = String(coHomeTeamId); // home team identifier
@@ -175,7 +174,7 @@ const getMarketOutcome = (sportId: string, sportsMarketType: number, outcomeId: 
 
 const decodeOutcomes = (
   market: MarketInfo,
-  shareTokens: string[],
+  shareTokens: string[] = [],
   sportId: string,
   homeTeam: string,
   awayTeam: string,

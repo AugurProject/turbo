@@ -11,6 +11,16 @@
   grid-column: span 3;
 }
 
+.SearchButton {
+  .ThemeBorder;
+
+  padding: @size-12 @size-16;
+
+  &.Selected {
+    background: var(--tertiary-bg);
+  }
+}
+
 .MarketsView {
   display: flex;
   flex-flow: column nowrap;

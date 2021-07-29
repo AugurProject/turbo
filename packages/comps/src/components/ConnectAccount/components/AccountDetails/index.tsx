@@ -157,7 +157,6 @@ const Transactions = ({ transactions, removeTransaction, chainId }) => {
 
 const formatConnectorName = (connector) => {
   const ethereum = window["ethereum"];
-  // @ts-ignore
   const isMetaMask = !!(ethereum && ethereum.isMetaMask);
   return (
     "Connected with " +

@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import Styles from "modules/market/trading-form.styles.less";
+import React, { ReactNode, useEffect, useMemo, useState, useCallback } from "react";
+import Styles from "../market/trading-form.styles.less";
+import ButtonStyles from "../common/buttons.styles.less";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
 import { BigNumber as BN } from "bignumber.js";
@@ -12,16 +13,18 @@ import {
   useDataStore,
   Components,
   useApprovalStatus,
+  ApprovalHooks,
 } from "@augurproject/comps";
-import type { AmmOutcome, Cash, EstimateTradeResult } from "@augurproject/comps/build/types";
+import type { AmmOutcome, Cash, EstimateTradeResult, AmmExchange } from "@augurproject/comps/build/types";
 import { Slippage } from "../common/slippage";
 import getUSDC from "../../utils/get-usdc";
 const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
+const { approveERC20Contract } = ApprovalHooks;
 const {
   Icons: { CloseIcon },
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
-  ButtonComps: { ApprovalButton, BuySellButton },
+  ButtonComps: { SecondaryThemeButton },
   BuySellToggleSwitch,
 } = Components;
 const { formatCash, formatCashPrice, formatPercent, formatSimpleShares } = Formatter;
@@ -35,7 +38,6 @@ const {
   TX_STATUS,
   BUY,
   SELL,
-  YES_NO,
   TradingDirection,
   RESOLVED_MARKET,
 } = Constants;
@@ -138,7 +140,6 @@ const formatBreakdown = (isBuy: boolean, breakdown: EstimateTradeResult | null, 
 
 interface TradingFormProps {
   amm: any;
-  marketType?: string;
   initialSelectedOutcome: AmmOutcome | any;
 }
 
@@ -148,7 +149,7 @@ interface CanTradeProps {
   subText?: string | null;
 }
 
-const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: TradingFormProps) => {
+const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
   const { isLogged } = useAppStatusStore();
   const { cashes, blocknumber } = useDataStore();
   const {
@@ -390,7 +391,6 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
             setSelectedOutcome(outcome);
             setAmount("");
           }}
-          marketType={marketType}
           orderType={orderType}
           ammCash={ammCash}
           dontFilterInvalid
@@ -421,12 +421,13 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
             }}
           />
         )}
-        <BuySellButton
+        <SecondaryThemeButton
           disabled={canMakeTrade.disabled || !isApprovedTrade}
           action={makeTrade}
           text={canMakeTrade.actionText}
           subText={canMakeTrade.subText}
           error={buttonError}
+          customClass={ButtonStyles.BuySellButton}
         />
       </div>
     </div>
@@ -434,3 +435,105 @@ const TradingForm = ({ initialSelectedOutcome, marketType = YES_NO, amm }: Tradi
 };
 
 export default TradingForm;
+
+export const ApprovalButton = ({
+  amm,
+  cash,
+  actionType,
+  isApproved = false,
+  shareToken = null,
+}: {
+  amm?: AmmExchange;
+  cash: Cash;
+  actionType: string | number;
+  isApproved?: boolean;
+  shareToken?: string;
+}) => {
+  const [isPendingTx, setIsPendingTx] = useState(false);
+  const {
+    loginAccount,
+    actions: { addTransaction },
+  } = useUserStore();
+  const marketCashType = cash?.name;
+  const ammFactory = amm.ammFactoryAddress;
+  const marketDescription = `${amm?.market?.title} ${amm?.market?.description}`;
+  useEffect(() => {
+    // make sure to flip local state off if we are approved, logged, pending
+    if (isApproved && loginAccount && isPendingTx) {
+      setIsPendingTx(false);
+    }
+  }, [isApproved, loginAccount, isPendingTx]);
+
+  const approve = useCallback(async () => {
+    try {
+      setIsPendingTx(true);
+      // defaults for ADD_LIQUIDITY/most used values.
+      let approvalAction = approveERC20Contract;
+      let address = cash?.address;
+      let spender = ammFactory;
+      let text = `Liquidity (${marketCashType})`;
+      switch (actionType) {
+        case ApprovalAction.EXIT_POSITION: {
+          address = shareToken;
+          text = `To Sell (${marketCashType})`;
+          break;
+        }
+        case ApprovalAction.ENTER_POSITION: {
+          text = `To Buy (${marketCashType})`;
+          break;
+        }
+        case ApprovalAction.REMOVE_LIQUIDITY: {
+          address = amm?.id;
+          spender = ammFactory;
+          text = `Liquidity (${marketCashType})`;
+          break;
+        }
+        case ApprovalAction.ADD_LIQUIDITY:
+        default: {
+          break;
+        }
+      }
+      const tx = await approvalAction(address, text, spender, loginAccount);
+      tx.marketDescription = marketDescription;
+      addTransaction(tx);
+    } catch (error) {
+      setIsPendingTx(false);
+      console.error(error);
+    }
+  }, [cash, loginAccount, shareToken, amm]);
+
+  if (!loginAccount || isApproved) {
+    return null;
+  }
+
+  let buttonText = "";
+  let subText = "";
+  switch (actionType) {
+    case ApprovalAction.ENTER_POSITION: {
+      buttonText = "Approve to Buy";
+      break;
+    }
+    case ApprovalAction.EXIT_POSITION: {
+      buttonText = "Approve to Sell";
+      break;
+    }
+    case ApprovalAction.REMOVE_LIQUIDITY: {
+      buttonText = "Approve Removal";
+      subText = "(approve to see removal estimation)";
+      break;
+    }
+    default:
+      buttonText = `Approve ${marketCashType}`;
+      break;
+  }
+
+  return (
+    <SecondaryThemeButton
+      disabled={isPendingTx}
+      text={isPendingTx ? "Approving..." : buttonText}
+      subText={subText}
+      action={() => approve()}
+      customClass={ButtonStyles.ApproveButton}
+    />
+  );
+};
