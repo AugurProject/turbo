@@ -215,7 +215,7 @@ export const PortfolioView = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [showActivity, setShowActivity] = useState(false);
   const eventPositionsData = useEventPositionsData(sortBy, filter);
-  console.log("eventPositionsData", eventPositionsData);
+
   return (
     <div
       className={classNames(Styles.PortfolioView, {

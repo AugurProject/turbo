@@ -127,14 +127,14 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           timestamp,
         } = bet;
         const market = markets[marketId];
-        const cashout = formatDai(cashoutAmount).formatted;
+        const cashout = formatCash(cashoutAmount, USDC);
         const buttonName = !canCashOut
           ? CASHOUT_NOT_AVAILABLE
           : !isApproved
-          ? `APPROVE CASHOUT $${cashout}`
+          ? `APPROVE CASHOUT ${cashout.full}`
           : isPending
-          ? `PENDING $${cashout}`
-          : `CASHOUT: $${cashout}`;
+          ? `PENDING ${cashout.full}`
+          : `CASHOUT: ${cashout.full}`;
 
         return (
           <ul key={tx_hash}>
@@ -148,7 +148,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
-                customClass={determineClasses({ ...bet, cashout })}
+                customClass={determineClasses({ ...bet, cashout: cashout.formatted })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
                 text={buttonName}
