@@ -26,9 +26,9 @@ export const GetWalletIcon = ({connector, account, showPortisButton = false }: G
       iconAlt = 'Wallet Connect Logo';
       break;
     case walletlink:
-        icon = WalletLinkIcon;
-        iconAlt = 'Wallet Link Logo';
-        break;
+      icon = WalletLinkIcon;
+      iconAlt = 'Wallet Link Logo';
+      break;
     default:
       return null;
   }
