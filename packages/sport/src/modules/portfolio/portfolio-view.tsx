@@ -110,7 +110,7 @@ export const ClaimWinningsSection = () => {
 };
 
 const useEventPositionsData = () => {
-  const { markets } = useDataStore();
+  const { markets, transactions: { positionBalance } } = useDataStore();
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
   const marketIds = Array.from(
@@ -144,7 +144,42 @@ const useEventPositionsData = () => {
     };
     return out;
   }, {});
-  return eventPositionsData;
+  const positionMarkets = Array.from(new Set(positionBalance?.map(p => p?.marketId)));
+  const positionEvents = Array.from(new Set(positionMarkets?.map((marketId: string) => markets?.[marketId]?.eventId))).map(
+    (eventId) => marketEvents[eventId]
+  ).filter(v => v);
+  const eventPositionsDataClosed = positionEvents.reduce((acc, event) => {
+    const out = { ...acc };
+    const bets = positionBalance.reduce((a, test) => {
+      let result = { ...a };
+      if (event?.marketIds?.includes(test?.marketId)) {
+        const market = markets[test?.marketId];
+        result[test?.id] = {
+          ...test,
+          wager: test?.initCostUsd,
+          price: test?.avgPrice,
+          name: market?.outcomes?.[parseInt(test?.outcomeId)]?.name,
+          betId: `${test.marketId}-${parseInt(test?.outcomeId)}`,
+          toWin: test?.payout,
+          cashoutAmount: test?.payout,
+          canCashOut: true,
+        };
+      }
+      // console.log("in loop", result, test, event?.marketIds);
+      return result;
+    }, {});
+    out[event?.eventId] = {
+      eventId: event?.eventId,
+      eventTitle: event?.description,
+      eventStartTime: event?.startTimestamp,
+      bets,
+      marketIds: event?.marketIds,
+    };
+    return out;
+  }, {});
+  // console.log("currentEventPositionsData", eventPositionsData, positionBalance, positionMarkets, positionEvents, eventPositionsDataClosed);
+
+  return { ...eventPositionsData, ...eventPositionsDataClosed};
 };
 
 export const PortfolioView = () => {
@@ -154,7 +189,7 @@ export const PortfolioView = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [showActivity, setShowActivity] = useState(false);
   const eventPositionsData = useEventPositionsData();
-
+  console.log("eventPositionsData", eventPositionsData);
   return (
     <div
       className={classNames(Styles.PortfolioView, {

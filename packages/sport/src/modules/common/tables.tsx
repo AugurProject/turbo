@@ -7,10 +7,10 @@ import { useBetslipStore } from "../stores/betslip";
 import { TicketBreakdown } from "../betslip/betslip";
 
 import { approveOrCashOut } from "../utils";
-import { CASHOUT_NOT_AVAILABLE } from "../constants";
+import { CASHOUT_NOT_AVAILABLE, USDC } from "../constants";
 import { EmptyBetslipIcon } from "../betslip/betslip";
 const {
-  Formatter: { formatDai },
+  Formatter: { formatDai, formatCash },
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
@@ -139,9 +139,9 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
               <span>{name}</span>
               <span>{subHeading}</span>
             </li>
-            <li>${wager === "0.00" ? "-" : wager}</li>
+            <li>{wager === "0.00" ? "-" : formatCash(wager, USDC).full}</li>
             <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
-            <li>{toWin && toWin !== "0" ? `$${toWin}` : "-"}</li>
+            <li>{toWin && toWin !== "0" ? formatCash(toWin, USDC).full : "-"}</li>
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
