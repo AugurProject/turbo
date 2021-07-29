@@ -6,7 +6,7 @@ import {
 } from "../../generated/AmmFactory/AmmFactory";
 import { BPool as BPoolContract } from "../../generated/AmmFactory/BPool";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAddLiquidity,
   getOrCreateAmmFactory,
@@ -18,7 +18,7 @@ import {
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
 import {
-  getOrCreateInitialCostPerMarket,
+  getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance,
   handlePositionFromLiquidityChangedEvent,
   handlePositionFromTradeEvent
 } from "../helpers/CommonHandlers";
@@ -52,7 +52,7 @@ function liquidityCollateralPerShare(collateral: BigInt, sharesReturnedArray: Bi
   return totalSharesReturned.gt(BigInt.fromI32(0)) ? collateral / totalSharesReturned : BigInt.fromI32(0);
 }
 
-function calculateInitialCostPerMarket(senderId: string, marketId: string, logId: string, collateral: BigInt, outcome: string, shares: BigInt): void {
+function calculateInitialCostPerOutcome(senderId: string, marketId: string, logId: string, collateral: BigInt, outcome: string, shares: BigInt): void {
   let entity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId + "-" + outcome);
   let log = entity.log;
   if (log) {
@@ -87,10 +87,26 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
+  let liquidityPositionBalanceId = senderId + "-" + marketId;
 
   let addLiquidityEntity = getOrCreateAddLiquidity(id, true, false);
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
+  let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
+  let absCollateral = event.params.collateral.abs();
+  let absCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
+  liquidityPositionBalance.addCollateral = liquidityPositionBalance.addCollateral + absCollateral;
+  liquidityPositionBalance.addCollateralBigDecimal = liquidityPositionBalance.addCollateralBigDecimal + absCollateralBigDecimal;
+  let log = liquidityPositionBalance.log;
+  let logId = event.transaction.hash.toHexString() + " + " + absCollateralBigDecimal.toString();
+  if (log) {
+    let wasAlreadySummed = log.includes(logId);
+    if (!wasAlreadySummed) {
+      log.push(logId);
+      liquidityPositionBalance.log = log;
+    }
+  }
+  liquidityPositionBalance.save();
 
   addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   addLiquidityEntity.timestamp = event.block.timestamp;
@@ -117,9 +133,46 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let removeLiquidityEntity = getOrCreateRemoveLiquidity(id, true, false);
+  let liquidityPositionBalanceId = senderId + "-" + marketId;
+  let sharesReturnedArray: BigInt[] = event.params.sharesReturned;
+  let absCollateral = event.params.collateral.abs();
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   getOrCreateOutcomes(id);
+  let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
+  liquidityPositionBalance.removeCollateral = absCollateral;
+  liquidityPositionBalance.removeCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
+  liquidityPositionBalance.sharesReturned = event.params.sharesReturned;
+  let log = liquidityPositionBalance.log;
+  let logId = event.transaction.hash.toHexString() + " - " + absCollateral.toString()
+  if (log) {
+    let wasAlreadySummed = log.includes(logId);
+    if (!wasAlreadySummed) {
+      log.push(logId);
+      let numberOfOutcomesThatGotShares = sharesReturnedArray.filter(shares => shares.toBigDecimal().div(SHARES_DECIMALS) >= DUST_POSITION_AMOUNT_BIG_DECIMAL).length;
+      if (numberOfOutcomesThatGotShares > 0) {
+        let collateralPerOutcome = (liquidityPositionBalance.addCollateral - absCollateral) / BigInt.fromI32(numberOfOutcomesThatGotShares);
+        let collateralPerOutcomeBigDecimal = collateralPerOutcome.toBigDecimal().div(USDC_DECIMALS);
+        let avgPricePerOutcome = liquidityPositionBalance.avgPricePerOutcome;
+        for (let i = 0; i < sharesReturnedArray.length; i++) {
+          if (avgPricePerOutcome) {
+            let sharesReturned = sharesReturnedArray[i].toBigDecimal().div(SHARES_DECIMALS);
+            let isItBiggerThanDust = sharesReturned.gt(DUST_POSITION_AMOUNT_BIG_DECIMAL);
+            log.push("sharesReturned: " + sharesReturned.toString() + " | "  + DUST_POSITION_AMOUNT_BIG_DECIMAL.toString() + " | " + isItBiggerThanDust.toString() + " | " + collateralPerOutcomeBigDecimal.toString());
+            if (sharesReturned.gt(DUST_POSITION_AMOUNT_BIG_DECIMAL)) {
+              let calcAvgPricePerOutcome = collateralPerOutcomeBigDecimal.div(sharesReturned);
+              avgPricePerOutcome.push(calcAvgPricePerOutcome);
+            } else {
+              avgPricePerOutcome.push(ZERO.toBigDecimal());
+            }
+          }
+        }
+        liquidityPositionBalance.log = log;
+        liquidityPositionBalance.avgPricePerOutcome = avgPricePerOutcome;
+      }
+    }
+  }
+  liquidityPositionBalance.save();
 
   removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   removeLiquidityEntity.timestamp = event.block.timestamp;
@@ -130,13 +183,21 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   removeLiquidityEntity.totalSupply = totalSupply;
   removeLiquidityEntity.sharesReturned = event.params.sharesReturned;
 
-  let sharesReturnedArray: BigInt[] = event.params.sharesReturned;
   let liquidityCollateralPerShare = liquidityCollateralPerShare(event.params.collateral, sharesReturnedArray);
   for (let i = 0; i < sharesReturnedArray.length; i++) {
     if (sharesReturnedArray[i].toBigDecimal().div(SHARES_DECIMALS) >= DUST_POSITION_AMOUNT_BIG_DECIMAL) {
       handlePositionFromLiquidityChangedEvent(event, false, sharesReturnedArray[i], BigInt.fromI32(i), liquidityCollateralPerShare);
     }
   }
+
+  liquidityPositionBalance.sharesReturned = new Array<BigInt>();
+  liquidityPositionBalance.avgPricePerOutcome = new Array<BigDecimal>();
+  liquidityPositionBalance.addCollateral = ZERO;
+  liquidityPositionBalance.addCollateralBigDecimal = ZERO.toBigDecimal();
+  liquidityPositionBalance.removeCollateral = ZERO;
+  liquidityPositionBalance.removeCollateralBigDecimal = ZERO.toBigDecimal();
+  liquidityPositionBalance.sharesReturned = new Array<BigInt>();
+  liquidityPositionBalance.save();
 
   removeLiquidityEntity.save();
 }
@@ -204,7 +265,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradeEntity.timestamp = event.block.timestamp;
 
   let logId = event.transaction.hash.toHexString() + "-" + event.params.outcome.toHexString() + "-" + event.params.collateral.toString();
-  calculateInitialCostPerMarket(senderId, marketId, logId, event.params.collateral, outcome, event.params.shares);
+  calculateInitialCostPerOutcome(senderId, marketId, logId, event.params.collateral, outcome, event.params.shares);
 
   handlePositionFromTradeEvent(event);
 

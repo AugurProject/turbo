@@ -219,6 +219,17 @@ type InitialCostPerMarket @entity {
   sharesFromTradesBigDecimal: BigDecimal
   sumOfInitialCost: BigInt!
   sumOfInitialCostBigDecimal: BigDecimal
-  avgPrice: BigDecimal
+  avgPrice: BigDecimal!
   log: [String!]
+}
+
+type LiquidityPositionBalance @entity {
+  id: ID!
+  addCollateral: BigInt!
+  addCollateralBigDecimal: BigDecimal!
+  removeCollateral: BigInt!
+  removeCollateralBigDecimal: BigDecimal!
+  sharesReturned: [BigInt!]!
+  avgPricePerOutcome: [BigDecimal!]!
+  log: [String!]!
 }
