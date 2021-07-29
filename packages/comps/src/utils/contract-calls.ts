@@ -1587,7 +1587,7 @@ const retrieveMarkets = async (
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
-  const POOLS = "pools";
+  const GET_POOL = "getPool";
   const marketFactoryData = getMarketFactoryData(factoryAddress);
   if (!marketFactoryData) return [];
 
@@ -1640,7 +1640,7 @@ const retrieveMarkets = async (
         calls: [
           {
             reference: `${ammFactoryAddress}-${index}-pools`,
-            methodName: POOLS,
+            methodName: GET_POOL,
             methodParameters: [marketFactoryAddress, index],
             context: {
               index,
@@ -1668,7 +1668,7 @@ const retrieveMarkets = async (
 
     if (method === GET_MARKET_DETAILS) {
       details[marketId] = data;
-    } else if (method === POOLS) {
+    } else if (method === GET_POOL) {
       const id = data === NULL_ADDRESS ? null : data;
       exchanges[marketId] = {
         marketId,
