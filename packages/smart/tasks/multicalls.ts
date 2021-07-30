@@ -35,7 +35,7 @@ task("multicalls", "get total supply for bpool contract")
 
       const ammFactoryContract = AMMFactory__factory.connect(addressMapping.ammFactory, signer);
       const pool = await ammFactoryContract.getPool(marketfactoryaddress, marketindex);
-      console.log("amm factory", addressMapping.ammFactory)
+      console.log("amm factory", addressMapping.ammFactory);
       console.log("pool address", pool);
 
       if (pool === NULL_ADDRESS) return console.log("no balancer pool doesn't exist");
