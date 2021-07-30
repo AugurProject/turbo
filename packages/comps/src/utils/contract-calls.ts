@@ -1493,10 +1493,13 @@ const setIgnoreRemoveMarketList = (
 
   // <Removal> MLB spread and over/under
   // <Removal> for sportsbook removing crypto
-  const ignoredSportsMarkets =
+  const ignoredSportsMarkets = Object.values(allMarkets).filter((m) =>
+    isIgnoredMarket(m?.sportId, m?.sportsMarketType)
+  );
+  const ignoredCrypto =
     loadtype === MARKET_LOAD_TYPE.SPORT
       ? Object.values(allMarkets).filter(({ marketFactoryType }) => marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO)
-      : Object.values(allMarkets).filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType));
+      : [];
 
   // <Removal> same eventIds, market with liquidity wins
   const existingEvents = Object.values(allMarkets)
@@ -1507,6 +1510,7 @@ const setIgnoreRemoveMarketList = (
   );
 
   const ignoreRemovedMarkets = [
+    ...ignoredCrypto,
     ...nonLiqResolvedMarkets,
     ...zeroSpreadMarkets,
     ...ignoredSportsMarkets,
