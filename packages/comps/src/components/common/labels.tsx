@@ -307,21 +307,21 @@ export const NetworkMismatchBanner = () => {
         </article>
       )}
       {needMoreMatic && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+          className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
         >
           You will need MATIC in order to participate. <ExternalLink label="Click here for more information." URL="https://help.augur.net" />
       </article>}
       {isRpcDown && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+          className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
         >
           MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
       </article>}
       {isDegraded && <article
-          className={classNames(Styles.NetworkMismatch, Styles.WarningBanner, {
+          className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
         >

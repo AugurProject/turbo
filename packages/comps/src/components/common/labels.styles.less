@@ -550,37 +550,6 @@
   }
 }
 
-.WarningBanner {
-  border-radius: @size-8;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  border: @size-1 solid var(--success);
-  padding: @size-16 @size-18;
-
-  > div:first-of-type {
-    display: flex;
-    flex-direction: column;
-    margin-left: @size-14;
-
-    > span:first-of-type {
-      .text-12-semi-bold;
-
-      color: var(--primary-text);
-      margin-bottom: @size-4;
-    }
-
-    > span:last-of-type {
-      .text-12;
-
-      color: var(--primary-text);
-    }
-  }
-
-  > div:nth-of-type(2) {
-    cursor: pointer;
-  }
-}
-
 .MovementLabel_Text {
   &_positive {
     color: var(--success);
@@ -657,7 +626,7 @@
   }
 }
 
-.WarningBanner {
+.NetworkWarningBanner {
   background: rgba(var(--warning-rgb), 0.15);
   color: var(--warning);
   word-break: normal;
@@ -675,6 +644,38 @@
     display: inline;
     height: unset;
     max-height: unset;
+  }
+}
+
+
+.WarningBanner {
+  border-radius: @size-8;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  border: @size-1 solid var(--success);
+  padding: @size-16 @size-18;
+
+  > div:first-of-type {
+    display: flex;
+    flex-direction: column;
+    margin-left: @size-14;
+
+    > span:first-of-type {
+      .text-12-semi-bold;
+
+      color: var(--primary-text);
+      margin-bottom: @size-4;
+    }
+
+    > span:last-of-type {
+      .text-12;
+
+      color: var(--primary-text);
+    }
+  }
+
+  > div:nth-of-type(2) {
+    cursor: pointer;
   }
 }
 
