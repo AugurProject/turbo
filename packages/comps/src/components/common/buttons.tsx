@@ -77,6 +77,7 @@ export const BaseThemeButton = ({
         [Styles.Error]: hasError,
         [Styles.Selected]: selected,
         [Styles.IconOnly]: !text && !subText,
+        [Styles.Subtext]: !!subText,
         [Styles.NoHighlight]: noHighlight,
       },
       customClass
