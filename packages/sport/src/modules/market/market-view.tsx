@@ -158,10 +158,10 @@ const MarketView = ({ defaultMarket = null }) => {
   useEffect(() => {
     if (timeoutId && market) {
       clearTimeout(timeoutId);
-      timeoutId = null
+      timeoutId = null;
     }
   }, [market]);
- 
+
   if (marketNotFound) return <NonexistingMarketView text="Market does not exist." />;
 
   if (!market) return <EmptyMarketView />;
@@ -187,17 +187,16 @@ const MarketView = ({ defaultMarket = null }) => {
       )
     : transactions[marketId] || { volumeTotalUSD: null, volume24hrTotalUSD: null, liquidityUSD: amm?.liquidityUSD };
   const outcomeContent =
-  marketEvent?.marketIds && marketEvent?.marketIds?.length > 1 ? (
+    marketEvent?.marketIds && marketEvent?.marketIds?.length > 1 ? (
       <SportsCardComboOutcomes {...{ marketEvent }} />
     ) : (
       <SportsCardOutcomes {...{ ...market }} />
     );
 
   const details = getResolutionRules(market.sportsMarketType);
-  const { reportingState, startTimestamp, winner } = market;
-  const { description } = marketEvent;
+  const { reportingState, startTimestamp, winner, description: marketDescription } = market;
+  const { description } = marketEvent || { description: marketDescription };
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
-  
   const isFinalized = isMarketFinal(market);
   return (
     <div className={Styles.MarketView}>
