@@ -366,7 +366,11 @@ export const estimateBuyTrade = (
   try {
     result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
   } catch (e) {
-    console.log("error in estimate buy", e);
+    if (String(e).indexOf("ERR_DIV_ZERO") > -1) {
+      console.log("Insufficent Liquidity to estimate buy", inputDisplayAmount);
+    } else {
+      console.log("error in estimate buy", e);
+    }
   }
 
   if (!result) return null;
@@ -1770,7 +1774,7 @@ const fillMarketsData = async (
   blocknumber
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number }> => {
   if (!markets || markets?.length === 0) return { markets: {}, ammExchanges: {}, blocknumber };
-  const POOLS = "pools";
+  const POOLS = "getPool";
   const marketFactories = Array.from(new Set(Object.values(markets).map((m) => m.marketFactoryAddress)));
   const filteredMarkets = markets.filter(
     (m) => !(ignoreList[m.marketFactoryAddress.toUpperCase()] || []).includes(m.turboId)
