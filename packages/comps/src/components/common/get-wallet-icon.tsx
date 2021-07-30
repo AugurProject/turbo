@@ -1,7 +1,8 @@
 import React from 'react';
-import { injected, walletconnect } from '../ConnectAccount/connectors';
+import { injected, walletconnect, walletlink } from '../ConnectAccount/connectors';
 import Identicon from '../ConnectAccount/components/Identicon';
 import WalletConnectIcon from '../ConnectAccount/assets/walletConnectIcon.svg';
+import WalletLinkIcon from '../ConnectAccount/assets/coinbaseWalletIcon.svg';
 import Styles from './get-wallet-icon.styles.less';
 import {AbstractConnector} from '@web3-react/abstract-connector';
 
@@ -23,6 +24,10 @@ export const GetWalletIcon = ({connector, account, showPortisButton = false }: G
     case walletconnect:
       icon = WalletConnectIcon;
       iconAlt = 'Wallet Connect Logo';
+      break;
+    case walletlink:
+      icon = WalletLinkIcon;
+      iconAlt = 'Wallet Link Logo';
       break;
     default:
       return null;
