@@ -239,7 +239,7 @@ export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => 
           setModal({
             type: MODAL_CONNECT_WALLET,
             darkMode: false,
-            autoLogin: true,
+            autoLogin: false,
             transactions,
           })
         }
