@@ -17,6 +17,14 @@
   font-weight: var(--normal-button-font-weight);
   flex-flow: var(--normal-button-flex-flow);
 
+  &.Subtext {
+    flex-flow: column nowrap;
+
+    > span:last-of-type {
+      font-weight: normal;
+    }
+  }
+
   > span {
     white-space: nowrap;
   }
