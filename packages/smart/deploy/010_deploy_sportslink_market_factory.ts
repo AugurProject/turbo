@@ -1,9 +1,9 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber } from "ethers";
-import { calcShareFactor } from "../src";
-import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash__factory, SportsLinkMarketFactoryV2__factory } from "../typechain";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {DeployFunction} from "hardhat-deploy/types";
+import {BigNumber} from "ethers";
+import {calcShareFactor} from "../src";
+import {isHttpNetworkConfig, makeSigner} from "../tasks";
+import {Cash__factory, SportsLinkMarketFactoryV2__factory} from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -44,7 +44,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     sportId,
   ];
 
-  await deployments.deploy("SportsLinkMarketFactory", {
+  await deployments.deploy("SportsLinkMarketFactoryV2", {
     from: deployer,
     args,
     log: true,
