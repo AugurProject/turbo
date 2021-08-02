@@ -53,7 +53,12 @@ const handleClaimAll = async (loginAccount, ids, factoryAddress, addTransaction,
   }
 };
 
-const ClaimableTicket = ({ amount, cash, USDCTotal }) => {
+const ClaimableTicket = ({ amount, cash, USDCTotal }: {
+  amount: string,
+  cash: Cash,
+  USDCTotal: any,
+  key?: string,
+}): React.Component => {
   const {
     loginAccount,
     transactions,
@@ -100,6 +105,7 @@ export const ClaimWinningsSection = () => {
         hasWinnings &&
         USDCTotals.map((USDCTotal) => (
           <ClaimableTicket
+            key={`${USDCTotal?.total}-${usdcCash?.name}`}
             amount={formatCash(USDCTotal.total, usdcCash?.name).full}
             cash={usdcCash}
             USDCTotal={USDCTotal}
