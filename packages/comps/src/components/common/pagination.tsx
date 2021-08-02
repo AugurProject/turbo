@@ -1,6 +1,7 @@
 import React from "react";
+import classNames from 'classnames';
 import Styles from "./pagination.styles.less";
-import { SecondaryThemeButton } from "./buttons";
+import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
 import { SimpleChevron } from "./icons";
 
 export interface PaginationProps {
@@ -12,6 +13,7 @@ export interface PaginationProps {
   showLimitChanger?: boolean;
   maxLimit?: number;
   showPagination?: boolean;
+  useFull?: boolean;
 }
 
 export interface PagesArrayObject {
@@ -80,16 +82,17 @@ export const createPagesArray = (page: number, totalPages: number) => {
   return ArrayToShow;
 };
 
-export const Pagination = ({ page, action, itemCount, itemsPerPage, showPagination = true }: PaginationProps) => {
+export const Pagination = ({ page, action, itemCount, itemsPerPage, showPagination = true, useFull = false }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
+  const pagesArray = createPagesArray(page, totalPages);
   return (
-    <div className={Styles.Pagination}>
+    <div className={classNames(Styles.Pagination, { 
+      [Styles.Full]: useFull,
+    })}>
       {showPagination && (
         <section>
           <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={SimpleChevron} />
-          <span>
-            Page {page} of {totalPages}
-          </span>
+          {handleMiddle({ page, totalPages, pagesArray, action, useFull })}
           <SecondaryThemeButton
             action={() => action(page + 1)}
             disabled={page === totalPages || totalPages === 0}
@@ -99,4 +102,31 @@ export const Pagination = ({ page, action, itemCount, itemsPerPage, showPaginati
       )}
     </div>
   );
+};
+
+const handleMiddle = ({ page, totalPages, pagesArray, action, useFull = false }) => {
+  let content = (
+    <span>
+      Page {page} of {totalPages}
+    </span>
+  );
+  if (useFull) {
+    if (pagesArray.length > 7) {
+      // TODO: handle greater than 7 choice logic
+    } else {
+      content = (
+        <>
+          {pagesArray.map((pageInfo) => (
+            <TinyThemeButton
+              key={`pagination-detail-button-for-page-${pageInfo.page}`}
+              selected={pageInfo.active}
+              text={pageInfo.page}
+              action={() => action(pageInfo.page)}
+            />
+          ))}
+        </>
+      );
+    }
+  }
+  return content;
 };
