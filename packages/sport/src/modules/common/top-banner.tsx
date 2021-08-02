@@ -1,8 +1,9 @@
 import React from "react";
 import Styles from "./top-banner.styles.less";
 import { useAppStatusStore, useUserStore, ButtonComps, Constants } from "@augurproject/comps";
+import { useSportsStore } from "../stores/sport";
 
-const { PrimaryThemeButton } = ButtonComps;
+const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 
 export const TopBanner = () => {
   const {
@@ -29,5 +30,26 @@ export const TopBanner = () => {
         }
       />
     </div>
+  );
+};
+
+export const NFLSideBanner = () => {
+  const {
+    actions: { updateMarketsViewSettings },
+  } = useSportsStore();
+  return (
+    <article className={Styles.SideBannerNFL}>
+      <h1>
+        NFL
+        <br />
+        Season
+      </h1>
+      <SecondaryThemeButton
+        text="Explore NFL Markets"
+        action={() =>
+          updateMarketsViewSettings({ primaryCategory: "sports", subCategories: ["american football", "nfl"] })
+        }
+      />
+    </article>
   );
 };

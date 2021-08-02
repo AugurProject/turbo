@@ -23,6 +23,7 @@ import {
 import { useSportsStore } from "modules/stores/sport";
 import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
+import { NFLSideBanner } from 'modules/common/top-banner';
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -116,6 +117,7 @@ export const Betslip = () => {
         )}
         <BetslipFooter />
       </div>
+      {!isLogged && <NFLSideBanner />}
     </section>
   );
 };
