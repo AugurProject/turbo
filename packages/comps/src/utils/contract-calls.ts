@@ -1736,7 +1736,7 @@ export const fillGraphMarketsData = async (
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
   dmarkets: MarketInfos = {},
-  damm: AmmExchanges = {},
+  damm: AmmExchanges = {}
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
   let marketInfos = dmarkets;
   let exchanges = damm;
