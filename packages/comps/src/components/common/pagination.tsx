@@ -1,5 +1,5 @@
 import React from "react";
-import classNames from 'classnames';
+import classNames from "classnames";
 import Styles from "./pagination.styles.less";
 import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
 import { SimpleChevron } from "./icons";
@@ -82,13 +82,22 @@ export const createPagesArray = (page: number, totalPages: number) => {
   return ArrayToShow;
 };
 
-export const Pagination = ({ page, action, itemCount, itemsPerPage, showPagination = true, useFull = false }: PaginationProps) => {
+export const Pagination = ({
+  page,
+  action,
+  itemCount,
+  itemsPerPage,
+  showPagination = true,
+  useFull = false,
+}: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages);
   return (
-    <div className={classNames(Styles.Pagination, { 
-      [Styles.Full]: useFull,
-    })}>
+    <div
+      className={classNames(Styles.Pagination, {
+        [Styles.Full]: useFull,
+      })}
+    >
       {showPagination && (
         <section>
           <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={SimpleChevron} />
@@ -105,11 +114,7 @@ export const Pagination = ({ page, action, itemCount, itemsPerPage, showPaginati
 };
 
 const handleMiddle = ({ page, totalPages, pagesArray, action, useFull = false }) => {
-  let content = (
-    <span>
-      Page {page} of {totalPages}
-    </span>
-  );
+  let content = null;
   if (useFull) {
     if (pagesArray.length > 7) {
       // TODO: handle greater than 7 choice logic
@@ -128,5 +133,12 @@ const handleMiddle = ({ page, totalPages, pagesArray, action, useFull = false })
       );
     }
   }
-  return content;
+  return (
+    <>
+      <span>
+        Page {page} of {totalPages}
+      </span>
+      {content}
+    </>
+  );
 };

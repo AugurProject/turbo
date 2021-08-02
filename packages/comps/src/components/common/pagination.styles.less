@@ -60,6 +60,10 @@
       grid-template-columns: repeat(9, auto);
       grid-gap: @size-8;
 
+      > span {
+        display: none;
+      }
+
       > button {
         &:first-of-type {
           margin-right: @size-8;
@@ -72,6 +76,30 @@
         &:not(:first-of-type):not(:last-of-type) {
           min-width: unset;
           width: unset;
+        }
+      }
+
+      @media @breakpoint-mobile-tablet {
+        display: flex;
+        flex-flow: row nowrap;
+        > span {
+          display: block;
+        }
+
+        > button {
+          &:first-of-type {
+            margin-right: 0;
+          }
+  
+          &:last-of-type {
+            margin-left: 0;
+          }
+  
+          &:not(:first-of-type):not(:last-of-type) {
+            min-width: unset;
+            width: unset;
+            display: none;
+          }
         }
       }
     }
