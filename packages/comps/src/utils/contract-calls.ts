@@ -1734,10 +1734,12 @@ export const fillGraphMarketsData = async (
   account: string,
   blocknumber: number,
   ignoreList: { [factory: string]: number[] },
-  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
+  dmarkets: MarketInfos = {},
+  damm: AmmExchanges = {}
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
-  let marketInfos = {};
-  let exchanges = {};
+  let marketInfos = dmarkets;
+  let exchanges = damm;
   let newBlocknumber = blocknumber;
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
