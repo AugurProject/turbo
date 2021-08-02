@@ -114,7 +114,7 @@ export const useMarketEventMarkets = (marketEvent) => {
   return marketEvent?.marketIds?.reduce((acc, marketId) => {
     const out = { ...acc };
     const market = markets[marketId];
-    switch (market.sportsMarketType) {
+    switch (market?.sportsMarketType) {
       case SPORTS_MARKET_TYPE.MONEY_LINE: {
         out[SPORTS_MARKET_TYPE.MONEY_LINE] = market;
         break;

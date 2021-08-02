@@ -39,3 +39,36 @@
     }
   }
 }
+
+.SideBannerNFL {
+  .SecondaryBorderRadius;
+
+  background-position-y: center;
+  background-position-x: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url("../../assets/images/NFL_Banner.png");
+  min-height: @size-200;
+  height: @size-200;
+  width: @betslip-width;
+  max-width: @betslip-width;
+  position: fixed;
+  margin-top: 504px; 
+  display: flex;
+  flex-flow: column nowrap;
+  padding: @size-24;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  > h1 {
+    .text-24-bold;
+
+    text-align: right;
+    color: var(--inverted-primary-text);
+  }
+
+  > button {
+    background: white;
+    border-color: white;
+  }
+}
