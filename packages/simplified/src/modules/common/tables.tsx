@@ -531,6 +531,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange?.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
   const isfinal = isMarketFinal(market);
+  const canAddLiq = canAddLiquidity(market);
   return (
     <div className={Styles.LiquidityTable}>
       {!singleMarket && <MarketTableHeader timeFormat={timeFormat} market={market} ammExchange={ammExchange} />}
@@ -549,7 +550,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
                 });
               }
             }}
-            disabled={!isLogged || isfinal}
+            disabled={!isLogged || isfinal || !canAddLiq}
             text={isfinal ? "Market is resolved" : "Earn fees as a liquidity provider"}
           />
         </span>
