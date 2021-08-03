@@ -325,7 +325,7 @@ const MarketsView = () => {
         <Pagination
           page={page}
           useFull
-          itemCount={filteredMarkets.length}
+          itemCount={filteredMarkets.length + 500}
           itemsPerPage={PAGE_LIMIT}
           action={(page) => {
             setPage(page);

@@ -50,29 +50,29 @@ export const createPagesArray = (page: number, totalPages: number, maxButtons: n
   }
   const maxLength = maxButtons >= 4 ? maxButtons : 4;
   if (totalPages <= maxLength) return PagesArray;
-
   const innerLength = maxLength - 2;
   const addPage = page !== 1 && page !== totalPages;
+  const maxOtherPages = addPage ? innerLength - 1 : innerLength;
 
   const Before: Array<PagesArrayObject> = [];
   const After: Array<PagesArrayObject> = [];
 
-  const range = addPage ? innerLength : maxLength - 1;
-  for (let b = -range; b < -1; b++) {
+  for (let b = -maxLength + (addPage ? 2 : 1); b < -1; b++) {
     if (PagesArray[page + b] && PagesArray[page + b].page !== 1) {
       Before.push(PagesArray[page + b]);
     }
   }
-  for (let a = 0; a < range - Before.length - 1; a++) {
+  for (let a = 0; a < maxOtherPages; a++) {
     if (PagesArray[page + a] && PagesArray[page + a].page !== totalPages) {
       After.push(PagesArray[page + a]);
     }
   }
-  // console.log("Before/After:", JSON.stringify(Before), JSON.stringify(After), range);
+  // const beforeAfterLength = Before.length + After.length;
+  // console.log("Before/After:", JSON.stringify(Before), JSON.stringify(After), beforeAfterLength, beforeAfterLength < innerLength);
+
   let ArrayToShow: Array<PagesArrayObject> = [];
   // add first page
   ArrayToShow.push(PagesArray[0]);
-
   // const beforeSlice = maxLength - After.length - (addPage ? 1 : 0);
   // const newBefore = beforeSlice > maxLength ? Before.splice(-beforeSlice) : Before.splice(-1);
   ArrayToShow = ArrayToShow.concat(Before);
@@ -97,14 +97,14 @@ export const createPagesArray = (page: number, totalPages: number, maxButtons: n
     ArrayToShow[finalLen - 1] = NullPage;
   }
   // console.log(
-    // "Ugh:",
-    // JSON.stringify(newBefore),
-    // JSON.stringify(newAfter),
-    // JSON.stringify(ArrayToShow),
-    // page,
-    // totalPages,
-    // maxButtons,
-    // maxLength
+  // "Ugh:",
+  // JSON.stringify(newBefore),
+  // JSON.stringify(newAfter),
+  // JSON.stringify(ArrayToShow),
+  // page,
+  // totalPages,
+  // maxButtons,
+  // maxLength
   // );
 
   // add final page:
@@ -124,7 +124,7 @@ export const Pagination = ({
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
-  // console.log(pagesArray);
+  console.log(pagesArray);
   return (
     <div
       className={classNames(Styles.Pagination, {
