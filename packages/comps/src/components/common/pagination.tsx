@@ -50,65 +50,51 @@ export const createPagesArray = (page: number, totalPages: number, maxButtons: n
   }
   const maxLength = maxButtons >= 4 ? maxButtons : 4;
   if (totalPages <= maxLength) return PagesArray;
-  const innerLength = maxLength - 2;
-  const addPage = page !== 1 && page !== totalPages;
-  const maxOtherPages = addPage ? innerLength - 1 : innerLength;
+  const isEndPage = page !== 1 && page !== totalPages;
+  const maxFlexButtons = maxLength - 2;
+  const pageIndex = PagesArray.findIndex((item) => item.active);
+  const flexMidpoint = Math.floor(maxFlexButtons / 2);
 
-  const Before: Array<PagesArrayObject> = [];
-  const After: Array<PagesArrayObject> = [];
+  const Before: Array<PagesArrayObject> =
+    pageIndex - maxFlexButtons >= 0
+      ? PagesArray.slice(pageIndex - maxFlexButtons, pageIndex)
+      : PagesArray.slice(0, pageIndex);
+  const After: Array<PagesArrayObject> = PagesArray.slice(
+    pageIndex,
+    isEndPage ? pageIndex + maxFlexButtons : page + maxFlexButtons
+  );
 
-  for (let b = -maxLength + (addPage ? 2 : 1); b < -1; b++) {
-    if (PagesArray[page + b] && PagesArray[page + b].page !== 1) {
-      Before.push(PagesArray[page + b]);
+  const beforeAfterLength = Before.length + After.length;
+  const beforeHasFirst = !!Before.find((info) => info.page === 1);
+  const afterHasLast = !!After.find((info) => info.page === totalPages);
+
+  if (beforeAfterLength >= maxLength) {
+    // too many buttons on either array, need to shrink them.
+    if (beforeHasFirst && Before.length <= flexMidpoint) {
+      // within flexLength of first page
+      After.splice(After.length - (Before.length - 1));
+    } else if (afterHasLast && After.length <= flexMidpoint + 2) {
+      // within flexLength of last page
+      Before.splice(0, After.length - 1);
+    } else {
+      // within flexlength of neither end
+      Before.splice(0, Before.length - flexMidpoint);
+      After.splice(Math.abs(flexMidpoint - After.length - (After.length === maxFlexButtons ? 0 : 1)));
     }
   }
-  for (let a = 0; a < maxOtherPages; a++) {
-    if (PagesArray[page + a] && PagesArray[page + a].page !== totalPages) {
-      After.push(PagesArray[page + a]);
-    }
-  }
-  // const beforeAfterLength = Before.length + After.length;
-  // console.log("Before/After:", JSON.stringify(Before), JSON.stringify(After), beforeAfterLength, beforeAfterLength < innerLength);
 
-  let ArrayToShow: Array<PagesArrayObject> = [];
-  // add first page
-  ArrayToShow.push(PagesArray[0]);
-  // const beforeSlice = maxLength - After.length - (addPage ? 1 : 0);
-  // const newBefore = beforeSlice > maxLength ? Before.splice(-beforeSlice) : Before.splice(-1);
-  ArrayToShow = ArrayToShow.concat(Before);
+  let ArrayToShow: Array<PagesArrayObject> = Before.concat(After);
 
-  if (addPage) ArrayToShow.push(PagesArray[page - 1]);
-  // console.log("BeforeSlice:", beforeSlice, JSON.stringify(newBefore));
-  // const afterSlice = maxLength - 2 - Before.length - (addPage ? 1 : 0);
-  // const newAfter =
-  //   afterSlice >= range ? After.splice(0, afterSlice) : After.splice(0, afterSlice - newBefore.length);
-
-  ArrayToShow = ArrayToShow.concat(After);
-  // console.log("AfterSlice:", afterSlice, JSON.stringify(newAfter), 'finlen:', ArrayToShow.length);
-  // total length without final page
-  const finalLen = ArrayToShow.length;
-  const midpoint = Math.floor(maxLength / 2) - 2;
-  // add nulls as needed
-  if (Before.length >= midpoint && Before.length > 1) {
-    ArrayToShow[1] = NullPage;
-  }
-
-  if (After.length >= midpoint && After.length > 1) {
-    ArrayToShow[finalLen - 1] = NullPage;
-  }
-  // console.log(
-  // "Ugh:",
-  // JSON.stringify(newBefore),
-  // JSON.stringify(newAfter),
-  // JSON.stringify(ArrayToShow),
-  // page,
-  // totalPages,
-  // maxButtons,
-  // maxLength
-  // );
+  // add first page:
+  if (page !== 1 && !Before.find((info) => info.page === 1)) ArrayToShow.unshift(PagesArray[0]);
 
   // add final page:
-  ArrayToShow.push(PagesArray[PagesArray.length - 1]);
+  if (page !== totalPages && !After.find((info) => info.page === totalPages))
+    ArrayToShow.push(PagesArray[PagesArray.length - 1]);
+
+  // finally add nullPages:
+  if (ArrayToShow[1].page !== 2) ArrayToShow[1] = NullPage;
+  if (ArrayToShow[ArrayToShow.length - 2].page !== totalPages - 1) ArrayToShow[ArrayToShow.length - 2] = NullPage;
 
   return ArrayToShow;
 };
@@ -124,7 +110,6 @@ export const Pagination = ({
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
-  console.log(pagesArray);
   return (
     <div
       className={classNames(Styles.Pagination, {
