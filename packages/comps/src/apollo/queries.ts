@@ -59,11 +59,12 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    mmaMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
+    mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
       creationTimestamp: timestamp
+      estimatedStartTime
       endTime
       eventId
       homeFighterName
@@ -108,11 +109,12 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    resolved_mmaMarkets: mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
+    resolved_mmaMarkets: mmaMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
       creationTimestamp: timestamp
+      estimatedStartTime
       endTime
       eventId
       homeFighterName

@@ -51,7 +51,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { isRpcDown, isDegraded } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
       const provider = loginAccount?.library || defaultProvider?.current;
-      let infos = { markets: {}, ammExchanges: {}, blocknumber: dblock };
+      let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
       try {
         try {
           const { data, block, errors } = await getMarketsData();
@@ -65,11 +65,13 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
             account,
             Number(block),
             MARKET_IGNORE_LIST,
-            loadType
+            loadType,
+            dmarkets,
+            damm
           );
 
           // Throwing now until graph data can consistently pull all markets
-          //throw new Error('Temporary Graph Failover');
+          // throw new Error('Temporary Graph Failover');
 
           if (isDegraded) {
             AppStatusStore.actions.setIsDegraded(false);

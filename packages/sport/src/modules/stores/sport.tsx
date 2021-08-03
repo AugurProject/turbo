@@ -6,7 +6,7 @@ import {
   LOCAL_STORAGE_SETTINGS_THEME,
   MarketEvent,
 } from "./constants";
-import { THEME_OPTIONS } from "../constants";
+import { THEME_OPTIONS, MIN_LIQUIDITY_AMOUNT } from "../constants";
 import { useSport } from "./sport-hooks";
 import { useUserStore, Stores, useDataStore, Constants } from "@augurproject/comps";
 import { MarketInfo } from "@augurproject/comps/build/types";
@@ -52,7 +52,8 @@ const useMarketEvents = () => {
   useEffect(() => {
     if (numMarkets) {
       const marketEvents = Object.keys(markets).reduce((p, marketId) => {
-        const { eventId, description, startTimestamp, categories, hasWinner } = markets[marketId];
+        const { eventId, description, startTimestamp, categories, hasWinner, amm } = markets[marketId];
+        if (!amm.hasLiquidity || amm.liquidityUSD < MIN_LIQUIDITY_AMOUNT) return p;
         return Object.keys(p).includes(eventId)
           ? {
               ...p,

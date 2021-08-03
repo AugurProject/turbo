@@ -72,6 +72,7 @@ export const IN_SETTLEMENT = "In settlement";
 export const RESOLVED = "Resolved";
 
 export const ENTER_AMOUNT = "Enter Amount";
+export const MIN_LIQUIDITY_AMOUNT = 1;
 
 export const SETTINGS_SLIPPAGE = "1";
 export const BETSIZE_TO_ODDS = ".10";

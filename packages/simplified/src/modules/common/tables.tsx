@@ -531,6 +531,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
   const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange?.cash);
   const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
   const isfinal = isMarketFinal(market);
+  const canAddLiq = canAddLiquidity(market);
   return (
     <div className={Styles.LiquidityTable}>
       {!singleMarket && <MarketTableHeader timeFormat={timeFormat} market={market} ammExchange={ammExchange} />}
@@ -549,7 +550,7 @@ export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: 
                 });
               }
             }}
-            disabled={!isLogged || isfinal}
+            disabled={!isLogged || isfinal || !canAddLiq}
             text={isfinal ? "Market is resolved" : "Earn fees as a liquidity provider"}
           />
         </span>
@@ -680,6 +681,7 @@ export const PositionsLiquidityViewSwitcher = ({
               (liquidities.length > 0 && tableView === LIQUIDITY)) && (
               <Pagination
                 page={page}
+                useFull
                 itemCount={tableView === POSITIONS ? positions.length : liquidities.length}
                 itemsPerPage={POSITIONS_LIQUIDITY_LIMIT}
                 action={(page) => setPage(page)}
@@ -850,6 +852,7 @@ export const TransactionsTable = ({ transactions }: TransactionsProps) => {
         <div className={Styles.PaginationFooter}>
           <Pagination
             page={page}
+            useFull
             itemCount={filteredTransactions.length}
             itemsPerPage={TX_PAGE_LIMIT}
             action={(page) => setPage(page)}

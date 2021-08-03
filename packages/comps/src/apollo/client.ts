@@ -188,6 +188,7 @@ const getClientConfig = (): { augurClient: string; blockClient: string; turboCli
       blockClient: "https://api.thegraph.com/subgraphs/name/x0swapsubgraph/matic-blocks", // didn't find a block for mumbai, using matic
       turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-mumbai",
       network: "mumbai",
+      playground: "https://thegraph.com/legacy-explorer/subgraph/augurproject/augur-turbo-mumbai",
     },
     "137": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",

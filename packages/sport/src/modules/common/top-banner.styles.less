@@ -3,47 +3,72 @@
 .TopBanner {
   .SecondaryBorderRadius;
 
-  min-height: @size-148;
-  height: @size-148;
+  min-height: 226px;
+  height: 226px;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
+  flex-flow: column nowrap;
   margin-bottom: @size-24;
+  padding: @size-64;
   background-position-y: center;
-  background-position-x: 60%;
+  background-position-x: center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-image: url("../../assets/images/top-banner-mobile.png"); 
+  background-image: url("../../assets/images/Main_Banner_Sportsbook.png"); 
 
   > h1 {
-    .text-36-semi-bold;
+    .text-30-bold;
 
     margin: 0;
+    margin-bottom: @size-24;
     color: var(--inverted-primary-text);
-  }
-
-  @media @breakpoint-mobile-tablet {
-    min-height: @size-85;
-    border-radius: @size-6;
-    height: @size-85;
-    background-repeat-x: repeat;
-    background-size: contain;
-    background-position-x: left;
-    background-color: var(--inverted-primary-bg);
-
-    > h1 {
-      .text-24-semi-bold;
-    }
+    text-align: left;
   }
 
   @media @breakpoint-mobile {
-    background-position-x: 60%;
-    background-size: cover;
+    padding: 0;
+    align-items: center;
 
     > h1 {
-      .text-16-semi-bold;
+      .text-20-bold;
+
+      margin-bottom: @size-40;
+      text-align: center;
     }
+  }
+}
+
+.SideBannerNFL {
+  .SecondaryBorderRadius;
+
+  background-position-y: center;
+  background-position-x: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url("../../assets/images/NFL_Banner.png");
+  min-height: @size-200;
+  height: @size-200;
+  width: @betslip-width;
+  max-width: @betslip-width;
+  position: fixed;
+  margin-top: 504px; 
+  display: flex;
+  flex-flow: column nowrap;
+  padding: @size-24;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  > h1 {
+    .text-24-bold;
+
+    text-align: right;
+    color: var(--inverted-primary-text);
+  }
+
+  > button {
+    background: white;
+    border-color: white;
   }
 }

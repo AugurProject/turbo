@@ -211,6 +211,11 @@ const ModalConnectWallet = ({
             ...commonWalletButtonProps,
             text: "WalletConnect",
           };
+        } else if (key === 'WALLET_LINK') {
+          return {
+            ...commonWalletButtonProps,
+            text: 'Coinbase Wallet'
+          };
         } else if (isWeb3) {
           return {
             ...commonWalletButtonProps,

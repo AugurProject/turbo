@@ -1,54 +1,114 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
-.Pagination > section {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
+.Pagination {
+  > section {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
 
-  > span {
-    white-space: nowrap;
-    margin: 0 @size-16;
-  }
-
-  > button {
-    min-height: @size-40;
-    max-height: @size-40;
-    height: @size-40;
-
-    max-width: @size-40;
-    min-width: @size-40;
-    width: @size-40;
-    padding: 0;
-
-    &:first-of-type {
-      > svg {
-        height: @size-12;
-        width: @size-12;
-        margin: 0;
-        transform: rotate(90deg);
-        transform-origin: 50% 50%;
-      }
+    > span {
+      white-space: nowrap;
+      margin: 0 @size-16;
     }
-
-    &:last-of-type {
-      > svg {
-        height: @size-12;
-        width: @size-12;
-        margin: 0;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
-      }
-    }
-  }
-
-  @media @breakpoint-mobile-tablet {
-    width: 100%;
 
     > button {
-      max-width: unset;
-      width: unset;
-      flex: 1 100%;
+      min-height: @size-40;
+      max-height: @size-40;
+      height: @size-40;
+
+      max-width: @size-40;
+      min-width: @size-40;
+      width: @size-40;
+      padding: 0;
+
+      &:first-of-type {
+        > svg {
+          height: @size-12;
+          width: @size-12;
+          margin: 0;
+          transform: rotate(90deg);
+          transform-origin: 50% 50%;
+        }
+      }
+
+      &:last-of-type {
+        > svg {
+          height: @size-12;
+          width: @size-12;
+          margin: 0;
+          transform: rotate(-90deg);
+          transform-origin: 50% 50%;
+        }
+      }
+    }
+
+    @media @breakpoint-mobile-tablet {
+      width: 100%;
+
+      > button {
+        max-width: unset;
+        width: unset;
+        flex: 1 100%;
+      }
+    }
+  }
+
+  &.Full {
+    > section {
+      display: grid;
+      grid-auto-flow: column;
+      grid-gap: @size-8;
+
+      > span {
+        display: none;
+      }
+
+      > div {
+        .text-12-semi-bold;
+
+        color: var(--secondary-text);
+      }
+
+      > button {
+        &:first-of-type {
+          margin-right: @size-8;
+        }
+
+        &:last-of-type {
+          margin-left: @size-8;
+        }
+
+        &:not(:first-of-type):not(:last-of-type) {
+          min-width: unset;
+          width: unset;
+        }
+      }
+
+      @media @breakpoint-mobile-tablet {
+        display: flex;
+        flex-flow: row nowrap;
+
+        > span {
+          display: block;
+        }
+
+        > button {
+          &:first-of-type {
+            margin-right: 0;
+          }
+  
+          &:last-of-type {
+            margin-left: 0;
+          }
+  
+          &:not(:first-of-type):not(:last-of-type) {
+            min-width: unset;
+            width: unset;
+            display: none;
+          }
+        }
+      }
     }
   }
 }

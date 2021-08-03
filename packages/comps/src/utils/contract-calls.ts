@@ -366,7 +366,11 @@ export const estimateBuyTrade = (
   try {
     result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
   } catch (e) {
-    console.log("error in estimate buy", e);
+    if (String(e).indexOf("ERR_DIV_ZERO") > -1) {
+      console.log("Insufficent Liquidity to estimate buy", inputDisplayAmount);
+    } else {
+      console.log("error in estimate buy", e);
+    }
   }
 
   if (!result) return null;
@@ -1493,10 +1497,13 @@ const setIgnoreRemoveMarketList = (
 
   // <Removal> MLB spread and over/under
   // <Removal> for sportsbook removing crypto
-  const ignoredSportsMarkets =
+  const ignoredSportsMarkets = Object.values(allMarkets).filter((m) =>
+    isIgnoredMarket(m?.sportId, m?.sportsMarketType)
+  );
+  const ignoredCrypto =
     loadtype === MARKET_LOAD_TYPE.SPORT
       ? Object.values(allMarkets).filter(({ marketFactoryType }) => marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO)
-      : Object.values(allMarkets).filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType));
+      : [];
 
   // <Removal> same eventIds, market with liquidity wins
   const existingEvents = Object.values(allMarkets)
@@ -1507,6 +1514,7 @@ const setIgnoreRemoveMarketList = (
   );
 
   const ignoreRemovedMarkets = [
+    ...ignoredCrypto,
     ...nonLiqResolvedMarkets,
     ...zeroSpreadMarkets,
     ...ignoredSportsMarkets,
@@ -1587,7 +1595,7 @@ const retrieveMarkets = async (
 ): Market[] => {
   const GET_MARKETS = "getMarket";
   const GET_MARKET_DETAILS = "getMarketDetails";
-  const POOLS = "pools";
+  const GET_POOL = "getPool";
   const marketFactoryData = getMarketFactoryData(factoryAddress);
   if (!marketFactoryData) return [];
 
@@ -1640,7 +1648,7 @@ const retrieveMarkets = async (
         calls: [
           {
             reference: `${ammFactoryAddress}-${index}-pools`,
-            methodName: POOLS,
+            methodName: GET_POOL,
             methodParameters: [marketFactoryAddress, index],
             context: {
               index,
@@ -1668,7 +1676,7 @@ const retrieveMarkets = async (
 
     if (method === GET_MARKET_DETAILS) {
       details[marketId] = data;
-    } else if (method === POOLS) {
+    } else if (method === GET_POOL) {
       const id = data === NULL_ADDRESS ? null : data;
       exchanges[marketId] = {
         marketId,
@@ -1726,10 +1734,12 @@ export const fillGraphMarketsData = async (
   account: string,
   blocknumber: number,
   ignoreList: { [factory: string]: number[] },
-  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED
+  loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
+  dmarkets: MarketInfos = {},
+  damm: AmmExchanges = {}
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number; factoryAddress: string }> => {
-  let marketInfos = {};
-  let exchanges = {};
+  let marketInfos = dmarkets;
+  let exchanges = damm;
   let newBlocknumber = blocknumber;
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
@@ -1756,6 +1766,97 @@ export const fillGraphMarketsData = async (
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
+const getPoolAddresses = async (
+  marketInfos: MarketInfo[],
+  provider: Web3Provider,
+  cash: Cash
+): Promise<{ exchanges: AmmExchanges; blocknumber: number }> => {
+  const exchanges = {};
+  for (let i = 0; i < marketInfos.length; i++) {
+    const { marketFactoryAddress, turboId, marketId } = marketInfos[i];
+    const marketFactoryData = getMarketFactoryData(marketFactoryAddress);
+    const ammFactoryContract = AMMFactory__factory.connect(marketFactoryData.ammFactory, provider);
+    const poolAddress = await ammFactoryContract
+      .getPool(marketFactoryAddress, turboId)
+      .catch((e) => console.log("error fetching pool address"));
+    exchanges[marketId] = {
+      marketId,
+      id: poolAddress === NULL_ADDRESS ? null : poolAddress,
+      marketFactoryAddress,
+      turboId,
+      feeDecimal: "0",
+      feeRaw: "0",
+      feeInPercent: "0",
+      transactions: [], // to be filled in the future
+      trades: {}, // to be filled in the future
+      cash,
+      ammFactoryAddress: marketFactoryData.ammFactory,
+    };
+  }
+  const blocknumber = await provider.getBlockNumber();
+  return { exchanges, blocknumber };
+};
+
+const getPoolAddressesMulticall = async (
+  marketInfos: MarketInfo[],
+  provider: Web3Provider,
+  cash: Cash,
+  account: string
+): Promise<{ exchanges: AmmExchanges; blocknumber: number }> => {
+  const exchanges = [];
+  const contractMarketsCall = marketInfos.reduce((p, { marketId, marketFactoryAddress, turboId }) => {
+    const marketFactoryData = getMarketFactoryData(marketFactoryAddress);
+    if (!marketFactoryData) return p;
+    const POOLS = "getPool";
+    const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
+    const ammFactoryAddress = ammFactoryContract.address;
+    const ammFactoryAbi = extractABI(ammFactoryContract);
+    return [
+      ...p,
+      {
+        reference: `${ammFactoryAddress}-${turboId}-pools`,
+        contractAddress: ammFactoryAddress,
+        abi: ammFactoryAbi,
+        calls: [
+          {
+            reference: `${ammFactoryAddress}-${turboId}-pools`,
+            methodName: POOLS,
+            methodParameters: [marketFactoryAddress, turboId],
+            context: {
+              turboId,
+              marketFactoryAddress,
+              ammFactoryAddress,
+              marketId,
+            },
+          },
+        ],
+      },
+    ];
+  }, []);
+
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
+    const key = Object.keys(marketsResult.results)[i];
+    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
+    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
+    const { marketFactoryAddress, turboId, marketId, ammFactoryAddress } = context;
+    exchanges[marketId] = {
+      marketId,
+      id: data === NULL_ADDRESS ? null : data,
+      marketFactoryAddress,
+      turboId,
+      feeDecimal: "0",
+      feeRaw: "0",
+      feeInPercent: "0",
+      transactions: [], // to be filled in the future
+      trades: {}, // to be filled in the future
+      cash,
+      ammFactoryAddress,
+    };
+  }
+  return { exchanges, blocknumber: marketsResult.blocknumber };
+};
+
 const fillMarketsData = async (
   markets: MarketInfo[],
   cashes: Cashes,
@@ -1766,67 +1867,22 @@ const fillMarketsData = async (
   blocknumber
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number }> => {
   if (!markets || markets?.length === 0) return { markets: {}, ammExchanges: {}, blocknumber };
-  const POOLS = "pools";
   const marketFactories = Array.from(new Set(Object.values(markets).map((m) => m.marketFactoryAddress)));
   const filteredMarkets = markets.filter(
     (m) => !(ignoreList[m.marketFactoryAddress.toUpperCase()] || []).includes(m.turboId)
   );
-  const contractMarketsCall = marketFactories.reduce((p, factoryAddress) => {
-    const marketFactoryData = getMarketFactoryData(factoryAddress);
-    if (!marketFactoryData) return p;
-
-    const ammFactoryContract = getAmmFactoryContract(provider, marketFactoryData.ammFactory, account);
-    const ammFactoryAddress = ammFactoryContract.address;
-    const ammFactoryAbi = extractABI(ammFactoryContract);
-    const calls: ContractCallContext[] = filteredMarkets
-      .filter((m) => m.marketFactoryAddress === factoryAddress)
-      .map(({ turboId, marketFactoryAddress }) => ({
-        reference: `${ammFactoryAddress}-${turboId}-pools`,
-        contractAddress: ammFactoryAddress,
-        abi: ammFactoryAbi,
-        calls: [
-          {
-            reference: `${ammFactoryAddress}-${turboId}-pools`,
-            methodName: POOLS,
-            methodParameters: [marketFactoryAddress, turboId],
-            context: {
-              index: turboId,
-              marketFactoryAddress,
-              ammFactoryAddress,
-            },
-          },
-        ],
-      }));
-    return [...p, ...calls];
-  }, []);
-
-  let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
-
-  for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
-    const key = Object.keys(marketsResult.results)[i];
-    const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
-    const context = marketsResult.results[key].originalContractCallContext.calls[0].context;
-    const method = String(marketsResult.results[key].originalContractCallContext.calls[0].methodName);
-    const marketId = `${context.marketFactoryAddress.toLowerCase()}-${context.index}`;
-
-    if (method === POOLS) {
-      const id = data === NULL_ADDRESS ? null : data;
-      exchanges[marketId] = {
-        marketId,
-        id,
-        marketFactoryAddress: context.marketFactoryAddress,
-        turboId: context.index,
-        feeDecimal: "0",
-        feeRaw: "0",
-        feeInPercent: "0",
-        transactions: [], // to be filled in the future
-        trades: {}, // to be filled in the future
-        cash,
-        ammFactoryAddress: context.ammFactoryAddress,
-      };
-    }
+  let exchanges = {};
+  let newBlocknumber = blocknumber;
+  try {
+    const popExchanges = await getPoolAddressesMulticall(filteredMarkets, provider, cash, account);
+    exchanges = popExchanges.exchanges;
+    newBlocknumber = popExchanges.blocknumber;
+  } catch (e) {
+    console.log("multicall failover", e);
+    const popExchanges = await getPoolAddresses(filteredMarkets, provider, cash);
+    exchanges = popExchanges.exchanges;
+    newBlocknumber = popExchanges.blocknumber;
   }
 
   let marketInfos: MarketInfos = {};
@@ -1843,8 +1899,6 @@ const fillMarketsData = async (
       }
     });
   }
-
-  const newBlocknumber = marketsResult?.blocknumber ? marketsResult.blocknumber : blocknumber;
 
   if (Object.keys(exchanges).length > 0) {
     const fetchExchanges: AmmExchanges[] = await Promise.all(
@@ -1876,7 +1930,19 @@ const fillMarketsData = async (
   return { markets: marketInfos, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
-const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): Market[] => {
+const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): AmmExchanges => {
+  const ex = Object.values(exchanges).filter((k) => k.id);
+  for (let i = 0; i < ex.length; i++) {
+    const exchange = ex[i];
+    const bpool = BPool__factory.connect(exchange.id, provider);
+    const totalSupply = await bpool.totalSupply();
+    exchange.totalSupply = totalSupply ? totalSupply : "0";
+    exchange.hasLiquidity = exchange.totalSupply !== "0";
+  }
+  return exchanges;
+};
+
+const exchangesHaveLiquidityMulticall = async (exchanges: AmmExchanges, provider: Web3Provider): AmmExchanges[] => {
   const TOTAL_SUPPLY = "totalSupply";
   const ex = Object.values(exchanges).filter((k) => k.id);
   const contractMarketsCall: ContractCallContext[] = ex.map((e) => ({
@@ -1927,7 +1993,14 @@ const retrieveExchangeInfos = async (
   account: string,
   marketFactoryData: MarketFactory
 ): Market[] => {
-  const exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
+  let exchanges = {};
+  try {
+    exchanges = await exchangesHaveLiquidityMulticall(exchangesInfo, provider);
+  } catch (e) {
+    console.log("total supply multicall failover");
+    exchagnes = await exchangesHaveLiquidity(exchangesInfo, provider);
+  }
+
   const GET_RATIOS = "tokenRatios";
   const GET_BALANCES = "getPoolBalances";
   const GET_FEE = "getSwapFee";

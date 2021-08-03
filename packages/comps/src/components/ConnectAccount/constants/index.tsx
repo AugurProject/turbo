@@ -1,5 +1,5 @@
 import { AbstractConnector } from "@web3-react/abstract-connector";
-import { injected, walletconnect } from '../connectors';
+import { injected, walletconnect, walletlink } from '../connectors';
 
 export interface WalletInfo {
   connector?: AbstractConnector;
@@ -51,6 +51,14 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     name: "WalletConnect",
     iconName: "walletConnectIcon.svg",
     description: "Connect to Trust Wallet, Rainbow Wallet and more...",
+    href: null,
+  },
+  WALLET_LINK: {
+    // @ts-ignore
+    connector: walletlink,
+    name: "Coinbase Wallet",
+    iconName: "coinbaseWalletIcon.svg",
+    description: "Use Coinbase Wallet app on mobile device",
     href: null,
   },
 };
