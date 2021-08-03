@@ -189,7 +189,7 @@ dataSources:
       name: AbstractMarketFactoryV2
       network: mumbai
       source:
-        address: '0x32D7c4D23ca8520A22fCF759505dEd07546314a9'
+        address: '0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68'
         abi: AbstractMarketFactory
         startBlock: 15336699
       mapping:
@@ -406,7 +406,7 @@ dataSources:
       name: MmaMarketFactoryV2
       network: mumbai
       source:
-        address: '0x32D7c4D23ca8520A22fCF759505dEd07546314a9'
+        address: '0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68'
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:

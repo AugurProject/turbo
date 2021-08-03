@@ -1,6 +1,6 @@
 import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance } from "../../generated/schema";
 import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
-import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { WinningsClaimed as WinningsClaimedV1 } from "../../generated/AbstractMarketFactoryV1/AbstractMarketFactory";
 import { WinningsClaimed as WinningsClaimedV2 } from "../../generated/AbstractMarketFactoryV2/AbstractMarketFactory";
@@ -99,7 +99,6 @@ export function handlePositionFromTradeEvent(
       let buy = event.params.collateral < ZERO;
       let collateral = event.params.collateral.abs();
       let shares = event.params.shares.abs();
-      let initialCostUsdBigInt = buy ? positionBalanceEntity.initCostUsdBigInt + collateral : positionBalanceEntity.initCostUsdBigInt - collateral;
       let sharesBigInt = buy ? positionBalanceEntity.sharesBigInt + shares : positionBalanceEntity.sharesBigInt - shares;
 
       positionBalanceEntity.positionFromAddLiquidity = false;
@@ -113,23 +112,25 @@ export function handlePositionFromTradeEvent(
       positionBalanceEntity.senderId = senderId;
       positionBalanceEntity.sender = senderId;
 
-      let collateralBigDecimal = initialCostUsdBigInt.toBigDecimal().div(USDC_DECIMALS);
-      let absCollateralBigDecimal = initialCostUsdBigInt.abs().toBigDecimal().div(USDC_DECIMALS);
       let sharesBigDecimal = sharesBigInt.toBigDecimal().div(SHARES_DECIMALS);
       positionBalanceEntity.shares = bigIntToHexString(sharesBigInt);
       positionBalanceEntity.sharesBigInt = sharesBigInt;
       positionBalanceEntity.sharesBigDecimal = sharesBigDecimal;
-      positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostUsdBigInt);
+      positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarket.sumOfInitialCost);
       positionBalanceEntity.initCostUsdBigInt = initialCostPerMarket.sumOfInitialCost;
       positionBalanceEntity.initCostUsdBigDecimal = initialCostPerMarket.sumOfInitialCostBigDecimal;
       positionBalanceEntity.avgPrice = initialCostPerMarket.avgPrice;
-      positionBalanceEntity.open = sharesBigInt > ZERO;
+      positionBalanceEntity.open = sharesBigDecimal > DUST_POSITION_AMOUNT_BIG_DECIMAL;
 
       if (!buy) {
         let payoutBigInt = positionBalanceEntity.payoutBigInt + collateral;
         positionBalanceEntity.payout = bigIntToHexString(payoutBigInt);
         positionBalanceEntity.payoutBigInt = payoutBigInt;
         positionBalanceEntity.payoutBigDecimal = payoutBigInt.toBigDecimal().div(USDC_DECIMALS);
+        let totalChangeUsd = payoutBigInt - initialCostPerMarket.sumOfInitialCost;
+        positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangeUsd);
+        positionBalanceEntity.totalChangeUsdBigInt = totalChangeUsd;
+        positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsd.toBigDecimal().div(USDC_DECIMALS);
       }
 
       positionBalanceEntity.save();
@@ -169,9 +170,9 @@ export function handlePositionFromLiquidityChangedEvent(
       let sharesFromLiquidityPositionBalance: BigInt = ZERO;
       let avgPriceFromLiquidityPositionBalance: BigDecimal = ZERO.toBigDecimal();
 
-if (!!array1 && !!array1.length > outcomeIndex + 1) {
-  sharesFromLiquidityPositionBalance = array1[outcomeIndex];
-}
+      if (!!array1 && !!array1.length > outcomeIndex + 1) {
+        sharesFromLiquidityPositionBalance = array1[outcomeIndex];
+      }
       if (!!array2 && !!array2.length > outcomeIndex + 1) {
         avgPriceFromLiquidityPositionBalance = array2[outcomeIndex];
       }
@@ -180,9 +181,7 @@ if (!!array1 && !!array1.length > outcomeIndex + 1) {
         !!sharesFromLiquidityPositionBalance &&
         !!avgPriceFromLiquidityPositionBalance &&
         !!initialCostPerMarket.sharesFromTradesBigDecimal &&
-        !!liquidityPositionBalance.sharesReturned &&
-        !!initialCostPerMarket.avgPrice &&
-        !!liquidityPositionBalance.avgPricePerOutcome
+        !!liquidityPositionBalance.sharesReturned
       ) {
         let liquidityPositionBalanceShares = sharesFromLiquidityPositionBalance.toBigDecimal().div(SHARES_DECIMALS);
         let firstSetTimesAvg = initialCostPerMarket.sharesFromTradesBigDecimal.times(initialCostPerMarket.avgPrice);
