@@ -681,6 +681,7 @@ export const PositionsLiquidityViewSwitcher = ({
               (liquidities.length > 0 && tableView === LIQUIDITY)) && (
               <Pagination
                 page={page}
+                useFull
                 itemCount={tableView === POSITIONS ? positions.length : liquidities.length}
                 itemsPerPage={POSITIONS_LIQUIDITY_LIMIT}
                 action={(page) => setPage(page)}
@@ -851,6 +852,7 @@ export const TransactionsTable = ({ transactions }: TransactionsProps) => {
         <div className={Styles.PaginationFooter}>
           <Pagination
             page={page}
+            useFull
             itemCount={filteredTransactions.length}
             itemsPerPage={TX_PAGE_LIMIT}
             action={(page) => setPage(page)}

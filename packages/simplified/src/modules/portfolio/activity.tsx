@@ -77,6 +77,7 @@ export const Activity = () => {
           </div>
           <Pagination
             page={page}
+            useFull
             itemCount={activity.length}
             itemsPerPage={ACTIVITY_PAGE_LIMIT}
             action={(page) => setPage(page)}
