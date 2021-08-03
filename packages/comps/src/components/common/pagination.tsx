@@ -1,6 +1,7 @@
 import React from "react";
+import classNames from "classnames";
 import Styles from "./pagination.styles.less";
-import { SecondaryThemeButton } from "./buttons";
+import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
 import { SimpleChevron } from "./icons";
 
 export interface PaginationProps {
@@ -12,6 +13,8 @@ export interface PaginationProps {
   showLimitChanger?: boolean;
   maxLimit?: number;
   showPagination?: boolean;
+  useFull?: boolean;
+  maxButtons?: number;
 }
 
 export interface PagesArrayObject {
@@ -29,7 +32,7 @@ export const sliceByPage = (array, page, pageLimit) => {
   return array.slice(getOffset(page, pageLimit), getOffset(page, pageLimit) + pageLimit);
 };
 
-export const createPagesArray = (page: number, totalPages: number) => {
+export const createPagesArray = (page: number, totalPages: number, maxButtons: number = 4) => {
   if (totalPages <= 1) {
     return [
       {
@@ -38,58 +41,85 @@ export const createPagesArray = (page: number, totalPages: number) => {
       },
     ];
   }
-  let ArrayToShow: Array<PagesArrayObject> = [];
   const PagesArray: Array<PagesArrayObject> = [];
-  const SevenBefore: Array<PagesArrayObject> = [];
-  const SevenAfter: Array<PagesArrayObject> = [];
-  const maxLength = 7; // actual max is 9, 7 to figure out + first/last
   for (let i = 1; i <= totalPages; i++) {
     PagesArray.push({
       page: i,
       active: page === i,
     });
   }
-  for (let b = -8; b < -1; b++) {
-    if (PagesArray[page + b] && PagesArray[page + b].page !== 1) {
-      SevenBefore.push(PagesArray[page + b]);
+  const maxLength = maxButtons >= 4 ? maxButtons : 4;
+  if (totalPages <= maxLength) return PagesArray;
+  const isEndPage = page !== 1 && page !== totalPages;
+  const maxFlexButtons = maxLength - 2;
+  const pageIndex = PagesArray.findIndex((item) => item.active);
+  const flexMidpoint = Math.floor(maxFlexButtons / 2);
+
+  const Before: Array<PagesArrayObject> =
+    pageIndex - maxFlexButtons >= 0
+      ? PagesArray.slice(pageIndex - maxFlexButtons, pageIndex)
+      : PagesArray.slice(0, pageIndex);
+  const After: Array<PagesArrayObject> = PagesArray.slice(
+    pageIndex,
+    isEndPage ? pageIndex + maxFlexButtons : page + maxFlexButtons
+  );
+
+  const beforeAfterLength = Before.length + After.length;
+  const beforeHasFirst = !!Before.find((info) => info.page === 1);
+  const afterHasLast = !!After.find((info) => info.page === totalPages);
+
+  if (beforeAfterLength >= maxLength) {
+    // too many buttons on either array, need to shrink them.
+    if (beforeHasFirst && Before.length <= flexMidpoint) {
+      // within flexLength of first page
+      After.splice(After.length - (Before.length - 1));
+    } else if (afterHasLast && After.length <= flexMidpoint + 2) {
+      // within flexLength of last page
+      Before.splice(0, After.length - 1);
+    } else {
+      // within flexlength of neither end
+      Before.splice(0, Before.length - flexMidpoint);
+      After.splice(Math.abs(flexMidpoint - After.length - (After.length === maxFlexButtons ? 0 : 1)));
     }
   }
-  for (let a = 0; a <= 6; a++) {
-    if (PagesArray[page + a] && PagesArray[page + a].page !== totalPages) {
-      SevenAfter.push(PagesArray[page + a]);
-    }
-  }
-  const beforeLen = SevenBefore.length;
-  const afterLen = SevenAfter.length;
-  const addPage = page !== 1 && page !== totalPages;
-  ArrayToShow.push(PagesArray[0]);
-  const beforeSlice = maxLength - afterLen - (addPage ? 1 : 0);
-  const newBefore = beforeSlice > 2 ? SevenBefore.splice(-beforeSlice) : SevenBefore.splice(-3);
-  ArrayToShow = ArrayToShow.concat(newBefore);
-  if (addPage) ArrayToShow.push(PagesArray[page - 1]);
-  const afterSlice = maxLength - beforeLen - (addPage ? 1 : 0);
-  const newAfter = afterSlice > 2 ? SevenAfter.splice(0, afterSlice) : SevenAfter.splice(0, 3);
-  ArrayToShow = ArrayToShow.concat(newAfter);
-  ArrayToShow.push(PagesArray[totalPages - 1]);
-  const finalLen = ArrayToShow.length;
-  // add Nulls as needed:
+
+  let ArrayToShow: Array<PagesArrayObject> = Before.concat(After);
+
+  // add first page:
+  if (page !== 1 && !Before.find((info) => info.page === 1)) ArrayToShow.unshift(PagesArray[0]);
+
+  // add final page:
+  if (page !== totalPages && !After.find((info) => info.page === totalPages))
+    ArrayToShow.push(PagesArray[PagesArray.length - 1]);
+
+  // finally add nullPages:
   if (ArrayToShow[1].page !== 2) ArrayToShow[1] = NullPage;
-  if (ArrayToShow[finalLen - 2].page !== totalPages - 1) {
-    ArrayToShow[finalLen - 2] = NullPage;
-  }
+  if (ArrayToShow[ArrayToShow.length - 2].page !== totalPages - 1) ArrayToShow[ArrayToShow.length - 2] = NullPage;
+
   return ArrayToShow;
 };
 
-export const Pagination = ({ page, action, itemCount, itemsPerPage, showPagination = true }: PaginationProps) => {
+export const Pagination = ({
+  page,
+  action,
+  itemCount,
+  itemsPerPage = 10,
+  showPagination = true,
+  useFull = false,
+  maxButtons = 7,
+}: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
+  const pagesArray = createPagesArray(page, totalPages, maxButtons);
   return (
-    <div className={Styles.Pagination}>
+    <div
+      className={classNames(Styles.Pagination, {
+        [Styles.Full]: useFull,
+      })}
+    >
       {showPagination && (
         <section>
           <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={SimpleChevron} />
-          <span>
-            Page {page} of {totalPages}
-          </span>
+          {handleMiddle({ page, totalPages, pagesArray, action, useFull })}
           <SecondaryThemeButton
             action={() => action(page + 1)}
             disabled={page === totalPages || totalPages === 0}
@@ -98,5 +128,34 @@ export const Pagination = ({ page, action, itemCount, itemsPerPage, showPaginati
         </section>
       )}
     </div>
+  );
+};
+
+const handleMiddle = ({ page, totalPages, pagesArray, action, useFull = false }) => {
+  const content = useFull ? (
+    <>
+      {pagesArray.map((pageInfo, index) =>
+        pageInfo.page ? (
+          <TinyThemeButton
+            key={`pagination-detail-button-for-page-${pageInfo.page}`}
+            selected={pageInfo.active}
+            text={pageInfo.page}
+            noHighlight
+            action={() => action(pageInfo.page)}
+          />
+        ) : (
+          <div key={`ellipsis-for-${index}`}>...</div>
+        )
+      )}
+    </>
+  ) : null;
+
+  return (
+    <>
+      <span>
+        Page {page} of {totalPages}
+      </span>
+      {content}
+    </>
   );
 };
