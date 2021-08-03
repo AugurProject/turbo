@@ -155,15 +155,15 @@
 
 @media @breakpoint-mobile-tablet {
   .TopNav {
-    height: @size-48;
-    min-height: @size-48;
-    max-height: @size-48;
+    height: var(--theme-top-bar-height-mobile);
+    min-height: var(--theme-top-bar-height-mobile);
+    max-height: var(--theme-top-bar-height-mobile);
 
     > article:not([class*="Toast"]) {
       display: flex;
 
       > a:first-of-type {
-        height: @size-48;
+        height: var(--theme-top-bar-height-mobile);
         width: @size-48;
         display: flex;
         align-items: center;
@@ -179,9 +179,9 @@
         justify-content: center;
         border-right: @size-1 solid var(--secondary-text);
         border-left: @size-1 solid var(--secondary-text);
-        height: @size-48;
-        min-height: @size-48;
-        max-height: @size-48;
+        height: var(--theme-top-bar-height-mobile);
+        min-height: var(--theme-top-bar-height-mobile);
+        max-height: var(--theme-top-bar-height-mobile);
         width: @size-48;
         min-width: @size-48;
         max-width: @size-48;

@@ -3,7 +3,15 @@ import classNames from "classnames";
 import { useLocation } from "react-router";
 import Styles from "./sports-card.styles.less";
 import { CategoriesTrail } from "../categories/categories";
-import { LabelComps, Links, Utils, Constants, useDataStore, useAppStatusStore } from "@augurproject/comps";
+import {
+  LabelComps,
+  Links,
+  Utils,
+  Constants,
+  useDataStore,
+  useAppStatusStore,
+  useUserStore,
+} from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
 import { getSizedPrice } from "modules/utils";
@@ -14,7 +22,7 @@ const {
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS } = Constants;
+const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS, MODAL_CONNECT_WALLET } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
 
@@ -163,15 +171,17 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
           eventMarkets[SPORTS_MARKET_TYPE.MONEY_LINE],
           eventMarkets[SPORTS_MARKET_TYPE.SPREAD] || null,
           eventMarkets[SPORTS_MARKET_TYPE.OVER_UNDER] || null,
-        ].filter(m => !!m).map((eventMarket) => (
-          <SportsCardOutcomes
-            {...{
-              ...eventMarket,
-              checkForNoLiquidity: true,
-              key: `${eventMarket?.marketId}-${SPORTS_MARKET_TYPE_LABELS[eventMarket?.sportsMarketType]}-outcomes`,
-            }}
-          />
-        ))}
+        ]
+          .filter((m) => !!m)
+          .map((eventMarket) => (
+            <SportsCardOutcomes
+              {...{
+                ...eventMarket,
+                checkForNoLiquidity: true,
+                key: `${eventMarket?.marketId}-${SPORTS_MARKET_TYPE_LABELS[eventMarket?.sportsMarketType]}-outcomes`,
+              }}
+            />
+          ))}
       </section>
     </section>
   );
@@ -215,7 +225,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     betSizeToOdds,
   ]);
   const OUOdds = useMemo(
-    () => (OUSizePrice?.price ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-"),
+    () =>
+      OUSizePrice?.price ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-",
     [OUSizePrice, oddsFormat]
   );
   const firstOULetter = OUMarket?.amm?.ammOutcomes[eventOutcomeId]?.name.slice(0, 1);
@@ -289,8 +300,14 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         )}
         <span>{OUOdds}</span>
       </button>
-      <span>{spreadSizePrice?.size && spreadSizePrice?.size !== "0" && <span>{formatDai(spreadSizePrice?.size).full}</span>}</span>
-      <span>{moneyLineSizePrice?.size && moneyLineSizePrice?.size !== "0" && <span>{formatDai(moneyLineSizePrice?.size).full}</span>}</span>
+      <span>
+        {spreadSizePrice?.size && spreadSizePrice?.size !== "0" && <span>{formatDai(spreadSizePrice?.size).full}</span>}
+      </span>
+      <span>
+        {moneyLineSizePrice?.size && moneyLineSizePrice?.size !== "0" && (
+          <span>{formatDai(moneyLineSizePrice?.size).full}</span>
+        )}
+      </span>
       <span>{OUSizePrice?.size && OUSizePrice?.size !== "0" && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
     </article>
   );
@@ -305,28 +322,43 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
     bets,
     actions: { addBet },
   } = useBetslipStore();
+  const {
+    isLogged,
+    actions: { setModal },
+  } = useAppStatusStore();
+  const { transactions } = useUserStore();
   const { id, name } = outcome;
   const sizedPrice = useMemo(() => getSizedPrice(amm, id, betSizeToOdds), [outcome.balance, betSizeToOdds]);
   const odds = useMemo(
-    () => (sizedPrice?.price ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-"),
+    () =>
+      sizedPrice?.price ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-",
     [sizedPrice, oddsFormat]
   );
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
       <button
-        onClick={() =>
-          sizedPrice &&
-          !bets[`${marketId}-${id}`] &&
-          addBet({
-            ...outcome,
-            ...sizedPrice,
-            marketId,
-            outcomeId: id,
-            heading: `${marketEvents?.[eventId]?.description || description}:`,
-            subHeading: `${SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}`,
-          })
-        }
+        onClick={() => {
+          if (!isLogged) {
+            setModal({
+              type: MODAL_CONNECT_WALLET,
+              darkMode: false,
+              autoLogin: false,
+              transactions,
+            });
+          } else {
+            sizedPrice &&
+              !bets[`${marketId}-${id}`] &&
+              addBet({
+                ...outcome,
+                ...sizedPrice,
+                marketId,
+                outcomeId: id,
+                heading: `${marketEvents?.[eventId]?.description || description}:`,
+                subHeading: `${SPORTS_MARKET_TYPE_LABELS[sportsMarketType]}`,
+              });
+          }
+        }}
         disabled={odds === "-"}
       >
         {odds}

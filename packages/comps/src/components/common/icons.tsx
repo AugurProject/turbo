@@ -408,7 +408,7 @@ export const ThreeLinesIcon = (
 
 export const SharpThreeLinesIcon = (
   <svg viewBox="0 0 20 16">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M20 2H0V0H20V2ZM20 9H0V7H20V9ZM0 16H20V14H0V16Z" fill="white" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M20 2H0V0H20V2ZM20 9H0V7H20V9ZM0 16H20V14H0V16Z" fill="white" />
   </svg>
 );
 
