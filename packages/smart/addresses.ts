@@ -19,10 +19,11 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto";
+export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto" | "NFL";
 export type MarketFactorySubType = "V1" | "V2";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactory"
+  | "NFLMarketFactory"
   | "MMALinkMarketFactory"
   | "CryptoMarketFactory"
   | "TrustedMarketFactory";
@@ -31,6 +32,7 @@ export const marketFactoryTypeToContractName: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
   SportsLink: "SportsLinkMarketFactory",
+  NFL: "NFLMarketFactory",
   MMALink: "MMALinkMarketFactory",
   Crypto: "CryptoMarketFactory",
   Trusted: "TrustedMarketFactory",
@@ -40,6 +42,7 @@ export const marketFactoryTypeToFetcherName: {
 } = {
   SportsLink: "NBAFetcher",
   MMALink: "MMAFetcher",
+  NFL: "NBAFetcher", // nfl is similar to mlb and nba
   Crypto: "",
   Trusted: "",
 };
