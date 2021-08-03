@@ -1933,10 +1933,9 @@ const fillMarketsData = async (
 const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Provider): AmmExchanges => {
   const ex = Object.values(exchanges).filter((k) => k.id);
   for (let i = 0; i < ex.length; i++) {
-    const pool = ex[i].id;
-    const bpool = BPool__factory.connect(pool, provider);
+    const exchange = ex[i];
+    const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
-    const exchange = exchanges[marketId];
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
