@@ -548,7 +548,6 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: @size-64 1fr @size-64;
-  grid-gap: @size-8;
 
   &.Open {
     left: 0;
@@ -628,6 +627,10 @@
           color: var(--inverted-primary-text);
         }
       }
+    }
+
+    > article[class*="CategoriesArea"] > article[class*="CategoryGroup"]:last-of-type {
+      margin-bottom: @size-8;
     }
   }
 

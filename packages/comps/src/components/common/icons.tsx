@@ -406,6 +406,12 @@ export const ThreeLinesIcon = (
   </svg>
 );
 
+export const SharpThreeLinesIcon = (
+  <svg viewBox="0 0 20 16">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M20 2H0V0H20V2ZM20 9H0V7H20V9ZM0 16H20V14H0V16Z" fill="white" />
+  </svg>
+);
+
 export const FilterIcon = (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
     <path
@@ -661,13 +667,51 @@ export const WinnerMedal = (
 
 export const MaticIcon = (
   <svg viewBox="-1 -1 22 22">
-    <path fillRule="evenodd" clipRule="evenodd" d="M8.64575 9.15782L9.98547 12.3014L11.9795 11.0852L11.981 11.0846V8.65039L8.64575 9.15782Z" fill="#2BBDF7"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M14.5608 6.82549L13.3162 6.3295L11.9861 6.21582V13.7804L13.9815 14.9972L15.5566 11.5869L14.5632 8.28931L14.5608 6.82549Z" fill="#2891F9"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M14.4357 6.21875L13.9735 7.43522H13.9729V14.9989L15.9687 13.7824V6.21875H14.4357Z" fill="#2BBDF7"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M13.9818 5L11.9861 6.21742L13.9818 7.43453L15.9776 6.21742L13.9818 5Z" fill="#2B6DEF"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M9.98676 9.86682V9.86619L7.99127 7.50374L4 6.21582V13.7795L5.99518 14.9966L6.5654 10.8109L7.99127 11.0849V11.0836L9.98706 12.3004V9.86682H9.98676Z" fill="#2891F9"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.99638 5L4 6.2171L9.98614 9.86937L10.8907 9.31783L11.9816 8.65196L5.99638 5Z" fill="#2B6DEF"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.99688 9.86719H5.99658V14.9966L7.99236 13.7798V11.0843L5.99688 9.86719Z" fill="#2BBDF7"/>
-    <path d="M10 19C5.02944 19 1 14.9706 1 10H-1C-1 16.0751 3.92487 21 10 21V19ZM19 10C19 14.9706 14.9706 19 10 19V21C16.0751 21 21 16.0751 21 10H19ZM10 1C14.9706 1 19 5.02944 19 10H21C21 3.92487 16.0751 -1 10 -1V1ZM10 -1C3.92487 -1 -1 3.92487 -1 10H1C1 5.02944 5.02944 1 10 1V-1Z" fill="#DBE1E7"/>
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M8.64575 9.15782L9.98547 12.3014L11.9795 11.0852L11.981 11.0846V8.65039L8.64575 9.15782Z"
+      fill="#2BBDF7"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M14.5608 6.82549L13.3162 6.3295L11.9861 6.21582V13.7804L13.9815 14.9972L15.5566 11.5869L14.5632 8.28931L14.5608 6.82549Z"
+      fill="#2891F9"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M14.4357 6.21875L13.9735 7.43522H13.9729V14.9989L15.9687 13.7824V6.21875H14.4357Z"
+      fill="#2BBDF7"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M13.9818 5L11.9861 6.21742L13.9818 7.43453L15.9776 6.21742L13.9818 5Z"
+      fill="#2B6DEF"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M9.98676 9.86682V9.86619L7.99127 7.50374L4 6.21582V13.7795L5.99518 14.9966L6.5654 10.8109L7.99127 11.0849V11.0836L9.98706 12.3004V9.86682H9.98676Z"
+      fill="#2891F9"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M5.99638 5L4 6.2171L9.98614 9.86937L10.8907 9.31783L11.9816 8.65196L5.99638 5Z"
+      fill="#2B6DEF"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M5.99688 9.86719H5.99658V14.9966L7.99236 13.7798V11.0843L5.99688 9.86719Z"
+      fill="#2BBDF7"
+    />
+    <path
+      d="M10 19C5.02944 19 1 14.9706 1 10H-1C-1 16.0751 3.92487 21 10 21V19ZM19 10C19 14.9706 14.9706 19 10 19V21C16.0751 21 21 16.0751 21 10H19ZM10 1C14.9706 1 19 5.02944 19 10H21C21 3.92487 16.0751 -1 10 -1V1ZM10 -1C3.92487 -1 -1 3.92487 -1 10H1C1 5.02944 5.02944 1 10 1V-1Z"
+      fill="#DBE1E7"
+    />
   </svg>
 );

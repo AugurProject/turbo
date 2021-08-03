@@ -24,7 +24,7 @@ import { useBetslipStore } from "../stores/betslip";
 import { ACTIVE_BETS, THEME_OPTIONS } from "../constants";
 import { CategoriesArea } from "../categories/categories";
 const { MarketsLink } = Links;
-const { GearIcon, ThreeLinesIcon, SimpleCheck, XIcon } = Icons;
+const { GearIcon, SharpThreeLinesIcon, SimpleCheck, XIcon } = Icons;
 const { TinyThemeButton } = ButtonComps;
 const { generateTooltip } = LabelComps;
 const { ConnectAccount } = CompsConnectAccount;
@@ -382,7 +382,7 @@ export const TopNav = () => {
             setSidebar(SIDEBAR_TYPES.NAVIGATION);
           }}
         >
-          {ThreeLinesIcon}
+          {SharpThreeLinesIcon}
         </button>
         <MobileMenu />
       </article>
