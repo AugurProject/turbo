@@ -14,6 +14,7 @@ export interface PaginationProps {
   maxLimit?: number;
   showPagination?: boolean;
   useFull?: boolean;
+  maxButtons?: number;
 }
 
 export interface PagesArrayObject {
@@ -31,7 +32,7 @@ export const sliceByPage = (array, page, pageLimit) => {
   return array.slice(getOffset(page, pageLimit), getOffset(page, pageLimit) + pageLimit);
 };
 
-export const createPagesArray = (page: number, totalPages: number) => {
+export const createPagesArray = (page: number, totalPages: number, maxButtons: number = 4) => {
   if (totalPages <= 1) {
     return [
       {
@@ -40,45 +41,75 @@ export const createPagesArray = (page: number, totalPages: number) => {
       },
     ];
   }
-  let ArrayToShow: Array<PagesArrayObject> = [];
   const PagesArray: Array<PagesArrayObject> = [];
-  const SevenBefore: Array<PagesArrayObject> = [];
-  const SevenAfter: Array<PagesArrayObject> = [];
-  const maxLength = 7; // actual max is 9, 7 to figure out + first/last
   for (let i = 1; i <= totalPages; i++) {
     PagesArray.push({
       page: i,
       active: page === i,
     });
   }
-  for (let b = -8; b < -1; b++) {
-    if (PagesArray[page + b] && PagesArray[page + b].page !== 1) {
-      SevenBefore.push(PagesArray[page + b]);
-    }
-  }
-  for (let a = 0; a <= 6; a++) {
-    if (PagesArray[page + a] && PagesArray[page + a].page !== totalPages) {
-      SevenAfter.push(PagesArray[page + a]);
-    }
-  }
-  const beforeLen = SevenBefore.length;
-  const afterLen = SevenAfter.length;
+  const maxLength = maxButtons >= 4 ? maxButtons : 4;
+  if (totalPages <= maxLength) return PagesArray;
+
+  const innerLength = maxLength - 2;
   const addPage = page !== 1 && page !== totalPages;
-  ArrayToShow.push(PagesArray[0]);
-  const beforeSlice = maxLength - afterLen - (addPage ? 1 : 0);
-  const newBefore = beforeSlice > 2 ? SevenBefore.splice(-beforeSlice) : SevenBefore.splice(-3);
-  ArrayToShow = ArrayToShow.concat(newBefore);
-  if (addPage) ArrayToShow.push(PagesArray[page - 1]);
-  const afterSlice = maxLength - beforeLen - (addPage ? 1 : 0);
-  const newAfter = afterSlice > 2 ? SevenAfter.splice(0, afterSlice) : SevenAfter.splice(0, 3);
-  ArrayToShow = ArrayToShow.concat(newAfter);
-  ArrayToShow.push(PagesArray[totalPages - 1]);
-  const finalLen = ArrayToShow.length;
-  // add Nulls as needed:
-  if (ArrayToShow[1].page !== 2) ArrayToShow[1] = NullPage;
-  if (ArrayToShow[finalLen - 2].page !== totalPages - 1) {
-    ArrayToShow[finalLen - 2] = NullPage;
+
+  const Before: Array<PagesArrayObject> = [];
+  const After: Array<PagesArrayObject> = [];
+
+  const range = addPage ? innerLength : maxLength - 1;
+  for (let b = -range; b < -1; b++) {
+    if (PagesArray[page + b] && PagesArray[page + b].page !== 1) {
+      Before.push(PagesArray[page + b]);
+    }
   }
+  for (let a = 0; a < range - Before.length - 1; a++) {
+    if (PagesArray[page + a] && PagesArray[page + a].page !== totalPages) {
+      After.push(PagesArray[page + a]);
+    }
+  }
+  // console.log("Before/After:", JSON.stringify(Before), JSON.stringify(After), range);
+  let ArrayToShow: Array<PagesArrayObject> = [];
+  // add first page
+  ArrayToShow.push(PagesArray[0]);
+
+  // const beforeSlice = maxLength - After.length - (addPage ? 1 : 0);
+  // const newBefore = beforeSlice > maxLength ? Before.splice(-beforeSlice) : Before.splice(-1);
+  ArrayToShow = ArrayToShow.concat(Before);
+
+  if (addPage) ArrayToShow.push(PagesArray[page - 1]);
+  // console.log("BeforeSlice:", beforeSlice, JSON.stringify(newBefore));
+  // const afterSlice = maxLength - 2 - Before.length - (addPage ? 1 : 0);
+  // const newAfter =
+  //   afterSlice >= range ? After.splice(0, afterSlice) : After.splice(0, afterSlice - newBefore.length);
+
+  ArrayToShow = ArrayToShow.concat(After);
+  // console.log("AfterSlice:", afterSlice, JSON.stringify(newAfter), 'finlen:', ArrayToShow.length);
+  // total length without final page
+  const finalLen = ArrayToShow.length;
+  const midpoint = Math.floor(maxLength / 2) - 2;
+  // add nulls as needed
+  if (Before.length >= midpoint && Before.length > 1) {
+    ArrayToShow[1] = NullPage;
+  }
+
+  if (After.length >= midpoint && After.length > 1) {
+    ArrayToShow[finalLen - 1] = NullPage;
+  }
+  // console.log(
+    // "Ugh:",
+    // JSON.stringify(newBefore),
+    // JSON.stringify(newAfter),
+    // JSON.stringify(ArrayToShow),
+    // page,
+    // totalPages,
+    // maxButtons,
+    // maxLength
+  // );
+
+  // add final page:
+  ArrayToShow.push(PagesArray[PagesArray.length - 1]);
+
   return ArrayToShow;
 };
 
@@ -86,12 +117,14 @@ export const Pagination = ({
   page,
   action,
   itemCount,
-  itemsPerPage,
+  itemsPerPage = 10,
   showPagination = true,
   useFull = false,
+  maxButtons = 7,
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
-  const pagesArray = createPagesArray(page, totalPages);
+  const pagesArray = createPagesArray(page, totalPages, maxButtons);
+  // console.log(pagesArray);
   return (
     <div
       className={classNames(Styles.Pagination, {
@@ -114,25 +147,24 @@ export const Pagination = ({
 };
 
 const handleMiddle = ({ page, totalPages, pagesArray, action, useFull = false }) => {
-  let content = null;
-  if (useFull) {
-    if (pagesArray.length > 7) {
-      // TODO: handle greater than 7 choice logic
-    } else {
-      content = (
-        <>
-          {pagesArray.map((pageInfo) => (
-            <TinyThemeButton
-              key={`pagination-detail-button-for-page-${pageInfo.page}`}
-              selected={pageInfo.active}
-              text={pageInfo.page}
-              action={() => action(pageInfo.page)}
-            />
-          ))}
-        </>
-      );
-    }
-  }
+  const content = useFull ? (
+    <>
+      {pagesArray.map((pageInfo, index) =>
+        pageInfo.page ? (
+          <TinyThemeButton
+            key={`pagination-detail-button-for-page-${pageInfo.page}`}
+            selected={pageInfo.active}
+            text={pageInfo.page}
+            noHighlight
+            action={() => action(pageInfo.page)}
+          />
+        ) : (
+          <div key={`ellipsis-for-${index}`}>...</div>
+        )
+      )}
+    </>
+  ) : null;
+
   return (
     <>
       <span>
