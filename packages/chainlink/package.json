@@ -5,7 +5,7 @@
     "chainlink": "bin/chainlink.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
     "build:docker": "docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 -t augurproject/chainlink-credential-generator:latest ./docker/credential_generator &&  docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 -t augurproject/chainlink-job-generator:latest ./docker/jobs_creator",
     "watch": "tsc -w",
     "test": "jest",
