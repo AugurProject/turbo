@@ -45,6 +45,7 @@ export const GET_MARKETS = gql`
       turboId: marketIndex
       shareTokens
       creator
+      initialOdds
     }
     cryptoMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
@@ -58,6 +59,7 @@ export const GET_MARKETS = gql`
       coinIndex
       shareTokens
       creator
+      initialOdds
     }
     mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
@@ -75,6 +77,7 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
       marketType
+      initialOdds
     }
     resolved_teamSportsMarkets: teamSportsMarkets(
       where: { winner_not: null }
