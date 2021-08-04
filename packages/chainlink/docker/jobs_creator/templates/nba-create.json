@@ -7,7 +7,7 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC * */4 * * *"
+        "schedule": "CRON_TZ=UTC 0 */4 * * *"
       }
     }
   ],
