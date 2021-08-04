@@ -1,5 +1,5 @@
 {
-  "name": "nba-create",
+  "name": "mlb-resolve",
   "initiators": [
     {
       "type": "web"
@@ -7,7 +7,7 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC * */4 * * *"
+        "schedule": "CRON_TZ=UTC 0 */4 * * *"
       }
     }
   ],
@@ -15,15 +15,15 @@
     {
       "type": "augur-adapter",
       "params": {
-        "sport": "nba",
-        "method": "create",
+        "sport": "mlb",
+        "method": "resolve",
         "startBuffer": 86400,
         "affiliateIds": [
           9,
           3
         ],
         "daysInAdvance": 7,
-        "contractAddress": "${NBA_MARKET_FACTORY}"
+        "contractAddress": "${MLB_MARKET_FACTORY}"
       }
     }
   ]

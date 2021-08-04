@@ -1,6 +1,0 @@
-.api
-.password
-augur-adapter.env
-chainlink-node.env
-secret
-log.jsonl
