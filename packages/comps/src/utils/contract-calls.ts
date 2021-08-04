@@ -1724,6 +1724,7 @@ const retrieveMarkets = async (
       marketFactoryData
     );
   }
+
   return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
@@ -1924,6 +1925,7 @@ const fillMarketsData = async (
         }
       })
     );
+    console.log('fetch exchanges', Object.values(fetchExchanges).filter(x => !x).length)
     exchanges = fetchExchanges.reduce((p, exs) => ({ ...p, ...exs }), {});
   }
 
@@ -1998,7 +2000,7 @@ const retrieveExchangeInfos = async (
     exchanges = await exchangesHaveLiquidityMulticall(exchangesInfo, provider);
   } catch (e) {
     console.log("total supply multicall failover");
-    exchagnes = await exchangesHaveLiquidity(exchangesInfo, provider);
+    exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
   }
 
   const GET_RATIOS = "tokenRatios";

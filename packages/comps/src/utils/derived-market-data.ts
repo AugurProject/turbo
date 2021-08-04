@@ -1,6 +1,8 @@
 import * as SimpleSportsDailies from "./derived-simple-sport-dailies";
 import * as MmaDailies from "./derived-mma-dailies";
 import * as CryptoMarkets from "./derived-crypto-markets";
+import * as NflMarkets from "./derived-nfl-dailies";
+
 import { MARKET_FACTORY_TYPES, SPORTS_MARKET_TYPE } from "./constants";
 import { MarketInfo } from "types";
 
@@ -14,6 +16,9 @@ export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
     }
     case MARKET_FACTORY_TYPES.MMALINK: {
       return MmaDailies.getResolutionRules(marketInfo);
+    }
+    case MARKET_FACTORY_TYPES.NFL: {
+      return NflMarkets.getResolutionRules(marketInfo);
     }
     default:
       return [];
@@ -32,12 +37,20 @@ export const isIgnoredMarket = (sportId: string, sportsMarketType: number): bool
 };
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFactoryType: string): MarketInfo => {
-  if (marketFactoryType === MARKET_FACTORY_TYPES.SPORTSLINK) {
-    return SimpleSportsDailies.deriveMarketInfo(market, marketData);
-  } else if (marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO) {
-    return CryptoMarkets.deriveMarketInfo(market, marketData);
-  } else if (marketFactoryType === MARKET_FACTORY_TYPES.MMALINK) {
-    return MmaDailies.deriveMarketInfo(market, marketData);
+  switch (marketFactoryType) {
+    case MARKET_FACTORY_TYPES.SPORTSLINK: {
+      return SimpleSportsDailies.deriveMarketInfo(market, marketData);
+    }
+    case MARKET_FACTORY_TYPES.CRYPTO: {
+      return CryptoMarkets.deriveMarketInfo(market, marketData);
+    }
+    case MARKET_FACTORY_TYPES.MMALINK: {
+      return MmaDailies.deriveMarketInfo(market, marketData);
+    }
+    case MARKET_FACTORY_TYPES.NFL: {
+      return NflMarkets.deriveMarketInfo(market, marketData);
+    }
+    default:
+      return market;
   }
-  return market;
 };
