@@ -69,35 +69,7 @@ export const graphChainNames: {
 type AddressMapping = {
   [id in ChainId]?: Addresses;
 };
-
 export const addresses: AddressMapping = {
-  137: {
-    reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
-    balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
-    marketFactories: [
-      {
-        description: "mlb and nba",
-        version: "v1.0.0",
-        type: "SportsLink",
-        subtype: "V1",
-        address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
-        fetcher: "",
-      },
-      {
-        description: "mlb and nba",
-        version: "v1.0.0-beta.7",
-        type: "SportsLink",
-        subtype: "V1",
-        address: "0xd9AD92f448bf89eF1Fe1b2BcF0aBE7221Bb79652",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
-        fetcher: "",
-      },
-    ],
-    info: { uploadBlockNumber: 15336699, graphName: "matic" },
-  },
   80001: {
     reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
@@ -164,5 +136,42 @@ export const addresses: AddressMapping = {
       },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
+  },
+  137: {
+    reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
+    balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
+    marketFactories: [
+      {
+        type: "MMALink",
+        subtype: "V2",
+        address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
+        fetcher: "0xAE9df5bf273bfF861174194ca190e99e95a15a26",
+        description: "mma",
+        version: "v1.1.0",
+      },
+      {
+        type: "SportsLink",
+        subtype: "V2",
+        address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
+        fetcher: "",
+        description: "mlb and nba",
+        version: "v1.1.0",
+      },
+      {
+        type: "SportsLink",
+        subtype: "V1",
+        address: "0xd9AD92f448bf89eF1Fe1b2BcF0aBE7221Bb79652",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0x38dC258E914834fe1f2393f1dfCedeF69deD5Df4",
+        fetcher: "",
+        description: "mlb and nba",
+        version: "v1.0.0-beta.7",
+      },
+    ],
+    info: { uploadBlockNumber: 17547211, graphName: "matic" },
   },
 };
