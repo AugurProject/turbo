@@ -24,6 +24,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
   const cryptoMarketFactory = await deployments.get("CryptoMarketFactory");
   const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory");
+  const nflMarketFactory = await deployments.get("NFLMarketFactory");
 
   const nbaFetcher = await deployments.get("NBAFetcher");
   const mmaFetcher = await deployments.get("MMAFetcher");
@@ -76,6 +77,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       collateral,
       ammFactory: ammFactory.address,
       fetcher: mmaFetcher.address,
+    });
+    marketFactories.unshift({
+      version,
+      description: "nfl",
+      type: "NFL",
+      subtype: "V2",
+      address: nflMarketFactory.address,
+      collateral,
+      ammFactory: ammFactory.address,
+      fetcher: nbaFetcher.address, // uses nba because nfl is very similar to nba/mlb
     });
   }
 
