@@ -1925,7 +1925,6 @@ const fillMarketsData = async (
         }
       })
     );
-    console.log('fetch exchanges', Object.values(fetchExchanges).filter(x => !x).length)
     exchanges = fetchExchanges.reduce((p, exs) => ({ ...p, ...exs }), {});
   }
 

@@ -358,5 +358,5 @@ const sportsResolutionRules = {
         `Results are determined by their natural conclusion and do not recognize postponed games, protests, or overturned decisions.`,
       ],
     },
-  }, 
+  },
 };
