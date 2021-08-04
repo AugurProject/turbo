@@ -1877,12 +1877,12 @@ const fillMarketsData = async (
   try {
     const popExchanges = await getPoolAddressesMulticall(filteredMarkets, provider, cash, account);
     exchanges = popExchanges.exchanges;
-    newBlocknumber = popExchanges.blocknumber;
+    newBlocknumber = popExchanges.blocknumber ?? newBlocknumber;
   } catch (e) {
     console.log("multicall failover", e);
     const popExchanges = await getPoolAddresses(filteredMarkets, provider, cash);
     exchanges = popExchanges.exchanges;
-    newBlocknumber = popExchanges.blocknumber;
+    newBlocknumber = popExchanges.blocknumber ?? newBlocknumber;
   }
 
   let marketInfos: MarketInfos = {};
