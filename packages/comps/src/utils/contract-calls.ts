@@ -1513,12 +1513,18 @@ const setIgnoreRemoveMarketList = (
     (m) => existingEvents.includes(m.eventId) && m.version !== OLDEST_MARKET_FACTORY_VER
   );
 
+  // <Removal> summer nba open markets
+  // TODO: need to allow when NBA season comes around again
+  const openNbaV1Markets = Object.values(allMarkets)
+    .filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType) && !m.hasWinner);
+
   const ignoreRemovedMarkets = [
     ...ignoredCrypto,
     ...nonLiqResolvedMarkets,
     ...zeroSpreadMarkets,
     ...ignoredSportsMarkets,
     ...dupEventMarkets,
+    ...openNbaV1Markets,
   ].reduce((p, m) => ({ ...p, [m.marketFactoryAddress]: [...(p[m.marketFactoryAddress] || []), m.turboId] }), {});
 
   Object.keys(ignoreRemovedMarkets).forEach((factoryAddress) =>
