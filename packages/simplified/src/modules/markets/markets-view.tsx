@@ -351,7 +351,7 @@ export const SubCategoriesFilter = () => {
   const { icon: MMAIcon } = getCategoryIconLabel(["Sports", "MMA"]);
 
   // const { icon: HockeyIcon } = getCategoryIconLabel(["Sports", "Hockey", "NHL"]);
-  // const { icon: FootballIcon } = getCategoryIconLabel(["Sports", "American Football", "NFL"]);
+  const { icon: FootballIcon } = getCategoryIconLabel(["Sports", "American Football", "NFL"]);
   return (
     <div className={Styles.SubCategoriesFilter}>
       <button
@@ -393,7 +393,7 @@ export const SubCategoriesFilter = () => {
         onClick={() => updateMarketsViewSettings({ subCategories: ["Hockey", "NHL"] })}
       >
         {HockeyIcon} NHL
-      </button>
+      </button> */
       <button
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.includes("NFL"),
@@ -401,7 +401,7 @@ export const SubCategoriesFilter = () => {
         onClick={() => updateMarketsViewSettings({ subCategories: ["American Football", "NFL"] })}
       >
         {FootballIcon} NFL
-      </button> */}
+      </button>}
     </div>
   );
 };

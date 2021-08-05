@@ -14,7 +14,6 @@ const NAMING_LINE = {
   OVER_UNDER_LINE: "OVER_UNDER_LINE",
 };
 const NO_CONTEST = "No Contest";
-const NO_CONTEST_TIE = "Tie/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
