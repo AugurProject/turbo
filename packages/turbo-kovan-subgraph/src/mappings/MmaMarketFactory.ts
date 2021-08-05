@@ -20,6 +20,13 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<Strin
   return shareTokens;
 }
 
+function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
+  let contract = MmaMarketFactoryContract.bind(contractAddress);
+  let market = contract.getMarket(marketId);
+
+  return market.initialOdds;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
@@ -39,6 +46,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.awayFighterName = event.params.awayFighterName;
   entity.awayFighterId = event.params.awayFighterId;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
+  entity.initialOdds = getInitialOdds(event.address, event.params.id);
 
   entity.save();
 }
