@@ -22,7 +22,7 @@ export interface MarketFactory {
 export type MarketFactoryType = "SportsLink" | "MMALink" | "Trusted" | "Crypto" | "NFL";
 export type MarketFactorySubType = "V1" | "V2";
 export type MarketFactoryContractName =
-  | "SportsLinkMarketFactory"
+  | "SportsLinkMarketFactoryV2"
   | "NFLMarketFactory"
   | "MMALinkMarketFactory"
   | "CryptoMarketFactory"
@@ -31,7 +31,7 @@ export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "";
 export const marketFactoryTypeToContractName: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
-  SportsLink: "SportsLinkMarketFactory",
+  SportsLink: "SportsLinkMarketFactoryV2",
   NFL: "NFLMarketFactory",
   MMALink: "MMALinkMarketFactory",
   Crypto: "CryptoMarketFactory",
