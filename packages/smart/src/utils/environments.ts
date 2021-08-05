@@ -50,14 +50,14 @@ function generateJsonEnvironments() {
       ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
       marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
     }));
-    let v1abstractMarketFactories = addresses.marketFactories
+    const v1abstractMarketFactories = addresses.marketFactories
       .filter(({ subtype }) => subtype === "V1")
       .map((marketFactory, index) => ({
         ...marketFactory,
         marketFactoryGraphName:
           index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
       }));
-    let v2abstractMarketFactories = addresses.marketFactories
+    const v2abstractMarketFactories = addresses.marketFactories
       .filter(({ subtype }) => subtype === "V2")
       .map((marketFactory, index) => ({
         ...marketFactory,
@@ -65,13 +65,13 @@ function generateJsonEnvironments() {
           index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
       }));
     addresses.marketFactories = [...v1abstractMarketFactories, ...v2abstractMarketFactories];
-    let specificMarketFactories: {
+    const specificMarketFactories: {
       [key: string]: EnvironmentMarketFactory[];
     } = {};
     addresses.marketFactories.forEach((marketFactory) => {
-      let marketFactoryType = marketFactory.type + marketFactory.subtype;
-      let marketFactoryName = marketFactoryTypes[marketFactoryType];
-      let marketFactoryGraphName = marketFactoryGraphNames[marketFactoryType];
+      const marketFactoryType = marketFactory.type + marketFactory.subtype;
+      const marketFactoryName = marketFactoryTypes[marketFactoryType];
+      const marketFactoryGraphName = marketFactoryGraphNames[marketFactoryType];
       if (marketFactoryName) {
         if (!specificMarketFactories[marketFactoryName]) {
           specificMarketFactories[marketFactoryName] = [];
