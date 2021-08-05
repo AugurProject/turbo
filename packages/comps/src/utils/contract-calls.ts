@@ -1421,7 +1421,7 @@ const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {
 
 export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
   return PARA_CONFIG.marketFactories.reduce((p, factory) => {
-    const isSportsLink = factory.type === "SportsLink";
+    const isSportsLink = factory.type === MARKET_FACTORY_TYPES.SPORTSLINK;
     return {
       ...p,
       [factory.ammFactory]: isSportsLink ? "NBA & MLB" : factory.description.toUpperCase(),
@@ -1541,7 +1541,7 @@ const setIgnoreRemoveMarketList = (
   return filteredMarkets;
 };
 
-export const getFactoryMarketInfo = async (
+const getFactoryMarketInfo = async (
   provider: Web3Provider,
   markets: MarketInfos,
   ammExchanges: AmmExchanges,
