@@ -42,7 +42,7 @@ export const marketFactoryTypeToFetcherName: {
 } = {
   SportsLink: "NBAFetcher",
   MMALink: "MMAFetcher",
-  NFL: "NBAFetcher", // nfl is similar to mlb and nba
+  NFL: "NBAFetcher",
   Crypto: "",
   Trusted: "",
 };
@@ -142,6 +142,26 @@ export const addresses: AddressMapping = {
     balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
     marketFactories: [
       {
+        type: "SportsLink",
+        subtype: "V2",
+        address: "0xA76C803c1D3B4cc31b1B964f29357BbF23B6D6f7",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
+        fetcher: "0x1F26275cf999B33Eb39f304E622adbe0C5214Cbf",
+        description: "mlb and nba",
+        version: "v1.1.0",
+      },
+      {
+        type: "Crypto",
+        subtype: "V1",
+        address: "0x32a9F228EC4deB9CE96bD62A21873937648e2277",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
+        fetcher: "",
+        description: "crypto prices",
+        version: "v1.1.0",
+      },
+      {
         type: "MMALink",
         subtype: "V2",
         address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",
@@ -153,7 +173,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "SportsLink",
-        subtype: "V2",
+        subtype: "V1",
         address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
