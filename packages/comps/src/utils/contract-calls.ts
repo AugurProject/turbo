@@ -1724,6 +1724,7 @@ const retrieveMarkets = async (
       marketFactoryData
     );
   }
+
   return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
@@ -1998,7 +1999,7 @@ const retrieveExchangeInfos = async (
     exchanges = await exchangesHaveLiquidityMulticall(exchangesInfo, provider);
   } catch (e) {
     console.log("total supply multicall failover");
-    exchagnes = await exchangesHaveLiquidity(exchangesInfo, provider);
+    exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
   }
 
   const GET_RATIOS = "tokenRatios";
