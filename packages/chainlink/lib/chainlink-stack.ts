@@ -150,6 +150,7 @@ export class ChainlinkStack extends cdk.Stack {
         RPC_URL: mySecret.secretValueFromJson("RPC_URL_HTTP").toString(),
         THERUNDOWN_API_KEY: mySecret.secretValueFromJson("THERUNDOWN_API_KEY").toString(),
         SPORTSDATAIO_MMA_STATS_API_KEY: mySecret.secretValueFromJson("SPORTSDATAIO_MMA_STATS_API_KEY").toString(),
+        SPORTSDATAIO_NFL_SCORES_API_KEY: mySecret.secretValueFromJson("SPORTSDATAIO_NFL_SCORES_API_KEY").toString(),
       },
       essential: false,
       image: ecs.ContainerImage.fromRegistry("public.ecr.aws/s1q8t5o6/adapters/augur-adapter:latest"),

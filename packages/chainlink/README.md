@@ -33,6 +33,7 @@ The RPC_URL is an http/https link.
     RPC_URL=
     THERUNDOWN_API_KEY=
     SPORTSDATAIO_MMA_STATS_API_KEY=
+    SPORTSDATAIO_NFL_SCORES_API_KEY=
 
 #### augur-jobs-creator.env
 Contract addresses from `addresses.ts`.

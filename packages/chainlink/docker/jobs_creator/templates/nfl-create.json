@@ -1,0 +1,30 @@
+{
+  "name": "nfl-create",
+  "initiators": [
+    {
+      "type": "web"
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 0 */4 * * *"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "nfl",
+        "method": "create",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${NFL_MARKET_FACTORY}"
+      }
+    }
+  ]
+}
