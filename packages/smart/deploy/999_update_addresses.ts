@@ -92,7 +92,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
   }
 
-
   const addresses: Addresses = {
     reputationToken,
     balancerFactory,
