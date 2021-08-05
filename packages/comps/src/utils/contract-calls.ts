@@ -1515,8 +1515,9 @@ const setIgnoreRemoveMarketList = (
 
   // <Removal> summer nba open markets
   // TODO: need to allow when NBA season comes around again
-  const openNbaV1Markets = Object.values(allMarkets)
-    .filter((m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType) && !m.hasWinner);
+  const openNbaV1Markets = Object.values(allMarkets).filter(
+    (m) => isIgnoredMarket(m?.sportId, m?.sportsMarketType) && !m.hasWinner
+  );
 
   const ignoreRemovedMarkets = [
     ...ignoredCrypto,

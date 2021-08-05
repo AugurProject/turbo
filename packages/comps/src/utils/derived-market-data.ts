@@ -27,7 +27,7 @@ export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
 
 const IgnoreMarkets = {
   "3": [SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER],
-  "4": [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER]
+  "4": [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER],
 };
 
 export const isIgnoredMarket = (sportId: string, sportsMarketType: number): boolean => {
