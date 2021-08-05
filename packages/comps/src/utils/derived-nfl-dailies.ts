@@ -108,7 +108,7 @@ export const getResolutionRules = (market: MarketInfo): string[] => {
 
 const getMarketOutcome = (sportsMarketType: number, outcomeId: number): string => {
   if (!sportsData[sportsMarketType]) {
-    console.error(`MMA ${sportsMarketType} not found in collection`);
+    console.error(`NFL ${sportsMarketType} not found in collection`);
     return "";
   }
   const data = sportsData[sportsMarketType];
