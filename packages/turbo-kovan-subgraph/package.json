@@ -12,6 +12,7 @@
     "deploy:mumbai": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-mumbai",
     "deploy:matic": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-matic",
     "deploy:local": "graph deploy --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020 augurproject/augur-turbo-kovan",
+    "deploy:staging": "graph deploy --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020 augurproject/augur-turbo-matic-staging",
     "prepare:abis": "rsync -v ../smart/abi/contracts/**/**/*.json abis/",
     "prepare:mumbai": "mustache ../smart/environments/mumbai.json subgraph.template.yaml > subgraph.yaml",
     "prepare:matic": "mustache ../smart/environments/matic.json subgraph.template.yaml > subgraph.yaml"
