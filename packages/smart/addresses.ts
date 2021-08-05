@@ -169,7 +169,7 @@ export const addresses: AddressMapping = {
         ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
         fetcher: "",
         description: "mlb and nba",
-        version: "v1.1.0",
+        version: "v1.0.0",
       },
       {
         type: "SportsLink",
