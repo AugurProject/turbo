@@ -152,16 +152,6 @@ export const addresses: AddressMapping = {
         version: "v1.1.0",
       },
       {
-        type: "Crypto",
-        subtype: "V1",
-        address: "0x32a9F228EC4deB9CE96bD62A21873937648e2277",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
-        fetcher: "",
-        description: "crypto prices",
-        version: "v1.1.0",
-      },
-      {
         type: "MMALink",
         subtype: "V2",
         address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",

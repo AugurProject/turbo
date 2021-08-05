@@ -78,6 +78,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       ammFactory: ammFactory.address,
       fetcher: mmaFetcher.address,
     });
+  }
+  if (!hasFactory(marketFactories, nflMarketFactory.address)) {
     marketFactories.unshift({
       version,
       description: "nfl",
@@ -89,6 +91,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       fetcher: nbaFetcher.address, // uses nba because nfl is very similar to nba/mlb
     });
   }
+
 
   const addresses: Addresses = {
     reputationToken,
