@@ -9,10 +9,12 @@ import {
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
-  let market = contract.getMarket(marketId);
-
-  let rawShareTokens = market.shareTokens;
-  let shareTokens = new Array<String>();
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let rawShareTokens: Address[] = new Array<Address>();
+  if (!tryGetMarket.reverted) {
+    rawShareTokens = tryGetMarket.value.shareTokens;
+  }
+  let shareTokens: String[] = new Array<String>();
   for (let i = 0; i < rawShareTokens.length; i++) {
     shareTokens.push(rawShareTokens[i].toHexString());
   }
@@ -22,9 +24,12 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<Strin
 
 function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
-  let market = contract.getMarket(marketId);
-
-  return market.initialOdds;
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let initialOdds: BigInt[] = new Array<BigInt>();
+  if (!tryGetMarket.reverted) {
+    initialOdds = tryGetMarket.value.initialOdds;
+  }
+  return initialOdds;
 }
 
 export function handleMarketCreatedEvent(event: MarketCreated): void {

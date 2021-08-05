@@ -9,10 +9,12 @@ import {
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
   let contract = SportsLinkMarketFactoryContract.bind(contractAddress);
-  let marketDetails = contract.getMarket(marketId);
-
-  let rawShareTokens = marketDetails.shareTokens;
-  let shareTokens = new Array<String>();
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let rawShareTokens: Address[] = new Array<Address>();
+  if (!tryGetMarket.reverted) {
+    rawShareTokens = tryGetMarket.value.shareTokens;
+  }
+  let shareTokens: String[] = new Array<String>();
   for (let i = 0; i < rawShareTokens.length; i++) {
     shareTokens.push(rawShareTokens[i].toHexString());
   }
