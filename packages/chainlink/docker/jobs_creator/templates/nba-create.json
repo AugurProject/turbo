@@ -1,5 +1,5 @@
 {
-  "name": "mma-create",
+  "name": "nba-create",
   "initiators": [
     {
       "type": "web"
@@ -7,7 +7,7 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC * */4 * * *"
+        "schedule": "CRON_TZ=UTC 0 */4 * * *"
       }
     }
   ],
@@ -15,7 +15,7 @@
     {
       "type": "augur-adapter",
       "params": {
-        "sport": "mma",
+        "sport": "nba",
         "method": "create",
         "startBuffer": 86400,
         "affiliateIds": [
@@ -23,7 +23,7 @@
           3
         ],
         "daysInAdvance": 7,
-        "contractAddress": "${MMA_MARKET_FACTORY}"
+        "contractAddress": "${NBA_MARKET_FACTORY}"
       }
     }
   ]

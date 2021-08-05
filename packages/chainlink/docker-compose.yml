@@ -30,12 +30,16 @@ services:
       ROOT: /chainlink
       LOG_LEVEL: debug
       CHAINLINK_TLS_PORT: 0
+      CHAIN_ID: 80001
       SECURE_COOKIES: "false"
       ALLOW_ORIGINS: "*"
       DATABASE_URL: postgresql://postgres:password@db:5432/postgres?sslmode=disable
       CLIENT_NODE_URL: "http://node:6688"
       ADMIN_CREDENTIALS_FILE: /chainlink/.api
     env_file: chainlink-node.env
+    healthcheck:
+      test: chainlink jobs --json list || exit 1
+      interval: 5s
     volumes:
       - chainlink:/chainlink
     restart: always
@@ -56,13 +60,30 @@ services:
     environment:
       LOG_LEVEL: debug
     build:
-      context: ../../external-adapters-js
-      dockerfile: ./Dockerfile
+      context: ../../../external-adapters-js
       args:
         location: ./packages/composites/augur
         package: "@chainlink/augur-adapter"
       labels:
-        com.chainlinklabs.external-adapter-type: composites      
+        com.chainlinklabs.external-adapter-type: composites
+
+  augur-jobs-creator:
+    container_name: augur-jobs-creator
+    image: augur-jobs-creator:0.0.1
+    env_file: augur-jobs-creator.env
+    networks:
+      - link
+    environment:
+      LOG_LEVEL: debug
+      CLIENT_NODE_URL: "http://node:6688"
+      ADMIN_CREDENTIALS_FILE: /chainlink/.api
+    depends_on:
+      node:
+        condition: service_healthy
+    build:
+      context: ./docker/jobs_creator
+    volumes:
+      - chainlink:/chainlink
 
 volumes:
   chainlink:

@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { calcShareFactor } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
-import { Cash__factory, SportsLinkMarketFactoryV2__factory } from "../typechain";
+import { Cash__factory, NFLMarketFactory__factory } from "../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;
@@ -29,9 +29,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = hre.network.config.deployConfig?.protocol || deployer;
   const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const sportId = 4;
+  const sportId = 1;
 
-  const args: Parameters<SportsLinkMarketFactoryV2__factory["deploy"]> = [
+  const args: Parameters<NFLMarketFactory__factory["deploy"]> = [
     owner,
     collateral.address,
     shareFactor,
@@ -44,20 +44,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     sportId,
   ];
 
-  await deployments.deploy("SportsLinkMarketFactoryV2", {
+  await deployments.deploy("SportsLinkMarketFactory", {
     from: deployer,
     args,
     log: true,
   });
-
-  await deployments.deploy("NBAFetcher", {
-    from: deployer,
-    args: [],
-    log: true,
-  });
 };
 
-func.tags = ["SportsLinkMarketFactory"];
+func.tags = ["NFLMarketFactory"];
 func.dependencies = ["Tokens", "FeePot"];
 
 export default func;

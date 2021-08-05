@@ -1421,7 +1421,7 @@ const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {
 
 export const ammFactoryMarketNames = (): MarketFactoryNames[] => {
   return PARA_CONFIG.marketFactories.reduce((p, factory) => {
-    const isSportsLink = factory.type === "SportsLink";
+    const isSportsLink = factory.type === MARKET_FACTORY_TYPES.SPORTSLINK;
     return {
       ...p,
       [factory.ammFactory]: isSportsLink ? "NBA & MLB" : factory.description.toUpperCase(),
@@ -1541,7 +1541,7 @@ const setIgnoreRemoveMarketList = (
   return filteredMarkets;
 };
 
-export const getFactoryMarketInfo = async (
+const getFactoryMarketInfo = async (
   provider: Web3Provider,
   markets: MarketInfos,
   ammExchanges: AmmExchanges,
@@ -1724,6 +1724,7 @@ const retrieveMarkets = async (
       marketFactoryData
     );
   }
+
   return { marketInfos, exchanges, blocknumber: newBlocknumber ? newBlocknumber : blocknumber };
 };
 
@@ -1877,12 +1878,12 @@ const fillMarketsData = async (
   try {
     const popExchanges = await getPoolAddressesMulticall(filteredMarkets, provider, cash, account);
     exchanges = popExchanges.exchanges;
-    newBlocknumber = popExchanges.blocknumber;
+    newBlocknumber = popExchanges.blocknumber ?? newBlocknumber;
   } catch (e) {
     console.log("multicall failover", e);
     const popExchanges = await getPoolAddresses(filteredMarkets, provider, cash);
     exchanges = popExchanges.exchanges;
-    newBlocknumber = popExchanges.blocknumber;
+    newBlocknumber = popExchanges.blocknumber ?? newBlocknumber;
   }
 
   let marketInfos: MarketInfos = {};
@@ -1998,7 +1999,7 @@ const retrieveExchangeInfos = async (
     exchanges = await exchangesHaveLiquidityMulticall(exchangesInfo, provider);
   } catch (e) {
     console.log("total supply multicall failover");
-    exchagnes = await exchangesHaveLiquidity(exchangesInfo, provider);
+    exchanges = await exchangesHaveLiquidity(exchangesInfo, provider);
   }
 
   const GET_RATIOS = "tokenRatios";

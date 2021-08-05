@@ -33,6 +33,9 @@
       "path": "./packages/ethereum-multicall"
     },
     {
+      "path": "./packages/chainlink"
+    },
+    {
       "path": "./packages/comps"
     }
   ],

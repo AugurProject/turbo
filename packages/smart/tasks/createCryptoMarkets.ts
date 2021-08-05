@@ -22,6 +22,6 @@ task("createCryptoMarkets", "Create market for the CryptoMarketFactory")
       const marketFactory = MarketFactories[index].marketFactory as CryptoMarketFactory;
 
       console.log("Creating and resolving markets");
-      await marketFactory.createAndResolveMarkets(getUpcomingFriday4pmEst().valueOf());
+      await marketFactory.createAndResolveMarkets([0, 0, 0, 0, 0, 0], getUpcomingFriday4pmEst().valueOf());
     }
   );
