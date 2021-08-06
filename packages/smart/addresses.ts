@@ -172,6 +172,6 @@ export const addresses: AddressMapping = {
         version: "v1.0.0",
       },
     ],
-    info: { uploadBlockNumber: 17547211, graphName: "matic" },
+    info: { uploadBlockNumber: 15336699, graphName: "matic" },
   },
 };
