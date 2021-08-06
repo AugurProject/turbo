@@ -49,6 +49,7 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
+    "@balancer-labs/v2-pool-weighted": "^1.0.0",
     "@tenderly/hardhat-tenderly": "^1.0.12",
     "prettier-plugin-solidity": "^1.0.0-beta.6"
   }

@@ -2,8 +2,6 @@
 pragma solidity 0.7.6;
 pragma abicoder v2;
 
-import "../libraries/IERC20Full.sol";
-import "../balancer/BPool.sol";
 import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
 

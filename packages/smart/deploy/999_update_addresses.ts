@@ -21,7 +21,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const balancerFactory =
     hre.network.config.deployConfig?.externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
 
-  const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory");
+  const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactoryV2");
   const cryptoMarketFactory = await deployments.get("CryptoMarketFactory");
   const mmaLinkMarketFactory = await deployments.get("MMALinkMarketFactory");
 
