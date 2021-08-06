@@ -1472,7 +1472,7 @@ export const getMarketInfos = async (
 
   // first market infos get all markets with liquidity
   const aMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
-  let filteredMarkets = {...markets, ...aMarkets};
+  let filteredMarkets = { ...markets, ...aMarkets };
   const newBlocknumber = allMarkets.reduce((p, data) => (p > data.blocknumber ? p : data.blocknumber), 0);
 
   if (Object.keys(ignoreList).length === 0) {
