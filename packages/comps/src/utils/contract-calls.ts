@@ -76,7 +76,7 @@ import {
   MarketFactoryContract,
   instantiateMarketFactory,
 } from "@augurproject/smart";
-import { deriveMarketInfo, isIgnoredMarket } from "./derived-market-data";
+import { deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).decimalPlaces(6, 1).toFixed();
 interface LiquidityProperties {
@@ -1471,7 +1471,8 @@ export const getMarketInfos = async (
   );
 
   // first market infos get all markets with liquidity
-  let filteredMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
+  const aMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
+  let filteredMarkets = { ...markets, ...aMarkets };
   const newBlocknumber = allMarkets.reduce((p, data) => (p > data.blocknumber ? p : data.blocknumber), 0);
 
   if (Object.keys(ignoreList).length === 0) {
@@ -1494,12 +1495,12 @@ const setIgnoreRemoveMarketList = (
   const zeroSpreadMarkets = Object.values(allMarkets).filter(
     (m) => m?.sportsMarketType === SPORTS_MARKET_TYPE.SPREAD && m?.spreadLine === 0 && m.amm.hasLiquidity === false
   );
-
   // <Removal> MLB spread and over/under
   // <Removal> for sportsbook removing crypto
   const ignoredSportsMarkets = Object.values(allMarkets).filter((m) =>
     isIgnoredMarket(m?.sportId, m?.sportsMarketType)
   );
+
   const ignoredCrypto =
     loadtype === MARKET_LOAD_TYPE.SPORT
       ? Object.values(allMarkets).filter(({ marketFactoryType }) => marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO)
@@ -1513,12 +1514,19 @@ const setIgnoreRemoveMarketList = (
     (m) => existingEvents.includes(m.eventId) && m.version !== OLDEST_MARKET_FACTORY_VER
   );
 
+  // <Removal> summer nba open markets
+  // TODO: need to allow when NBA season comes around again
+  const openNbaV1Markets = Object.values(allMarkets).filter(
+    (m) => isIgnoreOpendMarket(m?.sportId, m?.sportsMarketType) && !m.hasWinner
+  );
+
   const ignoreRemovedMarkets = [
     ...ignoredCrypto,
     ...nonLiqResolvedMarkets,
     ...zeroSpreadMarkets,
     ...ignoredSportsMarkets,
     ...dupEventMarkets,
+    ...openNbaV1Markets,
   ].reduce((p, m) => ({ ...p, [m.marketFactoryAddress]: [...(p[m.marketFactoryAddress] || []), m.turboId] }), {});
 
   Object.keys(ignoreRemovedMarkets).forEach((factoryAddress) =>

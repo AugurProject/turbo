@@ -44,8 +44,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     sportId,
   ];
 
-  await deployments.deploy("SportsLinkMarketFactoryV2", {
+  await deployments.deploy("SportsLinkMarketFactory", {
     from: deployer,
+    contract: "SportsLinkMarketFactoryV2",
     args,
     log: true,
   });
