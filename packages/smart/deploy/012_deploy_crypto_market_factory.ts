@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-import { calcShareFactor, getUpcomingFriday4pmEst } from "../src";
+import { calcShareFactor, getUpcomingFriday4pmET } from "../src";
 import { isHttpNetworkConfig, makeSigner } from "../tasks";
 import { Cash__factory, CryptoMarketFactory__factory } from "../typechain";
 
@@ -28,8 +28,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const protocol = hre.network.config.deployConfig?.protocol || deployer;
   const linkNode = hre.network.config.deployConfig?.linkNode || deployer;
 
-  const firstResolutionTime = getUpcomingFriday4pmEst().valueOf();
-
   const args: Parameters<CryptoMarketFactory__factory["deploy"]> = [
     deployer, // initial owner must be deployer for coins to be addable
     collateral.address,
@@ -40,7 +38,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     protocol,
     protocolFee,
     linkNode,
-    firstResolutionTime, // NOTE: This causes the crypto market factory to always redeploy.
   ];
 
   await deployments.deploy("CryptoMarketFactory", {
@@ -51,6 +48,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 func.tags = ["CryptoMarketFactory"];
-func.dependencies = ["Tokens", "FeePot"];
+func.dependencies = ["Tokens", "FeePot", "BFactory"];
 
 export default func;

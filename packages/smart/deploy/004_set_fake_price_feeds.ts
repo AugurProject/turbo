@@ -11,6 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   if (hre.network.config.deployConfig?.externalAddresses?.priceFeeds) {
     console.log("Not configuring fake price feeds because real ones were specified");
+    return;
   }
 
   for (const coin of FAKE_COINS) {
