@@ -321,6 +321,7 @@
 
   > img {
     max-height: @size-24;
+    max-width: @size-24;
   }
 
   &:not(:disabled):not(.Disabled) {
@@ -360,7 +361,8 @@
     margin-bottom: @size-16;
 
     > li {
-      > button {
+      > button,
+      > a {
         .WalletButton;
       }
 

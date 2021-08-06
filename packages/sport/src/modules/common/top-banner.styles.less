@@ -68,7 +68,18 @@
   }
 
   > button {
-    background: white;
-    border-color: white;
+    background: var(--inverted-primary-text);
+    border-color: var(--inverted-primary-text);
+    color: var(--inverted-primary-bg);
+
+    &:not(:disabled) {
+      &:active,
+      &:focus,
+      &:visited {
+        background: var(--inverted-primary-text);
+        border-color: var(--inverted-primary-text);
+        color: var(--inverted-primary-bg);
+      }
+    }
   }
 }
