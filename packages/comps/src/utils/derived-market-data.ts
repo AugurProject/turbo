@@ -27,12 +27,22 @@ export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
 
 const IgnoreMarkets = {
   "3": [SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER],
+};
+
+const IgnoreOpenMarkets = {
   "4": [SPORTS_MARKET_TYPE.MONEY_LINE, SPORTS_MARKET_TYPE.SPREAD, SPORTS_MARKET_TYPE.OVER_UNDER],
 };
 
 export const isIgnoredMarket = (sportId: string, sportsMarketType: number): boolean => {
   // ignore MLB spread and over/under
   const sport = IgnoreMarkets[sportId];
+  if (!sport) return false;
+  return sport.includes(sportsMarketType);
+};
+
+export const isIgnoreOpendMarket = (sportId: string, sportsMarketType: number): boolean => {
+  // ignore MLB spread and over/under
+  const sport = IgnoreOpenMarkets[sportId];
   if (!sport) return false;
   return sport.includes(sportsMarketType);
 };
