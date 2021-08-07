@@ -83,6 +83,7 @@ export const GET_MARKETS = gql`
       where: { winner_not: null }
       orderBy: timestamp
       orderDirection: desc
+      first: 1000
     ) {
       marketId: id
       creationTimestamp: timestamp
