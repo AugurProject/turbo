@@ -80,9 +80,10 @@ export const GET_MARKETS = gql`
       initialOdds
     }
     resolved_teamSportsMarkets: teamSportsMarkets(
-      where: { winner_not: null }
+      where: { winner_not: null, marketType: 0 }
       orderBy: timestamp
       orderDirection: desc
+      first: 1000
     ) {
       marketId: id
       creationTimestamp: timestamp
