@@ -1,6 +1,7 @@
 {
   "name": "chainlink",
   "version": "0.1.0",
+  "private": true,
   "bin": {
     "chainlink": "bin/chainlink.js"
   },
