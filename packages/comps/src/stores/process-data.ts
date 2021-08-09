@@ -153,6 +153,7 @@ export const formatUserTransactionActvity = (
             currency: cashName,
             description: market?.description,
             title: market?.title || "market not found",
+            marketId: transaction?.marketId?.id,
             ...typeDetails,
             date: getDayFormat(transaction.timestamp),
             sortableMonthDay: getDayTimestamp(transaction.timestamp),

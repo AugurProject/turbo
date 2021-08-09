@@ -37,12 +37,21 @@
   > span:first-of-type {
     .text-20-bold;
 
-    text-transform: none;
+    // text-transform: none;
   }
 
-  &:hover {
-    background-color: rgba(var(--primary-text-rgb), 0.85);
+  &:not(:disabled){
+    &:hover {
+      background: rgba(var(--primary-text-rgb), 0.85);
+      color: var(--inverted-primary-text);
+    }
+
+    &:focus-within:hover:active {
+      background: var(--inverted-primary-bg);
+      color: var(--inverted-primary-text);
+    }
   }
+
 
   &:disabled {
     pointer-events: none;

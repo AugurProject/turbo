@@ -19,7 +19,7 @@ const ActivityCard = ({ activity, timeFormat }: typeof React.Component) => (
   <div className={Styles.ActivityCard}>
     <div className={Styles.type}>{activity.type}</div>
     <div className={Styles.value}>{activity.value}</div>
-    <MarketLink id={activity?.marketId}>
+    <MarketLink id={activity?.marketId || activity?.marketId?.id}>
       <span className={Styles.description}>
         {activity.title}
         {activity.description ? (
