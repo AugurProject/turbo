@@ -177,7 +177,7 @@ export const GET_TRANSACTIONS = gql`
     }
     markets {
       id
-      addLiquidity {
+      addLiquidity(orderBy: timestamp, orderDirection: desc) {
         id
         marketId {
           id
@@ -192,7 +192,7 @@ export const GET_TRANSACTIONS = gql`
         totalSupply
         sharesReturned
       }
-      removeLiquidity {
+      removeLiquidity(orderBy: timestamp, orderDirection: desc) {
         id
         marketId {
           id
@@ -210,7 +210,7 @@ export const GET_TRANSACTIONS = gql`
           id
         }
       }
-      trades {
+      trades(orderBy: timestamp, orderDirection: desc) {
         id
         marketId {
           id
