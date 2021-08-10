@@ -41,6 +41,8 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
           page={page}
           itemCount={EventDataEntries.length}
           itemsPerPage={10}
+          useFull
+          maxButtons={7}
           action={(page) => {
             setPage(page);
           }}
