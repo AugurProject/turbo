@@ -17,7 +17,7 @@
       "params": {
         "sport": "mlb",
         "method": "create",
-        "startBuffer": 86400,
+        "startBuffer": 0,
         "affiliateIds": [
           9,
           3
