@@ -175,7 +175,7 @@ export const GET_TRANSACTIONS = gql`
         }
       }
     }
-    markets (first: 1000) {
+    markets(first: 1000) {
       id
       addLiquidity {
         id
