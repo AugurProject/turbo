@@ -47,6 +47,10 @@
     > section:first-of-type {
       padding: @size-16 @size-16 @size-40;
       max-width: 100%;
+
+      > div:first-of-type {
+        display: grid;
+      }
     }
 
     &.ActivityShown {
@@ -215,8 +219,8 @@
 }
 
 .ClaimableWinningsSection {
-  display: flex;
-  flex-flow: column nowrap;
+  display: grid;
+  grid-gap: @size-8;
   margin-bottom: @size-24;
   max-width: @size-326;
 
@@ -295,8 +299,8 @@
     min-width: @size-24;
   }
 
-  > button {
-    .text-10-semi-bold;
+  > button > span {
+    white-space: normal;
   }
 
   > p {
