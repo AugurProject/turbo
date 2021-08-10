@@ -68,6 +68,9 @@ const getOutcomeName = (
   line: number
 ) => {
   const marketOutcome = getMarketOutcome(sportId, sportsMarketType, outcomeId);
+  if (marketOutcome === "") {
+    console.log("could not find sportsId", homeTeam, awayTeam, sportsMarketType);
+  }
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
 
