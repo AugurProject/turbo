@@ -162,6 +162,7 @@
 @media @breakpoint-mobile-tablet {
   .MarketsView {
     padding: @size-44;
+    padding-top: @size-16;
     padding-bottom: @size-40;
 
     > article:last-of-type {
@@ -169,7 +170,14 @@
         margin-bottom: @size-16;
         display: grid;
         grid-template-columns: 0fr 1fr;
-        grid-gap: @size-8 0;
+        grid-gap: @size-16 0;
+
+        &.NoSubCategories {
+          > h2 {
+            position: absolute;
+            top: @size-68;
+          }
+        }
 
         > h2 {
           .text-16-bold;
@@ -177,7 +185,7 @@
           grid-column: span 2;
           grid-row: 1;
           text-transform: uppercase;
-          margin-bottom: @size-8;
+          margin-top: @size-8;
           display: block;
         }
 

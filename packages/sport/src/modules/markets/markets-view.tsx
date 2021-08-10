@@ -10,9 +10,9 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
-  ContractCalls
+  ContractCalls,
 } from "@augurproject/comps";
-import { TopBanner } from '../common/top-banner';
+import { TopBanner } from "../common/top-banner";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyFutureSwitch, CategoriesAreaTitle } from "../categories/categories";
@@ -51,7 +51,7 @@ const applyFiltersAndSort = (
   passedInMarketEvents,
   { setFilteredEvents },
   transactions,
-  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter },
+  { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets, eventTypeFilter }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
@@ -141,12 +141,14 @@ const applyFiltersAndSort = (
 
     updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
   } else {
-    // it is sort by, make sure to put markets that are before now to the end 
+    // it is sort by, make sure to put markets that are before now to the end
     // of the list and order them with most recently started to oldest market.
     const date = new Date();
     const now = Math.floor(date.getTime() / 1000);
-    const beforeNow = updatedFilteredMarkets.filter(m => m.startTimestamp <= now).sort((a, b) => b.startTimestamp - a.startTimestamp);
-    const afterNow = updatedFilteredMarkets.filter(m => m.startTimestamp > now);
+    const beforeNow = updatedFilteredMarkets
+      .filter((m) => m.startTimestamp <= now)
+      .sort((a, b) => b.startTimestamp - a.startTimestamp);
+    const afterNow = updatedFilteredMarkets.filter((m) => m.startTimestamp > now);
     updatedFilteredMarkets = afterNow.concat(beforeNow);
   }
 
@@ -194,22 +196,16 @@ const MarketsView = () => {
     if (Object.values(markets).length > 0) {
       setLoading(false);
     }
-    applyFiltersAndSort(
-      Object.values(markets),
-      marketEvents,
-      { setFilteredEvents },
-      transactions,
-      {
-        filter,
-        primaryCategory,
-        subCategories,
-        sortBy,
-        currency,
-        reportingState,
-        showLiquidMarkets,
-        eventTypeFilter,
-      }
-    );
+    applyFiltersAndSort(Object.values(markets), marketEvents, { setFilteredEvents }, transactions, {
+      filter,
+      primaryCategory,
+      subCategories,
+      sortBy,
+      currency,
+      reportingState,
+      showLiquidMarkets,
+      eventTypeFilter,
+    });
   };
 
   useEffect(() => {
@@ -223,7 +219,7 @@ const MarketsView = () => {
     reportingState,
     currency,
     showLiquidMarkets.valueOf(),
-    eventTypeFilter
+    eventTypeFilter,
   ]);
 
   useEffect(() => {
@@ -243,16 +239,14 @@ const MarketsView = () => {
     }
   };
   return (
-    <div
-      className={Styles.MarketsView}
-    >
+    <div className={Styles.MarketsView}>
       <CategoriesArea filteredMarkets={filteredEvents} />
       <article>
         <SEO {...MARKETS_LIST_HEAD_TAGS} />
         <NetworkMismatchBanner />
         {!isLogged && <TopBanner />}
-        <ul>
-        <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
+        <ul className={classNames({[Styles.NoSubCategories]: subCategories.length === 0 })}>
+          <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           )}
@@ -264,11 +258,7 @@ const MarketsView = () => {
             defaultValue={sortBy}
             preLabel="Sort By"
           />
-          <SearchInput
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            clearValue={() => setFilter("")}
-          />
+          <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
         </ul>
         {loading ? (
           <section>
