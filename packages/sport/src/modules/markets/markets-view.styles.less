@@ -33,6 +33,10 @@
       width: 100%;
       margin: 0;
 
+      > h2 {
+        display: none;
+      }
+
       > div {
         margin-right: @size-20;
 
@@ -45,12 +49,12 @@
         &:last-of-type {
           margin-right: 0;
           height: unset;
-          transition: .2s flex ease-in-out;
+          transition: 0.2s flex ease-in-out;
           min-width: @size-269;
 
           &:focus-within {
             flex: 1;
-            transition: .33s flex ease-in-out;
+            transition: 0.33s flex ease-in-out;
           }
         }
       }
@@ -157,7 +161,7 @@
 
 @media @breakpoint-mobile-tablet {
   .MarketsView {
-    padding: @size-16;
+    padding: @size-44;
     padding-bottom: @size-40;
 
     > article:last-of-type {
@@ -166,6 +170,16 @@
         display: grid;
         grid-template-columns: 0fr 1fr;
         grid-gap: @size-8 0;
+
+        > h2 {
+          .text-16-bold;
+  
+          grid-column: span 2;
+          grid-row: 1;
+          text-transform: uppercase;
+          margin-bottom: @size-8;
+          display: block;
+        }
 
         > article {
           margin: 0;
@@ -186,6 +200,8 @@
 
 @media @breakpoint-mobile {
   .MarketsView {
+    padding: @size-16;
+
     > article:last-of-type > section {
       grid-template-columns: 1fr;
     }

@@ -15,7 +15,7 @@ import {
 import { TopBanner } from '../common/top-banner';
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-import { CategoriesArea, DailyFutureSwitch } from "../categories/categories";
+import { CategoriesArea, DailyFutureSwitch, CategoriesAreaTitle } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const { canAddLiquidity } = ContractCalls;
 const {
@@ -181,6 +181,7 @@ const MarketsView = () => {
   } = useSportsStore();
   const { markets, transactions } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
+  const selectedCategories = [primaryCategory].concat(subCategories);
   const [eventTypeFilter, setEventTypeFilter] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -251,6 +252,7 @@ const MarketsView = () => {
         <NetworkMismatchBanner />
         {!isLogged && <TopBanner />}
         <ul>
+        <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
           {subCategories.length > 0 && (
             <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           )}
