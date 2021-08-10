@@ -1,7 +1,36 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket } from "../helpers/AmmFactoryHelper";
 import { getOrCreateMmaMarket } from "../helpers/MarketFactoryHelper";
-import { MarketCreated, MarketResolved } from "../../generated/MmaMarketFactory/MmaMarketFactory";
+import {
+  MarketCreated,
+  MarketResolved,
+  MmaMarketFactory as MmaMarketFactoryContract
+} from "../../generated/MmaMarketFactoryV2/MmaMarketFactory";
+
+function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
+  let contract = MmaMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let rawShareTokens: Address[] = new Array<Address>();
+  if (!tryGetMarket.reverted) {
+    rawShareTokens = tryGetMarket.value.shareTokens;
+  }
+  let shareTokens: String[] = new Array<String>();
+  for (let i = 0; i < rawShareTokens.length; i++) {
+    shareTokens.push(rawShareTokens[i].toHexString());
+  }
+
+  return shareTokens;
+}
+
+function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
+  let contract = MmaMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let initialOdds: BigInt[] = new Array<BigInt>();
+  if (!tryGetMarket.reverted) {
+    initialOdds = tryGetMarket.value.initialOdds;
+  }
+  return initialOdds;
+}
 
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
@@ -21,6 +50,8 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.homeFighterId = event.params.homeFighterId;
   entity.awayFighterName = event.params.awayFighterName;
   entity.awayFighterId = event.params.awayFighterId;
+  entity.shareTokens = getShareTokens(event.address, event.params.id);
+  entity.initialOdds = getInitialOdds(event.address, event.params.id);
 
   entity.save();
 }
