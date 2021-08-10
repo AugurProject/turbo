@@ -293,6 +293,8 @@ const MarketsView = () => {
             page={page}
             itemCount={filteredEvents.length}
             itemsPerPage={PAGE_LIMIT}
+            useFull
+            maxButtons={7}
             action={(page) => {
               setPage(page);
             }}
