@@ -27,14 +27,20 @@ import {
 import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
 const {
-  LabelComps: { MovementLabel, generateTooltip, WarningBanner },
+  LabelComps: { MovementLabel, generateTooltip, WarningBanner, ReportingStateLabel },
   PaginationComps: { sliceByPage, Pagination },
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const { claimWinnings, getUserLpTokenInitialAmount, getCompleteSetsAmount, cashOutAllShares, canAddLiquidity } = ContractCalls;
+const {
+  claimWinnings,
+  getUserLpTokenInitialAmount,
+  getCompleteSetsAmount,
+  cashOutAllShares,
+  canAddLiquidity,
+} = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
 const { timeSinceTimestamp, getMarketEndtimeFull } = DateUtils;
 const {
@@ -49,6 +55,7 @@ const {
   TX_STATUS,
   TABLES,
   TransactionTypes,
+  MARKET_STATUS,
 } = Constants;
 const {
   Utils: { isMarketFinal },
@@ -73,7 +80,7 @@ interface LiquidityTableProps {
 
 const MarketTableHeader = ({
   timeFormat,
-  market: { startTimestamp, title, description, marketId },
+  market: { startTimestamp, title, description, marketId, reportingState },
   ammExchange,
 }: {
   timeFormat: string;
@@ -86,6 +93,7 @@ const MarketTableHeader = ({
         {!!title && <span>{title}</span>}
         {!!description && <span>{description}</span>}
       </span>
+      {reportingState !== MARKET_STATUS.TRADING && <ReportingStateLabel {...{ reportingState }} />}
       {ammExchange.cash.name === USDC ? UsdIcon : EthIcon}
     </MarketLink>
     {!!startTimestamp && <div>{getMarketEndtimeFull(startTimestamp, timeFormat)}</div>}
