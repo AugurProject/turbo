@@ -19,7 +19,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         uint256 endTime,
         MarketType marketType,
         uint256 indexed eventId,
+        string homeTeamName,
         uint256 homeTeamId,
+        string awayTeamName,
         uint256 awayTeamId,
         uint256 estimatedStartTime,
         int256 score
@@ -45,7 +47,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
     }
     struct MarketDetails {
         uint256 eventId;
+        string homeTeamName;
         uint256 homeTeamId;
+        string awayTeamName;
         uint256 awayTeamId;
         uint256 estimatedStartTime;
         MarketType marketType;
@@ -68,7 +72,7 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         EventStatus status;
         // If there is a resolution time then the market is resolved but not necessarily finalized.
         // A market is finalized when its last two score updates were identical.
-        // Score updates must occur after a period of time spedcified by resolutionBuffer.
+        // Score updates must occur after a period of time specified by resolutionBuffer.
         // This mechanism exists to reduce the risk of bad scores being sent by the API then later corrected.
         // The downside is slower resolution.
         uint256 resolutionTime; // time since last score update
@@ -110,7 +114,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
 
     function createMarket(
         uint256 _eventId,
+        string memory _homeTeamName,
         uint256 _homeTeamId,
+        string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
         int256 _homeSpread,
@@ -121,17 +127,18 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
     ) public returns (uint256[3] memory _ids) {
         require(msg.sender == linkNode, "Only link node can create markets");
 
-        address _creator = msg.sender;
         uint256 _endTime = _startTimestamp.add(60 * 8); // 8 hours
 
         _ids = events[_eventId].markets;
 
         if (_ids[0] == 0 && _moneylines[0] != 0 && _moneylines[1] != 0) {
             _ids[0] = createHeadToHeadMarket(
-                _creator,
+                msg.sender,
                 _endTime,
                 _eventId,
+                _homeTeamName,
                 _homeTeamId,
+                _awayTeamName,
                 _awayTeamId,
                 _startTimestamp,
                 _moneylines
@@ -141,10 +148,12 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         if (_ids[1] == 0 && _makeSpread) {
             // spread market hasn't been created and is ready to be created
             _ids[1] = createSpreadMarket(
-                _creator,
+                msg.sender,
                 _endTime,
                 _eventId,
+                _homeTeamName,
                 _homeTeamId,
+                _awayTeamName,
                 _awayTeamId,
                 _startTimestamp,
                 _homeSpread
@@ -154,10 +163,12 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         if (_ids[2] == 0 && _makeTotalScore) {
             // over-under market hasn't been created and is ready to be created
             _ids[2] = createOverUnderMarket(
-                _creator,
+                msg.sender,
                 _endTime,
                 _eventId,
+                _homeTeamName,
                 _homeTeamId,
+                _awayTeamName,
                 _awayTeamId,
                 _startTimestamp,
                 _totalScore
@@ -174,15 +185,17 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         address _creator,
         uint256 _endTime,
         uint256 _eventId,
+        string memory _homeTeamName,
         uint256 _homeTeamId,
+        string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
         int256[2] memory _moneylines // [home,away]
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[uint256(HeadToHeadOutcome.NoContest)] = "No Contest / Draw";
-        _outcomes[uint256(HeadToHeadOutcome.Away)] = "Away";
-        _outcomes[uint256(HeadToHeadOutcome.Home)] = "Home";
+        _outcomes[uint256(HeadToHeadOutcome.Away)] = _awayTeamName;
+        _outcomes[uint256(HeadToHeadOutcome.Home)] = _homeTeamName;
 
         uint256 _id = markets.length;
         // moneylines is [home,away] but the outcomes are listed [NC,away,home] so they must be reversed
@@ -191,7 +204,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         );
         marketDetails[_id] = MarketDetails(
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             MarketType.HeadToHead,
@@ -204,7 +219,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
             _endTime,
             MarketType.HeadToHead,
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             0
@@ -216,21 +233,25 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         address _creator,
         uint256 _endTime,
         uint256 _eventId,
+        string memory _homeTeamName,
         uint256 _homeTeamId,
+        string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
         int256 _homeSpread
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
         _outcomes[uint256(SpreadOutcome.NoContest)] = "No Contest / Draw";
-        _outcomes[uint256(SpreadOutcome.Away)] = "Away";
-        _outcomes[uint256(SpreadOutcome.Home)] = "Home";
+        _outcomes[uint256(SpreadOutcome.Away)] = _awayTeamName;
+        _outcomes[uint256(SpreadOutcome.Home)] = _homeTeamName;
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
         marketDetails[_id] = MarketDetails(
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             MarketType.Spread,
@@ -243,7 +264,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
             _endTime,
             MarketType.Spread,
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             _homeSpread
@@ -255,7 +278,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         address _creator,
         uint256 _endTime,
         uint256 _eventId,
+        string memory _homeTeamName,
         uint256 _homeTeamId,
+        string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
         uint256 _overUnderTotal
@@ -269,7 +294,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
         marketDetails[_id] = MarketDetails(
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             MarketType.OverUnder,
@@ -282,7 +309,9 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
             _endTime,
             MarketType.OverUnder,
             _eventId,
+            _homeTeamName,
             _homeTeamId,
+            _awayTeamName,
             _awayTeamId,
             _startTimestamp,
             int256(_overUnderTotal)
