@@ -36,7 +36,6 @@ interface IVault {
         address recipient,
         JoinPoolRequest memory request
     ) external payable;
-
     struct JoinPoolRequest {
         IAsset[] assets;
         uint256[] maxAmountsIn;
@@ -48,4 +47,5 @@ interface IVault {
 abstract contract IWeightedPool is IERC20 {
     function getPoolId() public view virtual returns (bytes32 poolID);
     function getVault() public view virtual returns (IVault);
+
 }
