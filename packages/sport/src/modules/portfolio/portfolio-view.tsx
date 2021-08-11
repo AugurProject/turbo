@@ -21,7 +21,7 @@ const {
 } = Stores;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   Icons: { WinnerMedal, SimpleChevron },
   InputComps: { SearchInput },
   LabelComps: { NetworkMismatchBanner },
@@ -250,11 +250,12 @@ export const PortfolioView = () => {
       </section>
       <section>
         <SecondaryThemeButton
-          text="MY BETS"
-          reverseContent
-          icon={SimpleChevron}
+          text="test"
+          customContent={<>
+            <TinyThemeButton icon={SimpleChevron} action={() => setShowActivity(!showActivity)} />
+            <span>MY BETS</span>
+          </>}
           action={() => setShowActivity(!showActivity)}
-          small
         />
         <h2>Your Activity</h2>
         <ClaimWinningsSection />

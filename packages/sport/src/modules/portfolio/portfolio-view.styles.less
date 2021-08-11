@@ -41,7 +41,7 @@
         .text-16-bold;
 
         color: var(--primary-text);
-        margin: @size-24 0 @size-16;
+        margin: @size-48 0 @size-16;
         display: block;
       }
     }
@@ -61,7 +61,6 @@
       }
       > section:last-of-type {
         display: flex;
-       
 
         > button {
           position: fixed;
@@ -71,16 +70,48 @@
           right: 0;
           width: 100%;
           border-radius: 0;
+          max-height: @size-40;
+          min-height: unset;
           border: 0;
           border-bottom: @size-1 solid var(--theme-border);
-          justify-content: flex-end;
+          justify-content: flex-start;
 
-          > svg {
-            height: @size-12;
-            width: @size-12;
+          > button {
+            .PrimaryBorderRadius;
 
-            transform-origin: 50% 50%;
-            transform: rotate(90deg);
+            border: @size-1 solid var(--tertiary-text);
+            height: @size-20;
+            width: @size-20;
+            background: var(--primary-bg);
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: center;
+            margin-right: @size-8;
+            padding: 0;
+            max-height: @size-20;
+            max-width: @size-20;
+            min-width: unset;
+            min-height: unset;
+
+            > svg {
+              height: @size-16;
+              width: @size-10;
+              transform: rotate(90deg);
+              transform-origin: 50% 50%;
+
+              > path {
+                fill: var(--primary-text);
+              }
+            }
+
+            &:hover {
+              border-color: var(--primary-text);
+            }
+          }
+
+          > span {
+            .text-10-semi-bold;
           }
         }
 
