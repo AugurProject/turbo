@@ -5,7 +5,6 @@ import classNames from "classnames";
 import SportsChartSection from "../charts/charts";
 import {
   Constants,
-  useAppStatusStore,
   useDataStore,
   useScrollToTopOnMount,
   Utils,
@@ -25,7 +24,7 @@ import { Link } from "react-router-dom";
 import { MarketEvent } from "../stores/constants";
 const {
   SEO,
-  LabelComps: { ReportingStateLabel, NetworkMismatchBanner },
+  LabelComps: { NetworkMismatchBanner },
   Icons: { ConfirmedCheck, SimpleChevron },
 } = Components;
 const { MarketsLink } = Links;
@@ -131,7 +130,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [marketNotFound, setMarketNotFound] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile } = useAppStatusStore();
   const {
     marketEvents,
     settings: { timeFormat },
@@ -194,7 +192,7 @@ const MarketView = ({ defaultMarket = null }) => {
     );
 
   const details = getResolutionRules(market.sportsMarketType);
-  const { reportingState, startTimestamp, winner, description: marketDescription } = market;
+  const { startTimestamp, winner, description: marketDescription } = market;
   const { description } = marketEvent || { description: marketDescription };
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
   const isFinalized = isMarketFinal(market);
@@ -203,7 +201,6 @@ const MarketView = ({ defaultMarket = null }) => {
       <SEO {...MARKETS_LIST_HEAD_TAGS} title={description} ogTitle={description} twitterTitle={description} />
       <section>
         <NetworkMismatchBanner />
-        {isMobile && <ReportingStateLabel {...{ reportingState, big: true }} />}
         <div className={Styles.topRow}>
           <MarketsLink id="back-to-markets">{SimpleChevron}</MarketsLink>
           <CategoriesTrail {...{ ...market }} />

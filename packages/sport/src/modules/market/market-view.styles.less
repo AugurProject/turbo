@@ -220,6 +220,23 @@
 
     color: var(--primary-text);
   }
+
+  @media @breakpoint-mobile-tablet {
+    position: fixed;
+    background: var(--primary-bg);
+    top: var(--theme-top-bar-height-mobile);
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 0;
+    max-height: @size-40;
+    height: @size-40;
+    min-height: unset;
+    padding: 0 @size-12;
+    border: 0;
+    border-bottom: 0.0625rem solid var(--theme-border);
+    justify-content: flex-start;
+  }
 }
 
 .WinningOutcomeLabel {
@@ -430,7 +447,7 @@
 
 @media @breakpoint-mobile-tablet {
   .MarketView {
-    padding: @size-24 @size-16 @size-72;
+    padding: @size-24 @size-44 @size-72;
     position: relative;
 
     > section:first-of-type {
@@ -438,6 +455,10 @@
       padding: 0;
       max-width: unset;
       grid-gap: unset;
+
+      > h2 {
+        margin-top: @size-32;
+      }
 
       > span:first-of-type {
         .text-12-semi-bold;
@@ -481,6 +502,12 @@
         .text-16-semi-bold;
       }
     }
+  }
+}
+
+@media @breakpoint-mobile {
+  .MarketView {
+    padding: @size-24 @size-16 @size-72;
   }
 }
 
