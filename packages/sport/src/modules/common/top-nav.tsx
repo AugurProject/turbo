@@ -439,7 +439,7 @@ const MobileMenu = () => {
             </Link>
           </li>
         </ol>
-        {path === MARKETS && <CategoriesArea inverted filteredMarkets={filteredEvents} />}
+        {path === MARKETS && <CategoriesArea inverted filteredMarkets={filteredEvents} onCounterClick={closeSidebar} />}
       </main>
       <footer>
         <SettingsButton />
