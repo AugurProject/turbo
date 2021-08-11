@@ -32,7 +32,6 @@ contract AMMFactoryV2 {
         TOKEN_IN_FOR_EXACT_BPT_OUT
     }
     // find better to process with BONE
-
     uint256 public constant BONE = 10**18;
     address private constant ZERO_ADDRESS = address(0);
     uint256 private constant MAX_UINT = 2**256 - 1;
@@ -76,26 +75,18 @@ contract AMMFactoryV2 {
         private
         returns (
             IERC20[] memory tokens,
-            uint256[] memory weights,
             uint256[] memory initBalances
         )
     {
         uint256 shareTokenSize = _shareTokens.length;
 
         tokens = new IERC20[](shareTokenSize);
-        weights = new uint256[](shareTokenSize);
         initBalances = new uint256[](shareTokenSize);
 
-        uint256 initWeightValue = 10**18 / shareTokenSize;
-
         for (uint256 i = 0; i < shareTokenSize; i++) {
-            //TODO : use better weights
-            weights[i] = initWeightValue;
             initBalances[i] = _sets;
             tokens[i] = IERC20(_shareTokens[i]);
         }
-        // weight offset
-        // weights[0] = 10**18 - initWeightValue * (shareTokenSize - 1);
     }
 
     function createJoinPoolRequestData(
@@ -105,7 +96,6 @@ contract AMMFactoryV2 {
     ) private view returns (IVault.JoinPoolRequest memory joinPoolRequest) {
         bytes memory userData;
         IAsset[] memory assets = new IAsset[](tokens.length);
-
 
         if (joinKind == JoinKind.INIT) userData = abi.encode(joinKind, initBalances);
         else userData = abi.encode(joinKind, initBalances, uint256(0));
@@ -133,7 +123,7 @@ contract AMMFactoryV2 {
 
         uint256 _sets = preProcessCollateral(_marketFactory, _marketId, _initialLiquidity);
 
-        (IERC20[] memory tokens, uint256[] memory weights, uint256[] memory initBalances) = initialPoolParameters(
+        (IERC20[] memory tokens, uint256[] memory initBalances) = initialPoolParameters(
             _market.shareTokens,
             _sets
         );
@@ -143,31 +133,30 @@ contract AMMFactoryV2 {
             "WeightedPool", // TODO: rename it :)
             "WP",
             tokens,
-            weights,
-            new address[](0),
+            _market.initialOdds,
             fee,
             ZERO_ADDRESS
         );
 
         IWeightedPool _pool = IWeightedPool(_poolAddress);
-
-        // join Pool
-        _pool.getVault().joinPool(
-            _pool.getPoolId(),
-            address(this),
-            address(this),
-            createJoinPoolRequestData(JoinKind.INIT, tokens, initBalances)
-        );
+        {
+            IVault vault = _pool.getVault();
+            // join Pool. When join balance mint _MINIMUM_BPT = 1e6 to zero address and also prevents the Pool from
+            // ever being fully drained.
+            vault.joinPool(
+                _pool.getPoolId(),
+                address(this),
+                _lpTokenRecipient,
+                createJoinPoolRequestData(JoinKind.INIT, tokens, initBalances)
+            );
+        }
 
         pools[address(_marketFactory)][_marketId] = _pool;
 
-        uint256 _lpTokenBalance = _pool.balanceOf(address(this)) - (BONE / 1000);
-
-        // Burn (BONE / 1000) lp tokens to prevent the bpool from locking up. When all liquidity is removed.
-        _pool.transfer(address(0x0), (BONE / 1000));
-        _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
+        uint256 _lpTokenBalance = _pool.balanceOf(_lpTokenRecipient);
 
         emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
+
         emit LiquidityChanged(
             address(_marketFactory),
             _marketId,
@@ -192,18 +181,15 @@ contract AMMFactoryV2 {
 
         AbstractMarketFactoryV2.Market memory _market = _marketFactory.getMarket(_marketId);
 
-        //  Turn collateral into shares
-        IERC20Full _collateral = _marketFactory.collateral();
-        _collateral.transferFrom(msg.sender, address(this), _collateralIn);
-        _collateral.approve(address(_marketFactory), MAX_UINT);
-        uint256 _sets = _marketFactory.calcShares(_collateralIn);
-        _marketFactory.mintShares(_marketId, _sets, address(this));
+        uint256 _sets = preProcessCollateral(_marketFactory, _marketId, _collateralIn);
+
         _poolAmountOut = MAX_UINT;
 
         {
-            (IERC20[] memory tokens, uint256[] memory tokenBalances, ) = _pool.getVault().getPoolTokens(
-                _pool.getPoolId()
-            );
+            IVault vault = _pool.getVault();
+            bytes32 poolId = _pool.getPoolId();
+
+            (IERC20[] memory tokens, uint256[] memory tokenBalances, ) = vault.getPoolTokens(poolId);
 
             uint256[] memory _maxAmountsIn = new uint256[](_market.shareTokens.length);
 
@@ -214,15 +200,14 @@ contract AMMFactoryV2 {
                 assets[i] = IAsset(address(tokens[i]));
             }
 
-            // TODO: setup right parameters.
-            IVault.JoinPoolRequest memory joinPoolRequest = IVault.JoinPoolRequest({
-                assets: assets,
-                maxAmountsIn: _maxAmountsIn,
-                userData: "", // TODO create function do it.
-                fromInternalBalance: false
-            });
+            // IVault.JoinPoolRequest memory joinPoolRequest = IVault.JoinPoolRequest({
+            //     assets: assets,
+            //     maxAmountsIn: _maxAmountsIn,
+            //     userData: createJoinPoolRequestData(JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT, tokens, initBalances), // TODO create function do it.
+            //     fromInternalBalance: false
+            // });
 
-            _pool.getVault().joinPool(_pool.getPoolId(), address(this), _lpTokenRecipient, joinPoolRequest);
+            // vault.joinPool(poolId, address(this), _lpTokenRecipient, joinPoolRequest);
         }
 
         // require(_poolAmountOut >= _minLPTokensOut, "Would not have received enough LP tokens");

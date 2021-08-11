@@ -25,7 +25,9 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "balancerV2/pkg/*",
+      "balancerV2/pvt/*"
     ]
   },
   "private": true,
