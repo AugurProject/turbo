@@ -167,6 +167,7 @@ type ClaimedProceeds @entity {
   sender: Sender!
   fees: String!
   outcome: String!
+  outcomeId: String!
   marketId: Market
   payout: String!
   shares: String!

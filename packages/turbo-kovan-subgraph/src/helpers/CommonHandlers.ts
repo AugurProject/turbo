@@ -2,8 +2,7 @@ import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance } from 
 import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
-import { WinningsClaimed as WinningsClaimedV1 } from "../../generated/AbstractMarketFactoryV1/AbstractMarketFactory";
-import { WinningsClaimed as WinningsClaimedV2 } from "../../generated/AbstractMarketFactoryV2/AbstractMarketFactory";
+import { WinningsClaimed as WinningsClaimedV1 } from "../../generated/SportsLinkMarketFactoryV1/SportsLinkMarketFactory";
 import { BigInt } from "@graphprotocol/graph-ts/index";
 import { BigDecimal } from "@graphprotocol/graph-ts";
 
@@ -82,9 +81,9 @@ export function handlePositionFromTradeEvent(
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let outcomeId = bigIntToHexString(event.params.outcome);
-  let id = marketId + "-" + senderId + "-" + event.params.outcome.toHexString();
+  let id = senderId + "-" + marketId + "-" + event.params.outcome.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
-  let initialCostPerMarket = getOrCreateInitialCostPerMarket(senderId + "-" + marketId + "-" + outcomeId);
+  let initialCostPerMarket = getOrCreateInitialCostPerMarket(id);
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
@@ -147,13 +146,13 @@ export function handlePositionFromLiquidityChangedEvent(
 ): void {
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
-  let id = marketId + "-" + senderId + "-" + outcomeId.toHexString();
+  let id = senderId + "-" + marketId + "-" + outcomeId.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
   let liquidityPositionBalanceId = senderId + "-" + marketId;
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
-  let initialCostPerMarket = getOrCreateInitialCostPerMarket(senderId + "-" + marketId + "-" + outcomeId.toHexString());
+  let initialCostPerMarket = getOrCreateInitialCostPerMarket(id);
 
   let logId = id + "-" + event.transaction.hash.toHexString();
   let log = positionBalanceEntity.log;
@@ -231,69 +230,9 @@ export function handlePositionFromClaimWinningsEventV1(
 ): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
-  let id = marketId + "-" + senderId + "-" + event.params.winningOutcome.toHexString();
+  let id = senderId + "-" + marketId + "-" + event.params.winningOutcome.toHexString();
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
-  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
-  getOrCreateMarket(marketId);
-  getOrCreateSender(senderId);
-
-  let logId = id + "-" + event.transaction.hash.toHexString();
-  let log = positionBalanceEntity.log;
-  if (log) {
-    let wasAlreadySummed = log.includes(logId);
-    if (!wasAlreadySummed) {
-      log.push(logId);
-      positionBalanceEntity.log = log
-
-      let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
-
-      positionBalanceEntity.positionFromAddLiquidity = false;
-      positionBalanceEntity.positionFromRemoveLiquidity = false;
-      positionBalanceEntity.hasClaimed = true;
-      positionBalanceEntity.transactionHash = event.transaction.hash.toHexString();
-      positionBalanceEntity.timestamp = event.block.timestamp;
-      positionBalanceEntity.outcomeId = event.params.winningOutcome.toHexString();
-      positionBalanceEntity.marketId = marketId;
-      positionBalanceEntity.market = marketId;
-      positionBalanceEntity.senderId = senderId;
-      positionBalanceEntity.sender = senderId;
-
-      let initialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.toBigDecimal().div(USDC_DECIMALS);
-      let absInitialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.abs().toBigDecimal().div(USDC_DECIMALS);
-      let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
-      let absPayoutBigInt = positionBalanceEntity.payoutBigInt + event.params.payout.abs();
-      let payoutBigDecimal = absPayoutBigInt.toBigDecimal().div(USDC_DECIMALS);
-      let totalChangedUsd = event.params.payout - initialCostPerMarketEntity.sumOfInitialCost;
-      let totalChangeUsdBigDecimal = totalChangedUsd.toBigDecimal().div(USDC_DECIMALS);
-      positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
-      positionBalanceEntity.sharesBigInt = event.params.amount;
-      positionBalanceEntity.sharesBigDecimal = amountBigDecimal;
-      positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarketEntity.sumOfInitialCost);
-      positionBalanceEntity.initCostUsdBigInt = initialCostPerMarketEntity.sumOfInitialCost;
-      positionBalanceEntity.initCostUsdBigDecimal = initialCostBigDecimal;
-      positionBalanceEntity.payout = bigIntToHexString(absPayoutBigInt);
-      positionBalanceEntity.payoutBigInt = absPayoutBigInt;
-      positionBalanceEntity.payoutBigDecimal = payoutBigDecimal;
-      positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangedUsd);
-      positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
-      positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
-      positionBalanceEntity.avgPrice = initialCostPerMarketEntity.avgPrice;
-      positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
-      positionBalanceEntity.open = sharesBigInt > ZERO;
-
-      positionBalanceEntity.save();
-    }
-  }
-}
-
-export function handlePositionFromClaimWinningsEventV2(
-  event: WinningsClaimedV2,
-): void {
-  let marketId = event.address.toHexString() + "-" + event.params.id.toString();
-  let senderId = event.params.receiver.toHexString();
-  let id = marketId + "-" + senderId + "-" + event.params.winningOutcome.toHexString();
-  let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
-  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId);
+  let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(id);
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 

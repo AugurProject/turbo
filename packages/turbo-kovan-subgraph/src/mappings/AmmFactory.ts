@@ -18,7 +18,8 @@ import {
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
 import {
-  getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance,
+  getOrCreateInitialCostPerMarket,
+  getOrCreateLiquidityPositionBalance,
   handlePositionFromLiquidityChangedEvent,
   handlePositionFromTradeEvent
 } from "../helpers/CommonHandlers";
@@ -191,14 +192,14 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
     }
   }
 
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.avgPricePerOutcome = new Array<BigDecimal>();
-  // liquidityPositionBalance.addCollateral = ZERO;
-  // liquidityPositionBalance.addCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.removeCollateral = ZERO;
-  // liquidityPositionBalance.removeCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.save();
+  liquidityPositionBalance.sharesReturned = new Array<BigInt>();
+  liquidityPositionBalance.avgPricePerOutcome = new Array<BigDecimal>();
+  liquidityPositionBalance.addCollateral = ZERO;
+  liquidityPositionBalance.addCollateralBigDecimal = ZERO.toBigDecimal();
+  liquidityPositionBalance.removeCollateral = ZERO;
+  liquidityPositionBalance.removeCollateralBigDecimal = ZERO.toBigDecimal();
+  liquidityPositionBalance.sharesReturned = new Array<BigInt>();
+  liquidityPositionBalance.save();
 
   removeLiquidityEntity.save();
 }
