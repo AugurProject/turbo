@@ -1490,7 +1490,7 @@ const setIgnoreRemoveMarketList = (
 ): MarketInfos => {
   // <Removal> resolved markets with no liquidity
   const nonLiqResolvedMarkets = Object.values(allMarkets).filter((m) => !m?.amm?.hasLiquidity && m?.hasWinner);
-
+  
   // <Removal> speard marketw with zero line
   const zeroSpreadMarkets = Object.values(allMarkets).filter(
     (m) => m?.sportsMarketType === SPORTS_MARKET_TYPE.SPREAD && m?.spreadLine === 0 && m.amm.hasLiquidity === false
@@ -1519,7 +1519,7 @@ const setIgnoreRemoveMarketList = (
   const openNbaV1Markets = Object.values(allMarkets).filter(
     (m) => isIgnoreOpendMarket(m?.sportId, m?.sportsMarketType) && !m.hasWinner
   );
-
+  
   const ignoreRemovedMarkets = [
     ...ignoredCrypto,
     ...nonLiqResolvedMarkets,
@@ -1753,6 +1753,11 @@ export const fillGraphMarketsData = async (
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
     const gMarkets = graphMarkets?.[key];
+
+    if (key === MARKET_FACTORY_TYPES.MMALINK) {
+      console.log('fetching mma')
+      fetchContractData("0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68", provider, account);
+    }
     if (gMarkets?.length > 0) {
       const { markets: filledMarkets, blocknumber: updatedBlocknumber } = await fillMarketsData(
         gMarkets,
@@ -2276,7 +2281,7 @@ const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
 };
 
 let ABIs = {};
-function extractABI(contract: ethers.Contract): any[] {
+export function extractABI(contract: ethers.Contract): any[] {
   if (!contract) {
     console.error("contract is null");
     return null;
