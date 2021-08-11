@@ -17,6 +17,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
  
 ## Local docker-compose setup
 1. Create environment files. They're listed below.
+   1. Run `yarn generate:env` for the job creator contract addresses
 2. Run `docker-compose up`.
    You may have to install python packages. It will show you which if it errors.
 3. Go to https://localhost:6688 to load the app.
@@ -36,7 +37,7 @@ The RPC_URL is an http/https link.
     SPORTSDATAIO_NFL_SCORES_API_KEY=
 
 #### augur-jobs-creator.env
-Contract addresses from `addresses.ts`.
+Contract addresses from `addresses.ts`. Generate this by running `yarn generate:env`
 
     CRYPTO_MARKET_FACTORY=
     MLB_MARKET_FACTORY=
