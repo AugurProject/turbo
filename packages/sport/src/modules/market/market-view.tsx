@@ -5,7 +5,6 @@ import classNames from "classnames";
 import SportsChartSection from "../charts/charts";
 import {
   Constants,
-  useAppStatusStore,
   useDataStore,
   useScrollToTopOnMount,
   Utils,
@@ -25,7 +24,7 @@ import { Link } from "react-router-dom";
 import { MarketEvent } from "../stores/constants";
 const {
   SEO,
-  LabelComps: { ReportingStateLabel, NetworkMismatchBanner },
+  LabelComps: { NetworkMismatchBanner },
   Icons: { ConfirmedCheck, SimpleChevron },
 } = Components;
 const { MarketsLink } = Links;
@@ -131,7 +130,6 @@ const MarketView = ({ defaultMarket = null }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [marketNotFound, setMarketNotFound] = useState(false);
   const marketId = useMarketQueryId();
-  const { isMobile } = useAppStatusStore();
   const {
     marketEvents,
     settings: { timeFormat },
