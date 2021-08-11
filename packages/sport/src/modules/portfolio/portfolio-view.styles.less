@@ -30,6 +30,8 @@
     > section:last-of-type {
       display: none;
       position: relative;
+      flex-flow: column nowrap;
+      padding: @size-16 @size-44 @size-40;
 
       > button {
         display: flex;
@@ -45,7 +47,7 @@
     }
 
     > section:first-of-type {
-      padding: @size-16 @size-16 @size-40;
+      padding: @size-16 @size-44 @size-40;
       max-width: 100%;
 
       > div:first-of-type {
@@ -59,8 +61,7 @@
       }
       > section:last-of-type {
         display: flex;
-        flex-flow: column nowrap;
-        padding: @size-16 @size-16 @size-40;
+       
 
         > button {
           position: fixed;
@@ -91,6 +92,15 @@
           display: none;
         }
       }
+    }
+  }
+}
+
+@media @breakpoint-mobile {
+  .PortfolioView {
+    > section:first-of-type,
+    > section:last-of-type {
+      padding: @size-16;
     }
   }
 }
