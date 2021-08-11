@@ -399,7 +399,8 @@ const MobileMenu = () => {
     actions: { setSidebar },
   } = useSportsStore();
   const location = useLocation();
-  const path = parsePath(location.pathname)[0];
+  const path = parsePath(location.pathname)[0]; 
+  const closeSidebar = () => setSidebar(null);
   return (
     <section className={classNames(Styles.MobileMenu, { [Styles.Open]: sidebarType === SIDEBAR_TYPES.NAVIGATION })}>
       <header>
@@ -415,12 +416,12 @@ const MobileMenu = () => {
             />
           </svg>
         </MarketsLink>
-        <button onClick={() => setSidebar(null)}>{XIcon}</button>
+        <button onClick={closeSidebar}>{XIcon}</button>
       </header>
       <main>
         <ol>
           <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-            <Link placeholder="Markets" to={makePath(MARKETS)}>
+            <Link onClick={sidebarType && closeSidebar} placeholder="Markets" to={makePath(MARKETS)}>
               Markets
             </Link>
           </li>
@@ -428,6 +429,7 @@ const MobileMenu = () => {
             <Link
               onClick={(e) => {
                 !isLogged && e.preventDefault();
+                sidebarType && closeSidebar();
               }}
               disabled={!isLogged}
               to={makePath(PORTFOLIO)}
