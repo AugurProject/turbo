@@ -123,7 +123,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "MMALink",
-        subtype: "V1",
+        subtype: "V2",
         address: "0xA45b74B3544dC6dF01CdbA38558C1E914779Ac8A",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
@@ -133,7 +133,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "Crypto",
-        subtype: "V1",
+        subtype: "V2",
         address: "0x615b63ea5a6dAE1e996E3a69aC70042B1D8f8517",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
