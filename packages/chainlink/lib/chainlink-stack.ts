@@ -169,6 +169,7 @@ export class ChainlinkStack extends cdk.Stack {
         MLB_MARKET_FACTORY: findMarketFactory("SportsLink"),
         MMA_MARKET_FACTORY: findMarketFactory("MMALink"),
         NBA_MARKET_FACTORY: findMarketFactory("SportsLink"),
+        NFL_MARKET_FACTORY: findMarketFactory("NFL"),
       },
       essential: false,
       image: ecs.ContainerImage.fromRegistry("augurproject/chainlink-job-generator:latest"),
