@@ -56,6 +56,11 @@ export function getOrCreateMarket (
 
   if (entity == null && createIfNotFound) {
     entity = new Market(id);
+    let splitId = id.split("-");
+    let MARKET_FACTORY_ID = 0;
+    let MARKET_INDEX = 1;
+    entity.marketFactory = splitId[MARKET_FACTORY_ID];
+    entity.marketIndex = splitId[MARKET_INDEX];
 
     if (save) {
       entity.save();

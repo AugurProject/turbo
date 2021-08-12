@@ -17,6 +17,8 @@ type AmmFactory @entity {
 
 type Market @entity {
   id: ID!
+  marketFactory: String
+  marketIndex: String
   liquidity: [Liquidity!] @derivedFrom(field: "marketId")
   addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
   removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")
@@ -30,6 +32,8 @@ type Market @entity {
 type TeamSportsMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String
@@ -39,13 +43,17 @@ type TeamSportsMarket @entity {
   eventId: BigInt
   homeTeamId: BigInt
   awayTeamId: BigInt
-  score: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
   winner: String
+  initialOdds: [BigInt!]
 }
 
 type MmaMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String
@@ -57,20 +65,26 @@ type MmaMarket @entity {
   homeFighterId: BigInt
   awayFighterName: String
   awayFighterId: BigInt
+  shareTokens: [String!]
   winner: String
+  initialOdds: [BigInt!]
 }
 
 type CryptoMarket @entity {
   id: ID!
   marketId: Market!
+  marketFactory: String
+  marketIndex: String
   transactionHash: String
   timestamp: BigInt
   creator: String
   endTime: BigInt
   marketType: BigInt
   coinIndex: BigInt
-  price: BigInt
+  creationPrice: BigInt
+  shareTokens: [String!]
   winner: String
+  initialOdds: [BigInt!]
 }
 
 type Liquidity @entity {
@@ -153,6 +167,7 @@ type ClaimedProceeds @entity {
   sender: Sender!
   fees: String!
   outcome: String!
+  outcomeId: String!
   marketId: Market
   payout: String!
   shares: String!
@@ -187,18 +202,38 @@ type PositionBalance @entity {
   payout: String
   payoutBigInt: BigInt
   payoutBigDecimal: BigDecimal
+  senderId: String!
   sender: Sender!
+  marketId: String!
   market: Market!
   totalChangeUsd: String
   totalChangeUsdBigInt: BigInt
   totalChangeUsdBigDecimal: BigDecimal
   settlementFee: String
+  open: Boolean
+  log: [String!]
 }
 
 type InitialCostPerMarket @entity {
   id: ID!
   sender: Sender
   market: Market
+  outcome: String
+  sharesFromTrades: BigInt
+  sharesFromTradesBigDecimal: BigDecimal
   sumOfInitialCost: BigInt!
+  sumOfInitialCostBigDecimal: BigDecimal
+  avgPrice: BigDecimal!
   log: [String!]
+}
+
+type LiquidityPositionBalance @entity {
+  id: ID!
+  addCollateral: BigInt!
+  addCollateralBigDecimal: BigDecimal!
+  removeCollateral: BigInt!
+  removeCollateralBigDecimal: BigDecimal!
+  sharesReturned: [BigInt!]!
+  avgPricePerOutcome: [BigDecimal!]!
+  log: [String!]!
 }

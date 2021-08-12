@@ -78,6 +78,7 @@ const ClaimableTicket = ({ amount, cash, USDCTotal }: {
       <PrimaryThemeButton
         text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
         disabled={pendingClaim || disableClaimUSDCWins}
+        small
         action={() => {
           handleClaimAll(loginAccount, USDCTotal.ids, USDCTotal.address, addTransaction, setPendingClaim);
         }}
