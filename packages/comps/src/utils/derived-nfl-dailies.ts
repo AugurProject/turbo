@@ -1,7 +1,6 @@
 import { BigNumber as BN } from "bignumber.js";
 import { MarketInfo } from "types";
 import { NO_CONTEST_OUTCOME_ID, SPORTS_MARKET_TYPE } from "./constants";
-import { getSportId } from "./team-helpers";
 
 const NAMING_TEAM = {
   HOME_TEAM: "HOME_TEAM",
@@ -26,7 +25,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     marketType,
     value0,
   } = marketData;
-  
+
   // translate market data
   // NEW API, DON'T USE TEAM IDS AS LOOK UPS.
   const eventId = String(coEventId._hex || coEventId);
@@ -63,7 +62,13 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   };
 };
 
-const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number, line: number) => {
+const getOutcomeName = (
+  outcomeId: number,
+  homeTeam: string,
+  awayTeam: string,
+  sportsMarketType: number,
+  line: number
+) => {
   const marketOutcome = getMarketOutcome(sportsMarketType, outcomeId);
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
@@ -99,7 +104,7 @@ export const getMarketTitle = (
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
-  line: number,
+  line: number
 ): { title: string; description: string } => {
   const marketTitles = getSportsTitles(sportsMarketType);
   if (!marketTitles) {
@@ -173,7 +178,7 @@ const decodeOutcomes = (
   homeTeam: string,
   awayTeam: string,
   sportsMarketType: number,
-  line: number,
+  line: number
 ) => {
   return shareTokens.map((shareToken, i) => {
     return {
