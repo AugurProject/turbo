@@ -15,7 +15,8 @@
 
   > section:last-of-type {
     > h2,
-    > button {
+    > button,
+    > span {
       display: none;
     }
   }
@@ -62,16 +63,21 @@
       > section:last-of-type {
         display: flex;
 
-        > button {
+        > span {
           position: fixed;
           background: var(--primary-bg);
           top: var(--theme-top-bar-height-mobile);
           left: 0;
           right: 0;
           width: 100%;
+          display: flex;
+          flex-flow: row nowrap;
+          min-height: @size-40;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 0 @size-12;
           border-radius: 0;
           max-height: @size-40;
-          min-height: unset;
           border: 0;
           border-bottom: @size-1 solid var(--theme-border);
           justify-content: flex-start;
