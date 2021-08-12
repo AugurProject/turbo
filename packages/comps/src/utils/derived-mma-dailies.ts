@@ -22,9 +22,11 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     homeFighterId: coHomeTeamId,
     estimatedStartTime,
     marketType = "0",
+    homeFighterName,
+    awayFighterName,
   } = marketData;
   // translate market data
-  const eventId = String(coEventId._hex || coEventId);
+  const eventId = String(coEventId?._hex || coEventId);
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
@@ -32,13 +34,11 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const line = null;
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   // will need get get team names
-  const homeTeam = String(marketData["homeFighterName"]);
-  const awayTeam = String(marketData["awayFighterName"]);
   const sportId = "7";
 
   const { shareTokens } = market;
-  const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType);
-  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType);
+  const outcomes = decodeOutcomes(market, shareTokens, homeFighterName, awayFighterName, sportsMarketType);
+  const { title, description } = getMarketTitle(sportId, homeFighterName, awayFighterName, sportsMarketType);
 
   return {
     ...market,

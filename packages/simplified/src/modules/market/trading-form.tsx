@@ -237,7 +237,7 @@ const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
     return () => {
       isMounted = false;
     };
-  }, [orderType, selectedOutcomeId, amount, outcomeSharesRaw, amm?.volumeTotal, amm?.liquidity, userBalance]);
+  }, [orderType, selectedOutcomeId, amount, outcomeSharesRaw, amm?.liquidity, userBalance]);
 
   const canMakeTrade: CanTradeProps = useMemo(() => {
     let actionText = buttonError || orderType;

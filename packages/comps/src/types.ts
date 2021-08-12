@@ -180,54 +180,22 @@ export interface AmmExchangeOutcome {
   name: string;
 }
 
-export interface InvalidPool {
-  id: string;
-  cashBalance: string;
-  cashWeight: string;
-  invalidBalance: string;
-  invalidWeight: string;
-  spotPrice: string[];
-  swapFee: string;
-}
 export interface AmmExchange {
   id: string;
   turboId: number;
   marketId: string;
   market: MarketInfo;
-  liquidity: string;
   liquidityUSD: number;
-  liquidity24hrUSD: string;
-  liquidityNo: string;
-  liquidityYes: string;
-  liquidityInvalid: string;
-  priceYes: string;
-  priceNo: string;
-  percentageYes: string;
-  percentageNo: string;
-  volumeYes: string;
-  volumeNo: string;
-  volumeYesUSD: string;
-  volumeNoUSD: string;
-  volume24hrTotalUSD: number;
-  volumeTotal: string;
-  volumeTotalUSD: number;
+  volume24hrTotalUSD?: number;
+  volumeTotalUSD?: number;
   feeDecimal: string;
   feeRaw: string;
   feeInPercent: string;
   cash: Cash;
-  sharetoken: string;
-  transactions: AmmTransaction[];
-  trades: Trades;
-  past24hrPriceNo?: string;
-  past24hrPriceYes?: string;
   totalSupply?: string;
   hasLiquidity?: boolean;
   apy?: string;
   ammOutcomes: AmmOutcome[];
-  isAmmMarketInvalid: boolean;
-  invalidPool: InvalidPool;
-  swapInvalidForCashInETH?: string;
-  symbols: string[];
   shareFactor: string;
   balancesRaw: string[];
   weights: string[];
@@ -262,10 +230,7 @@ export interface MarketInfo {
   endTimestamp: number;
   startTimestamp?: number;
   creationTimestamp: string;
-  extraInfoRaw: string;
-  longDescription: string;
   fee: string;
-  reportingFee: string;
   settlementFee: string;
   categories: string[];
   outcomes: MarketOutcome[];
@@ -576,7 +541,7 @@ export interface CurrencyBalance extends SimpleBalance {
 }
 
 export interface Winnings {
-  sharetoken: string;
+  shareToken: string;
   claimableBalance: string;
   userBalances: string[];
 }

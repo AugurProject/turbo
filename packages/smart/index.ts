@@ -20,6 +20,8 @@ import { Provider } from "@ethersproject/providers";
 
 export * from "./typechain";
 export * from "./addresses";
+export * from "./src";
+
 export { calcSellCompleteSets, estimateBuy } from "./src/bmath";
 export { mapOverObject } from "./src/utils/common-functions";
 
