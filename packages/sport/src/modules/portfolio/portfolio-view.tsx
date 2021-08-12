@@ -13,7 +13,7 @@ import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
 
-const { formatCash } = Formatter;
+const { formatCash, isSameAddress } = Formatter;
 const { TX_STATUS, USDC, marketStatusItems, OPEN } = Constants;
 const {
   Hooks: { useDataStore, useAppStatusStore, useScrollToTopOnMount, useUserStore },
@@ -169,12 +169,13 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         let result = { ...a };
         if (event?.marketIds?.includes(test?.marketId)) {
           const market = markets[test?.marketId];
-          const betId = `${test.marketId}-${parseInt(test?.outcomeId)}`;
+          const outcomeId = test?.outcomeId?.length > 40 ? market?.outcomes?.find(out => isSameAddress(test?.outcomeId, out?.shareToken))?.id : parseInt(test?.outcomeId);
+          const betId = `${test.marketId}-${outcomeId}`;
           result[betId || test?.id] = {
             ...test,
             wager: test?.initCostUsd,
             price: test?.avgPrice,
-            name: market?.outcomes?.[parseInt(test?.outcomeId)]?.name,
+            name: market?.outcomes?.[outcomeId]?.name,
             betId,
             toWin: test?.payout,
             cashoutAmount: test?.payout,
