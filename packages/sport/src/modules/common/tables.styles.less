@@ -222,11 +222,6 @@
 
 
 @media @breakpoint-mobile-tiny {
-  .EventBetTable {
-    > header {
-      flex-flow: column nowrap;
-    }
-  }
   .EventTableMain {
     > ul {
       &:first-of-type {
@@ -271,6 +266,20 @@
           grid-row: 2;
         }
       }
+    }
+  }
+}
+
+@media @breakpoint-mobile {
+  .EventBetTable {
+    > header {
+      display: grid;
+      grid-template-columns: 1fr;
+
+      > span {
+        grid-column: 1;
+      }
+
     }
   }
 }
