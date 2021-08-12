@@ -78,15 +78,22 @@
   > header {
     .SecondaryTopBorderRadius;
 
-    display: flex;
-    flex-flow: row nowrap;
+    display: grid;
+    grid-template-columns: 1fr 0fr;
+    grid-gap: @size-8;
     min-height: @size-72;
     padding: @size-16;
+
+    > div {
+      grid-column: 1;
+      grid-row: 1;
+    }
 
     > a {
       flex: 1;
       display: flex;
       flex-flow: row nowrap;
+      grid-column: 1;
 
       &:hover {
         > h4 {
@@ -110,6 +117,7 @@
 
       color: var(--secondary-text);
       text-transform: uppercase;
+      grid-column: 2;
     }
   }
 }

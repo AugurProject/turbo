@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./tables.styles.less";
-import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore, Links } from "@augurproject/comps";
+import { Utils, Components, useUserStore, useDataStore, Links, Constants } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
@@ -14,9 +14,13 @@ const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { Pagination } = PaginationComps;
-const { TinyThemeButton } = ButtonComps;
+const {
+  PaginationComps: { Pagination },
+  ButtonComps: { TinyThemeButton },
+  LabelComps: { ReportingStateLabel },
+} = Components;
 const { MarketLink } = Links;
+const { MARKET_STATUS } = Constants;
 
 export const EventBetsSection = ({ eventPositionData = {} }) => {
   const [page, setPage] = useState(1);
@@ -65,8 +69,11 @@ const EventTableHeading = ({ Event }) => {
   const {
     settings: { timeFormat },
   } = useSportsStore();
+  const { markets } = useDataStore();
+  const { reportingState } = markets?.[Event?.marketIds?.[0]];
   return (
     <header>
+      {reportingState !== MARKET_STATUS.TRADING && <ReportingStateLabel {...{ reportingState }} />}
       <MarketLink id={Event?.marketIds?.[0]}>
         <h4>{Event.eventTitle}</h4>
       </MarketLink>

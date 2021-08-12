@@ -53,11 +53,15 @@ const handleClaimAll = async (loginAccount, ids, factoryAddress, addTransaction,
   }
 };
 
-const ClaimableTicket = ({ amount, cash, USDCTotal }: {
-  amount: string,
-  cash: Cash,
-  USDCTotal: any,
-  key?: string,
+const ClaimableTicket = ({
+  amount,
+  cash,
+  USDCTotal,
+}: {
+  amount: string;
+  cash: Cash;
+  USDCTotal: any;
+  key?: string;
 }): React.Component => {
   const {
     loginAccount,
@@ -169,7 +173,10 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         let result = { ...a };
         if (event?.marketIds?.includes(test?.marketId)) {
           const market = markets[test?.marketId];
-          const outcomeId = test?.outcomeId?.length > 40 ? market?.outcomes?.find(out => isSameAddress(test?.outcomeId, out?.shareToken))?.id : parseInt(test?.outcomeId);
+          const outcomeId =
+            test?.outcomeId?.length > 40
+              ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
+              : parseInt(test?.outcomeId);
           const betId = `${test.marketId}-${outcomeId}`;
           result[betId || test?.id] = {
             ...test,
@@ -250,14 +257,10 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
-        <SecondaryThemeButton
-          text="test"
-          customContent={<>
-            <TinyThemeButton icon={SimpleChevron} action={() => setShowActivity(!showActivity)} />
-            <span>MY BETS</span>
-          </>}
-          action={() => setShowActivity(!showActivity)}
-        />
+        <span onClick={() => setShowActivity(!showActivity)}>
+          <TinyThemeButton icon={SimpleChevron} action={() => setShowActivity(!showActivity)} />
+          <span>MY BETS</span>
+        </span>
         <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />
