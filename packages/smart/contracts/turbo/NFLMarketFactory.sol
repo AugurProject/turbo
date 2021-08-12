@@ -241,9 +241,18 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         int256 _homeSpread
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[uint256(SpreadOutcome.NoContest)] = "No Contest / Draw";
+        _outcomes[uint256(SpreadOutcome.NoContest)] = "No Contest";
         _outcomes[uint256(SpreadOutcome.Away)] = _awayTeamName;
         _outcomes[uint256(SpreadOutcome.Home)] = _homeTeamName;
+
+        // The spread is a quantity of tenths. So 55 is 5.5 and -6 is -60.
+        // If the spread is a whole number then make it a half point more extreme, to eliminate ties.
+        // So 50 becomes 55, -60 becomes -65, and 0 becomes 5.
+        if (_homeSpread >= 0 && _homeSpread % 10 == 0) {
+            _homeSpread += 5;
+        } else if (_homeSpread < 0 && (-_homeSpread) % 10 == 0) {
+            _homeSpread -= 5;
+        }
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
@@ -286,9 +295,16 @@ contract NFLMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds 
         uint256 _overUnderTotal
     ) internal returns (uint256) {
         string[] memory _outcomes = new string[](3);
-        _outcomes[uint256(OverUnderOutcome.NoContest)] = "No Contest / Draw";
+        _outcomes[uint256(OverUnderOutcome.NoContest)] = "No Contest";
         _outcomes[uint256(OverUnderOutcome.Over)] = "Over";
         _outcomes[uint256(OverUnderOutcome.Under)] = "Under";
+
+        // The total is a quantity of tenths. So 55 is 5.5 and -6 is -60.
+        // If the total is a whole number then make it a half point higher, to eliminate ties.
+        // So 50 becomes 55 and 0 becomes 5.
+        if (_overUnderTotal >= 0 && _overUnderTotal % 10 == 0) {
+            _overUnderTotal += 5;
+        }
 
         uint256 _id = markets.length;
         markets.push(makeMarket(_creator, _outcomes, _outcomes, _endTime, evenOdds(true, 2)));
