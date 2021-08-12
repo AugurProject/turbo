@@ -160,17 +160,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xAE9df5bf273bfF861174194ca190e99e95a15a26",
         description: "mma",
         version: "v1.1.0",
-      },
-      {
-        type: "SportsLink",
-        subtype: "V1",
-        address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
-        fetcher: "",
-        description: "mlb and nba",
-        version: "v1.0.0",
-      },
+      }
     ],
     info: { uploadBlockNumber: 15336699, graphName: "matic" },
   },
