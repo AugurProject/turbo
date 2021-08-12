@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
-
-import "../libraries/IERC20Full.sol";
 pragma abicoder v2;
-// import "@balancer-labs/v2-vault/contracts/interfaces/IVault.sol";
+
+import "@balancer-labs/v2-pool-weighted/contracts/WeightedMath.sol";
 
 interface IWeightedPoolFactory {
     function create(
@@ -35,16 +35,35 @@ interface IVault {
         address recipient,
         JoinPoolRequest memory request
     ) external payable;
+
     struct JoinPoolRequest {
         IAsset[] assets;
         uint256[] maxAmountsIn;
         bytes userData;
         bool fromInternalBalance;
     }
+
+    function exitPool(
+        bytes32 poolId,
+        address sender,
+        address payable recipient,
+        ExitPoolRequest memory request
+    ) external;
+
+    struct ExitPoolRequest {
+        IAsset[] assets;
+        uint256[] minAmountsOut;
+        bytes userData;
+        bool toInternalBalance;
+    }
 }
 
 abstract contract IWeightedPool is IERC20 {
     function getPoolId() public view virtual returns (bytes32 poolID);
-    function getVault() public view virtual returns (IVault);
 
+    function getSwapFeePercentage() public view virtual returns (uint256);
+
+    function getNormalizedWeights() external view virtual returns (uint256[] memory);
+
+    function getVault() public view virtual returns (IVault);
 }

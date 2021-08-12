@@ -79,7 +79,7 @@ contract AMMFactory is BNum {
 
         // Add each outcome to the pool. Collateral is NOT added.
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            OwnedERC20 _token = _market.shareTokens[i];
+            OwnedERC20 _token = OwnedERC20(_market.shareTokens[i]);
             _token.approve(address(_pool), MAX_UINT);
             _pool.bind(address(_token), _sets, _market.initialOdds[i]);
         }
@@ -312,8 +312,8 @@ contract AMMFactory is BNum {
         }
 
         {
-            _market.shareTokens[_outcome].transferFrom(msg.sender, address(this), _totalUndesiredTokensIn);
-            _market.shareTokens[_outcome].approve(address(_pool), MAX_UINT);
+            OwnedERC20(_market.shareTokens[_outcome]).transferFrom(msg.sender, address(this), _totalUndesiredTokensIn);
+            OwnedERC20(_market.shareTokens[_outcome]).approve(address(_pool), MAX_UINT);
 
             for (uint256 i = 0; i < _market.shareTokens.length; i++) {
                 if (i == _outcome) continue;
