@@ -27,10 +27,10 @@ import { NFLSideBanner } from 'modules/common/top-banner';
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
-const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES } = Constants;
+const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES, USDC } = Constants;
 const { SimpleCheck, SimpleChevron, XIcon } = Icons;
 const { getDateTimeFormat } = DateUtils;
-const { formatDai } = Formatter;
+const { formatDai, formatCash } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
 const { ReceiptLink } = Links;
 
@@ -545,12 +545,12 @@ export const TicketBreakdown = ({ bet, timeFormat }) => {
       <li>
         <span>Wager</span>
         <DashlineNormal />
-        <span>{`$${wager === "0.00" ? "-" : wager}`}</span>
+        <span>{`${wager === "0" ? "-" : formatCash(wager, USDC).full}`}</span>
       </li>
       <li>
         <span>To Win</span>
         <DashlineNormal />
-        <span>{`$${toWin}`}</span>
+        <span>{`${formatCash(toWin, USDC).full}`}</span>
       </li>
       <li>
         <span>Date</span>

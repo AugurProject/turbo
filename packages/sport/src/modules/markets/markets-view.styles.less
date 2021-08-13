@@ -169,12 +169,11 @@
       > ul {
         display: grid;
         grid-template-columns: 0fr 1fr;
-        grid-gap: @size-16 0;
+        grid-gap: @size-8 0;
 
         &.NoSubCategories {
           > h2 {
             position: absolute;
-            top: @size-68;
           }
         }
 
@@ -184,7 +183,8 @@
           grid-column: span 2;
           grid-row: 1;
           text-transform: uppercase;
-          margin-top: @size-8;
+          margin-top: @size-12;
+          margin-bottom: @size-8;
           display: block;
         }
 
