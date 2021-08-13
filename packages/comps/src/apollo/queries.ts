@@ -29,8 +29,12 @@ export const SEARCH_MARKETS = gql`
 `;
 
 export const GET_MARKETS = gql`
-  query {
-    teamSportsMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
+  query getMarkets($SportsLink: [String], $Crypto: [String], $MMALink: [String]) {
+    teamSportsMarkets(
+      where: { winner: null, marketFactory_in: $SportsLink }
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
       marketId: id
       creationTimestamp: timestamp
       endTime
@@ -47,7 +51,7 @@ export const GET_MARKETS = gql`
       creator
       initialOdds
     }
-    cryptoMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
+    cryptoMarkets(where: { winner: null, marketFactory_in: $Crypto }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
@@ -61,7 +65,7 @@ export const GET_MARKETS = gql`
       creator
       initialOdds
     }
-    mmaMarkets(where: { winner: null }, orderBy: timestamp, orderDirection: desc) {
+    mmaMarkets(where: { winner: null, marketFactory_in: $MMALink }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
@@ -80,7 +84,7 @@ export const GET_MARKETS = gql`
       initialOdds
     }
     resolved_teamSportsMarkets: teamSportsMarkets(
-      where: { winner_not: null }
+      where: { winner_not: null, marketFactory_in: $SportsLink }
       orderBy: timestamp
       orderDirection: desc
       first: 1000
@@ -100,7 +104,11 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    resolved_cryptoMarkets: cryptoMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
+    resolved_cryptoMarkets: cryptoMarkets(
+      where: { winner_not: null, marketFactory_in: $Crypto }
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
@@ -113,7 +121,11 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
     }
-    resolved_mmaMarkets: mmaMarkets(where: { winner_not: null }, orderBy: timestamp, orderDirection: desc) {
+    resolved_mmaMarkets: mmaMarkets(
+      where: { winner_not: null, marketFactory_in: $MMALink }
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
       marketId: id
       marketFactoryAddress: marketFactory
       turboId: marketIndex
