@@ -27,6 +27,16 @@ contract AMMFactoryV2 is WeightedMath {
         uint256[] sharesReturned
     );
 
+    event SharesSwapped(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        uint256 outcome,
+        // from the perspective of the user. e.g. collateral is negative when buying
+        int256 collateral,
+        int256 shares,
+        uint256 price
+    );
     // JoinKind from WeightedPool
     enum JoinKind {
         INIT,
@@ -347,11 +357,221 @@ contract AMMFactoryV2 is WeightedMath {
         );
     }
 
-    function buy() public {}
+    function batchSwapBuy(
+        IWeightedPool _pool,
+        uint256 _outcome,
+        uint256 _sets,
+        address[] memory tokens
+    ) private returns (uint256) {
+        // create
+        IVault.BatchSwapStep[] memory swapSteps = new IVault.BatchSwapStep[](tokens.length - 1);
+        IAsset[] memory assets = new IAsset[](tokens.length);
+        int256[] memory limits = new int256[](tokens.length);
 
-    function sellForCollateral() public {}
+        for (uint256 i = 0; i < tokens.length; ++i) {
+            assets[i] = IAsset(tokens[i]);
+            limits[i] = int256(_sets);
+            if (i == _outcome) continue;
+            swapSteps[i] = IVault.BatchSwapStep({
+                poolId: _pool.getPoolId(),
+                assetInIndex: i,
+                assetOutIndex: _outcome,
+                amount: _sets,
+                userData: ""
+            });
+        }
 
-    function tokenRatios() public {}
+        IVault.FundManagement memory funds = IVault.FundManagement({
+            sender: address(this),
+            fromInternalBalance: false,
+            recipient: payable(address(this)),
+            toInternalBalance: false
+        });
+
+        uint256 deadline = block.timestamp + 1 days;
+        int256[] memory _acquiredTokens = _pool.getVault().batchSwap(
+            IVault.SwapKind.GIVEN_IN,
+            swapSteps,
+            assets,
+            funds,
+            limits,
+            deadline
+        );
+
+        uint256 _totalDesiredOutcome = uint256(_acquiredTokens[_outcome]);
+
+        return _totalDesiredOutcome;
+    }
+
+    function buy(
+        IMarketFactory _marketFactory,
+        uint256 _marketId,
+        uint256 _outcome,
+        uint256 _collateralIn,
+        uint256 _minTokensOut
+    ) external returns (uint256) {
+        IWeightedPool _pool = pools[address(_marketFactory)][_marketId];
+        require(_pool != IWeightedPool(0), "Pool needs to be created");
+
+        IMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+
+        uint256 _sets = preProcessCollateral(_marketFactory, _marketId, _collateralIn);
+        uint256 _totalDesiredOutcome;
+        {
+            IERC20 _desiredToken = IERC20(_market.shareTokens[_outcome]);
+            _totalDesiredOutcome = batchSwapBuy(_pool, _outcome, _sets, _market.shareTokens);
+
+            require(_totalDesiredOutcome >= _minTokensOut, "Slippage exceeded");
+
+            _desiredToken.transfer(msg.sender, _totalDesiredOutcome);
+        }
+
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            -int256(_collateralIn),
+            int256(_totalDesiredOutcome),
+            Math.divDown(_sets, _totalDesiredOutcome)
+        );
+
+        return _totalDesiredOutcome;
+    }
+
+    function batchSwapSell(
+        IWeightedPool _pool,
+        uint256 _outcome,
+        uint256[] memory _shareTokensIn,
+        address[] memory tokens
+    ) private returns (uint256) {
+        _shareTokensIn[_outcome] = 0;
+
+        IVault.BatchSwapStep[] memory swapSteps = new IVault.BatchSwapStep[](tokens.length - 1);
+        IAsset[] memory assets = new IAsset[](tokens.length);
+        int256[] memory limits = new int256[](tokens.length);
+
+        for (uint256 i = 0; i < tokens.length; ++i) {
+            assets[i] = IAsset(tokens[i]);
+            limits[i] = int256(MAX_UINT);
+            if (i == _outcome) continue;
+
+            swapSteps[i] = IVault.BatchSwapStep({
+                poolId: _pool.getPoolId(),
+                assetInIndex: _outcome,
+                assetOutIndex: i,
+                amount: _shareTokensIn[i],
+                userData: ""
+            });
+        }
+
+        IVault.FundManagement memory funds = IVault.FundManagement({
+            sender: address(this),
+            fromInternalBalance: false,
+            recipient: payable(address(this)),
+            toInternalBalance: false
+        });
+
+        uint256 deadline = block.timestamp + 1 days;
+        int256[] memory _acquiredTokens = _pool.getVault().batchSwap(
+            IVault.SwapKind.GIVEN_IN,
+            swapSteps,
+            assets,
+            funds,
+            limits,
+            deadline
+        );
+
+        uint256 _setsOut = MAX_UINT;
+        for (uint256 i = 0; i < _acquiredTokens.length; ++i) {
+            if (i != _outcome && _setsOut < uint256(_acquiredTokens[i])) {
+                _setsOut = uint256(_acquiredTokens[i]);
+            }
+        }
+        return _setsOut;
+    }
+
+    function sellForCollateral(
+        IMarketFactory _marketFactory,
+        uint256 _marketId,
+        uint256 _outcome,
+        uint256[] memory _shareTokensIn,
+        uint256 _minSetsOut
+    ) external returns (uint256) {
+        IWeightedPool _pool = pools[address(_marketFactory)][_marketId];
+        require(_pool != IWeightedPool(0), "Pool needs to be created");
+        IMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+
+        uint256 _setsOut = MAX_UINT;
+        uint256 _totalUndesiredTokensIn = 0;
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            _totalUndesiredTokensIn += _shareTokensIn[i];
+        }
+
+        IERC20(_market.shareTokens[_outcome]).transferFrom(msg.sender, address(this), _totalUndesiredTokensIn);
+        IERC20(_market.shareTokens[_outcome]).approve(address(_pool), MAX_UINT);
+
+        _setsOut = batchSwapSell(_pool, _outcome, _shareTokensIn, _market.shareTokens);
+        _setsOut = (_setsOut / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
+
+        require(_setsOut >= _minSetsOut, "Minimum sets not available.");
+        _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
+
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            IERC20 _token = IERC20(_market.shareTokens[i]);
+            uint256 _balance = _token.balanceOf(address(this));
+            if (_balance > 0) {
+                _token.transfer(msg.sender, _balance);
+            }
+        }
+
+        uint256 _collateralOut = _marketFactory.calcCost(_setsOut);
+        emit SharesSwapped(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _outcome,
+            int256(_collateralOut),
+            -int256(_totalUndesiredTokensIn),
+            Math.divDown(_setsOut, _totalUndesiredTokensIn)
+        );
+
+        return _collateralOut;
+    }
+
+    function calcSpotPrice(
+        uint256 tokenBalanceIn,
+        uint256 tokenWeightIn,
+        uint256 tokenBalanceOut,
+        uint256 tokenWeightOut,
+        uint256 swapFee
+    ) internal pure returns (uint256) {
+        uint256 numer = Math.divDown(tokenBalanceIn, tokenWeightIn);
+        uint256 denom = Math.divDown(tokenBalanceOut, tokenWeightOut);
+        uint256 ratio = Math.divDown(numer, denom);
+        uint256 scale = Math.divDown(BONE, Math.sub(BONE, swapFee));
+        return Math.mul(ratio, scale);
+    }
+
+    function tokenRatios(IMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256[] memory) {
+        IWeightedPool _pool = pools[address(_marketFactory)][_marketId];
+        // Pool does not exist. Do not want to revert because multicall.
+        if (_pool == IWeightedPool(0)) {
+            return new uint256[](0);
+        }
+
+        IMarketFactory.Market memory _market = _marketFactory.getMarket(_marketId);
+        (, uint256[] memory _tokenBalances, ) = _pool.getVault().getPoolTokens(_pool.getPoolId());
+        uint256[] memory _weights = _pool.getNormalizedWeights();
+        uint256 _fee = _pool.getSwapFeePercentage(); 
+        uint256[] memory _ratios = new uint256[](_market.shareTokens.length);
+        _ratios[0] = 10**18;
+        for (uint256 i = 1; i < _market.shareTokens.length; i++) {
+            uint256 _price = calcSpotPrice(_tokenBalances[0], _weights[0], _tokenBalances[i], _weights[i], _fee);
+            _ratios[i] = _price;
+        }
+        return _ratios;
+    }
 
     function getPoolBalances(IMarketFactory _marketFactory, uint256 _marketId)
         external

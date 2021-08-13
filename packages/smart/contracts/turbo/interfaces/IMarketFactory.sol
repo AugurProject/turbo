@@ -5,9 +5,9 @@ pragma abicoder v2;
 
 /**
  * @dev abstract / interface of the market factory (no implementation).
- * Use for communication between MarketFactory and AMMFactory. 
- * help no dependencies conflict.  
- */ 
+ * Use for communication between MarketFactory and AMMFactory.
+ * help no dependencies conflict.
+ */
 
 abstract contract IMarketFactory {
     struct Market {
@@ -45,4 +45,6 @@ abstract contract IMarketFactory {
     function isMarketResolved(uint256 _id) public view virtual returns (bool);
 
     function claimWinnings(uint256 _id, address _receiver) public virtual returns (uint256);
+
+    function calcCost(uint256 _shares) public view virtual returns (uint256);
 }
