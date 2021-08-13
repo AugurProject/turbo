@@ -592,13 +592,22 @@
       height: @size-64;
       min-height: @size-64;
       max-height: @size-64;
-      width: @size-64;
-      min-width: @size-64;
-      max-width: @size-64;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
       justify-content: center;
+
+      > section {
+        width: @size-120;
+        
+        > svg {
+          height: @size-24;
+        
+          > g:first-of-type > path:not(:first-of-type) {
+            fill: var(--color-brand-secondary);
+          }
+        } 
+      }
     }
 
     > button {
