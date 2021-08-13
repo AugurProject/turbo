@@ -10,6 +10,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "generate:env": "ts-node ./lib/generate-augur-adapter-env.ts > augur-jobs-creator.env",
     "deploy:aws":  "yarn cdk synth && yarn cdk deploy"
   },
   "devDependencies": {
