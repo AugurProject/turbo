@@ -320,7 +320,7 @@ export const NetworkMismatchBanner = () => {
         >
           MetaMask RPC rate limit error. Please try again in a bit and slow down to avoid hitting public rate limits.
       </article>}
-      {isDegraded && <article
+      {(isDegraded || true) && <article
           className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
