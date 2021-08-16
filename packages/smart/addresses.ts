@@ -159,7 +159,7 @@ export const addresses: AddressMapping = {
         ammFactory: "0xf098b85047CfB29840a3a43194AbCb31d5C53E16",
         fetcher: "0x9f1DB2B2C81eAF3F96D8d942e2D515dE17975A2A",
         description: "mma",
-        version: "2021-07-28.0",
+        version: "v1.1.0",
       },
       {
         type: "Crypto",
@@ -182,6 +182,6 @@ export const addresses: AddressMapping = {
         version: "2021-07-20.0",
       },
     ],
-    info: { uploadBlockNumber: 17556928, graphName: "mumbai" },
+    info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
   },
 };
