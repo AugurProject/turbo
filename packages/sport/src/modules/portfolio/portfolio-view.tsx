@@ -203,7 +203,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
             cashoutAmount: test?.payout,
             canCashOut: !test?.hasClaimed,
           };
-          testBets.forEach(testBet => {
+          testBets.forEach((testBet) => {
             result[testBet.betId] = {
               ...testBet,
             };
