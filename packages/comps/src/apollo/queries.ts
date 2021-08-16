@@ -178,6 +178,8 @@ export const GET_MARKETS = gql`
       eventId
       homeTeamId
       awayTeamId
+      homeTeamName
+      awayTeamName
       marketType
       value0: overUnderTotal
       estimatedStartTime
