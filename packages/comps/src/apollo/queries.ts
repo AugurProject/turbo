@@ -161,7 +161,7 @@ export const GET_MARKETS = gql`
       creator
       marketType
     }
-    resolved_NFLMarkets: teamSportsMarkets(
+    resolved_NFLMarkets: nflMarkets(
       where: { winner_not: null, marketFactory_in: $NFL }
       orderBy: timestamp
       orderDirection: desc
