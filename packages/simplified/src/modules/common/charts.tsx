@@ -290,7 +290,7 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
       )}
       <div>
         {formattedOutcomes.map((outcome, index) =>
-          !showMore && index >= 3 ? null : (
+          !showMore && index >= 6 ? null : (
             <SelectOutcomeButton
               key={`${outcome.id}_${outcome.name}`}
               cash={cash}
@@ -301,7 +301,7 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
           )
         )}
       </div>
-      {formattedOutcomes.length > 3 && <button onClick={() => setShowMore(!showMore)} >{`View ${showMore ? "Less" : "More"}`}</button>}
+      {formattedOutcomes.length > 6 && <button onClick={() => setShowMore(!showMore)} >{`View ${showMore ? "Less" : "More"}`}</button>}
     </section>
   );
 };
