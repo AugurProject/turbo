@@ -34,7 +34,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     outcomes,
     eventId,
     price: tokenPrice.full,
-    startTimestamp: null,
+    startTimestamp: endTime,
     coinIndex: String(tokenInds),
   };
 };

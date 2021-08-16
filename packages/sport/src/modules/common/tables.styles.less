@@ -14,6 +14,12 @@
     justify-content: center;
     margin-top: @size-16;
   }
+
+  @media @breakpoint-mobile-tablet {
+    > article {
+      margin-bottom: @size-8;
+    }
+  }
 }
 
 .EventBetsSectionEmpty {
@@ -72,15 +78,22 @@
   > header {
     .SecondaryTopBorderRadius;
 
-    display: flex;
-    flex-flow: row nowrap;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-gap: @size-8;
     min-height: @size-72;
     padding: @size-16;
+
+    > div {
+      grid-column: 1;
+      grid-row: 1;
+    }
 
     > a {
       flex: 1;
       display: flex;
       flex-flow: row nowrap;
+      grid-column: 1;
 
       &:hover {
         > h4 {
@@ -104,6 +117,7 @@
 
       color: var(--secondary-text);
       text-transform: uppercase;
+      grid-column: 2;
     }
   }
 }
@@ -208,11 +222,6 @@
 
 
 @media @breakpoint-mobile-tiny {
-  .EventBetTable {
-    > header {
-      flex-flow: column nowrap;
-    }
-  }
   .EventTableMain {
     > ul {
       &:first-of-type {
@@ -257,6 +266,20 @@
           grid-row: 2;
         }
       }
+    }
+  }
+}
+
+@media @breakpoint-mobile {
+  .EventBetTable {
+    > header {
+      display: grid;
+      grid-template-columns: 1fr;
+
+      > span {
+        grid-column: 1;
+      }
+
     }
   }
 }

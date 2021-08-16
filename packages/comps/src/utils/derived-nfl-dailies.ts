@@ -14,6 +14,7 @@ const NAMING_LINE = {
 };
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Draw/No Contest";
+const AWAY_TEAM_OUTCOME = 1;
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
@@ -21,24 +22,29 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     eventId: coEventId,
     homeTeamId: coHomeTeamId,
     estimatedStartTime,
-    marketType = 0,
+    marketType,
+    value0,
   } = marketData;
+
   // translate market data
+  // NEW API, DON'T USE TEAM IDS AS LOOK UPS.
   const eventId = String(coEventId._hex || coEventId);
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
   const categories = ["Sports", "Football", "NFL"];
-  const line = null;
+  let line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
+  if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
+
   // will need get get team names
-  const homeTeam = String(marketData["homeTeamName"]);
-  const awayTeam = String(marketData["awayTeamName"]);
+  const homeTeam = marketData["homeTeamName"];
+  const awayTeam = marketData["awayTeamName"];
   const sportId = "2";
 
   const { shareTokens } = market;
-  const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType);
-  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType);
+  const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType, line);
+  const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType, line);
 
   return {
     ...market,
@@ -56,13 +62,37 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   };
 };
 
-const getOutcomeName = (outcomeId: number, homeTeam: string, awayTeam: string, sportsMarketType: number) => {
+const getOutcomeName = (
+  outcomeId: number,
+  homeTeam: string,
+  awayTeam: string,
+  sportsMarketType: number,
+  line: number
+) => {
   const marketOutcome = getMarketOutcome(sportsMarketType, outcomeId);
   // create outcome name using market type and line
   if (outcomeId === NO_CONTEST_OUTCOME_ID) return marketOutcome;
 
   if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) {
     return populateHomeAway(marketOutcome, homeTeam, awayTeam);
+  }
+
+  if (sportsMarketType === SPORTS_MARKET_TYPE.SPREAD) {
+    // spread
+    // line for home team outcome
+    let displayLine = Number(line) > 0 ? `+${line}` : `${line}`;
+    if (outcomeId === AWAY_TEAM_OUTCOME) {
+      const invertedLine = Number(line) * -1;
+      displayLine = Number(line) < 0 ? `+${invertedLine}` : `${invertedLine}`;
+    }
+
+    const outcome = populateHomeAway(marketOutcome, homeTeam, awayTeam).replace(NAMING_LINE.SPREAD_LINE, displayLine);
+    return outcome;
+  }
+
+  if (sportsMarketType === SPORTS_MARKET_TYPE.OVER_UNDER) {
+    // over/under
+    return marketOutcome.replace(NAMING_LINE.OVER_UNDER_LINE, String(line));
   }
 
   return `Outcome ${outcomeId}`;
@@ -73,7 +103,8 @@ export const getMarketTitle = (
   sportId: string,
   homeTeam: string,
   awayTeam: string,
-  sportsMarketType: number
+  sportsMarketType: number,
+  line: number
 ): { title: string; description: string } => {
   const marketTitles = getSportsTitles(sportsMarketType);
   if (!marketTitles) {
@@ -86,7 +117,29 @@ export const getMarketTitle = (
     title = marketTitles.title;
     description = populateHomeAway(marketTitles.description, homeTeam, awayTeam);
   }
+  if (sportsMarketType === 1) {
+    // spread
+    let fav = awayTeam;
+    let underdog = homeTeam;
+    if (Number(line) < 0) {
+      underdog = awayTeam;
+      fav = homeTeam;
+    }
+    let spread = new BN(line).abs().toNumber();
+    if (!Number.isInteger(spread)) {
+      spread = Math.trunc(spread);
+    }
+    title = marketTitles.title
+      .replace(NAMING_TEAM.FAV_TEAM, fav)
+      .replace(NAMING_TEAM.UNDERDOG_TEAM, underdog)
+      .replace(NAMING_LINE.SPREAD_LINE, String(spread));
+  }
 
+  if (sportsMarketType === 2) {
+    // over/under
+    title = marketTitles.title.replace(NAMING_LINE.OVER_UNDER_LINE, String(line));
+    description = populateHomeAway(marketTitles.description, homeTeam, awayTeam);
+  }
   return { title, description };
 };
 
@@ -124,12 +177,13 @@ const decodeOutcomes = (
   shareTokens: string[] = [],
   homeTeam: string,
   awayTeam: string,
-  sportsMarketType: number
+  sportsMarketType: number,
+  line: number
 ) => {
   return shareTokens.map((shareToken, i) => {
     return {
       id: i,
-      name: getOutcomeName(i, homeTeam, awayTeam, sportsMarketType), // todo: derive outcome name using market data
+      name: getOutcomeName(i, homeTeam, awayTeam, sportsMarketType, line), // todo: derive outcome name using market data
       symbol: shareToken,
       isInvalid: i === NO_CONTEST_OUTCOME_ID,
       isWinner: market.hasWinner && i === market.winner ? true : false,

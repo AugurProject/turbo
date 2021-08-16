@@ -36,21 +36,25 @@ const formatCategoryCount = (numCats) =>
     bigUnitPostfix: true,
   }).full;
 
-export const CategoriesArea = ({ filteredMarkets, inverted = false }) => {
+export const CategoriesArea = ({ filteredMarkets, inverted = false, onCounterClick = null }) => {
   const { marketsViewSettings } = useSportsStore();
   const { primaryCategory, subCategories } = marketsViewSettings;
   const selectedCategories = [primaryCategory].concat(subCategories);
   return (
     <article className={classNames(Styles.CategoriesArea, { [Styles.Inverted]: inverted })}>
       <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
-      <NavigationArea selectedCategories={selectedCategories} markets={filteredMarkets} />
+      <NavigationArea
+        selectedCategories={selectedCategories}
+        markets={filteredMarkets}
+        onCounterClick={onCounterClick}
+      />
     </article>
   );
 };
 
 export const CategoriesAreaTitle = ({ text }) => <h2>{text || DEFAULT_SELECTED_CATEGORY_HEADING}</h2>;
 
-export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
+export const NavigationArea = ({ selectedCategories = [], markets = [], onCounterClick = null }) => {
   const {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
@@ -60,7 +64,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
   const categoryGroups = !primaryCategory ? (
     <>
       {Object.entries(topLevel).map((categoryInfo, i) => (
-        <CategoryGroup {...{ categoryInfo, markets, key: `category-group-${i}` }} />
+        <CategoryGroup {...{ categoryInfo, markets, onCounterClick, key: `category-group-${i}` }} />
       ))}
     </>
   ) : (
@@ -68,7 +72,7 @@ export const NavigationArea = ({ selectedCategories = [], markets = [] }) => {
       {Object.entries(topLevel)
         .filter(([label, info]) => primaryCategory === label)
         .map((categoryInfo, i) => (
-          <CategoryGroup {...{ categoryInfo, markets, key: `category-group-${i}` }} />
+          <CategoryGroup {...{ categoryInfo, markets, onCounterClick, key: `category-group-${i}` }} />
         ))}
     </>
   );
@@ -102,7 +106,7 @@ const RemoveCategoryOption = ({ category = DEFAULT_BACK_OPTION, action = () => {
   </button>
 );
 
-const CategoryGroup = ({ categoryInfo, markets }) => {
+const CategoryGroup = ({ categoryInfo, markets, onCounterClick = null }) => {
   const {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
@@ -140,7 +144,7 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
           onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [] })}
         >
           {label}
-          <span>{formatCategoryCount(categoryCount)}</span>
+          <span onClick={() => onCounterClick && onCounterClick()}>{formatCategoryCount(categoryCount)}</span>
         </h4>
       )}
       {subCategories.length < 2 &&
@@ -152,7 +156,10 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
             })}
             onClick={() => updateMarketsViewSettings({ primaryCategory: label, subCategories: [subLabel] })}
           >
-            {(subInfo as any)?.icon} {subLabel} <span>{formatCategoryCount(determineCount(subLabel, markets))}</span>
+            {(subInfo as any)?.icon} {subLabel}{" "}
+            <span onClick={() => onCounterClick && onCounterClick()}>
+              {formatCategoryCount(determineCount(subLabel, markets))}
+            </span>
           </button>
         ))}
       {!!subCategories.length && (
@@ -168,7 +175,9 @@ const CategoryGroup = ({ categoryInfo, markets }) => {
               }
             >
               {tertiaryLabel}
-              <span>{formatCategoryCount(determineCount(tertiaryLabel, markets))}</span>
+              <span onClick={() => onCounterClick && onCounterClick()}>
+                {formatCategoryCount(determineCount(tertiaryLabel, markets))}
+              </span>
             </button>
           ))}
         </>

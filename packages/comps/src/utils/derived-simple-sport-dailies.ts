@@ -14,6 +14,7 @@ const NAMING_LINE = {
   OVER_UNDER_LINE: "OVER_UNDER_LINE",
 };
 const NO_CONTEST = "No Contest";
+const NO_CONTEST_TIE = "Tie/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
@@ -197,6 +198,30 @@ const decodeOutcomes = (
 };
 
 const sportsData = {
+  "2": {
+    name: "NFL",
+    types: {
+      [SPORTS_MARKET_TYPE.MONEY_LINE]: {
+        title: `Which team will win?`,
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}`,
+        outcomes: [NO_CONTEST_TIE, `${NAMING_TEAM.AWAY_TEAM}`, `${NAMING_TEAM.HOME_TEAM}`],
+      },
+      [SPORTS_MARKET_TYPE.SPREAD]: {
+        title: `Will the ${NAMING_TEAM.FAV_TEAM} defeat the ${NAMING_TEAM.UNDERDOG_TEAM} by more than ${NAMING_LINE.SPREAD_LINE}.5 points?`,
+        description: ``,
+        outcomes: [
+          NO_CONTEST,
+          `${NAMING_TEAM.AWAY_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+          `${NAMING_TEAM.HOME_TEAM} ${NAMING_LINE.SPREAD_LINE}.5`,
+        ],
+      },
+      [SPORTS_MARKET_TYPE.OVER_UNDER]: {
+        title: `Will there be over ${NAMING_LINE.OVER_UNDER_LINE}.5 total points scored?`,
+        description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}`,
+        outcomes: [NO_CONTEST, `Over ${NAMING_LINE.OVER_UNDER_LINE}.5`, `Under ${NAMING_LINE.OVER_UNDER_LINE}.5`],
+      },
+    },
+  },
   "3": {
     name: "MLB",
     types: {
@@ -291,6 +316,37 @@ const sportsData = {
 };
 
 const sportsResolutionRules = {
+  "2": {
+    types: {
+      [SPORTS_MARKET_TYPE.MONEY_LINE]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered
+an official game and the market should resolve as 'No Contest'.`,
+        `Overtime counts towards settlement purposes.`,
+        `If the game ends in a tie, the market should resolve as 'No Contest'`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games,
+protests, or overturned decisions.`,
+      ],
+      [SPORTS_MARKET_TYPE.SPREAD]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is
+not played or if less than 55 minutes of play have been completed, the game is not considered
+an official game and the market should resolve as 'No Contest'.`,
+        `Overtime counts towards settlement purposes.`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games,
+protests, or overturned decisions.`,
+      ],
+      [SPORTS_MARKET_TYPE.OVER_UNDER]: [
+        `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is
+not played or if less than 55 minutes of play have been completed, the game is not considered
+an official game and the market should resolve as 'No Contest'.`,
+        `Overtime count towards settlement purposes.`,
+        `If the game is not played, the market should resolve as 'No Contest'.`,
+        `Results are determined by their natural conclusion and do not recognize postponed games,
+protests, or overturned decisions.`,
+      ],
+    },
+  },
   "3": {
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: [

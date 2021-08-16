@@ -19,7 +19,7 @@ services:
       test: ["CMD-SHELL", "pg_isready"]
   node:
     container_name: chainlink-node
-    image: smartcontract/chainlink:0.10.9
+    image: smartcontract/chainlink:0.10.11
     command: local n -p /chainlink/.password -a /chainlink/.api
     networks:
       - link

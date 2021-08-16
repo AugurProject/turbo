@@ -15,7 +15,8 @@
 
   > section:last-of-type {
     > h2,
-    > button {
+    > button,
+    > span {
       display: none;
     }
   }
@@ -30,6 +31,8 @@
     > section:last-of-type {
       display: none;
       position: relative;
+      flex-flow: column nowrap;
+      padding: @size-16 @size-44 @size-40;
 
       > button {
         display: flex;
@@ -39,13 +42,13 @@
         .text-16-bold;
 
         color: var(--primary-text);
-        margin: @size-24 0 @size-16;
+        margin: @size-48 0 @size-16;
         display: block;
       }
     }
 
     > section:first-of-type {
-      padding: @size-16 @size-16 @size-40;
+      padding: @size-16 @size-44 @size-40;
       max-width: 100%;
 
       > div:first-of-type {
@@ -59,27 +62,62 @@
       }
       > section:last-of-type {
         display: flex;
-        flex-flow: column nowrap;
-        padding: @size-16 @size-16 @size-40;
 
-        > button {
+        > span {
           position: fixed;
           background: var(--primary-bg);
           top: var(--theme-top-bar-height-mobile);
           left: 0;
           right: 0;
           width: 100%;
+          display: flex;
+          flex-flow: row nowrap;
+          min-height: @size-40;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 0 @size-12;
           border-radius: 0;
+          max-height: @size-40;
           border: 0;
           border-bottom: @size-1 solid var(--theme-border);
-          justify-content: flex-end;
+          justify-content: flex-start;
 
-          > svg {
-            height: @size-12;
-            width: @size-12;
+          > button {
+            .PrimaryBorderRadius;
 
-            transform-origin: 50% 50%;
-            transform: rotate(90deg);
+            border: @size-1 solid var(--tertiary-text);
+            height: @size-20;
+            width: @size-20;
+            background: var(--primary-bg);
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: center;
+            margin-right: @size-8;
+            padding: 0;
+            max-height: @size-20;
+            max-width: @size-20;
+            min-width: unset;
+            min-height: unset;
+
+            > svg {
+              height: @size-16;
+              width: @size-10;
+              transform: rotate(90deg);
+              transform-origin: 50% 50%;
+
+              > path {
+                fill: var(--primary-text);
+              }
+            }
+
+            &:hover {
+              border-color: var(--primary-text);
+            }
+          }
+
+          > span {
+            .text-10-semi-bold;
           }
         }
 
@@ -91,6 +129,15 @@
           display: none;
         }
       }
+    }
+  }
+}
+
+@media @breakpoint-mobile {
+  .PortfolioView {
+    > section:first-of-type,
+    > section:last-of-type {
+      padding: @size-16;
     }
   }
 }
@@ -149,6 +196,7 @@
     display: grid;
     grid-template-columns: 1fr 0fr;
     grid-gap: @size-8;
+    margin-bottom: @size-16;
 
     > div {
       margin: 0;
@@ -192,7 +240,7 @@
 
   @media @breakpoint-mobile {
     grid-template-columns: 0fr 1fr;
-    grid-gap: @size-16;
+    grid-gap: @size-8;
 
     > div {
       grid-column: 1;

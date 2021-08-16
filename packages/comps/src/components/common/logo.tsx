@@ -18,13 +18,13 @@ export const Logo = ({ isMobile, darkTheme }: LogoProps) => (
   </section>
 );
 
-export const LinkLogo = () => {
+export const LinkLogo = ({ alwaysFull = false }) => {
   const { isMobile } = useAppStatusStore();
 
   return (
     <MarketsLink id="logolink">
       <section aria-label="Augur markets list page link" className={Styles.LogoBeta}>
-        {isMobile ? AugurBetaLogo : AugurBetaTextLogo}
+        {isMobile && !alwaysFull ? AugurBetaLogo : AugurBetaTextLogo}
       </section>
     </MarketsLink>
   );
