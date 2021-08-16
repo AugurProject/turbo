@@ -83,11 +83,7 @@ export const GET_MARKETS = gql`
       marketType
       initialOdds
     }
-    nflMarkets(
-      where: { winner: null, marketFactory_in: $NFL }
-      orderBy: timestamp
-      orderDirection: desc
-    ) {
+    nflMarkets(where: { winner: null, marketFactory_in: $NFL }, orderBy: timestamp, orderDirection: desc) {
       marketId: id
       creationTimestamp: timestamp
       endTime
