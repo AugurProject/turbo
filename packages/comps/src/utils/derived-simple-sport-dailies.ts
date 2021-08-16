@@ -110,7 +110,7 @@ const getMarketTitle = (
 ): { title: string; description: string } => {
   const marketTitles = getSportsTitles(sportId, sportsMarketType);
   if (!marketTitles) {
-    console.error(`Could not find ${sportId} sport and/or ${sportsMarketType} market type`);
+    console.error(`Could not find ${sportId} sport and/or ${sportsMarketType} market type, ${awayTeam} vs ${homeTeam}`);
   }
   let title = "";
   let description = "";
