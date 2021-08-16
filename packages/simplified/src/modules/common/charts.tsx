@@ -222,11 +222,7 @@ export const PriceHistoryChart = ({
     const chartContainer = container.current;
     NoDataToDisplay(Highcharts);
     return () => {
-      Highcharts.charts
-        .find(
-          (chart: HighcartsChart) => chart?.renderTo === chartContainer
-        )
-        ?.destroy();
+      Highcharts.charts.find((chart: HighcartsChart) => chart?.renderTo === chartContainer)?.destroy();
     };
   }, []);
 
@@ -263,6 +259,7 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
   const formattedOutcomes = getFormattedOutcomes({ market });
   const [selectedOutcomes, setSelectedOutcomes] = useState(formattedOutcomes.map(({ outcomeIdx }) => true));
   const [rangeSelection, setRangeSelection] = useState(3);
+  const [showMore, setShowMore] = useState(false);
 
   const toggleOutcome = (id) => {
     const updates: boolean[] = [].concat(selectedOutcomes);
@@ -292,16 +289,19 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
         />
       )}
       <div>
-        {formattedOutcomes.map((outcome) => (
-          <SelectOutcomeButton
-            key={`${outcome.id}_${outcome.name}`}
-            cash={cash}
-            outcome={outcome}
-            toggleSelected={toggleOutcome}
-            isSelected={selectedOutcomes[outcome.outcomeIdx]}
-          />
-        ))}
+        {formattedOutcomes.map((outcome, index) =>
+          !showMore && index >= 6 ? null : (
+            <SelectOutcomeButton
+              key={`${outcome.id}_${outcome.name}`}
+              cash={cash}
+              outcome={outcome}
+              toggleSelected={toggleOutcome}
+              isSelected={selectedOutcomes[outcome.outcomeIdx]}
+            />
+          )
+        )}
       </div>
+      {formattedOutcomes.length > 6 && <button onClick={() => setShowMore(!showMore)} >{`View ${showMore ? "Less" : "More"}`}</button>}
     </section>
   );
 };
@@ -423,7 +423,7 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
       const {
         settings: { timeFormat },
       } = SimplifiedStore.get();
-      const that = (this as any);
+      const that = this as any;
       const date = `${getDayFormat(that.x)}, ${getTimeFormat(that.x, timeFormat)}`;
       let out = `<h5>${date}</h5><ul>`;
       that.points.forEach((point) => {
