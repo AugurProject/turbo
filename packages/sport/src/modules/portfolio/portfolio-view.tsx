@@ -178,6 +178,8 @@ const useEventPositionsData = (sortBy: string, search: string) => {
               ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
               : parseInt(test?.outcomeId);
           const betId = `${test.marketId}-${outcomeId}`;
+          console.log("closed markets, test:", test, market, betId, outcomeId);
+
           result[betId || test?.id] = {
             ...test,
             wager: test?.initCostUsd,
@@ -186,7 +188,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
             betId,
             toWin: test?.payout,
             cashoutAmount: test?.payout,
-            canCashOut: true,
+            canCashOut: !test?.hasClaimed,
           };
         }
         return result;
@@ -220,6 +222,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         return out;
       }, {});
   }
+  console.log("eventPositionsData", eventPositionsData);
   return eventPositionsData;
 };
 

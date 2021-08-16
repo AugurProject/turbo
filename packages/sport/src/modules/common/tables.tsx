@@ -94,10 +94,11 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, wager, cashout }) => {
+  const determineClasses = ({ canCashOut, hasClaimed, wager, cashout }) => {
     const isPositive = Number(wager) < Number(cashout);
     return {
       [Styles.CanCashOut]: canCashOut,
+      [Styles.hasClaimed]: hasClaimed,
       [Styles.PositiveCashout]: isPositive,
       [Styles.NegativeCashout]: !isPositive,
     };
@@ -128,6 +129,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           price,
           subHeading,
           name,
+          hasClaimed,
           wager,
           toWin,
           isApproved,
@@ -137,13 +139,16 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
-        const buttonName = !canCashOut
-          ? CASHOUT_NOT_AVAILABLE
-          : !isApproved
-          ? `APPROVE CASHOUT ${cashout.full}`
-          : isPending
-          ? `PENDING ${cashout.full}`
-          : `CASHOUT: ${cashout.full}`;
+        const buttonName =
+          !canCashOut && hasClaimed
+            ? cashout.full
+            : !canCashOut && !hasClaimed
+            ? CASHOUT_NOT_AVAILABLE
+            : !isApproved
+            ? `APPROVE CASHOUT ${cashout.full}`
+            : isPending
+            ? `PENDING ${cashout.full}`
+            : `CASHOUT: ${cashout.full}`;
 
         return (
           <ul key={tx_hash}>
@@ -160,6 +165,8 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
                 customClass={determineClasses({ ...bet, cashout: cashout.formatted })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
+                reverseContent={!canCashOut && hasClaimed}
+                subText={!canCashOut && hasClaimed ? 'WON:' : null}
                 text={buttonName}
               />
             </li>
