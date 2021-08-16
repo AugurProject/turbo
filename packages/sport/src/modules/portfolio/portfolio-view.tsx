@@ -8,13 +8,13 @@ import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 import { DailyFutureSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
-import { useBetslipStore } from "../stores/betslip";
+import { useBetslipStore, processResolvedMarketsPositions } from "../stores/betslip";
 import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
 
 const { formatCash, isSameAddress } = Formatter;
-const { TX_STATUS, USDC, marketStatusItems, OPEN } = Constants;
+const { TX_STATUS, USDC, marketStatusItems, OPEN, SPORTS_MARKET_TYPE_LABELS } = Constants;
 const {
   Hooks: { useDataStore, useAppStatusStore, useScrollToTopOnMount, useUserStore },
   Utils: { keyedObjToArray },
@@ -121,12 +121,15 @@ export const ClaimWinningsSection = () => {
 };
 
 const useEventPositionsData = (sortBy: string, search: string) => {
+  const { markets, transactions } = useDataStore();
   const {
-    markets,
-    transactions: { positionBalance },
-  } = useDataStore();
+    account,
+    transactions: userTransactions,
+    balances: { marketShares },
+  } = useUserStore();
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
+  const { positionBalance } = transactions;
   let marketIds = null;
   let events = null;
   let eventPositionsData = null;
@@ -173,23 +176,38 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         let result = { ...a };
         if (event?.marketIds?.includes(test?.marketId)) {
           const market = markets[test?.marketId];
+          const openPositions = marketShares[test?.marketId]?.positions;
           const outcomeId =
             test?.outcomeId?.length > 40
               ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
               : parseInt(test?.outcomeId);
           const betId = `${test.marketId}-${outcomeId}`;
-          console.log("closed markets, test:", test, market, betId, outcomeId);
-
+          const marketPositions = [...openPositions.map((pos) => ({ ...pos, marketId: market.marketId }))];
+          const testBets = processResolvedMarketsPositions({
+            marketPositions,
+            markets,
+            account,
+            transactions,
+            userTransactions,
+            active,
+            marketEvents,
+          });
           result[betId || test?.id] = {
             ...test,
             wager: test?.initCostUsd,
             price: test?.avgPrice,
             name: market?.outcomes?.[outcomeId]?.name,
+            subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
             betId,
             toWin: test?.payout,
             cashoutAmount: test?.payout,
             canCashOut: !test?.hasClaimed,
           };
+          testBets.forEach(testBet => {
+            result[testBet.betId] = {
+              ...testBet,
+            };
+          });
         }
         return result;
       }, {});
@@ -222,7 +240,6 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         return out;
       }, {});
   }
-  console.log("eventPositionsData", eventPositionsData);
   return eventPositionsData;
 };
 
