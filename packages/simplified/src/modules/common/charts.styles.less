@@ -278,7 +278,6 @@
   > div {
     display: flex;
     flex-flow: row wrap;
-    margin-bottom: 0;
 
     > button {
       margin: @size-8 @size-8 0 0;
@@ -287,6 +286,16 @@
 
   > ul {
     align-self: flex-end;
+  }
+
+  > button {
+    .text-16-bold;
+
+    color: var(--primary-text);
+    border: none;
+    background: transparent;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   @media @breakpoint-mobile-tablet {

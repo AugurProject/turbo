@@ -1,7 +1,26 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket } from "../helpers/AmmFactoryHelper";
 import { getOrCreateTeamSportsMarket } from "../helpers/MarketFactoryHelper";
-import { MarketCreated, MarketResolved } from "../../generated/SportsLinkMarketFactory/SportsLinkMarketFactory";
+import {
+  MarketCreated,
+  MarketResolved,
+  SportsLinkMarketFactory as SportsLinkMarketFactoryContract
+} from "../../generated/SportsLinkMarketFactoryV1/SportsLinkMarketFactory";
+
+function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
+  let contract = SportsLinkMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let rawShareTokens: Address[] = new Array<Address>();
+  if (!tryGetMarket.reverted) {
+    rawShareTokens = tryGetMarket.value.shareTokens;
+  }
+  let shareTokens: String[] = new Array<String>();
+  for (let i = 0; i < rawShareTokens.length; i++) {
+    shareTokens.push(rawShareTokens[i].toHexString());
+  }
+
+  return shareTokens;
+}
 
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
@@ -19,7 +38,8 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.eventId = event.params.eventId;
   entity.homeTeamId = event.params.homeTeamId;
   entity.awayTeamId = event.params.awayTeamId;
-  entity.score = event.params.score;
+  entity.overUnderTotal = event.params.score;
+  entity.shareTokens = getShareTokens(event.address, event.params.id);
 
   entity.save();
 }

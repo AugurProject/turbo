@@ -399,28 +399,18 @@ const MobileMenu = () => {
     actions: { setSidebar },
   } = useSportsStore();
   const location = useLocation();
-  const path = parsePath(location.pathname)[0];
+  const path = parsePath(location.pathname)[0]; 
+  const closeSidebar = () => setSidebar(null);
   return (
     <section className={classNames(Styles.MobileMenu, { [Styles.Open]: sidebarType === SIDEBAR_TYPES.NAVIGATION })}>
       <header>
-        <MarketsLink id="mobile-logo-link-header">
-          <svg width="22" height="24" viewBox="0 0 22 24">
-            <path
-              d="M4.02894 10.428L5.53694 11.394C5.67894 11.484 5.86694 11.44 5.95294 11.296L10.8229 3.152C10.8809 3.056 11.0209 3.056 11.0789 3.152L15.9489 11.296C16.0349 11.44 16.2249 11.484 16.3649 11.394L17.8729 10.428C18.0089 10.342 18.0509 10.162 17.9689 10.024L12.1489 0.29C12.0409 0.11 11.8469 0 11.6369 0H10.2649C10.0549 0 9.86094 0.11 9.75294 0.29L3.93294 10.024C3.85094 10.162 3.89294 10.342 4.02894 10.428Z"
-              fill="#2AE7A8"
-            />
-            <path
-              d="M21.8171 16.4621L19.4991 12.5861C19.4131 12.4421 19.2231 12.3981 19.0831 12.4881L17.5751 13.4541C17.4391 13.5401 17.3971 13.7201 17.4791 13.8581L18.8031 16.0721C18.8451 16.1421 18.8231 16.2301 18.7551 16.2741L11.0311 21.2241C10.9811 21.2561 10.9191 21.2561 10.8711 21.2241L3.14709 16.2741C3.07909 16.2301 3.05909 16.1401 3.09909 16.0721L4.42309 13.8581C4.50509 13.7201 4.46309 13.5401 4.32709 13.4541L2.81909 12.4881C2.67709 12.3981 2.48909 12.4421 2.40309 12.5861L0.0850897 16.4621C-0.0809103 16.7381 0.00308974 17.0961 0.27509 17.2701L10.6291 23.9061C10.8251 24.0321 11.0771 24.0321 11.2731 23.9061L21.6271 17.2701C21.8971 17.0961 21.9811 16.7381 21.8171 16.4621Z"
-              fill="white"
-            />
-          </svg>
-        </MarketsLink>
-        <button onClick={() => setSidebar(null)}>{XIcon}</button>
+        <LinkLogo alwaysFull />
+        <button onClick={closeSidebar}>{XIcon}</button>
       </header>
       <main>
         <ol>
           <li className={classNames({ [Styles.Active]: path === MARKETS })}>
-            <Link placeholder="Markets" to={makePath(MARKETS)}>
+            <Link onClick={sidebarType && closeSidebar} placeholder="Markets" to={makePath(MARKETS)}>
               Markets
             </Link>
           </li>
@@ -428,6 +418,7 @@ const MobileMenu = () => {
             <Link
               onClick={(e) => {
                 !isLogged && e.preventDefault();
+                sidebarType && closeSidebar();
               }}
               disabled={!isLogged}
               to={makePath(PORTFOLIO)}
@@ -437,7 +428,7 @@ const MobileMenu = () => {
             </Link>
           </li>
         </ol>
-        {path === MARKETS && <CategoriesArea inverted filteredMarkets={filteredEvents} />}
+        {path === MARKETS && <CategoriesArea inverted filteredMarkets={filteredEvents} onCounterClick={closeSidebar} />}
       </main>
       <footer>
         <SettingsButton />

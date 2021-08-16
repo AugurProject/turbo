@@ -1,60 +1,60 @@
 // @ts-nocheck
 import BigNumber, { BigNumber as BN } from "bignumber.js";
 import {
+  AddRemoveLiquidity,
+  AllMarketsTransactions,
   AmmExchange,
   AmmExchanges,
   AmmMarketShares,
+  AmmOutcome,
+  BuySellTransactions,
+  Cash,
   Cashes,
+  ClaimWinningsTransactions,
   CurrencyBalance,
+  EstimateTradeResult,
+  LiquidityBreakdown,
+  LPTokens,
+  MarketInfo,
+  MarketInfos,
+  MarketTransactions,
   PositionBalance,
   UserBalances,
-  MarketInfos,
-  LPTokens,
-  EstimateTradeResult,
-  Cash,
-  LiquidityBreakdown,
-  AmmOutcome,
-  AllMarketsTransactions,
-  BuySellTransactions,
-  MarketTransactions,
-  AddRemoveLiquidity,
-  ClaimWinningsTransactions,
   UserClaimTransactions,
-  MarketInfo,
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
-import { Multicall, ContractCallResults, ContractCallContext } from "@augurproject/ethereum-multicall";
+import { ContractCallContext, ContractCallResults, Multicall } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import {
+  cashOnChainToDisplay,
   convertDisplayCashAmountToOnChainCashAmount,
   convertDisplayShareAmountToOnChainShareAmount,
   convertOnChainCashAmountToDisplayCashAmount,
   isSameAddress,
-  lpTokensOnChainToDisplay,
-  sharesOnChainToDisplay,
-  sharesDisplayToOnChain,
-  cashOnChainToDisplay,
   lpTokenPercentageAmount,
+  lpTokensOnChainToDisplay,
+  sharesDisplayToOnChain,
+  sharesOnChainToDisplay,
 } from "./format-number";
 import {
-  ETH,
-  NULL_ADDRESS,
-  USDC,
-  MARKET_STATUS,
-  NUM_TICKS_STANDARD,
+  DAYS_IN_YEAR,
   DEFAULT_AMM_FEE_RAW,
-  TradingDirection,
+  DUST_LIQUIDITY_AMOUNT,
   DUST_POSITION_AMOUNT,
   DUST_POSITION_AMOUNT_ON_CHAIN,
-  DUST_LIQUIDITY_AMOUNT,
-  DAYS_IN_YEAR,
-  SEC_IN_DAY,
-  ZERO,
-  MARKET_LOAD_TYPE,
-  MARKET_FACTORY_TYPES,
-  SPORTS_MARKET_TYPE,
+  ETH,
   GRAPH_MARKETS,
+  MARKET_FACTORY_TYPES,
+  MARKET_LOAD_TYPE,
+  MARKET_STATUS,
+  NULL_ADDRESS,
+  NUM_TICKS_STANDARD,
+  SEC_IN_DAY,
+  SPORTS_MARKET_TYPE,
+  TradingDirection,
+  USDC,
+  ZERO,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -63,18 +63,18 @@ import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
 import {
-  AMMFactory,
-  AMMFactory__factory,
-  Cash__factory,
-  BPool,
-  BPool__factory,
   AbstractMarketFactoryV2,
   AbstractMarketFactoryV2__factory,
+  AMMFactory,
+  AMMFactory__factory,
+  BPool,
+  BPool__factory,
   calcSellCompleteSets,
+  Cash__factory,
   estimateBuy,
+  instantiateMarketFactory,
   MarketFactory,
   MarketFactoryContract,
-  instantiateMarketFactory,
 } from "@augurproject/smart";
 import { deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
 
@@ -1753,6 +1753,11 @@ export const fillGraphMarketsData = async (
   for (let i = 0; i < Object.keys(GRAPH_MARKETS).length; i++) {
     const key = Object.keys(GRAPH_MARKETS)[i];
     const gMarkets = graphMarkets?.[key];
+
+    if (key === MARKET_FACTORY_TYPES.MMALINK) {
+      console.log("fetching mma");
+      fetchContractData("0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68", provider, account);
+    }
     if (gMarkets?.length > 0) {
       const { markets: filledMarkets, blocknumber: updatedBlocknumber } = await fillMarketsData(
         gMarkets,
@@ -2276,7 +2281,7 @@ const toDisplayLiquidity = (onChainBalance: string = "0"): string => {
 };
 
 let ABIs = {};
-function extractABI(contract: ethers.Contract): any[] {
+export function extractABI(contract: ethers.Contract): any[] {
   if (!contract) {
     console.error("contract is null");
     return null;

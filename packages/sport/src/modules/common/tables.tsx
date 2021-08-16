@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./tables.styles.less";
-import { Utils, ButtonComps, PaginationComps, useUserStore, useDataStore, Links } from "@augurproject/comps";
+import { Utils, Components, useUserStore, useDataStore, Links, Constants, createBigNumber } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
@@ -14,9 +14,13 @@ const {
   DateUtils: { getDateTimeFormat, getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { Pagination } = PaginationComps;
-const { TinyThemeButton } = ButtonComps;
+const {
+  PaginationComps: { Pagination },
+  ButtonComps: { TinyThemeButton },
+  LabelComps: { ReportingStateLabel },
+} = Components;
 const { MarketLink } = Links;
+const { MARKET_STATUS } = Constants;
 
 export const EventBetsSection = ({ eventPositionData = {} }) => {
   const [page, setPage] = useState(1);
@@ -41,6 +45,8 @@ export const EventBetsSection = ({ eventPositionData = {} }) => {
           page={page}
           itemCount={EventDataEntries.length}
           itemsPerPage={10}
+          useFull
+          maxButtons={7}
           action={(page) => {
             setPage(page);
           }}
@@ -63,8 +69,11 @@ const EventTableHeading = ({ Event }) => {
   const {
     settings: { timeFormat },
   } = useSportsStore();
+  const { markets } = useDataStore();
+  const { reportingState } = markets?.[Event?.marketIds?.[0]];
   return (
     <header>
+      {reportingState !== MARKET_STATUS.TRADING && <ReportingStateLabel {...{ reportingState }} />}
       <MarketLink id={Event?.marketIds?.[0]}>
         <h4>{Event.eventTitle}</h4>
       </MarketLink>
@@ -85,10 +94,11 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, wager, cashout }) => {
+  const determineClasses = ({ canCashOut, hasClaimed, wager, cashout }) => {
     const isPositive = Number(wager) < Number(cashout);
     return {
       [Styles.CanCashOut]: canCashOut,
+      [Styles.hasClaimed]: hasClaimed,
       [Styles.PositiveCashout]: isPositive,
       [Styles.NegativeCashout]: !isPositive,
     };
@@ -119,6 +129,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           price,
           subHeading,
           name,
+          hasClaimed,
           wager,
           toWin,
           isApproved,
@@ -128,13 +139,21 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
-        const buttonName = !canCashOut
-          ? CASHOUT_NOT_AVAILABLE
-          : !isApproved
-          ? `APPROVE CASHOUT ${cashout.full}`
-          : isPending
-          ? `PENDING ${cashout.full}`
-          : `CASHOUT: ${cashout.full}`;
+        const won = createBigNumber(cashoutAmount).gt(wager);
+        const buttonName =
+          !canCashOut && hasClaimed
+            ? won
+              ? cashout.full
+              : formatCash(wager, USDC).full
+            : !canCashOut && !hasClaimed
+            ? CASHOUT_NOT_AVAILABLE
+            : !isApproved
+            ? `APPROVE CASHOUT ${cashout.full}`
+            : isPending
+            ? `PENDING ${cashout.full}`
+            : `CASHOUT: ${cashout.full}`;
+
+        const subtext = !canCashOut && hasClaimed ? (won ? "WON:" : "LOSS:") : null;
 
         return (
           <ul key={tx_hash}>
@@ -151,6 +170,8 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
                 customClass={determineClasses({ ...bet, cashout: cashout.formatted })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
+                reverseContent={!canCashOut && hasClaimed}
+                subText={subtext}
                 text={buttonName}
               />
             </li>

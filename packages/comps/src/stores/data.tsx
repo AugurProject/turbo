@@ -55,6 +55,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       try {
         try {
           const { data, block, errors } = await getMarketsData();
+          
           if (errors) {
             throw new Error(`Graph returned error ${errors}`);
           }

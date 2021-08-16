@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc";
 import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
-import { ETH } from "../utils/constants";
+import { MARKET_FACTORY_TYPES } from "../utils/constants";
 import { SEARCH_MARKETS, GET_TRANSACTIONS } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
 
@@ -43,14 +43,27 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
+const getMarketFactories = () => {
+  return PARA_CONFIG.marketFactories.reduce(
+    (p, c) => ({ ...p, [c.type]: p[c.type] ? [...p[c.type], c.address.toLowerCase()] : [c.address.toLowerCase()] }),
+    {}
+  );
+};
+
 export async function getMarketsData() {
   const clientConfig = getClientConfig();
   let response = null;
   let block = null;
   try {
+    const marketFactories = getMarketFactories();
     block = null; // will be needed in future, await getCurrentBlockNumber(clientConfig.blockClient);
     response = await augurV2Client(clientConfig.turboClient).query({
       query: GET_MARKETS,
+      variables: {
+        [MARKET_FACTORY_TYPES.SPORTSLINK]: marketFactories[MARKET_FACTORY_TYPES.SPORTSLINK],
+        [MARKET_FACTORY_TYPES.MMALINK]: marketFactories[MARKET_FACTORY_TYPES.MMALINK],
+        [MARKET_FACTORY_TYPES.CRYPTO]: marketFactories[MARKET_FACTORY_TYPES.CRYPTO],
+      },
     });
   } catch (e) {
     console.error(e);

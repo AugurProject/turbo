@@ -11,7 +11,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy:aws": "yarn cdk synth && yarn cdk deploy"
+    "generate:env": "ts-node ./lib/generate-augur-adapter-env.ts > augur-jobs-creator.env",
+    "deploy:aws":  "yarn cdk synth && yarn cdk deploy"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",

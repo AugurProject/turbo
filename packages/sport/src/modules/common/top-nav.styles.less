@@ -246,6 +246,23 @@
         fill: var(--tertiary-text);
       }
     }
+
+    @media @breakpoint-mobile-tablet {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(var(--primary-text-rgb), 0.65);
+
+      > button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+    }
   }
 
   > button {
@@ -298,9 +315,13 @@
   flex-flow: column nowrap;
 
   @media @breakpoint-mobile-tablet {
-    top: auto;
-    bottom: 61px;
-    right: 0;
+    top: 15vh;
+    bottom: auto;
+    right: var(--theme-gutter);
+    left: var(--theme-gutter);
+    max-width: unset;
+    overflow-y: auto;
+    max-height: 70vh;
   }
 
   > li {
@@ -571,13 +592,22 @@
       height: @size-64;
       min-height: @size-64;
       max-height: @size-64;
-      width: @size-64;
-      min-width: @size-64;
-      max-width: @size-64;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
       justify-content: center;
+
+      > section {
+        width: @size-120;
+        
+        > svg {
+          height: @size-24;
+        
+          > g:first-of-type > path:not(:first-of-type) {
+            fill: var(--color-brand-secondary);
+          }
+        } 
+      }
     }
 
     > button {
@@ -654,12 +684,11 @@
         min-width: @size-64;
         width: @size-64;
         max-width: @size-64;
+        max-height: @size-64;
+        height: @size-64;
       }
 
-      ul {
-        bottom: 25vh;
-        right: 100%;
-      }
+     
     }
   }
 }

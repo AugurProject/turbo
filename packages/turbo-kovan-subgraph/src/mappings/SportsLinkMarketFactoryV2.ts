@@ -1,14 +1,14 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket } from "../helpers/AmmFactoryHelper";
-import { getOrCreateCryptoMarket } from "../helpers/MarketFactoryHelper";
+import { getOrCreateTeamSportsMarket } from "../helpers/MarketFactoryHelper";
 import {
-  CryptoMarketFactory as CryptoMarketFactoryContract,
   MarketCreated,
-  MarketResolved
-} from "../../generated/CryptoMarketFactoryV2/CryptoMarketFactory";
+  MarketResolved,
+  SportsLinkMarketFactory as SportsLinkMarketFactoryContract
+} from "../../generated/SportsLinkMarketFactoryV2/SportsLinkMarketFactory";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<String> {
-  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let contract = SportsLinkMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let rawShareTokens: Address[] = new Array<Address>();
   if (!tryGetMarket.reverted) {
@@ -23,7 +23,7 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<Strin
 }
 
 function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let contract = SportsLinkMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let initialOdds: BigInt[] = new Array<BigInt>();
   if (!tryGetMarket.reverted) {
@@ -35,17 +35,20 @@ function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigIn
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateCryptoMarket(marketId, true, false);
+  let entity = getOrCreateTeamSportsMarket(marketId, true, false);
   getOrCreateMarket(marketId);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
   entity.creator = event.params.creator.toHexString();
+  entity.estimatedStartTime = event.params.estimatedStartTime;
   entity.endTime = event.params.endTime;
   entity.marketType = BigInt.fromI32(event.params.marketType);
-  entity.coinIndex = event.params.coinIndex;
-  entity.creationPrice = event.params.price;
+  entity.eventId = event.params.eventId;
+  entity.homeTeamId = event.params.homeTeamId;
+  entity.awayTeamId = event.params.awayTeamId;
+  entity.overUnderTotal = event.params.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = getInitialOdds(event.address, event.params.id);
 
@@ -55,7 +58,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateCryptoMarket(marketId, false, false);
+  let entity = getOrCreateTeamSportsMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();

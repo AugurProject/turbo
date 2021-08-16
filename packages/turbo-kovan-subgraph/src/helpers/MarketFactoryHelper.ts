@@ -9,6 +9,11 @@ export function getOrCreateTeamSportsMarket (
 
   if (entity == null && createIfNotFound) {
     entity = new TeamSportsMarket(id);
+    let splitId = id.split("-");
+    let MARKET_FACTORY_ID = 0;
+    let MARKET_INDEX = 1;
+    entity.marketFactory = splitId[MARKET_FACTORY_ID];
+    entity.marketIndex = splitId[MARKET_INDEX];
 
     if (save) {
       entity.save();
@@ -27,6 +32,11 @@ export function getOrCreateMmaMarket (
 
   if (entity == null && createIfNotFound) {
     entity = new MmaMarket(id);
+    let splitId = id.split("-");
+    let MARKET_FACTORY_ID = 0;
+    let MARKET_INDEX = 1;
+    entity.marketFactory = splitId[MARKET_FACTORY_ID];
+    entity.marketIndex = splitId[MARKET_INDEX];
 
     if (save) {
       entity.save();
@@ -45,6 +55,11 @@ export function getOrCreateCryptoMarket (
 
   if (entity == null && createIfNotFound) {
     entity = new CryptoMarket(id);
+    let splitId = id.split("-");
+    let MARKET_FACTORY_ID = 0;
+    let MARKET_INDEX = 1;
+    entity.marketFactory = splitId[MARKET_FACTORY_ID];
+    entity.marketIndex = splitId[MARKET_INDEX];
 
     if (save) {
       entity.save();

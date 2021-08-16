@@ -8,20 +8,20 @@ import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 import { DailyFutureSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
-import { useBetslipStore } from "../stores/betslip";
+import { useBetslipStore, processResolvedMarketsPositions } from "../stores/betslip";
 import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
 
-const { formatCash } = Formatter;
-const { TX_STATUS, USDC, marketStatusItems, OPEN } = Constants;
+const { formatCash, isSameAddress } = Formatter;
+const { TX_STATUS, USDC, marketStatusItems, OPEN, SPORTS_MARKET_TYPE_LABELS } = Constants;
 const {
   Hooks: { useDataStore, useAppStatusStore, useScrollToTopOnMount, useUserStore },
   Utils: { keyedObjToArray },
 } = Stores;
 const {
   SelectionComps: { SquareDropdown },
-  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   Icons: { WinnerMedal, SimpleChevron },
   InputComps: { SearchInput },
   LabelComps: { NetworkMismatchBanner },
@@ -53,11 +53,15 @@ const handleClaimAll = async (loginAccount, ids, factoryAddress, addTransaction,
   }
 };
 
-const ClaimableTicket = ({ amount, cash, USDCTotal }: {
-  amount: string,
-  cash: Cash,
-  USDCTotal: any,
-  key?: string,
+const ClaimableTicket = ({
+  amount,
+  cash,
+  USDCTotal,
+}: {
+  amount: string;
+  cash: Cash;
+  USDCTotal: any;
+  key?: string;
 }): React.Component => {
   const {
     loginAccount,
@@ -78,6 +82,7 @@ const ClaimableTicket = ({ amount, cash, USDCTotal }: {
       <PrimaryThemeButton
         text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}
         disabled={pendingClaim || disableClaimUSDCWins}
+        small
         action={() => {
           handleClaimAll(loginAccount, USDCTotal.ids, USDCTotal.address, addTransaction, setPendingClaim);
         }}
@@ -116,12 +121,15 @@ export const ClaimWinningsSection = () => {
 };
 
 const useEventPositionsData = (sortBy: string, search: string) => {
+  const { markets, transactions } = useDataStore();
   const {
-    markets,
-    transactions: { positionBalance },
-  } = useDataStore();
+    account,
+    transactions: userTransactions,
+    balances: { marketShares },
+  } = useUserStore();
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
+  const { positionBalance } = transactions;
   let marketIds = null;
   let events = null;
   let eventPositionsData = null;
@@ -168,17 +176,38 @@ const useEventPositionsData = (sortBy: string, search: string) => {
         let result = { ...a };
         if (event?.marketIds?.includes(test?.marketId)) {
           const market = markets[test?.marketId];
-          const betId = `${test.marketId}-${parseInt(test?.outcomeId)}`;
+          const openPositions = marketShares[test?.marketId]?.positions;
+          const outcomeId =
+            test?.outcomeId?.length > 40
+              ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
+              : parseInt(test?.outcomeId);
+          const betId = `${test.marketId}-${outcomeId}`;
+          const marketPositions = [...openPositions.map((pos) => ({ ...pos, marketId: market.marketId }))];
+          const testBets = processResolvedMarketsPositions({
+            marketPositions,
+            markets,
+            account,
+            transactions,
+            userTransactions,
+            active,
+            marketEvents,
+          });
           result[betId || test?.id] = {
             ...test,
             wager: test?.initCostUsd,
             price: test?.avgPrice,
-            name: market?.outcomes?.[parseInt(test?.outcomeId)]?.name,
+            name: market?.outcomes?.[outcomeId]?.name,
+            subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
             betId,
             toWin: test?.payout,
             cashoutAmount: test?.payout,
-            canCashOut: true,
+            canCashOut: !test?.hasClaimed,
           };
+          testBets.forEach((testBet) => {
+            result[testBet.betId] = {
+              ...testBet,
+            };
+          });
         }
         return result;
       }, {});
@@ -248,13 +277,10 @@ export const PortfolioView = () => {
         <EventBetsSection eventPositionData={eventPositionsData} />
       </section>
       <section>
-        <SecondaryThemeButton
-          text="MY BETS"
-          reverseContent
-          icon={SimpleChevron}
-          action={() => setShowActivity(!showActivity)}
-          small
-        />
+        <span onClick={() => setShowActivity(!showActivity)}>
+          <TinyThemeButton icon={SimpleChevron} action={() => setShowActivity(!showActivity)} />
+          <span>MY BETS</span>
+        </span>
         <h2>Your Activity</h2>
         <ClaimWinningsSection />
         <Activity />

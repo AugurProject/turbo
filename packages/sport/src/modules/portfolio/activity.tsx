@@ -78,6 +78,8 @@ export const Activity = () => {
             itemsPerPage={ACTIVITY_PAGE_LIMIT}
             action={(page) => setPage(page)}
             updateLimit={() => null}
+            useFull
+            maxButtons={7}
           />
         </>
       ) : (

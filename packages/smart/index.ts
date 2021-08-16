@@ -13,6 +13,8 @@ import {
   MMALinkMarketFactory__factory,
   SportsLinkMarketFactoryV1__factory,
   SportsLinkMarketFactoryV1,
+  NFLMarketFactory__factory,
+  NFLMarketFactory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -37,7 +39,8 @@ export type MarketFactoryContract =
   | SportsLinkMarketFactoryV2
   | MMALinkMarketFactory
   | TrustedMarketFactory
-  | CryptoMarketFactory;
+  | CryptoMarketFactory
+  | NFLMarketFactory;
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
   const contractAddresses = addresses[chainId];
@@ -70,6 +73,7 @@ export function instantiateMarketFactory(
   if (type === "MMALink") return MMALinkMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);
 
   throw Error(`No market factory matching type=${type} subtype=${subtype}`);
 }

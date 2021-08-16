@@ -22,24 +22,10 @@
     text-decoration: none;
   }
 
-  > a > span[class*='InvalidFlagTipIcon'] {
-    margin-right: @size-8;
-    min-height: @size-20;
-    min-width: @size-20;
-    max-height: @size-20;
-    max-width: @size-20;
-
-    > label > svg {
-      min-height: @size-20;
-      min-width: @size-20;
-      max-height: @size-20;
-      max-width: @size-20;
-    }
-  }
-
   > a > svg {
     width: @size-20;
     height: @size-20;
+    justify-self: flex-end;
   }
 
   > div:last-child {
@@ -51,6 +37,33 @@
 
   @media @breakpoint-mobile-tablet {
     padding: @size-16;
+  }
+
+  @media @breakpoint-mobile {
+    > a {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: auto auto;
+      grid-template-columns: auto auto;
+
+      > span:first-of-type {
+        margin: 0;
+        
+        &:nth-last-child(3) {
+          margin-top: @size-12;
+        }
+      }
+
+      > svg:first-of-type {
+        grid-column: 2;
+      }
+
+      > div:first-of-type {
+        grid-column: 1;
+        grid-row: 1;
+        margin: 0;
+      }
+    }
   }
 }
 
@@ -349,7 +362,7 @@
     > a > button {
       flex: 1 100%;
       width: 100%;
-      margin: 0;
+      margin: @size-4 0;
       text-align: center;
     }
 

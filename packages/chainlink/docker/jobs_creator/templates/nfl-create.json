@@ -1,5 +1,5 @@
 {
-  "name": "mlb-create",
+  "name": "nfl-create",
   "initiators": [
     {
       "type": "web"
@@ -15,15 +15,15 @@
     {
       "type": "augur-adapter",
       "params": {
-        "sport": "mlb",
+        "sport": "nfl",
         "method": "create",
-        "startBuffer": 0,
+        "startBuffer": 86400,
         "affiliateIds": [
           9,
           3
         ],
         "daysInAdvance": 7,
-        "contractAddress": "${MLB_MARKET_FACTORY}"
+        "contractAddress": "${NFL_MARKET_FACTORY}"
       }
     }
   ]
