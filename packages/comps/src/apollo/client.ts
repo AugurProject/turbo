@@ -63,6 +63,7 @@ export async function getMarketsData() {
         [MARKET_FACTORY_TYPES.SPORTSLINK]: marketFactories[MARKET_FACTORY_TYPES.SPORTSLINK],
         [MARKET_FACTORY_TYPES.MMALINK]: marketFactories[MARKET_FACTORY_TYPES.MMALINK],
         [MARKET_FACTORY_TYPES.CRYPTO]: marketFactories[MARKET_FACTORY_TYPES.CRYPTO],
+        [MARKET_FACTORY_TYPES.NFL]: marketFactories[MARKET_FACTORY_TYPES.NFL],
       },
     });
   } catch (e) {
