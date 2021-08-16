@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "@balancer-labs/v2-pool-weighted/contracts/WeightedMath.sol";
 
-interface IWeightedPoolFactory {
+abstract contract IWeightedPoolFactory {
     function create(
         string memory name,
         string memory symbol,
@@ -12,7 +12,9 @@ interface IWeightedPoolFactory {
         uint256[] memory weights,
         uint256 swapFeePercentage,
         address owner
-    ) external returns (address);
+    ) external virtual returns (address);
+
+    function getVault() public view virtual returns (IVault);
 }
 
 interface IAsset {
@@ -101,6 +103,7 @@ interface IVault {
         uint256 amount;
         bytes userData;
     }
+
 }
 
 abstract contract IWeightedPool is IERC20 {

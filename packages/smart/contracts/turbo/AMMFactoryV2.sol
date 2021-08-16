@@ -53,7 +53,7 @@ contract AMMFactoryV2 is WeightedMath {
     uint256 public constant BONE = 10**18;
     address private constant ZERO_ADDRESS = address(0);
     uint256 private constant MAX_UINT = 2**256 - 1;
-
+    int256 private constant MAX_INT = 2**254;
     IWeightedPoolFactory public wPoolFactory;
     uint256 internal fee;
 
@@ -69,6 +69,8 @@ contract AMMFactoryV2 is WeightedMath {
         for (uint256 i = 0; i < weights.length; ++i) {
             weights[i] = odds[i] / 50;
         }
+        // 1e18 = 2% 
+        // 10**18 / 50 = 2 * 10**16 0.02 
     }
 
     /**
@@ -103,6 +105,14 @@ contract AMMFactoryV2 is WeightedMath {
     {
         uint256 shareTokenSize = _shareTokens.length;
 
+        // sort 
+        for (uint256 i = 0; i < shareTokenSize- 1; ++i) {
+            for (uint256 j = i + 1; j < shareTokenSize; ++j) {
+                if (uint256(_shareTokens[i]) > uint256(_shareTokens[j])) {
+                    (_shareTokens[i], _shareTokens[j]) = (_shareTokens[j], _shareTokens[i]);
+                }
+            }
+        }
         tokens = new IERC20[](shareTokenSize);
         initBalances = new uint256[](shareTokenSize);
 
@@ -144,6 +154,7 @@ contract AMMFactoryV2 is WeightedMath {
         uint256 pbtAmountIn
     ) private pure returns (IVault.ExitPoolRequest memory exitPoolRequest) {
         IAsset[] memory assets = new IAsset[](tokens.length);
+
         for (uint256 i = 0; i < tokens.length; ++i) {
             assets[i] = IAsset(address(tokens[i]));
         }
@@ -155,6 +166,19 @@ contract AMMFactoryV2 is WeightedMath {
         });
     }
 
+    function approvesVault(IERC20[] memory _tokens, uint256 _value) private {
+        IVault vault = wPoolFactory.getVault();
+        for (uint i = 0; i < _tokens.length; ++i) {
+            _tokens[i].approve(address(vault), _value);
+        }
+    }
+
+    function approvesVault(address[] memory _tokens, uint256[] memory _values) private {
+        IVault vault = wPoolFactory.getVault();
+        for (uint i = 0; i < _tokens.length; ++i) {
+            IERC20(_tokens[i]).approve(address(vault), MAX_UINT);
+        }
+    }
     function createPool(
         IMarketFactory _marketFactory,
         uint256 _marketId,
@@ -166,20 +190,23 @@ contract AMMFactoryV2 is WeightedMath {
 
         uint256 _sets = preProcessCollateral(_marketFactory, _marketId, _initialLiquidity);
 
+        // inital parameters for pool
         (IERC20[] memory tokens, uint256[] memory initBalances) = initialPoolParameters(_market.shareTokens, _sets);
 
+        approvesVault(tokens, _sets);
+
         //ZERO_ADDRESS owner means fixed swap fees
-        // TODO: sort tokens
         address _poolAddress = wPoolFactory.create(
-            "WeightedPool", // TODO: rename it :)
+            "Augur", // TODO: change the name to pool name, maybe `factory name + marketid`
             "WP",
             tokens,
-            oddsToWeights(_market.initialOdds),
+            oddsToWeights(_market.initialOdds), // sum of all weight should = 10 ** 18 
             fee,
             ZERO_ADDRESS
         );
 
         IWeightedPool _pool = IWeightedPool(_poolAddress);
+
         {
             IVault vault = _pool.getVault();
             // join Pool. When join balance mint _MINIMUM_BPT = 1e6 to zero address and also prevents the Pool from
@@ -264,7 +291,6 @@ contract AMMFactoryV2 is WeightedMath {
 
         require(_poolAmountOut >= _minLPTokensOut, "Would not have received enough LP tokens");
 
-        _pool.transfer(_lpTokenRecipient, _poolAmountOut);
 
         // Transfer the remaining shares back to _lpTokenRecipient.
         _balances = new uint256[](_market.shareTokens.length);
@@ -451,18 +477,20 @@ contract AMMFactoryV2 is WeightedMath {
         IAsset[] memory assets = new IAsset[](tokens.length);
         int256[] memory limits = new int256[](tokens.length);
 
+        uint256 k = 0;
         for (uint256 i = 0; i < tokens.length; ++i) {
             assets[i] = IAsset(tokens[i]);
-            limits[i] = int256(MAX_UINT);
+            limits[i] = MAX_INT;
             if (i == _outcome) continue;
 
-            swapSteps[i] = IVault.BatchSwapStep({
+            swapSteps[k] = IVault.BatchSwapStep({
                 poolId: _pool.getPoolId(),
                 assetInIndex: _outcome,
                 assetOutIndex: i,
                 amount: _shareTokensIn[i],
                 userData: ""
             });
+            ++k;
         }
 
         IVault.FundManagement memory funds = IVault.FundManagement({
@@ -483,9 +511,11 @@ contract AMMFactoryV2 is WeightedMath {
         );
 
         uint256 _setsOut = MAX_UINT;
+        
         for (uint256 i = 0; i < _acquiredTokens.length; ++i) {
-            if (i != _outcome && _setsOut < uint256(_acquiredTokens[i])) {
-                _setsOut = uint256(_acquiredTokens[i]);
+            // TODO: check number overflow again
+            if (_acquiredTokens[i] < int(0) && _setsOut > uint256(- _acquiredTokens[i])) {
+                _setsOut = uint256( - _acquiredTokens[i]);
             }
         }
         return _setsOut;
@@ -509,11 +539,18 @@ contract AMMFactoryV2 is WeightedMath {
         }
 
         IERC20(_market.shareTokens[_outcome]).transferFrom(msg.sender, address(this), _totalUndesiredTokensIn);
-        IERC20(_market.shareTokens[_outcome]).approve(address(_pool), MAX_UINT);
+        // IERC20(_market.shareTokens[_outcome]).approve(address(_pool), MAX_UINT);
+
+        IERC20(_market.shareTokens[_outcome]).approve(address(wPoolFactory.getVault()), MAX_UINT);
+        // approvesVault(_market.shareTokens, _shareTokensIn);
 
         _setsOut = batchSwapSell(_pool, _outcome, _shareTokensIn, _market.shareTokens);
+        // check outcome token remain - TODO: check logic again...
+        if (IERC20(_market.shareTokens[_outcome]).balanceOf(address(this)) < _setsOut) 
+           _setsOut = IERC20(_market.shareTokens[_outcome]).balanceOf(address(this));
+        
         _setsOut = (_setsOut / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
-
+        
         require(_setsOut >= _minSetsOut, "Minimum sets not available.");
         _marketFactory.burnShares(_marketId, _setsOut, msg.sender);
 
@@ -583,7 +620,7 @@ contract AMMFactoryV2 is WeightedMath {
         return tokenBalances;
     }
 
-    function getPoolWeights(IMarketFactory _marketFactory, uint256 _marketId) external returns (uint256[] memory) {
+    function getPoolWeights(IMarketFactory _marketFactory, uint256 _marketId) external view returns (uint256[] memory) {
         IWeightedPool _pool = pools[address(_marketFactory)][_marketId];
         return _pool.getNormalizedWeights();
     }

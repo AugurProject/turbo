@@ -3,7 +3,9 @@ pragma solidity 0.7.6;
 
 import "./SafeMathUint256.sol";
 import "./SafeMathInt256.sol";
-
+/**
+ * 
+ */
 abstract contract CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
