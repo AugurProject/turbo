@@ -20,13 +20,13 @@ export class FakeCoidn {
 }
 
 interface FakeCoin {
-  symbol: string,
-  priceUSD: number, // float
-  imprecision: number,
-  price: BigNumber,
-  description: string,
-  deploymentName: string,
-  decimals: number
+  symbol: string;
+  priceUSD: number; // float
+  imprecision: number;
+  price: BigNumber;
+  description: string;
+  deploymentName: string;
+  decimals: number;
 }
 function fakeCoin(symbol: string, priceUSD: number, imprecision: number): FakeCoin {
   const decimals = 8; // seems to be true of all of the real price feeds
@@ -34,7 +34,7 @@ function fakeCoin(symbol: string, priceUSD: number, imprecision: number): FakeCo
   // note that .toFixed() rounds while we truncate prices onchain
   const price = BigNumber.from((priceUSD * 10 ** decimals).toFixed());
 
-  const description = `${symbol} / USD`
+  const description = `${symbol} / USD`;
   const deploymentName = `PriceFeed${symbol}`;
 
   return {
@@ -44,8 +44,8 @@ function fakeCoin(symbol: string, priceUSD: number, imprecision: number): FakeCo
     price,
     description,
     deploymentName,
-    decimals
-  }
+    decimals,
+  };
 }
 
 // Used by deployer for deploying fake price feeds for crypto markets.
