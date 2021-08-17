@@ -7,8 +7,10 @@ import { formatCashPrice } from "./format-number";
 const COINS: { [index: string]: { name: string; decimals: number; priceFeedUrl: string } } = {
   "1": { name: "BTC", decimals: 0, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/btc-usd" },
   "2": { name: "ETH", decimals: 0, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/eth-usd" },
-  "3": { name: "DOT", decimals: 0, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/dot-usd" },
-  "4": { name: "MATIC", decimals: 4, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/matic-usd" },
+  "3": { name: "MATIC", decimals: 4, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/matic-usd" },
+  "4": { name: "DOGE", decimals: 4, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/doge-usd" },
+  "5": { name: "REP", decimals: 2, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/rep-usd" },
+  "6": { name: "LINK", decimals: 2, priceFeedUrl: "https://data.chain.link/polygon/mainnet/crypto-usd/link-usd" },
 };
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {

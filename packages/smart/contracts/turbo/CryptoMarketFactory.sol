@@ -63,8 +63,7 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         uint256 _settlementFee,
         address _protocol,
         uint256 _protocolFee,
-        address _linkNode,
-        uint256 _firstResolutionTime
+        address _linkNode
     )
         AbstractMarketFactoryV2(
             _owner,
@@ -78,7 +77,6 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         )
     {
         linkNode = _linkNode;
-        nextResolutionTime = _firstResolutionTime;
 
         string memory _name = "";
         coins.push(makeCoin(_name, AggregatorV3Interface(0), 0));
@@ -98,8 +96,6 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         Coin memory _coin = makeCoin(_name, _priceFeed, _imprecision);
         _coinIndex = coins.length;
         coins.push(_coin);
-
-        createAndResolveMarketsForCoin(_coinIndex, 0, 0);
     }
 
     function getCoin(uint256 _coinIndex) public view returns (Coin memory _coin) {
@@ -116,7 +112,8 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
 
     // Iterates over all coins.
     // If markets do not exist for coin, create them.
-    // If markets for coin are ready to resolve, resolve them and create new markets.
+    // Unless _nextResolutionTime is zero; then do not create new markets.
+    // If markets for coin exist and are ready to resolve, resolve them and create new markets.
     // Else, error.
     //
     // Assume that _roundIds has a dummy value at index 0, and is 1 indexed like the
@@ -125,7 +122,7 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
         require(msg.sender == linkNode, "Only link node can create markets");
         // If market creation was stopped then it can be started again.
         // If market creation wasn't stopped then you must wait for market end time to resolve.
-        require(nextResolutionTime == 0 || block.timestamp >= nextResolutionTime, "Must wait for market resolution");
+        require(block.timestamp >= nextResolutionTime, "Must wait for market resolution");
         require(_roundIds.length == coins.length, "Must specify one roundId for each coin");
 
         uint256 _resolutionTime = nextResolutionTime;
@@ -220,8 +217,11 @@ contract CryptoMarketFactory is AbstractMarketFactoryV2, CalculateLinesToBPoolOd
             require(_rawPrice >= 0, "Price from feed is negative");
             require(updatedAt >= _resolutionTime, "Price hasn't been updated yet");
 
-            (, , , uint256 _previousRoundTime, ) = _coin.priceFeed.getRoundData(previousRound(_roundId));
-            require(_previousRoundTime < _resolutionTime, "Must use first round after resolution time");
+            // if resolution time is zero then market creation was stopped, so the previous round doesn't matter
+            if (_resolutionTime != 0) {
+                (, , , uint256 _previousRoundTime, ) = _coin.priceFeed.getRoundData(previousRound(_roundId));
+                require(_previousRoundTime < _resolutionTime, "Must use first round after resolution time");
+            }
 
             _fullPrice = uint256(_rawPrice);
         }

@@ -25,7 +25,7 @@ import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 
-describe("CryptoFactory", () => {
+describe.only("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -41,7 +41,7 @@ describe("CryptoFactory", () => {
   const now = BigNumber.from(Date.now()).div(1000);
   const firstResolutionTime = now.add(60 * 60 * 24); // normally would be Friday 4pm PST but just do a day in the future
   const cadence = 60 * 60 * 24 * 7; // one week
-  let nextResolutionTime = firstResolutionTime;
+  let nextResolutionTime = BigNumber.from(0);
   let currentRound: RoundManagement;
 
   const smallFee = BigNumber.from(10).pow(16);
@@ -95,8 +95,7 @@ describe("CryptoFactory", () => {
       settlementFee,
       protocol,
       protocolFee,
-      linkNode,
-      firstResolutionTime
+      linkNode
     );
 
     expect(await marketFactory.getOwner()).to.equal(owner);
@@ -111,16 +110,26 @@ describe("CryptoFactory", () => {
     expect(await marketFactory.nextResolutionTime()).to.equal(nextResolutionTime);
   });
 
-  it("Can add a coin, which creates a market", async () => {
-    ethPrice = 2400;
-    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1, nextResolutionTime.sub(1));
+  it("Can add a coin", async () => {
     await marketFactory.addCoin("ETH", ethPriceFeed.address, 0);
   });
 
-  it("Can add a second coin, which creates another market", async () => {
-    btcPrice = 60000;
-    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 1e7, nextResolutionTime.sub(1));
+  it("Can add a second coin", async () => {
     await marketFactory.addCoin("BTC", btcPriceFeed.address, 0);
+  });
+
+  it("no markets are created when coins are added", async () => {
+    expect(await marketFactory.marketCount()).to.equal(1); // just the fake 0 index market
+  });
+
+  it("creates markets on first poke", async () => {
+    nextResolutionTime = firstResolutionTime;
+    ethPrice = 2400;
+    btcPrice = 60000;
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1, nextResolutionTime.sub(1));
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 1e7, nextResolutionTime.sub(1));
+
+    await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
   });
 
   it("MarketCreated logs are correct", async () => {
@@ -227,8 +236,8 @@ describe("CryptoFactory", () => {
     ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8 - 1e8 + 1, nextResolutionTime);
     btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8 - 2, nextResolutionTime);
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
-
     nextResolutionTime = nextResolutionTime.add(cadence);
+
     await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
 
     const ethPriceMarket = await marketFactory.getMarket(ethPriceMarketId);
@@ -267,104 +276,134 @@ describe("CryptoFactory", () => {
     expect(await notAbove.name()).to.equal("Not Above");
   });
 
-  describe("trading", () => {
-    it("can create pool", async () => {
-      const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
-      await collateral.faucet(initialLiquidity);
-      await collateral.approve(ammFactory.address, initialLiquidity);
+  it("can create pool", async () => {
+    const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
+    await collateral.faucet(initialLiquidity);
+    await collateral.approve(ammFactory.address, initialLiquidity);
 
-      await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, signer.address);
-    });
-
-    it("can buy shares", async () => {
-      const collateralIn = usdcBasis.mul(10);
-      await collateral.faucet(collateralIn);
-      await collateral.approve(ammFactory.address, collateralIn);
-      await ammFactory.buy(marketFactory.address, ethPriceMarketId, PriceUpDownOutcome.Above, collateralIn, 0);
-    });
-
-    it("can sell shares", async () => {
-      const setsInForCollateral = await marketFactory.calcShares(usdcBasis.mul(5));
-      const [tokenAmountOut, shareTokensIn] = await calculateSellCompleteSetsWithValues(
-        ammFactory,
-        (marketFactory as unknown) as AbstractMarketFactoryV2,
-        ethPriceMarketId.toString(),
-        PriceUpDownOutcome.Above,
-        setsInForCollateral.toString()
-      );
-
-      await Promise.all(
-        await marketFactory
-          .getMarket(ethPriceMarketId)
-          .then((market) => market.shareTokens)
-          .then((addresses) => addresses.map((address) => OwnedERC20__factory.connect(address, signer)))
-          .then((shareTokens) => shareTokens.map((shareToken) => shareToken.approve(ammFactory.address, MAX_APPROVAL)))
-      );
-
-      await ammFactory.sellForCollateral(
-        marketFactory.address,
-        ethPriceMarketId,
-        PriceUpDownOutcome.Above,
-        shareTokensIn,
-        tokenAmountOut
-      );
-    });
-
-    it("can add liquidity", async () => {
-      const collateralIn = usdcBasis.mul(10);
-      await collateral.faucet(collateralIn);
-      await collateral.approve(ammFactory.address, collateralIn);
-      await ammFactory.addLiquidity(marketFactory.address, ethPriceMarketId, collateralIn, 0, signer.address);
-    });
-
-    it("can remove liquidity", async () => {
-      const collateralIn = usdcBasis.mul(10);
-      await collateral.faucet(collateralIn);
-      await collateral.approve(ammFactory.address, collateralIn);
-      const lpTokensIn = await ammFactory.getPoolTokenBalance(marketFactory.address, ethPriceMarketId, signer.address);
-      const pool = await ammFactory
-        .getPool(marketFactory.address, ethPriceMarketId)
-        .then((address) => BPool__factory.connect(address, signer));
-      await pool.approve(ammFactory.address, lpTokensIn);
-      await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
-    });
-
-    it("can resolve without creating", async () => {
-      ethPrice = 2500;
-      btcPrice = 55000;
-      currentRound = currentRound.nextRound();
-      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
-      btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
-      await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
-
-      expect(await marketFactory.marketCount(), "market count before final resolution").to.equal(5);
-
-      // it's the final resolution because the nextResolutionTime is set to zero
-      await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], 0);
-
-      expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(5);
-    });
+    await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, signer.address);
   });
 
-  describe("resolution failures", () => {
-    it("won't resolve if the given round isn't the earliest after nextResolutionTime", async () => {
-      ethPrice = 2500;
-      btcPrice = 55000;
-      currentRound = currentRound.nextRound();
-      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(1));
-      currentRound = currentRound.nextRound();
-      ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(2));
+  it("can buy shares", async () => {
+    const collateralIn = usdcBasis.mul(10);
+    await collateral.faucet(collateralIn);
+    await collateral.approve(ammFactory.address, collateralIn);
+    await ammFactory.buy(marketFactory.address, ethPriceMarketId, PriceUpDownOutcome.Above, collateralIn, 0);
+  });
 
-      nextResolutionTime = nextResolutionTime.add(cadence);
-      await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+  it("can sell shares", async () => {
+    const setsInForCollateral = await marketFactory.calcShares(usdcBasis.mul(5));
+    const [tokenAmountOut, shareTokensIn] = await calculateSellCompleteSetsWithValues(
+      ammFactory,
+      (marketFactory as unknown) as AbstractMarketFactoryV2,
+      ethPriceMarketId.toString(),
+      PriceUpDownOutcome.Above,
+      setsInForCollateral.toString()
+    );
 
-      nextResolutionTime = nextResolutionTime.add(cadence);
-      await expect(
-        marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime)
-      ).to.eventually.be.rejectedWith(
-        "VM Exception while processing transaction: revert Must use first round after resolution time"
-      );
-    });
+    await Promise.all(
+      await marketFactory
+        .getMarket(ethPriceMarketId)
+        .then((market) => market.shareTokens)
+        .then((addresses) => addresses.map((address) => OwnedERC20__factory.connect(address, signer)))
+        .then((shareTokens) => shareTokens.map((shareToken) => shareToken.approve(ammFactory.address, MAX_APPROVAL)))
+    );
+
+    await ammFactory.sellForCollateral(
+      marketFactory.address,
+      ethPriceMarketId,
+      PriceUpDownOutcome.Above,
+      shareTokensIn,
+      tokenAmountOut
+    );
+  });
+
+  it("can add liquidity", async () => {
+    const collateralIn = usdcBasis.mul(10);
+    await collateral.faucet(collateralIn);
+    await collateral.approve(ammFactory.address, collateralIn);
+    await ammFactory.addLiquidity(marketFactory.address, ethPriceMarketId, collateralIn, 0, signer.address);
+  });
+
+  it("can remove liquidity", async () => {
+    const collateralIn = usdcBasis.mul(10);
+    await collateral.faucet(collateralIn);
+    await collateral.approve(ammFactory.address, collateralIn);
+    const lpTokensIn = await ammFactory.getPoolTokenBalance(marketFactory.address, ethPriceMarketId, signer.address);
+    const pool = await ammFactory
+      .getPool(marketFactory.address, ethPriceMarketId)
+      .then((address) => BPool__factory.connect(address, signer));
+    await pool.approve(ammFactory.address, lpTokensIn);
+    await ammFactory.removeLiquidity(marketFactory.address, ethPriceMarketId, lpTokensIn, 0, signer.address);
+  });
+
+  it("won't resolve if the given round isn't the earliest after nextResolutionTime", async () => {
+    ethPrice = 2500;
+    btcPrice = 55000;
+
+    // Current state:
+    // * nextResolutionTime is a day ahead of the current blocktime
+    // * the current markets resolve at nextResolutionTime
+    // * currentRound is the round of the current markets
+
+    currentRound = currentRound.nextRound();
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
+
+    // Current state:
+    // * currentRound is 1 round ahead of the current markets
+
+    currentRound = currentRound.nextRound();
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime.add(1));
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime.add(1));
+
+    // Current state:
+    // * currentRound is 2 rounds ahead of the current markets
+
+    await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+
+    // Current state:
+    // * nextResolutionTime is at the current block time
+    // * the current markets resolve at nextResolutionTime
+
+    nextResolutionTime = nextResolutionTime.add(cadence);
+
+    // Current state:
+    // * nextResolutionTime is a day ahead of the current blocktime
+    // * the current markets resolve a day before nextResolutionTime
+
+    await expect(
+      marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime)
+    ).to.eventually.be.rejectedWith(
+      "VM Exception while processing transaction: revert Must use first round after resolution time"
+    );
+  });
+
+  it("can resolve without creating", async () => {
+    // Current state:
+    // * nextResolutionTime is a day ahead of the current blocktime
+    // * the current markets resolve a day before nextResolutionTime
+    // * currentRound is 2 rounds ahead of the current markets
+
+    expect(await marketFactory.marketCount(), "market count before final resolution").to.equal(5);
+
+    // it's the final resolution because the nextResolutionTime is set to zero
+    await marketFactory.createAndResolveMarkets([0, currentRound.prevRound().id, currentRound.prevRound().id], 0);
+
+    expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(5);
+  });
+
+  it("can start up again after stopping", async () => {
+    ethPrice = 2500;
+    btcPrice = 55000;
+    currentRound = currentRound.nextRound();
+    ethPriceFeed.setRoundData(currentRound.id, ethPrice * 1e8, nextResolutionTime);
+    btcPriceFeed.setRoundData(currentRound.id, btcPrice * 1e8, nextResolutionTime);
+    await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
+
+    await marketFactory.createAndResolveMarkets([0, currentRound.id, currentRound.id], nextResolutionTime);
+
+    expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(7);
   });
 });
 
@@ -388,7 +427,11 @@ class FeedManagement {
     roundId = BigNumber.from(roundId).toString();
     const round = this.rounds[roundId];
 
-    if (!round) throw Error(`Mock doesn't have return data for round id ${roundId}`);
+    if (!round) {
+      const msg = `Mock doesn't have return data for round id ${roundId}`;
+      console.error(msg);
+      throw Error(msg);
+    }
 
     const { price, updatedAt } = round;
     const startedAt = 0;
