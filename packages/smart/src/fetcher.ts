@@ -1,5 +1,71 @@
 import { BigNumber, BigNumberish } from "ethers";
 
+// Sports
+
+export function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
+  return {
+    ...createMarketFactoryBundle(raw[0]),
+  };
+}
+
+export function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
+  return {
+    id: raw.id,
+    markets: raw.markets.map((m) => createStaticMarketBundle(m)),
+    lines: raw.lines,
+    estimatedStartTime: raw.estimatedStartTime,
+    homeTeamId: raw.homeTeamId,
+    awayTeamId: raw.awayTeamId,
+    homeTeamName: raw.homeTeamName,
+    awayTeamName: raw.awayTeamName,
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
+  };
+}
+
+export function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
+  return {
+    id: raw.id,
+    markets: raw.markets.map((m) => createDynamicMarketBundle(m)),
+    status: raw.status,
+    homeScore: raw.homeScore,
+    awayScore: raw.awayScore,
+  };
+}
+
+interface SportsMarketFactoryBundle extends MarketFactoryBundle {}
+
+interface StaticSportsEventBundle {
+  id: BigNumberish;
+  markets: StaticMarketBundle[];
+  lines: BigNumberish[];
+  estimatedStartTime: BigNumberish;
+  homeTeamId: BigNumberish;
+  awayTeamId: BigNumberish;
+  homeTeamName: string;
+  awayTeamName: string;
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
+}
+
+interface RawStaticSportsEventBundle extends Omit<StaticSportsEventBundle, "markets"> {
+  markets: RawStaticMarketBundle[];
+}
+
+interface DynamicSportsEventBundle {
+  id: BigNumberish;
+  markets: DynamicMarketBundle[];
+  status: BigNumberish;
+  homeScore: BigNumberish;
+  awayScore: BigNumberish;
+}
+
+interface RawDynamicSportsEventBundle extends Omit<DynamicSportsEventBundle, "markets"> {
+  markets: RawDynamicMarketBundle[];
+}
+
 // Common
 
 interface FetcherPool {
@@ -114,136 +180,5 @@ function createDynamicMarketBundle(raw: RawDynamicMarketBundle): DynamicMarketBu
     marketId: raw.marketId,
     pool: createFetcherPool(raw.pool),
     winner: raw.winner,
-  };
-}
-
-// Sports
-
-interface SportsMarketFactoryBundle extends MarketFactoryBundle {}
-
-export function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
-  return {
-    ...createMarketFactoryBundle(raw[0]),
-  };
-}
-
-interface StaticSportsEventBundle {
-  id: BigNumberish;
-  markets: StaticMarketBundle[];
-  lines: BigNumberish[];
-  estimatedStartTime: BigNumberish;
-  homeTeamId: BigNumberish;
-  awayTeamId: BigNumberish;
-  homeTeamName: string;
-  awayTeamName: string;
-  status: BigNumberish;
-  homeScore: BigNumberish;
-  awayScore: BigNumberish;
-}
-
-interface RawStaticSportsEventBundle extends Omit<StaticSportsEventBundle, "markets"> {
-  markets: RawStaticMarketBundle[];
-}
-
-interface DynamicSportsEventBundle {
-  id: BigNumberish;
-  markets: DynamicMarketBundle[];
-  status: BigNumberish;
-  homeScore: BigNumberish;
-  awayScore: BigNumberish;
-}
-
-interface RawDynamicSportsEventBundle extends Omit<DynamicSportsEventBundle, "markets"> {
-  markets: RawDynamicMarketBundle[];
-}
-
-export function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
-  return {
-    id: raw.id,
-    markets: raw.markets.map((m) => createStaticMarketBundle(m)),
-    lines: raw.lines,
-    estimatedStartTime: raw.estimatedStartTime,
-    homeTeamId: raw.homeTeamId,
-    awayTeamId: raw.awayTeamId,
-    homeTeamName: raw.homeTeamName,
-    awayTeamName: raw.awayTeamName,
-    status: raw.status,
-    homeScore: raw.homeScore,
-    awayScore: raw.awayScore,
-  };
-}
-
-export function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
-  return {
-    id: raw.id,
-    markets: raw.markets.map((m) => createDynamicMarketBundle(m)),
-    status: raw.status,
-    homeScore: raw.homeScore,
-    awayScore: raw.awayScore,
-  };
-}
-
-// MMA
-
-interface MMAMarketFactoryBundle extends MarketFactoryBundle {}
-
-export function createMMAMarketFactoryBundle(raw: [RawMarketFactoryBundle]): MMAMarketFactoryBundle {
-  return {
-    ...createMarketFactoryBundle(raw[0]),
-  };
-}
-
-interface MMAStaticMarketBundle extends StaticMarketBundle {
-  eventId: BigNumberish;
-  homeTeamName: string;
-  homeTeamId: BigNumberish;
-  awayTeamName: string;
-  awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-interface RawMMAStaticMarketBundle {
-  super: RawStaticMarketBundle;
-  eventId: BigNumberish;
-  homeTeamName: string;
-  homeTeamId: BigNumberish;
-  awayTeamName: string;
-  awayTeamId: BigNumberish;
-  estimatedStartTime: BigNumberish;
-  marketType: BigNumberish;
-  eventStatus: BigNumberish;
-}
-
-export function createMMAStaticMarketBundle(raw: RawMMAStaticMarketBundle): MMAStaticMarketBundle {
-  const bundle: MMAStaticMarketBundle & { super?: RawStaticMarketBundle } = {
-    ...createStaticMarketBundle(raw.super),
-    eventId: raw.eventId,
-    homeTeamName: raw.homeTeamName,
-    homeTeamId: raw.homeTeamId,
-    awayTeamName: raw.awayTeamName,
-    awayTeamId: raw.awayTeamId,
-    estimatedStartTime: raw.estimatedStartTime,
-    marketType: raw.marketType,
-    eventStatus: raw.eventStatus,
-  };
-  delete bundle.super;
-  return bundle;
-}
-
-interface MMADynamicMarketBundle extends DynamicMarketBundle {
-  eventStatus: BigNumberish;
-}
-
-interface RawMMADynamicMarketBundle {
-  super: RawDynamicMarketBundle;
-  eventStatus: BigNumberish;
-}
-
-export function createMMADynamicMarketBundle(raw: RawMMADynamicMarketBundle): MMADynamicMarketBundle {
-  return {
-    ...createDynamicMarketBundle(raw.super),
-    eventStatus: raw.eventStatus,
   };
 }

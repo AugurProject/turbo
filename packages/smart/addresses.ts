@@ -19,9 +19,12 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-export const MARKET_TYPES = ["Trusted", "Crypto", "SportsLink", "MMA", "NBA", "MLB", "NFL"] as const;
+export const MARKET_TYPES = ["Trusted", "Crypto", "SportsLink", "MMA", "NBA", "MLB", "NFL", "Futures"] as const;
 export type MarketFactoryType = typeof MARKET_TYPES[number];
-export type MarketFactorySubType = "V1" | "V2";
+// V1 was the first
+// V2 includes initial odds
+// V3 is after the major refactor
+export type MarketFactorySubType = "V1" | "V2" | "V3";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactoryV2"
   | "NFLMarketFactory"
@@ -29,6 +32,7 @@ export type MarketFactoryContractName =
   | "MLBMarketFactory"
   | "MMAMarketFactory"
   | "CryptoMarketFactory"
+  | "FuturesMarketFactory"
   | "TrustedMarketFactory";
 export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "NFLFetcher" | "MLBFetcher" | "";
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
@@ -40,6 +44,7 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   NBA: "NBAMarketFactory",
   MMA: "MMAMarketFactory",
   Crypto: "CryptoMarketFactory",
+  Futures: "FuturesMarketFactory",
   Trusted: "TrustedMarketFactory",
 };
 export const marketFactoryTypeToFetcherName: {
@@ -51,6 +56,7 @@ export const marketFactoryTypeToFetcherName: {
   MLB: "MLBFetcher",
   NBA: "NBAFetcher",
   Crypto: "",
+  Futures: "",
   Trusted: "",
 };
 export enum ChainId {
@@ -83,7 +89,7 @@ export const addresses: AddressMapping = {
     marketFactories: [
       {
         type: "SportsLink",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xA76C803c1D3B4cc31b1B964f29357BbF23B6D6f7",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
@@ -93,7 +99,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "MMA",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
@@ -119,8 +125,18 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "Futures",
+        subtype: "V3",
+        address: "0xFFfa252b596592c2C68edb9D98E0e5398db23f78",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
+        fetcher: "",
+        description: "futures",
+        version: "refactor",
+      },
+      {
         type: "MLB",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xc28Ed86Ba56bB7396Cf16bb9c095C58dFE0524F0",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
@@ -130,7 +146,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "NBA",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xa7309Bdb5a634c8D2d1768092c43cF70ff5799e2",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
@@ -140,7 +156,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "NFL",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xCd67d18a66737F1Db26C4A74732562B599217b2F",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
@@ -150,7 +166,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "MMA",
-        subtype: "V2",
+        subtype: "V3",
         address: "0x259175Ced1776879F03964c8F29FE3eaF699Ec51",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
@@ -160,7 +176,7 @@ export const addresses: AddressMapping = {
       },
       {
         type: "Crypto",
-        subtype: "V2",
+        subtype: "V3",
         address: "0xd2DfFD1a74b8Ec9350B3138BB8b14fC5819c0544",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",

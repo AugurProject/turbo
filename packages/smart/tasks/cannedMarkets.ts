@@ -1,8 +1,14 @@
 import { task } from "hardhat/config";
-import { buildContractInterfaces, ContractInterfaces, MarketFactoryType, NBAMarketFactory } from "..";
+import {
+  buildContractInterfaces,
+  ContractInterfaces,
+  FuturesMarketFactory,
+  MarketFactoryType,
+  NBAMarketFactory
+} from "..";
 import { MMAMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
-import { BigNumber, ContractTransaction, Signer } from "ethers";
+import { BigNumber, BigNumberish, ContractReceipt, ContractTransaction, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 task("cannedMarkets", "creates canned markets").setAction(async (args, hre: HardhatRuntimeEnvironment) => {
@@ -16,7 +22,79 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   await nba(signer, contracts, confirmations);
   await nfl(signer, contracts, confirmations);
   await mma(signer, contracts, confirmations);
+  await futures(signer, contracts, confirmations);
 });
+
+async function futures(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
+  interface Group {
+    id: BigNumberish;
+    endTime: BigNumberish;
+    invalidMarketName: string;
+    markets: {
+      name: string;
+      odds: [number, number];
+    }[];
+  }
+
+  function wait(tx: ContractTransaction): Promise<ContractReceipt> {
+    return tx.wait(confirmations)
+  }
+
+  const endTime = makeTime(60 * 60); // 1 hour from now
+
+  const groups: Group[] = [
+    {
+      id: 1939,
+      endTime,
+      invalidMarketName: "It Was A Dream",
+      markets: [
+        { name: "Lions", odds: [1, 5] },
+        { name: "Tigers", odds: [1, 20] },
+        { name: "Bears", odds: [1, 15] },
+        { name: "Kansans", odds: [1, 15] },
+        { name: "Tornados", odds: [1, 6] },
+        { name: "Witches", odds: [1, 8] },
+        { name: "Monkeybats", odds: [1, 5] },
+        { name: "Water", odds: [1, 8] },
+      ],
+    },
+  ];
+
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Futures")]
+    .marketFactory as FuturesMarketFactory;
+
+  const originalLinkNode = await handleLinkNode(marketFactory, signer);
+
+  try {
+    for (const { id, endTime, invalidMarketName, markets } of groups) {
+      let group = await marketFactory.getGroup(id);
+      const finalized = [2, 3, 4].includes(group.status);
+      if (finalized) {
+        console.log(`Skipping group "${id}" for futures because it is already finalized`);
+        continue;
+      }
+
+      if (group.status === 0) {
+        console.log(`Initializing group ${id}`);
+        await marketFactory.initializeGroup(id, invalidMarketName, endTime).then(wait);
+      }
+
+      for (const {name, odds} of markets) {
+        if (group.marketNames.includes(name)) continue;
+        console.log(`    Adding outcome "${name}" to group`)
+        await marketFactory.addOutcomesToGroup(id, [name], [odds]).then(wait);
+      }
+
+      console.log(`Finalizing group`);
+      await marketFactory.finalizeGroup(id).then(wait);
+
+      group = await marketFactory.getGroup(id);
+      console.log(`Created markets ${group.markets.join(",")} for futures ${marketFactory.address}`);
+    }
+  } finally {
+    await resetLinkNode(marketFactory, originalLinkNode);
+  }
+}
 
 async function nfl(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
   const events: SportsSpecifierThreeLines[] = [
@@ -155,6 +233,12 @@ async function sport1(
 
   try {
     for (const { id, home, away, lines } of events) {
+      const exists = (await marketFactory.getSportsEvent(id)).status !== 0;
+      if (exists) {
+        console.log(`Skipping event "${id}" for ${marketType} because it already exists`);
+        continue;
+      }
+
       console.log(`Creating event for ${marketType}:`);
       console.log(`    Event ID: ${id}`);
       console.log(`    Home: ${home.name} (${home.id})`);

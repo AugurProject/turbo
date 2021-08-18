@@ -9,10 +9,9 @@ import {
   addresses as originalAddresses,
   ChainId,
   MarketFactory,
-  MarketFactoryContractName,
   FetcherContractName,
   MARKET_FACTORY_TYPE_TO_CONTRACT_NAME,
-  MarketFactoryType,
+  MarketFactoryType, MarketFactorySubType
 } from "../addresses";
 import { ExternalAddresses, isHttpNetworkConfig } from "../tasks";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
@@ -34,7 +33,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const uploadBlockNumber = await getUploadBlockNumber(chainId as ChainId, deployments);
 
   const version = "FILL THIS OUT"; // version of a particular market factory
-  const subtype = "V2"; // tells the UI which API features are available V2 indicates initialOdds.
+  const subtype: MarketFactorySubType = "V3";
 
   async function includeMarketFactory(type: MarketFactoryType, fetcherName: FetcherContractName, description: string) {
     const factoryName = MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type];
@@ -64,6 +63,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   await includeMarketFactory("NFL", sportsFetcher, "nfl");
   await includeMarketFactory("NBA", sportsFetcher, "nba");
   await includeMarketFactory("MLB", sportsFetcher, "mlb");
+  await includeMarketFactory("Futures", "", "futures");
 
   const addresses: Addresses = {
     reputationToken,

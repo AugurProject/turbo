@@ -18,7 +18,7 @@ import {
   NBAMarketFactory__factory,
   MLBMarketFactory,
   NBAMarketFactory,
-  MLBMarketFactory__factory,
+  MLBMarketFactory__factory, FuturesMarketFactory__factory, FuturesMarketFactory
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -43,6 +43,7 @@ export type MarketFactoryContract =
   | SportsLinkMarketFactoryV2
   | TrustedMarketFactory
   | CryptoMarketFactory
+  | FuturesMarketFactory
   | MMAMarketFactory
   | NBAMarketFactory
   | MLBMarketFactory
@@ -82,6 +83,7 @@ export function instantiateMarketFactory(
   if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "NBA") return NBAMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "MLB") return MLBMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "Futures") return FuturesMarketFactory__factory.connect(address, signerOrProvider);
 
   throw Error(`No market factory matching type=${type} subtype=${subtype}`);
 }
