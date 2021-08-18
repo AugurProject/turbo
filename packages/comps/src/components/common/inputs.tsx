@@ -186,7 +186,7 @@ const Outcome = ({
   isFutures = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
-  const [actionType, setActionType] = useState(null);
+  const [actionType, setActionType] = useState(0);
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
   const { prepend, symbol } = getCashFormat(ammCash?.name);
@@ -238,10 +238,10 @@ const Outcome = ({
         <div>
           <button className={classNames({
             [Styles.Selected]: actionType === 0,
-          })} onClick={() => setActionType(0)}>Buy</button>
+          })} onClick={() => setActionType(0)}>Yes -</button>
           <button className={classNames({
             [Styles.Selected]: actionType === 1,
-          })} onClick={() => setActionType(1)}>Sell</button>
+          })} onClick={() => setActionType(1)}>No -</button>
         </div>
       )}
     </div>
@@ -281,92 +281,13 @@ export const OutcomesGrid = ({
   noClick,
   hasLiquidity,
   marketFactoryType,
-  isFutures = true,
+  isFutures = false,
 }: OutcomesGridProps) => {
   const sortedOutcomes = orderOutcomesForDisplay(
-    outcomes.concat([
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 3,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 3",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 4,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 4",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 5,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 5",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 6,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 6",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 7,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 7",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-      {
-        balance: "",
-        balanceRaw: "",
-        id: 8,
-        isFinalNumerator: false,
-        isInvalid: false,
-        isWinner: false,
-        name: "Colorado Rockies 8",
-        price: "",
-        ratio: "",
-        ratioRaw: "",
-        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-      },
-    ]),
+    outcomes,
     marketFactoryType
   );
-  console.log("sortedOutcomes", sortedOutcomes);
+
   return (
     <div
       className={classNames(Styles.Outcomes, {
@@ -400,3 +321,85 @@ export const OutcomesGrid = ({
     </div>
   );
 };
+
+// DUMMY OUTCOMES DON'T -- need until we have data:
+// .concat([
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 3,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 3",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 4,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 4",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 5,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 5",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 6,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 6",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 7,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 7",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 8,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 8",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+// ])

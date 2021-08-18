@@ -276,12 +276,19 @@
     overflow-y: auto;
     max-height: @size-340;
     margin: 0 -@size-24;
-    padding: @size-8 @size-24;
+    padding: 0 @size-24 @size-8;
     border-bottom: @size-1 solid var(--theme-border);
 
     @media @breakpoint-mobile {
-      padding: 0;
-      margin: 0;
+      max-height: @size-192;
+      padding: 0 @size-16 @size-8;
+      margin: 0 -@size-16;
+
+      &.noClick {
+        max-height: @size-206;
+        padding: 0;
+        margin: 0 0 @size-16 0;
+      }
     }
   }
 
@@ -336,6 +343,11 @@
     min-height: @size-48;
     max-height: @size-48;
 
+    &.Futures {
+      min-height: auto;
+      max-height: none;
+    }
+
     > span {
       margin: auto 0;
     }
@@ -345,6 +357,10 @@
     &.color-@{newIndex} {
       &:hover {
         border: @size-1 solid @value;
+
+        &.Futures {
+          border: @size-1 solid var(--primary-text);
+        }
       };
 
       &.Selected {    
@@ -381,7 +397,7 @@
 
             > button {
               .text-12-semi-bold;
-              
+
               background: transparent;
               flex: 1 0 100%;
               border: @size-1 solid var(--theme-border);
