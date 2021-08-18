@@ -18,7 +18,9 @@ import {
   NBAMarketFactory__factory,
   MLBMarketFactory,
   NBAMarketFactory,
-  MLBMarketFactory__factory, FuturesMarketFactory__factory, FuturesMarketFactory
+  MLBMarketFactory__factory,
+  FuturesMarketFactory__factory,
+  FuturesMarketFactory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";

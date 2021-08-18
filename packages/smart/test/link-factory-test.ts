@@ -3,14 +3,15 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
+  AbstractMarketFactoryV3,
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
   Cash,
   Cash__factory,
+  Eventual,
   FeePot,
   FeePot__factory,
-  MMAMarketFactory,
   NBAFetcher,
   NBAFetcher__factory,
   NBAMarketFactory,
@@ -25,11 +26,12 @@ import {
   createSportsMarketFactoryBundle,
   createStaticSportsEventBundle,
   createDynamicSportsEventBundle,
+  fetchInitialEvents,
+  fetchDynamicEvents,
 } from "../src";
 
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
 const ZERO = BigNumber.from(0);
-const BASIS = BigNumber.from(10).pow(18);
 enum Market {
   HeadToHead = 0,
   Spread = 1,
@@ -276,7 +278,7 @@ describe("LinkFactory NoContest", () => {
   });
 });
 
-describe("Sports fetcher", () => {
+describe.only("Sports fetcher", () => {
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -288,24 +290,11 @@ describe("Sports fetcher", () => {
   let collateral: Cash;
   let feePot: FeePot;
 
-  const eventId = BigNumber.from(9001);
-  const homeTeamId = BigNumber.from(1881);
-  const awayTeamId = BigNumber.from(40);
-  const homeTeamName = "nom";
-  const awayTeamName = "who?";
-  const homeSpreadLine = BigNumber.from(65);
-  const totalScoreLine = BigNumber.from(90);
   const smallFee = BigNumber.from(10).pow(16);
-  let estimatedStartTime: BigNumber;
 
   let marketFactory: NBAMarketFactory;
-
-  let h2hMarketId: BigNumberish;
-  let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let spMarketId: BigNumberish;
-  let spMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
-  let ouMarketId: BigNumberish;
-  let ouMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
+  let mostInterestingEvent: TestEvent<BigNumber>;
+  let leastInterestingEvent: TestEvent<BigNumber>;
 
   before(async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -313,7 +302,7 @@ describe("Sports fetcher", () => {
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
     const now = BigNumber.from(Date.now()).div(1000);
-    estimatedStartTime = now.add(60 * 60 * 24); // one day
+    const estimatedStartTime = now.add(60 * 60 * 24); // one day
     marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
@@ -328,44 +317,31 @@ describe("Sports fetcher", () => {
     const swapFee = smallFee;
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
 
-    // least interesting (earliest) event
-    await marketFactory.createEvent(
-      eventId.add(1),
-      homeTeamName,
-      homeTeamId,
-      awayTeamName,
-      awayTeamId,
+    leastInterestingEvent = await makeTestEvent(marketFactory, {
+      id: 7878,
       estimatedStartTime,
-      homeSpreadLine,
-      totalScoreLine,
-      [+100, -110]
-    );
+      home: { id: 6656, name: "dochi" },
+      away: { id: 111, name: "daisy" },
+      lines: { spread: 15, total: 55, moneylines: [+100, -300] },
+    });
 
-    // most interesting (latest) event
-    await marketFactory.createEvent(
-      eventId,
-      homeTeamName,
-      homeTeamId,
-      awayTeamName,
-      awayTeamId,
+    mostInterestingEvent = await makeTestEvent(marketFactory, {
+      id: 9001,
       estimatedStartTime,
-      homeSpreadLine,
-      totalScoreLine,
-      [+100, -110]
-    );
-    h2hMarketId = BigNumber.from(4);
-    h2hMarket = await marketFactory.getMarket(h2hMarketId);
-
-    spMarketId = BigNumber.from(5);
-    spMarket = await marketFactory.getMarket(spMarketId);
-
-    ouMarketId = BigNumber.from(6);
-    ouMarket = await marketFactory.getMarket(ouMarketId);
+      home: { id: 1881, name: "nom" },
+      away: { id: 40, name: "who?" },
+      lines: { spread: 65, total: 90, moneylines: [+100, -110] },
+    });
 
     const initialLiquidity = dollars(10000);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await collateral.faucet(initialLiquidity);
-    await ammFactory.createPool(marketFactory.address, h2hMarketId, initialLiquidity, signer.address);
+    await ammFactory.createPool(
+      marketFactory.address,
+      mostInterestingEvent.markets.h2h.id,
+      initialLiquidity,
+      signer.address
+    );
   });
 
   it("is deployable", async () => {
@@ -392,54 +368,11 @@ describe("Sports fetcher", () => {
     );
 
     const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
-    const event = await marketFactory.getSportsEvent(eventId);
 
-    expect(eventBundles.length, "event bundles length").to.equal(2);
-    expect(eventBundles[0], "event bundles 0").to.deep.equal({
-      id: eventId,
-      markets: [
-        {
-          factory: marketFactory.address,
-          marketId: h2hMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-          shareTokens: h2hMarket.shareTokens,
-          creationTimestamp: h2hMarket.creationTimestamp,
-          winner: h2hMarket.winner,
-          initialOdds: [
-            BigNumber.from(10).pow(18),
-            BigNumber.from("0x015be9b4a9bdbf11db"),
-            BigNumber.from("0x014c1943b94c64ee24"),
-          ],
-        },
-        {
-          factory: marketFactory.address,
-          marketId: spMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-          shareTokens: spMarket.shareTokens,
-          creationTimestamp: spMarket.creationTimestamp,
-          winner: spMarket.winner,
-          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
-        },
-        {
-          factory: marketFactory.address,
-          marketId: ouMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
-          shareTokens: ouMarket.shareTokens,
-          creationTimestamp: ouMarket.creationTimestamp,
-          winner: ouMarket.winner,
-          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
-        },
-      ],
-      lines: [BigNumber.from(0), homeSpreadLine, totalScoreLine.add(5)],
-      estimatedStartTime: event.estimatedStartTime,
-      homeTeamId: event.homeTeamId,
-      awayTeamId: event.awayTeamId,
-      homeTeamName: event.homeTeamName,
-      awayTeamName: event.awayTeamName,
-      status: event.status,
-      homeScore: event.homeScore,
-      awayScore: event.awayScore,
-    });
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+      await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
   });
 
   it("fetchInitial [0,1]", async () => {
@@ -460,54 +393,11 @@ describe("Sports fetcher", () => {
     );
 
     const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
-    const event = await marketFactory.getSportsEvent(eventId);
 
     expect(eventBundles.length, "event bundles length").to.equal(1);
-    expect(eventBundles[0], "event bundles 0").to.be.deep.equal({
-      id: eventId, // most interesting event
-      markets: [
-        {
-          factory: marketFactory.address,
-          marketId: h2hMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-          shareTokens: h2hMarket.shareTokens,
-          creationTimestamp: h2hMarket.creationTimestamp,
-          winner: h2hMarket.winner,
-          initialOdds: [
-            BigNumber.from(10).pow(18),
-            BigNumber.from("0x015be9b4a9bdbf11db"),
-            BigNumber.from("0x014c1943b94c64ee24"),
-          ],
-        },
-        {
-          factory: marketFactory.address,
-          marketId: spMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-          shareTokens: spMarket.shareTokens,
-          creationTimestamp: spMarket.creationTimestamp,
-          winner: spMarket.winner,
-          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
-        },
-        {
-          factory: marketFactory.address,
-          marketId: ouMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
-          shareTokens: ouMarket.shareTokens,
-          creationTimestamp: ouMarket.creationTimestamp,
-          winner: ouMarket.winner,
-          initialOdds: [BigNumber.from(10).pow(18), BASIS.mul(245).div(10), BASIS.mul(245).div(10)],
-        },
-      ],
-      lines: [BigNumber.from(0), homeSpreadLine, totalScoreLine.add(5)],
-      estimatedStartTime: event.estimatedStartTime,
-      homeTeamId: event.homeTeamId,
-      awayTeamId: event.awayTeamId,
-      homeTeamName: event.homeTeamName,
-      awayTeamName: event.awayTeamName,
-      status: event.status,
-      homeScore: event.homeScore,
-      awayScore: event.awayScore,
-    });
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+    ]);
   });
 
   it("fetchInitial [1,1]", async () => {
@@ -529,8 +419,9 @@ describe("Sports fetcher", () => {
 
     const eventBundles = rawEventBundles.map(createStaticSportsEventBundle);
 
-    expect(eventBundles.length, "event bundles length").to.equal(1);
-    expect(eventBundles[0].id, "event bundles 0 id").to.equal(eventId.add(1)); // least interesting event
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
   });
 
   it("fetchDynamic [0,50]", async () => {
@@ -546,35 +437,10 @@ describe("Sports fetcher", () => {
     expect(lowestEventIndex, "lowest event index").to.equal(0);
 
     const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
-    const event = await marketFactory.getSportsEvent(eventId);
-
-    expect(eventBundles.length, "event bundles length").to.equal(2);
-    expect(eventBundles[0], "event bundle").to.deep.equal({
-      id: eventId,
-      markets: [
-        {
-          factory: marketFactory.address,
-          marketId: h2hMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-          winner: h2hMarket.winner,
-        },
-        {
-          factory: marketFactory.address,
-          marketId: spMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-          winner: spMarket.winner,
-        },
-        {
-          factory: marketFactory.address,
-          marketId: ouMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
-          winner: ouMarket.winner,
-        },
-      ],
-      status: event.status,
-      homeScore: event.homeScore,
-      awayScore: event.awayScore,
-    });
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+      await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
   });
 
   it("fetchDynamic [0,1]", async () => {
@@ -590,35 +456,9 @@ describe("Sports fetcher", () => {
     expect(lowestEventIndex, "lowest event index").to.equal(1);
 
     const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
-    const event = await marketFactory.getSportsEvent(eventId);
-
-    expect(eventBundles.length, "event bundles length").to.equal(1);
-    expect(eventBundles[0], "event bundle").to.deep.equal({
-      id: eventId,
-      markets: [
-        {
-          factory: marketFactory.address,
-          marketId: h2hMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, h2hMarketId),
-          winner: h2hMarket.winner,
-        },
-        {
-          factory: marketFactory.address,
-          marketId: spMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, spMarketId),
-          winner: spMarket.winner,
-        },
-        {
-          factory: marketFactory.address,
-          marketId: ouMarketId,
-          pool: await makePoolCheck(ammFactory, marketFactory, ouMarketId),
-          winner: ouMarket.winner,
-        },
-      ],
-      status: event.status,
-      homeScore: event.homeScore,
-      awayScore: event.awayScore,
-    });
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+    ]);
   });
 
   it("fetchDynamic [1,1]", async () => {
@@ -635,8 +475,28 @@ describe("Sports fetcher", () => {
 
     const eventBundles = rawEventBundles.map(createDynamicSportsEventBundle);
 
-    expect(eventBundles.length, "event bundles length").to.equal(1);
-    expect(eventBundles[0].id, "event bundle 0 id").to.equal(eventId.add(1)); // least interesting event
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
+  });
+
+  it("fetch all initial", async () => {
+    const { factoryBundle, eventBundles } = await fetchInitialEvents(fetcher, marketFactory, ammFactory);
+
+    expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+      await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
+  });
+
+  it("fetch all dynamic", async () => {
+    const { eventBundles } = await fetchDynamicEvents(fetcher, marketFactory, ammFactory);
+
+    expect(eventBundles, "event bundles").to.deep.equal([
+      await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+      await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
+    ]);
   });
 });
 
@@ -647,7 +507,7 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
-type CheckableMarketFactory = NBAMarketFactory | MMAMarketFactory;
+type CheckableMarketFactory = Eventual;
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {
@@ -662,6 +522,59 @@ async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, c
       decimals: await collateral.decimals(),
     },
     marketCount: await marketFactory.marketCount(),
+  };
+}
+
+async function eventStaticBundleCheck(marketFactory: Eventual, ammFactory: AMMFactory, eventId: BigNumberish) {
+  const event = await marketFactory.getSportsEvent(eventId);
+
+  async function market(marketId: BigNumberish) {
+    const market = await marketFactory.getMarket(marketId);
+    return {
+      factory: marketFactory.address,
+      marketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, marketId),
+      shareTokens: market.shareTokens,
+      creationTimestamp: market.creationTimestamp,
+      winner: market.winner,
+      initialOdds: market.initialOdds,
+    };
+  }
+
+  return {
+    id: eventId,
+    markets: await Promise.all(event.markets.map(market)),
+    lines: event.lines,
+    estimatedStartTime: event.estimatedStartTime,
+    homeTeamId: event.homeTeamId,
+    awayTeamId: event.awayTeamId,
+    homeTeamName: event.homeTeamName,
+    awayTeamName: event.awayTeamName,
+    status: event.status,
+    homeScore: event.homeScore,
+    awayScore: event.awayScore,
+  };
+}
+
+async function eventDynamicBundleCheck(marketFactory: Eventual, ammFactory: AMMFactory, eventId: BigNumberish) {
+  const event = await marketFactory.getSportsEvent(eventId);
+
+  async function market(marketId: BigNumberish) {
+    const market = await marketFactory.getMarket(marketId);
+    return {
+      factory: marketFactory.address,
+      marketId,
+      pool: await makePoolCheck(ammFactory, marketFactory, marketId),
+      winner: market.winner,
+    };
+  }
+
+  return {
+    id: eventId,
+    markets: await Promise.all(event.markets.map(market)),
+    status: event.status,
+    homeScore: event.homeScore,
+    awayScore: event.awayScore,
   };
 }
 
@@ -687,3 +600,72 @@ async function makePoolCheck(ammFactory: AMMFactory, marketFactory: CheckableMar
     };
   }
 }
+
+interface TestEvent<BN> {
+  id: BN;
+  estimatedStartTime: BN;
+  home: TestTeam<BN>;
+  away: TestTeam<BN>;
+  lines: {
+    spread: BN;
+    total: BN;
+    moneylines: [BN, BN];
+  };
+  markets: TestMarkets<BN>;
+}
+interface TestMarkets<BN> {
+  h2h: TestMarket<BN>;
+  sp: TestMarket<BN>;
+  ou: TestMarket<BN>;
+}
+interface TestMarket<BN> {
+  id: BN;
+  market: UnPromisify<ReturnType<TypeOfClassMethod<AbstractMarketFactoryV3, "getMarket">>>;
+}
+interface TestTeam<BN> {
+  id: BN;
+  name: string;
+}
+
+async function makeTestEvent(
+  marketFactory: Eventual,
+  testEvent: Omit<TestEvent<BigNumberish>, "markets">
+): Promise<TestEvent<BigNumber>> {
+  const { id, estimatedStartTime, home, away, lines } = testEvent;
+
+  await marketFactory.createEvent(
+    id,
+    home.name,
+    home.id,
+    away.name,
+    away.id,
+    estimatedStartTime,
+    lines.spread,
+    lines.total,
+    lines.moneylines
+  );
+
+  const event = await marketFactory.getSportsEvent(id);
+  const [h2h, sp, ou] = event.markets;
+
+  const markets: TestMarkets<BigNumber> = {
+    h2h: { id: h2h, market: await marketFactory.getMarket(h2h) },
+    sp: { id: sp, market: await marketFactory.getMarket(sp) },
+    ou: { id: ou, market: await marketFactory.getMarket(ou) },
+  };
+
+  return {
+    id: BigNumber.from(id),
+    estimatedStartTime: BigNumber.from(estimatedStartTime),
+    home: { id: BigNumber.from(home.id), name: home.name },
+    away: { id: BigNumber.from(away.id), name: away.name },
+    lines: {
+      spread: BigNumber.from(lines.spread),
+      total: BigNumber.from(lines.total),
+      moneylines: [BigNumber.from(lines.moneylines[0]), BigNumber.from(lines.moneylines[1])],
+    },
+    markets,
+  };
+}
+
+type TypeOfClassMethod<T, M extends keyof T> = T[M] extends Function ? T[M] : never;

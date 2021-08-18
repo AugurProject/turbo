@@ -1,6 +1,65 @@
 import { BigNumber, BigNumberish } from "ethers";
+import { AMMFactory, Eventual, SportsFetcher } from "../typechain";
 
 // Sports
+
+export async function fetchInitialEvents(
+  fetcher: SportsFetcher,
+  marketFactory: Eventual,
+  ammFactory: AMMFactory,
+  bundleSize: BigNumberish = 50,
+  initialOffset: BigNumberish = 0
+) {
+  const eventCount = await marketFactory.eventCount();
+
+  let factoryBundle: SportsMarketFactoryBundle | undefined;
+  let eventBundles: StaticSportsEventBundle[] = [];
+
+  for (let offset = BigNumber.from(initialOffset);; ) {
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      bundleSize
+    );
+
+    if (!factoryBundle) factoryBundle = createSportsMarketFactoryBundle(rawFactoryBundle);
+    eventBundles = eventBundles.concat(rawEventBundles.map(createStaticSportsEventBundle));
+
+    if (lowestEventIndex.eq(0)) break;
+    offset = eventCount.sub(lowestEventIndex);
+  }
+
+  return { factoryBundle, eventBundles };
+}
+
+export async function fetchDynamicEvents(
+  fetcher: SportsFetcher,
+  marketFactory: Eventual,
+  ammFactory: AMMFactory,
+  bundleSize: BigNumberish = 50,
+  initialOffset: BigNumberish = 0
+) {
+  const eventCount = await marketFactory.eventCount();
+
+  let eventBundles: DynamicSportsEventBundle[] = [];
+
+  for (let offset = BigNumber.from(initialOffset);; ) {
+    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
+      marketFactory.address,
+      ammFactory.address,
+      offset,
+      bundleSize
+    );
+
+    eventBundles = eventBundles.concat(rawEventBundles.map(createDynamicSportsEventBundle));
+
+    if (lowestEventIndex.eq(0)) break;
+    offset = eventCount.sub(lowestEventIndex);
+  }
+
+  return { eventBundles };
+}
 
 export function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
   return {

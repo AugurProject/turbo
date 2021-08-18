@@ -4,7 +4,7 @@ import {
   ContractInterfaces,
   FuturesMarketFactory,
   MarketFactoryType,
-  NBAMarketFactory
+  NBAMarketFactory,
 } from "..";
 import { MMAMarketFactory } from "../typechain";
 import { isHttpNetworkConfig, makeSigner } from "./deploy";
@@ -37,7 +37,7 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
   }
 
   function wait(tx: ContractTransaction): Promise<ContractReceipt> {
-    return tx.wait(confirmations)
+    return tx.wait(confirmations);
   }
 
   const endTime = makeTime(60 * 60); // 1 hour from now
@@ -79,9 +79,9 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
         await marketFactory.initializeGroup(id, invalidMarketName, endTime).then(wait);
       }
 
-      for (const {name, odds} of markets) {
+      for (const { name, odds } of markets) {
         if (group.marketNames.includes(name)) continue;
-        console.log(`    Adding outcome "${name}" to group`)
+        console.log(`    Adding outcome "${name}" to group`);
         await marketFactory.addOutcomesToGroup(id, [name], [odds]).then(wait);
       }
 

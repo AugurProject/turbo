@@ -11,7 +11,8 @@ import {
   MarketFactory,
   FetcherContractName,
   MARKET_FACTORY_TYPE_TO_CONTRACT_NAME,
-  MarketFactoryType, MarketFactorySubType
+  MarketFactoryType,
+  MarketFactorySubType,
 } from "../addresses";
 import { ExternalAddresses, isHttpNetworkConfig } from "../tasks";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
