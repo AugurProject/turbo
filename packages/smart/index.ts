@@ -15,6 +15,10 @@ import {
   SportsLinkMarketFactoryV1,
   NFLMarketFactory__factory,
   NFLMarketFactory,
+  NBAMarketFactory__factory,
+  MLBMarketFactory,
+  NBAMarketFactory,
+  MLBMarketFactory__factory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { Signer } from "ethers";
@@ -37,9 +41,11 @@ export interface ContractInterfaces {
 export type MarketFactoryContract =
   | SportsLinkMarketFactoryV1
   | SportsLinkMarketFactoryV2
-  | MMAMarketFactory
   | TrustedMarketFactory
   | CryptoMarketFactory
+  | MMAMarketFactory
+  | NBAMarketFactory
+  | MLBMarketFactory
   | NFLMarketFactory;
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
@@ -70,10 +76,12 @@ export function instantiateMarketFactory(
     if (subtype === "V1") return SportsLinkMarketFactoryV1__factory.connect(address, signerOrProvider);
     if (subtype === "V2") return SportsLinkMarketFactoryV2__factory.connect(address, signerOrProvider);
   }
-  if (type === "MMA") return MMAMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "MMA") return MMAMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "NBA") return NBAMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "MLB") return MLBMarketFactory__factory.connect(address, signerOrProvider);
 
   throw Error(`No market factory matching type=${type} subtype=${subtype}`);
 }

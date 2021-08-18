@@ -13,8 +13,8 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   const network = await ethers.provider.getNetwork();
   const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
 
-  await nfl(signer, contracts, confirmations);
   await nba(signer, contracts, confirmations);
+  await nfl(signer, contracts, confirmations);
   await mma(signer, contracts, confirmations);
 });
 
@@ -107,12 +107,18 @@ async function sport3(
   marketType: MarketFactoryType
 ) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
-    .marketFactory as NBAMarketFactory;
+    .marketFactory as NBAMarketFactory; // NBA market factory interface works for the other 3-sports too
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
   try {
     for (const { id, home, away, lines } of events) {
+      const exists = (await marketFactory.getSportsEvent(id)).status !== 0;
+      if (exists) {
+        console.log(`Skipping event "${id}" for ${marketType} because it already exists`);
+        continue;
+      }
+
       console.log(`Creating event for ${marketType}:`);
       console.log(`    Event ID: ${id}`);
       console.log(`    Home: ${home.name} (${home.id})`);
@@ -162,7 +168,7 @@ async function sport1(
 
       const marketCount = await marketFactory.marketCount().then((bn: BigNumber) => bn.toNumber());
       const m1 = marketCount - 1;
-      console.log(`Created market ${m1} for NFL ${marketFactory.address}`);
+      console.log(`Created market ${m1} for ${marketType} ${marketFactory.address}`);
     }
   } finally {
     await resetLinkNode(marketFactory, originalLinkNode);
