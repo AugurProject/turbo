@@ -122,6 +122,16 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "Crypto",
+        subtype: "V2",
+        address: "0xBFA328b8f1a8C862133377c4c9FB3d17e0779B8b",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce",
+        fetcher: "",
+        description: "crypto prices",
+        version: "FILL THIS OUT",
+      },
+      {
         type: "NFL",
         subtype: "V2",
         address: "0x8524e46E1B0823Ba23454e211e05A4C488020ABC",
