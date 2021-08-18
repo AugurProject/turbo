@@ -19,35 +19,50 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-export type MarketFactoryType =
-  | "SportsLink"
-  | "MMALink"
-  | "Trusted"
-  | "Crypto"
-  | "NFL";
+export const MARKET_TYPES = [
+  "Trusted",
+  "Crypto",
+  "SportsLink",
+  "MMA",
+  "NBA",
+  "MLB",
+  "NFL",
+] as const;
+export type MarketFactoryType = typeof MARKET_TYPES[number];
 export type MarketFactorySubType = "V1" | "V2";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactoryV2"
   | "NFLMarketFactory"
-  | "MMALinkMarketFactory"
+  | "NBAMarketFactory"
+  | "MLBMarketFactory"
+  | "MMAMarketFactory"
   | "CryptoMarketFactory"
   | "TrustedMarketFactory";
-export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "";
-export const marketFactoryTypeToContractName: {
+export type FetcherContractName =
+  | "NBAFetcher"
+  | "MMAFetcher"
+  | "NFLFetcher"
+  | "MLBFetcher"
+  | "";
+export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
   SportsLink: "SportsLinkMarketFactoryV2",
   NFL: "NFLMarketFactory",
-  MMALink: "MMALinkMarketFactory",
+  MLB: "MLBMarketFactory",
+  NBA: "NBAMarketFactory",
+  MMA: "MMAMarketFactory",
   Crypto: "CryptoMarketFactory",
   Trusted: "TrustedMarketFactory",
 };
 export const marketFactoryTypeToFetcherName: {
   [Property in MarketFactoryType]: FetcherContractName;
 } = {
-  SportsLink: "NBAFetcher",
-  MMALink: "MMAFetcher",
-  NFL: "NBAFetcher",
+  SportsLink: "",
+  MMA: "MMAFetcher",
+  NFL: "NFLFetcher",
+  MLB: "MLBFetcher",
+  NBA: "NBAFetcher",
   Crypto: "",
   Trusted: "",
 };
@@ -90,7 +105,7 @@ export const addresses: AddressMapping = {
         version: "v1.1.0",
       },
       {
-        type: "MMALink",
+        type: "MMA",
         subtype: "V2",
         address: "0xe296e39b44911a7fd4C741daa4eFDd345bF5a076",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
@@ -119,22 +134,22 @@ export const addresses: AddressMapping = {
       {
         type: "NFL",
         subtype: "V2",
-        address: "0x533BEe9E2B1cfF363096DE7BfE9CCE7EE401e6A2",
+        address: "0xCd67d18a66737F1Db26C4A74732562B599217b2F",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0xEA1f4C2A1870d7317E2d2F44F4790eF4b3239774",
+        fetcher: "0xb70F0B373C3222ca9d9a5e0Dcdf2875221352C6A",
         description: "nfl",
-        version: "refactor-v1",
+        version: "refactor-v2",
       },
       {
-        type: "MMALink",
+        type: "MMA",
         subtype: "V2",
-        address: "0x38eAc1946928224AB50F17501350e8e97979f0cE",
+        address: "0x259175Ced1776879F03964c8F29FE3eaF699Ec51",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0x6eD3F1F9f2F3579e0f33eBD523221ECdfEBbeA14",
+        fetcher: "0xF2b62720e6CA836a122C7d2BA554A51763e8E948",
         description: "mma",
-        version: "refactor-v1",
+        version: "refactor-v2",
       },
       {
         type: "Crypto",
@@ -167,7 +182,7 @@ export const addresses: AddressMapping = {
         version: "v1.1.0",
       },
       {
-        type: "MMALink",
+        type: "MMA",
         subtype: "V2",
         address: "0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",

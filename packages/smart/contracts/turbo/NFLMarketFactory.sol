@@ -26,7 +26,6 @@ contract NFLMarketFactory is
     uint256 constant HeadToHead = 0;
     uint256 constant Spread = 1;
     uint256 constant OverUnder = 2;
-    string constant InvalidName = "No Contest / Draw";
 
     constructor(
         address _owner,
@@ -40,12 +39,12 @@ contract NFLMarketFactory is
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("v1.2.0")
         Linked(_linkNode)
-        Facing(HeadToHead, InvalidName)
-        Spreadable(Spread, InvalidName)
-        Hurdlable(OverUnder, InvalidName)
+        Facing(HeadToHead, "No Contest / Draw")
+        Spreadable(Spread, "No Contest")
+        Hurdlable(OverUnder, "No Contest")
     {}
 
-    function createMarket(
+    function createEvent(
         uint256 _eventId,
         string memory _homeTeamName,
         uint256 _homeTeamId,

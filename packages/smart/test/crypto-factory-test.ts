@@ -24,7 +24,7 @@ import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 
-describe.only("CryptoFactory", () => {
+describe("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -92,7 +92,7 @@ describe.only("CryptoFactory", () => {
       feePot.address,
       [stakerFee, settlementFee, protocolFee],
       protocol,
-      linkNode,
+      linkNode
     );
 
     expect(await marketFactory.getOwner()).to.equal(owner);

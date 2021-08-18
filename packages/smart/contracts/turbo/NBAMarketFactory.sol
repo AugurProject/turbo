@@ -43,7 +43,7 @@ contract NBAMarketFactory is
         Hurdlable(OverUnder, InvalidName)
     {}
 
-    function createMarket(
+    function createEvent(
         uint256 _eventId,
         string memory _homeTeamName,
         uint256 _homeTeamId,

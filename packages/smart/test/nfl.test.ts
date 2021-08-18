@@ -11,10 +11,10 @@ import {
   FeePot,
   FeePot__factory,
   MMAMarketFactory,
-  NBAFetcher,
-  NBAFetcher__factory,
-  NBAMarketFactory,
-  NBAMarketFactory__factory,
+  NFLFetcher,
+  NFLFetcher__factory,
+  NFLMarketFactory,
+  NFLMarketFactory__factory,
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
@@ -48,7 +48,7 @@ enum Outcome {
   TotalUnder = 2,
 }
 
-describe("NBA", () => {
+describe("NFL", () => {
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -70,7 +70,7 @@ describe("NBA", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NFLMarketFactory;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -82,7 +82,7 @@ describe("NBA", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NFLMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -132,8 +132,8 @@ describe("NBA", () => {
     const [noContest, away, home] = headToHeadMarket.shareTokens.map((addr) =>
       OwnedERC20__factory.connect(addr, signer)
     );
-    expect(await noContest.symbol()).to.equal("No Contest");
-    expect(await noContest.name()).to.equal("No Contest");
+    expect(await noContest.symbol()).to.equal("No Contest / Draw");
+    expect(await noContest.name()).to.equal("No Contest / Draw");
     expect(await away.symbol()).to.equal(awayTeamName);
     expect(await away.name()).to.equal(awayTeamName);
     expect(await home.symbol()).to.equal(homeTeamName);
@@ -220,7 +220,7 @@ describe("LinkFactory NoContest", () => {
   const homeTeamId = 42;
   const awayTeamId = 1881;
 
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NFLMarketFactory;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -235,7 +235,7 @@ describe("LinkFactory NoContest", () => {
     const homeSpread = 40;
     const overUnderTotal = 60;
 
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NFLMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -283,7 +283,7 @@ describe("Sports fetcher", () => {
     [signer] = await ethers.getSigners();
   });
 
-  let fetcher: NBAFetcher;
+  let fetcher: NFLFetcher;
   let ammFactory: AMMFactory;
   let collateral: Cash;
   let feePot: FeePot;
@@ -298,7 +298,7 @@ describe("Sports fetcher", () => {
   const smallFee = BigNumber.from(10).pow(16);
   let estimatedStartTime: BigNumber;
 
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NFLMarketFactory;
 
   let h2hMarketId: BigNumberish;
   let h2hMarket: UnPromisify<ReturnType<typeof marketFactory.getMarket>>;
@@ -314,7 +314,7 @@ describe("Sports fetcher", () => {
 
     const now = BigNumber.from(Date.now()).div(1000);
     estimatedStartTime = now.add(60 * 60 * 24); // one day
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NFLMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),
@@ -369,8 +369,8 @@ describe("Sports fetcher", () => {
   });
 
   it("is deployable", async () => {
-    fetcher = await new NBAFetcher__factory(signer).deploy();
-    expect(await fetcher.marketType()).to.equal("NBA");
+    fetcher = await new NFLFetcher__factory(signer).deploy();
+    expect(await fetcher.marketType()).to.equal("NFL");
     expect(await fetcher.version()).to.be.a("string");
   });
 
@@ -647,7 +647,7 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
-type CheckableMarketFactory = NBAMarketFactory | MMAMarketFactory;
+type CheckableMarketFactory = NFLMarketFactory | MMAMarketFactory;
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {

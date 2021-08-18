@@ -57,7 +57,7 @@ describe("MMA Factory", () => {
   });
 
   it("can create markets", async () => {
-    await marketFactory.createMarket(eventId, homeTeamName, homeTeamId, awayTeamName, awayTeamId, estimatedStartTime, [
+    await marketFactory.createEvent(eventId, homeTeamName, homeTeamId, awayTeamName, awayTeamId, estimatedStartTime, [
       moneylineHome,
       moneylineAway,
     ]);
@@ -105,7 +105,7 @@ describe("MMA Factory", () => {
 
   it("the Away Team can win", async () => {
     const thisEventId = eventId + 1; // just has to be different
-    await marketFactory.createMarket(
+    await marketFactory.createEvent(
       thisEventId,
       homeTeamName,
       homeTeamId,
@@ -122,7 +122,7 @@ describe("MMA Factory", () => {
 
   it("draws can happen", async () => {
     const thisEventId = eventId + 2; // just has to be different
-    await marketFactory.createMarket(
+    await marketFactory.createEvent(
       thisEventId,
       homeTeamName,
       homeTeamId,
@@ -179,15 +179,10 @@ describe("MMA Factory", () => {
         signer.address // pretending the deployer is a link node for testing purposes
       );
 
-      await marketFactory.createMarket(
-        eventId,
-        homeTeamName,
-        homeTeamId,
-        awayTeamName,
-        awayTeamId,
-        estimatedStartTime,
-        [moneylineHome, moneylineAway]
-      );
+      await marketFactory.createEvent(eventId, homeTeamName, homeTeamId, awayTeamName, awayTeamId, estimatedStartTime, [
+        moneylineHome,
+        moneylineAway,
+      ]);
     });
 
     it("can resolve markets as No Contest", async () => {

@@ -70,7 +70,7 @@ export function instantiateMarketFactory(
     if (subtype === "V1") return SportsLinkMarketFactoryV1__factory.connect(address, signerOrProvider);
     if (subtype === "V2") return SportsLinkMarketFactoryV2__factory.connect(address, signerOrProvider);
   }
-  if (type === "MMALink") return MMAMarketFactory__factory.connect(address, signerOrProvider);
+  if (type === "MMA") return MMAMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
   if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);
