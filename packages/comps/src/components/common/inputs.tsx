@@ -183,6 +183,7 @@ const Outcome = ({
   noClick,
   index,
   hasLiquidity,
+  isFutures = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
   const input = useRef(null);
@@ -201,6 +202,7 @@ const Outcome = ({
       key={index}
       onClick={onClick}
       className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
+        [Styles.Futures]: isFutures,
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
@@ -231,6 +233,12 @@ const Outcome = ({
       ) : (
         <span>{price}</span>
       )}
+      {isFutures && selected && (
+        <div>
+          <button>Buy</button>
+          <button>Sell</button>
+        </div>
+      )}
     </div>
   );
 };
@@ -251,6 +259,7 @@ export interface OutcomesGridProps {
   noClick?: boolean;
   hasLiquidity?: boolean;
   marketFactoryType?: string;
+  isFutures?: boolean;
 }
 export const OutcomesGrid = ({
   outcomes,
@@ -267,11 +276,96 @@ export const OutcomesGrid = ({
   noClick,
   hasLiquidity,
   marketFactoryType,
+  isFutures = true,
 }: OutcomesGridProps) => {
-  const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
+  const sortedOutcomes = orderOutcomesForDisplay(
+    outcomes.concat([
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 3,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 3",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 4,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 4",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 5,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 5",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 6,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 6",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 7,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 7",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+      {
+        balance: "",
+        balanceRaw: "",
+        id: 8,
+        isFinalNumerator: false,
+        isInvalid: false,
+        isWinner: false,
+        name: "Colorado Rockies 8",
+        price: "",
+        ratio: "",
+        ratioRaw: "",
+        symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+      },
+    ]),
+    marketFactoryType
+  );
+  console.log("sortedOutcomes", sortedOutcomes);
   return (
     <div
       className={classNames(Styles.Outcomes, {
+        [Styles.Futures]: isFutures,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.showAsButtons]: showAsButtons,
         [Styles.noClick]: noClick,
@@ -295,6 +389,7 @@ export const OutcomesGrid = ({
             error={error}
             noClick={noClick}
             hasLiquidity={hasLiquidity}
+            isFutures={isFutures}
           />
         ))}
     </div>
