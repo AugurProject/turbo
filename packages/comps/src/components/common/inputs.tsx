@@ -186,6 +186,7 @@ const Outcome = ({
   isFutures = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
+  const [actionType, setActionType] = useState(null);
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
   const { prepend, symbol } = getCashFormat(ammCash?.name);
@@ -235,8 +236,12 @@ const Outcome = ({
       )}
       {isFutures && selected && (
         <div>
-          <button>Buy</button>
-          <button>Sell</button>
+          <button className={classNames({
+            [Styles.Selected]: actionType === 0,
+          })} onClick={() => setActionType(0)}>Buy</button>
+          <button className={classNames({
+            [Styles.Selected]: actionType === 1,
+          })} onClick={() => setActionType(1)}>Sell</button>
         </div>
       )}
     </div>

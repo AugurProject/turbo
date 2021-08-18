@@ -380,21 +380,46 @@
             max-height: @size-34;
 
             > button {
+              .text-12-semi-bold;
+              
               background: transparent;
               flex: 1 0 100%;
               border: @size-1 solid var(--theme-border);
+              color: var(--secondary-text);
+              cursor: pointer;
               
-
               &:first-of-type {
                 .PrimaryBottomBorderRadius;
 
                 border-bottom-right-radius: 0;
+
+                &.Selected {
+                  color: var(--primary-text);
+                  border-color: var(--buy);
+                  background-color: rgba(var(--buy-rgb), 0.15);
+                }
+
+                &:not(.Selected):hover {
+                  border-color: var(--buy);
+                  background-color: rgba(var(--buy-rgb), 0.15);
+                }
               }
 
               &:last-of-type {
                 .PrimaryBottomBorderRadius;
 
                 border-bottom-left-radius: 0;
+
+                &.Selected {
+                  color: var(--primary-text);
+                  border-color: var(--sell);
+                  background-color: rgba(var(--sell-rgb), 0.15);
+                }
+
+                &:not(.Selected):hover {
+                  border-color: var(--sell);
+                  background-color: rgba(var(--sell-rgb), 0.15);
+                }
               }
             }
           }
