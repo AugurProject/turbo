@@ -1,23 +1,19 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { isHttpNetworkConfig, makeSigner } from "../tasks";
 import { FakePriceFeed__factory } from "../typechain";
-import { FAKE_COINS } from "../src";
+import { PRICE_FEEDS } from "../src";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
-  const { deployments } = hre;
-  const signer = await makeSigner(hre);
+  const { deployments, getNamedAccounts } = hre;
+  const { deployer } = await getNamedAccounts();
 
-  if (hre.network.config.deployConfig?.externalAddresses?.priceFeeds) {
-    console.log("Not configuring fake price feeds because real ones were specified");
-    return;
-  }
+  const signer = await hre.ethers.getSigner(deployer);
 
-  for (const coin of FAKE_COINS) {
-    const address = (await deployments.get(coin.deploymentName)).address;
+  for (const coin of PRICE_FEEDS) {
+    const { address } = await deployments.get(coin.deploymentName);
     const priceFeed = FakePriceFeed__factory.connect(address, signer);
     const data = await priceFeed.latestRoundData();
+
     if (!data._answer.eq(0)) {
       console.log(`Skipping setting price feed for ${coin.symbol} because it's already set`);
       continue;

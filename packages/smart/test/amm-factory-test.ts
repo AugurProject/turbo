@@ -1,11 +1,13 @@
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
 import {
   AbstractMarketFactoryV2,
   AMMFactory,
-  AMMFactory__factory,
+  BFactory,
+  Cash,
+  FeePot,
   TrustedMarketFactory,
   TrustedMarketFactory__factory,
 } from "../typechain";
@@ -14,10 +16,7 @@ import { calcShareFactor } from "../src";
 import { buyWithValues, calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 describe("AMMFactory", () => {
-  let BFactory__factory: ContractFactory;
   let BPool__factory: ContractFactory;
-  let Cash__factory: ContractFactory;
-  let FeePot__factory: ContractFactory;
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
@@ -26,7 +25,6 @@ describe("AMMFactory", () => {
 
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
-  const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
   const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
   const protocolFee = 0;
 
@@ -34,7 +32,7 @@ describe("AMMFactory", () => {
   const ZERO = BigNumber.from(0);
   const BONE = BigNumber.from(10).pow(18);
 
-  let collateral: Contract;
+  let collateral: Cash;
   let shareFactor: BigNumber;
   let marketFactory: TrustedMarketFactory;
   const marketId = BigNumber.from(1);
@@ -46,18 +44,16 @@ describe("AMMFactory", () => {
   let bPool: Contract;
 
   before(async () => {
-    BFactory__factory = await ethers.getContractFactory("BFactory");
     BPool__factory = await ethers.getContractFactory("BPool");
-    Cash__factory = await ethers.getContractFactory("Cash");
-    FeePot__factory = await ethers.getContractFactory("FeePot");
   });
 
   beforeEach(async () => {
+    await deployments.fixture();
+
     [signer, secondSigner] = await ethers.getSigners();
 
-    collateral = await Cash__factory.deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    const reputationToken = await Cash__factory.deploy("REPv2", "REPv2", 18);
-    const feePot = await FeePot__factory.deploy(collateral.address, reputationToken.address);
+    collateral = (await ethers.getContract("Collateral")) as Cash;
+    const feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
       signer.address,
@@ -70,8 +66,8 @@ describe("AMMFactory", () => {
       protocolFee
     );
 
-    bFactory = await BFactory__factory.deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    bFactory = (await ethers.getContract("BFactory")) as BFactory;
+    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
 
     const endTime = BigNumber.from(Date.now())
       .div(1000)

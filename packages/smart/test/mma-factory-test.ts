@@ -1,24 +1,16 @@
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
-import {
-  Cash,
-  Cash__factory,
-  FeePot__factory,
-  MMALinkMarketFactory,
-  MMALinkMarketFactory__factory,
-  OwnedERC20__factory,
-} from "../typechain";
+import { Cash, MMALinkMarketFactory, OwnedERC20__factory } from "../typechain";
 import { BigNumber } from "ethers";
-import { calcShareFactor, MMAWhoWon, SportsLinkEventStatus } from "../src";
+import { MMAWhoWon, SportsLinkEventStatus } from "../src";
 
 describe("MMA Factory", () => {
   let signer: SignerWithAddress;
 
-  before(async () => {
-    [signer] = await ethers.getSigners();
-  });
+  const now = BigNumber.from(Date.now()).div(1000);
+  const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
   const eventId = 9001;
   const homeFighterName = "Rascal McJupiter";
@@ -27,40 +19,19 @@ describe("MMA Factory", () => {
   const awayFighterId = 1881;
   const moneylineHome = -600;
   const moneylineAway = 800;
-  const sportId = 7;
-
-  const now = BigNumber.from(Date.now()).div(1000);
-  const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
   let collateral: Cash;
   let marketFactory: MMALinkMarketFactory;
   let headToHeadMarketId: BigNumber;
 
-  it("is deployable", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    const smallFee = BigNumber.from(10).pow(16);
-    const shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
-      signer.address,
-      collateral.address,
-      shareFactor,
-      feePot.address,
-      smallFee,
-      smallFee,
-      signer.address,
-      smallFee,
-      signer.address, // pretending the deployer is a link node for testing purposes
-      sportId
-    );
+  beforeEach(async () => {
+    await deployments.fixture();
 
-    expect(await marketFactory.getOwner()).to.equal(signer.address);
-    expect(await marketFactory.feePot()).to.equal(feePot.address);
-    expect(await marketFactory.collateral()).to.equal(collateral.address);
-  });
+    [signer] = await ethers.getSigners();
 
-  it("can create markets", async () => {
+    marketFactory = (await ethers.getContract("MMALinkMarketFactory")) as MMALinkMarketFactory;
+    collateral = (await ethers.getContract("Collateral")) as Cash;
+
     await marketFactory.createMarket(
       eventId,
       homeFighterName,
@@ -77,7 +48,14 @@ describe("MMA Factory", () => {
     const [headToHeadLog] = logs.map((log) => log.args);
 
     [headToHeadMarketId] = headToHeadLog;
+  });
 
+  it("is deployable", async () => {
+    expect(await marketFactory.getOwner()).to.equal(signer.address);
+    expect(await marketFactory.collateral()).to.equal(collateral.address);
+  });
+
+  it("can create markets", async () => {
     expect(headToHeadMarketId).to.equal(1);
   });
 
@@ -100,22 +78,26 @@ describe("MMA Factory", () => {
     expect(Number(events[0])).to.equal(eventId);
   });
 
-  it("can resolve markets", async () => {
-    await marketFactory.trustedResolveMarkets(
-      eventId,
-      SportsLinkEventStatus.Final,
-      homeFighterId,
-      awayFighterId,
-      MMAWhoWon.Home
-    );
+  describe("resolved market", () => {
+    beforeEach(async () => {
+      await marketFactory.trustedResolveMarkets(
+        eventId,
+        SportsLinkEventStatus.Final,
+        homeFighterId,
+        awayFighterId,
+        MMAWhoWon.Home
+      );
+    });
 
-    const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
-    expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
-  });
+    it("can resolve markets", async () => {
+      const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
+      expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[2]); // home team won
+    });
 
-  it("stops listing resolved events", async () => {
-    const events = await marketFactory.listResolvableEvents();
-    expect(events.length).to.equal(0);
+    it("stops listing resolved events", async () => {
+      const events = await marketFactory.listResolvableEvents();
+      expect(events.length).to.equal(0);
+    });
   });
 
   it("the Away fighter can win", async () => {
@@ -170,45 +152,15 @@ describe("MMA Factory", () => {
     expect(homeFighterId).to.equal(homeFighterId);
     expect(awayFighterId).to.equal(awayFighterId);
     expect(startTime).to.equal(startTime);
-    expect(eventStatus).to.equal(2); // Final
+    expect(eventStatus).to.equal(1); // Final
   });
 
   describe("LinkFactory NoContest", () => {
-    let signer: SignerWithAddress;
-
     before(async () => {
-      [signer] = await ethers.getSigners();
-    });
-
-    const eventId = 9001;
-
-    let marketFactory: MMALinkMarketFactory;
-
-    before(async () => {
-      const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-      const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-      const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-      const smallFee = BigNumber.from(10).pow(16);
-      const shareFactor = calcShareFactor(await collateral.decimals());
-
       const now = BigNumber.from(Date.now()).div(1000);
       const estimatedStartTime = now.add(60 * 60 * 24); // one day
       const homeFighterId = 42;
       const awayFighterId = 1881;
-      const sportId = 4;
-
-      marketFactory = await new MMALinkMarketFactory__factory(signer).deploy(
-        signer.address,
-        collateral.address,
-        shareFactor,
-        feePot.address,
-        smallFee,
-        smallFee,
-        signer.address,
-        smallFee,
-        signer.address, // pretending the deployer is a link node for testing purposes
-        sportId
-      );
 
       await marketFactory.createMarket(
         eventId,
