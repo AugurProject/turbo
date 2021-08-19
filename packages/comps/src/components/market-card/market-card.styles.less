@@ -1,5 +1,15 @@
 @import (reference) "../../assets/styles/shared.less";
 
+@keyframes greenNPurple {
+  from {
+    box-shadow: 0 @size-8 @size-40 rgba(var(--color-brand-tertiary-rgb), 0.15);
+  }
+  to {
+    box-shadow:  0 @size-8 @size-40 rgba(var(--color-brand-rgb), 0.15);
+  }
+}
+
+
 .MarketCard {
   .HoverDropShadow;
 
@@ -8,6 +18,14 @@
   &.Popular {
     background: linear-gradient(to left, var(--color-brand), var(--color-brand-tertiary));
     padding: @size-2;
+    box-shadow: unset;
+    transition: box-shadow 0.3s ease-out;
+
+    &:hover:not(:disabled) {
+      box-shadow:  0 @size-8 @size-40 rgba(var(--color-brand-rgb), 0.15);
+      transition: box-shadow 0.3s ease-out;
+      animation: greenNPurple 1.5s linear infinite alternate; 
+    }
 
     > a,
     > div,
