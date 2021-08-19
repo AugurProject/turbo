@@ -3,7 +3,7 @@ import { task, types } from "hardhat/config";
 import "hardhat/types/config";
 import { buildContractInterfaces, ContractInterfaces, CryptoMarketFactory } from "..";
 import { makeSigner } from "./deploy";
-import { getUpcomingFriday4pmEst } from "../src";
+import { getUpcomingFriday4pmET } from "../src";
 
 task("createCryptoMarkets", "Create market for the CryptoMarketFactory")
   .addParam("index", "index of market factory to use, in addresses.ts", 0, types.int)
@@ -22,6 +22,6 @@ task("createCryptoMarkets", "Create market for the CryptoMarketFactory")
       const marketFactory = MarketFactories[index].marketFactory as CryptoMarketFactory;
 
       console.log("Creating and resolving markets");
-      await marketFactory.createAndResolveMarkets([0, 0, 0, 0, 0, 0], getUpcomingFriday4pmEst().valueOf());
+      await marketFactory.createAndResolveMarkets([0, 0, 0, 0, 0, 0], getUpcomingFriday4pmET());
     }
   );

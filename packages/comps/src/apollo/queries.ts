@@ -29,7 +29,7 @@ export const SEARCH_MARKETS = gql`
 `;
 
 export const GET_MARKETS = gql`
-  query getMarkets($SportsLink: [String], $Crypto: [String], $MMALink: [String]) {
+  query getMarkets($SportsLink: [String], $Crypto: [String], $MMALink: [String], $NFL: [String]) {
     teamSportsMarkets(
       where: { winner: null, marketFactory_in: $SportsLink }
       orderBy: timestamp
@@ -81,6 +81,25 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
       marketType
+      initialOdds
+    }
+    nflMarkets(where: { winner: null, marketFactory_in: $NFL }, orderBy: timestamp, orderDirection: desc) {
+      marketId: id
+      creationTimestamp: timestamp
+      endTime
+      winner
+      eventId
+      homeTeamId
+      awayTeamId
+      homeTeamName
+      awayTeamName
+      marketType
+      value0: overUnderTotal
+      estimatedStartTime
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      shareTokens
+      creator
       initialOdds
     }
     resolved_teamSportsMarkets: teamSportsMarkets(
@@ -141,6 +160,29 @@ export const GET_MARKETS = gql`
       shareTokens
       creator
       marketType
+    }
+    resolved_NFLMarkets: nflMarkets(
+      where: { winner_not: null, marketFactory_in: $NFL }
+      orderBy: timestamp
+      orderDirection: desc
+      first: 1000
+    ) {
+      marketId: id
+      creationTimestamp: timestamp
+      endTime
+      winner
+      eventId
+      homeTeamId
+      awayTeamId
+      homeTeamName
+      awayTeamName
+      marketType
+      value0: overUnderTotal
+      estimatedStartTime
+      marketFactoryAddress: marketFactory
+      turboId: marketIndex
+      shareTokens
+      creator
     }
   }
 `;

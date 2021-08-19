@@ -1,4 +1,4 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
 .SearchInput {
   .ThemeBorder;
@@ -38,7 +38,7 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    
+
     > svg > path {
       fill: var(--primary-text);
     }
@@ -150,7 +150,6 @@
   color: var(--secondary-text);
   align-items: center;
 
-
   > button {
     margin-right: @size-8;
   }
@@ -237,10 +236,9 @@
   height: @size-16;
 
   > span:not(:last-of-type) {
-
     margin-right: @size-4;
 
-    &:first-of-type { 
+    &:first-of-type {
       .text-14;
 
       color: var(--secondary-text);
@@ -270,10 +268,29 @@
   }
 }
 
-
 .Outcomes {
   display: flex;
   flex-direction: column;
+
+  &.Futures {
+    overflow-y: auto;
+    max-height: @size-340;
+    margin: 0 -@size-24;
+    padding: 0 @size-24 @size-8;
+    border-bottom: @size-1 solid var(--theme-border);
+
+    @media @breakpoint-mobile {
+      max-height: @size-192;
+      padding: 0 @size-16 @size-8;
+      margin: 0 -@size-16;
+
+      &.noClick {
+        max-height: @size-206;
+        padding: 0;
+        margin: 0 0 @size-16 0;
+      }
+    }
+  }
 
   > div {
     &:not(:first-of-type) {
@@ -281,20 +298,19 @@
     }
   }
 
-
   &.showAsButtons {
     > div:first-of-type {
       margin-right: @size-8;
     }
   }
-  
+
   &.noClick {
     border: @size-1 solid var(--theme-border);
     border-radius: @size-8;
 
     > div {
       &:not(:first-of-type) {
-        margin-top: 0
+        margin-top: 0;
       }
     }
   }
@@ -327,6 +343,11 @@
     min-height: @size-48;
     max-height: @size-48;
 
+    &.Futures {
+      min-height: auto;
+      max-height: none;
+    }
+
     > span {
       margin: auto 0;
     }
@@ -336,6 +357,10 @@
     &.color-@{newIndex} {
       &:hover {
         border: @size-1 solid @value;
+
+        &.Futures {
+          border: @size-1 solid var(--primary-text);
+        }
       };
 
       &.Selected {    
@@ -343,16 +368,91 @@
         background: transparent;
         position: relative;
 
-        &:before {
-          content: "";
-          border-radius: inherit;
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          left: 0;
-          top: 0;
-          background-color: @value;
-          opacity: 0.15;
+        &.Futures {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          border: @size-1 solid var(--primary-text);
+          padding: 0;
+
+          > span:nth-of-type(2) {
+            display: none;
+          }
+
+          > span:first-of-type {
+            grid-column: span 2;
+            justify-content: center;
+            height: @size-40;
+            min-height: @size-40;
+            max-height: @size-40;
+          }
+
+          > div {
+            .PrimaryBottomBorderRadius;
+
+            display: flex;
+            flex-flow: row nowrap;
+            height: @size-34;
+            min-height: @size-34;
+            max-height: @size-34;
+
+            > button {
+              .text-12-semi-bold;
+
+              background: transparent;
+              flex: 1 0 100%;
+              border: @size-1 solid var(--theme-border);
+              color: var(--secondary-text);
+              cursor: pointer;
+              
+              &:first-of-type {
+                .PrimaryBottomBorderRadius;
+
+                border-bottom-right-radius: 0;
+
+                &.Selected {
+                  color: var(--primary-text);
+                  border-color: var(--buy);
+                  background-color: rgba(var(--buy-rgb), 0.15);
+                }
+
+                &:not(.Selected):hover {
+                  border-color: var(--buy);
+                  background-color: rgba(var(--buy-rgb), 0.15);
+                }
+              }
+
+              &:last-of-type {
+                .PrimaryBottomBorderRadius;
+
+                border-bottom-left-radius: 0;
+
+                &.Selected {
+                  color: var(--primary-text);
+                  border-color: var(--sell);
+                  background-color: rgba(var(--sell-rgb), 0.15);
+                }
+
+                &:not(.Selected):hover {
+                  border-color: var(--sell);
+                  background-color: rgba(var(--sell-rgb), 0.15);
+                }
+              }
+            }
+          }
+        }
+
+        &:not(.Futures) {
+          &:before {
+            content: "";
+            border-radius: inherit;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: @value;
+            opacity: 0.15;
+          }
         }
       }
     }
@@ -361,7 +461,7 @@
   > span {
     display: flex;
     align-items: center;
-    
+
     &:first-of-type {
       .text-14-semi-bold;
     }
@@ -413,7 +513,7 @@
   &.nonSelectable {
     pointer-events: none;
     cursor: default;
-    
+
     &:hover {
       border: @size-1 solid var(--theme-border);
     }
@@ -438,7 +538,7 @@
         border-left: @size-1 solid var(--theme-border);
         padding: @size-10 @size-16;
         align-items: center;
-        
+
         > input {
           .text-16-semi-bold;
 

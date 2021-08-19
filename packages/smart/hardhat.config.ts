@@ -13,6 +13,7 @@ import { NetworkUserConfig } from "hardhat/types";
 const ETHERSCAN_API_KEY = process.env["ETHERSCAN_API_KEY"] || "CH7M2ATCZABP2GIHEF3FREWWQPDFQBSH8G";
 
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const NO_OWNER = "0x0000000000000000000000000000000000000001";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -63,8 +64,6 @@ const config: HardhatUserConfig = {
     maticMumbai: {
       url: "https://rpc-mumbai.maticvigil.com/v1/d955b11199dbfd5871c21bdc750c994edfa52abd",
       chainId: 80001,
-      gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
-      gasPrice: 20000000000,
       deployConfig: {
         linkNode: "0x8C9c733eCd48426b9c53c38ccB60F3b307329bE1", // deployer address, for now
       },
@@ -77,11 +76,19 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       deployConfig: {
         linkNode: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
-        owner: NULL_ADDRESS,
+        owner: NO_OWNER,
         protocol: NULL_ADDRESS,
         externalAddresses: {
           usdcToken: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
           // reputationToken: NULL_ADDRESS, // no staking fees yet
+          priceFeeds: [
+            { symbol: "BTC", imprecision: 0, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+            { symbol: "ETH", imprecision: 0, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+            { symbol: "MATIC", imprecision: 4, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+            { symbol: "DOGE", imprecision: 4, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+            { symbol: "REP", imprecision: 2, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+            { symbol: "LINK", imprecision: 2, priceFeedAddress: "0xc907E116054Ad103354f2D350FD2514433D57F6f" },
+          ],
         },
       },
     },

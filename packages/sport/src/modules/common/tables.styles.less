@@ -179,11 +179,39 @@
           &.CanCashOut {
             &.PositiveCashout {
               background: rgba(var(--success-rgb), 0.15);
-              border-color: var(--success);
+              border-color: rgba(var(--success-rgb), 0.15);
             }
             &.NegativeCashout {
               background: rgba(var(--failed-rgb), 0.15);
-              border-color: var(--failed);
+              border-color: rgba(var(--failed-rgb), 0.15);
+            }
+            
+            &:hover:not(:disabled) {
+              border-color: var(--primary-text);
+              background: var(--primary-text);
+              color: var(--primary-bg);
+            }
+          }
+
+          &.hasClaimed {
+            opacity: 1;
+            > span:last-of-type {
+              margin-right: @size-4;
+              color: var(--secondary-text);
+            }
+
+            > span:first-of-type {
+              color: var(--primary-text);
+            }
+
+            &.PositiveCashout {
+              background: rgba(var(--success-rgb), 0.15);
+              border-color: rgba(var(--success-rgb), 0.15);
+            }
+
+            &.NegativeCashout {
+              background: rgba(var(--failed-rgb), 0.15);
+              border-color: rgba(var(--failed-rgb), 0.15);
             }
             
             &:hover:not(:disabled) {

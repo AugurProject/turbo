@@ -72,7 +72,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
           );
 
           // Throwing now until graph data can consistently pull all markets
-          throw new Error('Temporary Graph Failover');
+          // throw new Error('Temporary Graph Failover');
 
           if (isDegraded) {
             AppStatusStore.actions.setIsDegraded(false);
