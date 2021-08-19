@@ -2217,25 +2217,6 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   return String(ratios[outcomeId]);
 };
 
-const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: string[] = []): string[] => {
-  let outcomePrices = [];
-  if (!market) {
-    console.error("market object undefined");
-    return [];
-  }
-  const { outcomes, hasWinner } = market;
-  if (hasWinner) {
-    return outcomes.map((outcome) => (outcome.isWinner ? "1" : "0"));
-  }
-  //price[0] = ratio[0] / sum(ratio)
-  const base = ratios.length > 0 ? ratios : weights;
-  if (base.length > 0) {
-    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), ZERO);
-    outcomePrices = base.map((r) => new BN(String(r)).div(sum).toFixed());
-  }
-  return outcomePrices;
-};
-
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   const {
     shareTokens,
