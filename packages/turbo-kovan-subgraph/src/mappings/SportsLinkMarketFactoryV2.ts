@@ -46,6 +46,18 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
+function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
+  let shareTokens = getShareTokens(contractAddress, marketIndex);
+  for(let i = 0; i < shareTokens.length; i++) {
+    let id = senderId + "-" + marketId + "-" + BigInt.fromI32(i).toHexString();
+    let entity = getOrCreatePositionBalance(id, false, false);
+    if (entity) {
+      entity.open = false;
+      entity.save();
+    }
+  }
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
@@ -137,7 +149,7 @@ function handlePositionFromClaimWinningsEventV2(
     let wasAlreadySummed = log.includes(logId);
     if (!wasAlreadySummed) {
       log.push(logId);
-      positionBalanceEntity.log = log
+      positionBalanceEntity.log = log;
 
       let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
 
@@ -152,8 +164,6 @@ function handlePositionFromClaimWinningsEventV2(
       positionBalanceEntity.senderId = senderId;
       positionBalanceEntity.sender = senderId;
 
-      let initialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.toBigDecimal().div(USDC_DECIMALS);
-      let absInitialCostBigDecimal = initialCostPerMarketEntity.sumOfInitialCost.abs().toBigDecimal().div(USDC_DECIMALS);
       let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
       let absPayoutBigInt = positionBalanceEntity.payoutBigInt + event.params.payout.abs();
       let payoutBigDecimal = absPayoutBigInt.toBigDecimal().div(USDC_DECIMALS);
@@ -164,7 +174,7 @@ function handlePositionFromClaimWinningsEventV2(
       positionBalanceEntity.sharesBigDecimal = amountBigDecimal;
       positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarketEntity.sumOfInitialCost);
       positionBalanceEntity.initCostUsdBigInt = initialCostPerMarketEntity.sumOfInitialCost;
-      positionBalanceEntity.initCostUsdBigDecimal = initialCostBigDecimal;
+      positionBalanceEntity.initCostUsdBigDecimal = initialCostPerMarketEntity.sumOfInitialCostBigDecimal;
       positionBalanceEntity.payout = bigIntToHexString(absPayoutBigInt);
       positionBalanceEntity.payoutBigInt = absPayoutBigInt;
       positionBalanceEntity.payoutBigDecimal = payoutBigDecimal;
@@ -173,9 +183,11 @@ function handlePositionFromClaimWinningsEventV2(
       positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
       positionBalanceEntity.avgPrice = initialCostPerMarketEntity.avgPrice;
       positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
-      positionBalanceEntity.open = sharesBigInt > ZERO;
+      positionBalanceEntity.open = false;
 
       positionBalanceEntity.save();
+
+      closeAllPositions(event.address, event.params.id, marketId, senderId);
     }
   }
 }
