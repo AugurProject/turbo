@@ -188,7 +188,7 @@ export const GET_MARKETS = gql`
 `;
 
 export const GET_TRANSACTIONS = gql`
-  query getTransactions($account: String) {
+  query getTransactions($account: String, $marketFactories: [String]) {
     senders(where: { id: $account }) {
       positionBalance(where: { open: false }) {
         id
@@ -229,7 +229,7 @@ export const GET_TRANSACTIONS = gql`
         }
       }
     }
-    markets(first: 1000) {
+    markets(where: { marketFactory_in: $marketFactories }, first: 1000) {
       id
       addLiquidity(orderBy: timestamp, orderDirection: desc) {
         id
