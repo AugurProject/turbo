@@ -183,8 +183,10 @@ const Outcome = ({
   noClick,
   index,
   hasLiquidity,
+  isFutures = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
+  const [actionType, setActionType] = useState(0);
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
   const { prepend, symbol } = getCashFormat(ammCash?.name);
@@ -201,6 +203,7 @@ const Outcome = ({
       key={index}
       onClick={onClick}
       className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
+        [Styles.Futures]: isFutures,
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
         [Styles.nonSelectable]: nonSelectable,
@@ -231,6 +234,16 @@ const Outcome = ({
       ) : (
         <span>{price}</span>
       )}
+      {isFutures && selected && (
+        <div>
+          <button className={classNames({
+            [Styles.Selected]: actionType === 0,
+          })} onClick={() => setActionType(0)}>Yes -</button>
+          <button className={classNames({
+            [Styles.Selected]: actionType === 1,
+          })} onClick={() => setActionType(1)}>No -</button>
+        </div>
+      )}
     </div>
   );
 };
@@ -251,6 +264,7 @@ export interface OutcomesGridProps {
   noClick?: boolean;
   hasLiquidity?: boolean;
   marketFactoryType?: string;
+  isFutures?: boolean;
 }
 export const OutcomesGrid = ({
   outcomes,
@@ -267,11 +281,17 @@ export const OutcomesGrid = ({
   noClick,
   hasLiquidity,
   marketFactoryType,
+  isFutures = false,
 }: OutcomesGridProps) => {
-  const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
+  const sortedOutcomes = orderOutcomesForDisplay(
+    outcomes,
+    marketFactoryType
+  );
+
   return (
     <div
       className={classNames(Styles.Outcomes, {
+        [Styles.Futures]: isFutures,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.showAsButtons]: showAsButtons,
         [Styles.noClick]: noClick,
@@ -295,8 +315,91 @@ export const OutcomesGrid = ({
             error={error}
             noClick={noClick}
             hasLiquidity={hasLiquidity}
+            isFutures={isFutures}
           />
         ))}
     </div>
   );
 };
+
+// DUMMY OUTCOMES DON'T -- need until we have data:
+// .concat([
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 3,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 3",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 4,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 4",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 5,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 5",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 6,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 6",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 7,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 7",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+//   {
+//     balance: "",
+//     balanceRaw: "",
+//     id: 8,
+//     isFinalNumerator: false,
+//     isInvalid: false,
+//     isWinner: false,
+//     name: "Colorado Rockies 8",
+//     price: "",
+//     ratio: "",
+//     ratioRaw: "",
+//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
+//   },
+// ])
