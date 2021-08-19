@@ -5,6 +5,18 @@
 
   border-radius: @size-8;
 
+  &.Popular {
+    background: linear-gradient(to left, var(--color-brand), var(--color-brand-tertiary));
+    padding: @size-2;
+
+    > a,
+    > div,
+    > section > div {
+      border: none;
+      padding: @size-22;
+    }
+  }
+
   > a,
   > div,
   > section > div {
