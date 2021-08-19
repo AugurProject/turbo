@@ -160,7 +160,7 @@ export const MarketCardView = ({
     <article
       className={classNames(Styles.MarketCard, {
         [Styles.NoLiquidity]: !amm?.id,
-        [Styles.Popular]: market?.isPopular || true,
+        [Styles.Popular]: market?.isPopular,
       })}
     >
       <MarketLink id={marketId} dontGoToMarket={false}>
