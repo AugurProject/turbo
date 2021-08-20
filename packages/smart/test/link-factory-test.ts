@@ -9,7 +9,11 @@ import {
   BFactory__factory,
   Cash,
   Cash__factory,
+<<<<<<< HEAD
   Eventual,
+=======
+  Sport,
+>>>>>>> robert/nfl-ncaa
   FeePot,
   FeePot__factory,
   NBAFetcher,
@@ -23,11 +27,18 @@ import {
   calcShareFactor,
   NULL_ADDRESS,
   SportsLinkEventStatus,
+<<<<<<< HEAD
   createSportsMarketFactoryBundle,
   createStaticSportsEventBundle,
   createDynamicSportsEventBundle,
   fetchInitialEvents,
   fetchDynamicEvents,
+=======
+  fetchInitialSports,
+  fetchDynamicSports,
+  InitialSportsMarket,
+  DynamicSportsMarket,
+>>>>>>> robert/nfl-ncaa
 } from "../src";
 
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
@@ -45,11 +56,19 @@ enum Outcome {
 
   SpreadLesser = 1,
   SpreadGreater = 2,
+<<<<<<< HEAD
 
   TotalOver = 1,
   TotalUnder = 2,
 }
 
+=======
+
+  TotalOver = 1,
+  TotalUnder = 2,
+}
+
+>>>>>>> robert/nfl-ncaa
 describe("NBA", () => {
   let signer: SignerWithAddress;
 
@@ -278,7 +297,11 @@ describe("LinkFactory NoContest", () => {
   });
 });
 
+<<<<<<< HEAD
 describe.only("Sports fetcher", () => {
+=======
+describe("Sports fetcher", () => {
+>>>>>>> robert/nfl-ncaa
   let signer: SignerWithAddress;
 
   before(async () => {
@@ -350,6 +373,7 @@ describe.only("Sports fetcher", () => {
     expect(await fetcher.version()).to.be.a("string");
   });
 
+<<<<<<< HEAD
   it("fetchInitial [0,50]", async () => {
     const offset = 0;
     const total = 50;
@@ -497,6 +521,69 @@ describe.only("Sports fetcher", () => {
       await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
       await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id),
     ]);
+=======
+  it("initial {offset=0,bundle=50)", async () => {
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+
+    expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
+    expect(markets, "markets").to.deep.equal(
+      flatten(
+        await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+        await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+      )
+    );
+  });
+
+  it("initial {offset=0,bundle=1)", async () => {
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 1);
+
+    expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
+    expect(markets, "markets").to.deep.equal(
+      flatten(
+        await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+        await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+      )
+    );
+  });
+
+  it("initial {offset=1,bundle=1)", async () => {
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 1, 1);
+
+    expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
+    expect(markets, "markets").to.deep.equal(
+      await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+    );
+  });
+
+  it("dynamic {offset=0,bundle=50}", async () => {
+    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 50);
+
+    expect(markets, "markets").to.deep.equal(
+      flatten(
+        await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+        await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+      )
+    );
+  });
+
+  it("dynamic {offset=0,bundle=1}", async () => {
+    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 1);
+
+    expect(markets, "markets").to.deep.equal(
+      flatten(
+        await eventDynamicBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
+        await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+      )
+    );
+  });
+
+  it("dynamic {offset=1,bundle=1}", async () => {
+    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 1, 1);
+
+    expect(markets, "markets").to.deep.equal(
+      await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+    );
+>>>>>>> robert/nfl-ncaa
   });
 });
 
@@ -507,7 +594,15 @@ function dollars(howManyDollars: number): BigNumber {
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T;
 
+<<<<<<< HEAD
 type CheckableMarketFactory = Eventual;
+=======
+type CheckableMarketFactory = Sport;
+
+function flatten<T>(...arrays: T[][]): T[] {
+  return arrays.reduce((flat, array) => flat.concat(array), []);
+}
+>>>>>>> robert/nfl-ncaa
 
 async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, collateral: Cash, feePot: FeePot) {
   return {
@@ -525,6 +620,7 @@ async function marketFactoryBundleCheck(marketFactory: CheckableMarketFactory, c
   };
 }
 
+<<<<<<< HEAD
 async function eventStaticBundleCheck(marketFactory: Eventual, ammFactory: AMMFactory, eventId: BigNumberish) {
   const event = await marketFactory.getSportsEvent(eventId);
 
@@ -576,6 +672,100 @@ async function eventDynamicBundleCheck(marketFactory: Eventual, ammFactory: AMMF
     homeScore: event.homeScore,
     awayScore: event.awayScore,
   };
+=======
+async function eventStaticBundleCheck(
+  marketFactory: Sport,
+  ammFactory: AMMFactory,
+  eventId: BigNumberish
+): Promise<InitialSportsMarket[]> {
+  const event = await marketFactory.getSportsEvent(eventId);
+
+  return Promise.all(
+    event.markets.map(
+      async (marketId: BigNumberish): Promise<InitialSportsMarket> => {
+        const market = await marketFactory.getMarket(marketId);
+        return {
+          // specific to this market
+          factory: marketFactory.address,
+          marketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, marketId),
+          shareTokens: market.shareTokens,
+          creationTimestamp: market.creationTimestamp,
+          winner: market.winner,
+          initialOdds: market.initialOdds,
+
+          // common to all markets in the event
+          eventId,
+          eventStatus: event.status,
+          lines: event.lines,
+          estimatedStartTime: event.estimatedStartTime,
+          home: {
+            id: event.homeTeamId,
+            name: event.homeTeamName,
+            score: event.homeScore,
+          },
+          away: {
+            id: event.awayTeamId,
+            name: event.awayTeamName,
+            score: event.awayScore,
+          },
+        };
+      }
+    )
+  );
+}
+
+async function eventDynamicBundleCheck(
+  marketFactory: Sport,
+  ammFactory: AMMFactory,
+  eventId: BigNumberish
+): Promise<DynamicSportsMarket[]> {
+  const event = await marketFactory.getSportsEvent(eventId);
+
+  return Promise.all(
+    event.markets.map(
+      async (marketId: BigNumberish): Promise<DynamicSportsMarket> => {
+        const market = await marketFactory.getMarket(marketId);
+        return {
+          // specific to this market
+          factory: marketFactory.address,
+          marketId,
+          pool: await makePoolCheck(ammFactory, marketFactory, marketId),
+          winner: market.winner,
+
+          // common to all markets in the event
+          eventId,
+          eventStatus: event.status,
+          home: {
+            score: event.homeScore,
+          },
+          away: {
+            score: event.awayScore,
+          },
+        };
+      }
+    )
+  );
+  //
+  //
+  // async function market(marketId: BigNumberish) {
+  //   const market = await marketFactory.getMarket(marketId);
+  //   return {
+  //     factory: marketFactory.address,
+  //     marketId,
+  //     pool: await makePoolCheck(ammFactory, marketFactory, marketId),
+  //     winner: market.winner,
+  //   };
+  // }
+  //
+  // return {
+  //   id: eventId,
+  //   markets: await Promise.all(event.markets.map(market)),
+  //   status: event.status,
+  //   homeScore: event.homeScore,
+  //   awayScore: event.awayScore,
+  // };
+>>>>>>> robert/nfl-ncaa
 }
 
 async function makePoolCheck(ammFactory: AMMFactory, marketFactory: CheckableMarketFactory, marketId: BigNumberish) {
@@ -628,7 +818,11 @@ interface TestTeam<BN> {
 }
 
 async function makeTestEvent(
+<<<<<<< HEAD
   marketFactory: Eventual,
+=======
+  marketFactory: Sport,
+>>>>>>> robert/nfl-ncaa
   testEvent: Omit<TestEvent<BigNumberish>, "markets">
 ): Promise<TestEvent<BigNumber>> {
   const { id, estimatedStartTime, home, away, lines } = testEvent;

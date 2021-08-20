@@ -7,6 +7,7 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
+<<<<<<< HEAD
 import "../libraries/various.sol";
 
 contract NBAMarketFactory is
@@ -16,6 +17,22 @@ contract NBAMarketFactory is
     Spreadable,
     Hurdlable,
     UsesScores,
+=======
+import "../libraries/Sport.sol";
+import "../libraries/HasHeadToHeadMarket.sol";
+import "../libraries/HasSpreadMarket.sol";
+import "../libraries/HasOverUnderMarket.sol";
+import "../libraries/ResolveByScore.sol";
+import "../libraries/Versioned.sol";
+
+contract NBAMarketFactory is
+    AbstractMarketFactoryV3,
+    SportView,
+    HasHeadToHeadMarket,
+    HasSpreadMarket,
+    HasOverUnderMarket,
+    ResolvesByScore,
+>>>>>>> robert/nfl-ncaa
     Versioned
 {
     using SafeMathUint256 for uint256;
@@ -37,10 +54,17 @@ contract NBAMarketFactory is
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("1.2.0")
+<<<<<<< HEAD
         Linked(_linkNode)
         Facing(HeadToHead, InvalidName)
         Spreadable(Spread, InvalidName)
         Hurdlable(OverUnder, InvalidName)
+=======
+        ManagedByLink(_linkNode)
+        HasHeadToHeadMarket(HeadToHead, InvalidName)
+        HasSpreadMarket(Spread, InvalidName)
+        HasOverUnderMarket(OverUnder, InvalidName)
+>>>>>>> robert/nfl-ncaa
     {}
 
     function createEvent(

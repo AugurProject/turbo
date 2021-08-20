@@ -2,11 +2,17 @@
 pragma solidity 0.7.6;
 pragma abicoder v2;
 
+<<<<<<< HEAD
 import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/various.sol";
+=======
+import "./AbstractMarketFactoryV3.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
+import "../libraries/Versioned.sol";
+>>>>>>> robert/nfl-ncaa
 
 contract TrustedMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned {
     using SafeMathUint256 for uint256;

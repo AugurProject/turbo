@@ -7,17 +7,34 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
+<<<<<<< HEAD
 import "../libraries/various.sol";
+=======
+import "../libraries/Sport.sol";
+import "../libraries/HasHeadToHeadMarket.sol";
+import "../libraries/HasSpreadMarket.sol";
+import "../libraries/HasOverUnderMarket.sol";
+import "../libraries/ResolveByScore.sol";
+import "../libraries/Versioned.sol";
+>>>>>>> robert/nfl-ncaa
 
 // NFL is standard except ties are fine: they become NoContestOrDraw.
 // As a consequence, half points are not added to the lines.
 contract NFLMarketFactory is
     AbstractMarketFactoryV3,
+<<<<<<< HEAD
     EventualView,
     Facing,
     Spreadable,
     Hurdlable,
     UsesScores,
+=======
+    SportView,
+    HasHeadToHeadMarket,
+    HasSpreadMarket,
+    HasOverUnderMarket,
+    ResolvesByScore,
+>>>>>>> robert/nfl-ncaa
     Versioned
 {
     using SafeMathUint256 for uint256;
@@ -38,10 +55,17 @@ contract NFLMarketFactory is
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("v1.2.0")
+<<<<<<< HEAD
         Linked(_linkNode)
         Facing(HeadToHead, "No Contest / Draw")
         Spreadable(Spread, "No Contest")
         Hurdlable(OverUnder, "No Contest")
+=======
+        ManagedByLink(_linkNode)
+        HasHeadToHeadMarket(HeadToHead, "No Contest / Draw")
+        HasSpreadMarket(Spread, "No Contest")
+        HasOverUnderMarket(OverUnder, "No Contest")
+>>>>>>> robert/nfl-ncaa
     {}
 
     function createEvent(

@@ -3,20 +3,27 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
+<<<<<<< HEAD
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
+=======
+>>>>>>> robert/nfl-ncaa
   Cash,
   Cash__factory,
   FeePot,
   FeePot__factory,
+<<<<<<< HEAD
   MMAMarketFactory,
   NFLFetcher,
   NFLFetcher__factory,
+=======
+>>>>>>> robert/nfl-ncaa
   NFLMarketFactory,
   NFLMarketFactory__factory,
   OwnedERC20__factory,
 } from "../typechain";
+<<<<<<< HEAD
 import { BigNumber, BigNumberish } from "ethers";
 import {
   calcShareFactor,
@@ -30,6 +37,11 @@ import {
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
 const ZERO = BigNumber.from(0);
 const BASIS = BigNumber.from(10).pow(18);
+=======
+import { BigNumber } from "ethers";
+import { calcShareFactor, SportsLinkEventStatus } from "../src";
+
+>>>>>>> robert/nfl-ncaa
 enum Market {
   HeadToHead = 0,
   Spread = 1,
@@ -275,6 +287,7 @@ describe("LinkFactory NoContest", () => {
     expect(overUnderMarket.winner).to.equal(overUnderMarket.shareTokens[0]); // No Contest
   });
 });
+<<<<<<< HEAD
 
 describe("Sports fetcher", () => {
   let signer: SignerWithAddress;
@@ -687,3 +700,5 @@ async function makePoolCheck(ammFactory: AMMFactory, marketFactory: CheckableMar
     };
   }
 }
+=======
+>>>>>>> robert/nfl-ncaa

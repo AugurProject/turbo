@@ -7,9 +7,18 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
+<<<<<<< HEAD
 import "../libraries/various.sol";
 
 contract MLBMarketFactory is AbstractMarketFactoryV3, EventualView, Facing, UsesScores, Versioned {
+=======
+import "../libraries/Sport.sol";
+import "../libraries/HasHeadToHeadMarket.sol";
+import "../libraries/ResolveByScore.sol";
+import "../libraries/Versioned.sol";
+
+contract MLBMarketFactory is AbstractMarketFactoryV3, SportView, HasHeadToHeadMarket, ResolvesByScore, Versioned {
+>>>>>>> robert/nfl-ncaa
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
@@ -27,8 +36,13 @@ contract MLBMarketFactory is AbstractMarketFactoryV3, EventualView, Facing, Uses
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("v1.2.0")
+<<<<<<< HEAD
         Linked(_linkNode)
         Facing(HeadToHead, InvalidName)
+=======
+        ManagedByLink(_linkNode)
+        HasHeadToHeadMarket(HeadToHead, InvalidName)
+>>>>>>> robert/nfl-ncaa
     {}
 
     function createEvent(

@@ -191,14 +191,22 @@ abstract contract SportsFetcher is Fetcher {
         string homeTeamName;
         string awayTeamName;
         // Dynamics
+<<<<<<< HEAD
         Eventual.SportsEventStatus status;
+=======
+        Sport.SportsEventStatus status;
+>>>>>>> robert/nfl-ncaa
         uint256 homeScore;
         uint256 awayScore;
     }
 
     struct DynamicEventBundle {
         uint256 id;
+<<<<<<< HEAD
         Eventual.SportsEventStatus status;
+=======
+        Sport.SportsEventStatus status;
+>>>>>>> robert/nfl-ncaa
         DynamicMarketBundle[] markets;
         uint256 homeScore;
         uint256 awayScore;
@@ -276,7 +284,11 @@ abstract contract SportsFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _eventId
     ) public view returns (StaticEventBundle memory _bundle) {
+<<<<<<< HEAD
         Eventual.SportsEvent memory _event = Eventual(_marketFactory).getSportsEvent(_eventId);
+=======
+        Sport.SportsEvent memory _event = Sport(_marketFactory).getSportsEvent(_eventId);
+>>>>>>> robert/nfl-ncaa
 
         StaticMarketBundle[] memory _markets = new StaticMarketBundle[](_event.markets.length);
         for (uint256 i = 0; i < _markets.length; i++) {
@@ -305,7 +317,11 @@ abstract contract SportsFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _eventId
     ) public view returns (DynamicEventBundle memory _bundle) {
+<<<<<<< HEAD
         Eventual.SportsEvent memory _event = Eventual(_marketFactory).getSportsEvent(_eventId);
+=======
+        Sport.SportsEvent memory _event = Sport(_marketFactory).getSportsEvent(_eventId);
+>>>>>>> robert/nfl-ncaa
 
         DynamicMarketBundle[] memory _markets = new DynamicMarketBundle[](_event.markets.length);
         for (uint256 i = 0; i < _markets.length; i++) {
@@ -332,7 +348,11 @@ abstract contract SportsFetcher is Fetcher {
     ) internal view returns (uint256[] memory _interestingEventIds, uint256 _eventIndex) {
         _interestingEventIds = new uint256[](_total);
 
+<<<<<<< HEAD
         uint256 _eventCount = Eventual(_marketFactory).eventCount();
+=======
+        uint256 _eventCount = Sport(_marketFactory).eventCount();
+>>>>>>> robert/nfl-ncaa
 
         // No events so return nothing. (needed to avoid integer underflow below)
         if (_eventCount == 0) {
@@ -354,8 +374,13 @@ abstract contract SportsFetcher is Fetcher {
 
             _eventIndex--; // starts out one too high, so this works
 
+<<<<<<< HEAD
             (Eventual.SportsEvent memory _event, uint256 _eventId) =
                 Eventual(_marketFactory).getSportsEventByIndex(_eventIndex);
+=======
+            (Sport.SportsEvent memory _event, uint256 _eventId) =
+                Sport(_marketFactory).getSportsEventByIndex(_eventIndex);
+>>>>>>> robert/nfl-ncaa
 
             if (isEventInteresting(_event, AbstractMarketFactoryV3(_marketFactory))) {
                 _interestingEventIds[_collectedEvents] = _eventId;
@@ -371,7 +396,11 @@ abstract contract SportsFetcher is Fetcher {
         }
     }
 
+<<<<<<< HEAD
     function isEventInteresting(Eventual.SportsEvent memory _event, AbstractMarketFactoryV3 _marketFactory)
+=======
+    function isEventInteresting(Sport.SportsEvent memory _event, AbstractMarketFactoryV3 _marketFactory)
+>>>>>>> robert/nfl-ncaa
         private
         view
         returns (bool)
@@ -402,7 +431,11 @@ contract NFLFetcher is SportsFetcher {
     constructor() Fetcher("NFL", "TBD") {}
 }
 
+<<<<<<< HEAD
 contract CryptoFetch is Fetcher {
+=======
+contract CryptoFetcher is Fetcher {
+>>>>>>> robert/nfl-ncaa
     constructor() Fetcher("Crypto", "TBD") {}
 
     struct SpecificMarketFactoryBundle {
