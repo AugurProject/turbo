@@ -2,38 +2,39 @@
 import { Web3Provider } from "@ethersproject/providers";
 import {
     MarketFactory,
-    createMMAMarketFactoryBundle,
-    createNBAStaticMarketBundle,
-    fetchInitialEvents,
+    fetchInitialSports,
     instantiateMarketFactory,
     AMMFactory__factory,
-    SportsFetcher__factory,
+    instantiateFetcher,
+    SportsFetcher,
+    Sport as SportMarketFactory,
 } from "@augurproject/smart";
 
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
-import { decodeBaseMarketFetcher, decodeMarketDetailsFetcher } from "./derived-market-data";
 
 export const fetchContractData = async (config: MarketFactory, provider: Web3Provider, account: string) => {
     const offset = 0;
     const bundleSize = 1000;
-    const fetcherContract = SportsFetcher__factory.connect(config.address, getProviderOrSigner(provider, account));
+    const fetcherContract = instantiateFetcher(config.type, config.subtype, config.address, getProviderOrSigner(provider, account)) as unknown as SportsFetcher;
     const marketFactoryContract = instantiateMarketFactory(
         config.type,
         config.subtype,
         config.address,
         getProviderOrSigner(provider, account)
-      );
+    ) as unknown as SportMarketFactory;
     const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
-    const { factoryBundle, eventBundles } = await fetchInitialEvents(
+    const { factoryBundle, markets } = await fetchInitialSports(
         fetcherContract,
         marketFactoryContract,
-        ammFactoryContract,        
+        ammFactoryContract,
         bundleSize,
         offset
     );
-    const factoryDetails = decodeBaseMarketFetcher(createMMAMarketFactoryBundle(factoryBundle));
+    /*
+    const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
     return eventBundles
         .map(createNBAStaticMarketBundle)
         .map((m) => ({ ...m, ...factoryDetails, marketFactoryType: config.type }))
         .map((m) => decodeMarketDetailsFetcher(m, factoryDetails, config));
+        */
 };

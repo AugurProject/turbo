@@ -49,7 +49,6 @@ import {
   MARKET_LOAD_TYPE,
   MARKET_STATUS,
   NULL_ADDRESS,
-  NUM_TICKS_STANDARD,
   SEC_IN_DAY,
   SPORTS_MARKET_TYPE,
   TradingDirection,
@@ -76,7 +75,6 @@ import {
   MarketFactory,
   MarketFactoryContract,
 } from "@augurproject/smart";
-import { deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
 import { deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket, decodeMarket } from "./derived-market-data";
 import { calculatePrices, calcWeights } from "./calculations";
 

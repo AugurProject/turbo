@@ -9,6 +9,7 @@ import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo, DataState } from "@au
 import { BigNumber as BN } from "bignumber.js";
 import {
   ContractCalls,
+  Calculations,
   createBigNumber,
   useAppStatusStore,
   useDataStore,
@@ -25,8 +26,10 @@ const {
   addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
-  calcPricesFromOdds,
 } = ContractCalls;
+const {
+  calcPricesFromOdds
+} = Calculations;
 const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
   Icons: { BackIcon },

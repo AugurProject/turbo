@@ -16,7 +16,7 @@ const findMarketFactory = (marketFactoryType: MarketFactoryType): string => {
 const generateTemplate = () => {
   console.log(`CRYPTO_MARKET_FACTORY=${findMarketFactory("Crypto")}
 MLB_MARKET_FACTORY=${findMarketFactory("SportsLink")}
-MMA_MARKET_FACTORY=${findMarketFactory("MMALink")}
+MMA_MARKET_FACTORY=${findMarketFactory("MMA")}
 NBA_MARKET_FACTORY=${findMarketFactory("SportsLink")}
 NFL_MARKET_FACTORY=${findMarketFactory("NFL")}  
 `);
