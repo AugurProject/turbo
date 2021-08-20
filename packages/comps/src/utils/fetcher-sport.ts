@@ -17,7 +17,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     const offset = 0;
     const bundleSize = 1000;
     console.log(config)
-    const fetcherContract = instantiateFetcher(config.type, config.subtype, config.address, getProviderOrSigner(provider, account)) as unknown as SportsFetcher;
+    const fetcherContract = instantiateFetcher(config.type, config.subtype, config.fetcher, getProviderOrSigner(provider, account)) as unknown as SportsFetcher;
     const marketFactoryContract = instantiateMarketFactory(
         config.type,
         config.subtype,
