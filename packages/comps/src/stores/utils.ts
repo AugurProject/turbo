@@ -196,7 +196,6 @@ export function useApprovalStatus({
   const forceCheck = useRef(false);
   const ammFactory = amm.ammFactoryAddress;
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
-  const invalidPoolId = amm?.invalidPool?.id;
   const ammId = amm?.id;
   const isETH = marketCashType === ETH;
 
@@ -207,7 +206,7 @@ export function useApprovalStatus({
     return () => {
       isMounted = false;
     };
-  }, [marketCashType, tokenAddress, shareToken, ammId, invalidPoolId, actionType, account, outcomeShareToken]);
+  }, [marketCashType, tokenAddress, shareToken, ammId, actionType, account, outcomeShareToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -256,7 +255,6 @@ export function useApprovalStatus({
     account,
     isApproved,
     actionType,
-    invalidPoolId,
     ammId,
     PARA_CONFIG,
     marketCashType,
