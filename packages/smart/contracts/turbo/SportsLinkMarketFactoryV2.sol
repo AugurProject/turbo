@@ -7,7 +7,7 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV2.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
-import "../libraries/various.sol";
+import "../libraries/CalculateLinesToBPoolOdds.sol";
 
 contract SportsLinkMarketFactoryV2 is AbstractMarketFactoryV2, CalculateLinesToBPoolOdds {
     using SafeMathUint256 for uint256;
