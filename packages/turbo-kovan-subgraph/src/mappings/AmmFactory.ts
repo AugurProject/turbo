@@ -267,8 +267,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
 
-  let logId = event.transaction.hash.toHexString() + "-" + event.params.outcome.toHexString() + "-" + event.params.collateral.toString();
-  logger.info("Args for calculateInitialCostPerOutcome: {} | {} | {} | {} | {} | {}", [senderId, marketId, logId, event.params.collateral.toString(), outcome, event.params.shares.toString()]);
+  let logId = event.transaction.hash.toHexString() + "-" + bigIntToHexString(event.params.outcome) + "-" + event.params.collateral.toString();
   calculateInitialCostPerOutcome(senderId, marketId, logId, event.params.collateral, outcome, event.params.shares);
 
   handlePositionFromTradeEvent(event);

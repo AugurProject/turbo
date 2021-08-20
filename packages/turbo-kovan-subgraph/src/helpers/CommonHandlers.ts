@@ -82,7 +82,7 @@ export function handlePositionFromTradeEvent(
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let outcomeId = bigIntToHexString(event.params.outcome);
-  let id = senderId + "-" + marketId + "-" + event.params.outcome.toHexString();
+  let id = senderId + "-" + marketId + "-" + bigIntToHexString(event.params.outcome);
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
   let initialCostPerMarket = getOrCreateInitialCostPerMarket(id);
   getOrCreateMarket(marketId);
@@ -147,7 +147,7 @@ export function handlePositionFromLiquidityChangedEvent(
 ): void {
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
-  let id = senderId + "-" + marketId + "-" + outcomeId.toHexString();
+  let id = senderId + "-" + marketId + "-" + bigIntToHexString(outcomeId);
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
   let liquidityPositionBalanceId = senderId + "-" + marketId;
   getOrCreateMarket(marketId);

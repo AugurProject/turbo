@@ -49,7 +49,7 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
   let shareTokens = getShareTokens(contractAddress, marketIndex);
   for(let i = 0; i < shareTokens.length; i++) {
-    let id = senderId + "-" + marketId + "-" + BigInt.fromI32(i).toHexString();
+    let id = senderId + "-" + marketId + "-" + bigIntToHexString(BigInt.fromI32(i));
     let entity = getOrCreatePositionBalance(id, false, false);
     if (entity) {
       entity.open = false;
@@ -139,7 +139,8 @@ function handlePositionFromClaimWinningsEvent(
 ): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
-  let id = senderId + "-" + marketId + "-" + event.params.winningOutcome.toHexString();
+  let outcomeId = getOutcomeId(event.address, event.params.id, event.params.winningOutcome.toHexString());
+  let id = senderId + "-" + marketId + "-" + outcomeId;
   let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
   let initialCostPerMarketEntity = getOrCreateInitialCostPerMarket(id);
   getOrCreateMarket(marketId);
@@ -160,7 +161,7 @@ function handlePositionFromClaimWinningsEvent(
       positionBalanceEntity.hasClaimed = true;
       positionBalanceEntity.transactionHash = event.transaction.hash.toHexString();
       positionBalanceEntity.timestamp = event.block.timestamp;
-      positionBalanceEntity.outcomeId = event.params.winningOutcome.toHexString();
+      positionBalanceEntity.outcomeId = outcomeId;
       positionBalanceEntity.marketId = marketId;
       positionBalanceEntity.market = marketId;
       positionBalanceEntity.senderId = senderId;
