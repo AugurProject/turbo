@@ -17,7 +17,7 @@ import { AmmExchange, MarketInfo } from "types";
 import { calculatePrices } from "./calculations";
 import { convertOnChainCashAmountToDisplayCashAmount, sharesOnChainToDisplay } from "./format-number";
 import { MarketFactory } from "@augurproject/smart";
-import * as SportFetcher from "./fetch-sportlink";
+import * as SportFetcher from "./fetcher-sport";
 
 export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
   switch (marketInfo.marketFactoryType) {
@@ -82,19 +82,20 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
 export const fetcherMarketsPerConfig = (config: MarketFactory, provider: Web3Provider, account: string) => {
   switch (config?.type) {
     case MARKET_FACTORY_TYPES.NFL:
-    case MARKET_FACTORY_TYPES.MMALINK:
-    case MARKET_FACTORY_TYPES.SPORTSLINK: {
+    case MARKET_FACTORY_TYPES.MMA:
+    case MARKET_FACTORY_TYPES.MLB:
+    case MARKET_FACTORY_TYPES.NBA: {
       return SportFetcher.fetchContractData(config, provider, account);
     }
     case MARKET_FACTORY_TYPES.CRYPTO: {
       // TODO: need to support
       console.error('crypto fetcher not supported at this time');
       return null;
-    }    
+    }
     default: {
       console.log('Config type not found', config.type)
-      return {};
-    }      
+      return null;
+    }
   }
 }
 

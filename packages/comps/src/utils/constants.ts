@@ -331,6 +331,10 @@ export const MARKET_FACTORY_TYPES = {
   CRYPTO: "Crypto",
   MMALINK: "MMALink",
   NFL: "NFL",
+  FUTURES: "Futures",
+  MLB: "MLB",
+  NBA: "NBA",
+  MMA: "MMA"
 };
 
 export const GRAPH_MARKETS = {
