@@ -8,12 +8,8 @@ import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
-<<<<<<< HEAD
-import "../libraries/various.sol";
-=======
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 import "../libraries/Versioned.sol";
->>>>>>> robert/nfl-ncaa
 
 contract CryptoMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned {
     using SafeMathUint256 for uint256;

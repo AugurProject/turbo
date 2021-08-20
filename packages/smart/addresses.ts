@@ -19,9 +19,6 @@ export interface MarketFactory {
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 }
-<<<<<<< HEAD
-export const MARKET_TYPES = ["Trusted", "Crypto", "SportsLink", "MMA", "NBA", "MLB", "NFL", "Futures"] as const;
-=======
 export const MARKET_TYPES = [
   "Trusted",
   "Crypto",
@@ -32,7 +29,6 @@ export const MARKET_TYPES = [
   "NFL",
   "Futures",
 ] as const;
->>>>>>> robert/nfl-ncaa
 export type MarketFactoryType = typeof MARKET_TYPES[number];
 // V1 was the first
 // V2 includes initial odds
@@ -47,16 +43,12 @@ export type MarketFactoryContractName =
   | "CryptoMarketFactory"
   | "FuturesMarketFactory"
   | "TrustedMarketFactory";
-<<<<<<< HEAD
-export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "NFLFetcher" | "MLBFetcher" | "";
-=======
 export type FetcherContractName =
   | "NBAFetcher"
   | "MMAFetcher"
   | "NFLFetcher"
   | "MLBFetcher"
   | "";
->>>>>>> robert/nfl-ncaa
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
@@ -149,114 +141,62 @@ export const addresses: AddressMapping = {
       {
         type: "Futures",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0xFFfa252b596592c2C68edb9D98E0e5398db23f78",
-=======
         address: "0xAB3a1F44CaD7Ff730F737d4014feDbd339a0381E",
->>>>>>> robert/nfl-ncaa
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "",
         description: "futures",
-<<<<<<< HEAD
-        version: "refactor",
-=======
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
       {
         type: "MLB",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0xc28Ed86Ba56bB7396Cf16bb9c095C58dFE0524F0",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0xb70F0B373C3222ca9d9a5e0Dcdf2875221352C6A",
-        description: "mlb",
-        version: "refactor",
-=======
         address: "0x29F0614f39Af492FFC2624A5fa9eBb9cff4f7778",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "mlb",
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
       {
         type: "NBA",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0xa7309Bdb5a634c8D2d1768092c43cF70ff5799e2",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0xb70F0B373C3222ca9d9a5e0Dcdf2875221352C6A",
-        description: "nba",
-        version: "refactor",
-=======
         address: "0x181F843c1CBB73a99301827d8F076e6beF943625",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "nba",
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
       {
         type: "NFL",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0xCd67d18a66737F1Db26C4A74732562B599217b2F",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0xb70F0B373C3222ca9d9a5e0Dcdf2875221352C6A",
-        description: "nfl",
-        version: "refactor",
-=======
         address: "0x48cb89F115A7c256a3520AAd4c9b5fA2841614C4",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "nfl",
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
       {
         type: "MMA",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0x259175Ced1776879F03964c8F29FE3eaF699Ec51",
-        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
-        ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
-        fetcher: "0xb70F0B373C3222ca9d9a5e0Dcdf2875221352C6A",
-        description: "mma/ufc",
-        version: "refactor",
-=======
         address: "0x0045FC078bb60510185CBA39f2eA352C92C0c179",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "mma/ufc",
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
       {
         type: "Crypto",
         subtype: "V3",
-<<<<<<< HEAD
-        address: "0xd2DfFD1a74b8Ec9350B3138BB8b14fC5819c0544",
-=======
         address: "0x9894aC8e14b44b81B08d5d84CFE5b93B8114F25b",
->>>>>>> robert/nfl-ncaa
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd",
         fetcher: "",
         description: "crypto prices",
-<<<<<<< HEAD
-        version: "refactor",
-=======
         version: "refactor-2021.08.19",
->>>>>>> robert/nfl-ncaa
       },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
