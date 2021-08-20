@@ -89,15 +89,15 @@ export const fetcherMarketsPerConfig = (config: MarketFactory, provider: Web3Pro
     }
     case MARKET_FACTORY_TYPES.CRYPTO: {
       // TODO: need to support
-      console.error('crypto fetcher not supported at this time');
+      console.error("crypto fetcher not supported at this time");
       return null;
     }
     default: {
-      console.log('Config type not found', config.type)
+      console.log("Config type not found", config.type);
       return null;
     }
   }
-}
+};
 
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
   const {

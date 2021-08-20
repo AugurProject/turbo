@@ -38,8 +38,8 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
 
   // will need get get team names
-  const homeTeam = marketData["homeTeamName"];
-  const awayTeam = marketData["awayTeamName"];
+  const homeTeam = marketData["homeTeamName"] || marketData["home"];
+  const awayTeam = marketData["awayTeamName"] || marketData["away"];
   const sportId = "2";
 
   const { shareTokens } = market;

@@ -75,7 +75,13 @@ import {
   MarketFactory,
   MarketFactoryContract,
 } from "@augurproject/smart";
-import { fetcherMarketsPerConfig, deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket, decodeMarket } from "./derived-market-data";
+import {
+  fetcherMarketsPerConfig,
+  deriveMarketInfo,
+  isIgnoredMarket,
+  isIgnoreOpendMarket,
+  decodeMarket,
+} from "./derived-market-data";
 import { calculatePrices, calcWeights } from "./calculations";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).decimalPlaces(6, 1).toFixed();
@@ -139,10 +145,10 @@ export async function estimateAddLiquidityPool(
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
         ? _balances.map((v, i) => ({
-          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-          outcomeId: i,
-          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-        }))
+            amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+            outcomeId: i,
+            hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+          }))
         : [];
       minAmountsRaw = _balances ? _balances.map((v) => new BN(String(v)).toFixed()) : [];
       // lp tokens are 18 decimal
@@ -1127,17 +1133,17 @@ const getInitPositionValues = (
 
   const avgPriceLiquidity = outcomeLiquidityShares.gt(0)
     ? sharesAddLiquidity.avgPrice
-      .times(sharesAddLiquidity.shares)
-      .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
-      .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
+        .times(sharesAddLiquidity.shares)
+        .plus(sharesRemoveLiquidity.avgPrice.times(sharesRemoveLiquidity.shares))
+        .div(sharesAddLiquidity.shares.plus(sharesRemoveLiquidity.shares))
     : ZERO;
 
   const totalShares = outcomeLiquidityShares.plus(sharesEntered.shares);
   const weightedAvgPrice = totalShares.gt(ZERO)
     ? avgPriceLiquidity
-      .times(outcomeLiquidityShares)
-      .div(totalShares)
-      .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
+        .times(outcomeLiquidityShares)
+        .div(totalShares)
+        .plus(enterAvgPriceBN.times(sharesEntered.shares).div(totalShares))
     : 0;
 
   const timestamp = [
@@ -1436,28 +1442,29 @@ export const getMarketInfos = async (
   const factories = marketFactories(loadtype);
 
   const allMarkets = await Promise.all(
-    factories.filter(f => f.type === MARKET_FACTORY_TYPES.NFL).map((config) => {
-      const markets = fetcherMarketsPerConfig(config, provider, account);
-      if (markets) return markets;
-      return [];
-      const { type, address, ammFactory } = config;
-      return getFactoryMarketInfo(
-        provider,
-        markets,
-        ammExchanges,
-        cashes,
-        account,
-        address,
-        ammFactory,
-        ignoreList,
-        type,
-        blocknumber
-      )
+    factories
+      .filter((f) => f.type === MARKET_FACTORY_TYPES.NFL)
+      .map((config) => {
+        const markets = fetcherMarketsPerConfig(config, provider, account);
+        if (markets) return markets;
+        return []
+        const { type, address, ammFactory } = config;
+        return getFactoryMarketInfo(
+          provider,
+          markets,
+          ammExchanges,
+          cashes,
+          account,
+          address,
+          ammFactory,
+          ignoreList,
+          type,
+          blocknumber
+        );
+      })
+  );
 
-    }
-
-    ));
-
+  console.log('allMarkets', allMarkets)
   // first market infos get all markets with liquidity
   const aMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
   let filteredMarkets = { ...markets, ...aMarkets };
@@ -2200,7 +2207,6 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   if (!ratios[outcomeId]) return "0";
   return String(ratios[outcomeId]);
 };
-
 
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
   // todo: need to use cash to get decimals

@@ -334,7 +334,7 @@ export const MARKET_FACTORY_TYPES = {
   FUTURES: "Futures",
   MLB: "MLB",
   NBA: "NBA",
-  MMA: "MMA"
+  MMA: "MMA",
 };
 
 export const GRAPH_MARKETS = {
