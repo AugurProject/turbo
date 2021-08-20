@@ -21,8 +21,6 @@ import {
   MLBMarketFactory__factory,
   FuturesMarketFactory__factory,
   FuturesMarketFactory,
-<<<<<<< HEAD
-=======
   TrustedMarketFactoryV2__factory,
   CryptoMarketFactoryV2__factory,
   MMALinkMarketFactoryV2__factory,
@@ -35,7 +33,6 @@ import {
   CryptoFetcher,
   CryptoFetcher__factory,
   SportsFetcher__factory,
->>>>>>> robert/nfl-ncaa
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
 import { ContractFactory, Signer } from "ethers";
@@ -59,25 +56,16 @@ export interface ContractInterfaces {
 export type MarketFactoryContract =
   | SportsLinkMarketFactoryV1
   | SportsLinkMarketFactoryV2
-<<<<<<< HEAD
-=======
   | TrustedMarketFactoryV2
->>>>>>> robert/nfl-ncaa
   | TrustedMarketFactory
   | CryptoMarketFactoryV2
   | CryptoMarketFactory
   | FuturesMarketFactory
-<<<<<<< HEAD
-  | MMAMarketFactory
-  | NBAMarketFactory
-  | MLBMarketFactory
-=======
   | MMALinkMarketFactoryV2
   | MMAMarketFactory
   | NBAMarketFactory
   | MLBMarketFactory
   | NFLMarketFactoryV2
->>>>>>> robert/nfl-ncaa
   | NFLMarketFactory;
 
 export type FetcherContract = CryptoFetcher | SportsFetcher;
@@ -144,17 +132,7 @@ export function instantiateMarketFactory(
   } else {
     throw Error(`No market factory matching type=${type} subtype=${subtype}`);
   }
-<<<<<<< HEAD
-  if (type === "Crypto") return CryptoMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "Trusted") return TrustedMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "MMA") return MMAMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "NFL") return NFLMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "NBA") return NBAMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "MLB") return MLBMarketFactory__factory.connect(address, signerOrProvider);
-  if (type === "Futures") return FuturesMarketFactory__factory.connect(address, signerOrProvider);
-=======
 }
->>>>>>> robert/nfl-ncaa
 
 export function instantiateFetcher(
   type: MarketFactoryType,
