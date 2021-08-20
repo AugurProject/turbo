@@ -7,35 +7,23 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
-<<<<<<< HEAD
-import "../libraries/various.sol";
-=======
 import "../libraries/Sport.sol";
 import "../libraries/HasHeadToHeadMarket.sol";
 import "../libraries/HasSpreadMarket.sol";
 import "../libraries/HasOverUnderMarket.sol";
 import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
->>>>>>> robert/nfl-ncaa
 
 // NCAA-FB is identical to NFL except there are no ties.
 // As a consequence, spread and over-under lines add a half-point,
 // and the invalid outcome is just No Contest.
 contract NCAAFBMarketFactory is
     AbstractMarketFactoryV3,
-<<<<<<< HEAD
-    EventualView,
-    Facing,
-    Spreadable,
-    Hurdlable,
-    UsesScores,
-=======
     SportView,
     HasHeadToHeadMarket,
     HasSpreadMarket,
     HasOverUnderMarket,
     ResolvesByScore,
->>>>>>> robert/nfl-ncaa
     Versioned
 {
     using SafeMathUint256 for uint256;
@@ -57,17 +45,10 @@ contract NCAAFBMarketFactory is
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("v1.2.0")
-<<<<<<< HEAD
-        Linked(_linkNode)
-        Facing(HeadToHead, InvalidName)
-        Spreadable(Spread, InvalidName)
-        Hurdlable(OverUnder, InvalidName)
-=======
         ManagedByLink(_linkNode)
         HasHeadToHeadMarket(HeadToHead, InvalidName)
         HasSpreadMarket(Spread, InvalidName)
         HasOverUnderMarket(OverUnder, InvalidName)
->>>>>>> robert/nfl-ncaa
     {}
 
     function createEvent(
