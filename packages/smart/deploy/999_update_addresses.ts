@@ -3,21 +3,18 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
-import { Addresses, graphChainNames, addresses as originalAddresses, ChainId, MarketFactory } from "../addresses";
-import { ExternalAddresses, isHttpNetworkConfig } from "../tasks";
+import { Addresses, addresses as originalAddresses, ChainId, graphChainNames, MarketFactory } from "../addresses";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
   console.log("Done deploying! Writing deploy information to addresses.ts");
 
   const { deployments } = hre;
   const chainId = parseInt(await getChainId());
 
-  const externalAddresses: ExternalAddresses | undefined = hre.network.config.deployConfig?.externalAddresses;
-  const collateral = externalAddresses?.usdcToken || (await deployments.get("Collateral")).address;
-  const reputationToken = externalAddresses?.reputationToken || (await deployments.get("Reputation")).address;
-  const balancerFactory = externalAddresses?.balancerFactory || (await deployments.get("BFactory")).address;
+  const { address: collateral } = await deployments.get("Collateral");
+  const { address: reputationToken } = await deployments.get("Reputation");
+  const { address: balancerFactory } = await deployments.get("BFactory");
 
   const sportsLinkMarketFactory = await deployments.get("SportsLinkMarketFactory").catch(() => undefined);
   const cryptoMarketFactory = await deployments.get("CryptoMarketFactory").catch(() => undefined);

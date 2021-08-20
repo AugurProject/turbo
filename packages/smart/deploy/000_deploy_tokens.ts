@@ -1,20 +1,13 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { isHttpNetworkConfig, makeSigner } from "../tasks";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments } = hre;
+  const { deployments, getNamedAccounts } = hre;
+  const { deployer } = await getNamedAccounts();
 
-  const signer = await makeSigner(hre);
-  const deployer = await signer.getAddress();
+  console.log(hre.network.config);
 
-  if (!isHttpNetworkConfig(hre.network.config)) throw Error("Cannot deploy to non-HTTP network");
-
-  if (hre.network.config.deployConfig?.externalAddresses?.usdcToken) {
-    console.log(
-      `Using external address for collateral: "${hre.network.config.deployConfig.externalAddresses.usdcToken}"`
-    );
-  } else {
+  if (!(await deployments.getOrNull("Collateral"))) {
     await deployments.deploy("Collateral", {
       contract: "Cash",
       from: deployer,
@@ -23,11 +16,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
   }
 
-  if (hre.network.config.deployConfig?.externalAddresses?.reputationToken) {
-    console.log(
-      `Using external address for reputation token: "${hre.network.config.deployConfig.externalAddresses.reputationToken}"`
-    );
-  } else {
+  if (!(await deployments.getOrNull("Reputation"))) {
     await deployments.deploy("Reputation", {
       // contract: "Cash",
       contract: "PlaceholderReputationToken",

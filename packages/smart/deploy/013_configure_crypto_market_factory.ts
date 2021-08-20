@@ -1,20 +1,14 @@
-import { HardhatRuntimeEnvironment, HttpNetworkUserConfig } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { isHttpNetworkConfig, makeSigner, PriceFeedConfig } from "../tasks";
+import { PriceFeedConfig } from "../tasks";
 import { CryptoMarketFactory, CryptoMarketFactory__factory } from "../typechain";
-import { FAKE_COINS } from "../src";
+import { PRICE_FEEDS } from "../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  const { deployments } = hre;
-
-  if (!isHttpNetworkConfig(hre.network.config)) {
-    return; // skip tests and internal deploy
-  }
-
-  const signer = await makeSigner(hre);
-  const deployer = await signer.getAddress();
-  const owner = hre.network.config.deployConfig?.owner || deployer;
+  const { deployments, getNamedAccounts, ethers } = hre;
+  const { deployer, owner } = await getNamedAccounts();
+  const signer = await ethers.getSigner(deployer);
 
   const marketFactory = CryptoMarketFactory__factory.connect(
     (await deployments.get("CryptoMarketFactory")).address,
@@ -22,7 +16,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   );
 
   if (await shouldAddCoins(marketFactory)) {
-    for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(hre.network.config, deployments)) {
+    for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(deployments)) {
       console.log(`Adding coin "${symbol}" to crypto market factory`);
       await marketFactory.addCoin(symbol, priceFeedAddress, imprecision);
     }
@@ -46,22 +40,14 @@ async function shouldAddCoins(marketFactory: CryptoMarketFactory): Promise<boole
 }
 
 // If the price feeds are specified then use them. Else, use fake coins.
-async function getCoinList(
-  networkConfig: HttpNetworkUserConfig,
-  deployments: DeploymentsExtension
-): Promise<PriceFeedConfig[]> {
-  const priceFeeds = networkConfig.deployConfig?.externalAddresses?.priceFeeds;
-  if (priceFeeds) {
-    return priceFeeds;
-  } else {
-    return await Promise.all(
-      FAKE_COINS.map(async (coin) => ({
-        symbol: coin.symbol,
-        priceFeedAddress: (await deployments.get(coin.deploymentName)).address,
-        imprecision: coin.imprecision,
-      }))
-    );
-  }
+async function getCoinList(deployments: DeploymentsExtension): Promise<PriceFeedConfig[]> {
+  return await Promise.all(
+    PRICE_FEEDS.map(async (coin) => ({
+      symbol: coin.symbol,
+      priceFeedAddress: (await deployments.get(coin.deploymentName)).address,
+      imprecision: coin.imprecision,
+    }))
+  );
 }
 
 func.tags = ["ConfigureCryptoMarketFactory"];

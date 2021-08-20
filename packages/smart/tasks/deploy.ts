@@ -9,10 +9,10 @@ import {
   HardhatNetworkAccountsConfig,
   HardhatNetworkConfig,
   HardhatRuntimeEnvironment,
-  HttpNetworkUserConfig,
-  NetworkUserConfig,
   HttpNetworkConfig,
+  HttpNetworkUserConfig,
   NetworkConfig,
+  NetworkUserConfig,
 } from "hardhat/types";
 
 task("deploy", "Deploy Turbo").setAction(async (args, hre, runSuper) => {
@@ -80,7 +80,7 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
 });
 
 export function isHttpNetworkConfig(networkConfig?: NetworkConfig): networkConfig is HttpNetworkConfig {
-  return (networkConfig as HttpNetworkConfig)?.url !== undefined;
+  return (networkConfig as HttpNetworkConfig)?.deployConfig !== undefined;
 }
 
 export function isHttpNetworkUserConfig(networkConfig?: NetworkUserConfig): networkConfig is HttpNetworkUserConfig {
