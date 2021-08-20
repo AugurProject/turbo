@@ -1,17 +1,4 @@
 import { BigNumber, BigNumberish } from "ethers";
-<<<<<<< HEAD
-import { AMMFactory, Eventual, SportsFetcher } from "../typechain";
-
-// Sports
-
-export async function fetchInitialEvents(
-  fetcher: SportsFetcher,
-  marketFactory: Eventual,
-  ammFactory: AMMFactory,
-  bundleSize: BigNumberish = 50,
-  initialOffset: BigNumberish = 0
-) {
-=======
 import { AMMFactory, Sport, SportsFetcher } from "../typechain";
 
 // Sports
@@ -23,17 +10,12 @@ export async function fetchInitialSports(
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
 ): Promise<{ factoryBundle: SportsMarketFactoryBundle; markets: InitialSportsMarket[] }> {
->>>>>>> robert/nfl-ncaa
   const eventCount = await marketFactory.eventCount();
 
   let factoryBundle: SportsMarketFactoryBundle | undefined;
   let eventBundles: StaticSportsEventBundle[] = [];
 
-<<<<<<< HEAD
-  for (let offset = BigNumber.from(initialOffset);; ) {
-=======
   for (let offset = BigNumber.from(initialOffset); ; ) {
->>>>>>> robert/nfl-ncaa
     const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
@@ -48,17 +30,6 @@ export async function fetchInitialSports(
     offset = eventCount.sub(lowestEventIndex);
   }
 
-<<<<<<< HEAD
-  return { factoryBundle, eventBundles };
-}
-
-export async function fetchDynamicEvents(
-  fetcher: SportsFetcher,
-  marketFactory: Eventual,
-  ammFactory: AMMFactory,
-  bundleSize: BigNumberish = 50,
-  initialOffset: BigNumberish = 0
-=======
   const markets: InitialSportsMarket[] = [];
   for (const event of eventBundles) {
     for (const market of event.markets) {
@@ -91,17 +62,12 @@ export async function fetchDynamicSports(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
->>>>>>> robert/nfl-ncaa
 ) {
   const eventCount = await marketFactory.eventCount();
 
   let eventBundles: DynamicSportsEventBundle[] = [];
 
-<<<<<<< HEAD
-  for (let offset = BigNumber.from(initialOffset);; ) {
-=======
   for (let offset = BigNumber.from(initialOffset); ; ) {
->>>>>>> robert/nfl-ncaa
     const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
@@ -115,12 +81,6 @@ export async function fetchDynamicSports(
     offset = eventCount.sub(lowestEventIndex);
   }
 
-<<<<<<< HEAD
-  return { eventBundles };
-}
-
-export function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
-=======
   const markets: DynamicSportsMarket[] = [];
   for (const event of eventBundles) {
     for (const market of event.markets) {
@@ -163,17 +123,12 @@ interface SportsTeam {
 }
 
 function createSportsMarketFactoryBundle(raw: [RawMarketFactoryBundle]): SportsMarketFactoryBundle {
->>>>>>> robert/nfl-ncaa
   return {
     ...createMarketFactoryBundle(raw[0]),
   };
 }
 
-<<<<<<< HEAD
-export function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
-=======
 function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticSportsEventBundle {
->>>>>>> robert/nfl-ncaa
   return {
     id: raw.id,
     markets: raw.markets.map((m) => createStaticMarketBundle(m)),
@@ -189,11 +144,7 @@ function createStaticSportsEventBundle(raw: RawStaticSportsEventBundle): StaticS
   };
 }
 
-<<<<<<< HEAD
-export function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
-=======
 function createDynamicSportsEventBundle(raw: RawDynamicSportsEventBundle): DynamicSportsEventBundle {
->>>>>>> robert/nfl-ncaa
   return {
     id: raw.id,
     markets: raw.markets.map((m) => createDynamicMarketBundle(m)),
