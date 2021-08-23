@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Styles from "./tables.styles.less";
-import { Utils, Components, useUserStore, useDataStore, Links, Constants, createBigNumber } from "@augurproject/comps";
+import { Utils, Components, useUserStore, useDataStore, Links, Constants } from "@augurproject/comps";
 import { ActiveBetType } from "../stores/constants";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "../stores/betslip";
