@@ -103,7 +103,13 @@ interface IVault {
         uint256 amount;
         bytes userData;
     }
+    enum PoolSpecialization {
+        GENERAL,
+        MINIMAL_SWAP_INFO,
+        TWO_TOKEN
+    }
 
+    function getPool(bytes32 poolId) external view returns (address, PoolSpecialization);
 }
 
 abstract contract IWeightedPool is IERC20 {

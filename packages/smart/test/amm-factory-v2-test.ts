@@ -15,7 +15,7 @@ import { BigNumber, Contract, ContractFactory } from "ethers";
 import { calcShareFactor } from "../src";
 import { buyWithValues, calculateSellCompleteSets, calculateSellCompleteSetsWithValues } from "../src/bmath";
 
-describe("AMMFactoryV2", function() {
+describe("AMMFactoryV2", function () {
   // set timeout is unlimited.
   this.timeout(0);
   let WeightedPoolFactory__factory: ContractFactory;
@@ -26,6 +26,7 @@ describe("AMMFactoryV2", function() {
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
+
   const outcomeSymbols = ["NO CONTEST", "HH", "UT"];
   const outcomeNames = ["No Contest", "Hulk Hogan", "Undertaker"];
 
@@ -100,16 +101,34 @@ describe("AMMFactoryV2", function() {
     await balancerPool.approve(ammFactory.address, MAX_APPROVAL);
 
     const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
-    shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
+    shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner))
   });
 
-  it("Create liquidity pool for market", async () => {
-    // check answer after create pool
+  it("Check pool parameter", async () => {
+    // check fee
+    expect(await ammFactory.getSwapFee(marketFactory.address, marketId)).equal(swapFee);
+    // check balance 
+    expect(await ammFactory.getPoolBalances(marketFactory.address, marketId)).deep.equal(new Array(3).fill(BONE.mul("1000")));
+    // check weights
+    let weights = ['20000000000000000', '490000000000000000', '490000000000000000'].map((value, index) => { return { value, index } })
+      .sort((a, b) => {
+        let indexA = a.index;
+        let indexB = b.index;
+        if (shareTokens[indexA].address < shareTokens[indexB].address)
+          return -1;
+        if (shareTokens[indexA].address > shareTokens[indexB].address)
+          return 1;
+        return 0;
+      }).map(pair => BigNumber.from(pair.value));
 
+    expect(await ammFactory.getPoolWeights(marketFactory.address, marketId)).deep.equal(weights);
+    // check pool token balance
+    expect(await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, secondSigner.address)).to.equal(ZERO);
+    expect(await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address)).gt(ZERO);
   })
 
   it("sell shares for collateral", async () => {
-    const _outcome = 0;
+    const _outcome = reOrderTokens(shareTokens, [0, 1, 2])[0];
 
     const collateralIn = usdcBasis.mul(100); // 100 of the collateral
 
@@ -123,7 +142,7 @@ describe("AMMFactoryV2", function() {
 
     const _setsInForCollateral = await secondMarketFactory.calcShares(collateralIn);
     await secondMarketFactory.mintShares(marketId.toString(), _setsInForCollateral, secondSigner.address);
-
+    
     const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactoryV2,
       (marketFactory as unknown) as AbstractMarketFactoryV2,
@@ -131,18 +150,20 @@ describe("AMMFactoryV2", function() {
       _outcome,
       _setsInForCollateral.toString()
     );
-
+    
     await shareTokens[_outcome].approve(secondSignerAMMFactory.address, MAX_APPROVAL);
     const collateralBefore = await secondCollateral.balanceOf(secondSigner.address);
     const sharesBefore = await shareTokens[_outcome].balanceOf(secondSigner.address);
 
     expect(_setsInForCollateral.lte(sharesBefore)).to.be.true;
 
+    const _shareTokensInOrder = reOrderTokens(shareTokens, _shareTokensIn);
+
     await secondSignerAMMFactory.sellForCollateral(
       secondMarketFactory.address,
       marketId,
       _outcome,
-      _shareTokensIn.map((m) => BigNumber.from(m)),
+      _shareTokensInOrder.map((m) => BigNumber.from(m)),
       BigNumber.from(tokenAmountOut)
     );
     const collateralAfter = await secondCollateral.balanceOf(secondSigner.address);
@@ -230,7 +251,7 @@ describe("AMMFactoryV2", function() {
       );
       // expect(sharesAfter).to.deep.equal(["0", "193151727304627160820", "0"]);
       // it change because in addLiquidity function we add all set to pool
-      expect(sharesAfter).to.deep.equal(["0", "93151727306112782433", "0"]);
+      expect(sharesAfter).to.deep.equal(["0", "193151727306112782433", "0"]);
     });
   });
 
@@ -247,7 +268,7 @@ describe("AMMFactoryV2", function() {
       await collateral.approve(ammFactory.address, collateralIn.mul(2));
 
       // Sending the LP tokens to second signer.
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await (await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address)).wait();
 
       const sharesBefore = await Promise.all(
         shareTokens.map((shareToken: Contract) =>
@@ -255,7 +276,7 @@ describe("AMMFactoryV2", function() {
         )
       );
 
-      await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));
+      await (await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0))).wait();
 
       const collateralBefore = await collateral.balanceOf(secondSigner.address);
 
@@ -329,6 +350,27 @@ describe("AMMFactoryV2", function() {
       expect(sharesAfter).to.deep.equal(["999999666000", "999999666000", "999999666000"]);
     });
   });
+
+  describe("add, remove and add again", () => {
+    it("should not blowup.", async () => {
+      const collateralIn = usdcBasis.mul(1000);
+      await collateral.faucet(collateralIn);
+      await collateral.approve(ammFactory.address, collateralIn);
+
+      const lpTokenBal = await balancerPool.balanceOf(signer.address);
+      await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokenBal, ZERO, signer.address);
+      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, signer.address);
+    });
+  });
+
+  it("removing liquidity after market resolution works", async () => {
+    const winningOutcome = 1;
+    expect(await marketFactory.isMarketResolved(marketId)).to.be.false;
+    await marketFactory.trustedResolveMarket(marketId, winningOutcome);
+    expect(await marketFactory.isMarketResolved(marketId)).to.be.true;
+    const lpTokens = await balancerPool.balanceOf(signer.address);
+    await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, signer.address);
+  });
 });
 
 function calcWeights(ratios: number[]): BigNumber[] {
@@ -338,4 +380,22 @@ function calcWeights(ratios: number[]): BigNumber[] {
   const total = ratios.reduce((total, x) => total + x, 0);
   const factor = max.div(total); // TODO this doesn't work if total is too large
   return ratios.map((r) => factor.mul(r));
+}
+
+function reOrderTokens(shareTokens: Contract[], amounts: any[]) {
+  let shareTokensOrder = shareTokens.map(self => self).sort((a, b) => {
+    if (BigNumber.from(a.address) < BigNumber.from(b.address))
+      return -1; 
+    if (BigNumber.from(a.address) > BigNumber.from(b.address))
+      return 1; 
+    return 0;
+  }); 
+
+  let amountsOrder = new Array(amounts.length);
+
+  shareTokens.forEach((tokens, index) => {
+    let matchId = shareTokensOrder.findIndex(_tokenOrder => _tokenOrder.address == tokens.address);
+    amountsOrder[index] = amounts[matchId];
+  })
+  return amountsOrder;
 }
