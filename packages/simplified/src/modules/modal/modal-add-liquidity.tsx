@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./modal.styles.less";
-import ButtonStyles from '../common/buttons.styles.less';
+import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
 import { useHistory } from "react-router";
 import { InfoNumbers, ApprovalButton } from "../market/trading-form";
@@ -96,6 +96,11 @@ interface ModalAddLiquidityProps {
   currency?: string;
 }
 
+const orderMinAmountsForDisplay = (
+  items: { amount: string; outcomeId: number; hide: boolean }[] = []
+): { amount: string; outcomeId: number; hide: boolean }[] =>
+  items.length > 0 && items[0].outcomeId === 0 ? items.slice(1).concat(items.slice(0, 1)) : items;
+
 const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiquidityProps) => {
   const {
     actions: { closeModal },
@@ -113,7 +118,9 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
-  const initialOutcomes = hasInitialOdds ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes) : amm?.ammOutcomes || [];
+  const initialOutcomes = hasInitialOdds
+    ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes)
+    : amm?.ammOutcomes || [];
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
   const [showBackView, setShowBackView] = useState(false);
@@ -191,11 +198,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       buttonError = INVALID_PRICE;
     }
   }
-
-  const orderMinAmountsForDisplay = (
-    items: { amount: string; outcomeId: number; hide: boolean }[] = []
-  ): { amount: string; outcomeId: number; hide: boolean }[] =>
-    items.length > 0 && items[0].outcomeId === 0 ? items.slice(1).concat(items.slice(0, 1)) : items;
 
   const getCreateBreakdown = (isRemove = false) => {
     const fullBreakdown = [
@@ -504,19 +506,17 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           />
           <main>
             {!LIQUIDITY_STRINGS[modalType].cantEditAmount && (
-              <>
-                <AmountInput
-                  ammCash={cash}
-                  updateInitialAmount={(amount) => updateAmount(amount)}
-                  initialAmount={amount}
-                  maxValue={userMaxAmount}
-                  showCurrencyDropdown={!currency}
-                  chosenCash={isRemove ? SHARES : chosenCash}
-                  updateCash={updateCash}
-                  updateAmountError={() => null}
-                  error={hasAmountErrors}
-                />
-              </>
+              <AmountInput
+                ammCash={cash}
+                updateInitialAmount={(amount) => updateAmount(amount)}
+                initialAmount={amount}
+                maxValue={userMaxAmount}
+                showCurrencyDropdown={!currency}
+                chosenCash={isRemove ? SHARES : chosenCash}
+                updateCash={updateCash}
+                updateAmountError={() => null}
+                error={hasAmountErrors}
+              />
             )}
             {LIQUIDITY_STRINGS[modalType].setFees && (
               <>
@@ -561,15 +561,12 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               infoNumbers={LIQUIDITY_STRINGS[modalType].breakdown}
             />
             {!isApproved && (
-              <>
-                <ApprovalButton
-                  amm={amm}
-                  cash={cash}
-                  actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
-                />
-              </>
+              <ApprovalButton
+                amm={amm}
+                cash={cash}
+                actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
+              />
             )}
-
             <SecondaryThemeButton
               action={() => setShowBackView(true)}
               disabled={!isApproved || inputFormError !== ""}
@@ -607,9 +604,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           <main>
             <div className={Styles.MarketTitle}>
               <span>Market</span>
-              <span>
-                <MarketTitleArea {...{ ...market }} />
-              </span>
+              <MarketTitleArea {...{ ...market }} />
             </div>
             <section>
               <span className={Styles.SmallLabel}>{LIQUIDITY_STRINGS[modalType].confirmOverview.title}</span>
@@ -620,12 +615,14 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               <span className={Styles.SmallLabel}>{LIQUIDITY_STRINGS[modalType].confirmReceiveOverview.title}</span>
               <InfoNumbers infoNumbers={LIQUIDITY_STRINGS[modalType].confirmReceiveOverview.breakdown} />
             </section>
+
             {LIQUIDITY_STRINGS[modalType].marketLiquidityDetails && (
               <section>
                 <span className={Styles.SmallLabel}>{LIQUIDITY_STRINGS[modalType].marketLiquidityDetails.title}</span>
                 <InfoNumbers infoNumbers={LIQUIDITY_STRINGS[modalType].marketLiquidityDetails.breakdown} />
               </section>
             )}
+
             {liquidityModalType !== REMOVE && (
               <WarningBanner
                 className={Styles.MarginTop}
@@ -635,7 +632,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
                 }
               />
             )}
-            <SecondaryThemeButton text={LIQUIDITY_STRINGS[modalType].confirmButtonText} action={confirmAction} customClass={ButtonStyles.BuySellButton} />
+
+            <SecondaryThemeButton
+              text={LIQUIDITY_STRINGS[modalType].confirmButtonText}
+              action={confirmAction}
+              customClass={ButtonStyles.BuySellButton}
+            />
+            
             {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
             )}
