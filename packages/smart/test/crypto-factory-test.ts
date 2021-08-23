@@ -1,23 +1,19 @@
-import { ethers, network } from "hardhat";
+import { deployments, ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 import { smockit } from "@eth-optimism/smock";
 import { BigNumber, BigNumberish } from "ethers";
 
 import {
-  Cash,
-  Cash__factory,
-  FeePot__factory,
-  OwnedERC20__factory,
-  CryptoMarketFactory__factory,
-  CryptoMarketFactory,
+  AbstractMarketFactoryV2,
   AggregatorV3Interface,
   AMMFactory,
-  FeePot,
-  AMMFactory__factory,
-  BFactory__factory,
-  AbstractMarketFactoryV2,
   BPool__factory,
+  Cash,
+  CryptoMarketFactory,
+  CryptoMarketFactory__factory,
+  FeePot,
+  OwnedERC20__factory,
 } from "../typechain";
 import feedABI from "../abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json";
 import { calcShareFactor, CryptoMarketType, NULL_ADDRESS } from "../src";
@@ -25,7 +21,7 @@ import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 
-describe.only("CryptoFactory", () => {
+describe("CryptoFactory", () => {
   enum CoinIndex {
     None,
     ETH,
@@ -48,7 +44,6 @@ describe.only("CryptoFactory", () => {
   const usdcBasis = BigNumber.from(10).pow(6);
 
   let collateral: Cash;
-  let reputationToken: Cash;
   let feePot: FeePot;
   let shareFactor: BigNumber;
   let marketFactory: CryptoMarketFactory;
@@ -71,12 +66,12 @@ describe.only("CryptoFactory", () => {
   });
 
   before("other contracts", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    await deployments.fixture();
+
+    collateral = (await ethers.getContract("Collateral")) as Cash;
+    feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
-    const bFactory = await new BFactory__factory(signer).deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, smallFee);
+    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
   });
 
   it("is deployable", async () => {

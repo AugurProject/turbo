@@ -1,28 +1,27 @@
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect, use as chaiUse } from "chai";
 
 import chaiAsPromised from "chai-as-promised";
-chaiUse(chaiAsPromised);
-
 import {
   AMMFactory,
-  AMMFactory__factory,
   BFactory,
   BFactory__factory,
   BPool,
   BPool__factory,
+  BPoolForTesting__factory,
   Cash,
   Cash__factory,
-  FeePot__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  FeePot,
   OwnedERC20,
   OwnedERC20__factory,
-  BPoolForTesting__factory,
+  TrustedMarketFactory,
+  TrustedMarketFactory__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, DEAD_ADDRESS } from "../src";
+
+chaiUse(chaiAsPromised);
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
@@ -31,7 +30,23 @@ describe("Turbo", () => {
   const FAKE_ADDRESS = "0xFA0E00000000000000000000000000000000FA0E";
 
   before(async () => {
+    await deployments.fixture();
     [signer] = await ethers.getSigners();
+
+    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
+    collateral = (await ethers.getContract("Collateral")) as Cash;
+    const feePot = (await ethers.getContract("FeePot")) as FeePot;
+    shareFactor = calcShareFactor(await collateral.decimals());
+    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
+      signer.address,
+      collateral.address,
+      shareFactor,
+      feePot.address,
+      stakerFee,
+      settlementFee,
+      signer.address,
+      protocolFee
+    );
   });
 
   const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
@@ -57,23 +72,7 @@ describe("Turbo", () => {
   let pool: BPool;
 
   it("is deployable", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    const feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
-    shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
-      signer.address,
-      collateral.address,
-      shareFactor,
-      feePot.address,
-      stakerFee,
-      settlementFee,
-      signer.address,
-      protocolFee
-    );
-
     expect(await marketFactory.getOwner()).to.equal(signer.address);
-    expect(await marketFactory.feePot()).to.equal(feePot.address);
     expect(await marketFactory.collateral()).to.equal(collateral.address);
   });
 
@@ -144,8 +143,6 @@ describe("Turbo", () => {
   });
 
   it("can make an AMM", async () => {
-    bFactory = await new BFactory__factory(signer).deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);

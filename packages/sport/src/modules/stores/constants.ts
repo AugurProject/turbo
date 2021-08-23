@@ -99,6 +99,7 @@ export interface ActiveBetType {
   cashoutAmount: string;
   isPending: boolean;
   status: string;
+  hasWinner?: boolean;
 }
 export interface ActiveBetStateType {
   [betId: string]: ActiveBetType;

@@ -3,7 +3,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 import { expect } from "chai";
 
 import {
-  AbstractMarketFactoryV2,
   AMMFactory,
   AMMFactory__factory,
   BFactory__factory,
@@ -23,15 +22,15 @@ import {
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
+  calcShareFactor,
+  createMMADynamicMarketBundle,
+  createMMAMarketFactoryBundle,
+  createMMAStaticMarketBundle,
   createNBADynamicMarketBundle,
   createNBAMarketFactoryBundle,
   createNBAStaticMarketBundle,
-  calcShareFactor,
   NULL_ADDRESS,
   SportsLinkEventStatus,
-  createMMAMarketFactoryBundle,
-  createMMAStaticMarketBundle,
-  createMMADynamicMarketBundle,
 } from "../src";
 
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);

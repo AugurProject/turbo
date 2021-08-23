@@ -35,7 +35,9 @@ jobs:
         uses: tj-actions/verify-changed-files@v6.2
         id: verify-changed-files
         with:
-         files: packages/smart/environments/matic.json
+         files: |
+          packages/smart/environments/matic.json
+          packages/smart/addresses.ts
       - name: Redeploy the subgraph when the environment changes
         if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: |

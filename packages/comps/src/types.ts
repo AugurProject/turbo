@@ -281,6 +281,7 @@ export interface MarketInfo {
   price?: string;
   spreadOuLine?: number;
   initialOdds: string[];
+  isPopular?: boolean;
 }
 
 export interface MarketOutcome {
