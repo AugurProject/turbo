@@ -123,7 +123,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     : amm?.ammOutcomes || [];
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
-  const [showBackView, setShowBackView] = useState(false);
+  // const [showBackView, setShowBackView] = useState(false);
+  const [page, setPage] = useState(0);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
   const [estimatedLpAmount, setEstimatedLpAmount] = useState<string>("0");
@@ -429,57 +430,126 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         ],
       },
       currencyName: `${chosenCash}`,
+      pages: [
+        {
+          header: "add liquidity",
+          showTradingFee: true,
+          setOdds: true,
+          setOddsTitle: mustSetPrices
+            ? "Set the price (between 0.02 - 0.1). Total price of all outcomes must add up to 1."
+            : "Current Prices",
+          receiveTitle: "You'll receive",
+          actionButtonText: "Add",
+          footerText: `By adding liquidity you'll earn ${feePercentFormatted} of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
+          footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
+          breakdown: getCreateBreakdown(),
+          needsApproval: true,
+          hasAmountInput: true,
+          displayOutcomes: true,
+          showBreakdown: true,
+          currencyName: `${chosenCash}`,
+        }, {
+          header: "Back", // uses back button
+          hasBackButton: true,
+          backButtonAction: () => setPage(page - 1),
+          actionButtonText: "confirm add",
+          actionButtonAction: confirmAction,
+          showMarketTitle: true,
+          showConfirmWarning: true,
+          confirmOverview: {
+            title: "What you are depositing",
+            breakdown: [
+              {
+                label: "amount",
+                value: `${amount} ${amm?.cash?.name}`,
+              },
+            ],
+          },
+          confirmReceiveOverview: {
+            title: "What you will receive",
+            breakdown: getCreateBreakdown(),
+          },
+          marketLiquidityDetails: {
+            title: "Market liquidity details",
+            breakdown: [
+              {
+                label: "trading fee",
+                value: `${feePercentFormatted}`,
+              },
+              {
+                label: "your share of the pool",
+                value: `${formatPercent(breakdown.poolPct).full}`,
+              },
+            ],
+          },
+        }
+      ]
     },
     [CREATE]: {
-      header: "add liquidity",
-      showTradingFee: false,
-      setOdds: !hasInitialOdds,
-      setOddsTitle: "Set the price (between 0.02 to 1.0)",
-      editableOutcomes: true,
-      setFees: false, // set false for version 0
-      receiveTitle: "You'll receive",
-      actionButtonText: "Add",
-      minimumAmount: "100",
-      confirmButtonText: "confirm market liquidity",
-      currencyName: `${chosenCash}`,
-      footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
-      footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
-      breakdown: getCreateBreakdown(),
-      approvalButtonText: `approve ${chosenCash}`,
-      confirmOverview: {
-        title: "What you are depositing",
-        breakdown: [
-          {
-            label: "amount",
-            value: `${amount} ${cash?.name}`,
+      pages: [
+        {
+          header: "add liquidity",
+          showTradingFee: false,
+          hasBackButton: false,
+          setFees: false, // set false for version 0
+          setOddsTitle: "Set the price (between 0.02 to 1.0)",
+          receiveTitle: "You'll receive",
+          breakdown: getCreateBreakdown(),
+          actionButtonAction: () => setPage(1),
+          actionButtonText: "Add",
+          minimumAmount: "100",
+          footerText: `By adding initial liquidity you'll earn your set trading fee percentage of all trades on this market proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.`,
+          footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
+          currencyName: `${chosenCash}`,
+          hasAmountInput: true,
+          displayOutcomes: true,
+          showBreakdown: true,
+          needsApproval: true,
+        },
+        {
+          header: "Back", // uses back button
+          hasBackButton: true,
+          backButtonAction: () => setPage(page - 1),
+          actionButtonText: "Confirm Market Liquidity",
+          actionButtonAction: confirmAction,
+          showMarketTitle: true,
+          showConfirmWarning: true,
+          confirmOverview: {
+            title: "What you are depositing",
+            breakdown: [
+              {
+                label: "amount",
+                value: `${amount} ${cash?.name}`,
+              },
+            ],
           },
-        ],
-      },
-      confirmReceiveOverview: {
-        title: "What you will receive",
+          confirmReceiveOverview: {
+            title: "What you will receive",
 
-        breakdown: getCreateBreakdown(),
-      },
-      marketLiquidityDetails: {
-        title: "Market liquidity details",
+            breakdown: getCreateBreakdown(),
+          },
+          marketLiquidityDetails: {
+            title: "Market liquidity details",
 
-        breakdown: [
-          {
-            label: "trading fee",
-            value: `${feePercentFormatted}`,
+            breakdown: [
+              {
+                label: "trading fee",
+                value: `${feePercentFormatted}`,
+              },
+              {
+                label: "your share of the pool",
+                value: `100%`,
+              },
+            ],
           },
-          {
-            label: "your share of the pool",
-            value: `100%`,
-          },
-        ],
-      },
+        },
+      ],
     },
   };
-
-  if (LIQUIDITY_STRINGS[modalType].minimumAmount && amount) {
-    if (new BN(amount).lt(new BN(LIQUIDITY_STRINGS[modalType].minimumAmount)))
-      buttonError = `$${LIQUIDITY_STRINGS[modalType].minimumAmount} Minimum deposit`;
+  const curPage: any = LIQUIDITY_STRINGS[modalType].pages[page];
+  if (curPage.minimumAmount && amount) {
+    if (new BN(amount).lt(new BN(curPage.minimumAmount)))
+      buttonError = `$${curPage.minimumAmount} Minimum deposit`;
   }
 
   const setPrices = (price, index) => {
@@ -487,15 +557,152 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     newOutcomes[index].price = price;
     setOutcomes([...newOutcomes]);
   };
-
+  
+  console.log(curPage);
   return (
     <section
       className={classNames(Styles.ModalAddLiquidity, {
-        [Styles.showBackView]: showBackView,
+        [Styles.showBackView]: curPage.hasBackButton,
         [Styles.Remove]: isRemove,
       })}
     >
-      {!showBackView ? (
+      {curPage.hasBackButton ? (
+        <div className={Styles.Header} onClick={curPage.backButtonAction}>
+          {BackIcon}
+          {curPage.header}
+        </div>
+      ) : (
+        <Header
+          title={curPage.header}
+          subtitle={{
+            label: "trading fee",
+            value: curPage.showTradingFee ? feePercentFormatted : null,
+          }}
+        />
+      )}
+      <main>
+        {curPage.showMarketTitle && (
+          <div className={Styles.MarketTitle}>
+            <span>Market</span>
+            <MarketTitleArea {...{ ...market }} />
+          </div>
+        )}
+        {curPage.hasAmountInput && !curPage.cantEditAmount && (
+          <AmountInput
+            ammCash={cash}
+            updateInitialAmount={(amount) => updateAmount(amount)}
+            initialAmount={amount}
+            maxValue={userMaxAmount}
+            showCurrencyDropdown={!currency}
+            chosenCash={isRemove ? SHARES : chosenCash}
+            updateCash={updateCash}
+            updateAmountError={() => null}
+            error={hasAmountErrors}
+          />
+        )}
+        {curPage.setFees && (
+          <>
+            <span className={Styles.SmallLabel}>
+              Set trading fee
+              {generateTooltip("Fees earned for providing liquidity.", "tradingFeeInfo")}
+            </span>
+            <MultiButtonSelection
+              options={TRADING_FEE_OPTIONS}
+              selection={tradingFeeSelection}
+              setSelection={(id) => setTradingFeeSelection(id)}
+            />
+          </>
+        )}
+        {curPage.displayOutcomes && !curPage.hideCurrentOdds && (
+          <>
+            <span className={Styles.SmallLabel}>{curPage.setOddsTitle}</span>
+            <OutcomesGrid
+              outcomes={outcomes}
+              selectedOutcome={null}
+              setSelectedOutcome={() => null}
+              orderType={BUY}
+              nonSelectable
+              editable={mustSetPrices && !hasInitialOdds}
+              setEditableValue={(price, index) => setPrices(price, index)}
+              ammCash={cash}
+              dontFilterInvalid
+              hasLiquidity={!mustSetPrices || hasInitialOdds}
+              marketFactoryType={market?.marketFactoryType}
+            />
+          </>
+        )}
+        {curPage.liquidityDetails && (
+          <div className={Styles.LineBreak}>
+            <span className={Styles.SmallLabel}>{curPage.liquidityDetails.title}</span>
+            <InfoNumbers infoNumbers={curPage.liquidityDetails.breakdown} />
+          </div>
+        )}
+        {curPage.receiveTitle && <span className={Styles.SmallLabel}>{curPage.receiveTitle}</span>}
+        {curPage.showBreakdown && (
+          <InfoNumbers
+            unedited={JSON.stringify(breakdown) === JSON.stringify(defaultAddLiquidityBreakdown)}
+            infoNumbers={curPage.breakdown}
+          />
+        )}
+        {curPage.confirmOverview && (
+          <section>
+            <span className={Styles.SmallLabel}>{curPage.confirmOverview.title}</span>
+            <InfoNumbers infoNumbers={curPage.confirmOverview.breakdown} />
+          </section>
+        )}
+
+        {curPage.confirmReceiveOverview && (
+          <section>
+            <span className={Styles.SmallLabel}>{curPage.confirmReceiveOverview.title}</span>
+            <InfoNumbers infoNumbers={curPage.confirmReceiveOverview.breakdown} />
+          </section>
+        )}
+
+        {curPage.marketLiquidityDetails && (
+          <section>
+            <span className={Styles.SmallLabel}>{curPage.marketLiquidityDetails.title}</span>
+            <InfoNumbers infoNumbers={curPage.marketLiquidityDetails.breakdown} />
+          </section>
+        )}
+        {curPage.needsApproval && !isApproved && (
+          <ApprovalButton
+            amm={amm}
+            cash={cash}
+            actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
+          />
+        )}
+        {curPage.showConfirmWarning && (
+          <WarningBanner
+            className={Styles.MarginTop}
+            title="Remove liquidity before winning outcome is known to prevent loss of funds."
+            subtitle={
+              "Impermanent loss occurs when you provide liquidity to a liquidity pool, and the price of your deposited assets changes compared to when you deposited them. The bigger this change is, the more exposed you are to impermanent loss. To mitigate this risk, it is recommended that you remove your liquidity before the final outcome is known."
+            }
+          />
+        )}
+        <SecondaryThemeButton
+          action={curPage.actionButtonAction}
+          disabled={!isApproved || inputFormError !== ""}
+          error={buttonError}
+          text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
+          subText={
+            buttonError === INVALID_PRICE
+              ? lessThanMinPrice
+                ? INVALID_PRICE_GREATER_THAN_SUBTEXT
+                : INVALID_PRICE_ADD_UP_SUBTEXT
+              : null
+          }
+          customClass={ButtonStyles.BuySellButton}
+        />
+        {curPage.footerText && (
+          <div className={Styles.FooterText}>
+            {curPage.footerText}
+            {curPage.footerEmphasize && <span>{curPage.footerEmphasize}</span>}
+          </div>
+        )}
+      </main>
+
+      {/* {!showBackView ? (
         <>
           <Header
             title={LIQUIDITY_STRINGS[modalType].header}
@@ -638,13 +845,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               action={confirmAction}
               customClass={ButtonStyles.BuySellButton}
             />
-            
+
             {liquidityModalType === REMOVE && LIQUIDITY_STRINGS[modalType].footerText && (
               <div className={Styles.FooterText}>{LIQUIDITY_STRINGS[modalType].footerText}</div>
             )}
           </main>
         </>
-      )}
+      )} */}
     </section>
   );
 };
