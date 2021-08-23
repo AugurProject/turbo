@@ -15,6 +15,7 @@ const NAMING_LINE = {
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Draw/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
+const EIGHT_HOURS_IN_SECONDS = 8 * 60 * 60;
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
@@ -32,14 +33,16 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const homeTeamId = String(coHomeTeamId); // home team identifier
   const awayTeamId = String(coAwayTeamId); // visiting team identifier
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
+  const endTimestamp = startTimestamp + EIGHT_HOURS_IN_SECONDS;
   const categories = ["Sports", "Football", "NFL"];
   let line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
-  const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
+  if (marketType === undefined) console.error("market type not defined")
+  const sportsMarketType = new BN(String(marketType || 0)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
 
   // will need get get team names
-  const homeTeam = marketData["homeTeamName"] || marketData["home"];
-  const awayTeam = marketData["awayTeamName"] || marketData["away"];
+  const homeTeam = marketData["homeTeamName"] || marketData["home"]?.name;
+  const awayTeam = marketData["awayTeamName"] || marketData["away"]?.name;
   const sportId = "2";
 
   const { shareTokens } = market;
@@ -59,6 +62,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     sportId,
     sportsMarketType,
     spreadLine: line,
+    endTimestamp,
   };
 };
 

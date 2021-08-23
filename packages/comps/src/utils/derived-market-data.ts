@@ -13,7 +13,7 @@ import {
   SPORTS_MARKET_TYPE,
   ZERO,
 } from "./constants";
-import { AmmExchange, MarketInfo } from "types";
+import { AmmExchange, MarketInfo, MarketInfos } from "types";
 import { calculatePrices } from "./calculations";
 import { convertOnChainCashAmountToDisplayCashAmount, sharesOnChainToDisplay } from "./format-number";
 import { MarketFactory } from "@augurproject/smart";
@@ -79,24 +79,30 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
   }
 };
 
-export const fetcherMarketsPerConfig = (config: MarketFactory, provider: Web3Provider, account: string) => {
+export const fetcherMarketsPerConfig = async (config: MarketFactory, provider: Web3Provider, account: string): Promise<{ markets: MarketInfos | null, blocknumber: number }> => {
+  const blocknumber = await provider.getBlockNumber();
+  let markets = {};
   switch (config?.type) {
     case MARKET_FACTORY_TYPES.NFL:
     case MARKET_FACTORY_TYPES.MMA:
     case MARKET_FACTORY_TYPES.MLB:
     case MARKET_FACTORY_TYPES.NBA: {
-      return SportFetcher.fetchContractData(config, provider, account);
+      markets = await SportFetcher.fetchContractData(config, provider, account);
+      break;
     }
     case MARKET_FACTORY_TYPES.CRYPTO: {
       // TODO: need to support
       console.error("crypto fetcher not supported at this time");
-      return null;
+      markets = null;
+      break;
     }
     default: {
       console.log("Config type not found", config.type);
-      return null;
+      markets = null;
+      break;
     }
   }
+  return { markets, blocknumber }
 };
 
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {
@@ -210,7 +216,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
   }));
   const feeDecimal = fee ? new BN(String(fee)).div(new BN(10).pow(18)) : ZERO;
   return {
-    id,
+    id: created ? id : null,
     ammOutcomes,
     market,
     feeDecimal: String(feeDecimal),

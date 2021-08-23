@@ -1445,8 +1445,8 @@ export const getMarketInfos = async (
     factories
       .filter((f) => f.type === MARKET_FACTORY_TYPES.NFL)
       .map((config) => {
-        const markets = fetcherMarketsPerConfig(config, provider, account);
-        if (markets) return markets;
+        const data = fetcherMarketsPerConfig(config, provider, account);
+        if (data) return data;
         return []
         const { type, address, ammFactory } = config;
         return getFactoryMarketInfo(
@@ -1464,9 +1464,9 @@ export const getMarketInfos = async (
       })
   );
 
-  console.log('allMarkets', allMarkets)
   // first market infos get all markets with liquidity
   const aMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
+  console.log('all a markets', allMarkets, aMarkets)
   let filteredMarkets = { ...markets, ...aMarkets };
   const newBlocknumber = allMarkets.reduce((p, data) => (p > data.blocknumber ? p : data.blocknumber), 0);
 
@@ -1475,6 +1475,8 @@ export const getMarketInfos = async (
   }
 
   const exchanges = Object.values(filteredMarkets).reduce((p, m) => ({ ...p, [m.marketId]: m.amm }), {});
+
+  console.log('filteredMarkets', newBlocknumber, filteredMarkets, exchanges)
   return { markets: filteredMarkets, ammExchanges: exchanges, blocknumber: newBlocknumber };
 };
 
