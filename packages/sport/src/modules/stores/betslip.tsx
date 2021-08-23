@@ -34,6 +34,7 @@ export const processResolvedMarketsPositions = ({
     const position = marketPositions[i];
     const marketId = position.marketId;
     const market = markets[marketId];
+    const isWinningOutcome = Number(market?.winner) === Number(position?.outcomeId);
     const marketTrades = transactions?.[marketId]?.trades;
     const mostRecentUserTrade = marketTrades
       ?.filter((t) => isSameAddress(t.user, account))
@@ -42,7 +43,9 @@ export const processResolvedMarketsPositions = ({
     const marketEvent = marketEvents[market.eventId];
     const toWin = new BN(position.quantity).minus(new BN(position.initCostUsd));
     const { name } = market.outcomes.find((outcome) => outcome.id === position.outcomeId);
-    const cashoutAmount = estimatedCashOut(market.amm, position.quantity, position.outcomeId);
+    const cashoutAmount = isWinningOutcome
+      ? toWin
+      : estimatedCashOut(market.amm, position.quantity, position.outcomeId);
     const betId = `${market.marketId}-${position.outcomeId}`;
     const activeBet = active[betId];
     const status = userTransactions.find((t) => t.hash === activeBet?.hash)?.status || TX_STATUS.CONFIRMED;
@@ -65,12 +68,13 @@ export const processResolvedMarketsPositions = ({
       isPending: false,
       isApproved: true,
       status,
+      isWinningOutcome,
       hasClaimed: true,
     });
   }
 
   return bets;
-}
+};
 
 const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, removeActive } }) => {
   const { marketEvents } = useSportsStore();
@@ -129,6 +133,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         isPending: status === TX_STATUS.PENDING,
         isApproved,
         status,
+        hasWinner: market.hasWinner,
       });
     }
     // remove cashed out bets

@@ -94,8 +94,8 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, hasClaimed, wager, cashout }) => {
-    const isPositive = Number(wager) < Number(cashout);
+  const determineClasses = ({ canCashOut, hasClaimed, wager, cashout, isWinningOutcome }) => {
+    const isPositive = isWinningOutcome || Number(wager) < Number(cashout);
     return {
       [Styles.CanCashOut]: canCashOut,
       [Styles.hasClaimed]: hasClaimed,
@@ -136,10 +136,10 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           canCashOut,
           isPending,
           timestamp,
+          isWinningOutcome: won
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
-        const won = createBigNumber(cashoutAmount).gt(wager);
         const buttonName =
           !canCashOut && hasClaimed
             ? won
@@ -154,16 +154,15 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             : `CASHOUT: ${cashout.full}`;
 
         const subtext = !canCashOut && hasClaimed ? (won ? "WON:" : "LOSS:") : null;
-
         return (
           <ul key={tx_hash}>
             <li>
               <span>{name}</span>
               <span>{subHeading}</span>
             </li>
-            <li>{wager === "0.00" ? "-" : formatCash(wager, USDC).full}</li>
+            <li>{wager === "0.00" ? "-" : formatCash(wager.replaceAll(',', ''), USDC).full}</li>
             <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
-            <li>{toWin && toWin !== "0" ? formatCash(toWin, USDC).full : "-"}</li>
+            <li>{toWin && toWin !== "0" ? formatCash(toWin.replaceAll(',', ''), USDC).full : "-"}</li>
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton

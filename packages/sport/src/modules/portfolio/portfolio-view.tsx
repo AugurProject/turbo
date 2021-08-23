@@ -166,13 +166,19 @@ const useEventPositionsData = (sortBy: string, search: string) => {
       return out;
     }, {});
   } else {
-    marketIds = Array.from(new Set(positionBalance?.map((p) => p?.marketId))).filter((v) => v);
+    marketIds = Array.from(new Set([...positionBalance?.map((p) => p?.marketId), ...Object.keys(marketShares)])).filter((v) => v);
     events = Array.from(new Set(marketIds?.map((marketId: string) => markets?.[marketId]?.eventId)))
       .map((eventId) => marketEvents[eventId])
       .filter((v) => v);
+    const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
+      const userMarketShares = marketShares as any;
+      const marketPositions = userMarketShares[marketId];
+      const { market } = marketPositions.ammExchange;
+      return [...p, ...marketPositions.positions.map((pos) => ({ ...pos, marketId: market.marketId }))];
+    }, []);
     eventPositionsData = events.reduce((acc, event) => {
       const out = { ...acc };
-      const bets = positionBalance.reduce((a, test) => {
+      const bets = [...positionBalance, ...marketPositions].reduce((a, test) => {
         let result = { ...a };
         if (event?.marketIds?.includes(test?.marketId)) {
           const market = markets[test?.marketId];
