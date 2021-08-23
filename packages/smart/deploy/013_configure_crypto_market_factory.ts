@@ -17,7 +17,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   if (await shouldAddCoins(marketFactory)) {
     for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(deployments)) {
-      console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${priceFeedAddress}"`);
+      if (hre.network.config.live)
+        console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${priceFeedAddress}"`);
       await marketFactory.addCoin(symbol, priceFeedAddress, imprecision);
     }
   } else {

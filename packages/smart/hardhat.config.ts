@@ -19,10 +19,22 @@ export const config: HardhatUserConfig = {
   paths: {
     artifacts: "./dist/artifacts",
   },
+  gasReporter: {
+    enabled: !!process.env.REPORT_GAS,
+  },
   solidity: {
     compilers: [
       {
         version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.6.12",
         settings: {
           optimizer: {
             enabled: true,

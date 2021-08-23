@@ -11,6 +11,7 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
+  MasterChef__factory,
   NBAFetcher,
   NBAFetcher__factory,
   NBAMarketFactory,
@@ -32,6 +33,10 @@ import {
 } from "../src";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 
+const BONE = BigNumber.from(10).pow(18);
+const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
+const ZERO = BigNumber.from(0);
+
 enum Market {
   HeadToHead = 0,
   Spread = 1,
@@ -39,7 +44,6 @@ enum Market {
 }
 enum Outcome {
   NoContest = 0,
-
   AwayWon = 1,
   HomeWon = 2,
 
@@ -84,6 +88,7 @@ describe("NBA", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
+
     marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,
@@ -313,9 +318,18 @@ describe("Sports fetcher", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
+    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
+    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
+
+    const initialRewards = BONE.mul(10000);
+    await rewardsToken.faucet(initialRewards);
+    await rewardsToken.transfer(masterChef.address, initialRewards);
+
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
+
+    await masterChef.trustAMMFactory(ammFactory.address);
 
     leastInterestingEvent = await makeTestEvent(marketFactory, {
       id: 7878,
@@ -445,9 +459,18 @@ describe("Sports fetcher no markets", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
+    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
+    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
+
+    const initialRewards = BONE.mul(10000);
+    await rewardsToken.faucet(initialRewards);
+    await rewardsToken.transfer(masterChef.address, initialRewards);
+
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
+
+    await masterChef.trustAMMFactory(ammFactory.address);
 
     fetcher = await new NBAFetcher__factory(signer).deploy();
   });

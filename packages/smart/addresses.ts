@@ -18,6 +18,7 @@ export interface MarketFactory {
   fetcher: string;
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
+  hasRewards: boolean;
 }
 export const MARKET_TYPES = [
   "Trusted",
@@ -116,6 +117,7 @@ export const addresses: AddressMapping = {
         fetcher: "0x26876235A7f0310d2668C01e3Bb4932BB0428e24",
         description: "futures",
         version: "refactor-2021.08.25",
+        hasRewards: false,
       },
       {
         type: "Crypto",
@@ -126,6 +128,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xeF05f24952Dc308C7Ce128f3B24220Ae2E94aA41",
         description: "crypto prices",
         version: "refactor-2021.08.25",
+        hasRewards: false,
       },
       {
         type: "MLB",
@@ -136,6 +139,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "mlb",
         version: "refactor-2021.08.19",
+        hasRewards: false,
       },
       {
         type: "NBA",
@@ -146,6 +150,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "nba",
         version: "refactor-2021.08.19",
+        hasRewards: false,
       },
       {
         type: "NFL",
@@ -156,6 +161,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "nfl",
         version: "refactor-2021.08.19",
+        hasRewards: false,
       },
       {
         type: "MMA",
@@ -166,6 +172,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xb7351Ef0FAd67e7D79F791158A819cb071a2bAC4",
         description: "mma/ufc",
         version: "refactor-2021.08.19",
+        hasRewards: false,
       },
       {
         type: "MMALink",
@@ -176,6 +183,7 @@ export const addresses: AddressMapping = {
         fetcher: "0x2a507840577A7f896C1e190701390c1b08037c61",
         description: "mma",
         version: "unknown",
+        hasRewards: false,
       },
       {
         type: "Crypto",
@@ -186,6 +194,7 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "crypto prices",
         version: "unknown",
+        hasRewards: false,
       },
       {
         type: "SportsLink",
@@ -196,6 +205,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xC5C415cb7eC3ca7dcC26ca7a3fC1126A07122Ec7",
         description: "mlb and nba",
         version: "unknown",
+        hasRewards: false,
       },
       {
         type: "MMALink",
@@ -206,6 +216,7 @@ export const addresses: AddressMapping = {
         fetcher: "0x9f1DB2B2C81eAF3F96D8d942e2D515dE17975A2A",
         description: "mma",
         version: "v1.1.0",
+        hasRewards: false,
       },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
@@ -221,6 +232,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+        hasRewards: false,
         description: "futures",
         version: "FILL THIS OUT",
       },
@@ -231,6 +243,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+        hasRewards: false,
         description: "nba",
         version: "FILL THIS OUT",
       },
@@ -241,6 +254,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+        hasRewards: false,
         description: "mma/ufc",
         version: "FILL THIS OUT",
       },
@@ -251,6 +265,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+        hasRewards: false,
         description: "crypto prices",
         version: "FILL THIS OUT",
       },
@@ -261,6 +276,7 @@ export const addresses: AddressMapping = {
         collateral: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+        hasRewards: false,
         description: "futures",
         version: "FILL THIS OUT",
       },
@@ -271,6 +287,7 @@ export const addresses: AddressMapping = {
         collateral: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1",
+        hasRewards: false,
         description: "mma/ufc",
         version: "FILL THIS OUT",
       },
@@ -281,6 +298,7 @@ export const addresses: AddressMapping = {
         collateral: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f",
+        hasRewards: false,
         description: "crypto prices",
         version: "FILL THIS OUT",
       },
@@ -291,6 +309,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+        hasRewards: false,
         description: "mlb",
         version: "FILL THIS OUT",
       },
@@ -301,6 +320,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+        hasRewards: false,
         description: "nfl",
         version: "FILL THIS OUT",
       },
@@ -320,6 +340,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xaDC46f6b0bB03cC229Be56AFF70a8A4E012D812D",
         description: "mma/ufc",
         version: "v1.2.0",
+        hasRewards: false,
       },
       {
         type: "NFL",
@@ -330,6 +351,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xaDC46f6b0bB03cC229Be56AFF70a8A4E012D812D",
         description: "nfl",
         version: "v1.2.0",
+        hasRewards: false,
       },
       {
         type: "Crypto",
@@ -340,6 +362,7 @@ export const addresses: AddressMapping = {
         fetcher: "0x96a6e9E91BDb0114C41bB9A389eD20F7FEcDCA03",
         description: "crypto prices",
         version: "v1.2.0",
+        hasRewards: false,
       },
       {
         type: "SportsLink",
@@ -350,6 +373,7 @@ export const addresses: AddressMapping = {
         fetcher: "0x1F26275cf999B33Eb39f304E622adbe0C5214Cbf",
         description: "mlb and nba",
         version: "v1.1.0",
+        hasRewards: false,
       },
       {
         type: "MMALink",
@@ -360,6 +384,7 @@ export const addresses: AddressMapping = {
         fetcher: "0xAE9df5bf273bfF861174194ca190e99e95a15a26",
         description: "mma",
         version: "v1.1.0",
+        hasRewards: false,
       },
       {
         type: "SportsLink",
@@ -370,6 +395,7 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "mlb and nba",
         version: "v1.0.0",
+        hasRewards: false,
       },
       {
         type: "Crypto",
@@ -380,6 +406,7 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "crypto prices",
         version: "v1.1.0",
+        hasRewards: false,
       },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "matic" },

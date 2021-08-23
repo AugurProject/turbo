@@ -12,6 +12,7 @@
     "build:typescript": "tsc -b",
     "test": "hardhat test",
     "contracts:build": "hardhat --config hardhat.typechain.config.ts typechain && hardhat compile",
+    "contracts:typechain": "hardhat --config hardhat.typechain.config.ts typechain",
     "contracts:deploy": "yarn hardhat deploy",
     "contracts:verify": "hardhat verify",
     "ethereumNode": "hardhat node --no-deploy",
