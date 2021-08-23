@@ -6,7 +6,7 @@ import {
 } from "../../generated/AmmFactory/AmmFactory";
 import { BPool as BPoolContract } from "../../generated/AmmFactory/BPool";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, log as logger } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAddLiquidity,
   getOrCreateAmmFactory,
@@ -18,7 +18,8 @@ import {
   getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
 import {
-  getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance,
+  getOrCreateInitialCostPerMarket,
+  getOrCreateLiquidityPositionBalance,
   handlePositionFromLiquidityChangedEvent,
   handlePositionFromTradeEvent
 } from "../helpers/CommonHandlers";
@@ -55,13 +56,13 @@ function liquidityCollateralPerShare(collateral: BigInt, sharesReturnedArray: Bi
 function calculateInitialCostPerOutcome(senderId: string, marketId: string, logId: string, collateral: BigInt, outcome: string, shares: BigInt): void {
   let entity = getOrCreateInitialCostPerMarket(senderId + "-" + marketId + "-" + outcome);
   let log = entity.log;
-  if (log) {
+  if (!!log && !!entity.sharesFromTrades) {
     let wasAlreadySummed = log.includes(logId);
     if (!wasAlreadySummed) {
-      let buy = collateral < ZERO;
+      let buy = collateral.lt(ZERO);
       let absCollateral = collateral.abs();
       let absShares = shares.abs();
-      let sumOfShares = buy ? entity.sharesFromTrades + absShares : entity.sharesFromTrades - absShares;
+      let sumOfShares = buy ? entity.sharesFromTrades.plus(absShares) : entity.sharesFromTrades.minus(absShares);
       let sumOfSharesBigDecimal = sumOfShares.toBigDecimal().div(SHARES_DECIMALS);
       let soldAllSharesFromTrade = sumOfSharesBigDecimal.le(DUST_POSITION_AMOUNT_BIG_DECIMAL);
       log.push(logId);
@@ -69,8 +70,9 @@ function calculateInitialCostPerOutcome(senderId: string, marketId: string, logI
       entity.market = marketId;
       entity.sender = senderId;
       entity.outcome = outcome;
+      logger.info("Sold all shares? {}", [soldAllSharesFromTrade.toString()]);
       if (!soldAllSharesFromTrade) {
-        let sumOfInitialCost = buy ? entity.sumOfInitialCost + absCollateral : entity.sumOfInitialCost - absCollateral;
+        let sumOfInitialCost = buy ? entity.sumOfInitialCost.plus(absCollateral) : entity.sumOfInitialCost.minus(absCollateral);
         let sumOfInitialCostBigDecimal = sumOfInitialCost.toBigDecimal().div(USDC_DECIMALS);
         entity.sharesFromTrades = sumOfShares;
         entity.sharesFromTradesBigDecimal = sumOfSharesBigDecimal;
@@ -265,7 +267,7 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   tradeEntity.transactionHash = event.transaction.hash.toHexString();
   tradeEntity.timestamp = event.block.timestamp;
 
-  let logId = event.transaction.hash.toHexString() + "-" + event.params.outcome.toHexString() + "-" + event.params.collateral.toString();
+  let logId = event.transaction.hash.toHexString() + "-" + bigIntToHexString(event.params.outcome) + "-" + event.params.collateral.toString();
   calculateInitialCostPerOutcome(senderId, marketId, logId, event.params.collateral, outcome, event.params.shares);
 
   handlePositionFromTradeEvent(event);

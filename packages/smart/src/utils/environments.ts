@@ -15,6 +15,7 @@ interface EnvironmentAddresses extends Addresses {
   mmaMarketFactoriesV2: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV1: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV2: EnvironmentMarketFactory[];
+  nflMarketFactoriesV2: EnvironmentMarketFactory[];
 }
 
 const marketFactoryTypes: {
@@ -26,6 +27,7 @@ const marketFactoryTypes: {
   MMALinkV2: "mmaMarketFactoriesV2",
   CryptoV1: "cryptoMarketFactoriesV1",
   CryptoV2: "cryptoMarketFactoriesV2",
+  NFLV2: "nflMarketFactoriesV2",
 };
 
 const marketFactoryGraphNames: {
@@ -37,6 +39,7 @@ const marketFactoryGraphNames: {
   MMALinkV2: "MmaMarketFactoryV2",
   CryptoV1: "CryptoMarketFactoryV1",
   CryptoV2: "CryptoMarketFactoryV2",
+  NFLV2: "NflMarketFactoryV2",
 };
 
 function generateJsonEnvironments() {

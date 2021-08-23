@@ -1,4 +1,4 @@
-import { CryptoMarket, MmaMarket, TeamSportsMarket } from "../../generated/schema";
+import { CryptoMarket, MmaMarket, NflMarket, TeamSportsMarket } from "../../generated/schema";
 
 export function getOrCreateTeamSportsMarket (
   id: string,
@@ -67,4 +67,27 @@ export function getOrCreateCryptoMarket (
   }
 
   return entity as CryptoMarket;
+}
+
+export function getOrCreateNflMarket (
+  id: string,
+  createIfNotFound: boolean = true,
+  save: boolean = true
+): NflMarket {
+  let entity = NflMarket.load(id);
+
+  if (entity == null && createIfNotFound) {
+    entity = new NflMarket(id);
+    let splitId = id.split("-");
+    let MARKET_FACTORY_ID = 0;
+    let MARKET_INDEX = 1;
+    entity.marketFactory = splitId[MARKET_FACTORY_ID];
+    entity.marketIndex = splitId[MARKET_INDEX];
+
+    if (save) {
+      entity.save();
+    }
+  }
+
+  return entity as NflMarket;
 }

@@ -87,6 +87,28 @@ type CryptoMarket @entity {
   initialOdds: [BigInt!]
 }
 
+type NflMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
 type Liquidity @entity {
   id: ID!
   marketId: Market!
@@ -167,6 +189,7 @@ type ClaimedProceeds @entity {
   sender: Sender!
   fees: String!
   outcome: String!
+  outcomeId: String!
   marketId: Market
   payout: String!
   shares: String!
