@@ -589,6 +589,14 @@ export interface AmmMarketShares {
 export interface Approvals {
   [address: string]: boolean;
 }
+
+export interface PendingRewards {
+  [marketId: string]: {
+    balance: string;
+    rawBalance: string;
+    marketId: string;
+  };
+}
 export interface UserBalances {
   ETH: CurrencyBalance;
   USDC: CurrencyBalance;
@@ -604,6 +612,7 @@ export interface UserBalances {
   rep?: string;
   legacyRep?: string;
   approvals?: Approvals;
+  pendingRewards?: PendingRewards;
 }
 
 export interface ProcessedData {

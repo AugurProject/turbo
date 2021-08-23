@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
@@ -11,6 +11,7 @@ import {
   FuturesMarketFactory,
   FuturesMarketFactory__factory,
   GroupFetcher,
+  MasterChef,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import { calcShareFactor, flatten } from "../src";
@@ -86,15 +87,16 @@ describe("Futures Markets", () => {
   const ODDS = ratioOdds([1, 5]);
 
   before(async () => {
+    await deployments.fixture();
     [signer] = await ethers.getSigners();
   });
 
   it("deploys", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    const feePot = (await ethers.getContract("FeePot")) as FeePot;
+
+    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
+    collateral = (await ethers.getContract("Collateral")) as Cash;
     const bFactory = await new BFactory__factory(signer).deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, SMALL_FEE);
     const shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new FuturesMarketFactory__factory(signer).deploy(
       signer.address,
