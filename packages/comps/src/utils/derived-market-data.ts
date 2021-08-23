@@ -79,7 +79,11 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
   }
 };
 
-export const fetcherMarketsPerConfig = async (config: MarketFactory, provider: Web3Provider, account: string): Promise<{ markets: MarketInfos | null, blocknumber: number }> => {
+export const fetcherMarketsPerConfig = async (
+  config: MarketFactory,
+  provider: Web3Provider,
+  account: string
+): Promise<{ markets: MarketInfos | null; blocknumber: number }> => {
   const blocknumber = await provider.getBlockNumber();
   let markets = {};
   switch (config?.type) {
@@ -102,7 +106,7 @@ export const fetcherMarketsPerConfig = async (config: MarketFactory, provider: W
       break;
     }
   }
-  return { markets, blocknumber }
+  return { markets, blocknumber };
 };
 
 export const decodeMarket = (marketData: any, marketFactoryType: string) => {

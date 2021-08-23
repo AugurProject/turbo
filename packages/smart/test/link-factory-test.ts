@@ -457,8 +457,7 @@ describe("Sports fetcher no markets", () => {
     const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory, collateral, feePot));
-    expect(markets, "markets").to.deep.equal([]
-    );
+    expect(markets, "markets").to.deep.equal([]);
   });
 
   it("dynamic", async () => {

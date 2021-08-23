@@ -9,7 +9,6 @@ import "./Grouped.sol";
 import "../libraries/ManagedByLink.sol";
 import "../libraries/Versioned.sol";
 
-
 contract FuturesMarketFactory is AbstractMarketFactoryV3, Grouped, ManagedByLink, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;

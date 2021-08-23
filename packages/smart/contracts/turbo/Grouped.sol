@@ -5,7 +5,6 @@ import "./AbstractMarketFactoryV3.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 pragma abicoder v2;
 
-
 abstract contract Grouped is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds {
     event GroupCreated(uint256 indexed id, uint256 endTime, uint256 invalidMarketId, string invalidMarketName);
     event GroupMarketAdded(uint256 indexed groupId, uint256 marketId, string marketName);

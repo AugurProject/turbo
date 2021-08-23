@@ -45,12 +45,7 @@ export type MarketFactoryContractName =
   | "CryptoMarketFactory"
   | "FuturesMarketFactory"
   | "TrustedMarketFactory";
-export type FetcherContractName =
-  | "NBAFetcher"
-  | "MMAFetcher"
-  | "NFLFetcher"
-  | "MLBFetcher"
-  | "";
+export type FetcherContractName = "NBAFetcher" | "MMAFetcher" | "NFLFetcher" | "MLBFetcher" | "";
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {

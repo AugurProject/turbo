@@ -36,7 +36,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const endTimestamp = startTimestamp + EIGHT_HOURS_IN_SECONDS;
   const categories = ["Sports", "Football", "NFL"];
   let line = new BN(String(value0)).div(10).decimalPlaces(0, 1).toNumber();
-  if (marketType === undefined) console.error("market type not defined")
+  if (marketType === undefined) console.error("market type not defined");
   const sportsMarketType = new BN(String(marketType || 0)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   if (sportsMarketType === SPORTS_MARKET_TYPE.MONEY_LINE) line = null;
 
