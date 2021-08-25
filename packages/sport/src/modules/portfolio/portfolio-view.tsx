@@ -188,7 +188,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
               ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
               : parseInt(test?.outcomeId);
           const betId = `${test.marketId}-${outcomeId}`;
-          const marketPositions = [...openPositions.map((pos) => ({ ...pos, marketId: market.marketId }))];
+          const marketPositions = (openPositions && [...openPositions?.map((pos) => ({ ...pos, marketId: market.marketId }))]) || [];
           const testBets = processResolvedMarketsPositions({
             marketPositions,
             markets,
@@ -205,9 +205,10 @@ const useEventPositionsData = (sortBy: string, search: string) => {
             name: market?.outcomes?.[outcomeId]?.name,
             subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
             betId,
-            toWin: test?.payout,
-            cashoutAmount: test?.payout,
+            toWin: createBigNumber(test?.payout).minus(test.initCostUsd).toFixed(),
+            cashoutAmount: test.hasClaimed ? createBigNumber(test?.payout).minus(test.initCostUsd).toFixed() : test?.payout,
             canCashOut: !test?.hasClaimed,
+            isWinningOutcome: outcomeId === market?.winner
           };
           testBets.forEach((testBet) => {
             result[testBet.betId] = {
