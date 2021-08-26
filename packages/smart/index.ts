@@ -112,7 +112,7 @@ export function instantiateMarketFactory(
       SportsLink: SportsLinkMarketFactoryV2__factory,
       Trusted: TrustedMarketFactoryV2__factory,
       Crypto: CryptoMarketFactoryV2__factory,
-      MMA: MMALinkMarketFactoryV2__factory,
+      MMALink: MMALinkMarketFactoryV2__factory,
       NFL: NFLMarketFactoryV2__factory,
       MLB: SportsLinkMarketFactoryV2__factory,
       NBA: SportsLinkMarketFactoryV2__factory,

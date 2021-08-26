@@ -99,7 +99,7 @@ export const fetcherMarketsPerConfig = async (
   account: string
 ): Promise<{ markets: MarketInfos | null; blocknumber: number }> => {
   const blocknumber = await provider.getBlockNumber();
-  let markets = {};
+  let markets = null;
   switch (config?.type) {
     case MARKET_FACTORY_TYPES.NFL:
     case MARKET_FACTORY_TYPES.MMA:

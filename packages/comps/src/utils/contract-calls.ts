@@ -1443,8 +1443,9 @@ export const getMarketInfos = async (
 
   const allMarkets = await Promise.all(
     factories.map((config) => {
-      const data = fetcherMarketsPerConfig(config, provider, account);
-      if (data) return data;
+      if (config.subtype === "V3") {
+        return fetcherMarketsPerConfig(config, provider, account);
+      }
       const { type, address, ammFactory } = config;
       return getFactoryMarketInfo(
         provider,
