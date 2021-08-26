@@ -701,6 +701,7 @@ export interface LiquidityBreakdown {
 
 export interface MarketFactoryConfig {
   type: string;
+  subtype: string;
   address: string;
   collateral: string;
   ammFactory: string;

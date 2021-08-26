@@ -56,8 +56,8 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
         try {
           const { data, block, errors } = await getMarketsData();
           // Throwing now until graph data can consistently pull all markets
-          throw new Error('Temporary Graph Failover');
-          
+          //throw new Error('Temporary Graph Failover');
+
           if (errors) {
             throw new Error(`Graph returned error ${errors}`);
           }
@@ -73,16 +73,29 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
             damm
           );
 
+          const infosV3 = await getMarketInfos(
+            provider,
+            dmarkets,
+            damm,
+            cashes,
+            userAccount,
+            MULTICALL_MARKET_IGNORE_LIST,
+            loadType,
+            dblock,
+            true
+          );
+
           if (isDegraded) {
             AppStatusStore.actions.setIsDegraded(false);
           }
-          return infos;
+          const blocknumber = infos.blocknumber || infosV3.blocknumber;
+          return { markets: { ...infos.markets, ...infosV3.markets }, ammExchanges: { ...infos.ammExchanges, ...infosV3.ammExchanges }, blocknumber };
         } catch (e) {
           // failover use multicalls
           if (!isDegraded) {
             AppStatusStore.actions.setIsDegraded(true);
           }
-  
+
           console.log("failover to use multicall", e);
           infos = await getMarketInfos(
             provider,

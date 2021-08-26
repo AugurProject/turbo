@@ -1437,12 +1437,13 @@ export const getMarketInfos = async (
   account: string,
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
-  blocknumber: number
+  blocknumber: number,
+  v3Only: boolean = false
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
 
   const allMarkets = await Promise.all(
-    factories.map((config) => {
+    (v3Only ? factories.filter((c) => c.subtype === "V3") : factories).map((config) => {
       if (config.subtype === "V3") {
         return fetcherMarketsPerConfig(config, provider, account);
       }
