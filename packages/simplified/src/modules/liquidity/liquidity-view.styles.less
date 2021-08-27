@@ -3,6 +3,7 @@
 .LiquidityView {
   display: grid;
   grid-template-columns: 1fr auto;
+  grid-auto-rows: 0fr 0fr 0fr 0fr 1fr;
   grid-gap: @size-16;
   padding: @size-40 @size-88 @size-48;
 
@@ -54,6 +55,37 @@
       white-space: nowrap;
       display: flex;
       flex-flow: row nowrap;
+    }
+  }
+
+  > section {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: @size-8;
+    margin-top: @size-32;
+
+    > article:first-of-type {
+      .PrimaryBorderRadius;
+      
+      align-items: center;
+      background: var(--primary-bg);
+      display: grid;
+      grid-template-columns: 1fr .25fr .25fr .25fr .25fr .25fr .25fr;
+      grid-gap: @size-8;
+      padding: 0 @size-24;
+      max-height: @size-56;
+
+      > button {
+        border: none;
+        background: none;
+      }
+
+      > span {
+        .text-12-semi-bold;
+
+        color: var(--primary-text);
+      }
     }
   }
 }

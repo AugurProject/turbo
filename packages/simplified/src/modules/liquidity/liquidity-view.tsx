@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Styles from "./liquidity-view.styles.less";
-import { Components } from "@augurproject/comps";
+import { Components, Utils, Constants } from "@augurproject/comps";
 import { categoryItems } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { useSimplifiedStore } from "../stores/simplified";
-
+const { LIQUIDITY } = Constants;
+const { PathUtils: { makePath } } = Utils;
 const {
   SelectionComps: { SquareDropdown },
   InputComps: { SearchInput },
@@ -23,7 +24,7 @@ const LiquidityView = () => {
       <AvailableLiquidityRewards />
       <h1>Explore LP Opportunties</h1>
       <p>
-        Add Market liquidity to earn fees and rewards. <a href="#">Learn more →</a>
+        Add Market liquidity to earn fees and rewards. <a href={makePath(LIQUIDITY)}>Learn more →</a>
       </p>
       <ul>
         <SquareDropdown
@@ -59,6 +60,18 @@ const LiquidityView = () => {
           showFilter={true}
         />
       </ul>
+      <section>
+        <article>
+          <span>Market</span>
+          <button>Expires</button>
+          <button>TVL</button>
+          <button>APR</button>
+          <button>My Liquidity</button>
+          <button>My Rewards</button>
+          <span />
+        </article>
+        market cards here
+      </section>
     </div>
   );
 };
