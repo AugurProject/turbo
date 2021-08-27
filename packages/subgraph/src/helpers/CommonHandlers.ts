@@ -7,7 +7,7 @@ import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance
-} from "./CommonHelpers";
+} from "./CommonHelper";
 
 export function handlePositionFromTradeEvent(
   event: SharesSwapped
