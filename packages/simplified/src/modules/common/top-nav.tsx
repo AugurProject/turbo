@@ -22,7 +22,7 @@ const { GearIcon, ThreeLinesIcon } = Icons;
 const { ConnectAccount } = CompsConnectAccount;
 const { SecondaryThemeButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
+const { MARKET, MARKETS, PORTFOLIO, LIQUIDITY, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
 const { ToggleSwitch } = Components;
 
 export const SettingsButton = () => {
@@ -161,6 +161,18 @@ export const TopNav = () => {
                 placeholder={isLogged ? "Portfolio" : "Please Login to view Portfolio"}
               >
                 Portfolio
+              </Link>
+            </li>
+            <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
+              <Link
+                onClick={(e) => {
+                  !isLogged && e.preventDefault();
+                }}
+                disabled={!isLogged}
+                to={makePath(LIQUIDITY)}
+                placeholder={isLogged ? "Liquidity" : "Please Login to view Liquidity"}
+              >
+                Liquidity
               </Link>
             </li>
           </ol>
