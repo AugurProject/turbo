@@ -1,4 +1,15 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
+
+.LiquidityTableRow {
+  .PrimaryBorderRadius;
+
+  align-items: center;
+  background: var(--primary-bg);
+  display: grid;
+  grid-template-columns: 1fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr;
+  grid-gap: @size-8;
+  padding: 0 @size-24;
+}
 
 .LiquidityView {
   display: grid;
@@ -34,7 +45,7 @@
       margin-left: @size-4;
     }
   }
-  
+
   > ul {
     display: grid;
     grid-auto-flow: column;
@@ -64,27 +75,55 @@
     grid-template-columns: 1fr;
     grid-gap: @size-8;
     margin-top: @size-32;
+    margin-bottom: auto;
 
-    > article:first-of-type {
-      .PrimaryBorderRadius;
-      
-      align-items: center;
-      background: var(--primary-bg);
-      display: grid;
-      grid-template-columns: 1fr .25fr .25fr .25fr .25fr .25fr .25fr;
-      grid-gap: @size-8;
-      padding: 0 @size-24;
+    > article {
+      .LiquidityTableRow;
+
+      min-height: @size-56;
       max-height: @size-56;
 
       > button {
         border: none;
         background: none;
+        text-align: right;
       }
 
       > span {
         .text-12-semi-bold;
 
         color: var(--primary-text);
+      }
+    }
+
+    > section {
+      display: grid;
+      grid-auto-columns: 1fr;
+      grid-gap: @size-8;
+      overflow-y: auto;
+          
+      > article {
+        .LiquidityTableRow;
+
+        min-height: @size-80;
+        max-height: @size-80;
+
+        > span {
+          .text-12;
+
+          color: var(--primary-text);
+          text-align: right;
+        }
+
+        > button {
+          padding: @size-10 @size-12;
+          width: min-content;
+          justify-self: flex-end;
+
+          > span {
+            .text-10-semi-bold;
+          }
+        }
       }
     }
   }

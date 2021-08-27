@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import Styles from "./liquidity-view.styles.less";
-import { Components, Utils, Constants } from "@augurproject/comps";
+import { Components } from "@augurproject/comps";
 import { categoryItems } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { useSimplifiedStore } from "../stores/simplified";
-const { LIQUIDITY } = Constants;
-const { PathUtils: { makePath } } = Utils;
 const {
   SelectionComps: { SquareDropdown },
   InputComps: { SearchInput },
+  ButtonComps: { PrimaryThemeButton },
 } = Components;
 
 const LiquidityView = () => {
@@ -24,7 +23,7 @@ const LiquidityView = () => {
       <AvailableLiquidityRewards />
       <h1>Explore LP Opportunties</h1>
       <p>
-        Add Market liquidity to earn fees and rewards. <a href={makePath(LIQUIDITY)}>Learn more →</a>
+        Add Market liquidity to earn fees and rewards. <a href='.'>Learn more →</a>
       </p>
       <ul>
         <SquareDropdown
@@ -35,23 +34,26 @@ const LiquidityView = () => {
           defaultValue={primaryCategory}
         />
         <SquareDropdown
-        onChange={() => {}} options={[
-          {
-            label: 'Daily + Long Term',
-            value: 'daily+long',
-            disabled: false,
-          },
-          {
-            label: 'Daily Only',
-            value: 'daily',
-            disabled: false,
-          },
-          {
-            label: 'Long Term Only',
-            value: 'long',
-            disabled: false,
-          }
-        ]} defaultValue={'daily+long'} />
+          onChange={() => {}}
+          options={[
+            {
+              label: "Daily + Long Term",
+              value: "daily+long",
+              disabled: false,
+            },
+            {
+              label: "Daily Only",
+              value: "daily",
+              disabled: false,
+            },
+            {
+              label: "Long Term Only",
+              value: "long",
+              disabled: false,
+            },
+          ]}
+          defaultValue={"daily+long"}
+        />
         <span>My Liquidity Positions</span>
         <SearchInput
           value={filter}
@@ -70,7 +72,62 @@ const LiquidityView = () => {
           <button>My Rewards</button>
           <span />
         </article>
-        market cards here
+        <section>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+          <article>
+            <div>icon title, est start</div>
+            <span>04/09/2022</span>
+            <span>$385,000</span>
+            <span>15.21%</span>
+            <span>0</span>
+            <span>0 MATIC</span>
+            <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+          </article>
+        </section>
       </section>
     </div>
   );
