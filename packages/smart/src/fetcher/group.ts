@@ -75,7 +75,7 @@ export async function fetchDynamicGroup(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-) {
+): Promise<{ markets: DynamicGroupsMarket[] }> {
   const groupCount = await marketFactory.groupCount();
 
   let groupBundles: DynamicGroupBundle[] = [];

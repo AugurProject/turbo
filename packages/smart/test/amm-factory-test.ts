@@ -5,7 +5,6 @@ import { expect } from "chai";
 import {
   AbstractMarketFactoryV2,
   AMMFactory,
-  BFactory,
   Cash,
   FeePot,
   TrustedMarketFactory,
@@ -35,7 +34,6 @@ describe("AMMFactory", () => {
   let shareFactor: BigNumber;
   let marketFactory: TrustedMarketFactory;
   const marketId = BigNumber.from(1);
-  let bFactory: Contract;
   let ammFactory: AMMFactory;
 
   // These are specific to the one market we are dealing with in the tests below.
@@ -63,7 +61,6 @@ describe("AMMFactory", () => {
       signer.address
     );
 
-    bFactory = (await ethers.getContract("BFactory")) as BFactory;
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
 
     const description = "Who will win Wrestlemania III?";
@@ -332,6 +329,7 @@ describe("AMMFactory", () => {
         )
       );
 
+      expect(collateralGained).to.equal(collateralAfter.sub(collateralBefore));
       expect(sharesAfter).to.deep.equal(
         sharesGained.map((s: BigNumber, index: number) => s.add(sharesBefore[index]).toString())
       );

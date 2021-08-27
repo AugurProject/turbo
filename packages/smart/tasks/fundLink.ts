@@ -15,8 +15,8 @@ task("fundLink", "Send 1 link to a contract on kovan")
     const amount = ethers.BigNumber.from(10).pow(18);
     const linkToken = LinkTokenInterface__factory.connect(linkTokenAddress, signer);
 
-    await linkToken.transfer(contractAddress, amount).then((tx: any) => {
-      tx.wait();
+    await linkToken.transfer(contractAddress, amount).then(async (tx) => {
+      await tx.wait();
       console.log("Contract ", contractAddress, " funded with LINK. Transaction Hash: ", tx.hash);
     });
   });

@@ -1,8 +1,10 @@
-import { BigNumber, BigNumberish, Signer } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import { calcShareFactor } from "../calcShareFactor";
 
-export async function getCollateral(deployments: DeploymentsExtension) {
+export async function getCollateral(
+  deployments: DeploymentsExtension
+): Promise<{ shareFactor: BigNumber; collateralAddress: string }> {
   const { address: collateralAddress } = await deployments.get("Collateral");
   const shareFactor = calcShareFactor(await deployments.read("Collateral", "decimals"));
 

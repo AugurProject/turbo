@@ -33,12 +33,12 @@ import {
   CryptoFetcher,
   CryptoFetcher__factory,
   SportsFetcher__factory,
+  GroupFetcher,
+  GroupFetcher__factory,
 } from "./typechain";
 import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
-import { ContractFactory, Signer } from "ethers";
+import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import { GroupFetcher__factory } from "./typechain/factories/GroupFetcher__factory";
-import { GroupFetcher } from "./typechain/GroupFetcher";
 
 export * from "./typechain";
 export * from "./addresses";

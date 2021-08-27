@@ -1,18 +1,20 @@
-import {
-  AbstractMarketFactoryV3,
-  AMMFactory,
-  BPool__factory,
-  Cash__factory,
-  CryptoMarketFactory,
-  Sport,
-} from "../typechain";
+import { AbstractMarketFactoryV3, AMMFactory, BPool__factory, Cash__factory } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import { NULL_ADDRESS } from "../src";
 
-const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
 const ZERO = BigNumber.from(0);
 
-export async function marketFactoryBundleCheck(marketFactory: AbstractMarketFactoryV3) {
+export async function marketFactoryBundleCheck(
+  marketFactory: AbstractMarketFactoryV3
+): Promise<{
+  feePot: string;
+  stakerFee: BigNumber;
+  marketCount: BigNumber;
+  protocolFee: BigNumber;
+  settlementFee: BigNumber;
+  shareFactor: BigNumber;
+  collateral: { symbol: string; decimals: number; addr: string };
+}> {
   const collateral = Cash__factory.connect(await marketFactory.collateral(), marketFactory.signer);
   return {
     shareFactor: await marketFactory.shareFactor(),
@@ -33,7 +35,17 @@ export async function makePoolCheck(
   ammFactory: AMMFactory,
   marketFactory: AbstractMarketFactoryV3,
   marketId: BigNumberish
-) {
+): Promise<
+  | {
+      balances: BigNumber[];
+      tokenRatios: BigNumber[];
+      totalSupply: BigNumber;
+      swapFee: BigNumber;
+      addr: string;
+      weights: BigNumber[];
+    }
+  | { balances: any[]; tokenRatios: any[]; totalSupply: BigNumber; swapFee: BigNumber; addr: string; weights: any[] }
+> {
   const addr = await ammFactory.getPool(marketFactory.address, marketId);
   if (addr === NULL_ADDRESS) {
     return {

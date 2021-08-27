@@ -51,7 +51,6 @@ describe("Turbo", () => {
   const basis = BigNumber.from(10).pow(18);
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
-  const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
   const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
   const protocolFee = 0;
 

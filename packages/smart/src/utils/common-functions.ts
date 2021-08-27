@@ -25,6 +25,8 @@ export function flatten<T>(...arrays: T[][]): T[] {
   return arrays.reduce((flat, array) => flat.concat(array), []);
 }
 
+// This is intentionally extremely generic, but tslint hates that.
+// eslint-disable-next-line
 export type TypeOfClassMethod<T, M extends keyof T> = T[M] extends Function ? T[M] : never;
 
 export function repeat<T>(thing: T, n: number): T[] {

@@ -14,6 +14,7 @@ module.exports = {
     "@typescript-eslint/no-floating-promises": "error",
     "promise/catch-or-return": "warn",
     "@typescript-eslint/no-misused-promises": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
   },
   ignorePatterns: [".eslintrc.js"],
 };

@@ -435,8 +435,6 @@ describe("Sports fetcher no markets", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
-    const now = BigNumber.from(Date.now()).div(1000);
-    const estimatedStartTime = now.add(60 * 60 * 24); // one day
     marketFactory = await new NBAMarketFactory__factory(signer).deploy(
       signer.address,
       collateral.address,

@@ -98,7 +98,7 @@ function range(inclusiveMin: number, exclusiveMax: number): number[] {
   return [...new Array(exclusiveMax - inclusiveMin).keys()].map((i) => i + inclusiveMin);
 }
 
-export function randomPrice(min: number = 1, max: number = 100000): BigNumber {
+export function randomPrice(min = 1, max = 100000): BigNumber {
   const basis = BigNumber.from(10).pow(8);
   const r = Math.random();
   const price = r * (max - min) + min;

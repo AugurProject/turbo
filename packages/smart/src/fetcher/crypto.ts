@@ -47,7 +47,7 @@ export async function fetchDynamicCrypto(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-) {
+): Promise<{ markets: DynamicCryptoMarketBundle[] }> {
   const marketCount = await marketFactory.marketCount();
 
   let markets: DynamicCryptoMarketBundle[] = [];
