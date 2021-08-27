@@ -348,7 +348,7 @@ function marketFactoryIndex(contracts: ContractInterfaces, ofType: MarketFactory
   return MarketFactories.findIndex(({ marketFactoryType }) => marketFactoryType === ofType);
 }
 
-async function handleLinkNode(marketFactory: ManagedByLink, signer: Signer): Promise<string | null> {
+async function handleLinkNode(marketFactory: ManagedByLink | CryptoMarketFactory, signer: Signer): Promise<string | null> {
   const originalLinkNode = await marketFactory.linkNode().then((a) => a.toLowerCase());
   const owner = await marketFactory.getOwner().then((a) => a.toLowerCase());
   const me = await signer.getAddress().then((a) => a.toLowerCase());
@@ -369,7 +369,7 @@ async function handleLinkNode(marketFactory: ManagedByLink, signer: Signer): Pro
   }
 }
 
-async function resetLinkNode(marketFactory: ManagedByLink, originalLinkNode: string | null): Promise<void> {
+async function resetLinkNode(marketFactory: ManagedByLink | CryptoMarketFactory, originalLinkNode: string | null): Promise<void> {
   if (originalLinkNode) {
     console.log(`Setting the link node back to ${originalLinkNode}`);
     await marketFactory.setLinkNode(originalLinkNode);
