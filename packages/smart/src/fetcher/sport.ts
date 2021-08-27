@@ -72,7 +72,7 @@ export async function fetchDynamicSports(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-) {
+): Promise<{markets: DynamicMarketBundle[]}> {
   const eventCount = await marketFactory.eventCount();
 
   let eventBundles: DynamicSportsEventBundle[] = [];
