@@ -49,7 +49,7 @@
   > ul {
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: 0fr 0fr 0fr minmax(min-content, auto);
+    grid-template-columns: 0fr 0fr 0fr 1fr;
     grid-gap: @size-16;
     grid-column: span 2;
     max-height: @size-48;
@@ -66,6 +66,14 @@
       white-space: nowrap;
       display: flex;
       flex-flow: row nowrap;
+    }
+
+    > div:last-of-type {
+      margin-left: auto;
+
+      &:focus-within {
+        margin-left: 0;
+      }
     }
   }
 
@@ -101,7 +109,7 @@
       grid-auto-columns: 1fr;
       grid-gap: @size-8;
       overflow-y: auto;
-          
+
       > article {
         .LiquidityTableRow;
 
