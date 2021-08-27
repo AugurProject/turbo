@@ -36,7 +36,7 @@ const handleValue = (value, cashName = USDC) =>
     bigUnitPostfix: true,
   }).full;
 
-export const AppViewStats = ({ small }) => {
+export const AppViewStats = ({ small = false, liquidity = false }) => {
   const { isLogged } = useAppStatusStore();
   const {
     settings: { showResolvedPositions },
@@ -54,8 +54,9 @@ export const AppViewStats = ({ small }) => {
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
   return (
     <div className={classNames(Styles.AppStats, { [Styles.small]: small })}>
-      <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />
-      <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />
+      {!liquidity && <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />}
+      {!liquidity && <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />}
+      {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={"$0.00"} />}
       <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
   );
