@@ -1,7 +1,12 @@
 @import (reference) '~assets/styles/shared';
 
 .LiquidityView {
-  display: flex;
-  flex-flow: column nowrap;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-gap: @size-16;
   padding: @size-40 @size-88 @size-48;
+
+  > div:first-of-type {
+    height: 108px;
+  }
 }
