@@ -352,8 +352,8 @@ async function handleLinkNode(
   marketFactory: ManagedByLink | CryptoMarketFactory,
   signer: Signer
 ): Promise<string | null> {
-  const originalLinkNode = await marketFactory.linkNode().then((a) => a.toLowerCase());
-  const owner = await marketFactory.getOwner().then((a) => a.toLowerCase());
+  const originalLinkNode = await marketFactory.linkNode().then((a: string) => a.toLowerCase());
+  const owner = await marketFactory.getOwner().then((a: string) => a.toLowerCase());
   const me = await signer.getAddress().then((a) => a.toLowerCase());
   const mustSetLinkNode = originalLinkNode !== me;
 
