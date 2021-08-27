@@ -52,11 +52,12 @@ export const AppViewStats = ({ small = false, liquidity = false }) => {
     showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly,
   ]);
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
+  const usdValueLP = useMemo(() => handleValue(balances?.totalCurrentLiquidityUsd || 0), [balances?.totalCurrentLiquidityUsd])
   return (
     <div className={classNames(Styles.AppStats, { [Styles.small]: small })}>
       {!liquidity && <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />}
       {!liquidity && <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />}
-      {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={"$0.00"} />}
+      {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={usdValueLP} />}
       <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
   );
