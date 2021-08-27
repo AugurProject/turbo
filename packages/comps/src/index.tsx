@@ -1,5 +1,6 @@
 import './assets/styles/shared.less';
 import * as _ContractCalls from './utils/contract-calls';
+import * as _Calculations from './utils/calculations';
 import * as _DerivedMarketData from './utils/derived-market-data';
 import addCommasToNumber from './utils/add-commas-to-number';
 import * as _Constants from './utils/constants';
@@ -73,6 +74,7 @@ import { ToggleSwitch, BuySellToggleSwitch } from './components/common/toggle-sw
 import { Toasts } from './components/toasts/toasts'; 
 
 export const ContractCalls = _ContractCalls;
+export const Calculations = _Calculations;
 export const DerivedMarketData = _DerivedMarketData;
 export const GraphClient = _GraphClient;
 export const Stores = {
@@ -214,6 +216,7 @@ const AugurComps = {
   Components,
   Constants,
   ContractCalls,
+  Calculations,
   GraphClient,
   Icons,
   Stores,

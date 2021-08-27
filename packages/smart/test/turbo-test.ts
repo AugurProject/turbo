@@ -42,19 +42,15 @@ describe("Turbo", () => {
       collateral.address,
       shareFactor,
       feePot.address,
-      stakerFee,
-      settlementFee,
-      signer.address,
-      protocolFee
+      [stakerFee, settlementFee, protocolFee],
+      signer.address
     );
   });
 
-  const outcomeSymbols = ["NO CONTEST", "ALL", "MANY", "FEW", "NONE"];
   const outcomeNames = ["No Contest", "All", "Many", "Few", "None"];
   const basis = BigNumber.from(10).pow(18);
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
-  const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
   const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
   const protocolFee = 0;
 
@@ -77,9 +73,6 @@ describe("Turbo", () => {
   });
 
   it("can create a market", async () => {
-    const endTime = BigNumber.from(Date.now())
-      .div(1000)
-      .add(60 * 60 * 24); // one day
     const description = "test market";
     const odds = [
       // each weight must be in the range [1e18,50e18]. max total weight is 50e18
@@ -89,9 +82,9 @@ describe("Turbo", () => {
       basis.mul(25).div(2), // Few at 25%
       basis.mul(24).div(2), // None at 24%
     ];
-    await marketFactory.createMarket(signer.address, endTime, description, outcomeNames, outcomeSymbols, odds);
+    await marketFactory.createMarket(signer.address, description, outcomeNames, odds);
 
-    const filter = marketFactory.filters.MarketCreated(null, null, null, null, null);
+    const filter = marketFactory.filters.MarketCreated(null, null, null);
     const logs = await marketFactory.queryFilter(filter);
     expect(logs.length).to.equal(1);
     const [log] = logs;
@@ -100,15 +93,15 @@ describe("Turbo", () => {
 
     const market = await marketFactory.getMarket(marketId);
     [noContest, all, many, few, none] = market.shareTokens.map((addr) => OwnedERC20__factory.connect(addr, signer));
-    expect(await noContest.symbol()).to.equal("NO CONTEST");
+    expect(await noContest.symbol()).to.equal("No Contest");
     expect(await noContest.name()).to.equal("No Contest");
-    expect(await all.symbol()).to.equal("ALL");
+    expect(await all.symbol()).to.equal("All");
     expect(await all.name()).to.equal("All");
-    expect(await many.symbol()).to.equal("MANY");
+    expect(await many.symbol()).to.equal("Many");
     expect(await many.name()).to.equal("Many");
-    expect(await few.symbol()).to.equal("FEW");
+    expect(await few.symbol()).to.equal("Few");
     expect(await few.name()).to.equal("Few");
-    expect(await none.symbol()).to.equal("NONE");
+    expect(await none.symbol()).to.equal("None");
     expect(await none.name()).to.equal("None");
   });
 
@@ -249,7 +242,7 @@ describe("Turbo", () => {
     await collateral.faucet(costToMint);
     await collateral.approve(marketFactory.address, costToMint);
     await expect(marketFactory.mintShares(marketId, setsToMint, signer.address)).to.be.rejectedWith(
-      "VM Exception while processing transaction: revert Cannot mint shares for resolved market"
+      "Transaction reverted without a reason"
     );
   });
 

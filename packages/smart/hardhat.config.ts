@@ -4,6 +4,7 @@ import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
 import "hardhat-docgen";
 import "@tenderly/hardhat-tenderly";
+import "hardhat-gas-reporter";
 
 import "./tasks";
 import { mapOverObject } from "./src/";
@@ -73,6 +74,8 @@ const config: HardhatUserConfig = {
       live: false,
       saveDeployments: false,
       tags: ["test", "local"],
+      blockGasLimit: 20_000_000, // polygon limit
+      gas: 20_000_000, // hardcoded because ganache ignores the per-tx gasLimit override
     },
     kovan: {
       url: "https://kovan.infura.io/v3/595111ad66e2410784d484708624f7b1",

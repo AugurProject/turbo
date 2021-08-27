@@ -13,7 +13,6 @@ const faucetAmount = ethers.BigNumber.from(10).pow(18).mul(10);
 
 describe("AMM contract", () => {
   let signer: SignerWithAddress;
-  let otherSigner: SignerWithAddress;
   let bPool: BPool;
   let cash1: Cash;
   let cash2: Cash;
@@ -22,7 +21,7 @@ describe("AMM contract", () => {
   beforeEach(async () => {
     await deployments.fixture();
 
-    [signer, otherSigner] = await ethers.getSigners();
+    [signer] = await ethers.getSigners();
 
     const bFactory = (await ethers.getContract("BFactory")) as BFactory;
     await bFactory.newBPool().then((i) => i.wait());

@@ -43,11 +43,13 @@ export function augurV2Client(uri: string) {
   return client;
 }
 
-const getMarketFactories = () => {
-  return PARA_CONFIG.marketFactories.reduce(
-    (p, c) => ({ ...p, [c.type]: p[c.type] ? [...p[c.type], c.address.toLowerCase()] : [c.address.toLowerCase()] }),
-    {}
-  );
+const getMarketFactoriesV1V2 = () => {
+  return PARA_CONFIG.marketFactories
+    .filter((m) => m.subtype === "V1" || m.subtype === "V2")
+    .reduce(
+      (p, c) => ({ ...p, [c.type]: p[c.type] ? [...p[c.type], c.address.toLowerCase()] : [c.address.toLowerCase()] }),
+      {}
+    );
 };
 
 export async function getMarketsData() {
@@ -55,15 +57,15 @@ export async function getMarketsData() {
   let response = null;
   let block = null;
   try {
-    const marketFactories = getMarketFactories();
+    const marketFactories = getMarketFactoriesV1V2();
     block = null; // will be needed in future, await getCurrentBlockNumber(clientConfig.blockClient);
     response = await augurV2Client(clientConfig.turboClient).query({
       query: GET_MARKETS,
       variables: {
-        [MARKET_FACTORY_TYPES.SPORTSLINK]: marketFactories[MARKET_FACTORY_TYPES.SPORTSLINK],
-        [MARKET_FACTORY_TYPES.MMALINK]: marketFactories[MARKET_FACTORY_TYPES.MMALINK],
-        [MARKET_FACTORY_TYPES.CRYPTO]: marketFactories[MARKET_FACTORY_TYPES.CRYPTO],
-        [MARKET_FACTORY_TYPES.NFL]: marketFactories[MARKET_FACTORY_TYPES.NFL],
+        [MARKET_FACTORY_TYPES.SPORTSLINK]: marketFactories[MARKET_FACTORY_TYPES.SPORTSLINK] || [],
+        [MARKET_FACTORY_TYPES.MMALINK]: marketFactories[MARKET_FACTORY_TYPES.MMALINK] || [],
+        [MARKET_FACTORY_TYPES.CRYPTO]: marketFactories[MARKET_FACTORY_TYPES.CRYPTO] || [],
+        [MARKET_FACTORY_TYPES.NFL]: marketFactories[MARKET_FACTORY_TYPES.NFL] || [],
       },
     });
   } catch (e) {

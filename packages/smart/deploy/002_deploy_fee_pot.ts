@@ -8,8 +8,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const collateral = (await deployments.get("Collateral")).address;
   const reputationToken = (await deployments.get("Reputation")).address;
 
-  console.log(collateral, reputationToken);
-
   await deployments.deploy("FeePot", {
     from: deployer,
     args: [collateral, reputationToken],
