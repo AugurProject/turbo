@@ -43,7 +43,7 @@ describe("Turbo", () => {
       shareFactor,
       feePot.address,
       [stakerFee, settlementFee, protocolFee],
-      signer.address,
+      signer.address
     );
   });
 

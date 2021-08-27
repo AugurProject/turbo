@@ -252,7 +252,6 @@ export interface MarketInfo {
   isFuture: boolean;
   subMarkets?: { marketName: string; shareTokens: string[] }[];
   category?: string;
-  isPopular?: boolean;
 }
 
 export interface SubOutcome {

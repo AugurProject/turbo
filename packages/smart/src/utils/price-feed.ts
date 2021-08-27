@@ -39,5 +39,7 @@ export const PRICE_FEEDS: PriceFeed[] = [
   priceFeed("LINK", 29.8, 2),
 ];
 
-export const PRICE_FEEDS_BY_SYMBOL =
-  PRICE_FEEDS.reduce((all, x) => {all[x.symbol] = x; return all}, {} as {[symbol: string]: PriceFeed})
+export const PRICE_FEEDS_BY_SYMBOL = PRICE_FEEDS.reduce((all, x) => {
+  all[x.symbol] = x;
+  return all;
+}, {} as { [symbol: string]: PriceFeed });

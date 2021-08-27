@@ -9,7 +9,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const signer = await hre.ethers.getSigner(deployer);
 
-  for (const {deploymentName, symbol, price} of PRICE_FEEDS) {
+  for (const { deploymentName, symbol, price } of PRICE_FEEDS) {
     const { address } = await deployments.get(deploymentName);
     const priceFeed = FakePriceFeed__factory.connect(address, signer);
 

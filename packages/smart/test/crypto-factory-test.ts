@@ -21,10 +21,12 @@ import {
   fetchDynamicCrypto,
   fetchInitialCrypto,
   PRICE_FEEDS,
-  NULL_ADDRESS, PRICE_FEEDS_BY_SYMBOL, priceFeed,
+  NULL_ADDRESS,
+  PRICE_FEEDS_BY_SYMBOL,
+  priceFeed,
   RoundManagement,
   PriceFeed,
-  repeat
+  repeat,
 } from "../src";
 import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
@@ -96,14 +98,20 @@ describe("CryptoFactory", function () {
   });
 
   it("Can add coins", async () => {
-    const coins = await marketFactory.getCoins().then(coins => coins.map((coin => ({
-      name: coin.name, priceFeed: coin.priceFeed, price: coin.price, imprecision: coin.imprecision, currentMarkets: coin.currentMarkets
-    }))));
+    const coins = await marketFactory.getCoins().then((coins) =>
+      coins.map((coin) => ({
+        name: coin.name,
+        priceFeed: coin.priceFeed,
+        price: coin.price,
+        imprecision: coin.imprecision,
+        currentMarkets: coin.currentMarkets,
+      }))
+    );
 
     // fake coin then each coin without markets or prices set
-    expect(coins).to.deep.equal(await Promise.all(
-      [makePriceFeedCheck(priceFeed("", 0, 0))]
-        .concat(PRICE_FEEDS.map(makePriceFeedCheck))));
+    expect(coins).to.deep.equal(
+      await Promise.all([makePriceFeedCheck(priceFeed("", 0, 0))].concat(PRICE_FEEDS.map(makePriceFeedCheck)))
+    );
   });
 
   it("no markets are created on setup", async () => {
@@ -118,8 +126,11 @@ describe("CryptoFactory", function () {
     await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8 - 1e7, 0, nextResolutionTime.sub(1), 0);
     // NOTE: this should take a gasLimit override because ganache mis-estimates but ganache also ignores the gasLimit override
     //       so instead hardhat.config.ts was edited to use a high limit
-    const tx = await marketFactory.createAndResolveMarkets([0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)), nextResolutionTime);
-    console.log("MARINA", await tx.wait().then(r => r.gasUsed));
+    const tx = await marketFactory.createAndResolveMarkets(
+      [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
+      nextResolutionTime
+    );
+    console.log("MARINA", await tx.wait().then((r) => r.gasUsed));
   });
 
   it("CoinAdded logs are correct", async () => {
@@ -192,14 +203,19 @@ describe("CryptoFactory", function () {
     currentRound = currentRound.nextRound();
     await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8 - 2, 0, nextResolutionTime, 0);
     await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8 - 1e8 + 1, 0, nextResolutionTime, 0);
-    await Promise.all(PRICE_FEEDS.slice(2).map(async coin => {
-      const priceFeed = await ethers.getContract(coin.deploymentName) as FakePriceFeed;
-      await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
-    }))
+    await Promise.all(
+      PRICE_FEEDS.slice(2).map(async (coin) => {
+        const priceFeed = (await ethers.getContract(coin.deploymentName)) as FakePriceFeed;
+        await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
+      })
+    );
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
     nextResolutionTime = nextResolutionTime.add(cadence);
 
-    await marketFactory.createAndResolveMarkets([0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)), nextResolutionTime);
+    await marketFactory.createAndResolveMarkets(
+      [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
+      nextResolutionTime
+    );
 
     const ethPriceMarket = await marketFactory.getMarket(ethPriceMarketId);
     const ethPriceMarketDetails = await marketFactory.getMarketDetails(ethPriceMarketId);
@@ -318,10 +334,12 @@ describe("CryptoFactory", function () {
     currentRound = currentRound.nextRound();
     await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime, 0);
     await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime, 0);
-    await Promise.all(PRICE_FEEDS.slice(2).map(async coin => {
-      const priceFeed = await ethers.getContract(coin.deploymentName) as FakePriceFeed;
-      await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
-    }));
+    await Promise.all(
+      PRICE_FEEDS.slice(2).map(async (coin) => {
+        const priceFeed = (await ethers.getContract(coin.deploymentName)) as FakePriceFeed;
+        await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
+      })
+    );
 
     // Current state:
     // * currentRound is 1 round ahead of the current markets
@@ -329,10 +347,12 @@ describe("CryptoFactory", function () {
     currentRound = currentRound.nextRound();
     await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime.add(1), 0);
     await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime.add(1), 0);
-    await Promise.all(PRICE_FEEDS.slice(2).map(async coin => {
-      const priceFeed = await ethers.getContract(coin.deploymentName) as FakePriceFeed;
-      await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime.add(1), 0);
-    }));
+    await Promise.all(
+      PRICE_FEEDS.slice(2).map(async (coin) => {
+        const priceFeed = (await ethers.getContract(coin.deploymentName)) as FakePriceFeed;
+        await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime.add(1), 0);
+      })
+    );
 
     // Current state:
     // * currentRound is 2 rounds ahead of the current markets
@@ -350,7 +370,10 @@ describe("CryptoFactory", function () {
     // * the current markets resolve a day before nextResolutionTime
 
     await expect(
-      marketFactory.createAndResolveMarkets([0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)), nextResolutionTime)
+      marketFactory.createAndResolveMarkets(
+        [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
+        nextResolutionTime
+      )
     ).to.eventually.be.rejectedWith(
       "VM Exception while processing transaction: revert Must use first round after resolution time"
     );
@@ -365,7 +388,10 @@ describe("CryptoFactory", function () {
     expect(await marketFactory.marketCount(), "market count before final resolution").to.equal(13); // 1 + 6 + 6
 
     // it's the final resolution because the nextResolutionTime is set to zero
-    await marketFactory.createAndResolveMarkets([0 as BigNumberish].concat(repeat(currentRound.prevRound().id, PRICE_FEEDS.length)), 0);
+    await marketFactory.createAndResolveMarkets(
+      [0 as BigNumberish].concat(repeat(currentRound.prevRound().id, PRICE_FEEDS.length)),
+      0
+    );
 
     expect(await marketFactory.marketCount(), "market count after final resolution").to.equal(13);
   });
@@ -376,13 +402,18 @@ describe("CryptoFactory", function () {
     currentRound = currentRound.nextRound();
     await btcPriceFeed.addRound(currentRound.id, btcPrice * 1e8, 0, nextResolutionTime, 0);
     await ethPriceFeed.addRound(currentRound.id, ethPrice * 1e8, 0, nextResolutionTime, 0);
-    await Promise.all(PRICE_FEEDS.slice(2).map(async coin => {
-      const priceFeed = await ethers.getContract(coin.deploymentName) as FakePriceFeed;
-      await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
-    }));
+    await Promise.all(
+      PRICE_FEEDS.slice(2).map(async (coin) => {
+        const priceFeed = (await ethers.getContract(coin.deploymentName)) as FakePriceFeed;
+        await priceFeed.addRound(currentRound.id, randomPrice(), 0, nextResolutionTime, 0);
+      })
+    );
     await network.provider.send("evm_setNextBlockTimestamp", [nextResolutionTime.toNumber()]);
 
-    await marketFactory.createAndResolveMarkets([0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)), nextResolutionTime);
+    await marketFactory.createAndResolveMarkets(
+      [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
+      nextResolutionTime
+    );
 
     expect(await marketFactory.marketCount(), "market count after resolution").to.equal(19); // 1 + 6 + 6 + 6
   });
@@ -468,13 +499,13 @@ async function marketDynamicBundleCheck(
 
 async function makePriceFeedCheck(coin: PriceFeed) {
   const contract = await ethers.getContractOrNull(coin.deploymentName);
-  const priceFeed = contract ? contract.address : NULL_ADDRESS
-  
+  const priceFeed = contract ? contract.address : NULL_ADDRESS;
+
   return {
     currentMarkets: [BigNumber.from(0)],
     price: BigNumber.from(0),
     name: coin.symbol,
     imprecision: coin.imprecision,
     priceFeed,
-  }
+  };
 }

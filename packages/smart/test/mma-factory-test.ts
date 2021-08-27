@@ -2,11 +2,7 @@ import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { expect } from "chai";
 
-import {
-  Cash,
-  MMAMarketFactory,
-  OwnedERC20__factory,
-} from "../typechain";
+import { Cash, MMAMarketFactory, OwnedERC20__factory } from "../typechain";
 import { BigNumber } from "ethers";
 import { MMAWhoWon, SportsLinkEventStatus } from "../src";
 
@@ -27,7 +23,7 @@ describe("MMA Factory", () => {
   let collateral: Cash;
   let marketFactory: MMAMarketFactory;
   let headToHeadMarketId: BigNumber;
-  
+
   beforeEach(async () => {
     await deployments.fixture();
 
@@ -35,15 +31,10 @@ describe("MMA Factory", () => {
     marketFactory = (await ethers.getContract("MMAMarketFactory")) as MMAMarketFactory;
     collateral = (await ethers.getContract("Collateral")) as Cash;
 
-    await marketFactory.createEvent(
-      eventId,
-      homeTeamName,
-      homeTeamId,
-      awayTeamName,
-      awayTeamId,
-      estimatedStartTime,
-      [moneylineHome, moneylineAway]
-    );
+    await marketFactory.createEvent(eventId, homeTeamName, homeTeamId, awayTeamName, awayTeamId, estimatedStartTime, [
+      moneylineHome,
+      moneylineAway,
+    ]);
 
     const filter = marketFactory.filters.MarketCreated(null, null, null);
     const logs = await marketFactory.queryFilter(filter);
@@ -83,13 +74,7 @@ describe("MMA Factory", () => {
 
   describe("resolved market", () => {
     beforeEach(async () => {
-      await marketFactory.resolveEvent(
-        eventId,
-        SportsLinkEventStatus.Final,
-        homeTeamId,
-        awayTeamId,
-        MMAWhoWon.Home
-      );
+      await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, homeTeamId, awayTeamId, MMAWhoWon.Home);
     });
 
     it("can resolve markets", async () => {
