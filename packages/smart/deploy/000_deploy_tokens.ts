@@ -5,8 +5,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
 
-  console.log(hre.network.config);
-
   if (!(await deployments.getOrNull("Collateral"))) {
     await deployments.deploy("Collateral", {
       contract: "Cash",

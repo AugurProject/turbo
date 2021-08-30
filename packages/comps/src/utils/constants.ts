@@ -29,6 +29,8 @@ export const THEME_NAME: string = "t";
 export const OUTCOME_YES_NAME: string = "Yes";
 export const OUTCOME_NO_NAME: string = "No";
 export const OUTCOME_INVALID_NAME: string = "Invalid";
+export const OUTCOME_NO_ID = 0;
+export const OUTCOME_YES_ID = 1;
 
 // Directions
 export const BUY: string = "buy";
@@ -331,6 +333,10 @@ export const MARKET_FACTORY_TYPES = {
   CRYPTO: "Crypto",
   MMALINK: "MMALink",
   NFL: "NFL",
+  FUTURES: "Futures",
+  MLB: "MLB",
+  NBA: "NBA",
+  MMA: "MMA",
 };
 
 export const GRAPH_MARKETS = {

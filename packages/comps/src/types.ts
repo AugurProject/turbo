@@ -180,59 +180,28 @@ export interface AmmExchangeOutcome {
   name: string;
 }
 
-export interface InvalidPool {
-  id: string;
-  cashBalance: string;
-  cashWeight: string;
-  invalidBalance: string;
-  invalidWeight: string;
-  spotPrice: string[];
-  swapFee: string;
-}
 export interface AmmExchange {
   id: string;
   turboId: number;
   marketId: string;
   market: MarketInfo;
-  liquidity: string;
   liquidityUSD: number;
-  liquidity24hrUSD: string;
-  liquidityNo: string;
-  liquidityYes: string;
-  liquidityInvalid: string;
-  priceYes: string;
-  priceNo: string;
-  percentageYes: string;
-  percentageNo: string;
-  volumeYes: string;
-  volumeNo: string;
-  volumeYesUSD: string;
-  volumeNoUSD: string;
-  volume24hrTotalUSD: number;
-  volumeTotal: string;
-  volumeTotalUSD: number;
+  volume24hrTotalUSD?: number;
+  volumeTotalUSD?: number;
   feeDecimal: string;
   feeRaw: string;
   feeInPercent: string;
   cash: Cash;
-  sharetoken: string;
-  transactions: AmmTransaction[];
-  trades: Trades;
-  past24hrPriceNo?: string;
-  past24hrPriceYes?: string;
   totalSupply?: string;
   hasLiquidity?: boolean;
   apy?: string;
   ammOutcomes: AmmOutcome[];
-  isAmmMarketInvalid: boolean;
-  invalidPool: InvalidPool;
-  swapInvalidForCashInETH?: string;
-  symbols: string[];
   shareFactor: string;
   balancesRaw: string[];
   weights: string[];
   marketFactoryAddress: string;
   ammFactoryAddress: string;
+  pools?: AmmExchange[];
 }
 
 export interface Cashes {
@@ -250,6 +219,7 @@ export interface ClaimedProceeds {
   timestamp: number;
   cash: Cash;
 }
+
 export interface MarketInfo {
   marketId: string;
   eventId: string;
@@ -262,10 +232,7 @@ export interface MarketInfo {
   endTimestamp: number;
   startTimestamp?: number;
   creationTimestamp: string;
-  extraInfoRaw: string;
-  longDescription: string;
   fee: string;
-  reportingFee: string;
   settlementFee: string;
   categories: string[];
   outcomes: MarketOutcome[];
@@ -282,8 +249,15 @@ export interface MarketInfo {
   spreadOuLine?: number;
   initialOdds: string[];
   isPopular?: boolean;
+  isFuture: boolean;
+  subMarkets?: { marketName: string; shareTokens: string[] }[];
+  category?: string;
 }
 
+export interface SubOutcome {
+  name: string;
+  shareToken: string;
+}
 export interface MarketOutcome {
   id: number;
   isFinalNumerator?: boolean;
@@ -292,6 +266,7 @@ export interface MarketOutcome {
   symbol?: string;
   isInvalid?: boolean;
   isWinner?: boolean;
+  subOutcomes?: SubOutcome[];
 }
 
 export interface AmmOutcome extends MarketOutcome {
@@ -577,7 +552,7 @@ export interface CurrencyBalance extends SimpleBalance {
 }
 
 export interface Winnings {
-  sharetoken: string;
+  shareToken: string;
   claimableBalance: string;
   userBalances: string[];
 }
@@ -725,6 +700,7 @@ export interface LiquidityBreakdown {
 
 export interface MarketFactoryConfig {
   type: string;
+  subtype: string;
   address: string;
   collateral: string;
   ammFactory: string;

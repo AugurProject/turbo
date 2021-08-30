@@ -7,7 +7,7 @@ import "../balancer/BPool.sol";
 import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
 
-abstract contract AbstractMarketFactoryV2 is TurboShareTokenFactory, Ownable {
+abstract contract AbstractMarketFactoryV2 is TurboShareTokenFactoryV1, Ownable {
     using SafeMathUint256 for uint256;
 
     // Should always have ID. Others are optional.

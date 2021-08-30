@@ -32,8 +32,8 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const line = null;
   const sportsMarketType = new BN(String(marketType)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
   // will need get get team names
-  const homeTeam = String(marketData["homeFighterName"]);
-  const awayTeam = String(marketData["awayFighterName"]);
+  const homeTeam = String(marketData["homeFighterName"] || marketData["homeTeamName"]);
+  const awayTeam = String(marketData["awayFighterName"] || marketData["awayTeamName"]);
   const sportId = "7";
 
   const { shareTokens } = market;

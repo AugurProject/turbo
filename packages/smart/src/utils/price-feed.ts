@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 
-interface PriceFeed {
+export interface PriceFeed {
   symbol: string;
   priceUSD: number; // float
   imprecision: number;
@@ -9,7 +9,7 @@ interface PriceFeed {
   deploymentName: string;
   decimals: number;
 }
-function priceFeed(symbol: string, priceUSD: number, imprecision: number): PriceFeed {
+export function priceFeed(symbol: string, priceUSD: number, imprecision: number): PriceFeed {
   const decimals = 8; // seems to be true of all of the real price feeds
 
   // note that .toFixed() rounds while we truncate prices onchain
@@ -38,3 +38,8 @@ export const PRICE_FEEDS: PriceFeed[] = [
   priceFeed("REP", 48.12, 2),
   priceFeed("LINK", 29.8, 2),
 ];
+
+export const PRICE_FEEDS_BY_SYMBOL = PRICE_FEEDS.reduce((all, x) => {
+  all[x.symbol] = x;
+  return all;
+}, {} as { [symbol: string]: PriceFeed });

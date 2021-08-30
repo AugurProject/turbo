@@ -49,7 +49,6 @@ import {
   MARKET_LOAD_TYPE,
   MARKET_STATUS,
   NULL_ADDRESS,
-  NUM_TICKS_STANDARD,
   SEC_IN_DAY,
   SPORTS_MARKET_TYPE,
   TradingDirection,
@@ -76,7 +75,14 @@ import {
   MarketFactory,
   MarketFactoryContract,
 } from "@augurproject/smart";
-import { deriveMarketInfo, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
+import {
+  fetcherMarketsPerConfig,
+  deriveMarketInfo,
+  isIgnoredMarket,
+  isIgnoreOpendMarket,
+  decodeMarket,
+} from "./derived-market-data";
+import { calculatePrices, calcWeights } from "./calculations";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).decimalPlaces(6, 1).toFixed();
 interface LiquidityProperties {
@@ -220,24 +226,6 @@ function shapeAddLiquidityPool(amm: AmmExchange, cash: Cash, cashAmount: string,
     amount,
   };
 }
-
-// TODO: when new ammFactory is done use standard weights.
-// creating weights at mid range for outcomes and 2% for no contest outcome
-// will see if this approach will help against trolling initial LPs
-// const defaultPriceWeights = ["0.02", "0.49", "0.49"];
-const calcWeights = (prices: string[]): string[] => {
-  const totalWeight = new BN(50);
-  const multiplier = new BN(10).pow(new BN(18));
-  const results = prices.map((price) => new BN(price).times(totalWeight).times(multiplier).toFixed());
-  return results;
-};
-
-export const calcPricesFromOdds = (initialOdds: string[], outcomes: AmmOutcome[]) => {
-  // convert odds to prices and set prices on outcomes
-  const outcomePrices = calculatePrices({ outcomes, winner: null }, initialOdds, []);
-  const populatedOutcomes = outcomes.map((o, i) => ({ ...o, price: outcomePrices[i] }));
-  return populatedOutcomes;
-};
 
 export async function getRemoveLiquidity(
   amm: AmmExchange,
@@ -1453,13 +1441,18 @@ export const getMarketInfos = async (
   account: string,
   ignoreList: { [factory: string]: number[] },
   loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED,
-  blocknumber: number
+  blocknumber: number,
+  v3Only: boolean = false
 ): { markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number } => {
   const factories = marketFactories(loadtype);
 
   const allMarkets = await Promise.all(
-    factories.map(({ type, address, ammFactory }) =>
-      getFactoryMarketInfo(
+    (v3Only ? factories.filter((c) => c.subtype === "V3") : factories).map((config) => {
+      if (config.subtype === "V3") {
+        return fetcherMarketsPerConfig(config, provider, account);
+      }
+      const { type, address, ammFactory } = config;
+      return getFactoryMarketInfo(
         provider,
         markets,
         ammExchanges,
@@ -1470,8 +1463,8 @@ export const getMarketInfos = async (
         ignoreList,
         type,
         blocknumber
-      )
-    )
+      );
+    })
   );
 
   // first market infos get all markets with liquidity
@@ -1758,10 +1751,6 @@ export const fillGraphMarketsData = async (
     const key = Object.keys(GRAPH_MARKETS)[i];
     const gMarkets = graphMarkets?.[key];
 
-    if (key === MARKET_FACTORY_TYPES.MMALINK) {
-      console.log("fetching mma");
-      fetchContractData("0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68", provider, account);
-    }
     if (gMarkets?.length > 0) {
       const { markets: filledMarkets, blocknumber: updatedBlocknumber } = await fillMarketsData(
         gMarkets,
@@ -2219,60 +2208,6 @@ const getArrayValue = (ratios: string[] = [], outcomeId: number) => {
   if (ratios.length === 0) return "0";
   if (!ratios[outcomeId]) return "0";
   return String(ratios[outcomeId]);
-};
-
-const calculatePrices = (market: MarketInfo, ratios: string[] = [], weights: string[] = []): string[] => {
-  let outcomePrices = [];
-  if (!market) {
-    console.error("market object undefined");
-    return [];
-  }
-  const { outcomes, hasWinner } = market;
-  if (hasWinner) {
-    return outcomes.map((outcome) => (outcome.isWinner ? "1" : "0"));
-  }
-  //price[0] = ratio[0] / sum(ratio)
-  const base = ratios.length > 0 ? ratios : weights;
-  if (base.length > 0) {
-    const sum = base.reduce((p, r) => p.plus(new BN(String(r))), ZERO);
-    outcomePrices = base.map((r) => new BN(String(r)).div(sum).toFixed());
-  }
-  return outcomePrices;
-};
-
-export const decodeMarket = (marketData: any, marketFactoryType: string) => {
-  const {
-    shareTokens,
-    endTime,
-    winner,
-    creator,
-    settlementFee: onChainFee,
-    creationTimestamp,
-    initialOdds,
-  } = marketData;
-  const winningOutcomeId: string = shareTokens.indexOf(winner);
-  const hasWinner = winner !== NULL_ADDRESS && winner !== null;
-  const reportingState = !hasWinner ? MARKET_STATUS.TRADING : MARKET_STATUS.FINALIZED;
-
-  const creatorFee = new BN(String(onChainFee))
-    .div(new BN(10).pow(new BN(18)))
-    .times(100)
-    .toFixed();
-
-  return {
-    endTimestamp: new BN(String(endTime)).toNumber(),
-    creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
-    numTicks: NUM_TICKS_STANDARD,
-    winner: winningOutcomeId === -1 ? null : winningOutcomeId,
-    hasWinner,
-    reportingState,
-    creatorFeeRaw: String(onChainFee),
-    settlementFee: creatorFee,
-    shareTokens,
-    creator,
-    marketFactoryType,
-    initialOdds: initialOdds ? initialOdds.map((i) => String(i)) : undefined,
-  };
 };
 
 const toDisplayRatio = (onChainRatio: string = "0"): string => {
