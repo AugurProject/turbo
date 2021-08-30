@@ -1,34 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Styles from "./liquidity-view.styles.less";
-import { Components, useDataStore } from "@augurproject/comps";
+import {
+  Components,
+  Utils,
+  useDataStore,
+  useUserStore,
+  useAppStatusStore,
+  Constants,
+  ContractCalls,
+} from "@augurproject/comps";
 import { categoryItems } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { useSimplifiedStore } from "../stores/simplified";
+import { MarketInfo } from "@augurproject/comps/build/types";
+const { MODAL_ADD_LIQUIDITY, ADD, CREATE } = Constants;
 const {
+  Links: { MarketLink },
   SelectionComps: { SquareDropdown },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
   ButtonComps: { PrimaryThemeButton },
 } = Components;
+const { canAddLiquidity } = ContractCalls;
+const {
+  Formatter: { formatApy, formatCash },
+} = Utils;
 
-const LiquidityMarketCard = ({ market, key }) => {
+interface LiquidityMarketCardProps {
+  key?: string;
+  market: MarketInfo;
+}
+
+const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Component => {
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
-  const { categories } = market;
+  const {
+    actions: { setModal },
+  } = useAppStatusStore();
+  const {
+    balances: { lpTokens },
+  } = useUserStore();
+  const { transactions } = useDataStore();
+  const { marketId, categories, amm } = market;
+  const marketTransactions = transactions[marketId];
+  const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
+    marketTransactions?.apy,
+  ]);
+  const formattedVol = useMemo(
+    () =>
+      marketTransactions?.volumeTotalUSD &&
+      formatCash(marketTransactions.volumeTotalUSD, amm?.cash?.name, { bigUnitPostfix: true }).full,
+    [marketTransactions?.volumeTotalUSD]
+  );
+  const hasLiquidity = lpTokens?.[marketId];
+  const canAddLiq = canAddLiquidity(market);
   return (
     <article className={Styles.LiquidityMarketCard}>
-      <div>
+      <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
-      </div>
+      </MarketLink>
       <span>04/09/2022</span>
-      <span>$385,000</span>
-      <span>15.21%</span>
-      <span>0</span>
+      <span>{formattedVol || "-"}</span>
+      <span>{formattedApy || "-"}</span>
+      <span>{hasLiquidity ? formatCash(hasLiquidity.useValue, amm?.cash?.name).full : "$0.00"}</span>
       <span>0 MATIC</span>
-      <PrimaryThemeButton text="ADD LIQUIDITY" small action={() => console.log("!")} />
+      <PrimaryThemeButton
+        text="ADD LIQUIDITY"
+        small
+        disabled={!canAddLiq}
+        action={() =>
+          setModal({
+            type: MODAL_ADD_LIQUIDITY,
+            market,
+            liquidityModalType: amm?.hasLiquidity ? CREATE : ADD,
+            currency: amm?.cash?.name,
+          })
+        }
+      />
     </article>
   );
 };
@@ -41,7 +92,7 @@ const LiquidityView = () => {
   const { markets } = useDataStore();
   const [filter, setFilter] = useState("");
   const { primaryCategory } = marketsViewSettings;
-  console.log(markets);
+
   return (
     <div className={Styles.LiquidityView}>
       <AppViewStats small liquidity />
@@ -98,7 +149,7 @@ const LiquidityView = () => {
           <span />
         </article>
         <section>
-          {Object.entries(markets).map(([key, item]) => (
+          {Object.entries(markets).map(([key, item]: [string, MarketInfo]) => (
             <LiquidityMarketCard market={item} key={key} />
           ))}
         </section>
