@@ -161,8 +161,17 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
 };
 
 export const decodeBaseMarketFetcher = (marketData: any) => {
-  const { settlementFee: onChainFee, settlementFee, shareFactor, sportId } = marketData;
+  const { settlementFee: onChainFee, settlementFee, shareFactor, sportId, collateral } = marketData;
+  const { addr, symbol, decimals } = collateral;
 
+  const cash = {
+    address: addr,
+    name: symbol,
+    symbol,
+    decimals,
+    usdPrice: 1,
+    displayDecimals: 2,
+  };
   const creatorFee = new BN(String(settlementFee))
     .div(new BN(10).pow(new BN(18)))
     .times(100)
@@ -174,6 +183,7 @@ export const decodeBaseMarketFetcher = (marketData: any) => {
     settlementFee: creatorFee,
     sportId: String(sportId),
     shareFactor: String(new BN(String(shareFactor))),
+    cash,
   };
 };
 
