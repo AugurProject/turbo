@@ -31,9 +31,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
   }
 
-  await deployMarketFactory("NBAMarketFactory");
-  await deployMarketFactory("MLBMarketFactory");
-  await deployMarketFactory("MMAMarketFactory");
+  // await deployMarketFactory("NBAMarketFactory");
+  // await deployMarketFactory("MLBMarketFactory");
+  // await deployMarketFactory("MMAMarketFactory");
   await deployMarketFactory("NFLMarketFactory");
 
   // all sports can use the same fetcher
