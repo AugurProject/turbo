@@ -24,6 +24,7 @@ const {
 } = Components;
 const { canAddLiquidity } = ContractCalls;
 const {
+  DateUtils: { getMarketEndtimeDate },
   Formatter: { formatApy, formatCash },
 } = Utils;
 
@@ -43,7 +44,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
     balances: { lpTokens },
   } = useUserStore();
   const { transactions } = useDataStore();
-  const { marketId, categories, amm } = market;
+  const { marketId, categories, amm, endTimestamp } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
@@ -62,10 +63,10 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <span>04/09/2022</span>
+      <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp, timeFormat) : "04/20/2069"}</span>
       <span>{formattedVol || "-"}</span>
       <span>{formattedApy || "-"}</span>
-      <span>{hasLiquidity ? formatCash(hasLiquidity.useValue, amm?.cash?.name).full : "$0.00"}</span>
+      <span>{hasLiquidity ? formatCash(hasLiquidity?.usdValue, amm?.cash?.name).full : "$0.00"}</span>
       <span>0 MATIC</span>
       <PrimaryThemeButton
         text="ADD LIQUIDITY"
