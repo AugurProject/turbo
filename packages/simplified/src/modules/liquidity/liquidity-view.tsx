@@ -63,7 +63,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp, timeFormat) : "04/20/2069"}</span>
+      <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp, timeFormat) : "-"}</span>
       <span>{formattedVol || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{hasLiquidity ? formatCash(hasLiquidity?.usdValue, amm?.cash?.name).full : "$0.00"}</span>
