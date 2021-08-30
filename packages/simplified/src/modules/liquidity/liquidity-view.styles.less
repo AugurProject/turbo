@@ -109,30 +109,75 @@
       grid-auto-columns: 1fr;
       grid-gap: @size-8;
       overflow-y: auto;
+    }
+  }
+}
 
-      > article {
-        .LiquidityTableRow;
+.LiquidityMarketCard {
+  .LiquidityTableRow;
 
-        min-height: @size-80;
-        max-height: @size-80;
+  min-height: @size-80;
+  max-height: @size-80;
 
-        > span {
-          .text-12;
+  > div:first-of-type {
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    grid-gap: @size-16;
+    align-items: center;
 
-          color: var(--primary-text);
-          text-align: right;
+    > span {
+      display: flex;
+      flex-flow: column nowrap;
+
+      > span:first-of-type {
+        .text-14-semi-bold;
+
+        color: var(--primary-text);
+        line-height: 140%;
+
+        > span:first-of-type {
+          .limit-lines(1);
         }
 
-        > button {
-          padding: @size-10 @size-12;
-          width: min-content;
-          justify-self: flex-end;
+        > span:last-of-type {
+          .limit-lines(2);
+        }
 
-          > span {
-            .text-10-semi-bold;
-          }
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
         }
       }
+
+      > span:last-of-type {
+        .text-12;
+
+        color: var(--secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: uppercase;
+
+        @media @breakpoint-mobile-tablet {
+          .text-10;
+        }
+      }
+    }
+  }
+
+  > span {
+    .text-12;
+
+    color: var(--primary-text);
+    text-align: right;
+  }
+
+  > button {
+    padding: @size-10 @size-12;
+    width: min-content;
+    justify-self: flex-end;
+
+    > span {
+      .text-10-semi-bold;
     }
   }
 }
