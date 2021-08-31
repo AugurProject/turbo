@@ -20,9 +20,8 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { SimpleFooter } from './common/simple-footer';
-import parseQuery from "@augurproject/comps/src/utils/links/parse-query";
 const { MARKETS } = Constants;
-const { parsePath } = PathUtils;
+const { parsePath, parseQuery } = PathUtils;
 
 
 const AppBody = () => {
@@ -38,13 +37,12 @@ const AppBody = () => {
   useFinalizeUserTransactions(blocknumber);
 
   useEffect(() => {
-    const queryString = window.location.href.substring(window.location.href.indexOf('?') + 1);
     const parsedQueryString = parseQuery(window.location.search);
     try {
-      if (parsedQueryString && parsedQueryString.primaryCategory) {
+      if (parsedQueryString && parsedQueryString?.primaryCategory) {
         updateMarketsViewSettings({ primaryCategory: parsedQueryString.primaryCategory });
       }
-      if (parsedQueryString && parsedQueryString.subCategories) {
+      if (parsedQueryString && parsedQueryString?.subCategories) {
         updateMarketsViewSettings({ subCategories: parsedQueryString.subCategories.split(',')});
       }
     } catch (error) {
