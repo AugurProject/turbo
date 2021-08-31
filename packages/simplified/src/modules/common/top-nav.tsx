@@ -5,25 +5,24 @@ import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
 import {
-  Icons,
   useAppStatusStore,
   useUserStore,
-  ConnectAccount as CompsConnectAccount,
   useLocalStorage,
-  ButtonComps,
   PathUtils,
   PARA_CONFIG,
   Constants,
-  LinkLogo,
   Components,
-  Toasts,
 } from "@augurproject/comps";
-const { GearIcon, ThreeLinesIcon } = Icons;
-const { ConnectAccount } = CompsConnectAccount;
-const { SecondaryThemeButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
 const { MARKET, MARKETS, PORTFOLIO, LIQUIDITY, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
-const { ToggleSwitch } = Components;
+const {
+  Toasts,
+  LinkLogo,
+  ConnectAccount: { ConnectAccount },
+  Icons: { GearIcon, ThreeLinesIcon },
+  SelectionComps: { ToggleSwitch },
+  ButtonComps: { SecondaryThemeButton },
+} = Components;
 
 export const SettingsButton = () => {
   const {
@@ -70,9 +69,7 @@ export const SettingsButton = () => {
             <ToggleSwitch
               id="showResolvedPositions"
               toggle={showResolvedPositions}
-              setToggle={() =>
-                updateSettings({ showResolvedPositions: !showResolvedPositions }, account)
-              }
+              setToggle={() => updateSettings({ showResolvedPositions: !showResolvedPositions }, account)}
             />
           </li>
           <li>
@@ -188,7 +185,7 @@ export const TopNav = () => {
             isMobile,
             buttonOptions: {
               reverseContent: true,
-            }
+            },
           }}
         />
         {isMobile ? (

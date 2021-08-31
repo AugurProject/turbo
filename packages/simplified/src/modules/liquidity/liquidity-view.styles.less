@@ -62,10 +62,13 @@
     }
 
     > span {
+      .text-12-semi-bold;
+      
       align-items: center;
       white-space: nowrap;
-      display: flex;
-      flex-flow: row nowrap;
+      display: grid;
+      grid-template-columns: 0fr 0fr;
+      grid-gap: @size-8;
     }
 
     > div:last-of-type {

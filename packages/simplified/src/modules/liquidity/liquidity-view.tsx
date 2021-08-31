@@ -16,7 +16,7 @@ import { MarketInfo } from "@augurproject/comps/build/types";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const {
   Links: { MarketLink },
-  SelectionComps: { SquareDropdown },
+  SelectionComps: { SquareDropdown, ToggleSwitch },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
@@ -55,12 +55,19 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  { filter, primaryCategory, subCategories, marketTypeFilter, sortBy }
+  userMarkets,
+  { filter, primaryCategory, subCategories, marketTypeFilter, sortBy, onlyUserLiquidity }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
+  if (onlyUserLiquidity) {
+    updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => userMarkets.includes(market.marketId));
+  }
+
   if (marketTypeFilter !== MARKET_TYPE_OPTIONS[0].value) {
-    updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isFuture : market.isFuture);
+    updatedFilteredMarkets = updatedFilteredMarkets.filter((market) =>
+      marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isFuture : market.isFuture
+    );
   }
 
   if (filter !== "") {
@@ -79,9 +86,6 @@ const applyFiltersAndSort = (
   }
 
   updatedFilteredMarkets = updatedFilteredMarkets.filter((market: MarketInfo) => {
-    // if (showLiquidMarkets && (!market.amm || !market.amm.hasLiquidity)) {
-    //   return false;
-    // }
     if (
       primaryCategory !== ALL_MARKETS &&
       primaryCategory !== OTHER &&
@@ -165,30 +169,36 @@ const LiquidityView = () => {
     marketsViewSettings,
     actions: { updateMarketsViewSettings },
   } = useSimplifiedStore();
+  const {
+    balances: { lpTokens },
+  } = useUserStore();
   const { markets, transactions } = useDataStore();
   const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
+  const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
   const [filter, setFilter] = useState("");
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
+  const userMarkets = Object.keys(lpTokens);
 
   const handleFilterSort = () => {
-    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, {
+    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, userMarkets, {
       filter,
       primaryCategory,
       subCategories,
       marketTypeFilter,
       sortBy: "",
+      onlyUserLiquidity,
     });
   };
 
   useEffect(() => {
     handleFilterSort();
-  }, [filter, primaryCategory, subCategories, marketTypeFilter]);
+  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity]);
 
   useEffect(() => {
     handleFilterSort();
-  }, [marketKeys.length]);
+  }, [marketKeys.length, userMarkets.length]);
 
   return (
     <div className={Styles.LiquidityView}>
@@ -211,12 +221,18 @@ const LiquidityView = () => {
           options={MARKET_TYPE_OPTIONS}
           defaultValue={MARKET_TYPE_OPTIONS[0].value}
         />
-        <span>My Liquidity Positions</span>
+        <span>
+          <ToggleSwitch
+            id="toggleOnlyUserLiquidity"
+            toggle={onlyUserLiquidity}
+            setToggle={() => setOnlyUserLiquidity(!onlyUserLiquidity)}
+          />
+          My Liquidity Positions
+        </span>
         <SearchInput
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           clearValue={() => setFilter("")}
-          showFilter={true}
         />
       </ul>
       <section>
