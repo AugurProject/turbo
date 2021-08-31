@@ -35,11 +35,12 @@ export const getRpcData = () => {
 }
 
 let defaultProvider = null;
+const DEFAULT_RPC_INDEX = 1;
 export const getDefaultProvider = () => {
   const rpcData = getRpcData();
   if (!defaultProvider){
     defaultProvider = new ethers.providers.StaticJsonRpcProvider(
-      rpcData.rpcUrls[2],
+      rpcData.rpcUrls[DEFAULT_RPC_INDEX],
       Number(PARA_CONFIG.networkId)
     );
   }

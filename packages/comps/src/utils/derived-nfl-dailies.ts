@@ -1,6 +1,7 @@
 import { BigNumber as BN } from "bignumber.js";
 import { MarketInfo } from "types";
 import { NO_CONTEST_OUTCOME_ID, SPORTS_MARKET_TYPE } from "./constants";
+import { getSportTypeCategories, getSportTypeSportId } from "./team-helpers";
 
 const NAMING_TEAM = {
   HOME_TEAM: "HOME_TEAM",
@@ -17,7 +18,7 @@ const NO_CONTEST_TIE = "Draw/No Contest";
 const AWAY_TEAM_OUTCOME = 1;
 const EIGHT_HOURS_IN_SECONDS = 8 * 60 * 60;
 
-export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
+export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFactoryType: string) => {
   const { eventId: coEventId, estimatedStartTime, marketType, value0, line } = marketData;
 
   // translate market data
@@ -25,7 +26,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const eventId = String(coEventId._hex || coEventId);
   const startTimestamp = new BN(String(estimatedStartTime)).toNumber(); // estiamted event start time
   const endTimestamp = startTimestamp + EIGHT_HOURS_IN_SECONDS;
-  const categories = ["Sports", "Football", "NFL"];
+  const categories = getSportTypeCategories(marketFactoryType);
   let spreadLine = new BN(String(value0 || line)).div(10).decimalPlaces(0, 1).toNumber();
   if (marketType === undefined) console.error("market type not defined");
   const sportsMarketType = new BN(String(marketType || 0)).toNumber(); // spread, todo: use constant when new sports market factory is ready.
@@ -34,7 +35,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   // will need get get team names
   const homeTeam = marketData["home"]?.name || marketData["homeTeamName"];
   const awayTeam = marketData["away"]?.name || marketData["awayTeamName"];
-  const sportId = "2";
+  const sportId = getSportTypeSportId(marketFactoryType);
 
   const { shareTokens } = market;
   const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType, spreadLine);

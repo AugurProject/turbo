@@ -82,7 +82,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
     case MARKET_FACTORY_TYPES.MLB:
     case MARKET_FACTORY_TYPES.NBA:
     case MARKET_FACTORY_TYPES.NFL: {
-      return NflMarkets.deriveMarketInfo(market, marketData);
+      return NflMarkets.deriveMarketInfo(market, marketData, marketFactoryType);
     }
     case MARKET_FACTORY_TYPES.FUTURES: {
       return FuturesMarkets.deriveMarketInfo(market, marketData);
