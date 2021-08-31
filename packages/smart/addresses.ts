@@ -370,17 +370,7 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "mlb and nba",
         version: "v1.0.0",
-      },
-      {
-        type: "Crypto",
-        subtype: "V2",
-        address: "0x8105DFaDBE4a09f52EbF98eB68e31a33C898Fc74",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
-        fetcher: "",
-        description: "crypto prices",
-        version: "v1.1.0",
-      },
+      }
     ],
     info: { uploadBlockNumber: 15336699, graphName: "matic" },
   },
