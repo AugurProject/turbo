@@ -155,7 +155,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
           setModal({
             type: MODAL_ADD_LIQUIDITY,
             market,
-            liquidityModalType: amm?.hasLiquidity ? CREATE : ADD,
+            liquidityModalType: !amm?.id ? CREATE : ADD,
             currency: amm?.cash?.name,
           })
         }
