@@ -20,6 +20,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { SimpleFooter } from './common/simple-footer';
+import parseQuery from "@augurproject/comps/src/utils/links/parse-query";
 const { MARKETS } = Constants;
 const { parsePath } = PathUtils;
 
@@ -27,7 +28,7 @@ const { parsePath } = PathUtils;
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
   const { isMobile, modal } = useAppStatusStore();
-  const { sidebarType, showTradingForm } = useSimplifiedStore();
+  const { sidebarType, showTradingForm, actions: { updateMarketsViewSettings }, } = useSimplifiedStore();
   const modalShowing = Object.keys(modal).length !== 0;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -35,6 +36,21 @@ const AppBody = () => {
 
   useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
   useFinalizeUserTransactions(blocknumber);
+
+  useEffect(() => {
+    const queryString = window.location.href.substring(window.location.href.indexOf('?') + 1);
+    const parsedQueryString = parseQuery(window.location.search);
+    try {
+      if (parsedQueryString && parsedQueryString.primaryCategory) {
+        updateMarketsViewSettings({ primaryCategory: parsedQueryString.primaryCategory });
+      }
+      if (parsedQueryString && parsedQueryString.subCategories) {
+        updateMarketsViewSettings({ subCategories: parsedQueryString.subCategories.split(',')});
+      }
+    } catch (error) {
+      // shallow bad params error
+    }
+  }, []);
 
   useEffect(() => {
     const html: any = windowRef.document.firstElementChild;
