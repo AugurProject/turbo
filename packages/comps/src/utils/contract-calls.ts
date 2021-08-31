@@ -1451,7 +1451,7 @@ export const getMarketInfos = async (
       if (config.subtype === "V3") {
         return fetcherMarketsPerConfig(config, provider, account);
       }
-      const { type, address, ammFactory } = config;      
+      const { type, address, ammFactory } = config;
       return getFactoryMarketInfo(
         provider,
         markets,
