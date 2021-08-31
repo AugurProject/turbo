@@ -265,6 +265,7 @@ const LiquidityView = () => {
           <ToggleSwitch
             id="toggleOnlyUserLiquidity"
             toggle={onlyUserLiquidity}
+            clean
             setToggle={() => setOnlyUserLiquidity(!onlyUserLiquidity)}
           />
           My Liquidity Positions
