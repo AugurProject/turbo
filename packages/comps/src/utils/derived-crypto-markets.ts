@@ -72,6 +72,7 @@ const decodeOutcomes = (market: MarketInfo, shareTokens: string[] = []) => {
 
 const resolutionRules = (tokenIndes, price, endTimestamp) => {
   const coinInfo = COINS[String(tokenIndes)];
+  const { name, priceFeedUrl } = coinInfo;
   const date = getMarketEndtimeDate(endTimestamp);
   return [
     `This is a market on whether the price of ${name} will settle above ${price} on ${date} at 4 pm ET.`,
