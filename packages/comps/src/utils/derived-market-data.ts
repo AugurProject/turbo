@@ -200,6 +200,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
     marketType,
     marketId: marketIndex,
     pool,
+    resolutionTime,
   } = marketData;
   const winningOutcomeId = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS && winner !== null;
@@ -207,7 +208,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
 
   const turboId = new BN(String(marketIndex)).toNumber();
   const market = {
-    endTimestamp: endTime ? new BN(String(endTime)).toNumber() : null,
+    endTimestamp: endTime || resolutionTime ? new BN(String(endTime || resolutionTime)).toNumber() : null,
     creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
     numTicks: NUM_TICKS_STANDARD,
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,
