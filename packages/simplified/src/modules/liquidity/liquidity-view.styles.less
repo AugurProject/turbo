@@ -7,8 +7,8 @@
   background: var(--primary-bg);
   display: grid;
   grid-template-columns: 1fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr;
-  grid-gap: 0 @size-8;
-  padding: 0 @size-24;
+  grid-gap: @size-8;
+  padding: @size-24;
 }
 
 .LiquidityView {
@@ -191,9 +191,30 @@
       }
     }
   }
+  
+  &.HasUserLiquidity {
+    padding: 0;
+    grid-gap: 0 @size-8;
 
-  > article:last-of-type {
-    grid-column: span 7;
-    border-top: @size-1 solid var(--theme-border);
+    > a,
+    > span,
+    > div {
+      margin: @size-10 0;
+    }
+
+    > a {
+      margin-left: @size-24;
+    }
+    > div {
+      margin-right: @size-24;
+    }
+
+    > article:last-of-type {
+      grid-column: span 7;
+      border-top: @size-1 solid var(--theme-border);
+      padding: @size-16 @size-24;
+      height: unset;
+      max-height: unset;
+    }
   }
 }

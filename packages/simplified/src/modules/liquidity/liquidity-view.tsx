@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import classNames from 'classnames';
 import Styles from "./liquidity-view.styles.less";
 import {
   Components,
@@ -143,7 +144,9 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
   const isfinal = isMarketFinal(market);
 
   return (
-    <article className={Styles.LiquidityMarketCard}>
+    <article className={classNames(Styles.LiquidityMarketCard, {
+      [Styles.HasUserLiquidity]: userHasLiquidity,
+    })}>
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />

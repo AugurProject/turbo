@@ -142,7 +142,7 @@
       border: none;
       background: var(--secondary-text);
       transform: translateX(@size-2);
-      transition: translateX 0.1s linear 0s;
+      transition: all 0.1s linear 0s, background 0s linear 0s;
     }
 
     &.On {
@@ -152,7 +152,7 @@
       > div {
         transform: translateX(100%);
         background: var(--primary-bg);
-        transition: translateX 0.1s linear 0s;
+        transition: all 0.1s linear 0s, background 0s linear 0s;
       }
     }
   }
