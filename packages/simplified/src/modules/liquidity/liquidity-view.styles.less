@@ -7,7 +7,7 @@
   background: var(--primary-bg);
   display: grid;
   grid-template-columns: 1fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr;
-  grid-gap: @size-8;
+  grid-gap: 0 @size-8;
   padding: 0 @size-24;
 }
 
@@ -63,7 +63,7 @@
 
     > span {
       .text-12-semi-bold;
-      
+
       align-items: center;
       white-space: nowrap;
       display: grid;
@@ -121,7 +121,6 @@
   .HoverDropShadow;
 
   min-height: @size-80;
-  max-height: @size-80;
 
   > a:first-of-type {
     display: grid;
@@ -175,13 +174,26 @@
     text-align: right;
   }
 
-  > button {
-    padding: @size-10 @size-12;
-    width: min-content;
-    justify-self: flex-end;
+  > div:last-of-type {
+    display: grid;
+    grid-gap: @size-8;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: center;
 
-    > span {
-      .text-10-semi-bold;
+    > button:first-of-type:last-of-type {
+      padding: @size-10 @size-12;
+      width: min-content;
+      justify-self: flex-end;
+
+      > span {
+        .text-10-semi-bold;
+      }
     }
+  }
+
+  > article:last-of-type {
+    grid-column: span 7;
+    border-top: @size-1 solid var(--theme-border);
   }
 }

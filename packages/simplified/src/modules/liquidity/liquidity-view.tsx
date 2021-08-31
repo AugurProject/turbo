@@ -8,25 +8,30 @@ import {
   useAppStatusStore,
   Constants,
   ContractCalls,
+  Stores,
 } from "@augurproject/comps";
 import { categoryItems } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
+import { BonusReward } from '../common/tables';
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
-const { MODAL_ADD_LIQUIDITY, ADD, CREATE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
+const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const {
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
-  ButtonComps: { PrimaryThemeButton },
+  ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
 } = Components;
 const { canAddLiquidity } = ContractCalls;
 const {
   DateUtils: { getMarketEndtimeDate },
   Formatter: { formatApy, formatCash },
 } = Utils;
+const {
+  Utils: { isMarketFinal },
+} = Stores;
 
 const MARKET_TYPE_OPTIONS = [
   {
@@ -122,7 +127,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
     balances: { lpTokens },
   } = useUserStore();
   const { transactions } = useDataStore();
-  const { marketId, categories, amm, endTimestamp } = market;
+  const { marketId, categories, amm: { hasLiquidity, cash: { name: currency }}, endTimestamp } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
@@ -130,11 +135,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
   const formattedVol = useMemo(
     () =>
       marketTransactions?.volumeTotalUSD &&
-      formatCash(marketTransactions.volumeTotalUSD, amm?.cash?.name, { bigUnitPostfix: true }).full,
+      formatCash(marketTransactions.volumeTotalUSD, currency, { bigUnitPostfix: true }).full,
     [marketTransactions?.volumeTotalUSD]
   );
-  const hasLiquidity = lpTokens?.[marketId];
+  const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
+  const isfinal = isMarketFinal(market);
 
   return (
     <article className={Styles.LiquidityMarketCard}>
@@ -145,21 +151,55 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
       <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp) : "-"}</span>
       <span>{formattedVol || "-"}</span>
       <span>{formattedApy || "-"}</span>
-      <span>{hasLiquidity ? formatCash(hasLiquidity?.usdValue, amm?.cash?.name).full : "$0.00"}</span>
+      <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
       <span>0 MATIC</span>
-      <PrimaryThemeButton
-        text="ADD LIQUIDITY"
-        small
-        disabled={!canAddLiq}
-        action={() =>
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            liquidityModalType: !amm?.id ? CREATE : ADD,
-            currency: amm?.cash?.name,
-          })
-        }
-      />
+      <div>
+        {!userHasLiquidity ? (
+          <PrimaryThemeButton
+            text="ADD LIQUIDITY"
+            small
+            disabled={!canAddLiq}
+            action={() =>
+              setModal({
+                type: MODAL_ADD_LIQUIDITY,
+                market,
+                liquidityModalType: hasLiquidity ? CREATE : ADD,
+                currency,
+              })
+            }
+          />
+        ) : (
+          <>
+            <SecondaryThemeButton
+              text="-"
+              small
+              action={() =>
+                setModal({
+                  type: MODAL_ADD_LIQUIDITY,
+                  market,
+                  currency,
+                  liquidityModalType: REMOVE,
+                })
+              }
+            />
+            <PrimaryThemeButton
+              text="+"
+              small
+              disabled={isfinal || !canAddLiq}
+              action={() =>
+                !isfinal &&
+                setModal({
+                  type: MODAL_ADD_LIQUIDITY,
+                  market,
+                  currency,
+                  liquidityModalType: ADD,
+                })
+              }
+            />
+          </>
+        )}
+      </div>
+      {userHasLiquidity && <BonusReward />}
     </article>
   );
 };
@@ -229,11 +269,7 @@ const LiquidityView = () => {
           />
           My Liquidity Positions
         </span>
-        <SearchInput
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          clearValue={() => setFilter("")}
-        />
+        <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
       </ul>
       <section>
         <article>

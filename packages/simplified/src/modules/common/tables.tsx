@@ -450,7 +450,7 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
   );
 };
 
-const BonusReward = () => (
+export const BonusReward = () => (
   <article className={Styles.BonusReward}>
     <h4>Bonus Reward</h4>
     <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
