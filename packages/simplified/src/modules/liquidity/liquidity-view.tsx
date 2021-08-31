@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import classNames from 'classnames';
+import classNames from "classnames";
 import Styles from "./liquidity-view.styles.less";
 import {
   Components,
@@ -13,13 +13,14 @@ import {
 } from "@augurproject/comps";
 import { categoryItems } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
-import { BonusReward } from '../common/tables';
+import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const {
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
+  Icons: { Arrow },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
@@ -51,6 +52,14 @@ const MARKET_TYPE_OPTIONS = [
     disabled: false,
   },
 ];
+
+const SORT_TYPES = {
+  LIQUIDITY: "LIQUIDITY",
+  REWARDS: "REWARDS",
+  TVL: "TVL",
+  APY: "APY",
+  EXPIRES: "EXPIRES",
+};
 
 interface LiquidityMarketCardProps {
   key?: string;
@@ -114,6 +123,28 @@ const applyFiltersAndSort = (
     }
     return true;
   });
+
+  if (sortBy.type) {
+    updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+      const aTransactions = transactions ? transactions[marketA.marketId] : {};
+      const bTransactions = transactions ? transactions[marketB.marketId] : {};
+      const { type, direction } = sortBy;
+
+      if (type === SORT_TYPES.EXPIRES) {
+        return Number(marketA.endTimestam) > Number(marketB.endTimestamp) ? direction : direction * -1;
+      }
+        // return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
+      // } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
+      //   return (bTransactions?.volume24hrTotalUSD || 0) > (aTransactions?.volume24hrTotalUSD || 0) ? 1 : -1;
+      // } else if (sortBy === LIQUIDITY) {
+      //   return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
+      // } else if (sortBy === STARTS_SOON) {
+      //   return (marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1) * mod;
+      // }
+      return true;
+    });
+  }
+  
   setFilteredMarkets(updatedFilteredMarkets);
 };
 
@@ -128,7 +159,15 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
     balances: { lpTokens },
   } = useUserStore();
   const { transactions } = useDataStore();
-  const { marketId, categories, amm: { hasLiquidity, cash: { name: currency }}, endTimestamp } = market;
+  const {
+    marketId,
+    categories,
+    amm: {
+      hasLiquidity,
+      cash: { name: currency },
+    },
+    endTimestamp,
+  } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
@@ -144,9 +183,11 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
   const isfinal = isMarketFinal(market);
 
   return (
-    <article className={classNames(Styles.LiquidityMarketCard, {
-      [Styles.HasUserLiquidity]: userHasLiquidity,
-    })}>
+    <article
+      className={classNames(Styles.LiquidityMarketCard, {
+        [Styles.HasUserLiquidity]: userHasLiquidity,
+      })}
+    >
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
@@ -219,6 +260,10 @@ const LiquidityView = () => {
   const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
   const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
   const [filter, setFilter] = useState("");
+  const [sortBy, setSortBy] = useState({
+    type: null,
+    direction: 1,
+  });
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
@@ -230,14 +275,14 @@ const LiquidityView = () => {
       primaryCategory,
       subCategories,
       marketTypeFilter,
-      sortBy: "",
+      sortBy,
       onlyUserLiquidity,
     });
   };
 
   useEffect(() => {
     handleFilterSort();
-  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity]);
+  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity, sortBy.type, sortBy.direction]);
 
   useEffect(() => {
     handleFilterSort();
@@ -278,11 +323,119 @@ const LiquidityView = () => {
       <section>
         <article>
           <span>Market</span>
-          <button>Expires</button>
-          <button>TVL</button>
-          <button>APR</button>
-          <button>My Liquidity</button>
-          <button>My Rewards</button>
+          <button
+            className={classNames({
+              [Styles.Ascending]: sortBy.direction < 0,
+            })}
+            onClick={() => {
+              switch (sortBy.type) {
+                case SORT_TYPES.EXPIRES: {
+                  setSortBy({
+                    type: sortBy.direction < 0 ? null : SORT_TYPES.EXPIRES,
+                    direction: sortBy.direction < 0 ? 1 : -1,
+                  });
+                  break;
+                }
+                default: {
+                  setSortBy({
+                    type: SORT_TYPES.EXPIRES,
+                    direction: 1,
+                  });
+                  break;
+                }
+              }
+            }}
+          >
+            Expires {sortBy.type === SORT_TYPES.EXPIRES && Arrow}
+          </button>
+          <button
+            onClick={() => {
+              switch (sortBy.type) {
+                case SORT_TYPES.TVL: {
+                  setSortBy({
+                    type: sortBy.direction < 0 ? null : SORT_TYPES.TVL,
+                    direction: sortBy.direction < 0 ? 1 : -1,
+                  });
+                  break;
+                }
+                default: {
+                  setSortBy({
+                    type: SORT_TYPES.TVL,
+                    direction: 1,
+                  });
+                  break;
+                }
+              }
+            }}
+          >
+            TVL
+          </button>
+          <button
+            onClick={() => {
+              switch (sortBy.type) {
+                case SORT_TYPES.APY: {
+                  setSortBy({
+                    type: sortBy.direction < 0 ? null : SORT_TYPES.APY,
+                    direction: sortBy.direction < 0 ? 1 : -1,
+                  });
+                  break;
+                }
+                default: {
+                  setSortBy({
+                    type: SORT_TYPES.APY,
+                    direction: 1,
+                  });
+                  break;
+                }
+              }
+            }}
+          >
+            APY
+          </button>
+          <button
+            onClick={() => {
+              switch (sortBy.type) {
+                case SORT_TYPES.LIQUIDITY: {
+                  setSortBy({
+                    type: sortBy.direction < 0 ? null : SORT_TYPES.LIQUIDITY,
+                    direction: sortBy.direction < 0 ? 1 : -1,
+                  });
+                  break;
+                }
+                default: {
+                  setSortBy({
+                    type: SORT_TYPES.LIQUIDITY,
+                    direction: 1,
+                  });
+                  break;
+                }
+              }
+            }}
+          >
+            My Liquidity
+          </button>
+          <button
+            onClick={() => {
+              switch (sortBy.type) {
+                case SORT_TYPES.REWARDS: {
+                  setSortBy({
+                    type: sortBy.direction < 0 ? null : SORT_TYPES.REWARDS,
+                    direction: sortBy.direction < 0 ? 1 : -1,
+                  });
+                  break;
+                }
+                default: {
+                  setSortBy({
+                    type: SORT_TYPES.REWARDS,
+                    direction: 1,
+                  });
+                  break;
+                }
+              }
+            }}
+          >
+            My Rewards
+          </button>
           <span />
         </article>
         <section>

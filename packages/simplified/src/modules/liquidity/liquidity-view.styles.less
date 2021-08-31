@@ -98,6 +98,16 @@
         border: none;
         background: none;
         text-align: right;
+
+        > svg {
+          transform: rotate(90deg);
+        }
+
+        &.Ascending {
+          > svg {
+            transform: rotate(-90deg);
+          }
+        }
       }
 
       > span {
@@ -191,7 +201,7 @@
       }
     }
   }
-  
+
   &.HasUserLiquidity {
     padding: 0;
     grid-gap: 0 @size-8;
