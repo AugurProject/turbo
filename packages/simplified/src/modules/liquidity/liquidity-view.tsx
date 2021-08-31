@@ -28,6 +28,24 @@ const {
   Formatter: { formatApy, formatCash },
 } = Utils;
 
+const MARKET_TYPE_OPTIONS = [
+  {
+    label: "Daily + Long Term",
+    value: "daily+long",
+    disabled: false,
+  },
+  {
+    label: "Daily Only",
+    value: "daily",
+    disabled: false,
+  },
+  {
+    label: "Long Term Only",
+    value: "long",
+    disabled: false,
+  },
+];
+
 interface LiquidityMarketCardProps {
   key?: string;
   market: MarketInfo;
@@ -37,9 +55,13 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  { filter, primaryCategory, subCategories, sortBy }
+  { filter, primaryCategory, subCategories, marketTypeFilter, sortBy }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
+
+  if (marketTypeFilter !== MARKET_TYPE_OPTIONS[0].value) {
+    updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isFuture : market.isFuture);
+  }
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
@@ -110,7 +132,6 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Compon
   const hasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
 
-
   return (
     <article className={Styles.LiquidityMarketCard}>
       <MarketLink id={marketId} dontGoToMarket={false}>
@@ -145,6 +166,7 @@ const LiquidityView = () => {
     actions: { updateMarketsViewSettings },
   } = useSimplifiedStore();
   const { markets, transactions } = useDataStore();
+  const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
   const [filter, setFilter] = useState("");
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const { primaryCategory, subCategories } = marketsViewSettings;
@@ -155,13 +177,14 @@ const LiquidityView = () => {
       filter,
       primaryCategory,
       subCategories,
-      sortBy: '',
+      marketTypeFilter,
+      sortBy: "",
     });
   };
 
   useEffect(() => {
     handleFilterSort();
-  }, [filter, primaryCategory, subCategories]);
+  }, [filter, primaryCategory, subCategories, marketTypeFilter]);
 
   useEffect(() => {
     handleFilterSort();
@@ -184,25 +207,9 @@ const LiquidityView = () => {
           defaultValue={primaryCategory}
         />
         <SquareDropdown
-          onChange={() => {}}
-          options={[
-            {
-              label: "Daily + Long Term",
-              value: "daily+long",
-              disabled: false,
-            },
-            {
-              label: "Daily Only",
-              value: "daily",
-              disabled: false,
-            },
-            {
-              label: "Long Term Only",
-              value: "long",
-              disabled: false,
-            },
-          ]}
-          defaultValue={"daily+long"}
+          onChange={(value) => setMarketTypeFilter(value)}
+          options={MARKET_TYPE_OPTIONS}
+          defaultValue={MARKET_TYPE_OPTIONS[0].value}
         />
         <span>My Liquidity Positions</span>
         <SearchInput
