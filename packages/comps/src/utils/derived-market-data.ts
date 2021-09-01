@@ -223,6 +223,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
     marketId: `${factory}-${turboId}`,
     turboId,
     marketIndex: turboId, // use this instead of turboId
+    marketFactoryType: config.type,
     ...factoryDetails,
   };
   const marketInfo = deriveMarketInfo(market, marketData, config.type);

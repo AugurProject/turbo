@@ -44,7 +44,6 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     .map((m) => ({
       ...m,
       ...factoryDetails,
-      marketFactoryType: config.type,
       homeTeamName: m.home.name,
       awayTeamName: m.away.name,
     }))
