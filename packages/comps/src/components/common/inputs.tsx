@@ -184,6 +184,7 @@ const Outcome = ({
   index,
   hasLiquidity,
   isFutures = false,
+  hasInvalidOutcome = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
   const [actionType, setActionType] = useState(0);
@@ -197,12 +198,13 @@ const Outcome = ({
       setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
+  console.log('hasInvalidOutcome', hasInvalidOutcome)
   const price = !!hasLiquidity ? formatCashPrice(outcome?.price, ammCash?.name).full : prepend ? `-` : `- ${symbol}`;
   return (
     <div
       key={index}
       onClick={onClick}
-      className={classNames(Styles.Outcome, `${Styles[`color-${outcome.id + 1}`]}`, {
+      className={classNames(Styles.Outcome, `${Styles[`color-${hasInvalidOutcome ? outcome.id + 1 : outcome.id + 2}`]}`, {
         [Styles.Futures]: isFutures,
         [Styles.Selected]: selected,
         [Styles.ShowAllHighlighted]: showAllHighlighted,
@@ -287,7 +289,7 @@ export const OutcomesGrid = ({
     outcomes,
     marketFactoryType
   );
-
+  const hasInvalidOutcome = sortedOutcomes.find(s => s.isInvalid);
   return (
     <div
       className={classNames(Styles.Outcomes, {
@@ -316,6 +318,7 @@ export const OutcomesGrid = ({
             noClick={noClick}
             hasLiquidity={hasLiquidity}
             isFutures={isFutures}
+            hasInvalidOutcome={hasInvalidOutcome}
           />
         ))}
     </div>
