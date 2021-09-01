@@ -6,7 +6,7 @@ import {
   MarketResolved,
   MmaMarketFactory as MmaMarketFactoryContract,
   SettlementFeeClaimed,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/MmaMarketFactoryV2/MmaMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
@@ -45,7 +45,7 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
 
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
   let shareTokens = getShareTokens(contractAddress, marketIndex);
-  for(let i = 0; i < shareTokens.length; i++) {
+  for (let i = 0; i < shareTokens.length; i++) {
     let id = senderId + "-" + marketId + "-" + bigIntToHexString(BigInt.fromI32(i));
     let entity = getOrCreatePositionBalance(id, false, false);
     if (entity) {
@@ -130,9 +130,7 @@ export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): vo
   entity.save();
 }
 
-function handlePositionFromClaimWinningsEventV2(
-  event: WinningsClaimed,
-): void {
+function handlePositionFromClaimWinningsEventV2(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
   let outcomeId = getOutcomeId(event.address, event.params.id, event.params.winningOutcome.toHexString());
@@ -148,7 +146,7 @@ function handlePositionFromClaimWinningsEventV2(
     let wasAlreadySummed = log.includes(logId);
     if (!wasAlreadySummed) {
       log.push(logId);
-      positionBalanceEntity.log = log
+      positionBalanceEntity.log = log;
 
       let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
 

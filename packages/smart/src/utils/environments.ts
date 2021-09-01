@@ -77,7 +77,11 @@ function generateJsonEnvironments() {
         marketFactoryGraphName:
           index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
       }));
-    addresses.marketFactories = [...v1abstractMarketFactories, ...v2abstractMarketFactories, ...v3abstractMarketFactories];
+    addresses.marketFactories = [
+      ...v1abstractMarketFactories,
+      ...v2abstractMarketFactories,
+      ...v3abstractMarketFactories,
+    ];
     const specificMarketFactories: {
       [key: string]: EnvironmentMarketFactory[];
     } = {};

@@ -6,7 +6,7 @@ import {
   MarketResolved,
   NflMarketFactory as NflMarketFactoryContract,
   NflMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/NflMarketFactoryV3/NflMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
@@ -55,7 +55,7 @@ function getMarket(contractAddress: Address, marketId: BigInt): NflMarketFactory
 
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
   let shareTokens = getShareTokens(contractAddress, marketIndex);
-  for(let i = 0; i < shareTokens.length; i++) {
+  for (let i = 0; i < shareTokens.length; i++) {
     let id = senderId + "-" + marketId + "-" + bigIntToHexString(BigInt.fromI32(i));
     let entity = getOrCreatePositionBalance(id, false, false);
     if (entity) {
@@ -142,9 +142,7 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.save();
 }
 
-function handlePositionFromClaimWinningsEvent(
-  event: WinningsClaimed,
-): void {
+function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
   let outcomeId = getOutcomeId(event.address, event.params.id, event.params.winningOutcome.toHexString());
@@ -160,7 +158,7 @@ function handlePositionFromClaimWinningsEvent(
     let wasAlreadySummed = log.includes(logId);
     if (!wasAlreadySummed) {
       log.push(logId);
-      positionBalanceEntity.log = log
+      positionBalanceEntity.log = log;
 
       let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
 

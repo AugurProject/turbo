@@ -1,6 +1,6 @@
 import { CryptoMarket, MmaMarket, NflMarket, TeamSportsMarket } from "../../generated/schema";
 
-export function getOrCreateTeamSportsMarket (
+export function getOrCreateTeamSportsMarket(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
@@ -23,11 +23,7 @@ export function getOrCreateTeamSportsMarket (
   return entity as TeamSportsMarket;
 }
 
-export function getOrCreateMmaMarket (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): MmaMarket {
+export function getOrCreateMmaMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): MmaMarket {
   let entity = MmaMarket.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -46,7 +42,7 @@ export function getOrCreateMmaMarket (
   return entity as MmaMarket;
 }
 
-export function getOrCreateCryptoMarket (
+export function getOrCreateCryptoMarket(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
@@ -69,11 +65,7 @@ export function getOrCreateCryptoMarket (
   return entity as CryptoMarket;
 }
 
-export function getOrCreateNflMarket (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): NflMarket {
+export function getOrCreateNflMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): NflMarket {
   let entity = NflMarket.load(id);
 
   if (entity == null && createIfNotFound) {
