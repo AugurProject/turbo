@@ -130,7 +130,6 @@ describe("CryptoFactory", function () {
       [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
       nextResolutionTime
     );
-    console.log("MARINA", await tx.wait().then((r) => r.gasUsed));
   });
 
   it("CoinAdded logs are correct", async () => {

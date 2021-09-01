@@ -32,3 +32,7 @@ export type TypeOfClassMethod<T, M extends keyof T> = T[M] extends Function ? T[
 export function repeat<T>(thing: T, n: number): T[] {
   return Array.from({ length: n }).map(() => thing);
 }
+
+export function range(inclusiveMin: number, exclusiveMax: number): number[] {
+  return [...new Array(exclusiveMax - inclusiveMin).keys()].map((i) => i + inclusiveMin);
+}
