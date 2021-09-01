@@ -18,22 +18,6 @@
   grid-gap: @size-16;
   padding: @size-40 @size-88 @size-48;
 
-  @media @breakpoint-tiny {
-    margin: 0;
-    margin-top: var(--theme-top-bar-height);
-  }
-
-  @media @breakpoint-mobile-tablet {
-    margin: 0;
-    margin-top: var(--theme-top-bar-height-mobile);
-    padding: @size-16;
-
-    > div:first-of-type,
-    > div:nth-of-type(2) {
-      grid-column: span 2;
-    }
-  }
-
   > h1 {
     .text-30-bold;
 
@@ -42,10 +26,6 @@
     margin-top: @size-32;
     grid-column: span 2;
     grid-row: 2;
-
-    @media @breakpoint-mobile-tablet {
-      display: none;
-    }
   }
 
   > p {
@@ -64,10 +44,6 @@
       color: var(--secondary-text);
       margin-left: @size-4;
     }
-
-    @media @breakpoint-mobile-tablet {
-      display: none;
-    }
   }
 
   > ul {
@@ -79,26 +55,10 @@
     max-height: @size-48;
     width: 100%;
 
-    @media @breakpoint-mobile-tiny {
-      grid-auto-flow: unset;
-      grid-template-columns: 0fr 0fr 1fr;
-      max-height: unset;
-    }
-
-    @media @breakpoint-mobile-tablet {
-      grid-template-columns: 1fr 1fr;
-    }
-
     > * {
       max-height: @size-48;
       height: @size-48;
       min-height: @size-48;
-
-      @media @breakpoint-mobile-tablet {
-        min-height: @size-34;
-        height: @size-34;
-        max-height: @size-34;
-      }
     }
 
     > span {
@@ -111,48 +71,11 @@
       grid-gap: @size-8;
     }
 
-    > div:not(:last-of-type) {
-      @media @breakpoint-mobile-tablet {
-        max-width: 100%;
-
-        > button {
-          padding: @size-10 @size-12;
-
-          > svg {
-            margin-left: @size-8;
-          }
-
-          > span {
-            .text-10-semi-bold;
-          }
-        }
-      }
-    }
-
     > div:last-of-type {
       margin-left: auto;
 
       &:focus-within {
         margin-left: 0;
-      }
-
-      @media @breakpoint-mobile-tiny {
-        grid-column: span 3;
-        grid-row: 1;
-        margin-left: 0;
-        max-height: @size-40;
-        min-height: @size-40;
-        height: @size-40;
-
-        > input {
-          .text-12-semi-bold;
-
-          padding: @size-8 @size-16;
-        }
-      }
-
-      @media @breakpoint-mobile-tablet {
-        grid-column: span 2;
       }
     }
   }
@@ -165,65 +88,21 @@
     margin-top: @size-32;
     margin-bottom: auto;
 
-    @media @breakpoint-mobile-tablet {
-      margin-top: @size-8;
-    }
-
     > article {
       .LiquidityTableRow;
 
       min-height: @size-56;
       max-height: @size-56;
 
-      @media @breakpoint-mobile-tablet {
-        min-height: @size-40;
-        max-height: @size-40;
-        height: @size-40;
-        padding: @size-12;
-        grid-template-columns: 1fr 0.2fr 0.2fr;
-        grid-gap: 0 @size-8;
-
-        > a {
-          margin-left: @size-12;
-        }
-
-        > button,
-        > span:not(:first-of-type) {
-          display: none;
-
-          &:nth-of-type(2) {
-            display: flex;
-            margin-right: auto;
-          }
-
-          &:nth-of-type(3) {
-            display: flex;
-            margin-left: auto;
-            margin-right: @size-12;
-          }
-        }
-      }
-
       > button {
         .text-12-semi-bold;
 
         border: none;
         background: none;
-        text-align: right;
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        justify-self: center;
-
-        @media @breakpoint-mobile-tablet {
-          display: none;
-
-          &:nth-of-type(2),
-          &:nth-of-type(3) {
-            display: flex;
-            margin-left: auto;
-          }
-        }
+        justify-content: flex-end;
 
         > svg {
           transform: rotate(90deg);
@@ -241,12 +120,6 @@
         .text-12-semi-bold;
 
         color: var(--primary-text);
-
-        @media @breakpoint-mobile-tablet {
-          &:not(:first-of-type) {
-            display: none;
-          }
-        }
       }
     }
 
@@ -302,10 +175,6 @@
         word-break: none;
         display: inline-block;
         text-transform: uppercase;
-
-        @media @breakpoint-mobile-tablet {
-          .text-10;
-        }
       }
     }
   }
@@ -366,11 +235,138 @@
   display: none;
 }
 
+@media @breakpoint-mobile-tiny {
+  .LiquidityView {
+    margin: 0;
+    margin-top: var(--theme-top-bar-height);
+
+    > ul {
+      grid-auto-flow: unset;
+      grid-template-columns: 0fr 0fr 1fr;
+      max-height: unset;
+
+      > div:last-of-type {
+        grid-column: span 3;
+        grid-row: 1;
+        margin-left: 0;
+        max-height: @size-40;
+        min-height: @size-40;
+        height: @size-40;
+
+        > input {
+          .text-12-semi-bold;
+
+          padding: @size-8 @size-16;
+        }
+
+        > div {
+          background: none;
+          min-height: @size-20;
+          max-height: @size-20;
+          min-width: @size-20;
+          max-width: @size-20;
+        }
+      }
+    }
+  }
+}
+
 @media @breakpoint-mobile-tablet {
+  .LiquidityView {
+    margin: 0;
+    margin-top: var(--theme-top-bar-height-mobile);
+    padding: @size-16;
+
+    > div:first-of-type,
+    > div:nth-of-type(2) {
+      grid-column: span 2;
+    }
+
+    > h1,
+    > p {
+      display: none;
+    }
+
+    > ul {
+      grid-template-columns: 1fr 1fr;
+
+      > * {
+        min-height: @size-34;
+        height: @size-34;
+        max-height: @size-34;
+      }
+
+      > div:not(:last-of-type) {
+        max-width: 100%;
+
+        > button {
+          padding: @size-10 @size-12;
+
+          > svg {
+            margin-left: @size-8;
+          }
+
+          > span {
+            .text-10-semi-bold;
+          }
+        }
+      }
+
+      > div:last-of-type {
+        grid-column: span 2;
+      }
+    }
+
+    > section {
+      margin-top: @size-8;
+
+      > article {
+        min-height: @size-40;
+        max-height: @size-40;
+        height: @size-40;
+        padding: @size-12;
+        grid-template-columns: 1fr 0.2fr 0.2fr;
+        grid-gap: 0 @size-8;
+
+        > a {
+          margin-left: @size-12;
+        }
+
+        > button {
+          display: none;
+
+          &:nth-of-type(2) {
+            display: flex;
+            margin-right: auto;
+            flex-flow: row-reverse;
+          }
+
+          &:nth-of-type(3) {
+            display: flex;
+            margin-left: auto;
+            margin-right: @size-12;
+          }
+        }
+
+        > span:not(:first-of-type) {
+          display: none;
+        }
+      }
+    }
+  }
+
   .LiquidityMarketCard {
     display: grid;
     grid-template-columns: 1fr 0.2fr 0.2fr;
     padding: @size-12;
+
+    > a:first-of-type {
+      > span {
+        > span:last-of-type {
+          .text-10;
+        }
+      }
+    }
 
     > span {
       display: none;
