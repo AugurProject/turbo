@@ -211,7 +211,7 @@ const getClientConfig = (): { augurClient: string; blockClient: string; turboCli
     "137": {
       augurClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-v2-staging",
       blockClient: "https://api.thegraph.com/subgraphs/name/x0swapsubgraph/matic-blocks",
-      turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-matic-staging",
+      turboClient: "https://api.thegraph.com/subgraphs/name/augurproject/augur-turbo-matic",
       network: "matic",
     },
   };
