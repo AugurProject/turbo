@@ -119,14 +119,15 @@ export const MarketTitleArea = ({
   title = null,
   description = null,
   startTimestamp,
-  timeFormat = TWELVE_HOUR_TIME,
+  timeFormat = TWELVE_HOUR_TIME,  
+  marketFactoryType,
 }: any) => (
   <span>
     <span>
       {!!title && <span>{title}</span>}
       {!!description && <span>{description}</span>}
     </span>
-    <span>{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
+    <span>{marketFactoryType === MARKET_FACTORY_TYPES.CRYPTO ? `End Time: `: ``}{getMarketEndtimeFull(startTimestamp, timeFormat)}</span>
   </span>
 );
 
