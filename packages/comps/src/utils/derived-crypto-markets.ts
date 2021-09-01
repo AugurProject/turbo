@@ -52,6 +52,7 @@ const getMarketTitle = (name: string, price: string): { title: string; descripti
 };
 
 export const getResolutionRules = (market: MarketInfo): string[] => {
+  console.log("crypto", market);
   if (!market || !market?.coinIndex) return [];
   return resolutionRules(market?.coinIndex, market?.price, market?.endTimestamp);
 };

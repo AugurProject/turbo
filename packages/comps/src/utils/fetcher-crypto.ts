@@ -41,7 +41,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
 
   const popMarkets = markets
-    .map((m) => ({ ...m, ...factoryDetails, marketFactoryType: config.type, sportId: null }))
+    .map((m) => ({ ...m, ...factoryDetails, sportId: null }))
     .map((m) => decodeMarketDetailsFetcher(m, factoryDetails, config));
 
   return popMarkets.reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
