@@ -18,7 +18,6 @@
   grid-gap: @size-16;
   padding: @size-40 @size-88 @size-48;
 
-
   @media @breakpoint-tiny {
     margin: 0;
     margin-top: var(--theme-top-bar-height);
@@ -151,7 +150,7 @@
           padding: @size-8 @size-16;
         }
       }
-      
+
       @media @breakpoint-mobile-tablet {
         grid-column: span 2;
       }
@@ -181,7 +180,7 @@
         max-height: @size-40;
         height: @size-40;
         padding: @size-12;
-        grid-template-columns: 1fr .5fr 0fr;
+        grid-template-columns: 1fr 0.25fr 0.25fr;
         grid-gap: 0 @size-8;
 
         > button,
@@ -191,17 +190,35 @@
           &:nth-of-type(2),
           &:nth-of-type(3) {
             display: flex;
+            text-align: right;
           }
         }
       }
 
       > button {
+        .text-12-semi-bold;
+
         border: none;
         background: none;
         text-align: right;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-self: center;
+
+        @media @breakpoint-mobile-tablet {
+          display: none;
+
+          &:nth-of-type(2),
+          &:nth-of-type(3) {
+            display: flex;
+            margin-left: auto;
+          }
+        }
 
         > svg {
           transform: rotate(90deg);
+          margin-right: @size-4;
         }
 
         &.Ascending {
@@ -215,6 +232,12 @@
         .text-12-semi-bold;
 
         color: var(--primary-text);
+
+        @media @breakpoint-mobile-tablet {
+          &:not(:first-of-type) {
+            display: none;
+          }
+        }
       }
     }
 
