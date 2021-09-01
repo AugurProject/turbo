@@ -201,7 +201,6 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
-
   return (
     <article
       className={classNames(Styles.LiquidityMarketCard, {
@@ -218,6 +217,16 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
       <span>0 MATIC</span>
       <div>
+        <div className={Styles.MobileLabel}>
+          <span>My Liquidity</span>
+          <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
+          <span>init. value {formatCash(userHasLiquidity?.initCostUsd, currency).full}</span>
+        </div>
+        <div className={Styles.MobileLabel}>
+          <span>My Rewards</span>
+          <span>0 MATIC</span>
+          <span>($0.00)</span>
+        </div>
         {!userHasLiquidity ? (
           <PrimaryThemeButton
             text="ADD LIQUIDITY"

@@ -180,17 +180,26 @@
         max-height: @size-40;
         height: @size-40;
         padding: @size-12;
-        grid-template-columns: 1fr 0.25fr 0.25fr;
+        grid-template-columns: 1fr 0.2fr 0.2fr;
         grid-gap: 0 @size-8;
+
+        > a {
+          margin-left: @size-12;
+        }
 
         > button,
         > span:not(:first-of-type) {
           display: none;
 
-          &:nth-of-type(2),
+          &:nth-of-type(2) {
+            display: flex;
+            margin-right: auto;
+          }
+
           &:nth-of-type(3) {
             display: flex;
-            text-align: right;
+            margin-left: auto;
+            margin-right: @size-12;
           }
         }
       }
@@ -349,6 +358,94 @@
       padding: @size-16 @size-24;
       height: unset;
       max-height: unset;
+    }
+  }
+}
+
+.MobileLabel {
+  display: none;
+}
+
+@media @breakpoint-mobile-tablet {
+  .LiquidityMarketCard {
+    display: grid;
+    grid-template-columns: 1fr 0.2fr 0.2fr;
+    padding: @size-12;
+
+    > span {
+      display: none;
+
+      &:nth-of-type(2) {
+        display: flex;
+        margin-right: auto;
+      }
+
+      &:nth-of-type(3) {
+        display: flex;
+        margin-left: auto;
+        margin-right: @size-12;
+      }
+    }
+
+    > div:last-of-type {
+      grid-column: span 3;
+      grid-row: 2;
+      margin: 0 -@size-12 -@size-12 -@size-12;
+      border-top: @size-1 solid var(--theme-border);
+      padding: @size-10;
+      grid-gap: 0;
+
+      > div {
+        display: none;
+      }
+    }
+
+    &.HasUserLiquidity {
+      > article:last-of-type {
+        grid-column: span 3;
+      }
+
+      > div:last-of-type {
+        display: flex;
+        flex-flow: row nowrap;
+        grid-column: span 3;
+        grid-row: 3;
+        margin: 0;
+        width: 100%;
+        border-top: @size-1 solid var(--theme-border);
+        padding: @size-10;
+        grid-gap: 0;
+
+        > div {
+          display: grid;
+        }
+
+        > button:last-of-type {
+          margin-left: @size-8;
+        }
+      }
+    }
+  }
+
+  .MobileLabel {
+    display: grid;
+    grid-auto-flow: row;
+    grid-gap: @size-2;
+    margin: 0 auto;
+
+    > span {
+      .text-12;
+
+      color: var(--primary-text);
+      text-align: right;
+
+      &:first-of-type {
+        .text-12-semi-bold;
+      }
+
+      &:last-of-type {
+        color: var(--secondary-text);
+      }
     }
   }
 }
