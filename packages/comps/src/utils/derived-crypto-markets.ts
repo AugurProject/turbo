@@ -76,7 +76,7 @@ const resolutionRules = (tokenIndes, price, endTimestamp) => {
   const date = getMarketEndtimeDate(endTimestamp);
   return [
     `This is a market on whether the price of ${name} will settle above ${price} on ${date} at 4 pm ET.`,
-    `The market will resolve to "YES" if the resolution source reports greater than ${price}. This market will resolve to "NO" is the resolution source reports equal to or less than ${price}.`,
+    `The market will resolve to "YES" if the resolution source reports greater than ${price}. This market will resolve to "NO" if the resolution source reports equal to or less than ${price}.`,
     `The resolution price for ${name} is determined by querying the Chainlink price oracle. The result is the median of all most recently reported prices from the list of Chainlink oracles found here: ${priceFeedUrl}`,
   ];
 };
