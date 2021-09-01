@@ -61,7 +61,7 @@
       min-height: @size-48;
     }
 
-    > span {
+    > label {
       .text-12-semi-bold;
 
       align-items: center;
@@ -69,6 +69,7 @@
       display: grid;
       grid-template-columns: 0fr 0fr;
       grid-gap: @size-8;
+      cursor: pointer;
     }
 
     > div:last-of-type {
@@ -130,6 +131,10 @@
       overflow-y: auto;
     }
   }
+
+  > div[class*="Pagination"] {
+    grid-column: span 2;
+  }
 }
 
 .LiquidityMarketCard {
@@ -153,6 +158,10 @@
 
         color: var(--primary-text);
         line-height: 140%;
+
+        &:hover {
+          text-decoration: underline;
+        }
 
         > span:first-of-type {
           .limit-lines(1);
@@ -239,6 +248,7 @@
   .LiquidityView {
     margin: 0;
     margin-top: var(--theme-top-bar-height);
+    grid-auto-rows: 0fr;
 
     > ul {
       grid-auto-flow: unset;

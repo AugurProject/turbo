@@ -18,6 +18,7 @@ import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const {
+  PaginationComps: { sliceByPage, Pagination },
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
   Icons: { Arrow },
@@ -35,6 +36,7 @@ const {
   Utils: { isMarketFinal },
 } = Stores;
 
+const PAGE_LIMIT = 10;
 const MARKET_TYPE_OPTIONS = [
   {
     label: "Daily + Long Term",
@@ -287,6 +289,7 @@ const LiquidityView = () => {
   } = useUserStore();
   const { markets, transactions } = useDataStore();
   const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
+  const [page, setPage] = useState(1);
   const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState({
@@ -338,7 +341,7 @@ const LiquidityView = () => {
           options={MARKET_TYPE_OPTIONS}
           defaultValue={MARKET_TYPE_OPTIONS[0].value}
         />
-        <span>
+        <label html-for="toggleOnlyUserLiquidity">
           <ToggleSwitch
             id="toggleOnlyUserLiquidity"
             toggle={onlyUserLiquidity}
@@ -346,7 +349,7 @@ const LiquidityView = () => {
             setToggle={() => setOnlyUserLiquidity(!onlyUserLiquidity)}
           />
           My Liquidity Positions
-        </span>
+        </label>
         <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
       </ul>
       <section>
@@ -360,11 +363,23 @@ const LiquidityView = () => {
           <span />
         </article>
         <section>
-          {filteredMarkets.map((market: MarketInfo) => (
+          {sliceByPage(filteredMarkets, page, PAGE_LIMIT).map((market: MarketInfo) => (
             <LiquidityMarketCard market={market} key={market.marketId} />
           ))}
         </section>
       </section>
+      {filteredMarkets.length > 0 && (
+        <Pagination
+          page={page}
+          useFull
+          itemCount={filteredMarkets.length}
+          itemsPerPage={PAGE_LIMIT}
+          action={(page) => {
+            setPage(page);
+          }}
+          updateLimit={null}
+        />
+      )}
     </div>
   );
 };
