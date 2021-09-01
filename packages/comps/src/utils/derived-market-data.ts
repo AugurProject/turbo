@@ -82,7 +82,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
     case MARKET_FACTORY_TYPES.MLB:
     case MARKET_FACTORY_TYPES.NBA:
     case MARKET_FACTORY_TYPES.NFL: {
-      return NflMarkets.deriveMarketInfo(market, marketData);
+      return NflMarkets.deriveMarketInfo(market, marketData, marketFactoryType);
     }
     case MARKET_FACTORY_TYPES.FUTURES: {
       return FuturesMarkets.deriveMarketInfo(market, marketData);
@@ -161,8 +161,17 @@ export const decodeMarket = (marketData: any, marketFactoryType: string) => {
 };
 
 export const decodeBaseMarketFetcher = (marketData: any) => {
-  const { settlementFee: onChainFee, settlementFee, shareFactor, sportId } = marketData;
+  const { settlementFee: onChainFee, settlementFee, shareFactor, sportId, collateral } = marketData;
+  const { addr, symbol, decimals } = collateral;
 
+  const cash = {
+    address: addr,
+    name: symbol,
+    symbol,
+    decimals,
+    usdPrice: 1,
+    displayDecimals: 2,
+  };
   const creatorFee = new BN(String(settlementFee))
     .div(new BN(10).pow(new BN(18)))
     .times(100)
@@ -174,6 +183,7 @@ export const decodeBaseMarketFetcher = (marketData: any) => {
     settlementFee: creatorFee,
     sportId: String(sportId),
     shareFactor: String(new BN(String(shareFactor))),
+    cash,
   };
 };
 
@@ -190,6 +200,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
     marketType,
     marketId: marketIndex,
     pool,
+    resolutionTime,
   } = marketData;
   const winningOutcomeId = shareTokens.indexOf(winner);
   const hasWinner = winner !== NULL_ADDRESS && winner !== null;
@@ -197,7 +208,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
 
   const turboId = new BN(String(marketIndex)).toNumber();
   const market = {
-    endTimestamp: endTime ? new BN(String(endTime)).toNumber() : null,
+    endTimestamp: endTime || resolutionTime ? new BN(String(endTime || resolutionTime)).toNumber() : null,
     creationTimestamp: new BN(String(creationTimestamp)).toNumber(),
     numTicks: NUM_TICKS_STANDARD,
     winner: winningOutcomeId === -1 ? null : winningOutcomeId,

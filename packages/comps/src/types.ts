@@ -279,7 +279,7 @@ export interface AmmOutcome extends MarketOutcome {
 
 export interface Cash {
   address: string;
-  shareToken: string;
+  shareToken?: string;
   name: string;
   symbol: string;
   asset: string;
