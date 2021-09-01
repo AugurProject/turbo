@@ -54,11 +54,19 @@ const MARKET_TYPE_OPTIONS = [
 ];
 
 const SORT_TYPES = {
-  LIQUIDITY: "LIQUIDITY",
-  REWARDS: "REWARDS",
+  EXPIRES: "EXPIRES",
   TVL: "TVL",
   APY: "APY",
-  EXPIRES: "EXPIRES",
+  LIQUIDITY: "LIQUIDITY",
+  REWARDS: "REWARDS",
+};
+
+const SORT_TYPE_TEXT = {
+  EXPIRES: "Expires",
+  TVL: "TVL",
+  APY: "APY",
+  LIQUIDITY: "My Liquidity",
+  REWARDS: "My Rewards",
 };
 
 interface LiquidityMarketCardProps {
@@ -135,7 +143,7 @@ const applyFiltersAndSort = (
 
       switch (type) {
         case SORT_TYPES.EXPIRES: {
-          return Number(marketA.endTimestamp) > Number(marketB.endTimestamp) ? direction : direction * -1;
+          return Number(marketA.endTimestamp) < Number(marketB.endTimestamp) ? direction : direction * -1;
         }
         case SORT_TYPES.APY: {
           return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
@@ -146,7 +154,7 @@ const applyFiltersAndSort = (
             : direction * -1;
         }
         case SORT_TYPES.LIQUIDITY: {
-          return aUserLiquidity > bUserLiquidity ? direction : direction * -1;
+          return aUserLiquidity < bUserLiquidity ? direction : direction * -1;
         }
         case SORT_TYPES.REWARDS: {
           return 0;
@@ -160,7 +168,7 @@ const applyFiltersAndSort = (
   setFilteredMarkets(updatedFilteredMarkets);
 };
 
-const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.Component => {
+const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => {
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
@@ -335,131 +343,11 @@ const LiquidityView = () => {
       <section>
         <article>
           <span>Market</span>
-          <button
-            className={classNames({
-              [Styles.Ascending]: sortBy.direction < 0,
-            })}
-            onClick={() => {
-              switch (sortBy.type) {
-                case SORT_TYPES.EXPIRES: {
-                  setSortBy({
-                    type: sortBy.direction < 0 ? null : SORT_TYPES.EXPIRES,
-                    direction: sortBy.direction < 0 ? 1 : -1,
-                  });
-                  break;
-                }
-                default: {
-                  setSortBy({
-                    type: SORT_TYPES.EXPIRES,
-                    direction: 1,
-                  });
-                  break;
-                }
-              }
-            }}
-          >
-            {sortBy.type === SORT_TYPES.EXPIRES && Arrow} Expires
-          </button>
-          <button
-            className={classNames({
-              [Styles.Ascending]: sortBy.direction < 0,
-            })}
-            onClick={() => {
-              switch (sortBy.type) {
-                case SORT_TYPES.TVL: {
-                  setSortBy({
-                    type: sortBy.direction < 0 ? null : SORT_TYPES.TVL,
-                    direction: sortBy.direction < 0 ? 1 : -1,
-                  });
-                  break;
-                }
-                default: {
-                  setSortBy({
-                    type: SORT_TYPES.TVL,
-                    direction: 1,
-                  });
-                  break;
-                }
-              }
-            }}
-          >
-            {sortBy.type === SORT_TYPES.TVL && Arrow} TVL
-          </button>
-          <button
-            className={classNames({
-              [Styles.Ascending]: sortBy.direction < 0,
-            })}
-            onClick={() => {
-              switch (sortBy.type) {
-                case SORT_TYPES.APY: {
-                  setSortBy({
-                    type: sortBy.direction < 0 ? null : SORT_TYPES.APY,
-                    direction: sortBy.direction < 0 ? 1 : -1,
-                  });
-                  break;
-                }
-                default: {
-                  setSortBy({
-                    type: SORT_TYPES.APY,
-                    direction: 1,
-                  });
-                  break;
-                }
-              }
-            }}
-          >
-            {sortBy.type === SORT_TYPES.APY && Arrow} APY
-          </button>
-          <button
-            className={classNames({
-              [Styles.Ascending]: sortBy.direction < 0,
-            })}
-            onClick={() => {
-              switch (sortBy.type) {
-                case SORT_TYPES.LIQUIDITY: {
-                  setSortBy({
-                    type: sortBy.direction < 0 ? null : SORT_TYPES.LIQUIDITY,
-                    direction: sortBy.direction < 0 ? 1 : -1,
-                  });
-                  break;
-                }
-                default: {
-                  setSortBy({
-                    type: SORT_TYPES.LIQUIDITY,
-                    direction: 1,
-                  });
-                  break;
-                }
-              }
-            }}
-          >
-            {sortBy.type === SORT_TYPES.LIQUIDITY && Arrow} My Liquidity
-          </button>
-          <button
-            className={classNames({
-              [Styles.Ascending]: sortBy.direction < 0,
-            })}
-            onClick={() => {
-              switch (sortBy.type) {
-                case SORT_TYPES.REWARDS: {
-                  setSortBy({
-                    type: sortBy.direction < 0 ? null : SORT_TYPES.REWARDS,
-                    direction: sortBy.direction < 0 ? 1 : -1,
-                  });
-                  break;
-                }
-                default: {
-                  setSortBy({
-                    type: SORT_TYPES.REWARDS,
-                    direction: 1,
-                  });
-                  break;
-                }
-              }
-            }}
-          >
-            {sortBy.type === SORT_TYPES.REWARDS && Arrow} My Rewards
-          </button>
+          {Object.keys(SORT_TYPES).map((sortType) => (
+            <SortableHeaderButton
+              {...{ sortType, setSortBy, sortBy, text: SORT_TYPE_TEXT[sortType], key: `${sortType}-sortable-button` }}
+            />
+          ))}
           <span />
         </article>
         <section>
@@ -473,3 +361,39 @@ const LiquidityView = () => {
 };
 
 export default LiquidityView;
+
+interface SortableHeaderButtonProps {
+  setSortBy: Function;
+  sortBy: { type: string | null; direction: number };
+  sortType: string;
+  text: string;
+  key?: string;
+}
+
+const SortableHeaderButton = ({ setSortBy, sortBy, sortType, text }: SortableHeaderButtonProps): React.FC => (
+  <button
+    className={classNames({
+      [Styles.Ascending]: sortBy.direction < 0,
+    })}
+    onClick={() => {
+      switch (sortBy.type) {
+        case sortType: {
+          setSortBy({
+            type: sortBy.direction < 0 ? null : sortType,
+            direction: sortBy.direction < 0 ? 1 : -1,
+          });
+          break;
+        }
+        default: {
+          setSortBy({
+            type: sortType,
+            direction: 1,
+          });
+          break;
+        }
+      }
+    }}
+  >
+    {sortBy.type === sortType && Arrow} {text}
+  </button>
+);
