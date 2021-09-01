@@ -70,10 +70,11 @@ const applyFiltersAndSort = (
   passedInMarkets,
   setFilteredMarkets,
   transactions,
-  userMarkets,
+  lpTokens,
   { filter, primaryCategory, subCategories, marketTypeFilter, sortBy, onlyUserLiquidity }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
+  const userMarkets = Object.keys(lpTokens);
 
   if (onlyUserLiquidity) {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => userMarkets.includes(market.marketId));
@@ -128,23 +129,34 @@ const applyFiltersAndSort = (
     updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
       const aTransactions = transactions ? transactions[marketA.marketId] : {};
       const bTransactions = transactions ? transactions[marketB.marketId] : {};
+      const aUserLiquidity = Number(lpTokens?.[marketA.marketId]?.usdValue) || 0;
+      const bUserLiquidity = Number(lpTokens?.[marketB.marketId]?.usdValue) || 0;
       const { type, direction } = sortBy;
 
-      if (type === SORT_TYPES.EXPIRES) {
-        return Number(marketA.endTimestam) > Number(marketB.endTimestamp) ? direction : direction * -1;
+      switch (type) {
+        case SORT_TYPES.EXPIRES: {
+          return Number(marketA.endTimestamp) > Number(marketB.endTimestamp) ? direction : direction * -1;
+        }
+        case SORT_TYPES.APY: {
+          return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
+        }
+        case SORT_TYPES.TVL: {
+          return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0)
+            ? direction
+            : direction * -1;
+        }
+        case SORT_TYPES.LIQUIDITY: {
+          return aUserLiquidity > bUserLiquidity ? direction : direction * -1;
+        }
+        case SORT_TYPES.REWARDS: {
+          return 0;
+        }
+        default:
+          return 0;
       }
-        // return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0) ? 1 : -1;
-      // } else if (sortBy === TWENTY_FOUR_HOUR_VOLUME) {
-      //   return (bTransactions?.volume24hrTotalUSD || 0) > (aTransactions?.volume24hrTotalUSD || 0) ? 1 : -1;
-      // } else if (sortBy === LIQUIDITY) {
-      //   return (Number(marketB?.amm?.liquidityUSD) || 0) > (Number(marketA?.amm?.liquidityUSD) || 0) ? 1 : -1;
-      // } else if (sortBy === STARTS_SOON) {
-      //   return (marketA?.startTimestamp > marketB?.startTimestamp ? 1 : -1) * mod;
-      // }
-      return true;
     });
   }
-  
+
   setFilteredMarkets(updatedFilteredMarkets);
 };
 
@@ -270,7 +282,7 @@ const LiquidityView = () => {
   const userMarkets = Object.keys(lpTokens);
 
   const handleFilterSort = () => {
-    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, userMarkets, {
+    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, {
       filter,
       primaryCategory,
       subCategories,
@@ -346,9 +358,12 @@ const LiquidityView = () => {
               }
             }}
           >
-            Expires {sortBy.type === SORT_TYPES.EXPIRES && Arrow}
+            {sortBy.type === SORT_TYPES.EXPIRES && Arrow} Expires
           </button>
           <button
+            className={classNames({
+              [Styles.Ascending]: sortBy.direction < 0,
+            })}
             onClick={() => {
               switch (sortBy.type) {
                 case SORT_TYPES.TVL: {
@@ -368,9 +383,12 @@ const LiquidityView = () => {
               }
             }}
           >
-            TVL
+            {sortBy.type === SORT_TYPES.TVL && Arrow} TVL
           </button>
           <button
+            className={classNames({
+              [Styles.Ascending]: sortBy.direction < 0,
+            })}
             onClick={() => {
               switch (sortBy.type) {
                 case SORT_TYPES.APY: {
@@ -390,9 +408,12 @@ const LiquidityView = () => {
               }
             }}
           >
-            APY
+            {sortBy.type === SORT_TYPES.APY && Arrow} APY
           </button>
           <button
+            className={classNames({
+              [Styles.Ascending]: sortBy.direction < 0,
+            })}
             onClick={() => {
               switch (sortBy.type) {
                 case SORT_TYPES.LIQUIDITY: {
@@ -412,9 +433,12 @@ const LiquidityView = () => {
               }
             }}
           >
-            My Liquidity
+            {sortBy.type === SORT_TYPES.LIQUIDITY && Arrow} My Liquidity
           </button>
           <button
+            className={classNames({
+              [Styles.Ascending]: sortBy.direction < 0,
+            })}
             onClick={() => {
               switch (sortBy.type) {
                 case SORT_TYPES.REWARDS: {
@@ -434,7 +458,7 @@ const LiquidityView = () => {
               }
             }}
           >
-            My Rewards
+            {sortBy.type === SORT_TYPES.REWARDS && Arrow} My Rewards
           </button>
           <span />
         </article>
