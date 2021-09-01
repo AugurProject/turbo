@@ -16,6 +16,7 @@ interface EnvironmentAddresses extends Addresses {
   cryptoMarketFactoriesV1: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV2: EnvironmentMarketFactory[];
   nflMarketFactoriesV2: EnvironmentMarketFactory[];
+  nflMarketFactoriesV3: EnvironmentMarketFactory[];
 }
 
 const marketFactoryTypes: {
@@ -28,6 +29,7 @@ const marketFactoryTypes: {
   CryptoV1: "cryptoMarketFactoriesV1",
   CryptoV2: "cryptoMarketFactoriesV2",
   NFLV2: "nflMarketFactoriesV2",
+  NFLV3: "nflMarketFactoriesV3",
 };
 
 const marketFactoryGraphNames: {
@@ -40,6 +42,7 @@ const marketFactoryGraphNames: {
   CryptoV1: "CryptoMarketFactoryV1",
   CryptoV2: "CryptoMarketFactoryV2",
   NFLV2: "NflMarketFactoryV2",
+  NFLV3: "NflMarketFactoryV3",
 };
 
 function generateJsonEnvironments() {
@@ -67,7 +70,14 @@ function generateJsonEnvironments() {
         marketFactoryGraphName:
           index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
       }));
-    addresses.marketFactories = [...v1abstractMarketFactories, ...v2abstractMarketFactories];
+    const v3abstractMarketFactories = addresses.marketFactories
+      .filter(({ subtype }) => subtype === "V3")
+      .map((marketFactory, index) => ({
+        ...marketFactory,
+        marketFactoryGraphName:
+          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+      }));
+    addresses.marketFactories = [...v1abstractMarketFactories, ...v2abstractMarketFactories, ...v3abstractMarketFactories];
     const specificMarketFactories: {
       [key: string]: EnvironmentMarketFactory[];
     } = {};
