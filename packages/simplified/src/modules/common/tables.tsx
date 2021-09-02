@@ -629,12 +629,7 @@ export const PositionsLiquidityViewSwitcher = ({
       }))
     : [];
 
-  const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
-  useEffect(() => {
-    if (view === TABLES && tableView === null) {
-      setTableView(POSITIONS);
-    }
-  }, [view]);
+  const [tableView, setTableView] = useState(POSITIONS);
 
   useEffect(() => {
     setPage(1);
@@ -654,17 +649,7 @@ export const PositionsLiquidityViewSwitcher = ({
         >
           {POSITIONS}
         </span>
-        <span
-          onClick={() => {
-            setTables && setTables();
-            setTableView(LIQUIDITY);
-          }}
-          className={classNames({
-            [Styles.Selected]: tableView === LIQUIDITY,
-          })}
-        >
-          {LIQUIDITY}
-        </span>
+        <span />
         {showActivityButton && (
           <TinyThemeButton
             action={() => {
@@ -681,7 +666,6 @@ export const PositionsLiquidityViewSwitcher = ({
           {!marketId && (positions.length > 0 || liquidities.length > 0) && (
             <>
               {tableView === POSITIONS && <AllPositionTable page={page} claimableFirst={claimableFirst} />}
-              {tableView === LIQUIDITY && <AllLiquidityTable page={page} />}
             </>
           )}
           {!marketId &&
@@ -706,9 +690,6 @@ export const PositionsLiquidityViewSwitcher = ({
                   positions={userPositions}
                   claimableWinnings={winnings}
                 />
-              )}
-              {tableView === LIQUIDITY && (
-                <LiquidityTable singleMarket market={market} ammExchange={ammExchange} lpTokens={liquidity} />
               )}
             </>
           )}

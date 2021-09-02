@@ -242,7 +242,7 @@ export function formatLiquidity(num: NumStrBigNumber = "0", opts: FormattedNumbe
   });
 }
 
-export function formatRep(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
+export function formatToken(num: NumStrBigNumber, opts: FormattedNumberOptions = {}): FormattedNumber {
   return formatNumber(num, {
     decimals: 4,
     decimalsRounded: 4,

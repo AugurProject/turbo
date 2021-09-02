@@ -649,8 +649,8 @@ export const getUserBalances = async (
   const userMarketTransactions = getUserTransactions(transactions, account);
   const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
-  const POOL_TOKEN_BALANCE = "getPoolTokenBalance";
-  const POOL_PENDING_REWARDS = "getPoolPendingRewards";
+  const POOL_TOKEN_BALANCE = "getTokenBalanceByPool";
+  const POOL_PENDING_REWARDS = "getPendingRewardInfoByPool";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const PENDING_REWARDS_COLLECTION = "pendingRewards";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -842,11 +842,31 @@ export const getUserBalances = async (
         delete userBalances[collection][dataKey];
       }
     } else if (method === POOL_PENDING_REWARDS) {
+      const {
+        accruedEarlyDepositBonusRewards,
+        accruedStandardRewards,
+        earlyDepositEndTimestamp,
+        pendingEarlyDepositBonusRewards,
+      } = balanceValue;
+      const balance = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedStandardRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(pendingEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
       if (rawBalance !== "0") {
         userBalances[collection][dataKey] = {
-          balance: balance.toFixed(),
-          rawBalance,
+          balance,
+          rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
           marketId,
+          pendingBonusRewards,
+          endBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
         };
       } else {
         delete userBalances[collection][dataKey];

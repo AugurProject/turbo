@@ -112,6 +112,8 @@ export async function getAllTransactions(account = "0x0", cb) {
   let response = null;
   try {
     const marketFactories = PARA_CONFIG.marketFactories.map((f) => f.address.toLowerCase());
+    response = { data: {}, errors: null };
+    /*
     response = await augurV2Client(clientConfig.turboClient).query({
       query: GET_TRANSACTIONS,
       variables: {
@@ -119,6 +121,7 @@ export async function getAllTransactions(account = "0x0", cb) {
         marketFactories,
       },
     });
+    */
   } catch (e) {
     console.error(e);
   }
