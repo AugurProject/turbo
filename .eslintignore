@@ -16,3 +16,4 @@ coverage
 augur.sh
 #ignore subgraph
 packages/turbo-kovan-subgraph
+packages/subgraph

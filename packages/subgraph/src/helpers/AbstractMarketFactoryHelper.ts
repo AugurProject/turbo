@@ -1,6 +1,6 @@
 import { ClaimedFees, ClaimedProceeds } from "../../generated/schema";
 
-export function getOrCreateClaimedProceeds (
+export function getOrCreateClaimedProceeds(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
@@ -18,7 +18,7 @@ export function getOrCreateClaimedProceeds (
   return entity as ClaimedProceeds;
 }
 
-export function getOrCreateClaimedFees (
+export function getOrCreateClaimedFees(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
