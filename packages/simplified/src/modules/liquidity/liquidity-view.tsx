@@ -85,6 +85,8 @@ const applyFiltersAndSort = (
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
   const userMarkets = Object.keys(lpTokens);
+  // remove resolved markets unless we have liquidity.
+  updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => !market.hasWinner && !userMarkets.includes(market.marketId));
 
   if (onlyUserLiquidity) {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => userMarkets.includes(market.marketId));
