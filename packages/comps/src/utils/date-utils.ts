@@ -33,7 +33,16 @@ const getDuration = (seconds: number) => {
   };
 };
 
-export const timeSinceTimestamp = (timestamp: number) => timeSince(timestamp * 1000);
+export const timeSinceTimestamp = (timestamp: number = 0) => timeSince(timestamp * 1000);
+
+export const timeTogo = (timestamp: number): string => {
+  const now = new Date().getTime() / 1000;
+  const seconds = Math.floor(timestamp - now);
+  if (seconds < 0) return "-"
+  const { interval, epoch } = getDuration(seconds);
+  const suffix = interval >= 0 ? "s" : "";
+  return `${interval} ${epoch}${suffix} left`;
+};
 
 export const timeSince = (timestamp: number) => {
   const now = new Date().getTime();
