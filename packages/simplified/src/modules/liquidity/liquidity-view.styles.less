@@ -331,7 +331,7 @@
     }
 
     > section {
-      margin-top: @size-8;
+      margin-top: 0;
 
       > article {
         min-height: @size-40;
@@ -357,7 +357,6 @@
           &:nth-of-type(3) {
             display: flex;
             margin-left: auto;
-            margin-right: @size-12;
           }
         }
 
@@ -377,6 +376,8 @@
       > span {
         > span:last-of-type {
           .text-10;
+
+          white-space: normal;
         }
       }
     }

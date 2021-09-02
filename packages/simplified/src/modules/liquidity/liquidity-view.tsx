@@ -204,7 +204,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       formatCash(marketTransactions.volumeTotalUSD, currency, { bigUnitPostfix: true }).full,
     [marketTransactions?.volumeTotalUSD]
   );
-  const userHasLiquidity = lpTokens?.[marketId] || true;
+  const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
   return (
