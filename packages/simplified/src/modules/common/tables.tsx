@@ -450,12 +450,14 @@ const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; i
   );
 };
 
+// TODO: the "40%"" below should be replaced with a real rewards calc to 
+// provide a 0%-100% string value to fill the progress bar.
 export const BonusReward = () => (
   <article className={Styles.BonusReward}>
     <h4>Bonus Reward</h4>
     <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
     <span>
-      <span />
+      <span style={{ width: "40%" }} />
     </span>
     <h4>Bonus Unlocks</h4>
     <p>11 July (4d, 2h, 32m)</p>
