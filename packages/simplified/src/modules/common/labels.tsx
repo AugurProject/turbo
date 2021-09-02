@@ -11,9 +11,11 @@ import {
   ButtonComps,
   Stores,
   ContractCalls,
+  Formatter
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
+const { formatToken } = Formatter;
 const { canAddLiquidity } = ContractCalls;
 const {
   Utils: { isMarketFinal },
@@ -124,13 +126,15 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
   );
 };
 
-export const AvailableLiquidityRewards = () => {
+export const AvailableLiquidityRewards = ({balance}) => {
+  // get matic USD price
+  const amount = formatToken(balance || "0").formatted;
   return (
     <div className={Styles.AvailableLiquidityRewards}>
       <h4>My Available LP Rewards</h4>
-      <span>111.2 {MaticIcon}</span>
+      <span>{amount} {MaticIcon}</span>
       <p>(Will be claimed automatically when removing liquidity per market)</p>
-      <span>($168.56)</span>
+      <span>($-)</span>
     </div>
   );
 };

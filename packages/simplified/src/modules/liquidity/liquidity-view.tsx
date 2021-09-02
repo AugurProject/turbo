@@ -11,11 +11,12 @@ import {
   ContractCalls,
   Stores,
 } from "@augurproject/comps";
-import { categoryItems } from "../constants";
+import { categoryItems, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
+import BigNumber from "bignumber.js";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const {
   PaginationComps: { sliceByPage, Pagination },
@@ -289,7 +290,7 @@ const LiquidityView = () => {
     actions: { updateMarketsViewSettings },
   } = useSimplifiedStore();
   const {
-    balances: { lpTokens },
+    balances: { lpTokens, pendingRewards },
   } = useUserStore();
   const { markets, transactions } = useDataStore();
   const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
@@ -304,7 +305,7 @@ const LiquidityView = () => {
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
-
+  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string}) => (p.plus(r.balance)), ZERO)): "0";
   const handleFilterSort = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, {
       filter,
@@ -327,7 +328,7 @@ const LiquidityView = () => {
   return (
     <div className={Styles.LiquidityView}>
       <AppViewStats small liquidity />
-      <AvailableLiquidityRewards />
+      <AvailableLiquidityRewards balance={rewardBalance} />
       <h1>Explore LP Opportunties</h1>
       <p>
         Add Market liquidity to earn fees and rewards. <a href=".">Learn more →</a>

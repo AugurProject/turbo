@@ -4,7 +4,6 @@ import Styles from "./market-view.styles.less";
 import ButtonStyles from '../common/buttons.styles.less';
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
-import { AddLiquidity } from "../common/labels";
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
 import TradingForm from "./trading-form";
 import {
@@ -222,7 +221,6 @@ const MarketView = ({ defaultMarket = null }) => {
         />
         <SimpleChartSection {...{ market, cash: amm?.cash, transactions: marketTransactions, timeFormat }} />
         <PositionsLiquidityViewSwitcher ammExchange={amm} />
-        <article className={Styles.MobileLiquidSection}>{!isFinalized && <AddLiquidity market={market} />}</article>
         <div
           className={classNames(Styles.Details, {
             [Styles.isClosed]: !showMoreDetails,
@@ -251,7 +249,6 @@ const MarketView = ({ defaultMarket = null }) => {
         })}
       >
         <TradingForm initialSelectedOutcome={selectedOutcome} amm={amm} />
-        {!isFinalized && <AddLiquidity market={market} />}
       </section>
     </div>
   );
