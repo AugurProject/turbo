@@ -25,7 +25,7 @@ const {
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
   ButtonComps: { SecondaryThemeButton },
-  BuySellToggleSwitch,
+  SelectionComps: { BuySellToggleSwitch },
 } = Components;
 const { formatCash, formatCashPrice, formatPercent, formatSimpleShares } = Formatter;
 const {

@@ -5,25 +5,24 @@ import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { useSimplifiedStore } from "../stores/simplified";
 import {
-  Icons,
   useAppStatusStore,
   useUserStore,
-  ConnectAccount as CompsConnectAccount,
   useLocalStorage,
-  ButtonComps,
   PathUtils,
   PARA_CONFIG,
   Constants,
-  LinkLogo,
   Components,
-  Toasts,
 } from "@augurproject/comps";
-const { GearIcon, ThreeLinesIcon } = Icons;
-const { ConnectAccount } = CompsConnectAccount;
-const { SecondaryThemeButton } = ButtonComps;
 const { parsePath, makePath } = PathUtils;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
-const { ToggleSwitch } = Components;
+const { MARKET, MARKETS, PORTFOLIO, LIQUIDITY, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
+const {
+  Toasts,
+  LinkLogo,
+  ConnectAccount: { ConnectAccount },
+  Icons: { GearIcon, ThreeLinesIcon },
+  SelectionComps: { ToggleSwitch },
+  ButtonComps: { SecondaryThemeButton },
+} = Components;
 
 export const SettingsButton = () => {
   const {
@@ -70,9 +69,7 @@ export const SettingsButton = () => {
             <ToggleSwitch
               id="showResolvedPositions"
               toggle={showResolvedPositions}
-              setToggle={() =>
-                updateSettings({ showResolvedPositions: !showResolvedPositions }, account)
-              }
+              setToggle={() => updateSettings({ showResolvedPositions: !showResolvedPositions }, account)}
             />
           </li>
           <li>
@@ -138,7 +135,7 @@ export const TopNav = () => {
   return (
     <section
       className={classNames(Styles.TopNav, {
-        [Styles.TwoTone]: path !== MARKETS,
+        [Styles.TwoTone]: path !== MARKETS && path !== LIQUIDITY,
         [Styles.OnMarketsView]: path === MARKET,
       })}
     >
@@ -163,6 +160,18 @@ export const TopNav = () => {
                 Portfolio
               </Link>
             </li>
+            <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
+              <Link
+                onClick={(e) => {
+                  !isLogged && e.preventDefault();
+                }}
+                disabled={!isLogged}
+                to={makePath(LIQUIDITY)}
+                placeholder={isLogged ? "Liquidity" : "Please Login to view Liquidity"}
+              >
+                Liquidity
+              </Link>
+            </li>
           </ol>
         )}
       </section>
@@ -176,7 +185,7 @@ export const TopNav = () => {
             isMobile,
             buttonOptions: {
               reverseContent: true,
-            }
+            },
           }}
         />
         {isMobile ? (

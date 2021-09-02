@@ -15,6 +15,7 @@ import { useSimplifiedStore } from '../stores/simplified';
 const {
   MARKETS,
   PORTFOLIO,
+  LIQUIDITY,
   SIDEBAR_TYPES,
   marketStatusItems,
   sortByItems,
@@ -138,6 +139,13 @@ const NavigationSideBar = () => {
             <li className={classNames({ [Styles.Active]: path === PORTFOLIO })}>
               <Link onClick={() => setSidebar(null)} to={makePath(PORTFOLIO)}>
                 Portfolio
+              </Link>
+            </li>
+          )}
+          {isLogged && (
+            <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
+              <Link onClick={() => setSidebar(null)} to={makePath(LIQUIDITY)}>
+                Liquidity
               </Link>
             </li>
           )}

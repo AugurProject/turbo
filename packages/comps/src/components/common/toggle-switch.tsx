@@ -9,6 +9,7 @@ export interface ToggleSwitchProps {
   button2Text?: string;
   buySell?: boolean;
   id?: string;
+  clean?: boolean;
 }
 
 export const ToggleSwitch = ({
@@ -17,18 +18,20 @@ export const ToggleSwitch = ({
   button1Text = 'On',
   button2Text = 'Off',
   buySell,
-  id
+  id,
+  clean = false,
 }: ToggleSwitchProps) => (
   <button
     className={classNames(Styles.ToggleSwitch, {
       [Styles.On]: toggle,
-      [Styles.buySell]: buySell
+      [Styles.buySell]: buySell,
+      [Styles.clean]: clean,
     })}
     onClick={() => setToggle()}
     id={id}
   >
-    <span>{button1Text}</span>
-    <span>{button2Text}</span>
+    <span>{!clean && button1Text}</span>
+    <span>{!clean && button2Text}</span>
     <div />
   </button>
 );
