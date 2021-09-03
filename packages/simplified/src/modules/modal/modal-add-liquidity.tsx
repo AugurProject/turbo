@@ -300,9 +300,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         });
     }
     closeModal();
-    if (modalType === CREATE && history.location.pathname !== `/${MARKETS}`) {
-      history.push(`/${MARKETS}`);
-    }
   };
 
   const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
