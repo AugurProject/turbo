@@ -7,7 +7,7 @@ import {
   NflMarketFactory as NflMarketFactoryContract,
   NflMarketFactory__getMarketResultValue0Struct,
   WinningsClaimed,
-} from "../../generated/NflMarketFactoryV3/NflMarketFactory";
+} from "../../generated/NbaMarketFactoryV3/NbaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
