@@ -199,18 +199,19 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
 
     // View function to see pending REWARDs on frontend.
-    function getPendingRewardInfo(uint256 _pid, address _user)
+    function getPendingRewardInfo(uint256 _pid, address _userAddress)
         external
         view
         returns (PendingRewardInfo memory _pendingRewardInfo)
     {
         PoolInfo storage _pool = poolInfo[_pid];
-        UserInfo storage _user = userInfo[_pid][_user];
+        UserInfo storage _user = userInfo[_pid][_userAddress];
         uint256 accRewardsPerShare = _pool.accRewardsPerShare;
         uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
         uint256 _earlyDepositRewards = 0;
 
-        _pendingRewardInfo.endTimestamp = _pool.rewardsPeriods * 1 days;
+        _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
+        _pendingRewardInfo.endTimestamp = (_pool.rewardsPeriods * 1 days) + _pool.beginTimestamp;
         _pendingRewardInfo.earlyDepositEndTimestamp =
             ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
             _pool.beginTimestamp +
@@ -282,7 +283,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
         uint256 _bonusrewardsPeriodsEndTimestamp =
             ((_rewardsPeriodsInSeconds * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
-        uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
 
         // If the user was an early deposit, remove user amount from the pool.
         // Even if the pools reward period has elapsed. They must withdraw first.
