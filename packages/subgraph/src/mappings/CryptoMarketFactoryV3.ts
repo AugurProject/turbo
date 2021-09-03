@@ -7,7 +7,7 @@ import {
   MarketResolved,
   SettlementFeeClaimed,
   WinningsClaimed,
-} from "../../generated/CryptoMarketFactoryV2/CryptoMarketFactory";
+} from "../../generated/CryptoMarketFactoryV3/CryptoMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntMillisToSeconds, bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";

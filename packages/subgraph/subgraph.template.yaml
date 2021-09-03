@@ -65,37 +65,6 @@ dataSources:
           - event: SettlementFeeClaimed(address,uint256,indexed address)
             handler: handleSettlementFeeClaimedEvent
   {{/teamSportsMarketFactoriesV2}}
-  {{#mmaMarketFactoriesV1}}
-    - kind: ethereum/contract
-      name: {{ marketFactoryGraphName }}
-      network: {{ info.graphName }}
-      source:
-        address: '{{ address }}'
-        abi: MmaMarketFactory
-        startBlock: {{ info.uploadBlockNumber }}
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/MmaMarketFactory.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-          - WinningsClaimed
-          - SettlementFeeClaimed
-        abis:
-          - name: MmaMarketFactory
-            file: ./abis/MMALinkMarketFactory{{ subtype }}.json
-        eventHandlers:
-          - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,string,uint256,string,uint256,uint256)
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SettlementFeeClaimed(address,uint256,indexed address)
-            handler: handleSettlementFeeClaimedEvent
-  {{/mmaMarketFactoriesV1}}
   {{#mmaMarketFactoriesV2}}
     - kind: ethereum/contract
       name: {{ marketFactoryGraphName }}
@@ -127,6 +96,34 @@ dataSources:
           - event: SettlementFeeClaimed(address,uint256,indexed address)
             handler: handleSettlementFeeClaimedEvent
   {{/mmaMarketFactoriesV2}}
+  {{#mmaMarketFactoriesV3}}
+    - kind: ethereum/contract
+      name: {{ marketFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ address }}'
+        abi: MmaMarketFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/MmaMarketFactory{{ subtype }}.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+          - WinningsClaimed
+        abis:
+          - name: MmaMarketFactory
+            file: ./abis/MMAMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,string[],uint256[])
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address,uint256,string)
+            handler: handleMarketResolvedEvent
+          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
+  {{/mmaMarketFactoriesV3}}
   {{#cryptoMarketFactoriesV2}}
     - kind: ethereum/contract
       name: {{ marketFactoryGraphName }}
@@ -139,7 +136,7 @@ dataSources:
         kind: ethereum/events
         apiVersion: 0.0.4
         language: wasm/assemblyscript
-        file: ./src/mappings/CryptoMarketFactory.ts
+        file: ./src/mappings/CryptoMarketFactory{{ subtype }}.ts
         entities:
           - MarketCreated
           - MarketResolved
@@ -158,6 +155,34 @@ dataSources:
           - event: SettlementFeeClaimed(address,uint256,indexed address)
             handler: handleSettlementFeeClaimedEvent
   {{/cryptoMarketFactoriesV2}}
+  {{#cryptoMarketFactoriesV3}}
+    - kind: ethereum/contract
+      name: {{ marketFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ address }}'
+        abi: CryptoMarketFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/CryptoMarketFactory{{ subtype }}.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+          - WinningsClaimed
+        abis:
+          - name: CryptoMarketFactory
+            file: ./abis/CryptoMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,string[],uint256[])
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address,uint256,string)
+            handler: handleMarketResolvedEvent
+          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
+  {{/cryptoMarketFactoriesV3}}
   {{#nflMarketFactoriesV2}}
     - kind: ethereum/contract
       name: {{ marketFactoryGraphName }}
@@ -217,3 +242,87 @@ dataSources:
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
   {{/nflMarketFactoriesV3}}
+  {{#nbaMarketFactoriesV3}}
+    - kind: ethereum/contract
+      name: {{ marketFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ address }}'
+        abi: NbaMarketFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/NbaMarketFactory{{ subtype }}.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+          - WinningsClaimed
+        abis:
+          - name: NbaMarketFactory
+            file: ./abis/NBAMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,string[],uint256[])
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address,uint256,string)
+            handler: handleMarketResolvedEvent
+          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
+  {{/nbaMarketFactoriesV3}}
+  {{#mlbMarketFactoriesV3}}
+    - kind: ethereum/contract
+      name: {{ marketFactoryGraphName }}
+      network: {{ info.graphName }}
+      source:
+        address: '{{ address }}'
+        abi: MlbMarketFactory
+        startBlock: {{ info.uploadBlockNumber }}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/MlbMarketFactory{{ subtype }}.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+          - WinningsClaimed
+        abis:
+          - name: MlbMarketFactory
+            file: ./abis/MLBMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,string[],uint256[])
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address,uint256,string)
+            handler: handleMarketResolvedEvent
+          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
+  {{/mlbMarketFactoriesV3}}
+#  {{#futuresMarketFactoriesV3}}
+#    - kind: ethereum/contract
+#      name: {{ marketFactoryGraphName }}
+#      network: {{ info.graphName }}
+#      source:
+#        address: '{{ address }}'
+#        abi: FuturesMarketFactory
+#        startBlock: {{ info.uploadBlockNumber }}
+#      mapping:
+#        kind: ethereum/events
+#        apiVersion: 0.0.4
+#        language: wasm/assemblyscript
+#        file: ./src/mappings/FuturesMarketFactory{{ subtype }}.ts
+#        entities:
+#          - MarketCreated
+#          - MarketResolved
+#          - WinningsClaimed
+#        abis:
+#          - name: FuturesMarketFactory
+#            file: ./abis/FuturesMarketFactory.json
+#        eventHandlers:
+#          - event: MarketCreated(uint256,string[],uint256[])
+#            handler: handleMarketCreatedEvent
+#          - event: MarketResolved(uint256,address,uint256,string)
+#            handler: handleMarketResolvedEvent
+#          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+#            handler: handleWinningsClaimedEvent
+#  {{/futuresMarketFactoriesV3}}
