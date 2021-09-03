@@ -10,6 +10,7 @@ import {
   Constants,
   ContractCalls,
   Stores,
+  Formatter,
 } from "@augurproject/comps";
 import { categoryItems, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
@@ -18,6 +19,7 @@ import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
+const { formatToken } = Formatter;
 const {
   PaginationComps: { sliceByPage, Pagination },
   Links: { MarketLink },
@@ -183,7 +185,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     actions: { setModal },
   } = useAppStatusStore();
   const {
-    balances: { lpTokens },
+    balances: { lpTokens, pendingRewards },
   } = useUserStore();
   const { transactions } = useDataStore();
   const {
@@ -192,6 +194,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     amm: {
       hasLiquidity,
       cash: { name: currency },
+      liquidityUSD,
     },
     endTimestamp,
   } = market;
@@ -199,15 +202,18 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
-  const formattedVol = useMemo(
+  const formattedTVL = useMemo(
     () =>
-      marketTransactions?.volumeTotalUSD &&
-      formatCash(marketTransactions.volumeTotalUSD, currency, { bigUnitPostfix: true }).full,
-    [marketTransactions?.volumeTotalUSD]
+    liquidityUSD &&
+      formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
+    [liquidityUSD]
   );
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
+  const pendingUserRewards = (pendingRewards || {})[market.marketId];
+  const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
+  const rewardAmount = formatToken(pendingUserRewards?.balance || "0").formatted;
   return (
     <article
       className={classNames(Styles.LiquidityMarketCard, {
@@ -219,10 +225,10 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
       <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp) : "-"}</span>
-      <span>{formattedVol || "-"}</span>
+      <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>0 MATIC</span>
+      <span>{rewardAmount} MATIC</span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
@@ -231,8 +237,8 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>0 MATIC</span>
-          <span>($0.00)</span>
+          <span>{rewardAmount} MATIC</span>
+          <span>($-)</span>
         </div>
         {!userHasLiquidity ? (
           <PrimaryThemeButton
@@ -279,7 +285,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {userHasLiquidity && <BonusReward />}
+      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={market.endTimestamp}/>}
     </article>
   );
 };
