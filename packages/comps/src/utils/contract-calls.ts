@@ -154,6 +154,7 @@ export async function estimateAddLiquidityPool(
       // lp tokens are 18 decimal
       tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
 
+      console.log("amm?.totalSupply", amm?.totalSupply);
       const poolSupply = lpTokensOnChainToDisplay(amm?.totalSupply).plus(tokenAmount);
       poolPct = lpTokenPercentageAmount(tokenAmount, poolSupply);
     }
@@ -2040,6 +2041,8 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     const exchange = ex[i];
     const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
+
+    console.log("totalSupply", totalSupply);
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
