@@ -267,7 +267,7 @@ export const getCombinedMarketTransactionsFormatted = (transactions, market: Mar
 
 const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId, outcomes } = market;
-  const trades = transactions[marketId]?.trades;
+  const trades = transactions[marketId.toLowerCase()]?.trades;
   return (trades || []).map((trade) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(trade?.collateral, cash.decimals);
     const isBuy = collateral.lt(0);
@@ -286,7 +286,7 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
 
 const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId } = market;
-  const adds = transactions[marketId]?.addLiquidity;
+  const adds = transactions[marketId.toLowerCase()]?.addLiquidity;
   return (adds || []).map((add) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
     const poolPct = lpTokenPercentageAmount(
@@ -312,7 +312,7 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
 
 const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId } = market;
-  const removes = transactions[marketId]?.removeLiquidity;
+  const removes = transactions[marketId.toLowerCase()]?.removeLiquidity;
   return (removes || []).map((remove) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(remove?.collateral, cash.decimals);
     const bnPoolAbs = createBigNumber(remove.lpTokens).abs();
