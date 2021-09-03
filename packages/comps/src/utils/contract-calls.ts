@@ -54,6 +54,8 @@ import {
   TradingDirection,
   USDC,
   ZERO,
+  POLYGON_NETWORK,
+  POLYGON_PRICE_FEED_MATIC,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -61,6 +63,8 @@ import { PARA_CONFIG } from "../stores/constants";
 import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
+import PriceFeedABI from "./PriceFeedABI.json";
+
 import {
   AbstractMarketFactoryV2,
   AbstractMarketFactoryV2__factory,
@@ -2331,3 +2335,20 @@ export function extractABI(contract: ethers.Contract): any[] {
   ABIs[address] = contractAbi;
   return contractAbi;
 }
+
+export const getMaticUsdPrice = async (library: Web3Provider): Promise<number> => {
+  const network = await library?.getNetwork();
+  if (network?.chainId !== POLYGON_NETWORK) return 1;
+  let defaultMaticPrice = 1.34;
+  if (!library) return defaultPrice;
+  try {
+    const contract = getContract(POLYGON_PRICE_FEED_MATIC, PriceFeedABI, library);
+    const data = await contract.latestRoundData();
+    defaultMaticPrice = new BN(String(data?.answer)).div(new BN(10).pow(Number(8))).toNumber();
+    // get price
+  } catch (error) {
+    console.error("Failed to get price feed contract", error);
+    return defaultMaticPrice;
+  }
+  return defaultMaticPrice;
+};

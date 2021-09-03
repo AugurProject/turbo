@@ -30,7 +30,7 @@ const {
   MarketCardComps: { MarketTitleArea },
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton },
 } = Components;
-const { canAddLiquidity } = ContractCalls;
+const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
 const {
   DateUtils: { getMarketEndtimeDate },
   Formatter: { formatApy, formatCash },
@@ -186,6 +186,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   } = useAppStatusStore();
   const {
     balances: { lpTokens, pendingRewards },
+    loginAccount,
   } = useUserStore();
   const { transactions } = useDataStore();
   const {
@@ -208,12 +209,15 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
     [liquidityUSD]
   );
+  const [price, setPrice] = useState(1);
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
-  const rewardAmount = formatToken(pendingUserRewards?.balance || "0").formatted;
+  const rewardAmount = formatToken(pendingUserRewards?.balance || "0");
+  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
       className={classNames(Styles.LiquidityMarketCard, {
@@ -228,7 +232,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>{rewardAmount} MATIC</span>
+      <span>{rewardAmount.formatted} MATIC</span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
@@ -237,8 +241,8 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>{rewardAmount} MATIC</span>
-          <span>($-)</span>
+          <span>{rewardAmount.formatted} MATIC</span>
+          <span>(${rewardsInUsd})</span>
         </div>
         {!userHasLiquidity ? (
           <PrimaryThemeButton

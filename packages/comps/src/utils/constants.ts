@@ -9,6 +9,8 @@ import {
 } from "../components/common/category-icons";
 import { EthIcon, UsdIcon } from "../components/common/icons";
 
+export const POLYGON_NETWORK = 137;
+export const POLYGON_PRICE_FEED_MATIC = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0";
 // # Market Types
 // should not be used, will be refactored out.
 export const YES_NO = "YesNo";
