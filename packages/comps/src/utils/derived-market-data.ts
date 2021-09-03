@@ -220,7 +220,7 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
     eventStatus,
     marketType,
     initialOdds: initialOdds ? initialOdds.map((i) => String(i)) : undefined,
-    marketId: `${factory}-${turboId}`,
+    marketId: `${factory}-${turboId}`.toLowerCase(),
     turboId,
     marketIndex: turboId, // use this instead of turboId
     marketFactoryType: config.type,
@@ -262,7 +262,7 @@ export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails
     eventStatus,
     marketType,
     initialOdds: undefined,
-    marketId,
+    marketId: marketId.toLowerCase(),
     turboId,
     marketIndex: turboId, // use this instead of turboId
     ...factoryDetails,
