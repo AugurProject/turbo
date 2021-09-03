@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
@@ -145,6 +145,7 @@ describe("NBA", () => {
     expect(await away.name()).to.equal(awayTeamName);
     expect(await home.symbol()).to.equal(homeTeamName);
     expect(await home.name()).to.equal(homeTeamName);
+    expect(headToHeadMarket.resolutionTimestamp).to.equal(ZERO);
   });
 
   it("spread market is correct", async () => {
@@ -198,10 +199,14 @@ describe("NBA", () => {
   });
 
   it("can resolve markets", async () => {
+    const time = Math.floor(Date.now() / 1000) + 60 * 5;
+    await network.provider.send("evm_setNextBlockTimestamp", [time]);
+
     await marketFactory.resolveEvent(eventId, SportsLinkEventStatus.Final, homeTeamId, awayTeamId, 60, 30);
 
     const headToHeadMarket = await marketFactory.getMarket(headToHeadMarketId);
     expect(headToHeadMarket.winner).to.equal(headToHeadMarket.shareTokens[Outcome.HomeWon]);
+    expect(headToHeadMarket.resolutionTimestamp).to.equal(time);
 
     const spreadMarket = await marketFactory.getMarket(spreadMarketId);
     expect(spreadMarket.winner).to.equal(spreadMarket.shareTokens[Outcome.SpreadGreater]);

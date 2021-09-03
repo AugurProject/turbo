@@ -56,6 +56,7 @@ abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable {
         uint256 protocolFee;
         uint256 stakerFee;
         uint256 creationTimestamp;
+        uint256 resolutionTimestamp; // when winner is declared
         uint256[] initialOdds;
         bool active; // false if not ready to use or if resolved
     }
@@ -243,6 +244,7 @@ abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable {
                 protocolFee,
                 stakerFee,
                 block.timestamp,
+                0,
                 _initialOdds,
                 _active
             )
@@ -261,14 +263,17 @@ abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable {
     function makeEmptyMarket() private pure returns (Market memory) {
         OwnedERC20[] memory _tokens = new OwnedERC20[](0);
         uint256[] memory _initialOdds = new uint256[](0);
-        return Market(address(0), _tokens, OwnedERC20(0), 0, 0, 0, 0, 0, _initialOdds, false);
+        return Market(address(0), _tokens, OwnedERC20(0), 0, 0, 0, 0, 0, 0, _initialOdds, false);
     }
 
     function endMarket(uint256 _marketId, uint256 _winningOutcome) internal {
-        OwnedERC20 _winner = markets[_marketId].shareTokens[_winningOutcome];
-        markets[_marketId].winner = _winner;
-        markets[_marketId].active = false;
-        markets[_marketId].winnerIndex = _winningOutcome;
+        Market storage _market = markets[_marketId];
+        OwnedERC20 _winner = _market.shareTokens[_winningOutcome];
+
+        _market.winner = _winner;
+        _market.active = false;
+        _market.winnerIndex = _winningOutcome;
+        _market.resolutionTimestamp = block.timestamp;
         string memory _outcomeName = _winner.name();
         emit MarketResolved(_marketId, address(_winner), _winningOutcome, _outcomeName);
     }
