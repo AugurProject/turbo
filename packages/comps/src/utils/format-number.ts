@@ -19,6 +19,7 @@ import {
   TRILLION,
   DUST_LIQUIDITY_AMOUNT,
   APY_CUTOFF_AMOUNT,
+  USDC,
 } from "./constants";
 import addCommas from "./add-commas-to-number";
 import getPrecision from "./get-number-precision";
@@ -48,7 +49,11 @@ export const getCashFormat = (cashName: string) => {
   return out;
 };
 
-export function formatCash(num: NumStrBigNumber, cashName: string, opts: FormattedNumberOptions = {}): FormattedNumber {
+export function formatCash(
+  num: NumStrBigNumber,
+  cashName: string = USDC,
+  opts: FormattedNumberOptions = {}
+): FormattedNumber {
   const { prepend, symbol, displayDecimals } = getCashFormat(cashName);
   return formatNumber(num, {
     decimals: displayDecimals,

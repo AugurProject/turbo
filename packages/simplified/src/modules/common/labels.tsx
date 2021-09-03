@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Styles from "./labels.styles.less";
 import classNames from "classnames";
 import {
@@ -16,7 +16,7 @@ import {
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
 const { formatToken } = Formatter;
-const { canAddLiquidity } = ContractCalls;
+const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
 const {
   Utils: { isMarketFinal },
 } = Stores;
@@ -127,14 +127,19 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
 };
 
 export const AvailableLiquidityRewards = ({balance}) => {
-  // get matic USD price
-  const amount = formatToken(balance || "0").formatted;
+  const {
+    loginAccount,
+  } = useUserStore();
+  const [price, setPrice] = useState(1);
+  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  const amount = formatToken(balance || "0");
+  const rewardsInUsd = formatCash(Number(balance || "0") * price).formatted;
   return (
     <div className={Styles.AvailableLiquidityRewards}>
       <h4>My Available LP Rewards</h4>
-      <span>{amount} {MaticIcon}</span>
+      <span>{amount.formatted} {MaticIcon}</span>
       <p>(Will be claimed automatically when removing liquidity per market)</p>
-      <span>($-)</span>
+      <span>(${rewardsInUsd})</span>
     </div>
   );
 };
@@ -189,3 +194,4 @@ export const MaticIcon = (
     />
   </svg>
 );
+
