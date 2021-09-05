@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const masterChefDeploy = await deployments.get("MasterChef");
   const masterChef = MasterChef__factory.connect(masterChefDeploy.address, signer);
 
-  const rewardsPerMarket = BigNumber.from(10).pow(18).mul(95);
+  const rewardsPerMarket = BigNumber.from(10).pow(18).mul(195);
   const rewardDaysPerMarket = BigNumber.from(5);
   const earlyDepositBonusRewards = BigNumber.from(0);
 
