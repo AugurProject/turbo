@@ -260,7 +260,9 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             return;
         }
         uint256 multiplier = getPercentageOfRewardsForPeriod(_pid);
-        pool.accRewardsPerShare = pool.accRewardsPerShare.add(multiplier.mul(pool.rewardsPerPeriod).div(lpSupply));
+        pool.accRewardsPerShare = pool.accRewardsPerShare.add(
+            multiplier.mul(pool.rewardsPerPeriod).mul(pool.rewardsPeriods).div(lpSupply)
+        );
         pool.lastRewardTimestamp = block.timestamp;
     }
 
@@ -353,6 +355,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         uint256 pending = _user.amount.mul(_pool.accRewardsPerShare).div(BONE).sub(_user.rewardDebt);
+
         safeRewardsTransfer(_userAddress, pending);
         _user.amount = _user.amount.sub(_amount);
         _user.rewardDebt = _user.amount.mul(_pool.accRewardsPerShare).div(BONE);
