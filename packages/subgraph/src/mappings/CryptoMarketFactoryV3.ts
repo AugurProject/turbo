@@ -3,13 +3,13 @@ import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelpe
 import { getOrCreateCryptoMarket } from "../helpers/MarketFactoryHelper";
 import {
   CryptoMarketFactory as CryptoMarketFactoryContract,
+  CryptoMarketFactory__getMarketResultValue0Struct,
   MarketCreated,
   MarketResolved,
-  SettlementFeeClaimed,
-  WinningsClaimed,
+  WinningsClaimed
 } from "../../generated/CryptoMarketFactoryV3/CryptoMarketFactory";
-import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
-import { bigIntMillisToSeconds, bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
+import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
@@ -25,16 +25,6 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<strin
   }
 
   return shareTokens;
-}
-
-function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = CryptoMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let initialOdds: BigInt[] = new Array<BigInt>();
-  if (!tryGetMarket.reverted) {
-    initialOdds = tryGetMarket.value.initialOdds;
-  }
-  return initialOdds;
 }
 
 function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: string): string {
@@ -55,6 +45,16 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
+function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketResultValue0Struct {
+  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let market: CryptoMarketFactory__getMarketResultValue0Struct;
+  if (!tryGetMarket.reverted) {
+    market = tryGetMarket.value;
+  }
+  return market;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
@@ -64,13 +64,13 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
-  entity.creator = event.params.creator.toHexString();
-  entity.endTime = bigIntMillisToSeconds(event.params.endTime);
-  entity.marketType = BigInt.fromI32(event.params.marketType);
-  entity.coinIndex = event.params.coinIndex;
-  entity.creationPrice = event.params.price;
+  // entity.creator = event.params.creator.toHexString();
+  // entity.endTime = bigIntMillisToSeconds(event.params.endTime);
+  // entity.marketType = BigInt.fromI32(event.params.marketType);
+  // entity.coinIndex = event.params.coinIndex;
+  // entity.creationPrice = event.params.price;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
-  entity.initialOdds = getInitialOdds(event.address, event.params.id);
+  entity.initialOdds = event.params.initialOdds;
 
   entity.save();
 }
@@ -111,20 +111,20 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.save();
 }
 
-export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let senderId = event.params.settlementAddress.toHexString();
-  let entity = getOrCreateClaimedFees(id, true, false);
-  getOrCreateSender(senderId);
-
-  entity.collateral = bigIntToHexString(event.params.amount);
-  entity.sender = senderId;
-  entity.receiver = event.params.receiver.toHexString();
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
-
-  entity.save();
-}
+// export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
+//   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+//   let senderId = event.params.settlementAddress.toHexString();
+//   let entity = getOrCreateClaimedFees(id, true, false);
+//   getOrCreateSender(senderId);
+//
+//   entity.collateral = bigIntToHexString(event.params.amount);
+//   entity.sender = senderId;
+//   entity.receiver = event.params.receiver.toHexString();
+//   entity.transactionHash = event.transaction.hash.toHexString();
+//   entity.timestamp = event.block.timestamp;
+//
+//   entity.save();
+// }
 
 function handlePositionFromClaimWinningsEventV2(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();

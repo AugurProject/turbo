@@ -1,11 +1,11 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
-import { getOrCreateNflMarket } from "../helpers/MarketFactoryHelper";
+import { getOrCreateMlbMarket } from "../helpers/MarketFactoryHelper";
 import {
   MarketCreated,
   MarketResolved,
-  NflMarketFactory as NflMarketFactoryContract,
-  NflMarketFactory__getMarketResultValue0Struct,
+  MlbMarketFactory as MlbMarketFactoryContract,
+  MlbMarketFactory__getMarketResultValue0Struct,
   WinningsClaimed,
 } from "../../generated/MlbMarketFactoryV3/MlbMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
@@ -13,7 +13,7 @@ import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../util
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
-  let contract = NflMarketFactoryContract.bind(contractAddress);
+  let contract = MlbMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let rawShareTokens: Address[] = new Array<Address>();
   if (!tryGetMarket.reverted) {
@@ -33,16 +33,6 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): NflMarketFactory__getMarketResultValue0Struct {
-  let contract = NflMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let market: NflMarketFactory__getMarketResultValue0Struct;
-  if (!tryGetMarket.reverted) {
-    market = tryGetMarket.value;
-  }
-  return market;
-}
-
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
   let shareTokens = getShareTokens(contractAddress, marketIndex);
   for (let i = 0; i < shareTokens.length; i++) {
@@ -55,11 +45,21 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
+function getMarket(contractAddress: Address, marketId: BigInt): MlbMarketFactory__getMarketResultValue0Struct {
+  let contract = MlbMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let market: MlbMarketFactory__getMarketResultValue0Struct;
+  if (!tryGetMarket.reverted) {
+    market = tryGetMarket.value;
+  }
+  return market;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   // emit MarketCreated(_marketId, _names, _initialOdds);
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateNflMarket(marketId, true, false);
+  let entity = getOrCreateMlbMarket(marketId, true, false);
   getOrCreateMarket(marketId);
   let market = getMarket(event.address, event.params.id);
 
@@ -77,7 +77,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   // entity.awayTeamId = market.awayTeamId;
   // entity.overUnderTotal = market.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
-  entity.initialOdds = market.initialOdds;
+  entity.initialOdds = event.params.initialOdds;
 
   entity.save();
 }
@@ -85,7 +85,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateNflMarket(marketId, false, false);
+  let entity = getOrCreateMlbMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();

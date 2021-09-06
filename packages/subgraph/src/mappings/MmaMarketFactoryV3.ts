@@ -5,10 +5,10 @@ import {
   MarketCreated,
   MarketResolved,
   MmaMarketFactory as MmaMarketFactoryContract,
-  SettlementFeeClaimed,
-  WinningsClaimed,
+  MmaMarketFactory__getMarketResultValue0Struct,
+  WinningsClaimed
 } from "../../generated/MmaMarketFactoryV3/MmaMarketFactory";
-import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
+import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 
@@ -55,6 +55,16 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
+function getMarket(contractAddress: Address, marketId: BigInt): MmaMarketFactory__getMarketResultValue0Struct {
+  let contract = MmaMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let market: MmaMarketFactory__getMarketResultValue0Struct;
+  if (!tryGetMarket.reverted) {
+    market = tryGetMarket.value;
+  }
+  return market;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
@@ -64,17 +74,17 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
-  entity.creator = event.params.creator.toHexString();
-  entity.estimatedStartTime = event.params.estimatedStartTime;
-  entity.endTime = event.params.endTime;
-  entity.marketType = BigInt.fromI32(event.params.marketType);
-  entity.eventId = event.params.eventId;
-  entity.homeFighterName = event.params.homeFighterName;
-  entity.homeFighterId = event.params.homeFighterId;
-  entity.awayFighterName = event.params.awayFighterName;
-  entity.awayFighterId = event.params.awayFighterId;
+  // entity.creator = event.params.creator.toHexString();
+  // entity.estimatedStartTime = event.params.estimatedStartTime;
+  // entity.endTime = event.params.endTime;
+  // entity.marketType = BigInt.fromI32(event.params.marketType);
+  // entity.eventId = event.params.eventId;
+  // entity.homeFighterName = event.params.homeFighterName;
+  // entity.homeFighterId = event.params.homeFighterId;
+  // entity.awayFighterName = event.params.awayFighterName;
+  // entity.awayFighterId = event.params.awayFighterId;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
-  entity.initialOdds = getInitialOdds(event.address, event.params.id);
+  entity.initialOdds = event.params.initialOdds;
 
   entity.save();
 }
@@ -115,20 +125,20 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.save();
 }
 
-export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let senderId = event.params.settlementAddress.toHexString();
-  let entity = getOrCreateClaimedFees(id, true, false);
-  getOrCreateSender(senderId);
-
-  entity.collateral = bigIntToHexString(event.params.amount);
-  entity.sender = senderId;
-  entity.receiver = event.params.receiver.toHexString();
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
-
-  entity.save();
-}
+// export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
+//   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+//   let senderId = event.params.settlementAddress.toHexString();
+//   let entity = getOrCreateClaimedFees(id, true, false);
+//   getOrCreateSender(senderId);
+//
+//   entity.collateral = bigIntToHexString(event.params.amount);
+//   entity.sender = senderId;
+//   entity.receiver = event.params.receiver.toHexString();
+//   entity.transactionHash = event.transaction.hash.toHexString();
+//   entity.timestamp = event.block.timestamp;
+//
+//   entity.save();
+// }
 
 function handlePositionFromClaimWinningsEventV2(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
