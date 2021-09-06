@@ -1,19 +1,19 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
-import { getOrCreateNflMarket } from "../helpers/MarketFactoryHelper";
+import { getOrCreateNbaMarket } from "../helpers/MarketFactoryHelper";
 import {
   MarketCreated,
   MarketResolved,
-  NflMarketFactory as NflMarketFactoryContract,
-  NflMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed,
+  NbaMarketFactory as NbaMarketFactoryContract,
+  NbaMarketFactory__getMarketResultValue0Struct,
+  WinningsClaimed
 } from "../../generated/NbaMarketFactoryV3/NbaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
-  let contract = NflMarketFactoryContract.bind(contractAddress);
+  let contract = NbaMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let rawShareTokens: Address[] = new Array<Address>();
   if (!tryGetMarket.reverted) {
@@ -27,30 +27,10 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<strin
   return shareTokens;
 }
 
-function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = NflMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let initialOdds: BigInt[] = new Array<BigInt>();
-  if (!tryGetMarket.reverted) {
-    initialOdds = tryGetMarket.value.initialOdds;
-  }
-  return initialOdds;
-}
-
 function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: string): string {
   let shareTokens = getShareTokens(contractAddress, marketId);
   let outcomeId = BigInt.fromI32(shareTokens.indexOf(shareToken));
   return bigIntToHexString(outcomeId);
-}
-
-function getMarket(contractAddress: Address, marketId: BigInt): NflMarketFactory__getMarketResultValue0Struct {
-  let contract = NflMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let market: NflMarketFactory__getMarketResultValue0Struct;
-  if (!tryGetMarket.reverted) {
-    market = tryGetMarket.value;
-  }
-  return market;
 }
 
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
@@ -65,10 +45,20 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
+function getMarket(contractAddress: Address, marketId: BigInt): NbaMarketFactory__getMarketResultValue0Struct {
+  let contract = NbaMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarket(marketId);
+  let market: NbaMarketFactory__getMarketResultValue0Struct;
+  if (!tryGetMarket.reverted) {
+    market = tryGetMarket.value;
+  }
+  return market;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateNflMarket(marketId, true, false);
+  let entity = getOrCreateNbaMarket(marketId, true, false);
   getOrCreateMarket(marketId);
   let market = getMarket(event.address, event.params.id);
 
@@ -86,7 +76,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   // entity.awayTeamId = market.awayTeamId;
   // entity.overUnderTotal = market.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
-  entity.initialOdds = market.initialOdds;
+  entity.initialOdds = event.params.initialOdds;
 
   entity.save();
 }
@@ -94,7 +84,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateNflMarket(marketId, false, false);
+  let entity = getOrCreateNbaMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();

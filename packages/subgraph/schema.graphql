@@ -109,6 +109,50 @@ type NflMarket @entity {
   initialOdds: [BigInt!]
 }
 
+type MlbMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type NbaMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
 type Liquidity @entity {
   id: ID!
   marketId: Market!
