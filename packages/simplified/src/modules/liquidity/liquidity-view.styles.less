@@ -412,6 +412,12 @@
       border-top: @size-1 solid var(--theme-border);
       padding: @size-10;
       grid-gap: 0;
+      display: flex;
+      flex-flow: row nowrap;
+
+      > button:first-of-type:last-of-type {
+        width: 100%;
+      }
 
       > div {
         display: none;
