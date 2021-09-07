@@ -20,3 +20,5 @@ export * from "./faucetCash";
 export * from "./transferERC20";
 export * from "./approveERC20";
 export * from "./multicalls";
+export * from "./resolveMarketMMA";
+export * from "./createSportMarket";
