@@ -24,7 +24,7 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
-  Icons: { Arrow },
+  Icons: { Arrow, MaticIcon },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
@@ -39,7 +39,7 @@ const {
   Utils: { isMarketFinal },
 } = Stores;
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 50;
 const MARKET_TYPE_OPTIONS = [
   {
     label: "Daily + Long Term",
@@ -84,6 +84,7 @@ const applyFiltersAndSort = (
   setFilteredMarkets,
   transactions,
   lpTokens,
+  pendingRewards,
   { filter, primaryCategory, subCategories, marketTypeFilter, sortBy, onlyUserLiquidity }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
@@ -148,6 +149,9 @@ const applyFiltersAndSort = (
       const bTransactions = transactions ? transactions[marketB.marketId] : {};
       const aUserLiquidity = Number(lpTokens?.[marketA.marketId]?.usdValue) || 0;
       const bUserLiquidity = Number(lpTokens?.[marketB.marketId]?.usdValue) || 0;
+      const aUserRewards = Number(pendingRewards?.[marketA.marketId]?.balance) || 0;
+      const bUserRewards = Number(pendingRewards?.[marketB.marketId]?.balance) || 0;
+
       const { type, direction } = sortBy;
 
       switch (type) {
@@ -166,7 +170,7 @@ const applyFiltersAndSort = (
           return aUserLiquidity < bUserLiquidity ? direction : direction * -1;
         }
         case SORT_TYPES.REWARDS: {
-          return 0;
+          return aUserRewards < bUserRewards ? direction : direction * -1;
         }
         default:
           return 0;
@@ -232,7 +236,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>{rewardAmount.formatted} MATIC</span>
+      <span>{rewardAmount.formatted} {MaticIcon}</span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
@@ -241,7 +245,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>{rewardAmount.formatted} MATIC</span>
+          <span>{rewardAmount.formatted} {MaticIcon}</span>
           <span>(${rewardsInUsd})</span>
         </div>
         {!userHasLiquidity ? (
@@ -317,7 +321,7 @@ const LiquidityView = () => {
   const userMarkets = Object.keys(lpTokens);
   const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string}) => (p.plus(r.balance)), ZERO)): "0";
   const handleFilterSort = () => {
-    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, {
+    applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, pendingRewards, {
       filter,
       primaryCategory,
       subCategories,

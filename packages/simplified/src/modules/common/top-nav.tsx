@@ -161,14 +161,7 @@ export const TopNav = () => {
               </Link>
             </li>
             <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
-              <Link
-                onClick={(e) => {
-                  !isLogged && e.preventDefault();
-                }}
-                disabled={!isLogged}
-                to={makePath(LIQUIDITY)}
-                placeholder={isLogged ? "Liquidity" : "Please Login to view Liquidity"}
-              >
+              <Link to={makePath(LIQUIDITY)} placeholder="Liquidity">
                 Liquidity
               </Link>
             </li>

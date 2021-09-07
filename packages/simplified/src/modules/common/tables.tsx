@@ -429,7 +429,7 @@ export const BonusReward = ({pendingBonusRewards, endTimestamp}: {pendingBonusRe
     <span>
       <span style={{ width: `${filled}%` }} />
     </span>
-    <h4>{filled === 100 ? `Bonus Unlocked` : `Bonus Unlocks`}: {bonusAmount}</h4>
+    <h4>{filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount}</h4>
     <p>{dateOnly} ({countdownDuration})</p>
   </article>)
 };
