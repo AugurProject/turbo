@@ -80,6 +80,10 @@
       align-items: center;
       display: flex;
       flex-flow: column nowrap;
+
+      > span:last-of-type {
+        .text-30-semi-bold;
+      }
     }
   }
 }
@@ -241,6 +245,12 @@
 
     &.small {
       height: auto;
+    }
+
+    &.liquidity {
+      > div > span:last-of-type {
+        .text-20-semi-bold;
+      }
     }
   }
 
