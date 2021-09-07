@@ -11,15 +11,12 @@ import {
   Formatter,
   ContractCalls,
   Components,
-  Stores,
 } from "@augurproject/comps";
 import {
   AmmExchange,
   AmmTransaction,
-  LPTokenBalance,
   MarketInfo,
   PositionBalance,
-  SimpleBalance,
   Winnings,
   UserState,
   FormattedNumber,
@@ -36,15 +33,12 @@ const {
 } = Components;
 const {
   claimWinnings,
-  getUserLpTokenInitialAmount,
   getCompleteSetsAmount,
   cashOutAllShares,
-  canAddLiquidity,
 } = ContractCalls;
-const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatLiquidity } = Formatter;
-const { timeSinceTimestamp, getMarketEndtimeFull } = DateUtils;
+const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatToken } = Formatter;
+const { timeSinceTimestamp, getMarketEndtimeFull, timeTogo, getMarketEndtimeDate } = DateUtils;
 const {
-  MODAL_ADD_LIQUIDITY,
   USDC,
   POSITIONS,
   LIQUIDITY,
@@ -53,13 +47,9 @@ const {
   REMOVE,
   TRADES,
   TX_STATUS,
-  TABLES,
   TransactionTypes,
   MARKET_STATUS,
 } = Constants;
-const {
-  Utils: { isMarketFinal },
-} = Stores;
 
 interface PositionsTableProps {
   key?: string;
@@ -67,14 +57,6 @@ interface PositionsTableProps {
   ammExchange: AmmExchange;
   positions: PositionBalance[];
   claimableWinnings?: Winnings;
-  singleMarket?: boolean;
-}
-
-interface LiquidityTableProps {
-  key?: string;
-  market: MarketInfo;
-  ammExchange: AmmExchange;
-  lpTokens?: SimpleBalance;
   singleMarket?: boolean;
 }
 
@@ -432,143 +414,24 @@ export const PositionTable = ({
   );
 };
 
-const LiquidityHeader = () => (
-  <ul className={Styles.LiquidityHeader}>
-    <li>Share of Liquidity Pool</li>
-    <li>init. value</li>
-    <li>cur. value</li>
-  </ul>
-);
-
-const LiquidityRow = ({ liquidity, initCostUsd }: { liquidity: LPTokenBalance; initCostUsd: string }) => {
-  return (
-    <ul className={Styles.LiquidityRow}>
-      <li>{formatPercent(liquidity.poolPct).full}</li>
-      <li>{formatDai(initCostUsd).full}</li>
-      <li>{formatLiquidity(liquidity.usdValue).full}</li>
-    </ul>
-  );
-};
-
 // TODO: the "40%"" below should be replaced with a real rewards calc to 
 // provide a 0%-100% string value to fill the progress bar.
-export const BonusReward = () => (
-  <article className={Styles.BonusReward}>
+export const BonusReward = ({pendingBonusRewards, endTimestamp}: {pendingBonusRewards: string, endTimestamp: number}) => {
+  const bonusAmount = formatToken(pendingBonusRewards)?.formatted;
+  const now = new Date().getTime() / 1000;
+  let filled = Math.floor((endTimestamp / (endTimestamp + (now)) * 100));
+  if (endTimestamp < now) filled = 100;
+  const dateOnly = getMarketEndtimeDate(endTimestamp);
+  const countdownDuration = timeTogo(endTimestamp)
+  return (<article className={Styles.BonusReward}>
     <h4>Bonus Reward</h4>
     <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
     <span>
-      <span style={{ width: "40%" }} />
+      <span style={{ width: `${filled}%` }} />
     </span>
-    <h4>Bonus Unlocks</h4>
-    <p>11 July (4d, 2h, 32m)</p>
-  </article>
-);
-
-export const LiquidityFooter = ({ market }: { market: MarketInfo }) => {
-  const {
-    actions: { setModal },
-  } = useAppStatusStore();
-  const isfinal = isMarketFinal(market);
-  const canAddLiq = canAddLiquidity(market);
-  return (
-    <div className={Styles.LiquidityFooter}>
-      {false && <BonusReward />}
-      <PrimaryThemeButton
-        text="Remove Liquidity"
-        action={() =>
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            currency: market?.amm?.cash?.name,
-            liquidityModalType: REMOVE,
-          })
-        }
-      />
-      <SecondaryThemeButton
-        text={isfinal ? "Market Resolved" : "Add Liquidity"}
-        disabled={isfinal || !canAddLiq}
-        action={() =>
-          !isfinal &&
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            currency: market?.amm?.cash?.name,
-            liquidityModalType: ADD,
-          })
-        }
-      />
-    </div>
-  );
-};
-
-export const AllLiquidityTable = ({ page }) => {
-  const {
-    balances: { lpTokens },
-  } = useUserStore();
-  const { ammExchanges, markets } = useDataStore();
-  const liquidities = lpTokens
-    ? Object.keys(lpTokens).map((ammId) => ({
-        ammExchange: ammExchanges[ammId],
-        market: markets[ammId],
-        lpTokens: lpTokens[ammId],
-      }))
-    : [];
-  const liquiditiesViz = sliceByPage(liquidities, page, POSITIONS_LIQUIDITY_LIMIT).map((liquidity) => {
-    return (
-      <LiquidityTable
-        key={`${liquidity?.market?.marketId}-liquidityTable`}
-        market={liquidity?.market}
-        ammExchange={liquidity?.ammExchange}
-        lpTokens={liquidity?.lpTokens}
-      />
-    );
-  });
-
-  return <>{liquiditiesViz}</>;
-};
-
-export const LiquidityTable = ({ market, singleMarket, ammExchange, lpTokens }: LiquidityTableProps) => {
-  const {
-    isLogged,
-    actions: { setModal },
-  } = useAppStatusStore();
-
-  const {
-    settings: { timeFormat },
-  } = useSimplifiedStore();
-  const { account } = useUserStore();
-  const { transactions } = useDataStore();
-  const lpAmounts = getUserLpTokenInitialAmount(transactions, account, ammExchange?.cash);
-  const initCostUsd = lpAmounts[market?.marketId.toLowerCase()];
-  const isfinal = isMarketFinal(market);
-  const canAddLiq = canAddLiquidity(market);
-  return (
-    <div className={Styles.LiquidityTable}>
-      {!singleMarket && <MarketTableHeader timeFormat={timeFormat} market={market} ammExchange={ammExchange} />}
-      <LiquidityHeader />
-      {!lpTokens && (
-        <span>
-          No liquidity to show
-          <PrimaryThemeButton
-            action={() => {
-              if (isLogged) {
-                setModal({
-                  type: MODAL_ADD_LIQUIDITY,
-                  market,
-                  liquidityModalType: ADD,
-                  currency: ammExchange?.cash?.name,
-                });
-              }
-            }}
-            disabled={!isLogged || isfinal || !canAddLiq}
-            text={isfinal ? "Market is resolved" : "Earn fees as a liquidity provider"}
-          />
-        </span>
-      )}
-      {lpTokens && <LiquidityRow liquidity={lpTokens} initCostUsd={initCostUsd} />}
-      {lpTokens && <LiquidityFooter market={market} />}
-    </div>
-  );
+    <h4>{filled === 100 ? `Bonus Unlocked` : `Bonus Unlocks`}: {bonusAmount}</h4>
+    <p>{dateOnly} ({countdownDuration})</p>
+  </article>)
 };
 
 interface PositionsLiquidityViewSwitcherProps {
@@ -602,11 +465,9 @@ export const PositionsLiquidityViewSwitcher = ({
   const marketId = ammExchange?.marketId;
 
   let userPositions = [];
-  let liquidity = null;
   let winnings = null;
   if (marketId && marketShares) {
     userPositions = marketShares[marketId] ? marketShares[marketId].positions : [];
-    liquidity = lpTokens[marketId] ? lpTokens[marketId] : null;
     winnings = marketShares[marketId] ? marketShares[marketId]?.claimableWinnings : null;
   }
   const market = ammExchange?.market;
@@ -631,12 +492,7 @@ export const PositionsLiquidityViewSwitcher = ({
       }))
     : [];
 
-  const [tableView, setTableView] = useState(positions.length === 0 && liquidities.length > 0 ? LIQUIDITY : POSITIONS);
-  useEffect(() => {
-    if (view === TABLES && tableView === null) {
-      setTableView(POSITIONS);
-    }
-  }, [view]);
+  const [tableView, setTableView] = useState(POSITIONS);
 
   useEffect(() => {
     setPage(1);
@@ -656,17 +512,7 @@ export const PositionsLiquidityViewSwitcher = ({
         >
           {POSITIONS}
         </span>
-        <span
-          onClick={() => {
-            setTables && setTables();
-            setTableView(LIQUIDITY);
-          }}
-          className={classNames({
-            [Styles.Selected]: tableView === LIQUIDITY,
-          })}
-        >
-          {LIQUIDITY}
-        </span>
+        <span />
         {showActivityButton && (
           <TinyThemeButton
             action={() => {
@@ -683,7 +529,6 @@ export const PositionsLiquidityViewSwitcher = ({
           {!marketId && (positions.length > 0 || liquidities.length > 0) && (
             <>
               {tableView === POSITIONS && <AllPositionTable page={page} claimableFirst={claimableFirst} />}
-              {tableView === LIQUIDITY && <AllLiquidityTable page={page} />}
             </>
           )}
           {!marketId &&
@@ -708,9 +553,6 @@ export const PositionsLiquidityViewSwitcher = ({
                   positions={userPositions}
                   claimableWinnings={winnings}
                 />
-              )}
-              {tableView === LIQUIDITY && (
-                <LiquidityTable singleMarket market={market} ammExchange={ammExchange} lpTokens={liquidity} />
               )}
             </>
           )}

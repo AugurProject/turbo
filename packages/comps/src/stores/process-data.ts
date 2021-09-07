@@ -167,7 +167,7 @@ export const formatUserTransactionActvity = (
           break;
         }
         default: {
-          const market = markets[`${transaction?.marketId?.id}`];
+          const market = markets[`${transaction?.marketId?.id}`.toLowerCase()];
           const typeDetails = getActivityType(transaction, cash, market);
           if (!market) {
             break;
@@ -187,50 +187,9 @@ export const formatUserTransactionActvity = (
           break;
         }
       }
-
-      // const claims = markets[
-      //   `${transaction.marketId}-${transaction.id}`
-      // ].claimedProceeds.filter((c) => isSameAddress(c.user, account) && c.cash.name === cashName);
-      // if (claims.length === 0) return p;
-
-      // const userClaims = claims.map((c) => {
-      //   return {
-      //     id: c.id,
-      //     currency: cashName,
-      //     description:
-      //       markets[`${exchange.marketId}-${exchange.id}`]?.description,
-      //     type: `Claim Proceeds`,
-      //     date: getDayFormat(c.timestamp),
-      //     sortableMonthDay: getDayTimestamp(String(c.timestamp)),
-      //     time: getTimeFormat(c.timestamp),
-      //     txHash: null,
-      //     timestamp: Number(c.timestamp),
-      //     value: `${formatCash(c.winnings, c.cash.name).full}`,
-      //   };
-      // });
-      // const datedUserTx = [transaction].map((t) => {
-
-      //   if (!market) {
-      //     return null;
-      //   }
-      //   return {
-      //     id: t.id,
-      //     currency: cashName,
-      //     description: market?.description,
-      //     title: market?.title,
-      //     ...typeDetails,
-      //     date: getDayFormat(t.timestamp),
-      //     sortableMonthDay: getDayTimestamp(t.timestamp),
-      //     time: getTimeFormat(t.timestamp, timeFormat),
-      //     txHash: t.transactionHash,
-      //     timestamp: Number(t.timestamp),
-      //   };
-      // });
       return [...p, datedUserTx];
-      // return [...p, ...datedUserTx, ...userClaims];
     }, [])
     .sort((a, b) => (a?.timestamp < b?.timestamp ? 1 : -1));
-
   // form array of grouped by date activities
   return [...formattedTransactions]
     .reduce((p, t) => {
@@ -267,7 +226,7 @@ export const getCombinedMarketTransactionsFormatted = (transactions, market: Mar
 
 const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId, outcomes } = market;
-  const trades = transactions[marketId]?.trades;
+  const trades = transactions[marketId.toLowerCase()]?.trades;
   return (trades || []).map((trade) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(trade?.collateral, cash.decimals);
     const isBuy = collateral.lt(0);
@@ -286,7 +245,7 @@ const prepareTrades = (transactions, market: MarketInfo, cash: Cash) => {
 
 const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId } = market;
-  const adds = transactions[marketId]?.addLiquidity;
+  const adds = transactions[marketId.toLowerCase()]?.addLiquidity;
   return (adds || []).map((add) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(add?.collateral, cash.decimals);
     const poolPct = lpTokenPercentageAmount(
@@ -312,7 +271,7 @@ const prepareAddLiqudity = (transactions, market: MarketInfo, cash: Cash) => {
 
 const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) => {
   const { marketId } = market;
-  const removes = transactions[marketId]?.removeLiquidity;
+  const removes = transactions[marketId.toLowerCase()]?.removeLiquidity;
   return (removes || []).map((remove) => {
     const collateral = convertOnChainCashAmountToDisplayCashAmount(remove?.collateral, cash.decimals);
     const bnPoolAbs = createBigNumber(remove.lpTokens).abs();

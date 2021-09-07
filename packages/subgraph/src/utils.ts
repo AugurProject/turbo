@@ -78,3 +78,7 @@ export function mapArray(arr: BigInt[]): string[] {
 
   return result;
 }
+
+export function bigIntMillisToSeconds(millis: BigInt): BigInt {
+  return millis.div(BigInt.fromI32(1000));
+}

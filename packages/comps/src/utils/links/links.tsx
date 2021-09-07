@@ -6,6 +6,8 @@ import makeQuery from "./make-query";
 import { MARKET, MARKETS, MARKET_ID_PARAM_NAME } from "../constants";
 import { PARA_CONFIG } from "../../stores/constants";
 import { LinkIcon } from "../../components/common/icons";
+import { useActiveWeb3React } from "../../components/ConnectAccount/hooks";
+import { getChainExplorerLink, MATIC_MAINNET } from "../../components/ConnectAccount/utils";
 
 interface MarketLinkProps {
   id: string;
@@ -98,7 +100,8 @@ interface AccountLinkProps {
 }
 
 export const AddressLink = ({ account, short = false }: AccountLinkProps) => {
+  const { chainId } = useActiveWeb3React();
   const label = short ? `${account.slice(0, 6)}...${account.slice(38, 42)}` : account;
-  const URL = `${ADDRESS_LINKS[PARA_CONFIG.networkId] || ADDRESS_LINKS[1]}${account}`;
+  const URL = getChainExplorerLink(chainId || MATIC_MAINNET, account, "address");
   return <ExternalLink {...{ URL, label }} />;
 };
