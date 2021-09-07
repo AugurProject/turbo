@@ -196,6 +196,16 @@
 
     color: var(--primary-text);
     text-align: right;
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: flex-end;
+    grid-gap: @size-4;
+
+    > svg {
+      height: @size-20;
+      width: @size-20;
+    }
   }
 
   > div:last-of-type {

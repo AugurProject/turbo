@@ -24,7 +24,7 @@ const {
   PaginationComps: { sliceByPage, Pagination },
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
-  Icons: { Arrow },
+  Icons: { Arrow, MaticIcon },
   InputComps: { SearchInput },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
@@ -232,7 +232,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>{rewardAmount.formatted} MATIC</span>
+      <span>{rewardAmount.formatted} {MaticIcon}</span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
@@ -241,7 +241,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>{rewardAmount.formatted} MATIC</span>
+          <span>{rewardAmount.formatted} {MaticIcon}</span>
           <span>(${rewardsInUsd})</span>
         </div>
         {!userHasLiquidity ? (
