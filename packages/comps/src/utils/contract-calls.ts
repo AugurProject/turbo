@@ -572,7 +572,12 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
 };
 
 const MULTI_CALL_LIMIT = 600;
-const chunkedMulticall = async (provider: Web3Provider, contractCalls): ContractCallResults => {
+const chunkedMulticall = async (
+  provider: Web3Provider,
+  contractCalls,
+  chunkSize: number = MULTI_CALL_LIMIT,
+  callingMethod: string
+): ContractCallResults => {
   if (!provider) {
     throw new Error("Provider not provided");
   }
@@ -581,9 +586,9 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   let results: ContractCallResults = { blocknumber: null, results: {} };
 
   if (!contractCalls || contractCalls.length === 0) return results;
-  if (contractCalls.length < MULTI_CALL_LIMIT) {
+  if (contractCalls.length < chunkSize) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", contractCalls, e);
+      console.error("multicall", callingMethod, contractCalls, e);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -592,11 +597,11 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
       blocknumber: null,
       results: {},
     };
-    const chunks = sliceIntoChunks(contractCalls, MULTI_CALL_LIMIT);
+    const chunks = sliceIntoChunks(contractCalls, chunkSize);
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, chunking ${chunk.length} calls`, e);
+        console.error(`multicall, ${callingMethod} chunking ${chunk.length} calls`, e);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -821,7 +826,7 @@ export const getUserBalances = async (
     ...contractLpBalanceRewardsCall,
   ];
 
-  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls);
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, 20, "getUserBalances");
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
