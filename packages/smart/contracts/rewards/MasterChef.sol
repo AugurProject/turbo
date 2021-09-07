@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol" as OpenZeppelinOwnable;
 
-import "hardhat/console.sol";
-
 // MasterChef is the master of Reward. He can make Reward and he is a fair guy.
 contract MasterChef is OpenZeppelinOwnable.Ownable {
     using SafeMath for uint256;
@@ -48,10 +46,10 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 accRewardsPerShare; // Accumulated REWARDs per share, times BONE. See below.
         uint256 totalEarlyDepositBonusRewardShares; // The total number of share currently qualifying bonus REWARDs.
         uint256 beginTimestamp; // The timestamp to begin calculating rewards at.
+        uint256 endTimestamp; // Timestamp of the end of the rewards period.
         uint256 earlyDepositBonusRewards; // Amount of REWARDs to distribute to early depositors.
         uint256 lastRewardTimestamp; // Last timestamp REWARDs distribution occurred.
-        uint256 rewardsPeriods; // Number of days the rewards for this pool will payout.
-        uint256 rewardsPerPeriod; // Amount of rewards to be given out for a given period.
+        uint256 rewardsPerSecond; // Number of rewards paid out per second.
     }
     // Info of each pool.
     PoolInfo[] public poolInfo;
@@ -140,25 +138,43 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
     // Add a new lp to the pool. Can only be called by the owner.
     // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
-    function add(address _marketFactory, IERC20 _lpToken) public onlyApprovedAMMFactories returns (uint256 _nextPID) {
+    // An _endTimestamp of zero means the rewards start immedietely.
+    function add(
+        address _marketFactory,
+        IERC20 _lpToken,
+        uint256 _endTimestamp
+    ) public onlyApprovedAMMFactories returns (uint256 _nextPID) {
         _nextPID = poolInfo.length;
         MarketFactoryInfo memory _marketFactoryInfo = marketFactoryRewardInfo[_marketFactory];
+
+        // Need to figure out the beginning/end of the reward period.
+        uint256 _rewardsPeriodsInSeconds = _marketFactoryInfo.rewardsPeriods * 1 days;
+        uint256 _beginTimestamp = block.timestamp;
+
+        if (_endTimestamp != 0 && (_endTimestamp - _rewardsPeriodsInSeconds) > block.timestamp) {
+            _beginTimestamp = _endTimestamp - _rewardsPeriodsInSeconds;
+        }
+
+        if (_endTimestamp == 0) {
+            _endTimestamp = _beginTimestamp + _rewardsPeriodsInSeconds;
+        }
+
         poolInfo.push(
             PoolInfo({
                 accRewardsPerShare: 0,
-                beginTimestamp: block.timestamp,
+                beginTimestamp: _beginTimestamp,
+                endTimestamp: _endTimestamp,
                 totalEarlyDepositBonusRewardShares: 0,
                 earlyDepositBonusRewards: _marketFactoryInfo.earlyDepositBonusRewards,
                 lpToken: _lpToken,
-                rewardsPeriods: _marketFactoryInfo.rewardsPeriods,
-                rewardsPerPeriod: _marketFactoryInfo.rewardsPerPeriod,
-                lastRewardTimestamp: block.timestamp
+                rewardsPerSecond: (_marketFactoryInfo.rewardsPerPeriod / 1 days),
+                lastRewardTimestamp: _beginTimestamp
             })
         );
     }
 
-    // Return percentage of period that has elapsed in terms of BONE.
-    function getPercentageOfRewardsForPeriod(uint256 _pid) public view returns (uint256) {
+    // Return number of seconds elapsed in terms of BONEs.
+    function getTimeElapsed(uint256 _pid) public view returns (uint256) {
         PoolInfo storage _pool = poolInfo[_pid];
         uint256 _fromTimestamp = block.timestamp;
 
@@ -168,24 +184,17 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             // Not sure how this happens but it is accounted for in the original master chef contract.
             _pool.lastRewardTimestamp > _fromTimestamp ||
             // No rewards to be distributed
-            _pool.rewardsPerPeriod == 0 ||
-            // No rewards to be distributed
-            _pool.rewardsPeriods == 0
+            _pool.rewardsPerSecond == 0
         ) {
             return 0;
         }
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
-        uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
-
         // Rewards are over for this pool. No more rewards have accrued.
-        if (_pool.lastRewardTimestamp >= _rewardPeriodEndTimestamp) {
+        if (_pool.lastRewardTimestamp >= _pool.endTimestamp) {
             return 0;
         }
 
-        uint256 _timeElapsed = min(_fromTimestamp, _rewardPeriodEndTimestamp).sub(_pool.lastRewardTimestamp);
-
-        return (_timeElapsed * BONE) / _rewardsPeriodsInSeconds;
+        return min(_fromTimestamp, _pool.endTimestamp).sub(_pool.lastRewardTimestamp).add(1).mul(BONE);
     }
 
     function getUserAmount(uint256 _pid, address _user) external view returns (uint256) {
@@ -194,8 +203,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
     function getPoolRewardEndTimestamp(uint256 _pid) public view returns (uint256) {
         PoolInfo storage _pool = poolInfo[_pid];
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days + 1;
-        return _rewardsPeriodsInSeconds + _pool.beginTimestamp;
+        return _pool.endTimestamp;
     }
 
     // View function to see pending REWARDs on frontend.
@@ -208,10 +216,9 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         UserInfo storage _user = userInfo[_pid][_userAddress];
         uint256 accRewardsPerShare = _pool.accRewardsPerShare;
         uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
-        uint256 _earlyDepositRewards = 0;
 
         _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
-        _pendingRewardInfo.endTimestamp = (_pool.rewardsPeriods * 1 days) + _pool.beginTimestamp;
+        _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
         _pendingRewardInfo.earlyDepositEndTimestamp =
             ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
             _pool.beginTimestamp +
@@ -228,16 +235,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
-            uint256 multiplier = getPercentageOfRewardsForPeriod(_pid);
-            accRewardsPerShare = accRewardsPerShare.add(multiplier.mul(_pool.rewardsPerPeriod).div(lpSupply));
+            uint256 multiplier = getTimeElapsed(_pid);
+            accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
         }
 
-        _pendingRewardInfo.accruedStandardRewards = _user
-            .amount
-            .mul(accRewardsPerShare)
-            .div(BONE)
-            .sub(_user.rewardDebt)
-            .add(_earlyDepositRewards);
+        _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
+            _user.rewardDebt
+        );
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -259,10 +263,8 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             pool.lastRewardTimestamp = block.timestamp;
             return;
         }
-        uint256 multiplier = getPercentageOfRewardsForPeriod(_pid);
-        pool.accRewardsPerShare = pool.accRewardsPerShare.add(
-            multiplier.mul(pool.rewardsPerPeriod).mul(pool.rewardsPeriods).div(lpSupply)
-        );
+        uint256 multiplier = getTimeElapsed(_pid);
+        pool.accRewardsPerShare = pool.accRewardsPerShare.add(multiplier.mul(pool.rewardsPerSecond).div(lpSupply));
         pool.lastRewardTimestamp = block.timestamp;
     }
 
@@ -282,7 +284,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             safeRewardsTransfer(_userAddress, pending);
         }
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
+        uint256 _rewardsPeriodsInSeconds = _pool.endTimestamp - _pool.beginTimestamp;
         uint256 _bonusrewardsPeriodsEndTimestamp =
             ((_rewardsPeriodsInSeconds * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
 
@@ -333,15 +335,18 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
         updatePool(_pid);
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
+        uint256 _rewardsPeriodsInSeconds = _pool.endTimestamp - _pool.beginTimestamp;
         uint256 _bonusrewardsPeriodsEndTimestamp =
             ((_rewardsPeriodsInSeconds * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
         uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
 
         if (_rewardPeriodEndTimestamp <= block.timestamp) {
-            if (_pool.totalEarlyDepositBonusRewardShares > 0) {
+            if (
+                _pool.totalEarlyDepositBonusRewardShares > 0 &&
+                _user.lastActionTimestamp <= _bonusrewardsPeriodsEndTimestamp
+            ) {
                 uint256 _rewardsToUser =
-                    _pool.earlyDepositBonusRewards.mul(_amount).div(_pool.totalEarlyDepositBonusRewardShares);
+                    _pool.earlyDepositBonusRewards.mul(_user.amount).div(_pool.totalEarlyDepositBonusRewardShares);
                 safeRewardsTransfer(_userAddress, _rewardsToUser);
             }
         } else if (_bonusrewardsPeriodsEndTimestamp >= block.timestamp) {
