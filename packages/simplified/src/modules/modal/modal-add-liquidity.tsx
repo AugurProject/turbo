@@ -195,7 +195,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    if (inputFormError === "" && !totalPrice.eq(ONE)) {
+    if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
       buttonError = INVALID_PRICE;
     }
   }
@@ -595,6 +595,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               dontFilterInvalid
               hasLiquidity={!mustSetPrices || hasInitialOdds}
               marketFactoryType={market?.marketFactoryType}
+              isFutures={market?.isFuture}
             />
           </>
         )}
