@@ -39,7 +39,7 @@ const {
   Utils: { isMarketFinal },
 } = Stores;
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 50;
 const MARKET_TYPE_OPTIONS = [
   {
     label: "Daily + Long Term",
