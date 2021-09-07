@@ -4,13 +4,19 @@ import { Cash, MasterChef } from "../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { BigNumber } from "ethers";
 
-import { expect, use } from "chai";
-import { solidity } from "ethereum-waffle";
-
-use(solidity);
+import { expect } from "chai";
 
 function adjustTimestamp(beginTimestamp: BigNumber, poolEndTimestamp: BigNumber, percentage: number) {
   return poolEndTimestamp.sub(beginTimestamp).mul(percentage).div(100).add(beginTimestamp).add(1).toNumber();
+}
+
+// waffle offers a similar functionality but the types aren't correct :(
+function checkWithin(actual: BigNumber, expected: BigNumber, tolerance: BigNumber) {
+  const delta: BigNumber = expected.sub(actual).abs();
+
+  if (delta.sub(tolerance).gte(0)) {
+    expect.fail(`Value ${actual.toString()} is not within ${tolerance.toString()} of ${expected.toString()}`);
+  }
 }
 
 describe("MasterChef", () => {
@@ -26,6 +32,7 @@ describe("MasterChef", () => {
 
   const BONE = BigNumber.from(10).pow(18);
   const ZERO = BigNumber.from(0);
+  const SECONDS_PER_DAY = BigNumber.from(60).mul(60).mul(24);
 
   // 5 days.
   const rewardPeriods = BigNumber.from(5);
@@ -59,11 +66,38 @@ describe("MasterChef", () => {
     await cash.approve(masterChef.address, initialCashAmount);
   });
 
+  describe("estimated start time (EST) to end rewards", () => {
+    beforeEach(async () => {
+      await masterChef.addRewards(bill.address, rewardsPerPeriod, rewardPeriods, ZERO);
+    });
+
+    it("should have zero rewards if EST has elapsed ", async () => {
+      const { timestamp } = await ethers.provider.getBlock("latest");
+
+      const estimatedStartTimeOneDayOutsideWindow = BigNumber.from(timestamp).sub(100);
+      await masterChef.add(bill.address, cash.address, estimatedStartTimeOneDayOutsideWindow);
+
+      const { endTimestamp } = await masterChef.poolInfo(0);
+      expect(endTimestamp).to.be.equal(estimatedStartTimeOneDayOutsideWindow);
+    });
+    it("should wait to begin rewards if EST is in the future more than rewardPeriods days", async () => {
+      const { timestamp } = await ethers.provider.getBlock("latest");
+
+      const estimatedStartTimeOneDayOutsideWindow = rewardPeriods.add(1).mul(SECONDS_PER_DAY).add(timestamp);
+
+      await masterChef.add(bill.address, cash.address, estimatedStartTimeOneDayOutsideWindow);
+
+      const { beginTimestamp, rewardsPerSecond } = await masterChef.poolInfo(0);
+      expect(beginTimestamp.sub(timestamp)).to.be.equal(SECONDS_PER_DAY);
+      expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(SECONDS_PER_DAY));
+    });
+  });
+
   describe("Early bonus", () => {
     beforeEach(async () => {
       // Zero standard rewards is the difference here.
       await masterChef.addRewards(bill.address, ZERO, rewardPeriods, rewardsPerPeriod);
-      await masterChef.add(bill.address, cash.address);
+      await masterChef.add(bill.address, cash.address, 0);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -74,7 +108,7 @@ describe("MasterChef", () => {
     it("should pay if deposited and left for duration of the reward pool's lifespan", async () => {
       await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
 
-      await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
+      await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(1).toNumber()]);
       await network.provider.send("evm_mine", []);
 
       const pendingRewardsInfo = await masterChef.getPendingRewardInfo(0, tom.address);
@@ -105,14 +139,14 @@ describe("MasterChef", () => {
     });
 
     describe("double withdrawal", () => {
-      it("should return early bonus in proporation to the amount withdrawn", async () => {
+      it("should return early bonus", async () => {
         await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
 
         await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
         await network.provider.send("evm_mine", []);
 
         await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
-        expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod.div(2));
+        expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod);
 
         await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
         expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod);
@@ -123,7 +157,7 @@ describe("MasterChef", () => {
   describe("No rewards", () => {
     beforeEach(async () => {
       await masterChef.addRewards(bill.address, ZERO, ZERO, ZERO);
-      await masterChef.add(bill.address, cash.address);
+      await masterChef.add(bill.address, cash.address, ZERO);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -151,7 +185,7 @@ describe("MasterChef", () => {
   describe("Standard rewards", () => {
     beforeEach(async () => {
       await masterChef.addRewards(bill.address, rewardsPerPeriod, rewardPeriods, 0);
-      await masterChef.add(bill.address, cash.address);
+      await masterChef.add(bill.address, cash.address, ZERO);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -164,6 +198,11 @@ describe("MasterChef", () => {
       expect(poolEndTimestamp.lt(rewardPeriods.mul(24).mul(3600).add(100)));
     });
 
+    it("should calculate rewardsPerSecond correctly", async () => {
+      const { rewardsPerSecond } = await masterChef.poolInfo(0);
+      expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(86400));
+    });
+
     describe("active pool", () => {
       describe("entry at beginning of pool", () => {
         describe("pool info and pending rewards", () => {
@@ -172,45 +211,45 @@ describe("MasterChef", () => {
           });
 
           it("should calculate correctly 25%", async () => {
-            const halfwayPoint = adjustTimestamp(beginTimestamp, poolEndTimestamp, 25);
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 25);
 
-            await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
 
             await masterChef.updatePool(0);
 
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
-            expect(accRewardsPerShare).to.equal(totalRewards.div(4).mul(BONE).div(initialCashAmount));
+            checkWithin(accRewardsPerShare, totalRewards.div(4).mul(BONE).div(initialCashAmount), BONE);
 
             const { accruedStandardRewards } = await masterChef.getPendingRewardInfo(0, tom.address);
-            expect(accruedStandardRewards).to.equal(totalRewards.div(4));
+            checkWithin(accruedStandardRewards, totalRewards.div(4), BONE);
           });
 
           it("should calculate correctly 50%", async () => {
-            const halfwayPoint = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
 
-            await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
 
             await masterChef.updatePool(0);
 
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
-            expect(accRewardsPerShare).to.equal(totalRewards.div(2).mul(BONE).div(initialCashAmount));
+            checkWithin(accRewardsPerShare, totalRewards.div(2).mul(BONE).div(initialCashAmount), BONE);
 
             const { accruedStandardRewards } = await masterChef.getPendingRewardInfo(0, tom.address);
-            expect(accruedStandardRewards).to.equal(totalRewards.div(2));
+            checkWithin(accruedStandardRewards, totalRewards.div(2), BONE);
           });
 
           it("should calculate correctly 100%", async () => {
-            const halfwayPoint = adjustTimestamp(beginTimestamp, poolEndTimestamp, 100);
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 100);
 
-            await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
 
             await masterChef.updatePool(0);
 
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
-            expect(accRewardsPerShare).to.equal(totalRewards.div(1).mul(BONE).div(initialCashAmount));
+            checkWithin(accRewardsPerShare, totalRewards.div(1).mul(BONE).div(initialCashAmount), BONE);
 
             const { accruedStandardRewards } = await masterChef.getPendingRewardInfo(0, tom.address);
-            expect(accruedStandardRewards).to.equal(totalRewards.div(1));
+            checkWithin(accruedStandardRewards, totalRewards.div(1), BONE);
           });
         });
 
@@ -223,15 +262,15 @@ describe("MasterChef", () => {
             await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
 
             // it distributes all the pending rewards.
-            await expect(() =>
-              masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2))
-            ).to.changeTokenBalance(rewardsToken, tom, totalRewards.div(2));
+            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+            const tokenBalance = await rewardsToken.balanceOf(tom.address);
+            checkWithin(tokenBalance, totalRewards.div(2), BONE);
 
             await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
 
-            await expect(() =>
-              masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2))
-            ).to.changeTokenBalance(rewardsToken, tom, totalRewards.div(2));
+            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+            const secondTokenBalance = await rewardsToken.balanceOf(tom.address);
+            checkWithin(secondTokenBalance, totalRewards, BONE);
           });
         });
 
@@ -268,19 +307,20 @@ describe("MasterChef", () => {
       });
 
       it("should calculate pending payout rewards", async () => {
-        const results = await masterChef.getPercentageOfRewardsForPeriod(0);
-        expect(results).to.be.equal(BONE);
+        const results = await masterChef.getTimeElapsed(0);
+        expect(results).to.be.equal(poolEndTimestamp.sub(beginTimestamp).mul(BONE));
 
-        const otherAmount = await masterChef.getPendingRewardInfo(0, tom.address);
-        expect(otherAmount.accruedEarlyDepositBonusRewards).to.be.equal(0);
-        expect(otherAmount.accruedStandardRewards).to.be.equal(rewardsPerPeriod);
+        const pendingRewardInfo = await masterChef.getPendingRewardInfo(0, tom.address);
+
+        expect(pendingRewardInfo.accruedEarlyDepositBonusRewards).to.be.equal(0);
+        checkWithin(pendingRewardInfo.accruedStandardRewards, totalRewards, BONE);
       });
 
       it("should send rewards on withdrawal", async () => {
         await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount);
 
         const balance = await rewardsToken.balanceOf(tom.address);
-        expect(balance).to.be.equal(totalRewards);
+        checkWithin(balance, totalRewards, BONE);
       });
 
       it("should only payout what is available on contract", async () => {
@@ -293,40 +333,6 @@ describe("MasterChef", () => {
         const balance = await rewardsToken.balanceOf(tom.address);
         expect(balance).to.be.equal(rewardsPerPeriod.div(2));
       });
-    });
-
-    describe("getPercentageOfRewardsForPeriod", () => {
-      beforeEach(async () => {
-        const data = await masterChef.poolInfo(0);
-        poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
-
-        beginTimestamp = data.beginTimestamp;
-        await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
-      });
-
-      const processIt = (percentage: number) => async () => {
-        const newTimestamp = poolEndTimestamp
-          .sub(beginTimestamp)
-          .mul(percentage)
-          .div(100)
-          .add(beginTimestamp)
-          .add(1)
-          .toNumber();
-
-        await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
-        await network.provider.send("evm_mine", []);
-
-        const percentOfRewardsToPay = await masterChef.getPercentageOfRewardsForPeriod(0);
-        expect(percentOfRewardsToPay).to.be.equal(BONE.mul(percentage).div(100));
-      };
-
-      it("25%", processIt(25));
-
-      it("50%", processIt(50));
-
-      it("75%", processIt(75));
-
-      it("100%", processIt(100));
     });
   });
 });

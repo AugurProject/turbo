@@ -114,7 +114,7 @@ contract AMMFactory is BNum {
             _balances[i] = 0;
         }
 
-        uint256 _masterChefPool = masterChef.add(address(_marketFactory), IERC20(address(_pool)));
+        uint256 _masterChefPool = masterChef.add(address(_marketFactory), IERC20(address(_pool)), 0);
         masterChefPools[address(_pool)] = _masterChefPool;
         _pool.approve(address(masterChef), MAX_UINT);
 
