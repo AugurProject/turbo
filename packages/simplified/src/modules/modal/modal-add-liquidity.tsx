@@ -27,10 +27,10 @@ const {
   getRemoveLiquidity,
 } = ContractCalls;
 const { calcPricesFromOdds } = Calculations;
-const { formatPercent, formatSimpleShares, formatEther } = Formatter;
+const { formatPercent, formatSimpleShares, formatEther, formatCash } = Formatter;
 const {
   Icons: { BackIcon },
-  ButtonComps: { SecondaryThemeButton },
+  ButtonComps: { SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   LabelComps: { generateTooltip, WarningBanner },
@@ -297,6 +297,18 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     closeModal();
   };
 
+  const mintCompleteSetsAction = async () => {
+    console.log("mint complete sets!");
+  }
+
+  const getMintBreakdown = () => {
+    return outcomes.map((outcome) => ({
+      label: `${outcome.name} Shares`,
+      value: `${formatSimpleShares(amount).rounded}`,
+      svg: null,
+    }));
+  }
+
   const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
 
   useEffect(() => {
@@ -348,7 +360,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     [REMOVE]: [
       {
         header: "remove all liquidity",
-        showTradingFee: false,
         cantEditAmount: true,
         hideCurrentOdds: true,
         showMarketTitle: true,
@@ -376,7 +387,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
       },
       {
-        header: "Back", // uses back button
+        header: "Back",
         hasBackButton: true,
         backButtonAction: () => setPage(page - 1),
         actionButtonText: "confirm remove",
@@ -400,7 +411,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     [ADD]: [
       {
         header: "add liquidity",
-        showTradingFee: true,
         setOdds: true,
         setOddsTitle: mustSetPrices
           ? "Set the price (between 0.02 - 0.1). Total price of all outcomes must add up to 1."
@@ -417,9 +427,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         showBreakdown: true,
         showMarketTitle: true,
         currencyName: `${chosenCash}`,
+        headerActionButton: (
+          <TinyThemeButton
+            text="Mint Complete Sets"
+            action={() => setPage(2)}
+          />
+        ),
       },
       {
-        header: "Back", // uses back button
+        header: "Back",
         hasBackButton: true,
         backButtonAction: () => setPage(page - 1),
         actionButtonText: "confirm add",
@@ -431,7 +447,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           breakdown: [
             {
               label: "amount",
-              value: `${amount} ${amm?.cash?.name}`,
+              value: `${formatCash(amount, amm?.cash?.name).formatted} ${amm?.cash?.name}`,
             },
           ],
         },
@@ -453,11 +469,25 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           ],
         },
       },
+      {
+        header: "Mint Complete Sets",
+        hasBackButton: true,
+        backButtonAction: () => setPage(0),
+        hasAmountInput: true,
+        minimumAmount: "100",
+        needsApproval: true,
+        actionButtonText: "Mint Complete Sets",
+        actionButtonAction: mintCompleteSetsAction,
+        showMarketTitle: true,
+        confirmReceiveOverview: {
+          title: "What you will receive",
+          breakdown: getMintBreakdown(),
+        },
+      },
     ],
     [CREATE]: [
       {
         header: "add liquidity",
-        showTradingFee: false,
         hasBackButton: false,
         setFees: false, // set false for version 0
         setOddsTitle: "Set the price (between 0.02 to 1.0)",
@@ -476,7 +506,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         showMarketTitle: true,
       },
       {
-        header: "Back", // uses back button
+        header: "Back",
         hasBackButton: true,
         backButtonAction: () => setPage(page - 1),
         actionButtonText: "Confirm Market Liquidity",
@@ -535,17 +565,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     >
       {curPage.hasBackButton ? (
         <div className={Styles.Header} onClick={curPage.backButtonAction}>
-          {BackIcon}
-          {curPage.header}
+          <span>
+            {BackIcon}
+            {curPage.header}
+          </span>
         </div>
       ) : (
-        <Header
-          title={curPage.header}
-          subtitle={{
-            label: "trading fee",
-            value: curPage.showTradingFee ? feePercentFormatted : null,
-          }}
-        />
+        <Header title={curPage.header} actionButton={curPage.headerActionButton} />
       )}
       <main>
         {curPage.showMarketTitle && (
@@ -645,7 +671,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           />
         )}
         <section>
-          {curPage.needsApproval && isApproved && (
+          {curPage.needsApproval && !isApproved && (
             <ApprovalButton
               amm={amm}
               cash={cash}

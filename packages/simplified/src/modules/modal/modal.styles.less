@@ -156,7 +156,6 @@
   .text-20-bold;
   .TertiaryTopBorderRadius;
 
-  display: flex;
   align-items: center;
   flex: 1;
   border-bottom: @size-1 solid var(--theme-border);
@@ -168,6 +167,9 @@
   height: @size-72;
   max-height: @size-72;
   color: var(--secondary-text);
+  display: grid;
+  grid-template-columns: 1fr 0fr 0fr;
+  grid-gap: @size-8;
 
   > span {
     .text-20-bold;
@@ -175,6 +177,20 @@
     color: var(--primary-text);
     text-transform: capitalize;
     flex: 1;
+
+    > svg {
+      margin-right: @size-8;
+    }
+
+    &:hover {
+      color: var(--primary-text);
+
+      > svg {
+        > path {
+          fill: var(--primary-text);
+        }
+      }
+    }
   }
 
   > div {
@@ -198,7 +214,7 @@
     }
   }
 
-  > button {
+  > button:last-of-type {
     background: transparent;
     outline: 0;
     border: 0;
@@ -207,20 +223,6 @@
 
     > svg > path {
       fill: var(--primary-text);
-    }
-  }
-
-  > svg {
-    margin-right: @size-8;
-  }
-
-  &:hover {
-    color: var(--primary-text);
-
-    > svg {
-      > path {
-        fill: var(--primary-text);
-      }
     }
   }
 }
