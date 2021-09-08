@@ -378,7 +378,7 @@ describe("CryptoFactory", function () {
         nextResolutionTime
       )
     ).to.eventually.be.rejectedWith(
-      "VM Exception while processing transaction: revert Must use first round after resolution time"
+      "VM Exception while processing transaction: reverted with reason string 'Must use first round after resolution time'"
     );
   });
 
