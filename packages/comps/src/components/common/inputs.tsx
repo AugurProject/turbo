@@ -297,8 +297,8 @@ export const OutcomesGrid = ({
   marketFactoryType,
   isFutures = false,
 }: OutcomesGridProps) => {
-  const hasInvalidOutcome = sortedOutcomes.find(s => s.isInvalid);
   const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
+  const hasInvalidOutcome = sortedOutcomes.find(s => s.isInvalid);
 
   return (
     <div
