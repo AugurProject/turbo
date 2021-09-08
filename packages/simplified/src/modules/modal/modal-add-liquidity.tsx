@@ -132,16 +132,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     return cashes && chosenCash ? Object.values(cashes).find((c) => c.name === chosenCash) : Object.values(cashes)[0];
   }, [chosenCash]);
   const isRemove = modalType === REMOVE;
-  const approvedToTransfer = ApprovalState.APPROVED;
-  const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
-  const approvedMain = useApprovalStatus({
-    cash,
-    amm,
-    refresh: blocknumber,
-    actionType: !isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY,
-  });
-  const isApprovedMain = approvedMain === ApprovalState.APPROVED;
-  const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
@@ -309,53 +299,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     }));
   }
 
-  const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
-
-  useEffect(() => {
-    let isMounted = true;
-    const priceErrorsWithEmptyString = isRemove
-      ? []
-      : outcomes.filter((outcome) => parseFloat(outcome.price) >= 1 || outcome.price === "");
-
-    if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
-      return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
-    }
-
-    const valid = isRemove
-      ? true
-      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
-    if (!valid) {
-      return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
-    }
-    async function getResults() {
-      let results: LiquidityBreakdown;
-      if (isRemove) {
-        results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
-      } else {
-        results = await estimateAddLiquidityPool(
-          account,
-          loginAccount?.library,
-          amm,
-          cash,
-          amount,
-          unOrderOutcomesForDisplay(outcomes)
-        );
-      }
-
-      if (!results) {
-        return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
-      }
-      isMounted && setBreakdown(results);
-      isMounted && setEstimatedLpAmount(results.lpTokens);
-    }
-
-    if (isApproved && !buttonError) getResults();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
-
   const LIQUIDITY_STRINGS = {
     [REMOVE]: [
       {
@@ -371,6 +314,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         footerText: `Removing liquidity may return shares; these shares may be sold for USDC if there is still liquidity in the pool. Winning shares can be redeemed for USDC after the market has finalized.`,
         breakdown: getCreateBreakdown(true),
         needsApproval: true,
+        approvalAction: ApprovalAction.REMOVE_LIQUIDITY,
         showBreakdown: true,
         liquidityDetails: {
           title: "Market Liquidity Details",
@@ -422,6 +366,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         footerEmphasize: `Remove liquidity before the winning outcome is known to prevent any loss of funds.`,
         breakdown: getCreateBreakdown(),
         needsApproval: true,
+        approvalAction: ApprovalAction.ADD_LIQUIDITY,
         hasAmountInput: true,
         displayOutcomes: true,
         showBreakdown: true,
@@ -476,6 +421,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         hasAmountInput: true,
         minimumAmount: "100",
         needsApproval: true,
+        approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
         actionButtonAction: mintCompleteSetsAction,
         showMarketTitle: true,
@@ -503,6 +449,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         displayOutcomes: true,
         showBreakdown: true,
         needsApproval: true,
+        approvalAction: ApprovalAction.ADD_LIQUIDITY,
         showMarketTitle: true,
       },
       {
@@ -546,6 +493,64 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   };
 
   const curPage: any = LIQUIDITY_STRINGS[modalType]?.[page];
+
+  const approvedToTransfer = ApprovalState.APPROVED;
+  const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
+  const approvedMain = useApprovalStatus({
+    cash,
+    amm,
+    refresh: blocknumber,
+    actionType: curPage.approvalAction,
+  });
+  const isApprovedMain = approvedMain === ApprovalState.APPROVED;
+  const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
+
+  const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const priceErrorsWithEmptyString = isRemove
+      ? []
+      : outcomes.filter((outcome) => parseFloat(outcome.price) >= 1 || outcome.price === "");
+
+    if (priceErrorsWithEmptyString.length > 0 || hasAmountErrors) {
+      return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
+    }
+
+    const valid = isRemove
+      ? true
+      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+    if (!valid) {
+      return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
+    }
+    async function getResults() {
+      let results: LiquidityBreakdown;
+      if (isRemove) {
+        results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
+      } else {
+        results = await estimateAddLiquidityPool(
+          account,
+          loginAccount?.library,
+          amm,
+          cash,
+          amount,
+          unOrderOutcomesForDisplay(outcomes)
+        );
+      }
+
+      if (!results) {
+        return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
+      }
+      isMounted && setBreakdown(results);
+      isMounted && setEstimatedLpAmount(results.lpTokens);
+    }
+
+    if (isApproved && !buttonError) getResults();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
 
   if (curPage.minimumAmount && amount) {
     if (new BN(amount).lt(new BN(curPage.minimumAmount))) buttonError = `$${curPage.minimumAmount} Minimum deposit`;
@@ -675,7 +680,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             <ApprovalButton
               amm={amm}
               cash={cash}
-              actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
+              actionType={curPage.approvalAction}
             />
           )}
           <SecondaryThemeButton
