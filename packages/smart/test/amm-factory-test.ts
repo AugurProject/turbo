@@ -9,8 +9,8 @@ import {
   Cash,
   FeePot,
   MasterChef,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
 } from "../typechain";
 import { BigNumber, Contract } from "ethers";
 import { calcShareFactor } from "../src";
@@ -35,7 +35,7 @@ describe("AMMFactory", () => {
 
   let collateral: Cash;
   let rewardsToken: Cash;
-  let marketFactory: TrustedMarketFactory;
+  let marketFactory: TrustedMarketFactoryV3;
   const marketId = BigNumber.from(1);
   let ammFactory: AMMFactory;
 
@@ -62,7 +62,7 @@ describe("AMMFactory", () => {
     rewardsToken = (await ethers.getContract("WrappedMatic")) as Cash;
     const shareFactor = calcShareFactor(await collateral.decimals());
 
-    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
+    marketFactory = await new TrustedMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,

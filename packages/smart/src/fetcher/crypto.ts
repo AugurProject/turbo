@@ -1,4 +1,4 @@
-import { AMMFactory, CryptoFetcher, CryptoMarketFactory } from "../../typechain";
+import { AMMFactory, CryptoFetcher, CryptoMarketFactoryV3 } from "../../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
   createDynamicMarketBundle,
@@ -13,7 +13,7 @@ import {
 
 export async function fetchInitialCrypto(
   fetcher: CryptoFetcher,
-  marketFactory: CryptoMarketFactory,
+  marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
@@ -43,7 +43,7 @@ export async function fetchInitialCrypto(
 
 export async function fetchDynamicCrypto(
   fetcher: CryptoFetcher,
-  marketFactory: CryptoMarketFactory,
+  marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50

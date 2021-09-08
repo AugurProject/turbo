@@ -25,8 +25,8 @@ func.dependencies = [
   "MasterChef",
   "SportsLinkMarketFactory",
   "MMALinkMarketFactory",
-  "CryptoMarketFactory",
-  "NFLMarketFactory",
+  "CryptoMarketFactoryV3",
+  "NFLMarketFactoryV3",
 ];
 
 export default func;

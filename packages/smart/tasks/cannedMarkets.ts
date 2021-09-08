@@ -2,15 +2,15 @@ import { task } from "hardhat/config";
 import {
   buildContractInterfaces,
   ContractInterfaces,
-  CryptoMarketFactory,
+  CryptoMarketFactoryV3,
   FakePriceFeed__factory,
-  FuturesMarketFactory,
+  FuturesMarketFactoryV3,
   getUpcomingFriday4pmET,
   MarketFactoryType,
-  NBAMarketFactory,
   range,
+  NBAMarketFactoryV3,
 } from "..";
-import { ManagedByLink, MMAMarketFactory } from "../typechain";
+import { ManagedByLink, MMAMarketFactoryV3 } from "../typechain";
 import { BigNumber, BigNumberish, ContractReceipt, ContractTransaction, Signer } from "ethers";
 import { makeSigner } from "./deploy";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -33,7 +33,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
 
 async function crypto(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Crypto")]
-    .marketFactory as CryptoMarketFactory;
+    .marketFactory as CryptoMarketFactoryV3;
 
   const now = Math.floor(Date.now() / 1000);
 
@@ -140,7 +140,7 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
   ];
 
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Futures")]
-    .marketFactory as FuturesMarketFactory;
+    .marketFactory as FuturesMarketFactoryV3;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -264,7 +264,7 @@ async function sport3(
   marketType: MarketFactoryType
 ) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
-    .marketFactory as NBAMarketFactory; // NBA market factory interface works for the other 3-sports too
+    .marketFactory as NBAMarketFactoryV3; // NBA market factory interface works for the other 3-sports too
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -306,7 +306,7 @@ async function sport1(
   marketType: MarketFactoryType
 ) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
-    .marketFactory as MMAMarketFactory;
+    .marketFactory as MMAMarketFactoryV3;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -345,10 +345,7 @@ function marketFactoryIndex(contracts: ContractInterfaces, ofType: MarketFactory
   return MarketFactories.findIndex(({ marketFactoryType }) => marketFactoryType === ofType);
 }
 
-async function handleLinkNode(
-  marketFactory: ManagedByLink | CryptoMarketFactory,
-  signer: Signer
-): Promise<string | null> {
+async function handleLinkNode(marketFactory: ManagedByLink, signer: Signer): Promise<string | null> {
   const originalLinkNode = await marketFactory.linkNode().then((a: string) => a.toLowerCase());
   const owner = await marketFactory.getOwner().then((a: string) => a.toLowerCase());
   const me = await signer.getAddress().then((a) => a.toLowerCase());
@@ -369,10 +366,7 @@ async function handleLinkNode(
   }
 }
 
-async function resetLinkNode(
-  marketFactory: ManagedByLink | CryptoMarketFactory,
-  originalLinkNode: string | null
-): Promise<void> {
+async function resetLinkNode(marketFactory: ManagedByLink, originalLinkNode: string | null): Promise<void> {
   if (originalLinkNode) {
     console.log(`Setting the link node back to ${originalLinkNode}`);
     await marketFactory.setLinkNode(originalLinkNode);

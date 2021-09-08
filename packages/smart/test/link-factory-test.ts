@@ -14,8 +14,8 @@ import {
   MasterChef__factory,
   NBAFetcher,
   NBAFetcher__factory,
-  NBAMarketFactory,
-  NBAMarketFactory__factory,
+  NBAMarketFactoryV3,
+  NBAMarketFactoryV3__factory,
   OwnedERC20__factory,
   Sport,
 } from "../typechain";
@@ -76,7 +76,7 @@ describe("NBA", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NBAMarketFactoryV3;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -89,7 +89,7 @@ describe("NBA", () => {
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
 
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -232,7 +232,7 @@ describe("LinkFactory NoContest", () => {
   const homeTeamId = 42;
   const awayTeamId = 1881;
 
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NBAMarketFactoryV3;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -247,7 +247,7 @@ describe("LinkFactory NoContest", () => {
     const homeSpread = 40;
     const overUnderTotal = 60;
 
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -302,7 +302,7 @@ describe("Sports fetcher", () => {
 
   const smallFee = BigNumber.from(10).pow(16);
 
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NBAMarketFactoryV3;
   let mostInterestingEvent: TestEvent<BigNumber>;
   let leastInterestingEvent: TestEvent<BigNumber>;
 
@@ -313,7 +313,7 @@ describe("Sports fetcher", () => {
 
     const now = BigNumber.from(Date.now()).div(1000);
     const estimatedStartTime = now.add(60 * 60 * 24); // one day
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),
@@ -447,14 +447,14 @@ describe("Sports fetcher no markets", () => {
 
   const smallFee = BigNumber.from(10).pow(16);
 
-  let marketFactory: NBAMarketFactory;
+  let marketFactory: NBAMarketFactoryV3;
 
   before(async () => {
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
 
-    marketFactory = await new NBAMarketFactory__factory(signer).deploy(
+    marketFactory = await new NBAMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       calcShareFactor(await collateral.decimals()),

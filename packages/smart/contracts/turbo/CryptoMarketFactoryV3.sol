@@ -12,7 +12,7 @@ import "../libraries/CalculateLinesToBPoolOdds.sol";
 import "../libraries/Versioned.sol";
 import "../libraries/ManagedByLink.sol";
 
-contract CryptoMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned, ManagedByLink {
+contract CryptoMarketFactoryV3 is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned, ManagedByLink {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 

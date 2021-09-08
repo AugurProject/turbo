@@ -38,14 +38,14 @@ export type MarketFactoryType = typeof MARKET_TYPES[number];
 export type MarketFactorySubType = "V1" | "V2" | "V3";
 export type MarketFactoryContractName =
   | "SportsLinkMarketFactoryV2"
-  | "NFLMarketFactory"
-  | "NBAMarketFactory"
-  | "MLBMarketFactory"
-  | "MMAMarketFactory"
   | "MMALinkMarketFactoryV2"
-  | "CryptoMarketFactory"
-  | "FuturesMarketFactory"
-  | "TrustedMarketFactory";
+  | "NFLMarketFactoryV3"
+  | "NBAMarketFactoryV3"
+  | "MLBMarketFactoryV3"
+  | "MMAMarketFactoryV3"
+  | "CryptoMarketFactoryV3"
+  | "FuturesMarketFactoryV3"
+  | "TrustedMarketFactoryV3";
 export type FetcherContractName =
   | "NBAFetcher"
   | "MMAFetcher"
@@ -58,14 +58,14 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
 } = {
   SportsLink: "SportsLinkMarketFactoryV2",
-  NFL: "NFLMarketFactory",
-  MLB: "MLBMarketFactory",
-  NBA: "NBAMarketFactory",
-  MMA: "MMAMarketFactory",
   MMALink: "MMALinkMarketFactoryV2",
-  Crypto: "CryptoMarketFactory",
-  Futures: "FuturesMarketFactory",
-  Trusted: "TrustedMarketFactory",
+  NFL: "NFLMarketFactoryV3",
+  MLB: "MLBMarketFactoryV3",
+  NBA: "NBAMarketFactoryV3",
+  MMA: "MMAMarketFactoryV3",
+  Crypto: "CryptoMarketFactoryV3",
+  Futures: "FuturesMarketFactoryV3",
+  Trusted: "TrustedMarketFactoryV3",
 };
 export const marketFactoryTypeToFetcherName: {
   [Property in MarketFactoryType]: FetcherContractName;

@@ -12,8 +12,8 @@ import {
   FeePot__factory,
   MasterChef,
   MasterChef__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
 } from "../typechain";
 import { BigNumber, Contract } from "ethers";
 import { calcShareFactor } from "../src";
@@ -25,7 +25,7 @@ describe.skip("AMMFactory", () => {
   let Cash__factory: Cash__factory;
   let FeePot__factory: FeePot__factory;
   let MasterChef__factory: MasterChef__factory;
-  let TrustedMarketFactory__factory: TrustedMarketFactory__factory;
+  let TrustedMarketFactoryV3__factory: TrustedMarketFactoryV3__factory;
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
@@ -45,7 +45,7 @@ describe.skip("AMMFactory", () => {
   let collateral: Cash;
   let rewardsToken: Cash;
   let shareFactor: BigNumber;
-  let marketFactory: TrustedMarketFactory;
+  let marketFactory: TrustedMarketFactoryV3;
   const marketId = BigNumber.from(1);
   let ammFactory: AMMFactory;
   let bFactory: BFactory;
@@ -61,9 +61,9 @@ describe.skip("AMMFactory", () => {
     Cash__factory = (await ethers.getContractFactory("Cash")) as Cash__factory;
     FeePot__factory = (await ethers.getContractFactory("FeePot")) as FeePot__factory;
     MasterChef__factory = (await ethers.getContractFactory("MasterChef")) as MasterChef__factory;
-    TrustedMarketFactory__factory = (await ethers.getContractFactory(
-      "TrustedMarketFactory"
-    )) as TrustedMarketFactory__factory;
+    TrustedMarketFactoryV3__factory = (await ethers.getContractFactory(
+      "TrustedMarketFactoryV3"
+    )) as TrustedMarketFactoryV3__factory;
   });
 
   beforeEach(async () => {
@@ -85,7 +85,7 @@ describe.skip("AMMFactory", () => {
 
     ammFactory = await AMMFactory__factory.deploy(bFactory.address, masterChef.address, swapFee);
 
-    marketFactory = await TrustedMarketFactory__factory.deploy(
+    marketFactory = await TrustedMarketFactoryV3__factory.deploy(
       signer.address,
       collateral.address,
       shareFactor,

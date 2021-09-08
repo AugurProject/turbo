@@ -2,20 +2,35 @@
 pragma solidity 0.7.6;
 pragma abicoder v2;
 
+import "../libraries/IERC20Full.sol";
+import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/Sport.sol";
-import "../libraries/ResolveByFiat.sol";
 import "../libraries/HasHeadToHeadMarket.sol";
+import "../libraries/HasSpreadMarket.sol";
+import "../libraries/HasOverUnderMarket.sol";
+import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
 
-contract MMAMarketFactory is AbstractMarketFactoryV3, SportView, ResolvesByFiat, HasHeadToHeadMarket, Versioned {
+// NFL is standard except ties are fine: they become NoContestOrDraw.
+// As a consequence, half points are not added to the lines.
+contract NFLMarketFactoryV3 is
+    AbstractMarketFactoryV3,
+    SportView,
+    HasHeadToHeadMarket,
+    HasSpreadMarket,
+    HasOverUnderMarket,
+    ResolvesByScore,
+    Versioned
+{
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
     uint256 constant HeadToHead = 0;
-    string constant InvalidName = "No Contest / Draw";
+    uint256 constant Spread = 1;
+    uint256 constant OverUnder = 2;
 
     constructor(
         address _owner,
@@ -29,7 +44,9 @@ contract MMAMarketFactory is AbstractMarketFactoryV3, SportView, ResolvesByFiat,
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
         Versioned("v1.2.0")
         ManagedByLink(_linkNode)
-        HasHeadToHeadMarket(HeadToHead, InvalidName)
+        HasHeadToHeadMarket(HeadToHead, "No Contest / Draw")
+        HasSpreadMarket(Spread, "No Contest")
+        HasOverUnderMarket(OverUnder, "No Contest")
     {}
 
     function createEvent(
@@ -39,13 +56,15 @@ contract MMAMarketFactory is AbstractMarketFactoryV3, SportView, ResolvesByFiat,
         string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
+        int256 _homeSpread,
+        int256 _totalScore,
         int256[2] memory _moneylines // [home,away]
     ) public onlyLinkNode returns (uint256[] memory _marketIds) {
         _marketIds = makeMarkets(_moneylines, _homeTeamName, _awayTeamName);
         makeSportsEvent(
             _eventId,
             _marketIds,
-            build1Line(),
+            build3Lines(_homeSpread, _totalScore),
             _startTimestamp,
             _homeTeamId,
             _awayTeamId,
@@ -59,26 +78,20 @@ contract MMAMarketFactory is AbstractMarketFactoryV3, SportView, ResolvesByFiat,
         string memory _homeTeamName,
         string memory _awayTeamName
     ) internal returns (uint256[] memory _marketIds) {
-        _marketIds = new uint256[](1);
+        _marketIds = new uint256[](3);
+
         _marketIds[HeadToHead] = makeHeadToHeadMarket(_moneylines, _homeTeamName, _awayTeamName);
+        _marketIds[Spread] = makeSpreadMarket(_homeTeamName, _awayTeamName);
+        _marketIds[OverUnder] = makeOverUnderMarket();
     }
 
-    function resolveValidEvent(SportsEvent memory _event, uint256 _whoWon) internal override {
-        resolveHeadToHeadMarket(_event.markets[HeadToHead], _whoWon);
-    }
-
-    function resolveHeadToHeadMarket(uint256 _marketId, uint256 _whoWon) internal {
-        uint256 _shareTokenIndex = calcHeadToHeadWinner(_whoWon);
-        endMarket(_marketId, _shareTokenIndex);
-    }
-
-    function calcHeadToHeadWinner(uint256 _whoWon) internal pure returns (uint256) {
-        if (WhoWonHome == _whoWon) {
-            return HeadToHeadHome;
-        } else if (WhoWonAway == _whoWon) {
-            return HeadToHeadAway;
-        } else {
-            return NoContest; // shouldn't happen here
-        }
+    function resolveValidEvent(
+        SportsEvent memory _event,
+        uint256 _homeScore,
+        uint256 _awayScore
+    ) internal override {
+        resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
+        resolveSpreadMarket(_event.markets[Spread], _event.lines[Spread], _homeScore, _awayScore);
+        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[Spread], _homeScore, _awayScore);
     }
 }
