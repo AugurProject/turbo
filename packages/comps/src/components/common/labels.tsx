@@ -223,7 +223,7 @@ export const generateTooltip = (tipText: string, key: string) => {
 export interface WarningBannerProps {
   title: string;
   subtitle: string;
-  className: string;
+  className?: string;
   onClose?: Function;
 }
 

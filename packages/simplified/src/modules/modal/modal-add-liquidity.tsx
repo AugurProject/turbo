@@ -26,9 +26,7 @@ const {
   estimateAddLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
-const {
-  calcPricesFromOdds
-} = Calculations;
+const { calcPricesFromOdds } = Calculations;
 const { formatPercent, formatSimpleShares, formatEther } = Formatter;
 const {
   Icons: { BackIcon },
@@ -533,7 +531,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     <section
       className={classNames(Styles.ModalAddLiquidity, {
         [Styles.showBackView]: curPage.hasBackButton,
-        [Styles.Remove]: isRemove,
       })}
     >
       {curPage.hasBackButton ? (
@@ -571,7 +568,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           />
         )}
         {curPage.setFees && (
-          <>
+          <section>
             <span className={Styles.SmallLabel}>
               Set trading fee
               {generateTooltip("Fees earned for providing liquidity.", "tradingFeeInfo")}
@@ -581,10 +578,10 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               selection={tradingFeeSelection}
               setSelection={(id) => setTradingFeeSelection(id)}
             />
-          </>
+          </section>
         )}
         {curPage.displayOutcomes && !curPage.hideCurrentOdds && (
-          <>
+          <section>
             <span className={Styles.SmallLabel}>{curPage.setOddsTitle}</span>
             <OutcomesGrid
               outcomes={outcomes}
@@ -600,7 +597,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               marketFactoryType={market?.marketFactoryType}
               isFutures={market?.isFuture}
             />
-          </>
+          </section>
         )}
         {curPage.liquidityDetails && (
           <div className={Styles.LineBreak}>
@@ -608,12 +605,16 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             <InfoNumbers infoNumbers={curPage.liquidityDetails.breakdown} />
           </div>
         )}
-        {curPage.receiveTitle && <span className={Styles.SmallLabel}>{curPage.receiveTitle}</span>}
-        {curPage.showBreakdown && (
-          <InfoNumbers
-            unedited={JSON.stringify(breakdown) === JSON.stringify(defaultAddLiquidityBreakdown)}
-            infoNumbers={curPage.breakdown}
-          />
+        {(curPage.receiveTitle || curPage.showBreakdown) && (
+          <section>
+            {curPage.receiveTitle && <span className={Styles.SmallLabel}>{curPage.receiveTitle}</span>}
+            {curPage.showBreakdown && (
+              <InfoNumbers
+                unedited={JSON.stringify(breakdown) === JSON.stringify(defaultAddLiquidityBreakdown)}
+                infoNumbers={curPage.breakdown}
+              />
+            )}
+          </section>
         )}
         {curPage.confirmOverview && (
           <section>
@@ -635,36 +636,37 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             <InfoNumbers infoNumbers={curPage.marketLiquidityDetails.breakdown} />
           </section>
         )}
-        {curPage.needsApproval && !isApproved && (
-          <ApprovalButton
-            amm={amm}
-            cash={cash}
-            actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
-          />
-        )}
         {curPage.showConfirmWarning && (
           <WarningBanner
-            className={Styles.MarginTop}
             title="Remove liquidity before winning outcome is known to prevent loss of funds."
             subtitle={
               "Impermanent loss occurs when you provide liquidity to a liquidity pool, and the price of your deposited assets changes compared to when you deposited them. The bigger this change is, the more exposed you are to impermanent loss. To mitigate this risk, it is recommended that you remove your liquidity before the final outcome is known."
             }
           />
         )}
-        <SecondaryThemeButton
-          action={curPage.actionButtonAction}
-          disabled={!isApproved || inputFormError !== ""}
-          error={buttonError}
-          text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
-          subText={
-            buttonError === INVALID_PRICE
-              ? lessThanMinPrice
-                ? INVALID_PRICE_GREATER_THAN_SUBTEXT
-                : INVALID_PRICE_ADD_UP_SUBTEXT
-              : null
-          }
-          customClass={ButtonStyles.BuySellButton}
-        />
+        <section>
+          {curPage.needsApproval && !isApproved && (
+            <ApprovalButton
+              amm={amm}
+              cash={cash}
+              actionType={!isRemove ? ApprovalAction.ADD_LIQUIDITY : ApprovalAction.REMOVE_LIQUIDITY}
+            />
+          )}
+          <SecondaryThemeButton
+            action={curPage.actionButtonAction}
+            disabled={!isApproved || inputFormError !== ""}
+            error={buttonError}
+            text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
+            subText={
+              buttonError === INVALID_PRICE
+                ? lessThanMinPrice
+                  ? INVALID_PRICE_GREATER_THAN_SUBTEXT
+                  : INVALID_PRICE_ADD_UP_SUBTEXT
+                : null
+            }
+            customClass={ButtonStyles.BuySellButton}
+          />
+        </section>
         {curPage.footerText && (
           <div className={Styles.FooterText}>
             {curPage.footerText}
