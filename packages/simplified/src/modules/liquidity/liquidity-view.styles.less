@@ -228,13 +228,19 @@
     }
   }
 
+  > article:last-of-type {
+    display: none;
+  }
+
   &.HasUserLiquidity {
     > article:last-of-type {
+      display: flex;
       grid-column: span 7;
       border-top: @size-1 solid var(--theme-border);
       padding: @size-16 @size-24;
       height: unset;
       max-height: unset;
+      margin: 0 -@size-12 -@size-12;
     }
   }
 }
@@ -467,6 +473,8 @@
 
       > article:last-of-type {
         grid-column: span 3;
+        margin: 0;
+        padding: @size-12;
       }
 
       > div:last-of-type {
