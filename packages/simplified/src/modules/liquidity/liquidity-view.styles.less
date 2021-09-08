@@ -159,8 +159,8 @@
     outline: none;
 
     > span {
-      display: flex;
-      flex-flow: column nowrap;
+      display: grid;
+      grid-gap: @size-4;
 
       > span:first-of-type {
         .text-14-semi-bold;
@@ -192,7 +192,7 @@
         white-space: nowrap;
         word-break: none;
         display: inline-block;
-        text-transform: uppercase;
+        text-transform: capitalize;
       }
     }
   }
