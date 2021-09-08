@@ -115,7 +115,7 @@ const ADDITIONAL_TOKENS = "Additional Tokens";
 const AWARDS = "Awards";
 const TV_MOVIES = "TV & Movies";
 const SOCIAL_MEDIA = "Social Media";
-const DOGE = 'DOGE';
+const DOGE = "DOGE";
 const ADA = "ADA";
 const MATIC = "MATIC";
 
