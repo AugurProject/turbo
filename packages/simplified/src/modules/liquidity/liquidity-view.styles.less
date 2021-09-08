@@ -221,22 +221,6 @@
   }
 
   &.HasUserLiquidity {
-    padding: 0;
-    grid-gap: 0 @size-8;
-
-    > a,
-    > span,
-    > div {
-      margin: @size-10 0;
-    }
-
-    > a {
-      margin-left: @size-24;
-    }
-    > div {
-      margin-right: @size-24;
-    }
-
     > article:last-of-type {
       grid-column: span 7;
       border-top: @size-1 solid var(--theme-border);
@@ -378,6 +362,11 @@
 
     > a:first-of-type {
       > span {
+        > span:first-of-type {
+          > span {
+            .text-12-semi-bold;
+          }
+        }
         > span:last-of-type {
           .text-10;
 
@@ -421,6 +410,22 @@
     }
 
     &.HasUserLiquidity {
+      padding: 0;
+      grid-gap: 0 @size-8;
+
+      > a,
+      > span,
+      > div {
+        margin: @size-10 0;
+      }
+
+      > a {
+        margin-left: @size-12;
+      }
+      > div {
+        margin-right: @size-12;
+      }
+
       > article:last-of-type {
         grid-column: span 3;
       }
@@ -463,7 +468,7 @@
       align-items: center;
       justify-content: flex-end;
       grid-gap: @size-4;
-  
+
       > svg {
         height: @size-20;
         width: @size-20;
