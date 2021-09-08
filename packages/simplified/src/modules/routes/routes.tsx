@@ -8,8 +8,10 @@ import {
   MARKETS,
   MARKET,
   PORTFOLIO,
+  LIQUIDITY,
 } from '../constants';
 import PortfolioView from '../portfolio/portfolio-view';
+import LiquidityView from '../liquidity/liquidity-view';
 const { PathUtils: { makePath } } = Utils;
 
 const Routes = p => {
@@ -18,6 +20,7 @@ const Routes = p => {
       <Route path={makePath(PORTFOLIO)} component={PortfolioView} />
       <Route path={makePath(MARKETS)} component={MarketsView} />
       <Route path={makePath(MARKET)} component={MarketView} />
+      <Route path={makePath(LIQUIDITY)} component={LiquidityView} />
       <Redirect to={makePath(MARKETS)} />
     </Switch>
   );

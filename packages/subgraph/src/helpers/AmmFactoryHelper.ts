@@ -6,15 +6,11 @@ import {
   Outcomes,
   RemoveLiquidity,
   Sender,
-  Trade
+  Trade,
 } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 
-export function getOrCreateAmmFactory (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): AmmFactory {
+export function getOrCreateAmmFactory(id: string, createIfNotFound: boolean = true, save: boolean = true): AmmFactory {
   let entity = AmmFactory.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -28,11 +24,7 @@ export function getOrCreateAmmFactory (
   return entity as AmmFactory;
 }
 
-export function getOrCreateSender (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): Sender {
+export function getOrCreateSender(id: string, createIfNotFound: boolean = true, save: boolean = true): Sender {
   let entity = Sender.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -47,11 +39,7 @@ export function getOrCreateSender (
   return entity as Sender;
 }
 
-export function getOrCreateMarket (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): Market {
+export function getOrCreateMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): Market {
   let entity = Market.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -70,11 +58,7 @@ export function getOrCreateMarket (
   return entity as Market;
 }
 
-export function getOrCreateOutcomes (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): Outcomes {
+export function getOrCreateOutcomes(id: string, createIfNotFound: boolean = true, save: boolean = true): Outcomes {
   let entity = Outcomes.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -88,11 +72,7 @@ export function getOrCreateOutcomes (
   return entity as Outcomes;
 }
 
-export function getOrCreateLiquidity (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): Liquidity {
+export function getOrCreateLiquidity(id: string, createIfNotFound: boolean = true, save: boolean = true): Liquidity {
   let entity = Liquidity.load(id);
 
   if (entity == null && createIfNotFound) {
@@ -106,7 +86,7 @@ export function getOrCreateLiquidity (
   return entity as Liquidity;
 }
 
-export function getOrCreateAddLiquidity (
+export function getOrCreateAddLiquidity(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
@@ -124,7 +104,7 @@ export function getOrCreateAddLiquidity (
   return entity as AddLiquidity;
 }
 
-export function getOrCreateRemoveLiquidity (
+export function getOrCreateRemoveLiquidity(
   id: string,
   createIfNotFound: boolean = true,
   save: boolean = true
@@ -142,11 +122,7 @@ export function getOrCreateRemoveLiquidity (
   return entity as RemoveLiquidity;
 }
 
-export function getOrCreateTrade (
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): Trade {
+export function getOrCreateTrade(id: string, createIfNotFound: boolean = true, save: boolean = true): Trade {
   let entity = Trade.load(id);
 
   if (entity == null && createIfNotFound) {

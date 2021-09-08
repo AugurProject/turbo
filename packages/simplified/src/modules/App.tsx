@@ -20,7 +20,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { SimpleFooter } from './common/simple-footer';
-const { MARKETS } = Constants;
+const { MARKETS, LIQUIDITY } = Constants;
 const { parsePath, parseQuery } = PathUtils;
 
 
@@ -68,7 +68,7 @@ const AppBody = () => {
       id="mainContent"
       className={classNames(Styles.App, {
         [Styles.SidebarOut]: sidebarOut,
-        [Styles.TwoToneContent]: path !== MARKETS,
+        [Styles.TwoToneContent]: path !== MARKETS && path !== LIQUIDITY,
         [Styles.ModalShowing]: modalShowing || showTradingForm,
       })}
     >

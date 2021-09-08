@@ -1,22 +1,19 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
-import { getOrCreateCryptoMarket } from "../helpers/MarketFactoryHelper";
+import { getOrCreateNflMarket } from "../helpers/MarketFactoryHelper";
 import {
-  CryptoMarketFactory as CryptoMarketFactoryContract,
   MarketCreated,
   MarketResolved,
+  NflMarketFactory as NflMarketFactoryContract,
   SettlementFeeClaimed,
-  WinningsClaimed
-} from "../../generated/CryptoMarketFactoryV2/CryptoMarketFactory";
+  WinningsClaimed,
+} from "../../generated/NflMarketFactoryV2/NflMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import {
-  getOrCreateInitialCostPerMarket,
-  getOrCreatePositionBalance
-} from "../helpers/CommonHandlers";
+import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
-  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let contract = NflMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let rawShareTokens: Address[] = new Array<Address>();
   if (!tryGetMarket.reverted) {
@@ -31,7 +28,7 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<strin
 }
 
 function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let contract = NflMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let initialOdds: BigInt[] = new Array<BigInt>();
   if (!tryGetMarket.reverted) {
@@ -48,7 +45,7 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
 
 function closeAllPositions(contractAddress: Address, marketIndex: BigInt, marketId: string, senderId: string): void {
   let shareTokens = getShareTokens(contractAddress, marketIndex);
-  for(let i = 0; i < shareTokens.length; i++) {
+  for (let i = 0; i < shareTokens.length; i++) {
     let id = senderId + "-" + marketId + "-" + bigIntToHexString(BigInt.fromI32(i));
     let entity = getOrCreatePositionBalance(id, false, false);
     if (entity) {
@@ -61,17 +58,22 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateCryptoMarket(marketId, true, false);
+  let entity = getOrCreateNflMarket(marketId, true, false);
   getOrCreateMarket(marketId);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
   entity.creator = event.params.creator.toHexString();
+  entity.estimatedStartTime = event.params.estimatedStartTime;
   entity.endTime = event.params.endTime;
   entity.marketType = BigInt.fromI32(event.params.marketType);
-  entity.coinIndex = event.params.coinIndex;
-  entity.creationPrice = event.params.price;
+  entity.eventId = event.params.eventId;
+  entity.homeTeamName = event.params.homeTeamName;
+  entity.homeTeamId = event.params.homeTeamId;
+  entity.awayTeamName = event.params.awayTeamName;
+  entity.awayTeamId = event.params.awayTeamId;
+  entity.overUnderTotal = event.params.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = getInitialOdds(event.address, event.params.id);
 
@@ -81,13 +83,28 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateCryptoMarket(marketId, false, false);
+  let entity = getOrCreateNflMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();
 
     entity.save();
   }
+}
+
+export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
+  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  let senderId = event.params.settlementAddress.toHexString();
+  let entity = getOrCreateClaimedFees(id, true, false);
+  getOrCreateSender(senderId);
+
+  entity.collateral = bigIntToHexString(event.params.amount);
+  entity.sender = senderId;
+  entity.receiver = event.params.receiver.toHexString();
+  entity.transactionHash = event.transaction.hash.toHexString();
+  entity.timestamp = event.block.timestamp;
+
+  entity.save();
 }
 
 export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
@@ -109,29 +126,12 @@ export function handleWinningsClaimedEvent(event: WinningsClaimed): void {
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
 
-  handlePositionFromClaimWinningsEventV2(event);
+  handlePositionFromClaimWinningsEvent(event);
 
   entity.save();
 }
 
-export function handleSettlementFeeClaimedEvent(event: SettlementFeeClaimed): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  let senderId = event.params.settlementAddress.toHexString();
-  let entity = getOrCreateClaimedFees(id, true, false);
-  getOrCreateSender(senderId);
-
-  entity.collateral = bigIntToHexString(event.params.amount);
-  entity.sender = senderId;
-  entity.receiver = event.params.receiver.toHexString();
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
-
-  entity.save();
-}
-
-function handlePositionFromClaimWinningsEventV2(
-  event: WinningsClaimed,
-): void {
+function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
   let senderId = event.params.receiver.toHexString();
   let outcomeId = getOutcomeId(event.address, event.params.id, event.params.winningOutcome.toHexString());
@@ -147,7 +147,7 @@ function handlePositionFromClaimWinningsEventV2(
     let wasAlreadySummed = log.includes(logId);
     if (!wasAlreadySummed) {
       log.push(logId);
-      positionBalanceEntity.log = log
+      positionBalanceEntity.log = log;
 
       let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
 

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Styles from "./modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
-import { useHistory } from "react-router";
 import { InfoNumbers, ApprovalButton } from "../market/trading-form";
 import classNames from "classnames";
 import { AmmOutcome, Cash, LiquidityBreakdown, MarketInfo, DataState } from "@augurproject/comps/build/types";
@@ -43,7 +42,6 @@ const {
   BUY,
   USDC,
   SHARES,
-  MARKETS,
   ApprovalAction,
   ENTER_AMOUNT,
   CREATE,
@@ -115,7 +113,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     actions: { addTransaction },
   } = useUserStore();
   const { cashes, ammExchanges, blocknumber }: DataState = useDataStore();
-  const history = useHistory();
 
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
@@ -198,7 +195,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    if (inputFormError === "" && !totalPrice.eq(ONE)) {
+    if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
       buttonError = INVALID_PRICE;
     }
   }
@@ -300,9 +297,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         });
     }
     closeModal();
-    if (modalType === CREATE && history.location.pathname !== `/${MARKETS}`) {
-      history.push(`/${MARKETS}`);
-    }
   };
 
   const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
@@ -601,6 +595,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               dontFilterInvalid
               hasLiquidity={!mustSetPrices || hasInitialOdds}
               marketFactoryType={market?.marketFactoryType}
+              isFutures={market?.isFuture}
             />
           </>
         )}

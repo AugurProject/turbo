@@ -1,0 +1,485 @@
+@import (reference) "~assets/styles/shared";
+
+.LiquidityTableRow {
+  .ThemeBorder;
+
+  align-items: center;
+  background: var(--primary-bg);
+  display: grid;
+  grid-template-columns: 1fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr 0.25fr;
+  grid-gap: @size-8;
+  padding: @size-12;
+}
+
+.LiquidityView {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-auto-rows: 0fr 0fr 0fr 0fr 1fr;
+  grid-gap: @size-16;
+  padding: @size-40 @size-88 @size-48;
+
+  > h1 {
+    .text-30-bold;
+
+    color: var(-primary-text);
+    margin: 0;
+    margin-top: @size-32;
+    grid-column: span 2;
+    grid-row: 2;
+  }
+
+  > p {
+    .text-20-semi-bold;
+
+    color: var(--primary-text);
+    margin-bottom: @size-32;
+    display: flex;
+    flex-flow: row nowrap;
+    grid-column: span 2;
+    grid-row: 3;
+
+    > a {
+      .text-20-semi-bold;
+
+      color: var(--secondary-text);
+      margin-left: @size-4;
+      // TODO: if we ever get a learn more link, unhide this and add a proper href.
+      display: none;
+    }
+  }
+
+  > ul {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 0fr 0fr 0fr 1fr;
+    grid-gap: @size-16;
+    grid-column: span 2;
+    max-height: @size-48;
+    width: 100%;
+
+    > * {
+      max-height: @size-48;
+      height: @size-48;
+      min-height: @size-48;
+    }
+
+    > label {
+      .text-12-semi-bold;
+
+      align-items: center;
+      white-space: nowrap;
+      display: grid;
+      grid-template-columns: 0fr 0fr;
+      grid-gap: @size-8;
+      cursor: pointer;
+    }
+
+    > div:last-of-type {
+      margin-left: auto;
+
+      &:focus-within {
+        margin-left: 0;
+      }
+    }
+  }
+
+  > section {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: @size-8;
+    margin-top: @size-32;
+    margin-bottom: auto;
+
+    > article {
+      .LiquidityTableRow;
+
+      min-height: @size-56;
+      max-height: @size-56;
+      padding: @size-20 @size-24;
+
+      > button {
+        .text-12-semi-bold;
+
+        border: none;
+        background: none;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        cursor: pointer;
+
+        > svg {
+          transform: rotate(90deg);
+          margin-right: @size-4;
+        }
+
+        &.Ascending {
+          > svg {
+            transform: rotate(-90deg);
+          }
+        }
+      }
+
+      > span {
+        .text-12-semi-bold;
+
+        color: var(--primary-text);
+      }
+    }
+
+    > section {
+      display: grid;
+      grid-auto-columns: 1fr;
+      grid-gap: @size-8;
+    }
+  }
+
+  > div[class*="Pagination"] {
+    grid-column: span 2;
+  }
+}
+
+.LiquidityMarketCard {
+  .LiquidityTableRow;
+  .HoverDropShadow;
+
+  > a:first-of-type {
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    grid-gap: @size-16;
+    align-items: center;
+
+    > span {
+      display: flex;
+      flex-flow: column nowrap;
+
+      > span:first-of-type {
+        .text-14-semi-bold;
+
+        color: var(--primary-text);
+        line-height: 140%;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        > span:first-of-type {
+          .limit-lines(1);
+        }
+
+        > span:last-of-type {
+          .limit-lines(2);
+        }
+
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
+        }
+      }
+
+      > span:last-of-type {
+        .text-12;
+
+        color: var(--secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  > span {
+    .text-12;
+
+    color: var(--primary-text);
+    text-align: right;
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: flex-end;
+    grid-gap: @size-4;
+
+    > svg {
+      height: @size-20;
+      width: @size-20;
+    }
+  }
+
+  > div:last-of-type {
+    display: grid;
+    grid-gap: @size-8;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: center;
+
+    > button:first-of-type:last-of-type {
+      padding: @size-10 @size-12;
+      width: min-content;
+      justify-self: flex-end;
+
+      > span {
+        .text-10-semi-bold;
+      }
+    }
+  }
+
+  &.HasUserLiquidity {
+    padding: 0;
+    grid-gap: 0 @size-8;
+
+    > a,
+    > span,
+    > div {
+      margin: @size-10 0;
+    }
+
+    > a {
+      margin-left: @size-24;
+    }
+    > div {
+      margin-right: @size-24;
+    }
+
+    > article:last-of-type {
+      grid-column: span 7;
+      border-top: @size-1 solid var(--theme-border);
+      padding: @size-16 @size-24;
+      height: unset;
+      max-height: unset;
+    }
+  }
+}
+
+.MobileLabel {
+  display: none;
+}
+
+@media @breakpoint-mobile-tiny {
+  .LiquidityView {
+    margin: 0;
+    margin-top: var(--theme-top-bar-height);
+    grid-auto-rows: 0fr;
+
+    > ul {
+      grid-auto-flow: unset;
+      grid-template-columns: 0fr 0fr 1fr;
+      max-height: unset;
+
+      > div:last-of-type {
+        grid-column: span 3;
+        grid-row: 1;
+        margin-left: 0;
+        max-height: @size-40;
+        min-height: @size-40;
+        height: @size-40;
+
+        > input {
+          .text-12-semi-bold;
+
+          padding: @size-8 @size-16;
+        }
+
+        > div {
+          background: none;
+          min-height: @size-20;
+          max-height: @size-20;
+          min-width: @size-20;
+          max-width: @size-20;
+        }
+      }
+    }
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .LiquidityView {
+    margin: 0;
+    margin-top: var(--theme-top-bar-height-mobile);
+    padding: @size-16;
+
+    > div:first-of-type,
+    > div:nth-of-type(2) {
+      grid-column: span 2;
+    }
+
+    > h1,
+    > p {
+      display: none;
+    }
+
+    > ul {
+      grid-template-columns: 1fr 1fr;
+
+      > * {
+        min-height: @size-34;
+        height: @size-34;
+        max-height: @size-34;
+      }
+
+      > div:not(:last-of-type) {
+        max-width: 100%;
+
+        > button {
+          padding: @size-10 @size-12;
+
+          > svg {
+            margin-left: @size-8;
+          }
+
+          > span {
+            .text-10-semi-bold;
+          }
+        }
+      }
+
+      > div:last-of-type {
+        grid-column: span 2;
+      }
+    }
+
+    > section {
+      margin-top: 0;
+
+      > article {
+        min-height: @size-40;
+        max-height: @size-40;
+        height: @size-40;
+        padding: @size-12;
+        grid-template-columns: 1fr 0.2fr 0.2fr;
+        grid-gap: 0 @size-8;
+
+        > a {
+          margin-left: @size-12;
+        }
+
+        > button {
+          display: none;
+
+          &:nth-of-type(2) {
+            display: flex;
+            margin-right: auto;
+            flex-flow: row-reverse;
+          }
+
+          &:nth-of-type(3) {
+            display: flex;
+            margin-left: auto;
+          }
+        }
+
+        > span:not(:first-of-type) {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .LiquidityMarketCard {
+    display: grid;
+    grid-template-columns: 1fr 0.2fr 0.2fr;
+    padding: @size-12;
+
+    > a:first-of-type {
+      > span {
+        > span:last-of-type {
+          .text-10;
+
+          white-space: normal;
+        }
+      }
+    }
+
+    > span {
+      display: none;
+
+      &:nth-of-type(2) {
+        display: flex;
+        margin-right: auto;
+      }
+
+      &:nth-of-type(3) {
+        display: flex;
+        margin-left: auto;
+        margin-right: @size-12;
+      }
+    }
+
+    > div:last-of-type {
+      grid-column: span 3;
+      grid-row: 2;
+      margin: 0 -@size-12 -@size-12 -@size-12;
+      border-top: @size-1 solid var(--theme-border);
+      padding: @size-10;
+      grid-gap: 0;
+      display: flex;
+      flex-flow: row nowrap;
+
+      > button:first-of-type:last-of-type {
+        width: 100%;
+      }
+
+      > div {
+        display: none;
+      }
+    }
+
+    &.HasUserLiquidity {
+      > article:last-of-type {
+        grid-column: span 3;
+      }
+
+      > div:last-of-type {
+        display: flex;
+        flex-flow: row nowrap;
+        grid-column: span 3;
+        grid-row: 3;
+        margin: 0;
+        width: 100%;
+        border-top: @size-1 solid var(--theme-border);
+        padding: @size-10;
+        grid-gap: 0;
+
+        > div {
+          display: grid;
+        }
+
+        > button:last-of-type {
+          margin-left: @size-8;
+        }
+      }
+    }
+  }
+
+  .MobileLabel {
+    display: grid;
+    grid-auto-flow: row;
+    grid-gap: @size-2;
+    margin: 0 auto;
+
+    > span {
+      .text-12;
+
+      color: var(--primary-text);
+      text-align: right;
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+      justify-content: flex-end;
+      grid-gap: @size-4;
+  
+      > svg {
+        height: @size-20;
+        width: @size-20;
+      }
+
+      &:first-of-type {
+        .text-12-semi-bold;
+      }
+
+      &:last-of-type {
+        color: var(--secondary-text);
+      }
+    }
+  }
+}

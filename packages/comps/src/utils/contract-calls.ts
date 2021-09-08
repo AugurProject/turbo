@@ -54,6 +54,8 @@ import {
   TradingDirection,
   USDC,
   ZERO,
+  POLYGON_NETWORK,
+  POLYGON_PRICE_FEED_MATIC,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -61,6 +63,8 @@ import { PARA_CONFIG } from "../stores/constants";
 import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
+import PriceFeedABI from "./PriceFeedABI.json";
+
 import {
   AbstractMarketFactoryV2,
   AbstractMarketFactoryV2__factory,
@@ -113,6 +117,33 @@ export const checkConvertLiquidityProperties = (
   return true;
 };
 
+export async function mintCompleteSets(
+  amm: AmmExchange,
+  provider: Web3Provider,
+  amount: string,
+  account: string
+): Promise<TransactionResponse> {
+  if (!provider) {
+    console.error("mintCompleteSets: no provider");
+    return null;
+  }
+  if (!amm || !amm?.ammFactoryAddress) {
+    console.error("minCompleteSets: no amm provided");
+    return null;
+  }
+
+  const marketFactoryData = getMarketFactoryData(amm.marketFactoryAddress);
+  if (!marketFactoryData) return null;
+  const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
+  const totalAmount = sharesDisplayToOnChain(amount).toFixed();
+  console.log("mint", marketFactoryContract.address, amm?.market?.turboId, totalAmount, account);
+  const tx = await marketFactoryContract
+    .mintShares(amm?.market?.turboId, totalAmount, account)
+    .catch((e) => console.error(e));
+
+  return tx;
+}
+
 export async function estimateAddLiquidityPool(
   account: string,
   provider: Web3Provider,
@@ -154,6 +185,7 @@ export async function estimateAddLiquidityPool(
       // lp tokens are 18 decimal
       tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
 
+      console.log("amm?.totalSupply", amm?.totalSupply);
       const poolSupply = lpTokensOnChainToDisplay(amm?.totalSupply).plus(tokenAmount);
       poolPct = lpTokenPercentageAmount(tokenAmount, poolSupply);
     }
@@ -567,7 +599,12 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
 };
 
 const MULTI_CALL_LIMIT = 600;
-const chunkedMulticall = async (provider: Web3Provider, contractCalls): ContractCallResults => {
+const chunkedMulticall = async (
+  provider: Web3Provider,
+  contractCalls,
+  chunkSize: number = MULTI_CALL_LIMIT,
+  callingMethod: string
+): ContractCallResults => {
   if (!provider) {
     throw new Error("Provider not provided");
   }
@@ -576,9 +613,9 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   let results: ContractCallResults = { blocknumber: null, results: {} };
 
   if (!contractCalls || contractCalls.length === 0) return results;
-  if (contractCalls.length < MULTI_CALL_LIMIT) {
+  if (contractCalls.length < chunkSize) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", contractCalls, e);
+      console.error("multicall", callingMethod, contractCalls, e);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -587,11 +624,11 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
       blocknumber: null,
       results: {},
     };
-    const chunks = sliceIntoChunks(contractCalls, MULTI_CALL_LIMIT);
+    const chunks = sliceIntoChunks(contractCalls, chunkSize);
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, chunking ${chunk.length} calls`, e);
+        console.error(`multicall, ${callingMethod} chunking ${chunk.length} calls`, e);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -649,8 +686,8 @@ export const getUserBalances = async (
   const userMarketTransactions = getUserTransactions(transactions, account);
   const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
-  const POOL_TOKEN_BALANCE = "getPoolTokenBalance";
-  const POOL_PENDING_REWARDS = "getPoolPendingRewards";
+  const POOL_TOKEN_BALANCE = "getTokenBalanceByPool";
+  const POOL_PENDING_REWARDS = "getPendingRewardInfoByPool";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const PENDING_REWARDS_COLLECTION = "pendingRewards";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -816,7 +853,7 @@ export const getUserBalances = async (
     ...contractLpBalanceRewardsCall,
   ];
 
-  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls);
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, 20, "getUserBalances");
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
@@ -842,11 +879,31 @@ export const getUserBalances = async (
         delete userBalances[collection][dataKey];
       }
     } else if (method === POOL_PENDING_REWARDS) {
+      const {
+        accruedEarlyDepositBonusRewards,
+        accruedStandardRewards,
+        earlyDepositEndTimestamp,
+        pendingEarlyDepositBonusRewards,
+      } = balanceValue;
+      const balance = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedStandardRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(pendingEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
       if (rawBalance !== "0") {
         userBalances[collection][dataKey] = {
-          balance: balance.toFixed(),
-          rawBalance,
+          balance,
+          rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
           marketId,
+          pendingBonusRewards,
+          endBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
         };
       } else {
         delete userBalances[collection][dataKey];
@@ -2020,6 +2077,8 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     const exchange = ex[i];
     const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
+
+    console.log("totalSupply", totalSupply);
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
@@ -2311,3 +2370,20 @@ export function extractABI(contract: ethers.Contract): any[] {
   ABIs[address] = contractAbi;
   return contractAbi;
 }
+
+export const getMaticUsdPrice = async (library: Web3Provider): Promise<number> => {
+  const network = await library?.getNetwork();
+  if (network?.chainId !== POLYGON_NETWORK) return 1;
+  let defaultMaticPrice = 1.34;
+  if (!library) return defaultPrice;
+  try {
+    const contract = getContract(POLYGON_PRICE_FEED_MATIC, PriceFeedABI, library);
+    const data = await contract.latestRoundData();
+    defaultMaticPrice = new BN(String(data?.answer)).div(new BN(10).pow(Number(8))).toNumber();
+    // get price
+  } catch (error) {
+    console.error("Failed to get price feed contract", error);
+    return defaultMaticPrice;
+  }
+  return defaultMaticPrice;
+};
