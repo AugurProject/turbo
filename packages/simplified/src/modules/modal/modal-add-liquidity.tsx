@@ -353,6 +353,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         showTradingFee: false,
         cantEditAmount: true,
         hideCurrentOdds: true,
+        showMarketTitle: true,
         receiveTitle: "What you will recieve",
         approvalButtonText: "approve shares spend",
         actionButtonText: "Remove all liquidity",
@@ -416,6 +417,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         hasAmountInput: true,
         displayOutcomes: true,
         showBreakdown: true,
+        showMarketTitle: true,
         currencyName: `${chosenCash}`,
       },
       {
@@ -473,6 +475,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         displayOutcomes: true,
         showBreakdown: true,
         needsApproval: true,
+        showMarketTitle: true,
       },
       {
         header: "Back", // uses back button
