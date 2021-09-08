@@ -96,7 +96,7 @@
 
       min-height: @size-56;
       max-height: @size-56;
-      padding: @size-20 @size-24;
+      padding: @size-12;
 
       > button {
         .text-12-semi-bold;
@@ -109,13 +109,19 @@
         justify-content: flex-end;
         cursor: pointer;
 
-        > svg {
+        > svg:not([name="MaticIcon"]) {
           transform: rotate(90deg);
           margin-right: @size-4;
         }
 
+        > svg[name="MaticIcon"] {
+          margin-left: @size-4;
+          width: @size-20;
+          height: @size-20;
+        }
+
         &.Ascending {
-          > svg {
+          > svg:not([name="MaticIcon"]) {
             transform: rotate(-90deg);
           }
         }
@@ -194,16 +200,6 @@
 
     color: var(--primary-text);
     text-align: right;
-    display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    justify-content: flex-end;
-    grid-gap: @size-4;
-
-    > svg {
-      height: @size-20;
-      width: @size-20;
-    }
   }
 
   > div:last-of-type {
