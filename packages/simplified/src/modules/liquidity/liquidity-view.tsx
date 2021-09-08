@@ -214,6 +214,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     [liquidityUSD]
   );
   const [price, setPrice] = useState(1);
+  const [expanded, setExpanded] = useState(false);
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
@@ -226,12 +227,17 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     <article
       className={classNames(Styles.LiquidityMarketCard, {
         [Styles.HasUserLiquidity]: userHasLiquidity,
+        [Styles.Expanded]: expanded,
       })}
     >
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
+      <button onClick={() => setExpanded(!expanded)}>
+        <CategoryIcon {...{ categories }} />
+        <MarketTitleArea {...{ ...market, timeFormat }} />
+      </button>
       <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp) : "-"}</span>
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>

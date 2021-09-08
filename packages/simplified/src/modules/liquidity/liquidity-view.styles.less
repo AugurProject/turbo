@@ -116,8 +116,8 @@
 
         > svg[name="MaticIcon"] {
           margin-left: @size-4;
-          width: @size-20;
-          height: @size-20;
+          width: @size-16;
+          height: @size-16;
         }
 
         &.Ascending {
@@ -150,11 +150,13 @@
   .LiquidityTableRow;
   .HoverDropShadow;
 
-  > a:first-of-type {
+  > a:first-of-type,
+  > button:first-of-type {
     display: grid;
     grid-template-columns: 0fr 1fr;
     grid-gap: @size-16;
     align-items: center;
+    outline: none;
 
     > span {
       display: flex;
@@ -193,6 +195,12 @@
         text-transform: uppercase;
       }
     }
+  }
+
+  > button:first-of-type {
+    display: none;
+    border: none;
+    background: transparent;
   }
 
   > span {
@@ -360,18 +368,33 @@
     grid-template-columns: 1fr 0.2fr 0.2fr;
     padding: @size-12;
 
-    > a:first-of-type {
+    > a:first-of-type,
+    > button:first-of-type {
       > span {
         > span:first-of-type {
           > span {
             .text-12-semi-bold;
+            text-align: left;
           }
         }
         > span:last-of-type {
           .text-10;
 
           white-space: normal;
+          text-align: left;
         }
+      }
+    }
+
+    > a:first-of-type {
+      display: none;
+    }
+
+    > button:first-of-type {
+      display: grid;
+
+      > span > span:first-of-type:hover {
+        text-decoration: none;
       }
     }
 
@@ -397,7 +420,7 @@
       border-top: @size-1 solid var(--theme-border);
       padding: @size-10;
       grid-gap: 0;
-      display: flex;
+      display: none;
       flex-flow: row nowrap;
 
       > button:first-of-type:last-of-type {
@@ -409,17 +432,25 @@
       }
     }
 
+    &.Expanded {
+      > div:last-of-type {
+        display: flex;
+      }
+    }
+
     &.HasUserLiquidity {
       padding: 0;
       grid-gap: 0 @size-8;
 
       > a,
       > span,
+      > button:first-of-type,
       > div {
         margin: @size-10 0;
       }
 
-      > a {
+      > a,
+      > button:first-of-type {
         margin-left: @size-12;
       }
       > div {
@@ -470,8 +501,8 @@
       grid-gap: @size-4;
 
       > svg {
-        height: @size-20;
-        width: @size-20;
+        height: @size-16;
+        width: @size-16;
       }
 
       &:first-of-type {
