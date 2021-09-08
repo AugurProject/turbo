@@ -9,10 +9,10 @@ import "./GroupFetcher.sol";
 abstract contract Grouped is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds {
     event GroupCreated(uint256 indexed id, uint256 endTime, uint256 invalidMarketId, string invalidMarketName);
     event GroupMarketAdded(uint256 indexed groupId, uint256 marketId, string marketName);
-    event GroupReady(uint256 indexed id);
+    event GroupFinalizing(uint256 indexed groupId, uint256 winningMarketIndex);
     event GroupResolved(uint256 indexed id, bool valid);
 
-    enum GroupStatus {Unknown, BeingCreated, Scheduled, Final, Invalid}
+    enum GroupStatus {Unknown, Scheduled, Finalizing, Final, Invalid}
 
     struct MarketGroup {
         GroupStatus status;
@@ -23,6 +23,7 @@ abstract contract Grouped is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds 
         string invalidMarketName;
         uint256 endTime;
         string category;
+        uint256 winningMarketIndex; // ignore when status is Scheduled. MAX_UINT is invalid
     }
     // GroupId => MarketGroup
     mapping(uint256 => MarketGroup) public marketGroups;
@@ -58,12 +59,12 @@ abstract contract Grouped is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds 
         require(marketGroups[_groupId].status == GroupStatus.Unknown, "group exists");
 
         listOfMarketGroups.push(_groupId);
-        marketGroups[_groupId].status = GroupStatus.BeingCreated; // new groups must be Scheduled
+        marketGroups[_groupId].status = GroupStatus.Scheduled;
         marketGroups[_groupId].name = _groupName;
         marketGroups[_groupId].endTime = _endTime;
         marketGroups[_groupId].category = _category;
 
-        uint256 _invalidMarket = startMarket(msg.sender, buildOutcomesNames(_invalidMarketName), invalidOdds(), false);
+        uint256 _invalidMarket = startMarket(msg.sender, buildOutcomesNames(_invalidMarketName), invalidOdds(), true);
         marketGroups[_groupId].invalidMarket = _invalidMarket;
         marketGroups[_groupId].invalidMarketName = _invalidMarketName;
 
@@ -76,51 +77,49 @@ abstract contract Grouped is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds 
         string memory _marketName,
         uint256[] memory _odds
     ) internal {
-        require(marketGroups[_groupId].status == GroupStatus.BeingCreated, "group not being created");
+        require(marketGroups[_groupId].status == GroupStatus.Scheduled, "group must be Scheduled");
 
-        uint256 _marketId = startMarket(msg.sender, buildOutcomesNames(_marketName), _odds, false);
+        uint256 _marketId = startMarket(msg.sender, buildOutcomesNames(_marketName), _odds, true);
         marketGroups[_groupId].markets.push(_marketId);
         marketGroups[_groupId].marketNames.push(_marketName);
         emit GroupMarketAdded(_groupId, _marketId, _marketName);
     }
 
+    // Use MAX_UINT for _winningMarketIndex to indicate INVALID
+    function startResolvingMarketGroup(uint256 _groupId, uint256 _winningMarketIndex) internal {
+        bool _isInvalid = _winningMarketIndex == MAX_UINT;
+        MarketGroup memory _group = marketGroups[_groupId];
+
+        require(_group.status == GroupStatus.Scheduled, "group not Scheduled");
+
+        resolveInvalidMarket(_group, _isInvalid);
+        marketGroups[_groupId].status = GroupStatus.Finalizing;
+        marketGroups[_groupId].winningMarketIndex = _winningMarketIndex;
+        emit GroupFinalizing(_groupId, _winningMarketIndex);
+    }
+
+    function resolveFinalizingGroupMarket(uint256 _groupId, uint256 _marketIndex) internal {
+        MarketGroup memory _group = marketGroups[_groupId];
+        require(_group.status == GroupStatus.Finalizing, "must be finalizing");
+
+        uint256 _marketId = _group.markets[_marketIndex];
+        bool _wins = _marketIndex == _group.winningMarketIndex;
+        resolveGroupMarket(_marketId, _wins);
+    }
+
     function finalizeMarketGroup(uint256 _groupId) internal {
         MarketGroup storage _group = marketGroups[_groupId];
-        _group.status = GroupStatus.Scheduled;
-        markets[_group.invalidMarket].active = true;
-        activateMarket(_group.invalidMarket);
-        for (uint256 i = 0; i < _group.markets.length; i++) {
-            activateMarket(_group.markets[i]);
-        }
-        emit GroupReady(_groupId);
-    }
+        require(_group.status == GroupStatus.Finalizing);
 
-    // Use MAX_UINT for _winningMarketIndex to indicate INVALID
-    function resolveMarketGroup(uint256 _groupId, uint256 _winningMarketIndex) internal {
-        bool _isInvalid = _winningMarketIndex == MAX_UINT;
+        bool _valid = _group.winningMarketIndex != MAX_UINT;
 
-        MarketGroup memory _group = marketGroups[_groupId];
-        resolveInvalidMarket(_group, _isInvalid);
-        resolveRegularMarkets(_group, _winningMarketIndex);
-        marketGroups[_groupId].status = _isInvalid ? GroupStatus.Invalid : GroupStatus.Final;
-        emit GroupResolved(_groupId, !_isInvalid);
-    }
+        _group.status = _valid ? GroupStatus.Final : GroupStatus.Invalid;
 
-    function resolveRegularMarkets(MarketGroup memory _group, uint256 _winningMarketIndex) private {
-        for (uint256 i = 0; i < _group.markets.length; i++) {
-            uint256 _marketId = _group.markets[i];
-            if (isMarketResolved(_marketId)) continue; // skip resolved markets
-            resolveGroupMarket(_marketId, _winningMarketIndex == i);
-        }
+        emit GroupResolved(_groupId, _valid);
     }
 
     function resolveGroupMarket(uint256 _marketId, bool _wins) internal {
-        uint256 _winningOutcome;
-        if (_wins) {
-            _winningOutcome = OUTCOME_YES;
-        } else {
-            _winningOutcome = OUTCOME_NO;
-        }
+        uint256 _winningOutcome = _wins ? OUTCOME_YES : OUTCOME_NO;
         endMarket(_marketId, _winningOutcome);
     }
 
