@@ -25,6 +25,7 @@ const {
   addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
+  mintCompleteSets,
 } = ContractCalls;
 const { calcPricesFromOdds } = Calculations;
 const { formatPercent, formatSimpleShares, formatEther, formatCash } = Formatter;
@@ -288,8 +289,35 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   };
 
   const mintCompleteSetsAction = async () => {
-    console.log("mint complete sets!");
-  }
+    await mintCompleteSets(amm, loginAccount?.library, amount, account)
+      .then((response) => {
+        const { hash } = response;
+        addTransaction({
+          hash,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          addedTime: new Date().getTime(),
+          message: `Mint Complete Sets`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      })
+      .catch((error) => {
+        console.log("Error when trying to Mint Complete Sets: ", error?.message);
+        addTransaction({
+          hash: `mint-sets-failed${Date.now()}`,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          addedTime: new Date().getTime(),
+          message: `Mint Complete Sets`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      });
+    setPage(0);
+  };
 
   const getMintBreakdown = () => {
     return outcomes.map((outcome) => ({
@@ -297,7 +325,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       value: `${formatSimpleShares(amount).rounded}`,
       svg: null,
     }));
-  }
+  };
 
   const LIQUIDITY_STRINGS = {
     [REMOVE]: [
@@ -351,6 +379,26 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           breakdown: getCreateBreakdown(true),
         },
       },
+      {
+        header: "Mint Complete Sets",
+        hasBackButton: true,
+        backButtonAction: () => {
+          setPage(0);
+          updateAmount("");
+        },
+        hasAmountInput: true,
+        minimumAmount: "1",
+        rate: (<span>1 USDC = 1 Complete Set</span>),
+        needsApproval: true,
+        approvalAction: ApprovalAction.MINT_SETS,
+        actionButtonText: "Mint Complete Sets",
+        actionButtonAction: mintCompleteSetsAction,
+        showMarketTitle: true,
+        confirmReceiveOverview: {
+          title: "What you will receive",
+          breakdown: getMintBreakdown(),
+        },
+      },
     ],
     [ADD]: [
       {
@@ -372,12 +420,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         showBreakdown: true,
         showMarketTitle: true,
         currencyName: `${chosenCash}`,
-        headerActionButton: (
-          <TinyThemeButton
-            text="Mint Complete Sets"
-            action={() => setPage(2)}
-          />
-        ),
+        headerActionButton: <TinyThemeButton text="Mint Complete Sets" action={() => setPage(2)} />,
       },
       {
         header: "Back",
@@ -417,9 +460,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
       {
         header: "Mint Complete Sets",
         hasBackButton: true,
-        backButtonAction: () => setPage(0),
+        backButtonAction: () => {
+          setPage(0);
+          updateAmount("");
+        },
         hasAmountInput: true,
-        minimumAmount: "100",
+        minimumAmount: "1",
+        rate: (<span>1 USDC = 1 Complete Set</span>),
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -451,6 +498,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         needsApproval: true,
         approvalAction: ApprovalAction.ADD_LIQUIDITY,
         showMarketTitle: true,
+        headerActionButton: <TinyThemeButton text="Mint Complete Sets" action={() => setPage(2)} />,
       },
       {
         header: "Back",
@@ -487,6 +535,26 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               value: `100%`,
             },
           ],
+        },
+      },
+      {
+        header: "Mint Complete Sets",
+        hasBackButton: true,
+        backButtonAction: () => {
+          setPage(0);
+          updateAmount("");
+        },
+        hasAmountInput: true,
+        minimumAmount: "1",
+        rate: (<span>1 USDC = 1 Complete Set</span>),
+        needsApproval: true,
+        approvalAction: ApprovalAction.MINT_SETS,
+        actionButtonText: "Mint Complete Sets",
+        actionButtonAction: mintCompleteSetsAction,
+        showMarketTitle: true,
+        confirmReceiveOverview: {
+          title: "What you will receive",
+          breakdown: getMintBreakdown(),
         },
       },
     ],
@@ -596,6 +664,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             updateCash={updateCash}
             updateAmountError={() => null}
             error={hasAmountErrors}
+            rate={curPage?.rate}
           />
         )}
         {curPage.setFees && (
@@ -677,11 +746,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         )}
         <section>
           {curPage.needsApproval && !isApproved && (
-            <ApprovalButton
-              amm={amm}
-              cash={cash}
-              actionType={curPage.approvalAction}
-            />
+            <ApprovalButton amm={amm} cash={cash} actionType={curPage.approvalAction} />
           )}
           <SecondaryThemeButton
             action={curPage.actionButtonAction}
