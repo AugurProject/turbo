@@ -12,8 +12,8 @@ import {
   FeePot,
   OwnedERC20,
   OwnedERC20__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, DEAD_ADDRESS } from "../src";
@@ -25,22 +25,22 @@ describe("Turbo", () => {
   const FAKE_ADDRESS = "0xFA0E00000000000000000000000000000000FA0E";
 
   let BPool__factory: BPool__factory;
-  let TrustedMarketFactory__factory: TrustedMarketFactory__factory;
+  let TrustedMarketFactoryV3__factory: TrustedMarketFactoryV3__factory;
 
   before(async () => {
     await deployments.fixture();
     [signer] = await ethers.getSigners();
 
     BPool__factory = (await ethers.getContractFactory("BPool")) as BPool__factory;
-    TrustedMarketFactory__factory = (await ethers.getContractFactory(
-      "TrustedMarketFactory"
-    )) as TrustedMarketFactory__factory;
+    TrustedMarketFactoryV3__factory = (await ethers.getContractFactory(
+      "TrustedMarketFactoryV3"
+    )) as TrustedMarketFactoryV3__factory;
 
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     collateral = (await ethers.getContract("Collateral")) as Cash;
     const feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await TrustedMarketFactory__factory.deploy(
+    marketFactory = await TrustedMarketFactoryV3__factory.deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -59,7 +59,7 @@ describe("Turbo", () => {
 
   let collateral: Cash;
   let shareFactor: BigNumber;
-  let marketFactory: TrustedMarketFactory;
+  let marketFactory: TrustedMarketFactoryV3;
   let marketId: BigNumber;
   let noContest: OwnedERC20;
   let all: OwnedERC20;

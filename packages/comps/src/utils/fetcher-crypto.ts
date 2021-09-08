@@ -6,7 +6,7 @@ import {
   AMMFactory__factory,
   instantiateFetcher,
   CryptoFetcher,
-  CryptoMarketFactory,
+  CryptoMarketFactoryV3,
 } from "@augurproject/smart";
 
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
@@ -27,7 +27,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     config.subtype,
     config.address,
     getProviderOrSigner(provider, account)
-  ) as unknown) as CryptoMarketFactory;
+  ) as unknown) as CryptoMarketFactoryV3;
   const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
 
   const { factoryBundle, markets } = await fetchInitialCrypto(

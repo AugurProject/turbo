@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { FuturesMarketFactory__factory } from "../typechain";
+import { FuturesMarketFactoryV3__factory } from "../typechain";
 import { getCollateral, getFees } from "../src/utils/deploy";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { address: feePotAddress } = await deployments.get("FeePot");
   const fees = getFees();
 
-  const args: Parameters<FuturesMarketFactory__factory["deploy"]> = [
+  const args: Parameters<FuturesMarketFactoryV3__factory["deploy"]> = [
     owner,
     collateralAddress,
     shareFactor,
@@ -22,6 +22,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   ];
 
   await deployments.deploy("FuturesMarketFactory", {
+    contract: "FuturesMarketFactoryV3",
     from: deployer,
     args,
     log: true,

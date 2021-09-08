@@ -8,8 +8,8 @@ import {
   FeePot,
   FeePot__factory,
   FuturesFetcher__factory,
-  FuturesMarketFactory,
-  FuturesMarketFactory__factory,
+  FuturesMarketFactoryV3,
+  FuturesMarketFactoryV3__factory,
   GroupFetcher,
   MasterChef,
 } from "../typechain";
@@ -81,7 +81,7 @@ describe("Futures Markets", () => {
   let collateral: Cash;
   let reputationToken: Cash;
   let feePot: FeePot;
-  let marketFactory: FuturesMarketFactory;
+  let marketFactory: FuturesMarketFactoryV3;
   let ammFactory: AMMFactory;
 
   const OUTCOME_NO = 0;
@@ -100,7 +100,7 @@ describe("Futures Markets", () => {
     collateral = (await ethers.getContract("Collateral")) as Cash;
     const bFactory = await new BFactory__factory(signer).deploy();
     const shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new FuturesMarketFactory__factory(signer).deploy(
+    marketFactory = await new FuturesMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,

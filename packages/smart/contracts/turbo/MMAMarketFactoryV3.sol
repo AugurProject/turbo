@@ -2,22 +2,20 @@
 pragma solidity 0.7.6;
 pragma abicoder v2;
 
-import "../libraries/IERC20Full.sol";
-import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/Sport.sol";
+import "../libraries/ResolveByFiat.sol";
 import "../libraries/HasHeadToHeadMarket.sol";
-import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
 
-contract MLBMarketFactory is AbstractMarketFactoryV3, SportView, HasHeadToHeadMarket, ResolvesByScore, Versioned {
+contract MMAMarketFactoryV3 is AbstractMarketFactoryV3, SportView, ResolvesByFiat, HasHeadToHeadMarket, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
     uint256 constant HeadToHead = 0;
-    string constant InvalidName = "No Contest";
+    string constant InvalidName = "No Contest / Draw";
 
     constructor(
         address _owner,
@@ -65,11 +63,22 @@ contract MLBMarketFactory is AbstractMarketFactoryV3, SportView, HasHeadToHeadMa
         _marketIds[HeadToHead] = makeHeadToHeadMarket(_moneylines, _homeTeamName, _awayTeamName);
     }
 
-    function resolveValidEvent(
-        SportsEvent memory _event,
-        uint256 _homeScore,
-        uint256 _awayScore
-    ) internal override {
-        resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
+    function resolveValidEvent(SportsEvent memory _event, uint256 _whoWon) internal override {
+        resolveHeadToHeadMarket(_event.markets[HeadToHead], _whoWon);
+    }
+
+    function resolveHeadToHeadMarket(uint256 _marketId, uint256 _whoWon) internal {
+        uint256 _shareTokenIndex = calcHeadToHeadWinner(_whoWon);
+        endMarket(_marketId, _shareTokenIndex);
+    }
+
+    function calcHeadToHeadWinner(uint256 _whoWon) internal pure returns (uint256) {
+        if (WhoWonHome == _whoWon) {
+            return HeadToHeadHome;
+        } else if (WhoWonAway == _whoWon) {
+            return HeadToHeadAway;
+        } else {
+            return NoContest; // shouldn't happen here
+        }
     }
 }

@@ -2,7 +2,7 @@ import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
-import { Cash, MMAMarketFactory, OwnedERC20__factory } from "../typechain";
+import { Cash, MMAMarketFactoryV3, OwnedERC20__factory } from "../typechain";
 import { BigNumber } from "ethers";
 import { MMAWhoWon, SportsLinkEventStatus } from "../src";
 
@@ -21,14 +21,14 @@ describe("MMA Factory", () => {
   const estimatedStartTime = now.add(60 * 60 * 24); // one day
 
   let collateral: Cash;
-  let marketFactory: MMAMarketFactory;
+  let marketFactory: MMAMarketFactoryV3;
   let headToHeadMarketId: BigNumber;
 
   beforeEach(async () => {
     await deployments.fixture();
 
     [signer] = await ethers.getSigners();
-    marketFactory = (await ethers.getContract("MMAMarketFactory")) as MMAMarketFactory;
+    marketFactory = (await ethers.getContract("MMAMarketFactoryV3")) as MMAMarketFactoryV3;
     collateral = (await ethers.getContract("Collateral")) as Cash;
 
     await marketFactory.createEvent(eventId, homeTeamName, homeTeamId, awayTeamName, awayTeamId, estimatedStartTime, [

@@ -17,7 +17,7 @@ import "../libraries/Versioned.sol";
 // NCAA-FB is identical to NFL except there are no ties.
 // As a consequence, spread and over-under lines add a half-point,
 // and the invalid outcome is just No Contest.
-contract NCAAFBMarketFactory is
+contract NCAAFBMarketFactoryV3 is
     AbstractMarketFactoryV3,
     SportView,
     HasHeadToHeadMarket,

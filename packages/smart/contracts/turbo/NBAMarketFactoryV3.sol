@@ -14,7 +14,7 @@ import "../libraries/HasOverUnderMarket.sol";
 import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
 
-contract NBAMarketFactory is
+contract NBAMarketFactoryV3 is
     AbstractMarketFactoryV3,
     SportView,
     HasHeadToHeadMarket,

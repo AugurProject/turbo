@@ -6,7 +6,7 @@ import "./AbstractMarketFactoryV3.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 import "../libraries/Versioned.sol";
 
-contract TrustedMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned {
+contract TrustedMarketFactoryV3 is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned {
     using SafeMathUint256 for uint256;
 
     struct MarketDetails {

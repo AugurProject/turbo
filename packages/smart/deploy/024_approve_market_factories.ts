@@ -16,27 +16,27 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const earlyDepositBonusRewards = BigNumber.from(0);
 
   await deployments
-    .get("CryptoMarketFactory")
+    .get("CryptoMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
   await deployments
-    .get("NBAMarketFactory")
+    .get("NBAMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
   await deployments
-    .get("MLBMarketFactory")
+    .get("MLBMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
   await deployments
-    .get("MMAMarketFactory")
+    .get("MMAMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
   await deployments
-    .get("NFLMarketFactory")
+    .get("NFLMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
