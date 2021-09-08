@@ -96,7 +96,7 @@
 
       min-height: @size-56;
       max-height: @size-56;
-      padding: @size-20 @size-24;
+      padding: @size-12;
 
       > button {
         .text-12-semi-bold;
@@ -109,13 +109,19 @@
         justify-content: flex-end;
         cursor: pointer;
 
-        > svg {
+        > svg:not([name="MaticIcon"]) {
           transform: rotate(90deg);
           margin-right: @size-4;
         }
 
+        > svg[name="MaticIcon"] {
+          margin-left: @size-4;
+          width: @size-16;
+          height: @size-16;
+        }
+
         &.Ascending {
-          > svg {
+          > svg:not([name="MaticIcon"]) {
             transform: rotate(-90deg);
           }
         }
@@ -144,15 +150,17 @@
   .LiquidityTableRow;
   .HoverDropShadow;
 
-  > a:first-of-type {
+  > a:first-of-type,
+  > button:first-of-type {
     display: grid;
     grid-template-columns: 0fr 1fr;
     grid-gap: @size-16;
     align-items: center;
+    outline: none;
 
     > span {
-      display: flex;
-      flex-flow: column nowrap;
+      display: grid;
+      grid-gap: @size-4;
 
       > span:first-of-type {
         .text-14-semi-bold;
@@ -184,9 +192,15 @@
         white-space: nowrap;
         word-break: none;
         display: inline-block;
-        text-transform: uppercase;
+        text-transform: capitalize;
       }
     }
+  }
+
+  > button:first-of-type {
+    display: none;
+    border: none;
+    background: transparent;
   }
 
   > span {
@@ -194,16 +208,6 @@
 
     color: var(--primary-text);
     text-align: right;
-    display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    justify-content: flex-end;
-    grid-gap: @size-4;
-
-    > svg {
-      height: @size-20;
-      width: @size-20;
-    }
   }
 
   > div:last-of-type {
@@ -224,29 +228,19 @@
     }
   }
 
+  > article:last-of-type {
+    display: none;
+  }
+
   &.HasUserLiquidity {
-    padding: 0;
-    grid-gap: 0 @size-8;
-
-    > a,
-    > span,
-    > div {
-      margin: @size-10 0;
-    }
-
-    > a {
-      margin-left: @size-24;
-    }
-    > div {
-      margin-right: @size-24;
-    }
-
     > article:last-of-type {
+      display: flex;
       grid-column: span 7;
       border-top: @size-1 solid var(--theme-border);
       padding: @size-16 @size-24;
       height: unset;
       max-height: unset;
+      margin: 0 -@size-12 -@size-12;
     }
   }
 }
@@ -325,10 +319,14 @@
 
           > svg {
             margin-left: @size-8;
+            height: @size-12;
+            width: @size-12;
           }
 
           > span {
             .text-10-semi-bold;
+
+            text-transform: uppercase;
           }
         }
       }
@@ -380,13 +378,33 @@
     grid-template-columns: 1fr 0.2fr 0.2fr;
     padding: @size-12;
 
-    > a:first-of-type {
+    > a:first-of-type,
+    > button:first-of-type {
       > span {
+        > span:first-of-type {
+          > span {
+            .text-12-semi-bold;
+            text-align: left;
+          }
+        }
         > span:last-of-type {
           .text-10;
 
           white-space: normal;
+          text-align: left;
         }
+      }
+    }
+
+    > a:first-of-type {
+      display: none;
+    }
+
+    > button:first-of-type {
+      display: grid;
+
+      > span > span:first-of-type:hover {
+        text-decoration: none;
       }
     }
 
@@ -401,7 +419,6 @@
       &:nth-of-type(3) {
         display: flex;
         margin-left: auto;
-        margin-right: @size-12;
       }
     }
 
@@ -412,7 +429,7 @@
       border-top: @size-1 solid var(--theme-border);
       padding: @size-10;
       grid-gap: 0;
-      display: flex;
+      display: none;
       flex-flow: row nowrap;
 
       > button:first-of-type:last-of-type {
@@ -424,9 +441,40 @@
       }
     }
 
+    &.Expanded {
+      > div:last-of-type {
+        display: flex;
+      }
+    }
+
     &.HasUserLiquidity {
+      padding: 0;
+      grid-gap: 0 @size-8;
+
+      > a,
+      > span,
+      > button:first-of-type,
+      > div {
+        margin: @size-10 0;
+      }
+
+      > span:nth-of-type(3) {
+        margin-right: @size-12;
+        justify-content: flex-end;
+      }
+
+      > a,
+      > button:first-of-type {
+        margin-left: @size-12;
+      }
+      > div {
+        margin-right: @size-12;
+      }
+
       > article:last-of-type {
         grid-column: span 3;
+        margin: 0;
+        padding: @size-12;
       }
 
       > div:last-of-type {
@@ -467,10 +515,10 @@
       align-items: center;
       justify-content: flex-end;
       grid-gap: @size-4;
-  
+
       > svg {
-        height: @size-20;
-        width: @size-20;
+        height: @size-16;
+        width: @size-16;
       }
 
       &:first-of-type {
@@ -478,7 +526,10 @@
       }
 
       &:last-of-type {
+        .text-10;
+
         color: var(--secondary-text);
+        text-transform: capitalize;
       }
     }
   }

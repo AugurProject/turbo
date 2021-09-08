@@ -174,37 +174,50 @@
   max-width: 406px;
   max-height: 108px;
 
-  > h4 {
-    .text-14-semi-bold;
+  > section {
+    display: flex;
+    flex-flow: column nowrap;
 
-    color: var(--primary-text);
-    margin-bottom: @size-2;
-  }
-  
-  > p {
-    .text-12;
-
-    color: var(--secondary-text);
-  }
-
-  > span:first-of-type {
-    .text-20-semi-bold;
-
-    color: var(--primary-text);
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-gap: @size-4;
-
-    > svg {
-      height: @size-20;
-      width: @size-20;
+    &:first-of-type {
+      > h4 {
+        .text-14-semi-bold;
+    
+        color: var(--primary-text);
+        margin-bottom: @size-4;
+      }
+      
+      > p {
+        .text-12;
+    
+        color: var(--secondary-text);
+      }
     }
-  }
 
-  > span:last-of-type {
-    .text-12-semi-bold;
+    &:last-of-type {
+      justify-content: center;
 
-    color: var(--secondary-text);
+      > span:first-of-type {
+        .text-20-semi-bold;
+    
+        color: var(--primary-text);
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-gap: @size-4;
+        line-height: @size-20;
+        max-height: @size-20;
+    
+        > svg {
+          height: @size-20;
+          width: @size-20;
+        }
+      }
+    
+      > span:last-of-type {
+        .text-12-semi-bold;
+    
+        color: var(--secondary-text);
+      }
+    }
   }
 }
 
@@ -257,5 +270,7 @@
   .AvailableLiquidityRewards {
     max-height: unset;
     max-width: unset;
+    grid-gap: @size-12;
+    padding: @size-8 @size-16;
   }
 }

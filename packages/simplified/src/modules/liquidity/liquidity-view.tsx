@@ -214,29 +214,35 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     [liquidityUSD]
   );
   const [price, setPrice] = useState(1);
+  const [expanded, setExpanded] = useState(false);
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
-  const rewardAmount = formatToken(pendingUserRewards?.balance || "0");
+  const rewardAmount = formatToken(pendingUserRewards?.balance || "0", { decimalsRounded: 2, decimals: 2 });
   getMaticUsdPrice(loginAccount?.library).then(setPrice);
   const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
       className={classNames(Styles.LiquidityMarketCard, {
         [Styles.HasUserLiquidity]: userHasLiquidity,
+        [Styles.Expanded]: expanded,
       })}
     >
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
+      <button onClick={() => setExpanded(!expanded)}>
+        <CategoryIcon {...{ categories }} />
+        <MarketTitleArea {...{ ...market, timeFormat }} />
+      </button>
       <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp) : "-"}</span>
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
       <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>{rewardAmount.formatted} {MaticIcon}</span>
+      <span>{rewardAmount.formatted} wMATIC</span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
@@ -437,6 +443,6 @@ const SortableHeaderButton = ({ setSortBy, sortBy, sortType, text }: SortableHea
       }
     }}
   >
-    {sortBy.type === sortType && Arrow} {text}
+    {sortBy.type === sortType && Arrow} {text} {sortType === SORT_TYPES.REWARDS ? MaticIcon : null}
   </button>
 );
