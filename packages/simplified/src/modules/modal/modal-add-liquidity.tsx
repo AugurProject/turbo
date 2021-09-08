@@ -645,7 +645,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           />
         )}
         <section>
-          {curPage.needsApproval && !isApproved && (
+          {curPage.needsApproval && isApproved && (
             <ApprovalButton
               amm={amm}
               cash={cash}
