@@ -47,6 +47,9 @@ import {
   XRPIcon,
   XTZIcon,
   USDTIcon,
+  ADAIcon,
+  DOGEIcon,
+  MATICIcon,
 } from "./category-icons";
 import { AugurBlankIcon } from "./icons";
 // SUB CATEGORIES
@@ -112,6 +115,10 @@ const ADDITIONAL_TOKENS = "Additional Tokens";
 const AWARDS = "Awards";
 const TV_MOVIES = "TV & Movies";
 const SOCIAL_MEDIA = "Social Media";
+const DOGE = 'DOGE';
+const ADA = "ADA";
+const MATIC = "MATIC";
+
 export const CATEGORIES_ICON_MAP = {
   [CRYPTO.toLowerCase()]: {
     icon: CryptoIcon,
@@ -149,6 +156,9 @@ export const CATEGORIES_ICON_MAP = {
       [XRP.toLowerCase()]: { icon: XRPIcon },
       [XTZ.toLowerCase()]: { icon: XTZIcon },
       [ZEROX.toLowerCase()]: { icon: ZRXIcon },
+      [DOGE.toLowerCase()]: { icon: DOGEIcon },
+      [ADA.toLowerCase()]: { icon: ADAIcon },
+      [MATIC.toLowerCase()]: { icon: MATICIcon },
     },
   },
   [ECONOMICS.toLowerCase()]: { icon: FinanceIcon, subOptions: {} },
