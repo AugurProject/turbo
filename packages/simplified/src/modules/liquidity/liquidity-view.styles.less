@@ -409,7 +409,8 @@
       &:nth-of-type(3) {
         display: flex;
         margin-left: auto;
-        margin-right: @size-12;
+        // text-align: right;
+        // margin-right: @size-12;
       }
     }
 
@@ -447,6 +448,11 @@
       > button:first-of-type,
       > div {
         margin: @size-10 0;
+      }
+
+      > span:nth-of-type(3) {
+        margin-right: @size-12;
+        justify-content: flex-end;
       }
 
       > a,
@@ -513,6 +519,7 @@
         .text-10;
 
         color: var(--secondary-text);
+        text-transform: capitalize;
       }
     }
   }
