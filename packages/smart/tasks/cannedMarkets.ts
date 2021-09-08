@@ -8,6 +8,7 @@ import {
   getUpcomingFriday4pmET,
   MarketFactoryType,
   NBAMarketFactory,
+  range,
 } from "..";
 import { ManagedByLink, MMAMarketFactory } from "../typechain";
 import { BigNumber, BigNumberish, ContractReceipt, ContractTransaction, Signer } from "ethers";
@@ -92,10 +93,6 @@ function makeWait(confirmations: number) {
   return (tx: ContractTransaction): Promise<ContractReceipt> => {
     return tx.wait(confirmations);
   };
-}
-
-function range(inclusiveMin: number, exclusiveMax: number): number[] {
-  return [...new Array(exclusiveMax - inclusiveMin).keys()].map((i) => i + inclusiveMin);
 }
 
 export function randomPrice(min = 1, max = 100000): BigNumber {

@@ -34,7 +34,6 @@ contract FuturesMarketFactory is AbstractMarketFactoryV3, Grouped, ManagedByLink
         uint256 _endTime,
         string memory _category
     ) public onlyLinkNode {
-        require(marketGroups[_groupId].status == GroupStatus.Unknown);
         startCreatingMarketGroup(_groupId, _groupName, _endTime, _invalidMarketName, _category);
     }
 
@@ -43,7 +42,6 @@ contract FuturesMarketFactory is AbstractMarketFactoryV3, Grouped, ManagedByLink
         string[] memory _marketNames,
         uint256[][] memory _odds
     ) public onlyLinkNode {
-        require(marketGroups[_groupId].status == GroupStatus.BeingCreated);
         require(_marketNames.length == _odds.length);
 
         for (uint256 i = 0; i < _marketNames.length; i++) {
@@ -51,18 +49,25 @@ contract FuturesMarketFactory is AbstractMarketFactoryV3, Grouped, ManagedByLink
         }
     }
 
-    function finalizeGroup(uint256 _groupId) public onlyLinkNode {
-        finalizeMarketGroup(_groupId);
+    // Set _winner to MAX_UINT (2*256 - 1) to indicate invalid
+    function beginResolvingGroup(uint256 _groupId, uint256 _winningMarketIndex) public onlyLinkNode {
+        startResolvingMarketGroup(_groupId, _winningMarketIndex);
     }
 
-    // Set _winner to MAX_UINT (2*256 - 1) to indicate invalid
-    function resolveGroup(uint256 _groupId, uint256 _winningMarketIndex) public onlyLinkNode {
+    function resolveMarkets(uint256 _groupId, uint256[] memory _marketIndexes) public onlyLinkNode {
         MarketGroup memory _group = marketGroups[_groupId];
+        require(_group.status == GroupStatus.Finalizing);
 
-        // Group must be exist and be scheduled.
-        require(_group.status == GroupStatus.Scheduled);
+        for (uint256 i = 0; i < _marketIndexes.length; i++) {
+            uint256 _marketIndex = _marketIndexes[i];
+            uint256 _marketId = _group.markets[_marketIndex];
+            if (isMarketResolved(_marketId)) continue; // skip resolved markets
+            resolveFinalizingGroupMarket(_groupId, _marketIndex);
+        }
+    }
 
-        resolveMarketGroup(_groupId, _winningMarketIndex);
+    function finalizeGroup(uint256 _groupId) public onlyLinkNode {
+        finalizeMarketGroup(_groupId);
     }
 
     // Used when some markets in a group can resolve early as NO.

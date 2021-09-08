@@ -489,6 +489,12 @@ export const ApprovalButton = ({
           text = `Liquidity (${marketCashType})`;
           break;
         }
+        case ApprovalAction.MINT_SETS: {
+          address = amm?.cash?.address;
+          spender = amm?.marketFactoryAddress;
+          text = `Mint Complete Sets`;
+          break;
+        }
         case ApprovalAction.ADD_LIQUIDITY:
         default: {
           break;

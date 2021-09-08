@@ -130,7 +130,6 @@ describe("CryptoFactory", function () {
       [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
       nextResolutionTime
     );
-    console.log("MARINA", await tx.wait().then((r) => r.gasUsed));
   });
 
   it("CoinAdded logs are correct", async () => {
@@ -379,7 +378,7 @@ describe("CryptoFactory", function () {
         nextResolutionTime
       )
     ).to.eventually.be.rejectedWith(
-      "VM Exception while processing transaction: revert Must use first round after resolution time"
+      "VM Exception while processing transaction: reverted with reason string 'Must use first round after resolution time'"
     );
   });
 
