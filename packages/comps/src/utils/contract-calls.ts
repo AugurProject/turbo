@@ -135,9 +135,11 @@ export async function mintCompleteSets(
   const marketFactoryData = getMarketFactoryData(amm.marketFactoryAddress);
   if (!marketFactoryData) return null;
   const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
-  console.log('mint', amount, marketFactoryData  );
+  console.log("mint", amount, marketFactoryData);
   const totalAmount = convertDisplayCashAmountToOnChainCashAmount(amount, amm?.cash?.decimals).toFixed();
-  const tx = await marketFactoryContract.mintShares(amm?.market?.turboId, totalAmount, account).catch((e) => console.error(e));
+  const tx = await marketFactoryContract
+    .mintShares(amm?.market?.turboId, totalAmount, account)
+    .catch((e) => console.error(e));
 
   return tx;
 }
