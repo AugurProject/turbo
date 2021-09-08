@@ -117,6 +117,33 @@ export const checkConvertLiquidityProperties = (
   return true;
 };
 
+export async function mintCompleteSets(
+  amm: AmmExchange,
+  provider: Web3Provider,
+  amount: string,
+  account: string
+): Promise<TransactionResponse> {
+  if (!provider) {
+    console.error("mintCompleteSets: no provider");
+    return null;
+  }
+  if (!amm || !amm?.ammFactoryAddress) {
+    console.error("minCompleteSets: no amm provided");
+    return null;
+  }
+
+  const marketFactoryData = getMarketFactoryData(amm.marketFactoryAddress);
+  if (!marketFactoryData) return null;
+  const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
+  const totalAmount = sharesDisplayToOnChain(amount).toFixed();
+  console.log("mint", marketFactoryContract.address, amm?.market?.turboId, totalAmount, account);
+  const tx = await marketFactoryContract
+    .mintShares(amm?.market?.turboId, totalAmount, account)
+    .catch((e) => console.error(e));
+
+  return tx;
+}
+
 export async function estimateAddLiquidityPool(
   account: string,
   provider: Web3Provider,
