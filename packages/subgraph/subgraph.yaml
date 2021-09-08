@@ -302,31 +302,29 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
-#  
-#    - kind: ethereum/contract
-#      name: FuturesMarketFactoryV3
-#      network: mumbai
-#      source:
-#        address: '0xe540531CFF46b3e4F20aF5E5973C281E35151fe8'
-#        abi: FuturesMarketFactory
-#        startBlock: 15336699
-#      mapping:
-#        kind: ethereum/events
-#        apiVersion: 0.0.4
-#        language: wasm/assemblyscript
-#        file: ./src/mappings/FuturesMarketFactoryV3.ts
-#        entities:
-#          - MarketCreated
-#          - MarketResolved
-#          - WinningsClaimed
-#        abis:
-#          - name: FuturesMarketFactory
-#            file: ./abis/FuturesMarketFactory.json
-#        eventHandlers:
-#          - event: MarketCreated(uint256,string[],uint256[])
-#            handler: handleMarketCreatedEvent
-#          - event: MarketResolved(uint256,address,uint256,string)
-#            handler: handleMarketResolvedEvent
-#          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
-#            handler: handleWinningsClaimedEvent
-#  
+    - kind: ethereum/contract
+      name: FuturesMarketFactoryV3
+      network: mumbai
+      source:
+        address: '0xe540531CFF46b3e4F20aF5E5973C281E35151fe8'
+        abi: FuturesMarketFactory
+        startBlock: 15336699
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.4
+        language: wasm/assemblyscript
+        file: ./src/mappings/FuturesMarketFactoryV3.ts
+        entities:
+          - MarketCreated
+          - MarketResolved
+          - WinningsClaimed
+        abis:
+          - name: FuturesMarketFactory
+            file: ./abis/FuturesMarketFactory.json
+        eventHandlers:
+          - event: MarketCreated(uint256,string[],uint256[])
+            handler: handleMarketCreatedEvent
+          - event: MarketResolved(uint256,address,uint256,string)
+            handler: handleMarketResolvedEvent
+          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
+            handler: handleWinningsClaimedEvent
