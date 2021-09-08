@@ -198,7 +198,7 @@ const Outcome = ({
       setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
-  console.log('hasInvalidOutcome', hasInvalidOutcome)
+
   const price = !!hasLiquidity ? formatCashPrice(outcome?.price, ammCash?.name).full : prepend ? `-` : `- ${symbol}`;
   const oppositePrice = !!hasLiquidity
     ? formatCashPrice(ONE.minus(outcome?.price), ammCash?.name).full
