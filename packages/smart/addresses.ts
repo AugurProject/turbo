@@ -397,7 +397,6 @@ export const addresses: AddressMapping = {
         description: "crypto prices",
         version: "renaming-2021-09-08",
       },
-      
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
   },
