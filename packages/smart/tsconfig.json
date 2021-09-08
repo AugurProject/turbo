@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["./scripts", "./typechain", "./src", "./deploy", "./test", "./tasks"],
-  "files": ["./addresses.ts","./index.ts","./hardhat.config.ts", "./hardhat.typechain.config.ts", "./abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json"],
+  "files": ["./addresses.ts","./constants.ts","./index.ts","./hardhat.config.ts", "./hardhat.typechain.config.ts", "./abi/@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol/AggregatorV3Interface.json"],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "."

@@ -26,6 +26,7 @@ describe("MasterChef", () => {
   let cash: Cash;
   let rewardsToken: Cash;
   let masterChef: MasterChef;
+  let tomMasterChef: MasterChef;
 
   let poolEndTimestamp: BigNumber;
   let beginTimestamp: BigNumber;
@@ -52,6 +53,9 @@ describe("MasterChef", () => {
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     [bill, tom] = await ethers.getSigners();
+
+    tomMasterChef = masterChef.connect(tom);
+
     await masterChef.trustAMMFactory(bill.address);
 
     await masterChef.addRewards(bill.address, BigNumber.from(2), BONE.mul(95), ZERO);
@@ -62,8 +66,8 @@ describe("MasterChef", () => {
     await rewardsToken.faucet(faucetedRewards);
     await rewardsToken.transfer(masterChef.address, faucetedRewards);
 
-    await cash.faucet(initialCashAmount);
-    await cash.approve(masterChef.address, initialCashAmount);
+    await cash.connect(tom).faucet(initialCashAmount);
+    await cash.connect(tom).approve(masterChef.address, initialCashAmount);
   });
 
   describe("estimated start time (EST) to end rewards", () => {
@@ -106,7 +110,7 @@ describe("MasterChef", () => {
     });
 
     it("should pay if deposited and left for duration of the reward pool's lifespan", async () => {
-      await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+      await tomMasterChef.deposit(0, initialCashAmount);
 
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(1).toNumber()]);
       await network.provider.send("evm_mine", []);
@@ -115,7 +119,7 @@ describe("MasterChef", () => {
       expect(pendingRewardsInfo.accruedStandardRewards).to.be.equal(0);
       expect(pendingRewardsInfo.accruedEarlyDepositBonusRewards).to.be.equal(rewardsPerPeriod);
 
-      await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount);
+      await tomMasterChef.withdraw(0, initialCashAmount);
 
       expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod);
     });
@@ -123,32 +127,32 @@ describe("MasterChef", () => {
     it("should not pay if a deposit is made after the bonus period has elapsed", async () => {
       const timestampAfterBonusRewards = adjustTimestamp(beginTimestamp, poolEndTimestamp, 15);
 
-      await masterChef.trustedDeposit(tom.address, 0, initialCashAmount.div(2));
+      await tomMasterChef.deposit(0, initialCashAmount.div(2));
 
       await network.provider.send("evm_setNextBlockTimestamp", [timestampAfterBonusRewards]);
       await network.provider.send("evm_mine", []);
 
-      await masterChef.trustedDeposit(tom.address, 0, initialCashAmount.div(2));
+      await tomMasterChef.deposit(0, initialCashAmount.div(2));
 
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
       await network.provider.send("evm_mine", []);
 
-      await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount);
+      await tomMasterChef.withdraw(0, initialCashAmount);
 
       expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(0);
     });
 
     describe("double withdrawal", () => {
       it("should return early bonus", async () => {
-        await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+        await tomMasterChef.deposit(0, initialCashAmount);
 
         await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
         await network.provider.send("evm_mine", []);
 
-        await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+        await tomMasterChef.withdraw(0, initialCashAmount.div(2));
         expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod);
 
-        await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+        await tomMasterChef.withdraw(0, initialCashAmount.div(2));
         expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(rewardsPerPeriod);
       });
     });
@@ -166,7 +170,7 @@ describe("MasterChef", () => {
     });
 
     it("should not distribute any rewards", async () => {
-      await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+      await tomMasterChef.deposit(0, initialCashAmount);
 
       const poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -207,7 +211,7 @@ describe("MasterChef", () => {
       describe("entry at beginning of pool", () => {
         describe("pool info and pending rewards", () => {
           beforeEach(async () => {
-            await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+            await tomMasterChef.deposit(0, initialCashAmount);
           });
 
           it("should calculate correctly 25%", async () => {
@@ -257,18 +261,18 @@ describe("MasterChef", () => {
           it("should withdraw all the rewards", async () => {
             const halfwayPoint = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
 
-            await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+            await tomMasterChef.deposit(0, initialCashAmount);
 
             await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
 
             // it distributes all the pending rewards.
-            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
             const tokenBalance = await rewardsToken.balanceOf(tom.address);
             checkWithin(tokenBalance, totalRewards.div(2), BONE);
 
             await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
 
-            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
             const secondTokenBalance = await rewardsToken.balanceOf(tom.address);
             checkWithin(secondTokenBalance, totalRewards, BONE);
           });
@@ -277,20 +281,20 @@ describe("MasterChef", () => {
         describe("stake twice", () => {
           it("should not overflow", async () => {
             // Depositing twice was causing this issue.
-            await masterChef.trustedDeposit(tom.address, 0, initialCashAmount.div(2));
-            await masterChef.trustedDeposit(tom.address, 0, initialCashAmount.div(2));
+            await tomMasterChef.deposit(0, initialCashAmount.div(2));
+            await tomMasterChef.deposit(0, initialCashAmount.div(2));
 
             await network.provider.send("evm_setNextBlockTimestamp", [
               adjustTimestamp(beginTimestamp, poolEndTimestamp, 25),
             ]);
-            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(4));
+            await tomMasterChef.withdraw(0, initialCashAmount.div(4));
 
             // it distributes all the pending rewards.
             const balance = await rewardsToken.balanceOf(tom.address);
             expect(totalRewards.div(4).sub(balance)).to.be.lte(100);
 
             await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
-            await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
           });
         });
       });
@@ -298,7 +302,7 @@ describe("MasterChef", () => {
 
     describe("after end of pool rewards", () => {
       beforeEach(async () => {
-        await masterChef.trustedDeposit(tom.address, 0, initialCashAmount);
+        await tomMasterChef.deposit(0, initialCashAmount);
 
         const poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -317,7 +321,7 @@ describe("MasterChef", () => {
       });
 
       it("should send rewards on withdrawal", async () => {
-        await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount);
+        await tomMasterChef.withdraw(0, initialCashAmount);
 
         const balance = await rewardsToken.balanceOf(tom.address);
         checkWithin(balance, totalRewards, BONE);
@@ -328,7 +332,7 @@ describe("MasterChef", () => {
 
         await rewardsToken.transfer(masterChef.address, rewardsPerPeriod.div(2));
 
-        await masterChef.trustedWithdraw(tom.address, 0, initialCashAmount);
+        await tomMasterChef.withdraw(0, initialCashAmount);
 
         const balance = await rewardsToken.balanceOf(tom.address);
         expect(balance).to.be.equal(rewardsPerPeriod.div(2));

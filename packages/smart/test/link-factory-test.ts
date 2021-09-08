@@ -11,7 +11,6 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
-  MasterChef__factory,
   NBAFetcher,
   NBAFetcher__factory,
   NBAMarketFactoryV3,
@@ -22,12 +21,12 @@ import {
 import { BigNumber, BigNumberish } from "ethers";
 import {
   calcShareFactor,
-  SportsLinkEventStatus,
   DynamicSportsMarket,
   fetchDynamicSports,
   fetchInitialSports,
   flatten,
   InitialSportsMarket,
+  SportsLinkEventStatus,
   TypeOfClassMethod,
   UnPromisify,
 } from "../src";
@@ -323,18 +322,9 @@ describe("Sports fetcher", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
-    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
-    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
-
-    const initialRewards = BONE.mul(10000);
-    await rewardsToken.faucet(initialRewards);
-    await rewardsToken.transfer(masterChef.address, initialRewards);
-
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
-
-    await masterChef.trustAMMFactory(ammFactory.address);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
 
     leastInterestingEvent = await makeTestEvent(marketFactory, {
       id: 7878,
@@ -464,18 +454,9 @@ describe("Sports fetcher no markets", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
-    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
-    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
-
-    const initialRewards = BONE.mul(10000);
-    await rewardsToken.faucet(initialRewards);
-    await rewardsToken.transfer(masterChef.address, initialRewards);
-
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
-
-    await masterChef.trustAMMFactory(ammFactory.address);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
 
     fetcher = await new NBAFetcher__factory(signer).deploy();
   });

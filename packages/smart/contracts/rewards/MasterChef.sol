@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol" as OpenZeppelinOwnable;
+import "../turbo/AbstractMarketFactoryV3.sol";
+import "../turbo/AMMFactory.sol";
 
 // MasterChef is the master of Reward. He can make Reward and he is a fair guy.
 contract MasterChef is OpenZeppelinOwnable.Ownable {
@@ -63,6 +65,11 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 pendingEarlyDepositBonusRewards;
     }
 
+    struct AddLiquidityReturnType {
+        uint256 _poolAmountOut;
+        uint256[] _balances;
+    }
+
     struct MarketFactoryInfo {
         uint256 earlyDepositBonusRewards; // Amount of REWARDs to distribute to early depositors.
         uint256 rewardsPeriods; // Number of days the rewards for this pool will payout.
@@ -70,18 +77,16 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
     mapping(address => MarketFactoryInfo) marketFactoryRewardInfo;
 
+    // AMMFactory => MarketFactory => MarketId
+    mapping(address => mapping(address => mapping(uint256 => uint256))) public rewardPoolLookup;
+
     // The REWARD TOKEN!
     IERC20 private rewardsToken;
 
     mapping(address => bool) private approvedAMMFactories;
 
-    modifier onlyApprovedAMMFactories() {
-        require(approvedAMMFactories[msg.sender], "Caller must be approved.");
-        _;
-    }
-
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
-    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address recipient);
     event TrustMarketFactory(
         address indexed MarketFactory,
         uint256 OriginEarlyDepositBonusRewards,
@@ -143,7 +148,15 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         address _marketFactory,
         IERC20 _lpToken,
         uint256 _endTimestamp
-    ) public onlyApprovedAMMFactories returns (uint256 _nextPID) {
+    ) public onlyOwner returns (uint256 _nextPID) {
+        return addInternal(_marketFactory, _lpToken, _endTimestamp);
+    }
+
+    function addInternal(
+        address _marketFactory,
+        IERC20 _lpToken,
+        uint256 _endTimestamp
+    ) internal returns (uint256 _nextPID) {
         _nextPID = poolInfo.length;
         MarketFactoryInfo memory _marketFactoryInfo = marketFactoryRewardInfo[_marketFactory];
 
@@ -269,6 +282,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
 
     // Deposit LP tokens to MasterChef for REWARD allocation.
+    // Assumes the staked tokens are already on contract.
     function depositInternal(
         address _userAddress,
         uint256 _pid,
@@ -302,7 +316,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _pool.totalEarlyDepositBonusRewardShares = _pool.totalEarlyDepositBonusRewardShares.add(_amount);
         }
 
-        _pool.lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         _user.amount = _user.amount.add(_amount);
 
         _user.rewardDebt = _user.amount.mul(_pool.accRewardsPerShare).div(BONE);
@@ -311,23 +324,17 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
 
     function deposit(uint256 _pid, uint256 _amount) public {
+        poolInfo[_pid].lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         depositInternal(msg.sender, _pid, _amount);
     }
 
-    // Allows approved contracts to deposit on behalf of a user.
-    function trustedDeposit(
-        address _user,
-        uint256 _pid,
-        uint256 _amount
-    ) public onlyApprovedAMMFactories {
-        depositInternal(_user, _pid, _amount);
-    }
-
     // Withdraw LP tokens from MasterChef.
+    // Assumes caller is handling distribution of LP tokens.
     function withdrawInternal(
         address _userAddress,
         uint256 _pid,
-        uint256 _amount
+        uint256 _amount,
+        address _tokenRecipientAddress
     ) internal {
         PoolInfo storage _pool = poolInfo[_pid];
         UserInfo storage _user = userInfo[_pid][_userAddress];
@@ -361,24 +368,77 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
         uint256 pending = _user.amount.mul(_pool.accRewardsPerShare).div(BONE).sub(_user.rewardDebt);
 
-        safeRewardsTransfer(_userAddress, pending);
+        safeRewardsTransfer(_tokenRecipientAddress, pending);
         _user.amount = _user.amount.sub(_amount);
         _user.rewardDebt = _user.amount.mul(_pool.accRewardsPerShare).div(BONE);
         _user.lastActionTimestamp = block.timestamp;
-        _pool.lpToken.safeTransfer(msg.sender, _amount);
-        emit Withdraw(msg.sender, _pid, _amount);
+
+        emit Withdraw(msg.sender, _pid, _amount, _tokenRecipientAddress);
     }
 
     function withdraw(uint256 _pid, uint256 _amount) public {
-        withdrawInternal(msg.sender, _pid, _amount);
+        withdrawInternal(msg.sender, _pid, _amount, msg.sender);
+        poolInfo[_pid].lpToken.safeTransfer(msg.sender, _amount);
     }
 
-    function trustedWithdraw(
-        address _user,
-        uint256 _pid,
-        uint256 _amount
-    ) public onlyApprovedAMMFactories {
-        withdrawInternal(_user, _pid, _amount);
+    function createPool(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _initialLiquidity,
+        address _lpTokenRecipient
+    ) public returns (uint256) {
+        _marketFactory.collateral().transferFrom(msg.sender, address(this), _initialLiquidity);
+        _marketFactory.collateral().approve(address(_ammFactory), _initialLiquidity);
+
+        uint256 _lpTokensIn = _ammFactory.createPool(_marketFactory, _marketId, _initialLiquidity, address(this));
+        IERC20 _lpToken = IERC20(address(_ammFactory.getPool(_marketFactory, _marketId)));
+
+        uint256 _nextPID = addInternal(address(_marketFactory), _lpToken, _marketFactory.getRewardEndTime(_marketId));
+
+        rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId] = _nextPID;
+        depositInternal(_lpTokenRecipient, _nextPID, _lpTokensIn);
+
+        return _lpTokensIn;
+    }
+
+    function addLiquidity(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _collateralIn,
+        uint256 _minLPTokensOut,
+        address _lpTokenRecipient
+    ) public returns (uint256 _poolAmountOut, uint256[] memory _balances) {
+        require(approvedAMMFactories[address(_ammFactory)], "AmmFactory must be approved to master chef.");
+
+        _marketFactory.collateral().transferFrom(msg.sender, address(this), _collateralIn);
+        _marketFactory.collateral().approve(address(_ammFactory), _collateralIn);
+
+        (_poolAmountOut, _balances) = _ammFactory.addLiquidity(
+            _marketFactory,
+            _marketId,
+            _collateralIn,
+            _minLPTokensOut,
+            _lpTokenRecipient
+        );
+
+        uint256 _pid = rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+        depositInternal(_lpTokenRecipient, _pid, _poolAmountOut);
+    }
+
+    function removeLiquidity(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _lpTokensIn,
+        uint256 _minCollateralOut,
+        address _collateralRecipient
+    ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
+        uint256 _pid = rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        withdrawInternal(msg.sender, _pid, _lpTokensIn, _collateralRecipient);
+        _ammFactory.removeLiquidity(_marketFactory, _marketId, _lpTokensIn, _minCollateralOut, _collateralRecipient);
     }
 
     function withdrawRewards(uint256 _amount) external onlyOwner {

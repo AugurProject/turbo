@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
-import { Addresses, MarketFactory } from "../addresses";
+import { Addresses, MarketFactory } from "../constants";
 
 const printer = ts.createPrinter();
 

@@ -1,108 +1,7 @@
 // This file is updated by deployer.
-export interface Addresses {
-  reputationToken: string;
-  balancerFactory: string;
-  // Lower index is newer.
-  marketFactories: MarketFactory[];
-  info: {
-    uploadBlockNumber: number;
-    graphName?: string; // optional because the graph doesn't support every network
-  };
-}
-export interface MarketFactory {
-  type: MarketFactoryType; // matches market factories that share markets
-  subtype: MarketFactorySubType; // for determining which ABI to use
-  address: string;
-  collateral: string;
-  ammFactory: string;
-  fetcher: string;
-  description?: string; // for humans to read
-  version?: string; // release version. for humans to read
-  hasRewards: boolean;
-}
-export const MARKET_TYPES = [
-  "Trusted",
-  "Crypto",
-  "SportsLink",
-  "MMALink",
-  "MMA",
-  "NBA",
-  "MLB",
-  "NFL",
-  "Futures",
-] as const;
-export type MarketFactoryType = typeof MARKET_TYPES[number];
-// V1 was the first
-// V2 includes initial odds
-// V3 is after the major refactor
-export type MarketFactorySubType = "V1" | "V2" | "V3";
-export type MarketFactoryContractName =
-  | "SportsLinkMarketFactoryV2"
-  | "MMALinkMarketFactoryV2"
-  | "NFLMarketFactoryV3"
-  | "NBAMarketFactoryV3"
-  | "MLBMarketFactoryV3"
-  | "MMAMarketFactoryV3"
-  | "CryptoMarketFactoryV3"
-  | "FuturesMarketFactoryV3"
-  | "TrustedMarketFactoryV3";
-export type FetcherContractName =
-  | "NBAFetcher"
-  | "MMAFetcher"
-  | "NFLFetcher"
-  | "MLBFetcher"
-  | "CryptoFetcher"
-  | "FuturesFetcher"
-  | "";
-export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
-  [Property in MarketFactoryType]: MarketFactoryContractName;
-} = {
-  SportsLink: "SportsLinkMarketFactoryV2",
-  MMALink: "MMALinkMarketFactoryV2",
-  NFL: "NFLMarketFactoryV3",
-  MLB: "MLBMarketFactoryV3",
-  NBA: "NBAMarketFactoryV3",
-  MMA: "MMAMarketFactoryV3",
-  Crypto: "CryptoMarketFactoryV3",
-  Futures: "FuturesMarketFactoryV3",
-  Trusted: "TrustedMarketFactoryV3",
-};
-export const marketFactoryTypeToFetcherName: {
-  [Property in MarketFactoryType]: FetcherContractName;
-} = {
-  SportsLink: "",
-  MMALink: "",
-  MMA: "MMAFetcher",
-  NFL: "NFLFetcher",
-  MLB: "MLBFetcher",
-  NBA: "NBAFetcher",
-  Crypto: "CryptoFetcher",
-  Futures: "FuturesFetcher",
-  Trusted: "",
-};
-export enum ChainId {
-  Mainnet = 1,
-  Ropsten = 3,
-  Rinkeby = 4,
-  Kovan = 42,
-  HardHat = 31337,
-  ArbitrumKovan4 = 212984383488152,
-  MaticMumbai = 80001,
-  MaticMainnet = 137,
-}
-export const graphChainNames: {
-  [chainId: number]: string;
-} = {
-  1: "mainnet",
-  3: "ropsten",
-  4: "rinkeby",
-  42: "kovan",
-  80001: "mumbai",
-  137: "matic",
-};
-type AddressMapping = {
-  [id in ChainId]?: Addresses;
-};
+
+import { AddressMapping } from "./constants";
+
 export const addresses: AddressMapping = {
   137: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
@@ -199,7 +98,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
-        hasRewards: true,
+        hasRewards: false,
         description: "futures",
         version: "FILL THIS OUT",
       },
@@ -210,7 +109,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
-        hasRewards: true,
+        hasRewards: false,
         description: "crypto prices",
         version: "FILL THIS OUT",
       },
@@ -327,7 +226,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee",
         fetcher: "0x5a556A55E23678f1700Dd22A2f05aa0BF9313534",
-        hasRewards: true,
+        hasRewards: false,
         description: "mlb",
         version: "renaming-2021-09-08",
       },
@@ -338,7 +237,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee",
         fetcher: "0x5a556A55E23678f1700Dd22A2f05aa0BF9313534",
-        hasRewards: true,
+        hasRewards: false,
         description: "nba",
         version: "renaming-2021-09-08",
       },
@@ -349,7 +248,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee",
         fetcher: "0x5a556A55E23678f1700Dd22A2f05aa0BF9313534",
-        hasRewards: true,
+        hasRewards: false,
         description: "nfl",
         version: "renaming-2021-09-08",
       },
@@ -360,7 +259,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee",
         fetcher: "0x5a556A55E23678f1700Dd22A2f05aa0BF9313534",
-        hasRewards: true,
+        hasRewards: false,
         description: "mma/ufc",
         version: "renaming-2021-09-08",
       },
@@ -371,7 +270,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee",
         fetcher: "0xA4D14c8Dd61376A3b2E3B2057880E14a6457CC7a",
-        hasRewards: true,
+        hasRewards: false,
         description: "crypto prices",
         version: "renaming-2021-09-08",
       },
@@ -382,7 +281,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x50a9c0201699129A69f0736f65F513BdDBc721CC",
         fetcher: "0xB4953e19947cB9F65DFb261fB7C7cCAAF92Cad9b",
-        hasRewards: true,
+        hasRewards: false,
         description: "futures",
         version: "renaming-2021-09-08",
       },
@@ -393,7 +292,7 @@ export const addresses: AddressMapping = {
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0x50a9c0201699129A69f0736f65F513BdDBc721CC",
         fetcher: "0x655B9ed5eb28eDCdd537EA76B5eaFe66f3115c38",
-        hasRewards: true,
+        hasRewards: false,
         description: "crypto prices",
         version: "renaming-2021-09-08",
       },

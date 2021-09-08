@@ -6,7 +6,6 @@ import "../balancer/BFactory.sol";
 import "../libraries/SafeMathUint256.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "../balancer/BNum.sol";
-import "../rewards/MasterChef.sol";
 
 contract AMMFactory is BNum {
     using SafeMathUint256 for uint256;
@@ -15,12 +14,8 @@ contract AMMFactory is BNum {
     uint256 private constant MIN_INITIAL_LIQUIDITY = BONE * 100;
 
     BFactory public bFactory;
-    MasterChef public masterChef;
     // MarketFactory => Market => BPool
     mapping(address => mapping(uint256 => BPool)) public pools;
-
-    // BPool => _pid for the related pool.
-    mapping(address => uint256) public masterChefPools;
     uint256 fee;
 
     event PoolCreated(
@@ -51,13 +46,8 @@ contract AMMFactory is BNum {
         uint256 price
     );
 
-    constructor(
-        BFactory _bFactory,
-        MasterChef _masterChef,
-        uint256 _fee
-    ) {
+    constructor(BFactory _bFactory, uint256 _fee) {
         bFactory = _bFactory;
-        masterChef = _masterChef;
         fee = _fee;
     }
 
@@ -104,23 +94,19 @@ contract AMMFactory is BNum {
         // Finalize pool setup
         _pool.finalize();
 
+        pools[address(_marketFactory)][_marketId] = _pool;
+
+        // Pass along LP tokens for initial liquidity
+        uint256 _lpTokenBalance = _pool.balanceOf(address(this)) - (BONE / 1000);
+
         // Burn (BONE / 1000) lp tokens to prevent the bpool from locking up. When all liquidity is removed.
         _pool.transfer(address(0x0), (BONE / 1000));
-
-        pools[address(_marketFactory)][_marketId] = _pool;
+        _pool.transfer(_lpTokenRecipient, _lpTokenBalance);
 
         uint256[] memory _balances = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
             _balances[i] = 0;
         }
-
-        uint256 _masterChefPool = masterChef.add(address(_marketFactory), IERC20(address(_pool)), 0);
-        masterChefPools[address(_pool)] = _masterChefPool;
-        _pool.approve(address(masterChef), MAX_UINT);
-
-        // Pass along LP tokens for initial liquidity
-        uint256 _lpTokenBalance = _pool.balanceOf(address(this));
-        masterChef.trustedDeposit(_lpTokenRecipient, _masterChefPool, _lpTokenBalance);
 
         emit PoolCreated(address(_pool), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
         emit LiquidityChanged(
@@ -182,7 +168,7 @@ contract AMMFactory is BNum {
 
         require(_poolAmountOut >= _minLPTokensOut, "Would not have received enough LP tokens");
 
-        masterChef.trustedDeposit(_lpTokenRecipient, masterChefPools[address(_pool)], _poolAmountOut);
+        _pool.transfer(_lpTokenRecipient, _poolAmountOut);
 
         // Transfer the remaining shares back to _lpTokenRecipient.
         _balances = new uint256[](_market.shareTokens.length);
@@ -216,7 +202,8 @@ contract AMMFactory is BNum {
         require(_pool != BPool(0), "Pool needs to be created");
 
         AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
-        masterChef.trustedWithdraw(msg.sender, masterChefPools[address(_pool)], _lpTokensIn);
+
+        _pool.transferFrom(msg.sender, address(this), _lpTokensIn);
 
         uint256[] memory exitPoolEstimate;
         {
@@ -444,77 +431,13 @@ contract AMMFactory is BNum {
         return _pool.getSwapFee();
     }
 
-    function getTokenBalance(
+    function getPoolTokenBalance(
         AbstractMarketFactoryV3 _marketFactory,
         uint256 _marketId,
-        address _user
+        address whom
     ) external view returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        uint256 _pid = masterChefPools[address(_pool)];
-
-        if (masterChef.poolLength() > _pid) {
-            return masterChef.getUserAmount(_pid, _user);
-        } else {
-            // Return 0 here to support multi call.
-            return 0;
-        }
-    }
-
-    function getTokenBalanceByPool(BPool _pool, address _user) external view returns (uint256) {
-        uint256 _pid = masterChefPools[address(_pool)];
-
-        if (masterChef.poolLength() > _pid) {
-            return masterChef.getUserAmount(_pid, _user);
-        } else {
-            // Return 0 here to support multi call.
-            return 0;
-        }
-    }
-
-    function getPendingRewardInfo(
-        AbstractMarketFactoryV3 _marketFactory,
-        uint256 _marketId,
-        address _user
-    ) external view returns (MasterChef.PendingRewardInfo memory) {
-        BPool _pool = pools[address(_marketFactory)][_marketId];
-        uint256 _pid = masterChefPools[address(_pool)];
-
-        if (masterChef.poolLength() > _pid) {
-            return masterChef.getPendingRewardInfo(_pid, _user);
-        } else {
-            // Return 0 here to support multi call.
-            return
-                MasterChef.PendingRewardInfo({
-                    beginTimestamp: 0,
-                    earlyDepositEndTimestamp: 0,
-                    endTimestamp: 0,
-                    accruedStandardRewards: 0,
-                    accruedEarlyDepositBonusRewards: 0,
-                    pendingEarlyDepositBonusRewards: 0
-                });
-        }
-    }
-
-    function getPendingRewardInfoByPool(BPool _pool, address _user)
-        external
-        view
-        returns (MasterChef.PendingRewardInfo memory)
-    {
-        uint256 _pid = masterChefPools[address(_pool)];
-        if (masterChef.poolLength() > _pid) {
-            return masterChef.getPendingRewardInfo(_pid, _user);
-        } else {
-            // Return 0 here to support multi call.
-            return
-                MasterChef.PendingRewardInfo({
-                    beginTimestamp: 0,
-                    earlyDepositEndTimestamp: 0,
-                    endTimestamp: 0,
-                    accruedStandardRewards: 0,
-                    accruedEarlyDepositBonusRewards: 0,
-                    pendingEarlyDepositBonusRewards: 0
-                });
-        }
+        return _pool.balanceOf(whom);
     }
 
     function getPool(AbstractMarketFactoryV3 _marketFactory, uint256 _marketId) external view returns (BPool) {

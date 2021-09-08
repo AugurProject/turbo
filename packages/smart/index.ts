@@ -36,12 +36,14 @@ import {
   GroupFetcher,
   GroupFetcher__factory,
 } from "./typechain";
-import { addresses, ChainId, MarketFactorySubType, MarketFactoryType } from "./addresses";
+import { addresses } from "./addresses";
 import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
+import { ChainId, MarketFactorySubType, MarketFactoryType } from "./constants";
 
 export * from "./typechain";
 export * from "./addresses";
+export * from "./constants";
 export * from "./src";
 export { calcSellCompleteSets, estimateBuy } from "./src/bmath";
 export { mapOverObject } from "./src/utils/common-functions";
