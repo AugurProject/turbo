@@ -598,12 +598,12 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
   return isDust ? "0" : amount.toFixed();
 };
 
-const MULTI_CALL_LIMIT = 600;
+const MULTI_CALL_LIMIT = 10;
 const chunkedMulticall = async (
   provider: Web3Provider,
   contractCalls,
-  chunkSize: number = MULTI_CALL_LIMIT,
-  callingMethod: string
+  callingMethod: string,
+  chunkSize: number = MULTI_CALL_LIMIT
 ): ContractCallResults => {
   if (!provider) {
     throw new Error("Provider not provided");
@@ -853,7 +853,7 @@ export const getUserBalances = async (
     ...contractLpBalanceRewardsCall,
   ];
 
-  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, 20, "getUserBalances");
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, "getUserBalances", 20);
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
@@ -1804,7 +1804,7 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall, "retrieveMarkets");
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1975,7 +1975,7 @@ const getPoolAddressesMulticall = async (
     ];
   }, []);
 
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall, "getPoolAddresses");
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -2104,7 +2104,11 @@ const exchangesHaveLiquidityMulticall = async (exchanges: AmmExchanges, provider
     ],
   }));
   const balances = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(
+    provider,
+    contractMarketsCall,
+    "exchangesHaveLiquidity"
+  );
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -2262,11 +2266,11 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, [
-    ...contractMarketsCall,
-    ...shareFactorCalls,
-    ...contractPricesCall,
-  ]);
+  const marketsResult: ContractCallResults = await chunkedMulticall(
+    provider,
+    [...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall],
+    "retrieveExchangeInfos"
+  );
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
