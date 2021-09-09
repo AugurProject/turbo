@@ -33,6 +33,7 @@ export const OUTCOME_NO_NAME: string = "No";
 export const OUTCOME_INVALID_NAME: string = "Invalid";
 export const OUTCOME_NO_ID = 0;
 export const OUTCOME_YES_ID = 1;
+export const GROUP_INVALID_MARKET = 1;
 
 // Directions
 export const BUY: string = "buy";
