@@ -566,8 +566,13 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
   return isDust ? "0" : amount.toFixed();
 };
 
-const MULTI_CALL_LIMIT = 600;
-const chunkedMulticall = async (provider: Web3Provider, contractCalls): ContractCallResults => {
+const MULTI_CALL_LIMIT = 100;
+const chunkedMulticall = async (
+  provider: Web3Provider,
+  contractCalls,
+  callingMethod: string,
+  chunkSize: number = MULTI_CALL_LIMIT
+): ContractCallResults => {
   if (!provider) {
     throw new Error("Provider not provided");
   }
@@ -576,9 +581,9 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
   let results: ContractCallResults = { blocknumber: null, results: {} };
 
   if (!contractCalls || contractCalls.length === 0) return results;
-  if (contractCalls.length < MULTI_CALL_LIMIT) {
+  if (contractCalls.length < chunkSize) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", contractCalls, e);
+      console.error("multicall", callingMethod, contractCalls, e);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -587,11 +592,11 @@ const chunkedMulticall = async (provider: Web3Provider, contractCalls): Contract
       blocknumber: null,
       results: {},
     };
-    const chunks = sliceIntoChunks(contractCalls, MULTI_CALL_LIMIT);
+    const chunks = sliceIntoChunks(contractCalls, chunkSize);
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, chunking ${chunk.length} calls`, e);
+        console.error(`multicall, ${callingMethod}, chunking ${chunk.length} calls`, e);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -757,7 +762,8 @@ export const getUserBalances = async (
     ...contractLpBalanceCall,
     ...contractAmmFactoryApprovals,
   ];
-  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls);
+
+  const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, "getUserBalances", 20);
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
@@ -1670,7 +1676,7 @@ const retrieveMarkets = async (
   const details = {};
   let exchanges = {};
   const cash = Object.values(cashes).find((c) => c.name === USDC); // todo: only supporting USDC currently, will change to multi collateral with new contract changes
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall, "retrieveMarkets");
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -1841,7 +1847,7 @@ const getPoolAddressesMulticall = async (
     ];
   }, []);
 
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall, "getPoolAddresses");
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
@@ -1968,7 +1974,11 @@ const exchangesHaveLiquidityMulticall = async (exchanges: AmmExchanges, provider
     ],
   }));
   const balances = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, contractMarketsCall);
+  const marketsResult: ContractCallResults = await chunkedMulticall(
+    provider,
+    contractMarketsCall,
+    "exchangesHaveLiquidity"
+  );
 
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
@@ -2126,11 +2136,11 @@ const retrieveExchangeInfos = async (
   const fees = {};
   const shareFactors = {};
   const poolWeights = {};
-  const marketsResult: ContractCallResults = await chunkedMulticall(provider, [
-    ...contractMarketsCall,
-    ...shareFactorCalls,
-    ...contractPricesCall,
-  ]);
+  const marketsResult: ContractCallResults = await chunkedMulticall(
+    provider,
+    [...contractMarketsCall, ...shareFactorCalls, ...contractPricesCall],
+    "retrieveExchangeInfos"
+  );
   for (let i = 0; i < Object.keys(marketsResult.results).length; i++) {
     const key = Object.keys(marketsResult.results)[i];
     const data = marketsResult.results[key].callsReturnContext[0].returnValues[0];
