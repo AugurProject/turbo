@@ -115,7 +115,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: MmaMarketFactory
-            file: ./abis/MMAMarketFactory.json
+            file: ./abis/MMAMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -174,7 +174,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: CryptoMarketFactory
-            file: ./abis/CryptoMarketFactory.json
+            file: ./abis/CryptoMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -233,7 +233,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: NflMarketFactory
-            file: ./abis/NFLMarketFactory.json
+            file: ./abis/NFLMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -261,7 +261,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: NbaMarketFactory
-            file: ./abis/NBAMarketFactory.json
+            file: ./abis/NBAMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -289,7 +289,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: MlbMarketFactory
-            file: ./abis/MLBMarketFactory.json
+            file: ./abis/MLBMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -317,7 +317,7 @@ dataSources:
           - WinningsClaimed
         abis:
           - name: FuturesMarketFactory
-            file: ./abis/FuturesMarketFactory.json
+            file: ./abis/FuturesMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
