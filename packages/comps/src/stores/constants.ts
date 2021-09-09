@@ -177,7 +177,7 @@ export const NETWORK_BLOCK_REFRESH_TIME = {
   5: 5000,
   42: 5000,
   80001: 5000,
-  137: 5000,
+  137: 7000,
 };
 
 // used to store markets to ignore, in format
