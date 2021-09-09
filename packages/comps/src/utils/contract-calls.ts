@@ -598,7 +598,7 @@ export const getCompleteSetsAmount = (outcomeShares: string[]): string => {
   return isDust ? "0" : amount.toFixed();
 };
 
-const MULTI_CALL_LIMIT = 10;
+const MULTI_CALL_LIMIT = 100;
 const chunkedMulticall = async (
   provider: Web3Provider,
   contractCalls,
