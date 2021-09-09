@@ -164,13 +164,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _rewardsPeriodsInSeconds = _marketFactoryInfo.rewardsPeriods * 1 days;
         uint256 _beginTimestamp = block.timestamp;
 
-        if (_endTimestamp != 0 && (_endTimestamp - _rewardsPeriodsInSeconds) > block.timestamp) {
+        if (_endTimestamp == 0) {
+            _endTimestamp = _beginTimestamp + _rewardsPeriodsInSeconds;
+        } else if ((_endTimestamp - _rewardsPeriodsInSeconds) > block.timestamp) {
             _beginTimestamp = _endTimestamp - _rewardsPeriodsInSeconds;
         }
 
-        if (_endTimestamp == 0) {
-            _endTimestamp = _beginTimestamp + _rewardsPeriodsInSeconds;
-        }
+        
 
         poolInfo.push(
             PoolInfo({
