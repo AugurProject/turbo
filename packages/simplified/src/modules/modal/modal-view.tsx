@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ModalAddLiquidity from "./modal-add-liquidity";
 import { useHistory } from "react-router";
 import Styles from "./modal.styles.less";
@@ -46,6 +46,7 @@ const ESCAPE_KEYCODE = 27;
 
 const ModalView = () => {
   const history = useHistory();
+  const modalRef = useRef(null);
   const {
     modal,
     isLogged,
@@ -72,6 +73,20 @@ const ModalView = () => {
   }, []);
 
   useEffect(() => {
+    const handleWindowOnClick = (event) => {
+      if (modal && !!event.target && modalRef?.current !== null && !modalRef?.current?.contains(event.target)) {
+        closeModal();
+      }
+    };
+
+    window.addEventListener("click", handleWindowOnClick);
+
+    return () => {
+      window.removeEventListener("click", handleWindowOnClick);
+    };
+  });
+
+  useEffect(() => {
     return history.listen((location) => {
       if (history.action === "PUSH") {
         setLocationKeys([location.key]);
@@ -95,7 +110,7 @@ const ModalView = () => {
 
   return (
     <section className={Styles.ModalView}>
-      <div>{Modal}</div>
+      <div ref={modalRef}>{Modal}</div>
     </section>
   );
 };
