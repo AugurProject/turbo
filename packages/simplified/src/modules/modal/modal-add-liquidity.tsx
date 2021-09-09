@@ -572,7 +572,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   });
   const isApprovedMain = approvedMain === ApprovalState.APPROVED;
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
-
   const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
 
   useEffect(() => {
@@ -750,7 +749,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           )}
           <SecondaryThemeButton
             action={curPage.actionButtonAction}
-            disabled={!isApproved || inputFormError !== ""}
+            disabled={(curPage.needsApproval && !isApproved) || inputFormError !== ""}
             error={buttonError}
             text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
             subText={
