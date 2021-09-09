@@ -286,7 +286,7 @@ export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails
 };
 
 const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: MarketFactory): AmmExchange => {
-  const outcomePrices = calculatePrices(market, pool.ratios, pool.weights);
+  const outcomePrices = calculatePrices(market, pool.ratios || pool.tokenRatios, pool.weights);
   const fee = new BN(String(pool.swapFee || DEFAULT_AMM_FEE_RAW)).toFixed();
   const balancesRaw = pool.balances || [];
   const weights = pool.weights;
@@ -294,8 +294,8 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
   const created = pool.addr !== NULL_ADDRESS;
   const ammOutcomes = market.outcomes.map((o, i) => ({
     price: created ? String(outcomePrices[i]) : "",
-    ratioRaw: created ? getArrayValue(pool.ratios, i) : "",
-    ratio: created ? toDisplayRatio(getArrayValue(pool.ratios, i)) : "",
+    ratioRaw: created ? getArrayValue(pool.ratios || pool.tokenRatios, i) : "",
+    ratio: created ? toDisplayRatio(getArrayValue(pool.ratios || pool.tokenRatios, i)) : "",
     balanceRaw: created ? getArrayValue(pool.balances, i) : "",
     balance: created ? String(sharesOnChainToDisplay(getArrayValue(pool.balances, i))) : "",
     ...o,
