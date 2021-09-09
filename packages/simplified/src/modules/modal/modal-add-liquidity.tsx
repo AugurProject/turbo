@@ -122,7 +122,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     : amm?.ammOutcomes || [];
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
-  // const [showBackView, setShowBackView] = useState(false);
   const [page, setPage] = useState(0);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -750,7 +749,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           )}
           <SecondaryThemeButton
             action={curPage.actionButtonAction}
-            disabled={!isApproved || inputFormError !== ""}
+            disabled={(curPage.needsApproval && !isApproved) || inputFormError !== ""}
             error={buttonError}
             text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
             subText={
