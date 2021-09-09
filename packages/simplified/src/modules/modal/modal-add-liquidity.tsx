@@ -46,6 +46,7 @@ const {
   ApprovalAction,
   ENTER_AMOUNT,
   CREATE,
+  MARKETS,
   ADD,
   REMOVE,
   CONNECT_ACCOUNT,
