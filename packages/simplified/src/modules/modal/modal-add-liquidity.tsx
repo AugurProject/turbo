@@ -315,7 +315,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           marketDescription: `${market?.title} ${market?.description}`,
         });
       });
-    setPage(0);
+    closeModal();
   };
 
   const getMintBreakdown = () => {
