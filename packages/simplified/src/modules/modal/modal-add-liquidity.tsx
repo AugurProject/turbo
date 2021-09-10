@@ -571,7 +571,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   });
   const isApprovedMain = approvedMain === ApprovalState.APPROVED;
   const isApproved = isRemove ? isApprovedMain && isApprovedToTransfer : isApprovedMain;
-
   const totalPrice = outcomes.reduce((p, outcome) => (outcome.price === "" ? parseFloat(outcome.price) + p : p), 0);
 
   useEffect(() => {

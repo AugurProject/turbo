@@ -1,6 +1,13 @@
 import { BigNumber as BN } from "bignumber.js";
 import { MarketInfo } from "types";
-import { MMA_MARKET_TYPE, OUTCOME_YES_NAME, OUTCOME_NO_NAME, OUTCOME_NO_ID, OUTCOME_YES_ID } from "./constants";
+import {
+  MMA_MARKET_TYPE,
+  OUTCOME_YES_NAME,
+  OUTCOME_NO_NAME,
+  OUTCOME_NO_ID,
+  OUTCOME_YES_ID,
+  GROUP_INVALID_MARKET,
+} from "./constants";
 
 const FUTURE_CATEGORIES = {
   NFL: ["Sports", "Football", "NFL"],
@@ -12,6 +19,8 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const outcomes = market?.subMarkets.map((s, i) => ({
     id: i,
     name: s.marketName,
+    isInvalid: s.marketType === GROUP_INVALID_MARKET,
+    marketId: `${s.factory}-${String(s.marketId)}`.toLowerCase(),
     subOutcomes: [
       { id: OUTCOME_NO_ID, name: OUTCOME_NO_NAME, shareToken: s.shareTokens[OUTCOME_NO_ID] },
       { id: OUTCOME_YES_ID, name: OUTCOME_YES_NAME, shareToken: s.shareTokens[OUTCOME_YES_ID] },
