@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router";
 import Styles from "./modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
@@ -45,7 +44,6 @@ const {
   ApprovalAction,
   ENTER_AMOUNT,
   CREATE,
-  MARKETS,
   ADD,
   REMOVE,
   CONNECT_ACCOUNT,
@@ -114,6 +112,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     actions: { addTransaction },
   } = useUserStore();
   const { cashes, ammExchanges, blocknumber }: DataState = useDataStore();
+  
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
   const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
