@@ -122,7 +122,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
     : amm?.ammOutcomes || [];
 
   const [outcomes, setOutcomes] = useState<AmmOutcome[]>(orderOutcomesForDisplay(initialOutcomes));
-  // const [showBackView, setShowBackView] = useState(false);
   const [page, setPage] = useState(0);
   const [chosenCash, updateCash] = useState<string>(currency ? currency : USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
@@ -316,7 +315,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           marketDescription: `${market?.title} ${market?.description}`,
         });
       });
-    setPage(0);
+    closeModal();
   };
 
   const getMintBreakdown = () => {
