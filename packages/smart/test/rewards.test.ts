@@ -35,6 +35,8 @@ describe("MasterChef", () => {
   const ZERO = BigNumber.from(0);
   const SECONDS_PER_DAY = BigNumber.from(60).mul(60).mul(24);
 
+  const RANDOM_ADDRESS = "0x0000000000000000000000000000000000000001";
+
   // 5 days.
   const rewardPeriods = BigNumber.from(5);
 
@@ -79,7 +81,7 @@ describe("MasterChef", () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
 
       const estimatedStartTimeOneDayOutsideWindow = BigNumber.from(timestamp).sub(100);
-      await masterChef.add(bill.address, cash.address, estimatedStartTimeOneDayOutsideWindow);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
 
       const { endTimestamp } = await masterChef.poolInfo(0);
       expect(endTimestamp).to.be.equal(estimatedStartTimeOneDayOutsideWindow);
@@ -89,7 +91,7 @@ describe("MasterChef", () => {
 
       const estimatedStartTimeOneDayOutsideWindow = rewardPeriods.add(1).mul(SECONDS_PER_DAY).add(timestamp);
 
-      await masterChef.add(bill.address, cash.address, estimatedStartTimeOneDayOutsideWindow);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
 
       const { beginTimestamp, rewardsPerSecond } = await masterChef.poolInfo(0);
       expect(beginTimestamp.sub(timestamp)).to.be.equal(SECONDS_PER_DAY);
@@ -101,7 +103,7 @@ describe("MasterChef", () => {
     beforeEach(async () => {
       // Zero standard rewards is the difference here.
       await masterChef.addRewards(bill.address, ZERO, rewardPeriods, rewardsPerPeriod);
-      await masterChef.add(bill.address, cash.address, 0);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, ZERO, cash.address, 0);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -161,7 +163,7 @@ describe("MasterChef", () => {
   describe("No rewards", () => {
     beforeEach(async () => {
       await masterChef.addRewards(bill.address, ZERO, ZERO, ZERO);
-      await masterChef.add(bill.address, cash.address, ZERO);
+      await masterChef.add(bill.address, cash.address, ZERO, cash.address, 0);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -189,7 +191,7 @@ describe("MasterChef", () => {
   describe("Standard rewards", () => {
     beforeEach(async () => {
       await masterChef.addRewards(bill.address, rewardsPerPeriod, rewardPeriods, 0);
-      await masterChef.add(bill.address, cash.address, ZERO);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, ZERO, cash.address, 0);
 
       poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -204,7 +206,7 @@ describe("MasterChef", () => {
 
     it("should calculate rewardsPerSecond correctly", async () => {
       const { rewardsPerSecond } = await masterChef.poolInfo(0);
-      expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(86400));
+      expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(SECONDS_PER_DAY));
     });
 
     describe("active pool", () => {

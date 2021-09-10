@@ -72,8 +72,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
     mapping(address => MarketFactoryInfo) marketFactoryRewardInfo;
 
+    struct RewardPoolLookupInfo {
+        uint256 pid;
+        bool created;
+    }
+
     // AMMFactory => MarketFactory => MarketId
-    mapping(address => mapping(address => mapping(uint256 => uint256))) public rewardPoolLookup;
+    mapping(address => mapping(address => mapping(uint256 => RewardPoolLookupInfo))) public rewardPoolLookup;
 
     // The REWARD TOKEN!
     IERC20 private rewardsToken;
@@ -138,21 +143,33 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
     // Add a new lp to the pool. Can only be called by the owner.
     // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
-    // An _endTimestamp of zero means the rewards start immedietely.
+    // An _endTimestamp of zero means the rewards start immediately.
     function add(
+        address _ammFactory,
         address _marketFactory,
+        uint256 _marketId,
         IERC20 _lpToken,
         uint256 _endTimestamp
     ) public onlyOwner returns (uint256 _nextPID) {
-        return addInternal(_marketFactory, _lpToken, _endTimestamp);
+        return addInternal(_ammFactory, _marketFactory, _marketId, _lpToken, _endTimestamp);
     }
 
     function addInternal(
+        address _ammFactory,
         address _marketFactory,
+        uint256 _marketId,
         IERC20 _lpToken,
         uint256 _endTimestamp
     ) internal returns (uint256 _nextPID) {
         _nextPID = poolInfo.length;
+
+        require(
+            !rewardPoolLookup[_ammFactory][_marketFactory][_marketId].created,
+            "Reward pool has already been created."
+        );
+
+        rewardPoolLookup[_ammFactory][_marketFactory][_marketId] = RewardPoolLookupInfo({pid: _nextPID, created: true});
+
         MarketFactoryInfo memory _marketFactoryInfo = marketFactoryRewardInfo[_marketFactory];
 
         // Need to figure out the beginning/end of the reward period.
@@ -203,6 +220,18 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         return min(_fromTimestamp, _pool.endTimestamp).sub(_pool.lastRewardTimestamp).add(1).mul(BONE);
+    }
+
+    function getPoolTokenBalance(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        address _user
+    ) external view returns (uint256) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        return userInfo[_rewardPoolLookupInfo.pid][_user].amount;
     }
 
     function getUserAmount(uint256 _pid, address _user) external view returns (uint256) {
@@ -389,9 +418,15 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _lpTokensIn = _ammFactory.createPool(_marketFactory, _marketId, _initialLiquidity, address(this));
         IERC20 _lpToken = IERC20(address(_ammFactory.getPool(_marketFactory, _marketId)));
 
-        uint256 _nextPID = addInternal(address(_marketFactory), _lpToken, _marketFactory.getRewardEndTime(_marketId));
+        uint256 _nextPID =
+            addInternal(
+                address(_ammFactory),
+                address(_marketFactory),
+                _marketId,
+                _lpToken,
+                _marketFactory.getRewardEndTime(_marketId)
+            );
 
-        rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId] = _nextPID;
         depositInternal(_lpTokenRecipient, _nextPID, _lpTokensIn);
 
         return _lpTokensIn;
@@ -405,7 +440,10 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _minLPTokensOut,
         address _lpTokenRecipient
     ) public returns (uint256 _poolAmountOut, uint256[] memory _balances) {
-        require(approvedAMMFactories[address(_ammFactory)], "AmmFactory must be approved to master chef.");
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
 
         _marketFactory.collateral().transferFrom(msg.sender, address(this), _collateralIn);
         _marketFactory.collateral().approve(address(_ammFactory), _collateralIn);
@@ -418,8 +456,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _lpTokenRecipient
         );
 
-        uint256 _pid = rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
-        depositInternal(_lpTokenRecipient, _pid, _poolAmountOut);
+        depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
     }
 
     function removeLiquidity(
@@ -429,11 +466,25 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _lpTokensIn,
         uint256 _minCollateralOut,
         address _collateralRecipient
-    ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
-        uint256 _pid = rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+    ) public returns (uint256, uint256[] memory) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
 
-        withdrawInternal(msg.sender, _pid, _lpTokensIn, _collateralRecipient);
-        _ammFactory.removeLiquidity(_marketFactory, _marketId, _lpTokensIn, _minCollateralOut, _collateralRecipient);
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        withdrawInternal(msg.sender, _rewardPoolLookupInfo.pid, _lpTokensIn, _collateralRecipient);
+
+        PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+
+        _pool.lpToken.approve(address(_ammFactory), _lpTokensIn);
+        return
+            _ammFactory.removeLiquidity(
+                _marketFactory,
+                _marketId,
+                _lpTokensIn,
+                _minCollateralOut,
+                _collateralRecipient
+            );
     }
 
     function withdrawRewards(uint256 _amount) external onlyOwner {
