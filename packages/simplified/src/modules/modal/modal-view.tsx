@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import ModalAddLiquidity from "./modal-add-liquidity";
 import { useHistory } from "react-router";
 import Styles from "./modal.styles.less";
@@ -46,7 +46,6 @@ const ESCAPE_KEYCODE = 27;
 
 const ModalView = () => {
   const history = useHistory();
-  const modalRef = useRef(null);
   const {
     modal,
     isLogged,
@@ -96,7 +95,7 @@ const ModalView = () => {
 
   return (
     <section className={Styles.ModalView}>
-      <div ref={modalRef}>{Modal}</div>
+      <div>{Modal}</div>
     </section>
   );
 };
