@@ -312,6 +312,16 @@ export const addresses: AddressMapping = {
     balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
     marketFactories: [
       {
+        type: "NFL",
+        subtype: "V3",
+        address: "0xbF22De662212463533B7e5e2DfdD357551E5027D",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
+        fetcher: "0xB8Cbd785208841532faC001eC3EC09bF600d713d",
+        description: "nfl",
+        version: "v1.3.2",
+      },
+      {
         type: "MMA",
         subtype: "V3",
         address: "0xdCabBAE1c5885134f42F05e60D67f6794f091732",
@@ -370,7 +380,7 @@ export const addresses: AddressMapping = {
         fetcher: "",
         description: "mlb and nba",
         version: "v1.0.0",
-      }
+      },
     ],
     info: { uploadBlockNumber: 15336699, graphName: "matic" },
   },
