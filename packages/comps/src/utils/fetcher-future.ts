@@ -55,7 +55,6 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     console.error(e);
   }
 
-  console.log("groups", groups);
   const groupedMarkets = Object.keys(groups).map((key) => ({
     ...factoryDetails,
     ...groups[key][0], // grab first market in the group for market descriptors
