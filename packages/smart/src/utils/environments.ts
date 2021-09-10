@@ -72,7 +72,7 @@ function generateJsonEnvironments() {
       ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
       marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
     }));
-    let uniqueMarketFactories = [];
+    const uniqueMarketFactories = [];
     const mapMarketFactories = new Map();
     for (const marketFactory of addresses.marketFactories) {
       if (!mapMarketFactories.has(marketFactory.ammFactory)) {
