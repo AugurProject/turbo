@@ -242,7 +242,7 @@ const MarketsView = () => {
     >
       <SEO {...MARKETS_LIST_HEAD_TAGS} />
       <NetworkMismatchBanner />
-      {isLogged ? <AppViewStats small={isMobile} /> : <TopBanner />}
+      {isLogged ? <AppViewStats small /> : <TopBanner />}
       {isMobile && (
         <div>
           <SecondaryThemeButton
