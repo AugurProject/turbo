@@ -65,11 +65,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 pendingEarlyDepositBonusRewards;
     }
 
-    struct AddLiquidityReturnType {
-        uint256 _poolAmountOut;
-        uint256[] _balances;
-    }
-
     struct MarketFactoryInfo {
         uint256 earlyDepositBonusRewards; // Amount of REWARDs to distribute to early depositors.
         uint256 rewardsPeriods; // Number of days the rewards for this pool will payout.
