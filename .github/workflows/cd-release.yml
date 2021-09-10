@@ -45,6 +45,22 @@ jobs:
           yarn subgraph prepare:matic
           yarn subgraph codegen
           yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
+
+      - name: Pin to IPFS
+        id: upload
+        uses: crustio/ipfs-upload-action@v2.0.0
+        with:
+          path: './packages/simplified/build'
+          seeds: ${{ secrets.CRUST_SEEDS }}
+
+      - name: Pin to Crust
+        uses: crustio/ipfs-crust-action@v2.0.3
+        continue-on-error: true
+        timeout-minutes: 2
+        with:
+          cid: ${{ steps.upload.outputs.hash }}
+          seeds: ${{ secrets.CRUST_SEEDS }}
+
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
