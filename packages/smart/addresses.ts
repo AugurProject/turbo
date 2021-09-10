@@ -376,17 +376,6 @@ export const addresses: AddressMapping = {
         version: "renaming-2021-09-08",
       },
       {
-<<<<<<< HEAD
-        type: "SportsLink",
-        subtype: "V1",
-        address: "0xEFA66e55707C43Db47D43fD65c2Ab4e861e989B6",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3",
-        fetcher: "",
-        description: "mlb and nba",
-        version: "v1.0.0",
-      }
-=======
         type: "Futures",
         subtype: "V3",
         address: "0xe540531CFF46b3e4F20aF5E5973C281E35151fe8",
@@ -408,7 +397,6 @@ export const addresses: AddressMapping = {
         description: "crypto prices",
         version: "renaming-2021-09-08",
       },
->>>>>>> a2aea16a5c2ca001189fd8ea078b91c834937f6a
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
   },
