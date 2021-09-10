@@ -144,7 +144,7 @@ describe("AMMFactory", () => {
       await setBlockTimestamp(now + 2 * oneDay);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // withdraw same amount
 
       const poolAmountOut = firstPoolAmount.gt(secondPoolAmount) ? secondPoolAmount : firstPoolAmount;
@@ -186,7 +186,7 @@ describe("AMMFactory", () => {
       await setBlockTimestamp(now + 2 * oneDay);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // withdraw same amount
 
       const poolAmountOut = firstPoolAmount.gt(secondPoolAmount) ? secondPoolAmount : firstPoolAmount;
@@ -230,7 +230,7 @@ describe("AMMFactory", () => {
       await addLiquidityFrom(thirdLP, collateralAmount);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // withdraw same amount
 
       const poolAmountOut = firstPoolAmount.gt(secondPoolAmount) ? secondPoolAmount : firstPoolAmount;
@@ -282,7 +282,7 @@ describe("AMMFactory", () => {
       await setBlockTimestamp(now + 2 * oneDay);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // withdraw same amount
 
       // remove pool
@@ -323,7 +323,7 @@ describe("AMMFactory", () => {
       await setBlockTimestamp(now + 2 * oneDay);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // remove pool
       await removeLiquidityFrom(secondLP, BigNumber.from(secondPoolAmount));
 
@@ -350,7 +350,7 @@ describe("AMMFactory", () => {
       await addLiquidityFrom(secondLP, collateralAmount);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // set block timestamp to the next minutes.
       await setBlockTimestamp(now + 60);
       await removeLiquidityFrom(firstLP, firstPoolAmount.div(2));
@@ -382,7 +382,7 @@ describe("AMMFactory", () => {
       await addLiquidityFrom(secondLP, collateralAmount);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // set block timestamp to the next minutes.
       await setBlockTimestamp(now + 60);
       await removeLiquidityFrom(firstLP, firstPoolAmount.div(2));
@@ -415,7 +415,7 @@ describe("AMMFactory", () => {
       await addLiquidityFrom(secondLP, collateralAmount);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever join pool first should receive more reward", async () => {
       // set block timestamp to the next minutes.
       await setBlockTimestamp(now + 60);
       await removeLiquidityFrom(firstLP, firstPoolAmount.div(2));
@@ -479,7 +479,7 @@ describe("AMMFactory", () => {
       now = Math.floor(Date.now() / 1000);
     });
 
-    it("who join pool first should receive more reward", async () => {
+    it("whoever joins pool first should receive more reward", async () => {
       // join the market
       const hours = 60 * 60;
       const collateralAmount = usdcBasis.mul(100);
