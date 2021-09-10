@@ -332,16 +332,6 @@ export const addresses: AddressMapping = {
         version: "v1.2.0",
       },
       {
-        type: "Crypto",
-        subtype: "V3",
-        address: "0x300d2D67ecB24E63f1bC2fAC4Bc0F314607aDDE5",
-        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
-        fetcher: "0x96a6e9E91BDb0114C41bB9A389eD20F7FEcDCA03",
-        description: "crypto prices",
-        version: "v1.2.0",
-      },
-      {
         type: "SportsLink",
         subtype: "V2",
         address: "0xA76C803c1D3B4cc31b1B964f29357BbF23B6D6f7",
