@@ -1,6 +1,12 @@
 import { expect } from "chai";
 import { describe } from "mocha";
 
+enum Winner {
+  Home = "Home",
+  Away = "Away",
+  Draw = "Draw",
+}
+
 describe("Math", () => {
   describe("Spread", () => {
     [
@@ -21,11 +27,6 @@ describe("Math", () => {
 });
 
 
-enum Winner {
-  Home = "Home",
-  Away = "Away",
-  Draw = "Draw",
-}
 function calcSpreadWinner(homeScore: number, awayScore: number, spread: number): Winner {
   homeScore += spread;
 
