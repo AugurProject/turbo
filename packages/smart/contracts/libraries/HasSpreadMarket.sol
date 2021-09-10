@@ -48,8 +48,7 @@ abstract contract HasSpreadMarket is AbstractMarketFactoryV3, Sport, CalculateLi
         } else if (_adjustedHomeScore < int256(_awayScore)) {
             return SpreadAway; // away spread lesser
         } else {
-            // draw / tie; some sports eliminate this with half-points
-            return NoContest;
+            return NoContest; // should never happen
         }
     }
 }
