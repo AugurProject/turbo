@@ -73,20 +73,6 @@ const ModalView = () => {
   }, []);
 
   useEffect(() => {
-    const handleWindowOnClick = (event) => {
-      if (modal && !!event.target && modalRef?.current !== null && !modalRef?.current?.contains(event.target)) {
-        closeModal();
-      }
-    };
-
-    window.addEventListener("click", handleWindowOnClick);
-
-    return () => {
-      window.removeEventListener("click", handleWindowOnClick);
-    };
-  });
-
-  useEffect(() => {
     return history.listen((location) => {
       if (history.action === "PUSH") {
         setLocationKeys([location.key]);
