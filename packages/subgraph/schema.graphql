@@ -1,0 +1,327 @@
+type AmmFactory @entity {
+  id: ID!
+  blockHash: String!
+  blockNumber: Int!
+  logIndex: Int!
+  "A composite key of blockNumber+logIndex used for easily paging through logs"
+  logPosition: String!
+  name: String!
+  transactionHash: String!
+  origin: String!
+  pool: String!
+  marketFactory: String!
+  marketId: Int!
+  creator: String!
+  lpTokenRecipient: String!
+}
+
+type Market @entity {
+  id: ID!
+  marketFactory: String
+  marketIndex: String
+  liquidity: [Liquidity!] @derivedFrom(field: "marketId")
+  addLiquidity: [AddLiquidity!] @derivedFrom(field: "marketId")
+  removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "marketId")
+  trades: [Trade!] @derivedFrom(field: "marketId")
+  claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "marketId")
+  teamSportsMarket: [TeamSportsMarket!] @derivedFrom(field: "marketId")
+  mmaMarket: [MmaMarket!] @derivedFrom(field: "marketId")
+  cryptoMarket: [CryptoMarket!] @derivedFrom(field: "marketId")
+}
+
+type TeamSportsMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamId: BigInt
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type MmaMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeFighterName: String
+  homeFighterId: BigInt
+  awayFighterName: String
+  awayFighterId: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type CryptoMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  endTime: BigInt
+  marketType: BigInt
+  coinIndex: BigInt
+  creationPrice: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type NflMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type MlbMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type NbaMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type FuturesMarket @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String
+  marketIndex: String
+  transactionHash: String
+  timestamp: BigInt
+  creator: String
+  estimatedStartTime: BigInt
+  endTime: BigInt
+  marketType: BigInt
+  eventId: BigInt
+  homeTeamName: String
+  homeTeamId: BigInt
+  awayTeamName: String
+  awayTeamId: BigInt
+  overUnderTotal: BigInt
+  shareTokens: [String!]
+  winner: String
+  initialOdds: [BigInt!]
+}
+
+type Liquidity @entity {
+  id: ID!
+  marketId: Market!
+  transactionHash: String!
+  timestamp: BigInt!
+  marketFactory: String!
+  sender: Sender!
+  recipient: String!
+  "From the perspective of the user. E.g. collateral is negative when adding liquidity."
+  collateral: String!
+  lpTokens: String!
+  sharesReturned: [BigInt!]
+  totalSupply: BigInt
+}
+
+type Sender @entity {
+  id: ID!
+  addLiquidity: [AddLiquidity!] @derivedFrom(field: "sender")
+  removeLiquidity: [RemoveLiquidity!] @derivedFrom(field: "sender")
+  claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "sender")
+  claimedFees: [ClaimedFees!] @derivedFrom(field: "sender")
+  trade: [Trade!] @derivedFrom(field: "sender")
+  positionBalance: [PositionBalance!] @derivedFrom(field: "sender")
+  "From the perspective of the user. E.g. totalLiquidity is negative when adding liquidity."
+  totalLiquidity: BigInt
+  sumOfInitialCost: [InitialCostPerMarket!] @derivedFrom(field: "sender")
+}
+
+type AddLiquidity @entity {
+  id: ID!
+  sender: Sender!
+  marketId: Market!
+  transactionHash: String!
+  timestamp: BigInt!
+  collateral: String!
+  lpTokens: String!
+  sharesReturned: [BigInt!]
+  totalSupply: BigInt
+}
+
+type Outcomes @entity {
+  id: ID!
+  amount: String
+  addLiquidity: AddLiquidity
+  removeLiquidity: RemoveLiquidity
+}
+
+type RemoveLiquidity @entity {
+  id: ID!
+  sender: Sender!
+  marketId: Market!
+  transactionHash: String!
+  timestamp: BigInt!
+  outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
+  collateral: String!
+  lpTokens: String!
+  sharesReturned: [BigInt!]
+  totalSupply: BigInt
+}
+
+type Trade @entity {
+  id: ID!
+  marketId: Market!
+  marketFactory: String!
+  user: String!
+  sender: Sender!
+  outcome: String!
+  "From the perspective of the user. E.g. collateral is negative when buying."
+  collateral: String!
+  shares: String!
+  price: BigDecimal!
+  transactionHash: String!
+  timestamp: BigInt!
+}
+
+type ClaimedProceeds @entity {
+  id: ID!
+  sender: Sender!
+  fees: String!
+  outcome: String!
+  outcomeId: String!
+  marketId: Market
+  payout: String!
+  shares: String!
+  transactionHash: String!
+  timestamp: BigInt!
+}
+
+type ClaimedFees @entity {
+  id: ID!
+  sender: Sender!
+  collateral: String!
+  receiver: String!
+  transactionHash: String!
+  timestamp: BigInt!
+}
+
+type PositionBalance @entity {
+  id: ID!
+  positionFromAddLiquidity: Boolean
+  positionFromRemoveLiquidity: Boolean
+  hasClaimed: Boolean
+  timestamp: BigInt!
+  transactionHash: String!
+  outcomeId: String
+  avgPrice: BigDecimal
+  initCostUsd: String
+  initCostUsdBigInt: BigInt
+  initCostUsdBigDecimal: BigDecimal
+  shares: String
+  sharesBigInt: BigInt
+  sharesBigDecimal: BigDecimal
+  payout: String
+  payoutBigInt: BigInt
+  payoutBigDecimal: BigDecimal
+  senderId: String!
+  sender: Sender!
+  marketId: String!
+  market: Market!
+  totalChangeUsd: String
+  totalChangeUsdBigInt: BigInt
+  totalChangeUsdBigDecimal: BigDecimal
+  settlementFee: String
+  open: Boolean
+  log: [String!]
+}
+
+type InitialCostPerMarket @entity {
+  id: ID!
+  sender: Sender
+  market: Market
+  outcome: String
+  sharesFromTrades: BigInt
+  sharesFromTradesBigDecimal: BigDecimal
+  sumOfInitialCost: BigInt!
+  sumOfInitialCostBigDecimal: BigDecimal
+  avgPrice: BigDecimal!
+  log: [String!]
+}
+
+type LiquidityPositionBalance @entity {
+  id: ID!
+  addCollateral: BigInt!
+  addCollateralBigDecimal: BigDecimal!
+  removeCollateral: BigInt!
+  removeCollateralBigDecimal: BigDecimal!
+  sharesReturned: [BigInt!]!
+  avgPricePerOutcome: [BigDecimal!]!
+  log: [String!]!
+}

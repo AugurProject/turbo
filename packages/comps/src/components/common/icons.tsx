@@ -666,7 +666,7 @@ export const WinnerMedal = (
 );
 
 export const MaticIcon = (
-  <svg viewBox="-1 -1 22 22">
+  <svg name="MaticIcon" viewBox="-1 -1 22 22">
     <path
       fillRule="evenodd"
       clipRule="evenodd"

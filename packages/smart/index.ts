@@ -5,22 +5,22 @@ import {
   Cash__factory,
   SportsLinkMarketFactoryV2,
   SportsLinkMarketFactoryV2__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
-  CryptoMarketFactory__factory,
-  CryptoMarketFactory,
-  MMAMarketFactory,
-  MMAMarketFactory__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
+  CryptoMarketFactoryV3__factory,
+  CryptoMarketFactoryV3,
+  MMAMarketFactoryV3,
+  MMAMarketFactoryV3__factory,
   SportsLinkMarketFactoryV1__factory,
   SportsLinkMarketFactoryV1,
-  NFLMarketFactory__factory,
-  NFLMarketFactory,
-  NBAMarketFactory__factory,
-  MLBMarketFactory,
-  NBAMarketFactory,
-  MLBMarketFactory__factory,
-  FuturesMarketFactory__factory,
-  FuturesMarketFactory,
+  NFLMarketFactoryV3__factory,
+  NFLMarketFactoryV3,
+  NBAMarketFactoryV3__factory,
+  NBAMarketFactoryV3,
+  MLBMarketFactoryV3,
+  MLBMarketFactoryV3__factory,
+  FuturesMarketFactoryV3__factory,
+  FuturesMarketFactoryV3,
   TrustedMarketFactoryV2__factory,
   CryptoMarketFactoryV2__factory,
   MMALinkMarketFactoryV2__factory,
@@ -60,16 +60,16 @@ export type MarketFactoryContract =
   | SportsLinkMarketFactoryV1
   | SportsLinkMarketFactoryV2
   | TrustedMarketFactoryV2
-  | TrustedMarketFactory
+  | TrustedMarketFactoryV3
   | CryptoMarketFactoryV2
-  | CryptoMarketFactory
-  | FuturesMarketFactory
+  | CryptoMarketFactoryV3
+  | FuturesMarketFactoryV3
   | MMALinkMarketFactoryV2
-  | MMAMarketFactory
-  | NBAMarketFactory
-  | MLBMarketFactory
+  | MMAMarketFactoryV3
+  | NBAMarketFactoryV3
+  | MLBMarketFactoryV3
   | NFLMarketFactoryV2
-  | NFLMarketFactory;
+  | NFLMarketFactoryV3;
 
 export type FetcherContract = CryptoFetcher | SportsFetcher | GroupFetcher;
 
@@ -119,13 +119,13 @@ export function instantiateMarketFactory(
       NBA: SportsLinkMarketFactoryV2__factory,
     },
     V3: {
-      Crypto: CryptoMarketFactory__factory,
-      Trusted: TrustedMarketFactory__factory,
-      Futures: FuturesMarketFactory__factory,
-      MMA: MMAMarketFactory__factory,
-      NFL: NFLMarketFactory__factory,
-      NBA: NBAMarketFactory__factory,
-      MLB: MLBMarketFactory__factory,
+      Crypto: CryptoMarketFactoryV3__factory,
+      Trusted: TrustedMarketFactoryV3__factory,
+      Futures: FuturesMarketFactoryV3__factory,
+      MMA: MMAMarketFactoryV3__factory,
+      NFL: NFLMarketFactoryV3__factory,
+      NBA: NBAMarketFactoryV3__factory,
+      MLB: MLBMarketFactoryV3__factory,
     },
   };
 

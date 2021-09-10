@@ -250,7 +250,7 @@ export interface MarketInfo {
   initialOdds: string[];
   isPopular?: boolean;
   isFuture: boolean;
-  subMarkets?: { marketName: string; shareTokens: string[] }[];
+  subMarkets?: { marketName: string; shareTokens: string[]; marketType: number; factory: string; marketId: number }[];
   category?: string;
 }
 
@@ -267,6 +267,7 @@ export interface MarketOutcome {
   isInvalid?: boolean;
   isWinner?: boolean;
   subOutcomes?: SubOutcome[];
+  marketId?: string;
 }
 
 export interface AmmOutcome extends MarketOutcome {
@@ -275,6 +276,7 @@ export interface AmmOutcome extends MarketOutcome {
   ratio: string;
   balanceRaw: string;
   balance: string;
+  marketId?: string;
 }
 
 export interface Cash {
@@ -589,6 +591,14 @@ export interface AmmMarketShares {
 export interface Approvals {
   [address: string]: boolean;
 }
+
+export interface PendingRewards {
+  [marketId: string]: {
+    balance: string;
+    rawBalance: string;
+    marketId: string;
+  };
+}
 export interface UserBalances {
   ETH: CurrencyBalance;
   USDC: CurrencyBalance;
@@ -604,6 +614,7 @@ export interface UserBalances {
   rep?: string;
   legacyRep?: string;
   approvals?: Approvals;
+  pendingRewards?: PendingRewards;
 }
 
 export interface ProcessedData {

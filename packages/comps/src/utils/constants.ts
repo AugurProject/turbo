@@ -9,6 +9,8 @@ import {
 } from "../components/common/category-icons";
 import { EthIcon, UsdIcon } from "../components/common/icons";
 
+export const POLYGON_NETWORK = 137;
+export const POLYGON_PRICE_FEED_MATIC = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0";
 // # Market Types
 // should not be used, will be refactored out.
 export const YES_NO = "YesNo";
@@ -31,6 +33,7 @@ export const OUTCOME_NO_NAME: string = "No";
 export const OUTCOME_INVALID_NAME: string = "Invalid";
 export const OUTCOME_NO_ID = 0;
 export const OUTCOME_YES_ID = 1;
+export const GROUP_INVALID_MARKET = 1;
 
 // Directions
 export const BUY: string = "buy";
@@ -280,6 +283,7 @@ export enum ApprovalAction {
   EXIT_POSITION,
   ADD_LIQUIDITY,
   REMOVE_LIQUIDITY,
+  MINT_SETS,
 }
 
 export const NULL_ADDRESS: string = "0x0000000000000000000000000000000000000000";

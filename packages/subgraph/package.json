@@ -1,0 +1,32 @@
+{
+  "name": "@augurproject/subgraph",
+  "version": "1.3.1",
+  "scripts": {
+    "smart": "yarn --silent workspace @augurproject/smart",
+    "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
+    "create": "graph create augurproject/augur-turbo-kovan --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create augurproject/augur-turbo-kovan --node http://127.0.0.1:8020",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy:kovan": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-kovan",
+    "deploy:mumbai": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-mumbai",
+    "deploy:matic": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-matic",
+    "deploy:staging": "graph deploy --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ augurproject/augur-turbo-matic-staging",
+    "deploy:local": "graph deploy --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020 augurproject/augur-turbo-kovan",
+    "prepare:abis": "rsync -v ../smart/abi/contracts/**/**/*.json abis/ && sed -i '' -e 's/\\[\\]\\[\\]/[]/g' 'abis/FuturesMarketFactoryV3.json'",
+    "prepare:mumbai": "mustache ../smart/environments/mumbai.json subgraph.template.yaml > subgraph.yaml",
+    "prepare:matic": "mustache ../smart/environments/matic.json subgraph.template.yaml > subgraph.yaml"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.20.0",
+    "@graphprotocol/graph-ts": "^0.20.0"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "mustache": "^4.2.0",
+    "truffle": "^5.0.4",
+    "truffle-contract": "^4.0.5",
+    "truffle-hdwallet-provider": "^1.0.4"
+  }
+}

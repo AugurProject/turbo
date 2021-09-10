@@ -122,4 +122,38 @@
       }
     }
   }
+
+  &.clean {
+    .ThemeBorder;
+
+    background: var(--tertiary-bg);
+    width: @size-40;
+    max-width: @size-40;
+    min-height: @size-24;
+    max-height: @size-24;
+    border-radius: @size-64;
+ 
+    > div {
+      min-height: @size-18;
+      max-height: @size-18;
+      min-width: @size-18;
+      max-width: @size-18;
+      border-radius: @size-40;
+      border: none;
+      background: var(--secondary-text);
+      transform: translateX(@size-2);
+      transition: all 0.1s linear 0s, background 0s linear 0s;
+    }
+
+    &.On {
+      border: none;
+      background: var(--color-brand);
+      
+      > div {
+        transform: translateX(100%);
+        background: var(--primary-bg);
+        transition: all 0.1s linear 0s, background 0s linear 0s;
+      }
+    }
+  }
 }

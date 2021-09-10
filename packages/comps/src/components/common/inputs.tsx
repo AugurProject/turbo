@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { EthIcon, UsdIcon, XIcon, MagnifyingGlass } from "./icons";
 import Styles from "./inputs.styles.less";
 import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice } from "../../utils/format-number";
-import { USDC, ERROR_AMOUNT, SHARES, ETH, DUST_POSITION_AMOUNT } from "../../utils/constants";
+import { USDC, ERROR_AMOUNT, SHARES, ETH, DUST_POSITION_AMOUNT, ONE } from "../../utils/constants";
 import { useAppStatusStore } from "../../stores/app-status";
 import { TinyThemeButton } from "./buttons";
 import { CurrencyDropdown } from "./selection";
@@ -187,7 +187,7 @@ const Outcome = ({
   hasInvalidOutcome = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
-  const [actionType, setActionType] = useState(0);
+  const [selectedSubOutcome, setSelectedSubOutcome] = useState(1);
   const input = useRef(null);
   const { isLogged } = useAppStatusStore();
   const { prepend, symbol } = getCashFormat(ammCash?.name);
@@ -198,7 +198,14 @@ const Outcome = ({
       setCustomVal(numInput.join("."));
     }
   }, [outcome.price]);
+
   const price = !!hasLiquidity ? formatCashPrice(outcome?.price, ammCash?.name).full : prepend ? `-` : `- ${symbol}`;
+  const oppositePrice = !!hasLiquidity
+    ? formatCashPrice(ONE.minus(outcome?.price), ammCash?.name).full
+    : prepend
+    ? `-`
+    : `- ${symbol}`;
+
   return (
     <div
       key={index}
@@ -237,12 +244,18 @@ const Outcome = ({
       )}
       {isFutures && selected && (
         <div>
-          <button className={classNames({
-            [Styles.Selected]: actionType === 0,
-          })} onClick={() => setActionType(0)}>Yes -</button>
-          <button className={classNames({
-            [Styles.Selected]: actionType === 1,
-          })} onClick={() => setActionType(1)}>No -</button>
+          {outcome.subOutcomes
+            .sort((a, b) => b.id - a.id)
+            .map((subOutcome) => (
+              <button
+                className={classNames({
+                  [Styles.Selected]: selectedSubOutcome === subOutcome.id,
+                })}
+                onClick={() => setSelectedSubOutcome(subOutcome.id)}
+              >
+                {subOutcome.name} {outcome.price === "" ? "-" : subOutcome.id === 1 ? price : oppositePrice}
+              </button>
+            ))}
         </div>
       )}
     </div>

@@ -7,8 +7,8 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
-  NFLMarketFactory,
-  NFLMarketFactory__factory,
+  NFLMarketFactoryV3,
+  NFLMarketFactoryV3__factory,
   OwnedERC20__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
@@ -54,7 +54,7 @@ describe("NFL", () => {
 
   let collateral: Cash;
   let feePot: FeePot;
-  let marketFactory: NFLMarketFactory;
+  let marketFactory: NFLMarketFactoryV3;
   let headToHeadMarketId: BigNumber;
   let spreadMarketId: BigNumber;
   let overUnderMarketId: BigNumber;
@@ -66,7 +66,7 @@ describe("NFL", () => {
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new NFLMarketFactory__factory(signer).deploy(
+    marketFactory = await new NFLMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -204,7 +204,7 @@ describe("LinkFactory NoContest", () => {
   const homeTeamId = 42;
   const awayTeamId = 1881;
 
-  let marketFactory: NFLMarketFactory;
+  let marketFactory: NFLMarketFactoryV3;
 
   before(async () => {
     const collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
@@ -219,7 +219,7 @@ describe("LinkFactory NoContest", () => {
     const homeSpread = 40;
     const overUnderTotal = 60;
 
-    marketFactory = await new NFLMarketFactory__factory(signer).deploy(
+    marketFactory = await new NFLMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,

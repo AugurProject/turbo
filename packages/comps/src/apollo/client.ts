@@ -1,12 +1,11 @@
 import ApolloClient from "apollo-boost";
-import { GET_MARKETS, GET_BLOCK, GET_LATEST_BLOCK } from "./queries";
+import { GET_BLOCK, GET_LATEST_BLOCK, GET_MARKETS, GET_TRANSACTIONS, SEARCH_MARKETS } from "./queries";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Cash } from "../types";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ErrorPolicy, FetchPolicy } from "apollo-client";
 import { MARKET_FACTORY_TYPES } from "../utils/constants";
-import { SEARCH_MARKETS, GET_TRANSACTIONS } from "./queries";
 import { PARA_CONFIG } from "../stores/constants";
 
 dayjs.extend(utc);

@@ -7,10 +7,10 @@ import "../balancer/BPool.sol";
 import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
-import "./MMAMarketFactory.sol";
+import "./MMAMarketFactoryV3.sol";
 import "./AMMFactory.sol";
-import "./CryptoMarketFactory.sol";
-import "./NBAMarketFactory.sol";
+import "./CryptoMarketFactoryV3.sol";
+import "./NBAMarketFactoryV3.sol";
 
 // Helper contract for grabbing huge amounts of data without overloading multicall.
 abstract contract Fetcher {
@@ -395,7 +395,7 @@ contract CryptoFetcher is Fetcher {
         view
         returns (SpecificMarketFactoryBundle memory _bundle)
     {
-        _bundle.super = buildMarketFactoryBundle(CryptoMarketFactory(_marketFactory));
+        _bundle.super = buildMarketFactoryBundle(CryptoMarketFactoryV3(_marketFactory));
     }
 
     function buildSpecificStaticMarketBundle(
@@ -403,9 +403,9 @@ contract CryptoFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _marketId
     ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
-        CryptoMarketFactory.MarketDetails memory _details =
-            CryptoMarketFactory(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildStaticMarketBundle(CryptoMarketFactory(_marketFactory), _ammFactory, _marketId);
+        CryptoMarketFactoryV3.MarketDetails memory _details =
+            CryptoMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+        _bundle.super = buildStaticMarketBundle(CryptoMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
         _bundle.marketType = uint8(_details.marketType);
         _bundle.creationPrice = _details.creationPrice;
         _bundle.coinIndex = _details.coinIndex;
@@ -418,9 +418,9 @@ contract CryptoFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _marketId
     ) internal view returns (SpecificDynamicMarketBundle memory _bundle) {
-        CryptoMarketFactory.MarketDetails memory _details =
-            CryptoMarketFactory(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildDynamicMarketBundle(CryptoMarketFactory(_marketFactory), _ammFactory, _marketId);
+        CryptoMarketFactoryV3.MarketDetails memory _details =
+            CryptoMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+        _bundle.super = buildDynamicMarketBundle(CryptoMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
         _bundle.resolutionPrice = _details.resolutionPrice;
     }
 

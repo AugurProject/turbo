@@ -6,17 +6,14 @@ import chaiAsPromised from "chai-as-promised";
 import {
   AMMFactory,
   BFactory,
-  BFactory__factory,
   BPool,
   BPool__factory,
-  BPoolForTesting__factory,
   Cash,
-  Cash__factory,
   FeePot,
   OwnedERC20,
   OwnedERC20__factory,
-  TrustedMarketFactory,
-  TrustedMarketFactory__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, DEAD_ADDRESS } from "../src";
@@ -25,19 +22,25 @@ chaiUse(chaiAsPromised);
 
 describe("Turbo", () => {
   let signer: SignerWithAddress;
-  const BONE = BigNumber.from(10).pow(18);
-  const INITIAL_LP_DUST_BURNT = BONE.div(1000);
   const FAKE_ADDRESS = "0xFA0E00000000000000000000000000000000FA0E";
+
+  let BPool__factory: BPool__factory;
+  let TrustedMarketFactoryV3__factory: TrustedMarketFactoryV3__factory;
 
   before(async () => {
     await deployments.fixture();
     [signer] = await ethers.getSigners();
 
+    BPool__factory = (await ethers.getContractFactory("BPool")) as BPool__factory;
+    TrustedMarketFactoryV3__factory = (await ethers.getContractFactory(
+      "TrustedMarketFactoryV3"
+    )) as TrustedMarketFactoryV3__factory;
+
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     collateral = (await ethers.getContract("Collateral")) as Cash;
     const feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new TrustedMarketFactory__factory(signer).deploy(
+    marketFactory = await TrustedMarketFactoryV3__factory.deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -56,7 +59,7 @@ describe("Turbo", () => {
 
   let collateral: Cash;
   let shareFactor: BigNumber;
-  let marketFactory: TrustedMarketFactory;
+  let marketFactory: TrustedMarketFactoryV3;
   let marketId: BigNumber;
   let noContest: OwnedERC20;
   let all: OwnedERC20;
@@ -140,21 +143,19 @@ describe("Turbo", () => {
     await collateral.faucet(initialLiquidity);
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
-    pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
-    // Don't know why user gets this many LP tokens but it shouldn't matter.
-    expect(await pool.balanceOf(signer.address)).to.equal(
-      initialLiquidity.mul(shareFactor).div(10).sub(INITIAL_LP_DUST_BURNT)
-    );
+    pool = BPool__factory.connect(signer).attach(await ammFactory.pools(marketFactory.address, marketId));
+    const lpTokenBalance = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
+    expect(lpTokenBalance.gt(0)).to.be.true;
   });
 
   it("can add more liquidity to the AMM", async () => {
     const additionalLiquidity = usdcBasis.mul(10); // 10 USDC. Not very much
     await collateral.faucet(additionalLiquidity);
     await collateral.approve(ammFactory.address, additionalLiquidity);
-
-    const pool = BPool__factory.connect(await ammFactory.pools(marketFactory.address, marketId), signer);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await pool.balanceOf(signer.address)).to.equal(BigNumber.from("0x0579a4876265ad7fcd")); // hardcoded from observation
+    expect(await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address)).to.equal(
+      BigNumber.from("0x0579a4876265ad7fcd")
+    ); // hardcoded from observation
   });
 
   it("can buy shares from the AMM", async () => {
@@ -165,6 +166,7 @@ describe("Turbo", () => {
     await collateral.approve(ammFactory.address, collateralIn);
     expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91).add(1000)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
+
     expect(await all.balanceOf(signer.address)).to.equal("4112930879157689821"); // hardcoded from observation
   });
 
@@ -208,7 +210,7 @@ describe("Turbo", () => {
   });
 
   it("can remove liquidity", async () => {
-    const lpTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
+    const lpTokens = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
     await pool.approve(ammFactory.address, lpTokens);
     await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, FAKE_ADDRESS);
     expect(await collateral.balanceOf(FAKE_ADDRESS)).to.equal(1001842805); // hardcoded from observation
@@ -244,41 +246,5 @@ describe("Turbo", () => {
     await expect(marketFactory.mintShares(marketId, setsToMint, signer.address)).to.be.rejectedWith(
       "Transaction reverted without a reason"
     );
-  });
-
-  it("can create a test balancer pool", async () => {
-    bFactory = await new BFactory__factory(signer).deploy();
-    const poolContract = await new BPoolForTesting__factory(signer).deploy(bFactory.address);
-    const usdc = await new Cash__factory(signer).deploy("USDC", "USDC", 6);
-    const weth = await new Cash__factory(signer).deploy("wETH", "wETH", 18);
-
-    const usdcAmount = basis.mul(132);
-    const wethAmount = basis.mul(176);
-
-    await usdc.faucet(usdcAmount);
-    await usdc.approve(signer.address, usdcAmount);
-    await usdc.transferFrom(signer.address, poolContract.address, usdcAmount);
-    await usdc.approve(signer.address, usdcAmount);
-
-    await weth.faucet(wethAmount);
-    await weth.approve(signer.address, wethAmount);
-    await weth.transferFrom(signer.address, poolContract.address, wethAmount);
-    await weth.approve(signer.address, wethAmount);
-
-    const tokens = [usdc.address, weth.address];
-
-    const weights = [
-      // each weight must be in the range [1e18,50e18]. max total weight is 50e18
-      basis.mul(40).div(2),
-      basis.mul(60).div(2),
-    ];
-
-    const initialLiquidity = [usdcAmount, wethAmount];
-
-    await poolContract.createBPoolForTesting(tokens, initialLiquidity, weights);
-    const bPool = await poolContract.getBPool();
-
-    expect(await weth.balanceOf(bPool)).to.equal(wethAmount);
-    expect(await usdc.balanceOf(bPool)).to.equal(usdcAmount);
   });
 });

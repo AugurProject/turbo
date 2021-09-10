@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Styles from "./labels.styles.less";
 import classNames from "classnames";
 import {
@@ -10,52 +10,63 @@ import {
   LabelComps,
   ButtonComps,
   Stores,
-  ContractCalls
+  ContractCalls,
+  Formatter,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
-const { canAddLiquidity } = ContractCalls;
+const { formatToken } = Formatter;
+const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
 const {
-  Utils: { isMarketFinal }
+  Utils: { isMarketFinal },
 } = Stores;
-const {
-  CREATE,
-  USDC,
-  MODAL_ADD_LIQUIDITY,
-  ADD,
-} = Constants;
+const { CREATE, USDC, MODAL_ADD_LIQUIDITY, ADD } = Constants;
 const { ValueLabel } = LabelComps;
 const { PrimaryThemeButton } = ButtonComps;
 const {
   Formatter: { formatCash },
 } = Utils;
-const { USDCIcon, EthIcon } = Icons;
+const { USDCIcon, EthIcon, MaticIcon } = Icons;
 
 const handleValue = (value, cashName = USDC) =>
   formatCash(value, cashName, {
     bigUnitPostfix: true,
   }).full;
 
-export const AppViewStats = ({ small }) => {
+export const AppViewStats = ({ small = false, liquidity = false }) => {
   const { isLogged } = useAppStatusStore();
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
 
   const { balances } = useUserStore();
-  const totalAccountValue = useMemo(() => handleValue(isLogged ? showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly : 0), [
-    isLogged,
-    showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly,
-  ]);
-  const positionsValue = useMemo(() => handleValue(isLogged ? showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly : 0), [
-    isLogged,
-    showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly,
-  ]);
+  const totalAccountValue = useMemo(
+    () =>
+      handleValue(
+        isLogged ? (showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly) : 0
+      ),
+    [isLogged, showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly]
+  );
+  const positionsValue = useMemo(
+    () =>
+      handleValue(
+        isLogged ? (showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly) : 0
+      ),
+    [isLogged, showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly]
+  );
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
+  const usdValueLP = useMemo(() => handleValue(balances?.totalCurrentLiquidityUsd || 0), [
+    balances?.totalCurrentLiquidityUsd,
+  ]);
   return (
-    <div className={classNames(Styles.AppStats, { [Styles.small]: small })}>
-      <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />
-      <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />
+    <div className={classNames(Styles.AppStats, { [Styles.small]: small, [Styles.liquidity]: liquidity })}>
+      {!liquidity && (
+        <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />
+      )}
+      {!liquidity && (
+        <ValueLabel large={!small} label="positions" light={!isLogged} value={positionsValue} small={small} />
+      )}
+      {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={usdValueLP} />}
       <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
   );
@@ -112,5 +123,27 @@ export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo;
       {currency === USDC ? USDCIcon : EthIcon}
       {`Create this market in ${currency}`}
     </button>
+  );
+};
+
+export const AvailableLiquidityRewards = ({ balance }) => {
+  const { loginAccount } = useUserStore();
+  const [price, setPrice] = useState(1);
+  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  const amount = formatToken(balance || "0");
+  const rewardsInUsd = formatCash(Number(balance || "0") * price).formatted;
+  return (
+    <div className={Styles.AvailableLiquidityRewards}>
+      <section>
+        <h4>My Available LP Rewards</h4>
+        <p>(Will be claimed automatically when removing liquidity per market)</p>
+      </section>
+      <section>
+        <span>
+          {amount.formatted} {MaticIcon}
+        </span>
+        <span>(${rewardsInUsd})</span>
+      </section>
+    </div>
   );
 };

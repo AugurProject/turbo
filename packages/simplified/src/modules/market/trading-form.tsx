@@ -25,7 +25,7 @@ const {
   LabelComps: { generateTooltip },
   InputComps: { AmountInput, OutcomesGrid },
   ButtonComps: { SecondaryThemeButton },
-  BuySellToggleSwitch,
+  SelectionComps: { BuySellToggleSwitch },
 } = Components;
 const { formatCash, formatCashPrice, formatPercent, formatSimpleShares } = Formatter;
 const {
@@ -396,6 +396,7 @@ const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
           dontFilterInvalid
           hasLiquidity={hasLiquidity}
           marketFactoryType={amm?.market?.marketFactoryType}
+          isFutures={amm?.market?.isFuture}
         />
         <AmountInput
           chosenCash={isBuy ? ammCash?.name : SHARES}
@@ -486,6 +487,12 @@ export const ApprovalButton = ({
           address = amm?.id;
           spender = ammFactory;
           text = `Liquidity (${marketCashType})`;
+          break;
+        }
+        case ApprovalAction.MINT_SETS: {
+          address = amm?.cash?.address;
+          spender = amm?.marketFactoryAddress;
+          text = `Mint Complete Sets`;
           break;
         }
         case ApprovalAction.ADD_LIQUIDITY:

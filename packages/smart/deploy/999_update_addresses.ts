@@ -17,7 +17,7 @@ import {
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  console.log("Done deploying! Writing deploy information to addresses.ts");
+  if (hre.network.config.live) console.log("Done deploying! Writing deploy information to addresses.ts");
 
   const { deployments } = hre;
   const chainId = parseInt(await getChainId());
@@ -58,6 +58,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         collateral,
         ammFactory: ammFactory?.address || "",
         fetcher: fetcher?.address || "",
+        hasRewards: true,
       });
     }
   }
@@ -83,7 +84,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     },
   };
 
-  console.log(JSON.stringify(addresses, null, 2));
+  if (hre.network.config.live) console.log(JSON.stringify(addresses, null, 2));
 
   const addressFilePath = path.resolve(__dirname, "../addresses.ts");
   updateAddressConfig(addressFilePath, chainId, addresses);

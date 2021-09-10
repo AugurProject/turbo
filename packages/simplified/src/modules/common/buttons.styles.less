@@ -1,46 +1,18 @@
-@import (reference) '~assets/styles/shared';
+@import (reference) "~assets/styles/shared";
 
-.ApproveButton {
-  color: var(--inverted-primary-text);
-  background-color: var(--primary-text);
-  border: @size-1 solid var(--theme-border);
-  min-height: @size-68;
-  height: @size-68;
-  max-height: @size-68;
-
-  > span:first-of-type {
-    .text-20-bold;
-  }
-
-  &:not(:disabled):not(.Disabled):focus,
-  &:not(:disabled):not(.Disabled):focus-within {
-    .Focused;
-
-    background-color: var(--primary-text);
-  }
-
-  &:not(:disabled):not(.Disabled):active {
-    background-color: var(--tertiary-bg);
-  }
-}
-
-.BuySellButton {
+.SimplifiedActionButton {
   border: @size-1 solid var(--theme-border);
   background: var(--primary-text);
   color: var(--inverted-primary-text);
   min-height: @size-68;
   height: @size-68;
   max-height: @size-68;
-  flex-flow: column nowrap;
-  padding: 0 @size-16;
 
   > span:first-of-type {
     .text-20-bold;
-
-    // text-transform: none;
   }
 
-  &:not(:disabled){
+  &:not(:disabled) {
     &:hover {
       background: rgba(var(--primary-text-rgb), 0.85);
       color: var(--inverted-primary-text);
@@ -52,6 +24,34 @@
     }
   }
 
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    background-color: var(--primary-text);
+    color: var(--inverted-primary-text);
+    outline: 0;
+    border: @size-1 solid var(--theme-border);
+    box-shadow: none;
+  }
+
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--tertiary-bg);
+    color: var(--primary-text);
+  }
+}
+
+.ApproveButton {
+  .SimplifiedActionButton;
+}
+
+.BuySellButton {
+  .SimplifiedActionButton;
+
+  flex-flow: column nowrap;
+  padding: 0 @size-16;
+
+  > span:first-of-type {
+    .text-20-bold;
+  }
 
   &:disabled {
     pointer-events: none;
@@ -68,32 +68,6 @@
     background: rgba(var(--failed-rgb), 0.15);
     opacity: 1;
     border: 0;
-  }
-
-  &:not(:disabled):not(.Disabled):focus,
-  &:not(:disabled):not(.Disabled):focus-within {
-    .Focused;
-
-    background-color: var(--primary-text);
-    color: var(--inverted-primary-text);
-  }
-
-  &:not(:disabled):not(.Disabled):active {
-    background-color: var(--tertiary-bg);
-  }
-}
-
-.Focused {
-  &:not(:disabled):not(.Disabled) {
-    &:focus {
-      outline: 0;
-    }
-
-    &:focus-visible {
-      outline: 0;
-      border: @size-1 solid var(--theme-focus-color);
-      box-shadow: inset 0 0 0 @size-2 var(--theme-focus-color);
-    }
   }
 }
 

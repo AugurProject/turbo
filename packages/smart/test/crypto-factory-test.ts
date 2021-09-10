@@ -8,7 +8,7 @@ import {
   AMMFactory,
   BPool__factory,
   Cash,
-  CryptoMarketFactory,
+  CryptoMarketFactoryV3,
   FeePot,
   CryptoFetcher,
   CryptoFetcher__factory,
@@ -59,7 +59,7 @@ describe("CryptoFactory", function () {
   let collateral: Cash;
   let feePot: FeePot;
   let shareFactor: BigNumber;
-  let marketFactory: CryptoMarketFactory;
+  let marketFactory: CryptoMarketFactoryV3;
   let ammFactory: AMMFactory;
   let ethPriceMarketId: BigNumber;
   let btcPriceMarketId: BigNumber;
@@ -83,7 +83,7 @@ describe("CryptoFactory", function () {
   });
 
   before("other contracts", async () => {
-    marketFactory = (await ethers.getContract("CryptoMarketFactory")) as CryptoMarketFactory;
+    marketFactory = (await ethers.getContract("CryptoMarketFactoryV3")) as CryptoMarketFactoryV3;
     collateral = (await ethers.getContract("Collateral")) as Cash;
     feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
@@ -130,7 +130,6 @@ describe("CryptoFactory", function () {
       [0 as BigNumberish].concat(repeat(currentRound.id, PRICE_FEEDS.length)),
       nextResolutionTime
     );
-    console.log("MARINA", await tx.wait().then((r) => r.gasUsed));
   });
 
   it("CoinAdded logs are correct", async () => {
@@ -314,7 +313,11 @@ describe("CryptoFactory", function () {
     const collateralIn = usdcBasis.mul(10);
     await collateral.faucet(collateralIn);
     await collateral.approve(ammFactory.address, collateralIn);
-    const lpTokensIn = await ammFactory.getPoolTokenBalance(marketFactory.address, ethPriceMarketId, signer.address);
+    const lpTokensIn = await ammFactory.getTokenBalance(
+      marketFactory.address,
+      ethPriceMarketId.toString(),
+      signer.address
+    );
     const pool = await ammFactory
       .getPool(marketFactory.address, ethPriceMarketId)
       .then((address) => BPool__factory.connect(address, signer));
@@ -375,7 +378,7 @@ describe("CryptoFactory", function () {
         nextResolutionTime
       )
     ).to.eventually.be.rejectedWith(
-      "VM Exception while processing transaction: revert Must use first round after resolution time"
+      "VM Exception while processing transaction: reverted with reason string 'Must use first round after resolution time'"
     );
   });
 
@@ -453,7 +456,7 @@ describe("CryptoFactory", function () {
 });
 
 async function marketStaticBundleCheck(
-  marketFactory: CryptoMarketFactory,
+  marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
   marketId: BigNumberish
 ) {
@@ -479,7 +482,7 @@ async function marketStaticBundleCheck(
 }
 
 async function marketDynamicBundleCheck(
-  marketFactory: CryptoMarketFactory,
+  marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
   marketId: BigNumberish
 ) {

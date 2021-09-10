@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { PriceFeedConfig } from "../tasks";
-import { CryptoMarketFactory, CryptoMarketFactory__factory } from "../typechain";
+import { CryptoMarketFactoryV3, CryptoMarketFactoryV3__factory } from "../typechain";
 import { PRICE_FEEDS } from "../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
@@ -10,14 +10,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployer, owner } = await getNamedAccounts();
   const signer = await ethers.getSigner(deployer);
 
-  const marketFactory = CryptoMarketFactory__factory.connect(
-    (await deployments.get("CryptoMarketFactory")).address,
+  const marketFactory = CryptoMarketFactoryV3__factory.connect(
+    (await deployments.get("CryptoMarketFactoryV3")).address,
     signer
   );
 
   if (await shouldAddCoins(marketFactory)) {
     for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(deployments)) {
-      console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${priceFeedAddress}"`);
+      if (hre.network.config.live)
+        console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${priceFeedAddress}"`);
       await marketFactory.addCoin(symbol, priceFeedAddress, imprecision);
     }
   } else {
@@ -33,7 +34,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 };
 
-async function shouldAddCoins(marketFactory: CryptoMarketFactory): Promise<boolean> {
+async function shouldAddCoins(marketFactory: CryptoMarketFactoryV3): Promise<boolean> {
   const coinCount = (await marketFactory.getCoins()).length;
   // 1 because index 0 is fake coin, so length of 1 means there are no added coins
   return coinCount == 1;

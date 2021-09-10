@@ -2,7 +2,7 @@
 
 .SearchInput {
   .ThemeBorder;
-  .TertiaryBorderRadius;
+  .SecondaryBorderRadius;
 
   background: var(--primary-bg);
   color: var(--primary-text);
@@ -275,7 +275,9 @@
   &.Futures {
     overflow-y: auto;
     max-height: @size-340;
-    margin: 0 -@size-24;
+    min-height: @size-200;
+    // margin: 0 -@size-24;\
+    margin: 0;
     padding: 0 @size-24 @size-8;
     border-bottom: @size-1 solid var(--theme-border);
 

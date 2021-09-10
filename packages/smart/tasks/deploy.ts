@@ -44,6 +44,7 @@ export interface ExternalAddresses {
   usdcToken?: string; // address of USDC collateral. also the test collateral
   balancerFactory?: string;
   priceFeeds?: PriceFeedConfig[];
+  wrappedMatic?: string;
 }
 
 export interface PriceFeedConfig {

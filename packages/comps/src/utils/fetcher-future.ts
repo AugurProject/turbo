@@ -11,6 +11,7 @@ import {
 
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { decodeBaseMarketFetcher, decodeFutureMarketDetailsFetcher } from "./derived-market-data";
+import { GROUP_INVALID_MARKET } from "./constants";
 
 export const fetchContractData = async (config: MarketFactory, provider: Web3Provider, account: string) => {
   const offset = 0;
@@ -41,7 +42,20 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
 
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
 
-  const groups = markets.reduce((p, m) => ({ ...p, [String(m.groupId)]: [...(p[String(m.groupId)] || []), m] }), {});
+  let groups = markets.reduce((p, m) => ({ ...p, [String(m.groupId)]: [...(p[String(m.groupId)] || []), m] }), {});
+  try {
+    groups = Object.keys(groups).map((key) => {
+      const arr = groups[key];
+      const isInvalid = arr.find((g) => g.marketType === GROUP_INVALID_MARKET);
+      if (!isInvalid) return arr;
+      const notInvalid = arr.filter((g) => g.marketType !== GROUP_INVALID_MARKET);
+      return [isInvalid, ...notInvalid];
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  console.log("groups", groups);
   const groupedMarkets = Object.keys(groups).map((key) => ({
     ...factoryDetails,
     ...groups[key][0], // grab first market in the group for market descriptors

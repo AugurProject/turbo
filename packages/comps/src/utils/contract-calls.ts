@@ -54,6 +54,8 @@ import {
   TradingDirection,
   USDC,
   ZERO,
+  POLYGON_NETWORK,
+  POLYGON_PRICE_FEED_MATIC,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -61,6 +63,8 @@ import { PARA_CONFIG } from "../stores/constants";
 import ERC20ABI from "./ERC20ABI.json";
 import BPoolABI from "./BPoolABI.json";
 import ParaShareTokenABI from "./ParaShareTokenABI.json";
+import PriceFeedABI from "./PriceFeedABI.json";
+
 import {
   AbstractMarketFactoryV2,
   AbstractMarketFactoryV2__factory,
@@ -113,6 +117,33 @@ export const checkConvertLiquidityProperties = (
   return true;
 };
 
+export async function mintCompleteSets(
+  amm: AmmExchange,
+  provider: Web3Provider,
+  amount: string,
+  account: string
+): Promise<TransactionResponse> {
+  if (!provider) {
+    console.error("mintCompleteSets: no provider");
+    return null;
+  }
+  if (!amm || !amm?.ammFactoryAddress) {
+    console.error("minCompleteSets: no amm provided");
+    return null;
+  }
+
+  const marketFactoryData = getMarketFactoryData(amm.marketFactoryAddress);
+  if (!marketFactoryData) return null;
+  const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
+  const totalAmount = sharesDisplayToOnChain(amount).toFixed();
+  console.log("mint", marketFactoryContract.address, amm?.market?.turboId, totalAmount, account);
+  const tx = await marketFactoryContract
+    .mintShares(amm?.market?.turboId, totalAmount, account)
+    .catch((e) => console.error(e));
+
+  return tx;
+}
+
 export async function estimateAddLiquidityPool(
   account: string,
   provider: Web3Provider,
@@ -154,6 +185,7 @@ export async function estimateAddLiquidityPool(
       // lp tokens are 18 decimal
       tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
 
+      console.log("amm?.totalSupply", amm?.totalSupply);
       const poolSupply = lpTokensOnChainToDisplay(amm?.totalSupply).plus(tokenAmount);
       poolPct = lpTokenPercentageAmount(tokenAmount, poolSupply);
     }
@@ -643,8 +675,10 @@ export const getUserBalances = async (
     lpTokens: {},
     marketShares: {},
     claimableWinnings: {},
+    pendingRewards: {},
     claimableFees: "0",
     approvals: {},
+    totalRewards: "0",
   };
 
   if (!account || !provider) return userBalances;
@@ -652,7 +686,10 @@ export const getUserBalances = async (
   const userMarketTransactions = getUserTransactions(transactions, account);
   const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
+  const POOL_TOKEN_BALANCE = "getTokenBalanceByPool";
+  const POOL_PENDING_REWARDS = "getPendingRewardInfoByPool";
   const LP_TOKEN_COLLECTION = "lpTokens";
+  const PENDING_REWARDS_COLLECTION = "pendingRewards";
   const MARKET_SHARE_COLLECTION = "marketShares";
   const APPROVAL_COLLECTION = "approvals";
   const ALLOWANCE = "allowance";
@@ -672,7 +709,59 @@ export const getUserBalances = async (
   userBalances.ETH = await getEthBalance(provider, cashes, account);
   const usdc = Object.values(cashes).find((c) => c.name === USDC);
 
-  const contractLpBalanceCall: ContractCallContext[] = exchanges.map((exchange) => ({
+  const supportRewards = rewardsSupported(ammFactoryAddresses);
+  const rewardsUnsupportedExchanges = exchanges.filter((f) => !supportRewards.includes(f.ammFactoryAddress));
+  const supportRewardsExchanges = exchanges.filter((f) => supportRewards.includes(f.ammFactoryAddress));
+  const ammFactoryAbi =
+    supportRewards.length > 0 ? extractABI(getAmmFactoryContract(provider, supportRewards[0], account)) : null;
+
+  const contractLpBalanceRewardsCall: ContractCallContext[] = ammFactoryAbi
+    ? supportRewardsExchanges.reduce(
+        (p, exchange) => [
+          ...p,
+          {
+            reference: `${exchange.id}-lp`,
+            contractAddress: exchange.ammFactoryAddress,
+            abi: ammFactoryAbi,
+            calls: [
+              {
+                reference: `${exchange.id}-lp`,
+                methodName: POOL_TOKEN_BALANCE,
+                methodParameters: [exchange.id, account],
+                context: {
+                  dataKey: exchange.marketId,
+                  collection: LP_TOKEN_COLLECTION,
+                  decimals: 18,
+                  marketId: exchange.marketId,
+                  totalSupply: exchange?.totalSupply,
+                },
+              },
+            ],
+          },
+          {
+            reference: `${exchange.id}-reward`,
+            contractAddress: exchange.ammFactoryAddress,
+            abi: ammFactoryAbi,
+            calls: [
+              {
+                reference: `${exchange.id}-reward`,
+                methodName: POOL_PENDING_REWARDS,
+                methodParameters: [exchange.id, account],
+                context: {
+                  dataKey: exchange.marketId,
+                  collection: PENDING_REWARDS_COLLECTION,
+                  decimals: 18,
+                  marketId: exchange.marketId,
+                },
+              },
+            ],
+          },
+        ],
+        []
+      )
+    : [];
+
+  const contractLpBalanceCall: ContractCallContext[] = rewardsUnsupportedExchanges.map((exchange) => ({
     reference: exchange.id,
     contractAddress: exchange.id,
     abi: ERC20ABI,
@@ -761,6 +850,7 @@ export const getUserBalances = async (
     ...contractMarketShareBalanceCall,
     ...contractLpBalanceCall,
     ...contractAmmFactoryApprovals,
+    ...contractLpBalanceRewardsCall,
   ];
 
   const balanceResult: ContractCallResults = await chunkedMulticall(provider, balanceCalls, "getUserBalances", 20);
@@ -774,35 +864,61 @@ export const getUserBalances = async (
     const { dataKey, collection, decimals, marketId, outcomeId, totalSupply } = context;
     const balance = convertOnChainCashAmountToDisplayCashAmount(new BN(rawBalance), new BN(decimals));
 
-    if (method === BALANCE_OF) {
+    if (method === POOL_TOKEN_BALANCE) {
+      if (rawBalance !== "0") {
+        const lpBalance = lpTokensOnChainToDisplay(rawBalance);
+        const total = lpTokensOnChainToDisplay(totalSupply);
+        const poolPct = lpTokenPercentageAmount(lpBalance, total);
+        userBalances[collection][dataKey] = {
+          balance: lpBalance.toFixed(),
+          rawBalance,
+          marketId,
+          poolPct,
+        };
+      } else {
+        delete userBalances[collection][dataKey];
+      }
+    } else if (method === POOL_PENDING_REWARDS) {
+      const {
+        accruedEarlyDepositBonusRewards,
+        accruedStandardRewards,
+        earlyDepositEndTimestamp,
+        pendingEarlyDepositBonusRewards,
+      } = balanceValue;
+      const balance = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedStandardRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(pendingEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
+        new BN(accruedEarlyDepositBonusRewards._hex),
+        new BN(decimals)
+      ).toFixed();
+      if (rawBalance !== "0") {
+        userBalances[collection][dataKey] = {
+          balance,
+          rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
+          marketId,
+          pendingBonusRewards,
+          endBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
+        };
+      } else {
+        delete userBalances[collection][dataKey];
+      }
+    } else if (method === BALANCE_OF) {
       if (!collection) {
         userBalances[dataKey] = {
           balance: balance.toFixed(),
           rawBalance: rawBalance,
           usdValue: balance.toFixed(),
         };
-      } else if (collection === LP_TOKEN_COLLECTION) {
-        if (rawBalance !== "0") {
-          const lpBalance = lpTokensOnChainToDisplay(rawBalance);
-          const total = lpTokensOnChainToDisplay(totalSupply);
-          const poolPct = lpTokenPercentageAmount(lpBalance, total);
-          userBalances[collection][dataKey] = {
-            balance: lpBalance.toFixed(),
-            rawBalance,
-            marketId,
-            poolPct,
-          };
-        } else {
-          delete userBalances[collection][dataKey];
-        }
       } else if (collection === MARKET_SHARE_COLLECTION) {
         const fixedShareBalance = sharesOnChainToDisplay(new BN(rawBalance)).toFixed();
-        // todo: re organize balances to be really simple (future)
-        // can index using dataKey (shareToken)
-        //userBalances[collection][dataKey] = { balance: fixedBalance, rawBalance, marketId };
-
         // shape AmmMarketShares
-        const existingMarketShares = userBalances.marketShares[marketId];
+        const existingMarketShares = userBalances[collection][marketId];
         const marketTransactions = userMarketTransactions[marketId];
         const exchange = ammExchanges[marketId];
         if (existingMarketShares) {
@@ -815,11 +931,11 @@ export const getUserBalances = async (
             account,
             userClaims
           );
-          if (position) userBalances.marketShares[marketId].positions.push(position);
-          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
-          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
+          if (position) userBalances[collection][marketId].positions.push(position);
+          userBalances[collection][marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances[collection][marketId].outcomeShares[outcomeId] = fixedShareBalance;
         } else if (fixedShareBalance !== "0") {
-          userBalances.marketShares[marketId] = {
+          userBalances[collection][marketId] = {
             ammExchange: exchange,
             positions: [],
             outcomeSharesRaw: [],
@@ -835,9 +951,9 @@ export const getUserBalances = async (
             account,
             userClaims
           );
-          if (position) userBalances.marketShares[marketId].positions.push(position);
-          userBalances.marketShares[marketId].outcomeSharesRaw[outcomeId] = rawBalance;
-          userBalances.marketShares[marketId].outcomeShares[outcomeId] = fixedShareBalance;
+          if (position) userBalances[collection][marketId].positions.push(position);
+          userBalances[collection][marketId].outcomeSharesRaw[outcomeId] = rawBalance;
+          userBalances[collection][marketId].outcomeShares[outcomeId] = fixedShareBalance;
         }
       }
     } else if (method === ALLOWANCE) {
@@ -850,6 +966,9 @@ export const getUserBalances = async (
     populateClaimableWinnings(keyedFinalizedMarkets, finalizedAmmExchanges, userBalances.marketShares);
   }
 
+  const totalRewards = Object.values(userBalances.pendingRewards)
+    .reduce((p, r) => p.plus(new BN(r.balance)), ZERO)
+    .toFixed();
   const userPositions = getTotalPositions(userBalances.marketShares);
   let openMarketShares = {};
   Object.keys(userBalances.marketShares).forEach((marketId) => {
@@ -880,6 +999,7 @@ export const getUserBalances = async (
     totalAccountValue,
     availableFundsUsd,
     totalCurrentLiquidityUsd,
+    totalRewards,
   };
 };
 
@@ -1392,6 +1512,14 @@ export const getERC1155ApprovedForAll = async (
   const contract = getErc1155Contract(tokenAddress, provider, account);
   const isApproved = await contract.isApprovedForAll(account, spender);
   return Boolean(isApproved);
+};
+
+const rewardsSupported = (ammFactories: string[]) => {
+  // filter out amm factories that don't support rewards, use new flag to determine if amm factory gives rewards
+  const rewardable = marketFactories()
+    .filter((m) => m.hasRewards)
+    .map((m) => m.ammFactory);
+  return ammFactories.filter((m) => rewardable.includes(m));
 };
 
 // adding constants here with special logic
@@ -1949,6 +2077,8 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     const exchange = ex[i];
     const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
+
+    console.log("totalSupply", totalSupply);
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
@@ -2244,3 +2374,20 @@ export function extractABI(contract: ethers.Contract): any[] {
   ABIs[address] = contractAbi;
   return contractAbi;
 }
+
+export const getMaticUsdPrice = async (library: Web3Provider): Promise<number> => {
+  const network = await library?.getNetwork();
+  if (network?.chainId !== POLYGON_NETWORK) return 1;
+  let defaultMaticPrice = 1.34;
+  if (!library) return defaultPrice;
+  try {
+    const contract = getContract(POLYGON_PRICE_FEED_MATIC, PriceFeedABI, library);
+    const data = await contract.latestRoundData();
+    defaultMaticPrice = new BN(String(data?.answer)).div(new BN(10).pow(Number(8))).toNumber();
+    // get price
+  } catch (error) {
+    console.error("Failed to get price feed contract", error);
+    return defaultMaticPrice;
+  }
+  return defaultMaticPrice;
+};

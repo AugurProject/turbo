@@ -271,7 +271,7 @@
 
     color: var(--secondary-text);
     line-height: @size-14;
-    height: @size-14;
+    min-height: @size-14;
 
     &:last-of-type {
       align-self: flex-end;
@@ -288,15 +288,14 @@
     margin: @size-12 0;
 
     > span {
-      background: var(--success);
+      background: var(--color-brand);
       border-radius: @size-32;
       min-height: @size-8;
       max-height: @size-8;
       position: absolute;
       left: 0;
       top: 0;
-      width: @size-120;
-
+      width: unset;
     }
   }
 }

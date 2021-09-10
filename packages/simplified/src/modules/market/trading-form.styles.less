@@ -75,12 +75,15 @@
 }
 
 .OrderInfo {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-flow: row;
+  grid-gap: @size-8;
 
   > div {
     display: flex;
     flex: 1;
+   
 
     > span {
       .text-16-semi-bold;
@@ -108,10 +111,6 @@
         height: @size-20;
         margin-left: @size-8;
       }
-    }
-
-    &:not(:last-of-type) {
-      margin-bottom: @size-8;
     }
   }
 

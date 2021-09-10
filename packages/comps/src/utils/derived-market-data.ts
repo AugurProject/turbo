@@ -279,7 +279,11 @@ export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails
   marketInfo.amm = {
     ...pools[0],
     pools,
-    ammOutcomes: marketInfo.outcomes.map((o, i) => ({ ...o, price: pools[i].ammOutcomes[OUTCOME_YES_ID].price })),
+    ammOutcomes: marketInfo.outcomes.map((o, i) => ({
+      ...o,
+      price: pools[i].ammOutcomes[OUTCOME_YES_ID].price,
+      marketId: o.marketId,
+    })),
   };
 
   return marketInfo;
@@ -318,6 +322,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
     ammFactoryAddress: config.ammFactory,
     marketFactoryAddress: config.address,
     hasLiquidity: created,
+    totalSupply: pool?.totalSupply || "0",
   };
 };
 

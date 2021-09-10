@@ -1,4 +1,4 @@
-import { FINANCE } from "../../utils/constants";
+import { FINANCE, REP } from "../../utils/constants";
 import {
   MedicalIcon,
   PoliticsIcon,
@@ -47,6 +47,9 @@ import {
   XRPIcon,
   XTZIcon,
   USDTIcon,
+  ADAIcon,
+  DOGEIcon,
+  MATICIcon,
 } from "./category-icons";
 import { AugurBlankIcon } from "./icons";
 // SUB CATEGORIES
@@ -91,19 +94,31 @@ const HORSE_RACING = "Horse Racing";
 const US_POLITICS = "US Politics";
 const WORLD = "World";
 const BITCOIN = "Bitcoin";
+const BTC = "BTC";
 const ETHEREUM = "Ethereum";
+const ETH = "ETH";
 const LITECOIN = "Litecoin";
+const LTC = "LTC";
 const AUGUR = "Augur";
 const MAKER = "Maker";
+const MKR = "MKR";
 const AMPLE = "Ample";
+const AMPL = "AMPL";
 const COMPOUND = "Compound";
+const COMP = "COMP";
 const BALANCER = "Balancer";
+const BAL = "BAL";
 const ZEROX = "0x";
 const CHAINLINK = "Chainlink";
+const LINK = "LINK";
 const ADDITIONAL_TOKENS = "Additional Tokens";
 const AWARDS = "Awards";
 const TV_MOVIES = "TV & Movies";
 const SOCIAL_MEDIA = "Social Media";
+const DOGE = "DOGE";
+const ADA = "ADA";
+const MATIC = "MATIC";
+
 export const CATEGORIES_ICON_MAP = {
   [CRYPTO.toLowerCase()]: {
     icon: CryptoIcon,
@@ -111,19 +126,28 @@ export const CATEGORIES_ICON_MAP = {
       [ADDITIONAL_TOKENS.toLowerCase()]: { icon: AdditionalCryptoIcon },
       [ALGO.toLowerCase()]: { icon: ALGOIcon },
       [AMPLE.toLowerCase()]: { icon: AMPLIcon },
+      [AMPL.toLowerCase()]: { icon: AMPLIcon },
       [ATOM.toLowerCase()]: { icon: ATOMIcon },
       [AUGUR.toLowerCase()]: { icon: REPV2Icon },
+      [REP.toLowerCase()]: { icon: REPV2Icon },
       [BALANCER.toLowerCase()]: { icon: BALIcon },
+      [BAL.toLowerCase()]: { icon: BALIcon },
       [BITCOIN.toLowerCase()]: { icon: BTCIcon },
+      [BTC.toLowerCase()]: { icon: BTCIcon },
       [CHAINLINK.toLowerCase()]: { icon: LINKIcon },
+      [LINK.toLowerCase()]: { icon: LINKIcon },
       [COMPOUND.toLowerCase()]: { icon: COMPIcon },
+      [COMP.toLowerCase()]: { icon: COMPIcon },
       [DASH.toLowerCase()]: { icon: DASHIcon },
       [EOS.toLowerCase()]: { icon: EOSIcon },
       [ETC.toLowerCase()]: { icon: ETCIcon },
       [ETHEREUM.toLowerCase()]: { icon: ETHIcon },
+      [ETH.toLowerCase()]: { icon: ETHIcon },
       [KNC.toLowerCase()]: { icon: KNCIcon },
       [LITECOIN.toLowerCase()]: { icon: LTCIcon },
+      [LTC.toLowerCase()]: { icon: LTCIcon },
       [MAKER.toLowerCase()]: { icon: MKRIcon },
+      [MKR.toLowerCase()]: { icon: MKRIcon },
       [OMG.toLowerCase()]: { icon: OMGIcon },
       [OXT.toLowerCase()]: { icon: OXTIcon },
       [USDT.toLowerCase()]: { icon: USDTIcon },
@@ -132,6 +156,9 @@ export const CATEGORIES_ICON_MAP = {
       [XRP.toLowerCase()]: { icon: XRPIcon },
       [XTZ.toLowerCase()]: { icon: XTZIcon },
       [ZEROX.toLowerCase()]: { icon: ZRXIcon },
+      [DOGE.toLowerCase()]: { icon: DOGEIcon },
+      [ADA.toLowerCase()]: { icon: ADAIcon },
+      [MATIC.toLowerCase()]: { icon: MATICIcon },
     },
   },
   [ECONOMICS.toLowerCase()]: { icon: FinanceIcon, subOptions: {} },

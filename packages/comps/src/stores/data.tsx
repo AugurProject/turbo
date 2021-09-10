@@ -27,10 +27,10 @@ export const DataStore = {
 };
 
 export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children }: any) => {
-  const configCashes = getCashesInfo();
-  const state = useData(configCashes);
   const { account } = useUserStore();
   const defaultProvider = useRef(getDefaultProvider());
+  const configCashes = getCashesInfo();
+  const state = useData(configCashes);
   const {
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
@@ -54,10 +54,11 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
       try {
         try {
-          const { data, block, errors } = await getMarketsData();
+
           // Throwing now until graph data can consistently pull all markets
           //throw new Error('Temporary Graph Failover');
 
+          const { data, block, errors } = await getMarketsData();
           if (errors) {
             throw new Error(`Graph returned error ${errors}`);
           }

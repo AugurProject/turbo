@@ -176,7 +176,7 @@ export function useScrollToTopOnMount(...optionsTriggers) {
   }, [...optionsTriggers]);
 }
 
-const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION } = ApprovalAction;
+const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION, MINT_SETS } = ApprovalAction;
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
 export function useApprovalStatus({
   amm,
@@ -228,6 +228,12 @@ export function useApprovalStatus({
         case ADD_LIQUIDITY: {
           address = isETH ? null : tokenAddress;
           checkApprovalFunction = isETH ? async () => APPROVED : checkAllowance;
+          break;
+        }
+        case MINT_SETS: {
+          address = amm?.cash?.address;
+          spender = amm?.marketFactoryAddress;
+          checkApprovalFunction = checkAllowance;
           break;
         }
         default: {

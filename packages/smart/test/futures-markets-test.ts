@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
@@ -8,12 +8,13 @@ import {
   FeePot,
   FeePot__factory,
   FuturesFetcher__factory,
-  FuturesMarketFactory,
-  FuturesMarketFactory__factory,
+  FuturesMarketFactoryV3,
+  FuturesMarketFactoryV3__factory,
   GroupFetcher,
+  MasterChef,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
-import { calcShareFactor, flatten } from "../src";
+import { calcShareFactor, flatten, range } from "../src";
 import { describe } from "mocha";
 import { MAX_UINT } from "../src/bmath";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
@@ -34,8 +35,8 @@ const SMALL_FEE = BigNumber.from(10).pow(16);
 
 enum GroupStatus {
   Unknown = 0,
-  BeingCreated,
   Scheduled,
+  Finalizing,
   Final,
   Invalid,
 }
@@ -56,6 +57,7 @@ describe("Futures Markets", () => {
       { name: "Netrunners", marketId: BigNumber.from(5) },
       { name: "Animals", marketId: BigNumber.from(6) },
     ],
+    winningMarketIndex: 1,
   };
 
   const invalidGroup = {
@@ -72,13 +74,14 @@ describe("Futures Markets", () => {
       { name: "Inhumans", marketId: BigNumber.from(12) },
       { name: "USA", marketId: BigNumber.from(13) },
     ],
+    winningMarketIndex: MAX_UINT,
   };
 
   let signer: SignerWithAddress;
   let collateral: Cash;
   let reputationToken: Cash;
   let feePot: FeePot;
-  let marketFactory: FuturesMarketFactory;
+  let marketFactory: FuturesMarketFactoryV3;
   let ammFactory: AMMFactory;
 
   const OUTCOME_NO = 0;
@@ -86,17 +89,18 @@ describe("Futures Markets", () => {
   const ODDS = ratioOdds([1, 5]);
 
   before(async () => {
+    await deployments.fixture();
     [signer] = await ethers.getSigners();
   });
 
   it("deploys", async () => {
-    collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
-    reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
-    feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
+    const feePot = (await ethers.getContract("FeePot")) as FeePot;
+
+    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
+    collateral = (await ethers.getContract("Collateral")) as Cash;
     const bFactory = await new BFactory__factory(signer).deploy();
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, SMALL_FEE);
     const shareFactor = calcShareFactor(await collateral.decimals());
-    marketFactory = await new FuturesMarketFactory__factory(signer).deploy(
+    marketFactory = await new FuturesMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
       shareFactor,
@@ -121,7 +125,7 @@ describe("Futures Markets", () => {
     );
 
     let group = await marketFactory.getGroup(validGroup.id);
-    expect(group.status, "group is initialized").to.equal(GroupStatus.BeingCreated);
+    expect(group.status, "group is initialized").to.equal(GroupStatus.Scheduled);
 
     for (const team of validGroup.teams) {
       await marketFactory.addOutcomesToGroup(validGroup.id, [team.name], [ODDS]);
@@ -131,16 +135,7 @@ describe("Futures Markets", () => {
     expect(group.markets.length, "group market length").to.equal(validGroup.teams.length);
     for (const marketId of group.markets) {
       const market = await marketFactory.getMarket(marketId);
-      expect(market.active, `market ${marketId} inactive`).to.be.false;
-    }
-
-    await marketFactory.finalizeGroup(validGroup.id);
-
-    group = await marketFactory.getGroup(validGroup.id);
-    expect(group.status, "group is finalized").to.equal(GroupStatus.Scheduled);
-    for (const marketId of group.markets) {
-      const market = await marketFactory.getMarket(marketId);
-      expect(market.active, `market ${marketId} is active`).to.be.true;
+      expect(market.active, `market ${marketId} active`).to.be.true;
     }
   });
 
@@ -207,12 +202,6 @@ describe("Futures Markets", () => {
     ]);
   });
 
-  it("logs GroupReady", async () => {
-    const filter = marketFactory.filters.GroupReady(validGroup.id);
-    const ids = (await marketFactory.queryFilter(filter)).map((log) => log.args.id);
-    expect(ids).to.deep.equal([validGroup.id]);
-  });
-
   it("resolve a market early", async () => {
     await marketFactory.resolveMarketAsNo(validGroup.teams[0].marketId);
   });
@@ -250,13 +239,6 @@ describe("Futures Markets", () => {
     for (const team of invalidGroup.teams) {
       await marketFactory.addOutcomesToGroup(invalidGroup.id, [team.name], [ODDS]);
     }
-    await marketFactory.finalizeGroup(invalidGroup.id);
-  });
-
-  it("logs GroupReady", async () => {
-    const filter = marketFactory.filters.GroupReady(invalidGroup.id);
-    const ids = (await marketFactory.queryFilter(filter)).map((log) => log.args.id);
-    expect(ids).to.deep.equal([invalidGroup.id]);
   });
 
   let fetcher: GroupFetcher;
@@ -296,9 +278,43 @@ describe("Futures Markets", () => {
     });
   });
 
+  it("begin resolving the valid group", async () => {
+    await marketFactory.beginResolvingGroup(validGroup.id, validGroup.winningMarketIndex);
+
+    const group = await marketFactory.getGroup(validGroup.id);
+    expect(group.status, "group is finalizing").to.equal(GroupStatus.Finalizing);
+    expect(group.winningMarketIndex, "winningMarketIndex").to.equal(validGroup.winningMarketIndex);
+  });
+
   it("resolve the valid group", async () => {
-    const winningMarketIndex = 1;
-    await marketFactory.resolveGroup(validGroup.id, winningMarketIndex);
+    const group = await marketFactory.getGroup(validGroup.id);
+
+    const maxIndex = group.markets.length; // technically max+1, but the math works out
+    const halfIndex = Math.floor(maxIndex / 2);
+    const indexBundles = [range(0, halfIndex), range(halfIndex, maxIndex)];
+
+    for (const marketIndexes of indexBundles) {
+      await marketFactory.resolveMarkets(validGroup.id, marketIndexes);
+    }
+
+    for (const marketIndex of range(0, group.markets.length)) {
+      const marketId = group.markets[marketIndex];
+      const market = await marketFactory.getMarket(marketId);
+      const won = marketIndex === validGroup.winningMarketIndex;
+      const winnerIndex = won ? OUTCOME_YES : OUTCOME_NO;
+      expect(market.active, `market ${marketId} is active`).to.be.false;
+      expect(market.winnerIndex, `market ${marketId} is ${won ? "YES" : "NO"}`).to.equal(winnerIndex);
+    }
+
+    const invalidMarket = await marketFactory.getMarket(group.invalidMarket);
+    expect(invalidMarket.active, `market ${group.invalidMarket} is active`).to.be.false;
+    expect(invalidMarket.winnerIndex, `market ${group.invalidMarket} is YES`).to.equal(OUTCOME_NO);
+  });
+
+  it("finalize resolution of valid group", async () => {
+    await marketFactory.finalizeGroup(validGroup.id);
+    const group = await marketFactory.getGroup(validGroup.id);
+    expect(group.status, "group is final").to.equal(GroupStatus.Final);
   });
 
   it("log MarketResolved for all markets", async () => {
@@ -340,8 +356,40 @@ describe("Futures Markets", () => {
     await marketFactory.resolveMarketAsNo(invalidGroup.teams[0].marketId);
   });
 
+  it("begin resolving the invalid group", async () => {
+    await marketFactory.beginResolvingGroup(invalidGroup.id, invalidGroup.winningMarketIndex);
+
+    const group = await marketFactory.getGroup(invalidGroup.id);
+    expect(group.status, "group is finalizing").to.equal(GroupStatus.Finalizing);
+    expect(group.winningMarketIndex, "winningMarketIndex").to.equal(invalidGroup.winningMarketIndex);
+  });
+
   it("resolve the invalid group", async () => {
-    await marketFactory.resolveGroup(invalidGroup.id, MAX_UINT);
+    const group = await marketFactory.getGroup(invalidGroup.id);
+
+    const maxIndex = group.markets.length; // technically max+1, but the math works out
+    const halfIndex = Math.floor(maxIndex / 2);
+    const indexBundles = [range(0, halfIndex), range(halfIndex, maxIndex)];
+
+    for (const marketIndexes of indexBundles) {
+      await marketFactory.resolveMarkets(invalidGroup.id, marketIndexes);
+    }
+
+    for (const marketId of group.markets) {
+      const market = await marketFactory.getMarket(marketId);
+      expect(market.active, `market ${marketId} is active`).to.be.false;
+      expect(market.winnerIndex, `market ${marketId} is NO`).to.equal(OUTCOME_NO);
+    }
+
+    const invalidMarket = await marketFactory.getMarket(group.invalidMarket);
+    expect(invalidMarket.active, `market ${group.invalidMarket} is active`).to.be.false;
+    expect(invalidMarket.winnerIndex, `market ${group.invalidMarket} is YES`).to.equal(OUTCOME_YES);
+  });
+
+  it("finalize resolution of invalid group", async () => {
+    await marketFactory.finalizeGroup(invalidGroup.id);
+    const group = await marketFactory.getGroup(invalidGroup.id);
+    expect(group.status, "group is invalid").to.equal(GroupStatus.Invalid);
   });
 
   it("log MarketResolved for the invalid group", async () => {
