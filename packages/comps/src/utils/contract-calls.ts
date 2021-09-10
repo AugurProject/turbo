@@ -1523,7 +1523,7 @@ const rewardsSupported = (ammFactories: string[]) => {
 };
 
 // adding constants here with special logic
-const OLDEST_MARKET_FACTORY_VER = "v1.0.0-beta.7";
+const OLDEST_MARKET_FACTORY_VER = "v1.2.0";
 const SUB_OLD_VERSION = "V1";
 
 export const canAddLiquidity = (market: MarketInfo): boolean => {
