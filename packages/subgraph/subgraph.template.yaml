@@ -4,7 +4,7 @@ repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
-  {{#marketFactories}}
+  {{#uniqueMarketFactories}}
     - kind: ethereum/contract
       name: {{ ammFactoryGraphName }}
       network: {{ info.graphName }}
@@ -33,7 +33,7 @@ dataSources:
             handler: handleLiquidityChangedEvent
           - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
             handler: handleSharesSwappedEvent
-  {{/marketFactories}}
+  {{/uniqueMarketFactories}}
   {{#teamSportsMarketFactoriesV2}}
     - kind: ethereum/contract
       name: {{ marketFactoryGraphName }}
