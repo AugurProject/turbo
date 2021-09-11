@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 import {
   buildContractInterfaces,
   ContractInterfaces,
-  CryptoMarketFactoryV3,
+  CryptoCurrencyMarketFactoryV3,
   FakePriceFeed__factory,
   GroupedMarketFactoryV3,
   getUpcomingFriday4pmET,
@@ -32,51 +32,44 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
 });
 
 async function crypto(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
-  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Crypto")]
-    .marketFactory as CryptoMarketFactoryV3;
-
-  const now = Math.floor(Date.now() / 1000);
-
-  const currentResolutionTime = (await marketFactory.nextResolutionTime()).toNumber();
-  if (currentResolutionTime > now) {
-    console.log(
-      `Skipping crypto markets because they exist. Next resolution is at ${currentResolutionTime} epoch seconds`
-    );
-    return;
-  }
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "CryptoCurrency")]
+    .marketFactory as CryptoCurrencyMarketFactoryV3;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
   try {
     interface Coin {
       name: string;
-      priceFeed: string;
-      price: BigNumber;
+      feed: string;
+      value: BigNumber;
       imprecision: number;
-      currentMarkets: [BigNumber];
+      currentMarket: BigNumber;
     }
-    const coins: Coin[] = (await marketFactory.getCoins()).slice(1);
-    const priceFeeds = coins.map((coin) => coin.priceFeed).map((addr) => FakePriceFeed__factory.connect(addr, signer));
-    const roundIds: BigNumberish[] = ([0] as BigNumberish[]).concat(
-      await Promise.all(
-        priceFeeds.map(async (feed) => {
-          const latest = await feed.latestRoundData();
-          const round = RoundManagement.decode(latest._roundId).nextRound();
-          const answer = randomPrice();
-          await feed.addRound(round.id, answer, 0, now, 0);
-          return round.id;
-        })
-      )
-    );
 
-    console.log(`Creating crypto price markets for: ${coins.map((c) => c.name).join(",")}`);
-
-    const nextResolutionTime = getUpcomingFriday4pmET();
+    const now = Math.floor(Date.now() / 1000);
+    const resolutionTime = getUpcomingFriday4pmET();
     const priorMarketCount: number = (await marketFactory.marketCount()).toNumber();
-
     const wait = makeWait(confirmations);
 
-    await marketFactory.createAndResolveMarkets(roundIds, nextResolutionTime).then(wait);
+    const coins: Coin[] = (await marketFactory.getCoins()).slice(1);
+    for (let i = 0; i < coins.length; i++) {
+      const coin = coins[i];
+      const coinIndex = i + 1;
+
+      if (!coin.currentMarket.eq(0)) {
+        console.log(`Skipping crypto market for ${coin.name} because it already exists.`);
+        continue;
+      }
+
+      const feed = FakePriceFeed__factory.connect(coin.feed, signer);
+      const latest = await feed.latestRoundData();
+      const round = RoundManagement.decode(latest._roundId).nextRound();
+      const answer = randomPrice();
+      await feed.addRound(round.id, answer, 0, now, 0).then(wait);
+
+      console.log(`Creating crypto price market for ${coin.name}`);
+      await marketFactory.pokeCoin(coinIndex, resolutionTime, 0).then(wait);
+    }
 
     const subsequentMarketCount: number = (await marketFactory.marketCount()).toNumber();
     const marketIds = range(priorMarketCount, subsequentMarketCount);
