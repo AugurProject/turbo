@@ -29,7 +29,6 @@ describe("Math", () => {
   });
 });
 
-
 function calcSpreadWinner(homeScore: number, awayScore: number, spread: number): Winner {
   homeScore += spread;
 
