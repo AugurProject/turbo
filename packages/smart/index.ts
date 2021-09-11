@@ -35,6 +35,8 @@ import {
   SportsFetcher__factory,
   GroupFetcher,
   GroupFetcher__factory,
+  CryptoPriceMarketFactoryV3,
+  CryptoPriceMarketFactoryV3__factory,
 } from "./typechain";
 import { addresses } from "./addresses";
 import { Signer } from "ethers";
@@ -65,6 +67,7 @@ export type MarketFactoryContract =
   | TrustedMarketFactoryV3
   | CryptoMarketFactoryV2
   | CryptoMarketFactoryV3
+  | CryptoPriceMarketFactoryV3
   | FuturesMarketFactoryV3
   | MMALinkMarketFactoryV2
   | MMAMarketFactoryV3
@@ -122,6 +125,7 @@ export function instantiateMarketFactory(
     },
     V3: {
       Crypto: CryptoMarketFactoryV3__factory,
+      CryptoPrice: CryptoPriceMarketFactoryV3__factory,
       Trusted: TrustedMarketFactoryV3__factory,
       Futures: FuturesMarketFactoryV3__factory,
       MMA: MMAMarketFactoryV3__factory,

@@ -31,6 +31,7 @@ export type MarketFactory = {
 export const MARKET_TYPES = [
   "Trusted",
   "Crypto",
+  "CryptoPrice",
   "SportsLink",
   "MMALink",
   "MMA",
@@ -52,6 +53,7 @@ export type MarketFactoryContractName =
   | "MLBMarketFactoryV3"
   | "MMAMarketFactoryV3"
   | "CryptoMarketFactoryV3"
+  | "CryptoPriceMarketFactoryV3"
   | "FuturesMarketFactoryV3"
   | "TrustedMarketFactoryV3";
 export type FetcherContractName =
@@ -60,6 +62,7 @@ export type FetcherContractName =
   | "NFLFetcher"
   | "MLBFetcher"
   | "CryptoFetcher"
+  | "CryptoPriceFetcher"
   | "FuturesFetcher"
   | "";
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
@@ -72,6 +75,7 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   NBA: "NBAMarketFactoryV3",
   MMA: "MMAMarketFactoryV3",
   Crypto: "CryptoMarketFactoryV3",
+  CryptoPrice: "CryptoPriceMarketFactoryV3",
   Futures: "FuturesMarketFactoryV3",
   Trusted: "TrustedMarketFactoryV3",
 };
@@ -85,6 +89,7 @@ export const marketFactoryTypeToFetcherName: {
   MLB: "MLBFetcher",
   NBA: "NBAFetcher",
   Crypto: "CryptoFetcher",
+  CryptoPrice: "CryptoPriceFetcher",
   Futures: "FuturesFetcher",
   Trusted: "",
 };
