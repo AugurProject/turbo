@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./pagination.styles.less";
@@ -109,30 +109,57 @@ export const useQueryPage = () => {
   const history = useHistory();
   const { location } = history;
   const { page } = parseQuery(location.search);
-  return page ? Number(page) : 1;
+  const pageToReturn = page ? Number(page) : 1;
+  return pageToReturn;
+};
+
+export const useQueryPagination = ({ itemsPerPage, itemCount }) => {
+  const queryPage = useQueryPage();
+  const history = useHistory();
+  const { location } = history;
+  const parsedQuery = parseQuery(location.search);
+  const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
+  const [page, setPage] = useState(queryPage);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+      const curPageName = parsePath(location.pathname)[0];
+      const newQuery = {
+        pathname: makePath(curPageName),
+        search: makeQuery({
+          ...parsedQuery,
+          page: totalPages,
+        }),
+      };
+      history.push(newQuery);
+    }
+  }, [page, totalPages, itemsPerPage, itemCount])
+  return [page, setPage];
 }
 
-export const useQueryLocation = (page, totalPages, usePageLocation) => {
+export const useQueryLocation = (page: number, totalPages: number, usePageLocation: boolean) => {
   const history = useHistory();
   const { location } = history;
   const parsedQuery = parseQuery(location.search);
   const { page: parsedPage } = parsedQuery;
-  const queryPage = parsedPage ? Number(parsedPage) > totalPages ? totalPages : Number(parsedPage) : 1;
-
+  const queryPage: number = parsedPage ? (Number(parsedPage) > totalPages ? totalPages : Number(parsedPage)) : 1;
+  const notTheSame = page !== queryPage;
+  const queryOutOfBounds = queryPage > totalPages;
   useEffect(() => {
-    if (usePageLocation && Number(page) !== Number(queryPage) && queryPage) {
+    if (usePageLocation && queryPage && (notTheSame || queryOutOfBounds)) {
       const curPageName = parsePath(location.pathname)[0];
-      const suggestedNewQuery = {
+      const newQuery = {
         pathname: makePath(curPageName),
         search: makeQuery({
           ...parsedQuery,
-          page,
+          page: queryOutOfBounds ? totalPages : page,
         }),
       };
-      history.push(suggestedNewQuery);
+      history.push(newQuery);
     }
   }, [page, queryPage, totalPages]);
-}
+};
 
 export const Pagination = ({
   page,
@@ -142,7 +169,7 @@ export const Pagination = ({
   showPagination = true,
   useFull = false,
   maxButtons = 7,
-  usePageLocation = false
+  usePageLocation = false,
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
