@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./pagination.styles.less";
 import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
 import { SimpleChevron } from "./icons";
+import makePath from "../../utils/links/make-path";
+import parsePath from "../../utils/links/parse-path";
+import makeQuery from "../../utils/links/make-query";
+import parseQuery from "../../utils/links/parse-query";
 
 export interface PaginationProps {
   page: number;
@@ -15,6 +20,7 @@ export interface PaginationProps {
   showPagination?: boolean;
   useFull?: boolean;
   maxButtons?: number;
+  usePageLocation?: boolean;
 }
 
 export interface PagesArrayObject {
@@ -99,6 +105,35 @@ export const createPagesArray = (page: number, totalPages: number, maxButtons: n
   return ArrayToShow;
 };
 
+export const useQueryPage = () => {
+  const history = useHistory();
+  const { location } = history;
+  const { page } = parseQuery(location.search);
+  return page ? Number(page) : 1;
+}
+
+export const useQueryLocation = (page, totalPages, usePageLocation) => {
+  const history = useHistory();
+  const { location } = history;
+  const parsedQuery = parseQuery(location.search);
+  const { page: parsedPage } = parsedQuery;
+  const queryPage = parsedPage ? Number(parsedPage) > totalPages ? totalPages : Number(parsedPage) : 1;
+
+  useEffect(() => {
+    if (usePageLocation && Number(page) !== Number(queryPage) && queryPage) {
+      const curPageName = parsePath(location.pathname)[0];
+      const suggestedNewQuery = {
+        pathname: makePath(curPageName),
+        search: makeQuery({
+          ...parsedQuery,
+          page,
+        }),
+      };
+      history.push(suggestedNewQuery);
+    }
+  }, [page, queryPage, totalPages]);
+}
+
 export const Pagination = ({
   page,
   action,
@@ -107,9 +142,13 @@ export const Pagination = ({
   showPagination = true,
   useFull = false,
   maxButtons = 7,
+  usePageLocation = false
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
+
+  useQueryLocation(page, totalPages, usePageLocation);
+
   return (
     <div
       className={classNames(Styles.Pagination, {

@@ -22,7 +22,7 @@ import BigNumber from "bignumber.js";
 const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
 const { formatToken } = Formatter;
 const {
-  PaginationComps: { sliceByPage, Pagination },
+  PaginationComps: { sliceByPage, useQueryPage, Pagination },
   Links: { MarketLink },
   SelectionComps: { SquareDropdown, ToggleSwitch },
   Icons: { Arrow, MaticIcon },
@@ -315,7 +315,8 @@ const LiquidityView = () => {
   } = useUserStore();
   const { markets, transactions } = useDataStore();
   const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
-  const [page, setPage] = useState(1);
+  const queryPage = useQueryPage(); 
+  const [page, setPage] = useState(queryPage);
   const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState({
@@ -406,6 +407,7 @@ const LiquidityView = () => {
             setPage(page);
           }}
           updateLimit={null}
+          usePageLocation
         />
       )}
     </div>

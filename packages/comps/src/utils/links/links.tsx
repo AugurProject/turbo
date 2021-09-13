@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
 import makePath from "./make-path";
 import makeQuery from "./make-query";
 import { MARKET, MARKETS, MARKET_ID_PARAM_NAME } from "../constants";
