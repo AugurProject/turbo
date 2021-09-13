@@ -11,6 +11,7 @@ import {
   ContractCalls,
   Stores,
   Formatter,
+  useScrollToTopOnMount,
 } from "@augurproject/comps";
 import { categoryItems, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
@@ -344,6 +345,8 @@ const LiquidityView = () => {
   useEffect(() => {
     handleFilterSort();
   }, [marketKeys.length, userMarkets.length]);
+
+  useScrollToTopOnMount(page);
 
   return (
     <div className={Styles.LiquidityView}>
