@@ -67,6 +67,13 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                   : ts.factory.createToken(SyntaxKind.FalseKeyword)
                               ),
                             ];
+                            if (marketFactory.hasRewards)
+                              fields.push(
+                                context.factory.createPropertyAssignment(
+                                  "masterChef",
+                                  ts.factory.createStringLiteral(marketFactory.masterChef)
+                                )
+                              );
                             if (marketFactory.description) {
                               fields.push(
                                 context.factory.createPropertyAssignment(

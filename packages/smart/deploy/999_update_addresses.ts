@@ -52,6 +52,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       const factory = marketFactories[index];
       if (!factory.ammFactory && ammFactory) factory.ammFactory = ammFactory.address;
       if (!factory.fetcher && fetcher) factory.fetcher = fetcher.address;
+      if (!factory.hasRewards && masterChef) {
+        marketFactories[index] = {
+          ...factory,
+          hasRewards: true,
+          masterChef: masterChef?.address || "",
+        };
+      }
     } else {
       marketFactories.unshift({
         version,
