@@ -182,8 +182,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _beginTimestamp = _endTimestamp - _rewardsPeriodsInSeconds;
         }
 
-        
-
         poolInfo.push(
             PoolInfo({
                 accRewardsPerShare: 0,
