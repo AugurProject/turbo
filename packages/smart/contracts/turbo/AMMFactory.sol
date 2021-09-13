@@ -436,10 +436,10 @@ contract AMMFactory is BNum {
     function getPoolTokenBalance(
         AbstractMarketFactoryV3 _marketFactory,
         uint256 _marketId,
-        address whom
+        address _user
     ) external view returns (uint256) {
         BPool _pool = pools[address(_marketFactory)][_marketId];
-        return _pool.balanceOf(whom);
+        return _pool.balanceOf(_user);
     }
 
     function getPool(AbstractMarketFactoryV3 _marketFactory, uint256 _marketId) external view returns (BPool) {
