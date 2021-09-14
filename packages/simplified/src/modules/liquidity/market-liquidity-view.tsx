@@ -1,30 +1,41 @@
 import React from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
-import { useDataStore, Components } from "@augurproject/comps";
+
+import { useHistory } from "react-router";
+import { useDataStore, Components, Utils } from "@augurproject/comps";
 import { useMarketQueryId } from "modules/market/market-view";
 import { useSimplifiedStore } from "modules/stores/simplified";
+import { LIQUIDITY } from "../constants";
 const {
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
   Links: { MarketLink },
-  Icons: { WarningIcon },
+  Icons: { WarningIcon, BackIcon },
 } = Components;
+const {
+  PathUtils: { makePath },
+} = Utils;
+
 export const MarketLiquidityView = () => {
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
   const marketId = useMarketQueryId();
   const { markets } = useDataStore();
-  const market = markets[marketId];
-  const { categories } = market;
+  const market = markets?.[marketId];
 
+  if (!market) {
+    return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
+  }
+  const { categories } = market;
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
+      <LiquidityForm />
       <LiquidityWarningFooter />
     </div>
   );
@@ -39,4 +50,25 @@ const LiquidityWarningFooter = () => (
     <span>{WarningIcon} Remove liquidity before the winning outcome is known to prevent any loss of funds</span>
   </article>
 );
+
+const LiquidityForm = () => {
+  const history = useHistory();
+  const title = "Add Liquidity";
+  return (
+    <section className={Styles.LiquidityForm}>
+      <header>
+        <button
+          onClick={() =>
+            history.push({
+              pathname: makePath(LIQUIDITY),
+            })
+          }
+        >
+          {BackIcon}
+        </button>
+        {title}
+      </header>
+    </section>
+  );
+};
 export default MarketLiquidityView;

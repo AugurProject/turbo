@@ -4,7 +4,6 @@
   display: flex;
   flex-flow: column nowrap;
   padding: @size-40 @size-88 @size-48;
- 
 
   > * {
     max-width: 942px;
@@ -93,6 +92,48 @@
 
       > path {
         fill: var(--failed);
+      }
+    }
+  }
+}
+
+.LiquidityForm {
+  .ThemeBorder;
+
+  display: flex;
+  flex-flow: column nowrap;
+
+  > header {
+    .text-20-bold;
+    .PrimaryTopBorderRadius;
+
+    color: var(--primary-text);
+    height: @size-74;
+    border-bottom: @size-1 solid var(--theme-border);
+    padding: @size-24;
+    display: grid;
+    grid-gap: @size-32;
+    grid-template-columns: auto 1fr;
+
+    > button {
+      grid-column: 1;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+
+      > svg {
+        height: @size-20;
+        width: @size-20;
+      }
+
+      &:hover {
+        > svg > path {
+          fill: var(--primary-text);
+        }
       }
     }
   }
