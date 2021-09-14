@@ -1,1 +1,60 @@
 @import (reference) "~assets/styles/shared";
+
+.MarketLiquidityView {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: @size-40 @size-88 @size-48;
+
+  > * {
+    margin-bottom: @size-40;
+  }
+
+  > a:first-of-type {
+    .ThemeBorder;
+
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    grid-gap: @size-16;
+    align-items: center;
+    outline: none;
+    padding: @size-24;
+
+    > span {
+      display: grid;
+      grid-gap: @size-4;
+
+      > span:first-of-type {
+        .text-14-semi-bold;
+
+        color: var(--primary-text);
+        line-height: 140%;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        > span:first-of-type {
+          .limit-lines(1);
+        }
+
+        > span:last-of-type {
+          .limit-lines(2);
+        }
+
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
+        }
+      }
+
+      > span:last-of-type {
+        .text-12;
+
+        color: var(--secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: capitalize;
+      }
+    }
+  }
+}

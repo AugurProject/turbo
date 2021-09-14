@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./liquidity-view.styles.less";
 import {
@@ -10,17 +11,26 @@ import {
   Constants,
   ContractCalls,
   Stores,
-  Formatter,
   useScrollToTopOnMount,
 } from "@augurproject/comps";
-import { categoryItems, ZERO } from "../constants";
+import { categoryItems, MARKET_LIQUIDITY, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
-const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
-const { formatToken } = Formatter;
+
+const {
+  MODAL_ADD_LIQUIDITY,
+  ADD,
+  CREATE,
+  REMOVE,
+  ALL_MARKETS,
+  OTHER,
+  POPULAR_CATEGORIES_ICONS,
+  SPORTS,
+  MARKET_ID_PARAM_NAME,
+} = Constants;
 const {
   PaginationComps: { sliceByPage, useQueryPagination, Pagination },
   Links: { MarketLink },
@@ -34,7 +44,8 @@ const {
 const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
 const {
   DateUtils: { getMarketEndtimeDate },
-  Formatter: { formatApy, formatCash },
+  Formatter: { formatApy, formatCash, formatToken },
+  PathUtils: { makeQuery, makePath },
 } = Utils;
 const {
   Utils: { isMarketFinal },
@@ -203,19 +214,19 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       liquidityUSD,
     },
     endTimestamp,
+    isFuture,
   } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
   const formattedTVL = useMemo(
-    () =>
-    liquidityUSD &&
-      formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
+    () => liquidityUSD && formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
     [liquidityUSD]
   );
   const [price, setPrice] = useState(1);
   const [expanded, setExpanded] = useState(false);
+  const history = useHistory();
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
@@ -252,7 +263,9 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>{rewardAmount.formatted} {MaticIcon}</span>
+          <span>
+            {rewardAmount.formatted} {MaticIcon}
+          </span>
           <span>(${rewardsInUsd})</span>
         </div>
         {!userHasLiquidity ? (
@@ -261,12 +274,19 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
             small
             disabled={!canAddLiq}
             action={() =>
-              setModal({
-                type: MODAL_ADD_LIQUIDITY,
-                market,
-                liquidityModalType: hasLiquidity ? CREATE : ADD,
-                currency,
-              })
+              isFuture
+                ? history.push({
+                    pathname: makePath(MARKET_LIQUIDITY),
+                    search: makeQuery({
+                      [MARKET_ID_PARAM_NAME]: marketId,
+                    }),
+                  })
+                : setModal({
+                    type: MODAL_ADD_LIQUIDITY,
+                    market,
+                    liquidityModalType: hasLiquidity ? CREATE : ADD,
+                    currency,
+                  })
             }
           />
         ) : (
@@ -288,19 +308,28 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               small
               disabled={isfinal || !canAddLiq}
               action={() =>
-                !isfinal &&
-                setModal({
-                  type: MODAL_ADD_LIQUIDITY,
-                  market,
-                  currency,
-                  liquidityModalType: ADD,
-                })
+                isFuture && !isfinal
+                  ? history.push({
+                      pathname: makePath(MARKET_LIQUIDITY),
+                      search: makeQuery({
+                        [MARKET_ID_PARAM_NAME]: marketId,
+                      }),
+                    })
+                  : !isfinal &&
+                    setModal({
+                      type: MODAL_ADD_LIQUIDITY,
+                      market,
+                      currency,
+                      liquidityModalType: ADD,
+                    })
               }
             />
           </>
         )}
       </div>
-      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={market.endTimestamp}/>}
+      {hasRewards && (
+        <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={market.endTimestamp} />
+      )}
     </article>
   );
 };
@@ -329,7 +358,10 @@ const LiquidityView = () => {
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
-  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string}) => (p.plus(r.balance)), ZERO)): "0";
+  const rewardBalance =
+    pendingRewards && Object.values(pendingRewards).length
+      ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string }) => p.plus(r.balance), ZERO))
+      : "0";
   const handleFilterSort = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, pendingRewards, {
       filter,

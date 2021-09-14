@@ -10,6 +10,8 @@ export const SCALAR = "Scalar";
 export const MARKET = "market";
 export const MARKETS = "markets";
 export const PORTFOLIO = "portfolio";
+export const LIQUIDITY = "liquidity";
+export const MARKET_LIQUIDITY = "market-miquidity";
 
 // Directions
 export const BUY = "buy";
@@ -38,7 +40,6 @@ export const ALL_CURRENCIES = "All Currencies";
 
 // Portfolio table views
 export const POSITIONS = "positions";
-export const LIQUIDITY = "liquidity";
 export const TABLES = "TABLES";
 export const ACTIVITY = "ACTIVITY";
 

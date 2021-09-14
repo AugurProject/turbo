@@ -66,7 +66,7 @@ const WinningOutcomeLabel = ({ winningOutcome }) => (
   </span>
 );
 
-const useMarketQueryId = () => {
+export const useMarketQueryId = () => {
   const location = useLocation();
   const { [MARKET_ID_PARAM_NAME]: marketId } = parseQuery(location.search);
   return marketId;
