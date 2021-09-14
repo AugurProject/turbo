@@ -615,7 +615,7 @@ const chunkedMulticall = async (
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < chunkSize) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", callingMethod, contractCalls, e);
+      console.error("multicall", callingMethod, contractCalls);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -628,7 +628,7 @@ const chunkedMulticall = async (
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, ${callingMethod} chunking ${chunk.length} calls`, e);
+        console.error(`multicall, ${callingMethod} chunking ${chunk.length} calls`);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
