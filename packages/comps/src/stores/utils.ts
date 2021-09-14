@@ -133,14 +133,9 @@ export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, tr
     };
 
     if (loginAccount?.library && loginAccount?.account) {
-      fetchUserBalances(
-        loginAccount.library,
-        loginAccount.account,
-        ammExchanges,
-        cashes,
-        markets,
-        transactions
-      ).then((userBalances) => updateUserBalances(userBalances)).catch(e => console.error('error fetching user balances, will try again'));
+      fetchUserBalances(loginAccount.library, loginAccount.account, ammExchanges, cashes, markets, transactions)
+        .then((userBalances) => updateUserBalances(userBalances))
+        .catch((e) => console.error("error fetching user balances, will try again"));
     }
   }, [loginAccount?.account, loginAccount?.library, blocknumber]);
 }
