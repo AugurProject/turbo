@@ -228,6 +228,14 @@ export const GET_TRANSACTIONS = gql`
           id
         }
       }
+      sharesMinted {
+        id
+        timestamp
+        transactionHash
+        marketIndex
+        marketFactory
+        collateral: amountBigDecimal
+      }
     }
     markets(where: { marketFactory_in: $marketFactories }, first: 1000) {
       id

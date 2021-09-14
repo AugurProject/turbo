@@ -319,6 +319,7 @@ export enum TransactionTypes {
   EXIT = "EXIT",
   ADD_LIQUIDITY = "ADD_LIQUIDITY",
   REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
+  MINT_SHARES = "MINT_SHARES",
 }
 
 export enum TradingDirection {
