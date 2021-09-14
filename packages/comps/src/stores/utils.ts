@@ -140,7 +140,7 @@ export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, tr
         cashes,
         markets,
         transactions
-      ).then((userBalances) => updateUserBalances(userBalances));
+      ).then((userBalances) => updateUserBalances(userBalances)).catch(e => console.error('error fetching user balances, will try again'));
     }
   }, [loginAccount?.account, loginAccount?.library, blocknumber]);
 }
