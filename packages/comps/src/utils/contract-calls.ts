@@ -2078,7 +2078,6 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
 
-    console.log("totalSupply", totalSupply);
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
