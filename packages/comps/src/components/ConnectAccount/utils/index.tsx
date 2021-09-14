@@ -34,17 +34,20 @@ export const getRpcData = () => {
   return RPC_DATA;
 }
 
-let defaultProvider = null;
-const DEFAULT_RPC_INDEX = 1;
-export const getDefaultProvider = () => {
+let current_rpc_index = 0;
+export const getDefaultProvider = (): ethers.providers.StaticJsonRpcProvider => {
   const rpcData = getRpcData();
-  if (!defaultProvider){
-    defaultProvider = new ethers.providers.StaticJsonRpcProvider(
-      rpcData.rpcUrls[DEFAULT_RPC_INDEX],
-      Number(PARA_CONFIG.networkId)
-    );
-  }
-  return defaultProvider;
+  const data = getNextIndex(current_rpc_index, rpcData.rpcUrls);
+  current_rpc_index = data.index;
+  return new ethers.providers.StaticJsonRpcProvider(
+    data.value,
+    Number(PARA_CONFIG.networkId)
+  );
+}
+
+const getNextIndex = (currentIndex: number, collection) => {
+  if (currentIndex + 1 === collection.length) return { index: 0, value: collection[0] };
+  return { index: currentIndex + 1, value: collection[currentIndex + 1] };
 }
 
 export const isAddress = (value) => {

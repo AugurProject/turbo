@@ -6,6 +6,7 @@ import { ETH, TX_STATUS, ApprovalAction, ApprovalState, MARKET_STATUS } from "..
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
 import { getUserBalances } from "../utils/contract-calls";
+import { getDefaultProvider } from "../components/ConnectAccount/utils";
 
 const isAsync = (obj) =>
   !!obj && (typeof obj === "object" || typeof obj === "function") && obj.constructor.name === "AsyncFunction";
@@ -126,17 +127,15 @@ export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, tr
     actions: { updateUserBalances },
   } = useUserStore();
   useEffect(() => {
-    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) =>
-      getUserBalances(library, account, ammExchanges, cashes, markets, transactions);
+    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) => {
+      const provider = getDefaultProvider() || library;
+      return getUserBalances(provider, account, ammExchanges, cashes, markets, transactions);
+    };
+
     if (loginAccount?.library && loginAccount?.account) {
-      fetchUserBalances(
-        loginAccount.library,
-        loginAccount.account,
-        ammExchanges,
-        cashes,
-        markets,
-        transactions
-      ).then((userBalances) => updateUserBalances(userBalances));
+      fetchUserBalances(loginAccount.library, loginAccount.account, ammExchanges, cashes, markets, transactions)
+        .then((userBalances) => updateUserBalances(userBalances))
+        .catch((e) => console.error("error fetching user balances, will try again"));
     }
   }, [loginAccount?.account, loginAccount?.library, blocknumber]);
 }
