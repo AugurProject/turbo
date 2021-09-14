@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./pagination.styles.less";
 import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
 import { SimpleChevron } from "./icons";
+import makePath from "../../utils/links/make-path";
+import parsePath from "../../utils/links/parse-path";
+import makeQuery from "../../utils/links/make-query";
+import parseQuery from "../../utils/links/parse-query";
 
 export interface PaginationProps {
   page: number;
@@ -15,6 +20,7 @@ export interface PaginationProps {
   showPagination?: boolean;
   useFull?: boolean;
   maxButtons?: number;
+  usePageLocation?: boolean;
 }
 
 export interface PagesArrayObject {
@@ -99,6 +105,62 @@ export const createPagesArray = (page: number, totalPages: number, maxButtons: n
   return ArrayToShow;
 };
 
+export const useQueryPage = () => {
+  const history = useHistory();
+  const { location } = history;
+  const { page } = parseQuery(location.search);
+  const pageToReturn = page ? Number(page) : 1;
+  return pageToReturn;
+};
+
+export const useQueryPagination = ({ itemsPerPage, itemCount }) => {
+  const queryPage = useQueryPage();
+  const history = useHistory();
+  const { location } = history;
+  const parsedQuery = parseQuery(location.search);
+  const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
+  const [page, setPage] = useState(queryPage);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+      const curPageName = parsePath(location.pathname)[0];
+      const newQuery = {
+        pathname: makePath(curPageName),
+        search: makeQuery({
+          ...parsedQuery,
+          page: totalPages,
+        }),
+      };
+      history.push(newQuery);
+    }
+  }, [page, totalPages, itemsPerPage, itemCount])
+  return [page, setPage];
+}
+
+export const useQueryLocation = (page: number, totalPages: number, usePageLocation: boolean) => {
+  const history = useHistory();
+  const { location } = history;
+  const parsedQuery = parseQuery(location.search);
+  const { page: parsedPage } = parsedQuery;
+  const queryPage: number = parsedPage ? (Number(parsedPage) > totalPages ? totalPages : Number(parsedPage)) : 1;
+  const notTheSame = page !== queryPage;
+  const queryOutOfBounds = queryPage > totalPages;
+  useEffect(() => {
+    if (usePageLocation && queryPage && (notTheSame || queryOutOfBounds)) {
+      const curPageName = parsePath(location.pathname)[0];
+      const newQuery = {
+        pathname: makePath(curPageName),
+        search: makeQuery({
+          ...parsedQuery,
+          page: queryOutOfBounds ? totalPages : page,
+        }),
+      };
+      history.push(newQuery);
+    }
+  }, [page, queryPage, totalPages]);
+};
+
 export const Pagination = ({
   page,
   action,
@@ -107,9 +169,13 @@ export const Pagination = ({
   showPagination = true,
   useFull = false,
   maxButtons = 7,
+  usePageLocation = false,
 }: PaginationProps) => {
   const totalPages = Math.ceil(itemCount / (itemsPerPage || 10)) || 1;
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
+
+  useQueryLocation(page, totalPages, usePageLocation);
+
   return (
     <div
       className={classNames(Styles.Pagination, {

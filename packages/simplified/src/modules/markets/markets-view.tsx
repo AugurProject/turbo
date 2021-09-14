@@ -24,7 +24,7 @@ const {
   ButtonComps: { SecondaryThemeButton },
   Icons: { FilterIcon, SearchIcon },
   MarketCardComps: { LoadingMarketCard, MarketCard },
-  PaginationComps: { sliceByPage, Pagination },
+  PaginationComps: { sliceByPage, useQueryPagination, Pagination },
   InputComps: { SearchInput },
   LabelComps: { NetworkMismatchBanner },
 } = Components;
@@ -183,11 +183,14 @@ const MarketsView = () => {
   } = useSimplifiedStore();
   const { ammExchanges, markets, transactions } = useDataStore();
   const { subCategories, sortBy, primaryCategory, reportingState, currency } = marketsViewSettings;
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [filter, setFilter] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  const [page, setPage] = useQueryPagination({
+    itemsPerPage: PAGE_LIMIT,
+    itemCount: filteredMarkets.length,
+  });
   const marketKeys = Object.keys(markets);
 
   useScrollToTopOnMount(page);
@@ -208,7 +211,7 @@ const MarketsView = () => {
   };
 
   useEffect(() => {
-    setPage(1);
+    setPage(page);
     handleFilterSort();
   }, [sortBy, filter, primaryCategory, subCategories, reportingState, currency, showLiquidMarkets.valueOf()]);
 
@@ -331,6 +334,7 @@ const MarketsView = () => {
             setPage(page);
           }}
           updateLimit={null}
+          usePageLocation
         />
       )}
     </div>
