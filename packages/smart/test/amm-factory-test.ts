@@ -23,6 +23,8 @@ describe("AMMFactory", () => {
   let secondSigner: SignerWithAddress;
   const outcomeNames = ["No Contest", "Hulk Hogan", "Undertaker"];
 
+  const RANDOM_ADDRESS = "0x0000000000000000000000000000000000000001";
+
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
   const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
@@ -82,6 +84,14 @@ describe("AMMFactory", () => {
 
     const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
     shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
+  });
+
+  describe("untrusted ammfactory", () => {
+    it("should revert", async () => {
+      await masterChef.untrustAMMFactory(ammFactory.address);
+      await expect(masterChef.createPool(ammFactory.address, marketFactory.address, marketId, BONE, signer.address)).to
+        .reverted;
+    });
   });
 
   it("sell shares for collateral", async () => {

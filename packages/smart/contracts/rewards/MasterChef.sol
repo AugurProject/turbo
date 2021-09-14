@@ -410,6 +410,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _initialLiquidity,
         address _lpTokenRecipient
     ) public returns (uint256) {
+        require(approvedAMMFactories[address(_ammFactory)], "AMMFactory must be approved to create pool");
         _marketFactory.collateral().transferFrom(msg.sender, address(this), _initialLiquidity);
         _marketFactory.collateral().approve(address(_ammFactory), _initialLiquidity);
 
