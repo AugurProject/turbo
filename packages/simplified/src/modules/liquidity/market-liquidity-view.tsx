@@ -166,6 +166,10 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     actions: { addTransaction },
   } = useUserStore();
   const { blocknumber, cashes }: DataState = useDataStore();
+  const BackToLPPageAction = () =>
+  history.push({
+    pathname: makePath(LIQUIDITY),
+  });
   const isRemove = actionType === REMOVE;
   const title = isRemove ? "Remove Liquidity" : "Add Liquidity";
   const { amm } = market;
@@ -306,11 +310,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     <section className={Styles.LiquidityForm}>
       <header>
         <button
-          onClick={() =>
-            history.push({
-              pathname: makePath(LIQUIDITY),
-            })
-          }
+          onClick={BackToLPPageAction}
         >
           {BackIcon}
         </button>
@@ -369,7 +369,8 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
               cash,
               amm,
               isRemove,
-              estimatedLpAmount
+              estimatedLpAmount,
+              afterSigningAction: isRemove ? BackToLPPageAction : updateAmount(''),
             })}
             disabled={!isApproved || inputFormError !== ""}
             error={buttonError}
@@ -404,7 +405,8 @@ const confirmAction = async ({
   cash,
   amm,
   isRemove,
-  estimatedLpAmount
+  estimatedLpAmount,
+  afterSigningAction = () => {},
 }) => {
   const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
   if (!valid) {
@@ -424,6 +426,7 @@ const confirmAction = async ({
           message: `Remove Liquidity`,
           marketDescription: `${market?.title} ${market?.description}`,
         });
+        afterSigningAction();
       })
       .catch((error) => {
         console.log("Error when trying to remove AMM liquidity: ", error?.message);
@@ -460,6 +463,7 @@ const confirmAction = async ({
           message: `Add Liquidity`,
           marketDescription: `${market?.title} ${market?.description}`,
         });
+        afterSigningAction();
       })
       .catch((error) => {
         console.log("Error when trying to add AMM liquidity: ", error?.message);

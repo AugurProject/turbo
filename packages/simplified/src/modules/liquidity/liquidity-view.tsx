@@ -274,20 +274,13 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
             small
             disabled={!canAddLiq}
             action={() =>
-              isFuture
-                ? history.push({
-                    pathname: makePath(MARKET_LIQUIDITY),
-                    search: makeQuery({
-                      [MARKET_ID_PARAM_NAME]: marketId,
-                      [MARKET_LIQUIDITY]: hasLiquidity ? CREATE : ADD,
-                    }),
-                  })
-                : setModal({
-                    type: MODAL_ADD_LIQUIDITY,
-                    market,
-                    liquidityModalType: hasLiquidity ? CREATE : ADD,
-                    currency,
-                  })
+              history.push({
+                pathname: makePath(MARKET_LIQUIDITY),
+                search: makeQuery({
+                  [MARKET_ID_PARAM_NAME]: marketId,
+                  [MARKET_LIQUIDITY]: hasLiquidity ? CREATE : ADD,
+                }),
+              })
             }
           />
         ) : (
@@ -296,19 +289,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               text="-"
               small
               action={() =>
-                isFuture ? history.push({
+                history.push({
                   pathname: makePath(MARKET_LIQUIDITY),
                   search: makeQuery({
                     [MARKET_ID_PARAM_NAME]: marketId,
-                    [MARKET_LIQUIDITY]: REMOVE
+                    [MARKET_LIQUIDITY]: REMOVE,
                   }),
-                }) 
-              :
-                setModal({
-                  type: MODAL_ADD_LIQUIDITY,
-                  market,
-                  currency,
-                  liquidityModalType: REMOVE,
                 })
               }
             />
@@ -317,21 +303,14 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               small
               disabled={isfinal || !canAddLiq}
               action={() =>
-                isFuture && !isfinal
-                  ? history.push({
-                      pathname: makePath(MARKET_LIQUIDITY),
-                      search: makeQuery({
-                        [MARKET_ID_PARAM_NAME]: marketId,
-                        [MARKET_LIQUIDITY]: ADD
-                      }),
-                    })
-                  : !isfinal &&
-                    setModal({
-                      type: MODAL_ADD_LIQUIDITY,
-                      market,
-                      currency,
-                      liquidityModalType: ADD,
-                    })
+                !isfinal &&
+                history.push({
+                  pathname: makePath(MARKET_LIQUIDITY),
+                  search: makeQuery({
+                    [MARKET_ID_PARAM_NAME]: marketId,
+                    [MARKET_LIQUIDITY]: ADD,
+                  }),
+                })
               }
             />
           </>
