@@ -56,6 +56,15 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     // Info of each pool.
     PoolInfo[] public poolInfo;
 
+    // This is a snapshot of the current state of a market.
+    struct PoolStatusInfo {
+        uint256 beginTimestamp;
+        uint256 endTimestamp;
+        uint256 earlyDepositEndTimestamp;
+        uint256 totalRewardsAccrued;
+        bool created;
+    }
+
     struct PendingRewardInfo {
         uint256 beginTimestamp;
         uint256 endTimestamp;
@@ -241,8 +250,33 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         return _pool.endTimestamp;
     }
 
+    function getPoolInfo(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId
+    ) public view returns (PoolStatusInfo memory _poolStatusInfo) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+        PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+
+        // This cannot revert as it will be used in a multicall.
+        if (_rewardPoolLookupInfo.created) {
+            _poolStatusInfo.beginTimestamp = _pool.beginTimestamp;
+            _poolStatusInfo.endTimestamp = _pool.endTimestamp;
+            _poolStatusInfo.earlyDepositEndTimestamp =
+                ((_poolStatusInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
+                _pool.beginTimestamp +
+                1;
+
+            _poolStatusInfo.totalRewardsAccrued =
+                (min(block.timestamp, _pool.endTimestamp) - _pool.beginTimestamp) *
+                _pool.rewardsPerSecond;
+            _poolStatusInfo.created = true;
+        }
+    }
+
     // View function to see pending REWARDs on frontend.
-    function getPendingRewardInfo(uint256 _pid, address _userAddress)
+    function getUserPendingRewardInfo(uint256 _pid, address _userAddress)
         external
         view
         returns (PendingRewardInfo memory _pendingRewardInfo)
