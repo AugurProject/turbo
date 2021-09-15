@@ -231,7 +231,6 @@ export async function addLiquidityPool(
   );
   if (rewardContractAddress) {
     const contract = getRewardContract(provider, rewardContractAddress, account);
-    console.log("contract", contract);
     // use reward contract (master chef) to add liquidity
     if (!ammAddress) {
       tx = contract.createPool(amm.ammFactoryAddress, marketFactoryAddress, turboId, amount, account, {
