@@ -21,8 +21,9 @@ describe("AMMFactory", () => {
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
-  let thirdSigner: SignerWithAddress;
   const outcomeNames = ["No Contest", "Hulk Hogan", "Undertaker"];
+
+  const RANDOM_ADDRESS = "0x0000000000000000000000000000000000000001";
 
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
@@ -34,34 +35,28 @@ describe("AMMFactory", () => {
   const BONE = BigNumber.from(10).pow(18);
 
   let collateral: Cash;
-  let rewardsToken: Cash;
+  let shareFactor: BigNumber;
   let marketFactory: TrustedMarketFactoryV3;
   const marketId = BigNumber.from(1);
   let ammFactory: AMMFactory;
-
   let masterChef: MasterChef;
 
   // These are specific to the one market we are dealing with in the tests below.
   let shareTokens: Contract[];
   let bPool: Contract;
 
-  let initialLiquidity: BigNumber;
+  before(async () => {
+    BPool__factory = await ethers.getContractFactory("BPool");
+  });
 
   beforeEach(async () => {
     await deployments.fixture();
 
-    [signer, secondSigner, thirdSigner] = await ethers.getSigners();
+    [signer, secondSigner] = await ethers.getSigners();
 
-    const feePot = (await ethers.getContract("FeePot")) as FeePot;
-
-    BPool__factory = (await ethers.getContractFactory("BPool")) as BPool__factory;
-
-    ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     collateral = (await ethers.getContract("Collateral")) as Cash;
-    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
-    rewardsToken = (await ethers.getContract("WrappedMatic")) as Cash;
-    const shareFactor = calcShareFactor(await collateral.decimals());
-
+    const feePot = (await ethers.getContract("FeePot")) as FeePot;
+    shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new TrustedMarketFactoryV3__factory(signer).deploy(
       signer.address,
       collateral.address,
@@ -72,17 +67,16 @@ describe("AMMFactory", () => {
     );
 
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
-
-    await masterChef.addRewards(marketFactory.address, BONE.mul(95), 2, 0);
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     const description = "Who will win Wrestlemania III?";
     const odds = calcWeights([2, 49, 49]);
     await marketFactory.createMarket(signer.address, description, outcomeNames, odds);
 
-    initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
+    const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
-    await collateral.approve(ammFactory.address, initialLiquidity);
-    await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
+    await collateral.approve(masterChef.address, initialLiquidity);
+    await masterChef.createPool(ammFactory.address, marketFactory.address, marketId, initialLiquidity, signer.address);
 
     const bPoolAddress = await ammFactory.getPool(marketFactory.address, marketId);
     bPool = BPool__factory.attach(bPoolAddress).connect(signer);
@@ -92,58 +86,11 @@ describe("AMMFactory", () => {
     shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
   });
 
-  describe("rewards", () => {
-    const collateralIn = usdcBasis.mul(100); // 100 of the collateral
-    let poolAmountOut: BigNumber;
-
-    beforeEach(async () => {
-      await collateral.faucet(collateralIn.mul(2));
-      await collateral.approve(ammFactory.address, collateralIn.mul(2));
-
-      [poolAmountOut] = await ammFactory.callStatic.addLiquidity(
-        marketFactory.address,
-        marketId,
-        collateralIn,
-        ZERO,
-        secondSigner.address
-      );
-
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
-    });
-
-    it("should create a pool on master chef contract.", async () => {
-      const pid = await ammFactory.masterChefPools(bPool.address);
-      const [token] = await masterChef.poolInfo(pid);
-
-      expect(token).to.equal(bPool.address);
-    });
-
-    it("should deposit lp tokens when creating pool", async () => {
-      const pid = await ammFactory.masterChefPools(bPool.address);
-      const [amount] = await masterChef.userInfo(pid, signer.address);
-
-      // Checking the signer has any balance in the master chef is sufficient here.
-      expect(amount.gt(0)).to.true;
-    });
-
-    it("should deposit lp tokens to chef pool when adding liquidity", async () => {
-      const pid = await ammFactory.masterChefPools(bPool.address);
-      const [amount] = await masterChef.userInfo(pid, secondSigner.address);
-      expect(amount).to.equal(poolAmountOut);
-    });
-
-    it("should remove the rewards and deliver them to the collateralRecipient", async () => {
-      const secondAmmFactory = ammFactory.connect(secondSigner);
-      await secondAmmFactory.removeLiquidity(
-        marketFactory.address,
-        marketId,
-        poolAmountOut,
-        BigNumber.from(0),
-        thirdSigner.address
-      );
-
-      const balance = await collateral.balanceOf(thirdSigner.address);
-      expect(balance.toString()).to.equal(collateralIn.sub(1).toString());
+  describe("untrusted ammfactory", () => {
+    it("should revert", async () => {
+      await masterChef.untrustAMMFactory(ammFactory.address);
+      await expect(masterChef.createPool(ammFactory.address, marketFactory.address, marketId, BONE, signer.address)).to
+        .reverted;
     });
   });
 
@@ -164,7 +111,6 @@ describe("AMMFactory", () => {
 
     const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
       secondSignerAMMFactory as AMMFactory,
-      // Needs to be done as typechain doesn't represent contract inheritance.
       (marketFactory as unknown) as AbstractMarketFactoryV2,
       marketId.toString(),
       _outcome,
@@ -213,7 +159,7 @@ describe("AMMFactory", () => {
   });
 
   it("should not be an infinite loop part 2", async () => {
-    calculateSellCompleteSets(
+    const result = calculateSellCompleteSets(
       BigNumber.from("1000000000000"),
       1,
       BONE.mul(3941),
@@ -227,9 +173,17 @@ describe("AMMFactory", () => {
     it("should match the contract values", async () => {
       const collateralIn = usdcBasis.mul(100); // 100 of the collateral
       await collateral.faucet(collateralIn.mul(2));
-      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        secondSigner.address
+      );
 
       const contractResult = await ammFactory.callStatic.buy(
         marketFactory.address,
@@ -255,18 +209,33 @@ describe("AMMFactory", () => {
     const addLiquidity = async function (collateralAmount: number) {
       const collateralIn = usdcBasis.mul(collateralAmount);
       await collateral.faucet(collateralIn);
-      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        secondSigner.address
+      );
     };
 
     it("with balanced pool", async () => {
       // Use first signer to alter balances in the pool.
       const collateralIn = usdcBasis.mul(1000); // 100 of the collateral
       await collateral.faucet(collateralIn.mul(2));
-      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        secondSigner.address
+      );
       const sharesAfter = await Promise.all(
         shareTokens.map((shareToken: Contract) =>
           shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
@@ -292,18 +261,23 @@ describe("AMMFactory", () => {
     });
 
     it("with unbalanced pool", async () => {
-      const secondBPool = bPool.connect(secondSigner);
-      await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
-
       // Use first signer to alter balances in the pool.
       const collateralIn = usdcBasis.mul(100); // 100 of the collateral
       await collateral.faucet(collateralIn.mul(2));
-      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
       await ammFactory.buy(marketFactory.address, marketId, BigNumber.from(1), collateralIn, BigNumber.from(0));
 
       // Sending the LP tokens to second signer.
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        secondSigner.address
+      );
 
       const sharesAfter = await Promise.all(
         shareTokens.map((shareToken: Contract) =>
@@ -317,18 +291,23 @@ describe("AMMFactory", () => {
 
   describe("removeLiquidity", () => {
     it("should return shares if pool unbalanced", async () => {
-      const secondAmmFactory = ammFactory.connect(secondSigner);
-
-      const secondBPool = bPool.connect(secondSigner);
-      await secondBPool.approve(ammFactory.address, MAX_APPROVAL);
+      const secondMasterChef = masterChef.connect(secondSigner);
 
       // Use first signer to alter balances in the pool.
       const collateralIn = usdcBasis.mul(100); // 100 of the collateral
       await collateral.faucet(collateralIn.mul(2));
-      await collateral.approve(ammFactory.address, collateralIn.mul(2));
+      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
       // Sending the LP tokens to second signer.
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, secondSigner.address);
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        secondSigner.address
+      );
 
       const sharesBefore = await Promise.all(
         shareTokens.map((shareToken: Contract) =>
@@ -340,11 +319,17 @@ describe("AMMFactory", () => {
 
       const collateralBefore = await collateral.balanceOf(secondSigner.address);
 
-      const poolTokens = await secondAmmFactory.getTokenBalance(marketFactory.address, marketId, secondSigner.address);
+      const poolTokens = await secondMasterChef.getPoolTokenBalance(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        secondSigner.address
+      );
 
       expect(poolTokens.gt(0), "pool tokens greater than zero").to.be.true;
 
-      const removeLiquidityResult = await secondAmmFactory.callStatic.removeLiquidity(
+      const [collateralGained, sharesGained] = await secondMasterChef.callStatic.removeLiquidity(
+        ammFactory.address,
         marketFactory.address,
         marketId,
         poolTokens,
@@ -352,7 +337,8 @@ describe("AMMFactory", () => {
         secondSigner.address
       );
 
-      await secondAmmFactory.removeLiquidity(
+      await secondMasterChef.removeLiquidity(
+        ammFactory.address,
         marketFactory.address,
         marketId,
         poolTokens,
@@ -371,13 +357,11 @@ describe("AMMFactory", () => {
         )
       );
 
+      expect(collateralGained).to.equal(collateralAfter.sub(collateralBefore));
       expect(sharesAfter).to.deep.equal(
-        removeLiquidityResult[1].map((s: BigNumber, index: number) => s.add(sharesBefore[index]).toString())
+        sharesGained.map((s: BigNumber, index: number) => s.add(sharesBefore[index]).toString())
       );
       expect(sharesAfter).to.deep.equal(["17630229090909091709", "484905048517", "17630229090909091709"]);
-
-      const rewardsBalance = await rewardsToken.balanceOf(secondSigner.address);
-      expect(rewardsBalance.gt(0)).to.be.true;
     });
 
     it("liquidity removal for collateral and burn sets", async () => {
@@ -391,9 +375,20 @@ describe("AMMFactory", () => {
 
       const collateralBefore = await collateral.balanceOf(signer.address);
 
-      const poolTokens = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
-
-      await ammFactory.removeLiquidity(marketFactory.address, marketId, poolTokens, BigNumber.from(0), signer.address);
+      const poolTokens = await masterChef.getPoolTokenBalance(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        signer.address
+      );
+      await masterChef.removeLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        poolTokens,
+        BigNumber.from(0),
+        signer.address
+      );
 
       const collateralAfter = await collateral.balanceOf(signer.address);
 
@@ -401,13 +396,12 @@ describe("AMMFactory", () => {
       expect(collateralAfter.gt(collateralBefore)).to.be.true;
 
       const sharesAfter = await Promise.all(
-        shareTokens.map((shareToken: Contract) => shareToken.balanceOf(signer.address))
+        shareTokens.map((shareToken: Contract) =>
+          shareToken.balanceOf(signer.address).then((r: BigNumber) => r.toString())
+        )
       );
 
-      const dustThreshold = BigNumber.from(10).pow(12);
-      for (let i = 0; i < sharesAfter.length; i++) {
-        expect(sharesAfter[i].lte(dustThreshold)).to.be.true;
-      }
+      expect(sharesAfter).to.deep.equal(["0", "0", "0"]);
     });
   });
 
@@ -415,11 +409,30 @@ describe("AMMFactory", () => {
     it("should not blowup.", async () => {
       const collateralIn = usdcBasis.mul(1000);
       await collateral.faucet(collateralIn);
-      await collateral.approve(ammFactory.address, collateralIn);
+      await collateral.approve(masterChef.address, collateralIn);
 
-      const lpTokenBal = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
-      await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokenBal, ZERO, signer.address);
-      await ammFactory.addLiquidity(marketFactory.address, marketId, collateralIn, ZERO, signer.address);
+      const lpTokenBal = await masterChef.getPoolTokenBalance(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        signer.address
+      );
+      await masterChef.removeLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        lpTokenBal,
+        ZERO,
+        signer.address
+      );
+      await masterChef.addLiquidity(
+        ammFactory.address,
+        marketFactory.address,
+        marketId,
+        collateralIn,
+        ZERO,
+        signer.address
+      );
     });
   });
 
@@ -428,8 +441,14 @@ describe("AMMFactory", () => {
     expect(await marketFactory.isMarketResolved(marketId)).to.be.false;
     await marketFactory.trustedResolveMarket(marketId, winningOutcome);
     expect(await marketFactory.isMarketResolved(marketId)).to.be.true;
-    const lpTokenBal = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
-    await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokenBal, 0, signer.address);
+
+    const lpTokens = await masterChef.getPoolTokenBalance(
+      ammFactory.address,
+      marketFactory.address,
+      marketId,
+      signer.address
+    );
+    await masterChef.removeLiquidity(ammFactory.address, marketFactory.address, marketId, lpTokens, 0, signer.address);
   });
 });
 

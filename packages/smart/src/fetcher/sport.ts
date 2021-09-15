@@ -8,13 +8,14 @@ import {
   RawStaticMarketBundle,
   StaticMarketBundle,
 } from "./common";
-import { AMMFactory, Sport as SportMarketFactory, SportsFetcher } from "../../typechain";
+import { AMMFactory, MasterChef, Sport as SportMarketFactory, SportsFetcher } from "../../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 
 export async function fetchInitialSports(
   fetcher: SportsFetcher,
   marketFactory: SportMarketFactory,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
 ): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialSportsMarket[] }> {
@@ -27,6 +28,7 @@ export async function fetchInitialSports(
     const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
+      masterChef.address,
       offset,
       bundleSize
     );

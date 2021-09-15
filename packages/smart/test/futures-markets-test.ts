@@ -3,32 +3,31 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
 import {
+  AMMFactory,
+  BFactory__factory,
   Cash,
-  Cash__factory,
   FeePot,
-  FeePot__factory,
   FuturesFetcher__factory,
   FuturesMarketFactoryV3,
   FuturesMarketFactoryV3__factory,
+  Grouped,
   GroupFetcher,
   MasterChef,
 } from "../typechain";
 import { BigNumber, BigNumberish } from "ethers";
-import { calcShareFactor, flatten, range } from "../src";
-import { describe } from "mocha";
-import { MAX_UINT } from "../src/bmath";
-import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 import {
+  calcShareFactor,
   DynamicGroupsMarket,
   fetchDynamicGroup,
   fetchInitialGroup,
+  flatten,
   GroupMarketType,
   InitialGroupsMarket,
+  range,
 } from "../src";
-import { AMMFactory } from "../typechain";
-import { AMMFactory__factory } from "../typechain";
-import { BFactory__factory } from "../typechain";
-import { Grouped } from "../typechain";
+import { describe } from "mocha";
+import { MAX_UINT } from "../src/bmath";
+import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 
 const ONE_DAY = BigNumber.from(60 * 60 * 24);
 const SMALL_FEE = BigNumber.from(10).pow(16);
@@ -83,6 +82,7 @@ describe("Futures Markets", () => {
   let feePot: FeePot;
   let marketFactory: FuturesMarketFactoryV3;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
 
   const OUTCOME_NO = 0;
   const OUTCOME_YES = 1;
@@ -97,6 +97,7 @@ describe("Futures Markets", () => {
     const feePot = (await ethers.getContract("FeePot")) as FeePot;
 
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
     collateral = (await ethers.getContract("Collateral")) as Cash;
     const bFactory = await new BFactory__factory(signer).deploy();
     const shareFactor = calcShareFactor(await collateral.decimals());
@@ -257,7 +258,14 @@ describe("Futures Markets", () => {
     { offset: 3, bundle: 50, ids: [] },
   ].forEach(({ offset, bundle, ids }) => {
     it(`fetcher initial {offset=${offset},bundle=${bundle}`, async () => {
-      const { factoryBundle, markets } = await fetchInitialGroup(fetcher, marketFactory, ammFactory, offset, bundle);
+      const { factoryBundle, markets } = await fetchInitialGroup(
+        fetcher,
+        marketFactory,
+        ammFactory,
+        masterChef,
+        offset,
+        bundle
+      );
       expect(factoryBundle, "factory bundle").to.deep.equal(await marketFactoryBundleCheck(marketFactory));
 
       expect(markets, "market bundles").to.deep.equal(

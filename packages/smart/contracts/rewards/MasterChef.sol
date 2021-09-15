@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol" as OpenZeppelinOwnable;
-
-import "hardhat/console.sol";
+import "../turbo/AbstractMarketFactoryV3.sol";
+import "../turbo/AMMFactory.sol";
 
 // MasterChef is the master of Reward. He can make Reward and he is a fair guy.
 contract MasterChef is OpenZeppelinOwnable.Ownable {
@@ -48,13 +48,22 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 accRewardsPerShare; // Accumulated REWARDs per share, times BONE. See below.
         uint256 totalEarlyDepositBonusRewardShares; // The total number of share currently qualifying bonus REWARDs.
         uint256 beginTimestamp; // The timestamp to begin calculating rewards at.
+        uint256 endTimestamp; // Timestamp of the end of the rewards period.
         uint256 earlyDepositBonusRewards; // Amount of REWARDs to distribute to early depositors.
         uint256 lastRewardTimestamp; // Last timestamp REWARDs distribution occurred.
-        uint256 rewardsPeriods; // Number of days the rewards for this pool will payout.
-        uint256 rewardsPerPeriod; // Amount of rewards to be given out for a given period.
+        uint256 rewardsPerSecond; // Number of rewards paid out per second.
     }
     // Info of each pool.
     PoolInfo[] public poolInfo;
+
+    // This is a snapshot of the current state of a market.
+    struct PoolStatusInfo {
+        uint256 beginTimestamp;
+        uint256 endTimestamp;
+        uint256 earlyDepositEndTimestamp;
+        uint256 totalRewardsAccrued;
+        bool created;
+    }
 
     struct PendingRewardInfo {
         uint256 beginTimestamp;
@@ -72,18 +81,21 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
     mapping(address => MarketFactoryInfo) marketFactoryRewardInfo;
 
+    struct RewardPoolLookupInfo {
+        uint256 pid;
+        bool created;
+    }
+
+    // AMMFactory => MarketFactory => MarketId
+    mapping(address => mapping(address => mapping(uint256 => RewardPoolLookupInfo))) public rewardPoolLookup;
+
     // The REWARD TOKEN!
     IERC20 private rewardsToken;
 
     mapping(address => bool) private approvedAMMFactories;
 
-    modifier onlyApprovedAMMFactories() {
-        require(approvedAMMFactories[msg.sender], "Caller must be approved.");
-        _;
-    }
-
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
-    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address recipient);
     event TrustMarketFactory(
         address indexed MarketFactory,
         uint256 OriginEarlyDepositBonusRewards,
@@ -140,25 +152,61 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
     // Add a new lp to the pool. Can only be called by the owner.
     // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
-    function add(address _marketFactory, IERC20 _lpToken) public onlyApprovedAMMFactories returns (uint256 _nextPID) {
+    // An _endTimestamp of zero means the rewards start immediately.
+    function add(
+        address _ammFactory,
+        address _marketFactory,
+        uint256 _marketId,
+        IERC20 _lpToken,
+        uint256 _endTimestamp
+    ) public onlyOwner returns (uint256 _nextPID) {
+        return addInternal(_ammFactory, _marketFactory, _marketId, _lpToken, _endTimestamp);
+    }
+
+    function addInternal(
+        address _ammFactory,
+        address _marketFactory,
+        uint256 _marketId,
+        IERC20 _lpToken,
+        uint256 _endTimestamp
+    ) internal returns (uint256 _nextPID) {
         _nextPID = poolInfo.length;
+
+        require(
+            !rewardPoolLookup[_ammFactory][_marketFactory][_marketId].created,
+            "Reward pool has already been created."
+        );
+
+        rewardPoolLookup[_ammFactory][_marketFactory][_marketId] = RewardPoolLookupInfo({pid: _nextPID, created: true});
+
         MarketFactoryInfo memory _marketFactoryInfo = marketFactoryRewardInfo[_marketFactory];
+
+        // Need to figure out the beginning/end of the reward period.
+        uint256 _rewardsPeriodsInSeconds = _marketFactoryInfo.rewardsPeriods * 1 days;
+        uint256 _beginTimestamp = block.timestamp;
+
+        if (_endTimestamp == 0) {
+            _endTimestamp = _beginTimestamp + _rewardsPeriodsInSeconds;
+        } else if ((_endTimestamp - _rewardsPeriodsInSeconds) > block.timestamp) {
+            _beginTimestamp = _endTimestamp - _rewardsPeriodsInSeconds;
+        }
+
         poolInfo.push(
             PoolInfo({
                 accRewardsPerShare: 0,
-                beginTimestamp: block.timestamp,
+                beginTimestamp: _beginTimestamp,
+                endTimestamp: _endTimestamp,
                 totalEarlyDepositBonusRewardShares: 0,
                 earlyDepositBonusRewards: _marketFactoryInfo.earlyDepositBonusRewards,
                 lpToken: _lpToken,
-                rewardsPeriods: _marketFactoryInfo.rewardsPeriods,
-                rewardsPerPeriod: _marketFactoryInfo.rewardsPerPeriod,
-                lastRewardTimestamp: block.timestamp
+                rewardsPerSecond: (_marketFactoryInfo.rewardsPerPeriod / 1 days),
+                lastRewardTimestamp: _beginTimestamp
             })
         );
     }
 
-    // Return percentage of period that has elapsed in terms of BONE.
-    function getPercentageOfRewardsForPeriod(uint256 _pid) public view returns (uint256) {
+    // Return number of seconds elapsed in terms of BONEs.
+    function getTimeElapsed(uint256 _pid) public view returns (uint256) {
         PoolInfo storage _pool = poolInfo[_pid];
         uint256 _fromTimestamp = block.timestamp;
 
@@ -168,24 +216,29 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             // Not sure how this happens but it is accounted for in the original master chef contract.
             _pool.lastRewardTimestamp > _fromTimestamp ||
             // No rewards to be distributed
-            _pool.rewardsPerPeriod == 0 ||
-            // No rewards to be distributed
-            _pool.rewardsPeriods == 0
+            _pool.rewardsPerSecond == 0
         ) {
             return 0;
         }
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
-        uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
-
         // Rewards are over for this pool. No more rewards have accrued.
-        if (_pool.lastRewardTimestamp >= _rewardPeriodEndTimestamp) {
+        if (_pool.lastRewardTimestamp >= _pool.endTimestamp) {
             return 0;
         }
 
-        uint256 _timeElapsed = min(_fromTimestamp, _rewardPeriodEndTimestamp).sub(_pool.lastRewardTimestamp);
+        return min(_fromTimestamp, _pool.endTimestamp).sub(_pool.lastRewardTimestamp).add(1).mul(BONE);
+    }
 
-        return (_timeElapsed * BONE) / _rewardsPeriodsInSeconds;
+    function getPoolTokenBalance(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        address _user
+    ) external view returns (uint256) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        return userInfo[_rewardPoolLookupInfo.pid][_user].amount;
     }
 
     function getUserAmount(uint256 _pid, address _user) external view returns (uint256) {
@@ -194,23 +247,47 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
     function getPoolRewardEndTimestamp(uint256 _pid) public view returns (uint256) {
         PoolInfo storage _pool = poolInfo[_pid];
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days + 1;
-        return _rewardsPeriodsInSeconds + _pool.beginTimestamp;
+        return _pool.endTimestamp;
+    }
+
+    function getPoolInfo(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId
+    ) public view returns (PoolStatusInfo memory _poolStatusInfo) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+        PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+
+        // This cannot revert as it will be used in a multicall.
+        if (_rewardPoolLookupInfo.created) {
+            _poolStatusInfo.beginTimestamp = _pool.beginTimestamp;
+            _poolStatusInfo.endTimestamp = _pool.endTimestamp;
+            _poolStatusInfo.earlyDepositEndTimestamp =
+                ((_poolStatusInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
+                _pool.beginTimestamp +
+                1;
+
+            _poolStatusInfo.totalRewardsAccrued =
+                (min(block.timestamp, _pool.endTimestamp) - _pool.beginTimestamp) *
+                _pool.rewardsPerSecond;
+            _poolStatusInfo.created = true;
+        }
     }
 
     // View function to see pending REWARDs on frontend.
-    function getPendingRewardInfo(uint256 _pid, address _user)
+    function getUserPendingRewardInfo(uint256 _pid, address _userAddress)
         external
         view
         returns (PendingRewardInfo memory _pendingRewardInfo)
     {
         PoolInfo storage _pool = poolInfo[_pid];
-        UserInfo storage _user = userInfo[_pid][_user];
+        UserInfo storage _user = userInfo[_pid][_userAddress];
         uint256 accRewardsPerShare = _pool.accRewardsPerShare;
         uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
-        uint256 _earlyDepositRewards = 0;
 
-        _pendingRewardInfo.endTimestamp = _pool.rewardsPeriods * 1 days;
+        _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
+        _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
         _pendingRewardInfo.earlyDepositEndTimestamp =
             ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
             _pool.beginTimestamp +
@@ -227,16 +304,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
-            uint256 multiplier = getPercentageOfRewardsForPeriod(_pid);
-            accRewardsPerShare = accRewardsPerShare.add(multiplier.mul(_pool.rewardsPerPeriod).div(lpSupply));
+            uint256 multiplier = getTimeElapsed(_pid);
+            accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
         }
 
-        _pendingRewardInfo.accruedStandardRewards = _user
-            .amount
-            .mul(accRewardsPerShare)
-            .div(BONE)
-            .sub(_user.rewardDebt)
-            .add(_earlyDepositRewards);
+        _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
+            _user.rewardDebt
+        );
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -258,12 +332,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             pool.lastRewardTimestamp = block.timestamp;
             return;
         }
-        uint256 multiplier = getPercentageOfRewardsForPeriod(_pid);
-        pool.accRewardsPerShare = pool.accRewardsPerShare.add(multiplier.mul(pool.rewardsPerPeriod).div(lpSupply));
+        uint256 multiplier = getTimeElapsed(_pid);
+        pool.accRewardsPerShare = pool.accRewardsPerShare.add(multiplier.mul(pool.rewardsPerSecond).div(lpSupply));
         pool.lastRewardTimestamp = block.timestamp;
     }
 
     // Deposit LP tokens to MasterChef for REWARD allocation.
+    // Assumes the staked tokens are already on contract.
     function depositInternal(
         address _userAddress,
         uint256 _pid,
@@ -279,10 +354,9 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             safeRewardsTransfer(_userAddress, pending);
         }
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
+        uint256 _rewardsPeriodsInSeconds = _pool.endTimestamp - _pool.beginTimestamp;
         uint256 _bonusrewardsPeriodsEndTimestamp =
             ((_rewardsPeriodsInSeconds * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
-        uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
 
         // If the user was an early deposit, remove user amount from the pool.
         // Even if the pools reward period has elapsed. They must withdraw first.
@@ -298,7 +372,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _pool.totalEarlyDepositBonusRewardShares = _pool.totalEarlyDepositBonusRewardShares.add(_amount);
         }
 
-        _pool.lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         _user.amount = _user.amount.add(_amount);
 
         _user.rewardDebt = _user.amount.mul(_pool.accRewardsPerShare).div(BONE);
@@ -306,24 +379,32 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         emit Deposit(_userAddress, _pid, _amount);
     }
 
+    function depositByMarket(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _amount
+    ) public {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        deposit(_rewardPoolLookupInfo.pid, _amount);
+    }
+
     function deposit(uint256 _pid, uint256 _amount) public {
+        poolInfo[_pid].lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         depositInternal(msg.sender, _pid, _amount);
     }
 
-    // Allows approved contracts to deposit on behalf of a user.
-    function trustedDeposit(
-        address _user,
-        uint256 _pid,
-        uint256 _amount
-    ) public onlyApprovedAMMFactories {
-        depositInternal(_user, _pid, _amount);
-    }
-
     // Withdraw LP tokens from MasterChef.
+    // Assumes caller is handling distribution of LP tokens.
     function withdrawInternal(
         address _userAddress,
         uint256 _pid,
-        uint256 _amount
+        uint256 _amount,
+        address _tokenRecipientAddress
     ) internal {
         PoolInfo storage _pool = poolInfo[_pid];
         UserInfo storage _user = userInfo[_pid][_userAddress];
@@ -331,15 +412,18 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
         updatePool(_pid);
 
-        uint256 _rewardsPeriodsInSeconds = _pool.rewardsPeriods * 1 days;
+        uint256 _rewardsPeriodsInSeconds = _pool.endTimestamp - _pool.beginTimestamp;
         uint256 _bonusrewardsPeriodsEndTimestamp =
             ((_rewardsPeriodsInSeconds * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
         uint256 _rewardPeriodEndTimestamp = _rewardsPeriodsInSeconds + _pool.beginTimestamp + 1;
 
         if (_rewardPeriodEndTimestamp <= block.timestamp) {
-            if (_pool.totalEarlyDepositBonusRewardShares > 0) {
+            if (
+                _pool.totalEarlyDepositBonusRewardShares > 0 &&
+                _user.lastActionTimestamp <= _bonusrewardsPeriodsEndTimestamp
+            ) {
                 uint256 _rewardsToUser =
-                    _pool.earlyDepositBonusRewards.mul(_amount).div(_pool.totalEarlyDepositBonusRewardShares);
+                    _pool.earlyDepositBonusRewards.mul(_user.amount).div(_pool.totalEarlyDepositBonusRewardShares);
                 safeRewardsTransfer(_userAddress, _rewardsToUser);
             }
         } else if (_bonusrewardsPeriodsEndTimestamp >= block.timestamp) {
@@ -353,24 +437,115 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         uint256 pending = _user.amount.mul(_pool.accRewardsPerShare).div(BONE).sub(_user.rewardDebt);
-        safeRewardsTransfer(_userAddress, pending);
+
+        safeRewardsTransfer(_tokenRecipientAddress, pending);
         _user.amount = _user.amount.sub(_amount);
         _user.rewardDebt = _user.amount.mul(_pool.accRewardsPerShare).div(BONE);
         _user.lastActionTimestamp = block.timestamp;
-        _pool.lpToken.safeTransfer(msg.sender, _amount);
-        emit Withdraw(msg.sender, _pid, _amount);
+
+        emit Withdraw(msg.sender, _pid, _amount, _tokenRecipientAddress);
+    }
+
+    function withdrawByMarket(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _amount
+    ) public {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        withdraw(_rewardPoolLookupInfo.pid, _amount);
     }
 
     function withdraw(uint256 _pid, uint256 _amount) public {
-        withdrawInternal(msg.sender, _pid, _amount);
+        withdrawInternal(msg.sender, _pid, _amount, msg.sender);
+        poolInfo[_pid].lpToken.safeTransfer(msg.sender, _amount);
     }
 
-    function trustedWithdraw(
-        address _user,
-        uint256 _pid,
-        uint256 _amount
-    ) public onlyApprovedAMMFactories {
-        withdrawInternal(_user, _pid, _amount);
+    function createPool(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _initialLiquidity,
+        address _lpTokenRecipient
+    ) public returns (uint256) {
+        require(approvedAMMFactories[address(_ammFactory)], "AMMFactory must be approved to create pool");
+        _marketFactory.collateral().transferFrom(msg.sender, address(this), _initialLiquidity);
+        _marketFactory.collateral().approve(address(_ammFactory), _initialLiquidity);
+
+        uint256 _lpTokensIn = _ammFactory.createPool(_marketFactory, _marketId, _initialLiquidity, address(this));
+        IERC20 _lpToken = IERC20(address(_ammFactory.getPool(_marketFactory, _marketId)));
+
+        uint256 _nextPID =
+            addInternal(
+                address(_ammFactory),
+                address(_marketFactory),
+                _marketId,
+                _lpToken,
+                _marketFactory.getRewardEndTime(_marketId)
+            );
+
+        depositInternal(_lpTokenRecipient, _nextPID, _lpTokensIn);
+
+        return _lpTokensIn;
+    }
+
+    function addLiquidity(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _collateralIn,
+        uint256 _minLPTokensOut,
+        address _lpTokenRecipient
+    ) public returns (uint256 _poolAmountOut, uint256[] memory _balances) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        _marketFactory.collateral().transferFrom(msg.sender, address(this), _collateralIn);
+        _marketFactory.collateral().approve(address(_ammFactory), _collateralIn);
+
+        (_poolAmountOut, _balances) = _ammFactory.addLiquidity(
+            _marketFactory,
+            _marketId,
+            _collateralIn,
+            _minLPTokensOut,
+            _lpTokenRecipient
+        );
+
+        depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
+    }
+
+    function removeLiquidity(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _lpTokensIn,
+        uint256 _minCollateralOut,
+        address _collateralRecipient
+    ) public returns (uint256, uint256[] memory) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        withdrawInternal(msg.sender, _rewardPoolLookupInfo.pid, _lpTokensIn, _collateralRecipient);
+
+        PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+
+        _pool.lpToken.approve(address(_ammFactory), _lpTokensIn);
+        return
+            _ammFactory.removeLiquidity(
+                _marketFactory,
+                _marketId,
+                _lpTokensIn,
+                _minCollateralOut,
+                _collateralRecipient
+            );
     }
 
     function withdrawRewards(uint256 _amount) external onlyOwner {
