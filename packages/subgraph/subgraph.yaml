@@ -76,6 +76,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: MmaMarketFactory
             file: ./abis/MMAMarketFactoryV3.json
@@ -86,6 +87,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: CryptoMarketFactoryV3
       network: mumbai
@@ -102,6 +105,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: CryptoMarketFactory
             file: ./abis/CryptoMarketFactoryV3.json
@@ -112,6 +116,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: CryptoMarketFactoryV3-1
       network: mumbai
@@ -128,6 +134,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: CryptoMarketFactory
             file: ./abis/CryptoMarketFactoryV3.json
@@ -138,6 +145,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: NflMarketFactoryV3
       network: mumbai
@@ -154,6 +163,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: NflMarketFactory
             file: ./abis/NFLMarketFactoryV3.json
@@ -164,6 +174,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: NbaMarketFactoryV3
       network: mumbai
@@ -180,6 +192,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: NbaMarketFactory
             file: ./abis/NBAMarketFactoryV3.json
@@ -190,6 +203,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: MlbMarketFactoryV3
       network: mumbai
@@ -216,6 +231,8 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent
     - kind: ethereum/contract
       name: FuturesMarketFactoryV3
       network: mumbai
@@ -232,6 +249,7 @@ dataSources:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
+          - SharesMinted
         abis:
           - name: FuturesMarketFactory
             file: ./abis/FuturesMarketFactoryV3.json
@@ -242,3 +260,5 @@ dataSources:
             handler: handleMarketResolvedEvent
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
+          - event: SharesMinted(uint256,uint256,address)
+            handler: handleSharesMintedEvent

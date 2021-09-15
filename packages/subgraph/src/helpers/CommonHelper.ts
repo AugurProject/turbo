@@ -1,4 +1,4 @@
-import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance } from "../../generated/schema";
+import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance, SharesMinted } from "../../generated/schema";
 import { ZERO } from "../utils";
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
 
@@ -71,4 +71,22 @@ export function getOrCreateLiquidityPositionBalance(
   }
 
   return entity as LiquidityPositionBalance;
+}
+
+export function getOrCreateSharesMinted(
+  id: string,
+  createIfNotFound: boolean = true,
+  save: boolean = false
+): SharesMinted {
+  let entity = SharesMinted.load(id);
+
+  if (entity == null && createIfNotFound) {
+    entity = new SharesMinted(id);
+
+    if (save) {
+      entity.save();
+    }
+  }
+
+  return entity as SharesMinted;
 }
