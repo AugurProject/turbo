@@ -13,6 +13,7 @@
 
   > a:first-of-type {
     .ThemeBorder;
+    .HoverDropShadow;
 
     display: grid;
     grid-template-columns: 0fr 1fr;
@@ -58,6 +59,18 @@
         text-transform: capitalize;
       }
     }
+
+    &:hover {
+      background: var(--primary-bg);
+
+      > span > span:first-of-type {
+        text-decoration: underline;
+
+        > span {
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }
 
@@ -99,9 +112,11 @@
 
 .LiquidityForm {
   .ThemeBorder;
+  .FixedBoxShadow;
 
   display: flex;
   flex-flow: column nowrap;
+  background: var(--primary-bg);
 
   > header {
     .text-20-bold;
@@ -136,5 +151,11 @@
         }
       }
     }
+  }
+  
+  > main {
+    .PrimaryBottomBorderRadius;
+
+    padding: @size-24;
   }
 }

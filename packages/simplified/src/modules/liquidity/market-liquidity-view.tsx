@@ -68,6 +68,9 @@ const LiquidityForm = () => {
         </button>
         {title}
       </header>
+      <main>
+        testing
+      </main>
     </section>
   );
 };
