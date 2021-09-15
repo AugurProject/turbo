@@ -15,6 +15,7 @@ export type MarketFactory = {
   collateral: string;
   ammFactory: string;
   fetcher: string;
+  masterChef?: string;
   description?: string; // for humans to read
   version?: string; // release version. for humans to read
 } & (

@@ -18,7 +18,7 @@ import {
 import type { AmmOutcome, Cash, EstimateTradeResult, AmmExchange } from "@augurproject/comps/build/types";
 import { Slippage } from "../common/slippage";
 import getUSDC from "../../utils/get-usdc";
-const { doTrade, estimateBuyTrade, estimateSellTrade } = ContractCalls;
+const { doTrade, estimateBuyTrade, estimateSellTrade,getRewardsContractAddress } = ContractCalls;
 const { approveERC20Contract } = ApprovalHooks;
 const {
   Icons: { CloseIcon },
@@ -458,6 +458,7 @@ export const ApprovalButton = ({
   const marketCashType = cash?.name;
   const ammFactory = amm.ammFactoryAddress;
   const marketDescription = `${amm?.market?.title} ${amm?.market?.description}`;
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   useEffect(() => {
     // make sure to flip local state off if we are approved, logged, pending
     if (isApproved && loginAccount && isPendingTx) {
@@ -484,7 +485,7 @@ export const ApprovalButton = ({
           break;
         }
         case ApprovalAction.REMOVE_LIQUIDITY: {
-          address = amm?.id;
+          address = rewardContractAddress? null : amm?.id;
           spender = ammFactory;
           text = `Liquidity (${marketCashType})`;
           break;
@@ -496,6 +497,8 @@ export const ApprovalButton = ({
           break;
         }
         case ApprovalAction.ADD_LIQUIDITY:
+          spender = rewardContractAddress || ammFactory;
+        break;
         default: {
           break;
         }

@@ -78,6 +78,7 @@ import {
   instantiateMarketFactory,
   MarketFactory,
   MarketFactoryContract,
+  MasterChef__factory,
 } from "@augurproject/smart";
 import {
   fetcherMarketsPerConfig,
@@ -212,6 +213,7 @@ export async function addLiquidityPool(
 ): Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
   const ammAddress = amm?.id;
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
@@ -227,17 +229,40 @@ export async function addLiquidityPool(
     "min",
     minLpTokenAllowed
   );
-  if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
-      // gasLimit: "800000",
-      // gasPrice: "10000000000",
-    });
+  if (rewardContractAddress) {
+    const contract = getRewardContract(privider, rewardContractAddress, account);
+    // use reward contract (master chef) to add liquidity
+    if (!ammAddress) {
+      tx = contract.createPool(amm.ammFactoryAddress, marketFactoryAddress, turboId, amount, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    } else {
+      tx = contract.addLiquidity(
+        amm.ammFactoryAddress,
+        marketFactoryAddress,
+        turboId,
+        amount,
+        minLpTokenAllowed,
+        account,
+        {
+          // gasLimit: "800000",
+          // gasPrice: "10000000000",
+        }
+      );
+    }
   } else {
-    // todo: get what the min lp token out is
-    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
-      // gasLimit: "800000",
-      // gasPrice: "10000000000",
-    });
+    if (!ammAddress) {
+      tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    } else {
+      tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    }
   }
 
   return tx;
@@ -369,10 +394,23 @@ export function doRemoveLiquidity(
   const ammFactory = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
   const balancerPool = getBalancerPoolContract(provider, amm?.id, account);
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
 
-  return hasWinner
-    ? balancerPool.exitPool(lpBalance, amountsRaw)
-    : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
+  if (rewardContractAddress) {
+    const contract = getRewardContract(privider, rewardContractAddress, account);
+    return contract.removeLiquidity(
+      amm.ammFactoryAddress,
+      market.marketFactoryAddress,
+      market.turboId,
+      lpBalance,
+      "0",
+      account
+    );
+  } else {
+    return hasWinner
+      ? balancerPool.exitPool(lpBalance, amountsRaw)
+      : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
+  }
 }
 
 export const estimateBuyTrade = (
@@ -1437,6 +1475,10 @@ const getAmmFactoryContract = (library: Web3Provider, address: string, account?:
   return AMMFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
+const getRewardContract = (library: Web3Provider, address: string, account?: string): AMMFactory => {
+  return MasterChef__factory.connect(address, getProviderOrSigner(library, account));
+};
+
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
   const usdcContract = marketFactories[0].collateral;
@@ -1520,6 +1562,12 @@ const rewardsSupported = (ammFactories: string[]) => {
     .filter((m) => m.hasRewards)
     .map((m) => m.ammFactory);
   return ammFactories.filter((m) => rewardable.includes(m));
+};
+
+export const getRewardsContractAddress = (marketFactoryAddress: string) => {
+  // filter out amm factories that don't support rewards, use new flag to determine if amm factory gives rewards
+  const marketFactory = marketFactories().find((m) => isSameAddress(m.address, marketFactoryAddress) && m.hasRewards);
+  return marketFactory?.masterChef;
 };
 
 // adding constants here with special logic
