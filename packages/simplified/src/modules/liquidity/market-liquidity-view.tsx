@@ -28,8 +28,8 @@ const {
 } = Components;
 const {
   checkConvertLiquidityProperties,
-  // doRemoveLiquidity,
-  // addLiquidityPool,
+  doRemoveLiquidity,
+  addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
 } = ContractCalls;
@@ -53,6 +53,7 @@ const {
   INVALID_PRICE,
   INVALID_PRICE_GREATER_THAN_SUBTEXT,
   INVALID_PRICE_ADD_UP_SUBTEXT,
+  TX_STATUS,
 } = Constants;
 
 const defaultAddLiquidityBreakdown: LiquidityBreakdown = {
@@ -162,7 +163,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     account,
     balances,
     loginAccount,
-    // actions: { addTransaction },
+    actions: { addTransaction },
   } = useUserStore();
   const { blocknumber, cashes }: DataState = useDataStore();
   const isRemove = actionType === REMOVE;
@@ -355,7 +356,21 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
         <div className={Styles.ActionButtons}>
           {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} />}
           <SecondaryThemeButton
-            action={() => console.log("NYI")}
+            action={() => confirmAction({
+              addTransaction,
+              breakdown,
+              setBreakdown,
+              account,
+              loginAccount,
+              market,
+              amount,
+              onChainFee,
+              outcomes,
+              cash,
+              amm,
+              isRemove,
+              estimatedLpAmount
+            })}
             disabled={!isApproved || inputFormError !== ""}
             error={buttonError}
             text={inputFormError === "" ? (buttonError ? buttonError : actionButtonText) : inputFormError}
@@ -375,3 +390,89 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
 };
 
 export default MarketLiquidityView;
+
+const confirmAction = async ({
+  addTransaction,
+  breakdown,
+  setBreakdown,
+  account,
+  loginAccount,
+  market,
+  amount,
+  onChainFee,
+  outcomes,
+  cash,
+  amm,
+  isRemove,
+  estimatedLpAmount
+}) => {
+  const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+  if (!valid) {
+    setBreakdown(defaultAddLiquidityBreakdown);
+  }
+  if (isRemove) {
+    doRemoveLiquidity(amm, loginAccount?.library, amount, breakdown.minAmountsRaw, account, cash, market?.hasWinner)
+      .then((response) => {
+        const { hash } = response;
+        addTransaction({
+          hash,
+          chainId: loginAccount.chainId,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          from: account,
+          addedTime: new Date().getTime(),
+          message: `Remove Liquidity`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      })
+      .catch((error) => {
+        console.log("Error when trying to remove AMM liquidity: ", error?.message);
+        addTransaction({
+          hash: "remove-liquidity-failed",
+          chainId: loginAccount.chainId,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          from: account,
+          addedTime: new Date().getTime(),
+          message: `Remove Liquidity`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      });
+  } else {
+    await addLiquidityPool(
+      account,
+      loginAccount?.library,
+      amm,
+      cash,
+      amount,
+      estimatedLpAmount,
+      unOrderOutcomesForDisplay(outcomes)
+    )
+      .then((response) => {
+        const { hash } = response;
+        addTransaction({
+          hash,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          addedTime: new Date().getTime(),
+          message: `Add Liquidity`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      })
+      .catch((error) => {
+        console.log("Error when trying to add AMM liquidity: ", error?.message);
+        addTransaction({
+          hash: `add-liquidity-failed${Date.now()}`,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          addedTime: new Date().getTime(),
+          message: `Add Liquidity`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      });
+  }
+};
