@@ -72,6 +72,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 accruedStandardRewards;
         uint256 accruedEarlyDepositBonusRewards;
         uint256 pendingEarlyDepositBonusRewards;
+        bool created;
     }
 
     struct MarketFactoryInfo {
@@ -276,41 +277,50 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
 
     // View function to see pending REWARDs on frontend.
-    function getUserPendingRewardInfo(uint256 _pid, address _userAddress)
-        external
-        view
-        returns (PendingRewardInfo memory _pendingRewardInfo)
-    {
-        PoolInfo storage _pool = poolInfo[_pid];
-        UserInfo storage _user = userInfo[_pid][_userAddress];
-        uint256 accRewardsPerShare = _pool.accRewardsPerShare;
-        uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
+    function getUserPendingRewardInfo(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        address _userAddress
+    ) external view returns (PendingRewardInfo memory _pendingRewardInfo) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
 
-        _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
-        _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
-        _pendingRewardInfo.earlyDepositEndTimestamp =
-            ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
-            _pool.beginTimestamp +
-            1;
+        if (_rewardPoolLookupInfo.created) {
+            PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+            UserInfo storage _user = userInfo[_rewardPoolLookupInfo.pid][_userAddress];
+            uint256 accRewardsPerShare = _pool.accRewardsPerShare;
+            uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
 
-        if (_pool.totalEarlyDepositBonusRewardShares > 0 && block.timestamp > _pendingRewardInfo.endTimestamp) {
-            _pendingRewardInfo.accruedEarlyDepositBonusRewards = _pool.earlyDepositBonusRewards.mul(_user.amount).div(
-                _pool.totalEarlyDepositBonusRewardShares
-            );
-        } else if (_pool.totalEarlyDepositBonusRewardShares > 0) {
-            _pendingRewardInfo.pendingEarlyDepositBonusRewards = _pool.earlyDepositBonusRewards.mul(_user.amount).div(
-                _pool.totalEarlyDepositBonusRewardShares
+            _pendingRewardInfo.created = true;
+            _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
+            _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
+            _pendingRewardInfo.earlyDepositEndTimestamp =
+                ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
+                _pool.beginTimestamp +
+                1;
+
+            if (_pool.totalEarlyDepositBonusRewardShares > 0 && block.timestamp > _pendingRewardInfo.endTimestamp) {
+                _pendingRewardInfo.accruedEarlyDepositBonusRewards = _pool
+                    .earlyDepositBonusRewards
+                    .mul(_user.amount)
+                    .div(_pool.totalEarlyDepositBonusRewardShares);
+            } else if (_pool.totalEarlyDepositBonusRewardShares > 0) {
+                _pendingRewardInfo.pendingEarlyDepositBonusRewards = _pool
+                    .earlyDepositBonusRewards
+                    .mul(_user.amount)
+                    .div(_pool.totalEarlyDepositBonusRewardShares);
+            }
+
+            if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
+                uint256 multiplier = getTimeElapsed(_rewardPoolLookupInfo.pid);
+                accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
+            }
+
+            _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
+                _user.rewardDebt
             );
         }
-
-        if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
-            uint256 multiplier = getTimeElapsed(_pid);
-            accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
-        }
-
-        _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
-            _user.rewardDebt
-        );
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
