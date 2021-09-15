@@ -7,6 +7,7 @@ import {
   instantiateFetcher,
   CryptoFetcher,
   CryptoMarketFactoryV3,
+  MasterChef__factory,
 } from "@augurproject/smart";
 
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
@@ -28,12 +29,14 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     config.address,
     getProviderOrSigner(provider, account)
   ) as unknown) as CryptoMarketFactoryV3;
+  const masterChef = MasterChef__factory.connect(config.masterChef, getProviderOrSigner(provider, account));
   const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
 
   const { factoryBundle, markets } = await fetchInitialCrypto(
     fetcherContract,
     marketFactoryContract,
     ammFactoryContract,
+    masterChef,
     offset,
     bundleSize
   );
