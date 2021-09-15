@@ -98,10 +98,11 @@ abstract contract Fetcher {
         AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
         _bundle.factory = _marketFactory;
         _bundle.marketId = _marketId;
+        _bundle.pool = buildPoolBundle(_marketFactory, _ammFactory, _marketId);
+        _bundle.rewards = _masterChef.getPoolInfo(_ammFactory, _marketFactory, _marketId);
         _bundle.shareTokens = _market.shareTokens;
         _bundle.creationTimestamp = _market.creationTimestamp;
         _bundle.winner = _market.winner;
-        _bundle.pool = buildPoolBundle(_marketFactory, _ammFactory, _marketId);
         _bundle.initialOdds = _market.initialOdds;
     }
 
