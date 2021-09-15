@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
 
 import { useHistory, useLocation } from "react-router";
-import { useDataStore, Components, Utils, Constants } from "@augurproject/comps";
+import { useDataStore, useUserStore, Components, Utils, Constants } from "@augurproject/comps";
+import { MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
-import { LIQUIDITY, MARKET_LIQUIDITY, ADD, REMOVE } from "../constants";
+import { LIQUIDITY, MARKET_LIQUIDITY, ADD, REMOVE, SHARES, USDC } from "../constants";
 const {
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
+  InputComps: { AmountInput },
   Links: { MarketLink },
   Icons: { WarningIcon, BackIcon },
 } = Components;
@@ -16,6 +18,12 @@ const {
   PathUtils: { makePath, parseQuery },
 } = Utils;
 const { MARKET_ID_PARAM_NAME } = Constants;
+
+const defaultAddLiquidityBreakdown: LiquidityBreakdown = {
+  lpTokens: "0",
+  cashAmount: "0",
+  minAmounts: [],
+};
 
 export const MarketLiquidityView = () => {
   const {
@@ -36,7 +44,7 @@ export const MarketLiquidityView = () => {
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <LiquidityForm actionType={actionType} />
+      <LiquidityForm {...{ market, actionType }} />
       <LiquidityWarningFooter />
     </div>
   );
@@ -52,9 +60,35 @@ const LiquidityWarningFooter = () => (
   </article>
 );
 
-const LiquidityForm = ({ actionType = ADD }) => {
+interface LiquidityFormProps {
+  market: MarketInfo;
+  actionType: string;
+}
+
+const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const history = useHistory();
-  const title = actionType === REMOVE ? "Remove Liquidity" : "Add Liquidity";
+  const {
+    // account,
+    balances,
+    // loginAccount,
+    // actions: { addTransaction },
+  } = useUserStore();
+  const { cashes }: DataState = useDataStore();
+  const isRemove = actionType === REMOVE;
+  const title = isRemove ? "Remove Liquidity" : "Add Liquidity";
+  const { amm } = market;
+  const [chosenCash, updateCash] = useState<string>(USDC);
+  // const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
+  // const [estimatedLpAmount, setEstimatedLpAmount] = useState<string>("0");
+  const cash: Cash = cashes ? Object.values(cashes).find((c) => c.name === USDC) : Object.values(cashes)[0];
+  const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
+  const shareBalance =
+    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
+  const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
+
+  const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
+ 
+
   return (
     <section className={Styles.LiquidityForm}>
       <header>
@@ -69,8 +103,21 @@ const LiquidityForm = ({ actionType = ADD }) => {
         </button>
         {title}
       </header>
-      <main>testing</main>
+      <main>
+        <AmountInput
+          heading="Deposit Amount"
+          ammCash={cash}
+          updateInitialAmount={(amount) => updateAmount(amount)}
+          initialAmount={amount}
+          maxValue={userMaxAmount}
+          chosenCash={isRemove ? SHARES : chosenCash}
+          updateCash={updateCash}
+          updateAmountError={() => null}
+          error={false}
+        />
+      </main>
     </section>
   );
 };
+
 export default MarketLiquidityView;

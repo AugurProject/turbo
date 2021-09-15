@@ -62,6 +62,7 @@ export const TextInput = ({ placeholder, value, onChange }) => {
 };
 
 export interface AmountInputProps {
+  heading: string;
   updateInitialAmount: (string) => void;
   initialAmount: string;
   maxValue: string;
@@ -77,6 +78,7 @@ export interface AmountInputProps {
 }
 
 export const AmountInput = ({
+  heading = 'amount',
   updateInitialAmount,
   initialAmount,
   maxValue,
@@ -116,7 +118,7 @@ export const AmountInput = ({
         [Styles.Rate]: Boolean(rate),
       })}
     >
-      <span>amount</span>
+      <span>{heading}</span>
       <span onClick={setMax}>
         {isLogged && (
           <>

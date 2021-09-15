@@ -18,7 +18,6 @@ import {
   Constants,
   Components,
 } from "@augurproject/comps";
-import { MaticIcon } from "@augurproject/comps/build/components/common/icons";
 const {
   checkConvertLiquidityProperties,
   doRemoveLiquidity,
@@ -30,7 +29,7 @@ const {
 const { calcPricesFromOdds } = Calculations;
 const { formatPercent, formatSimpleShares, formatEther, formatCash } = Formatter;
 const {
-  Icons: { BackIcon },
+  Icons: { BackIcon, MaticIcon },
   ButtonComps: { SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
