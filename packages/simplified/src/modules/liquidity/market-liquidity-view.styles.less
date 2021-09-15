@@ -156,7 +156,10 @@
   > main {
     .PrimaryBottomBorderRadius;
 
-    padding: @size-24;
+    padding: @size-32;
+    display: grid;
+    grid-gap: @size-32 @size-64;
+    grid-template-columns: 0.595fr 0.405fr;
 
     > div[class*="AmountInput"] {
       border: none;
@@ -171,6 +174,27 @@
       > div:first-of-type {
         .ThemeBorder;
       }
+    }
+  }
+}
+
+.ActionButtons {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: @size-8;
+}
+
+.PriceInstructions {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > span {
+    .text-14;
+
+    color: var(--primary-text);
+
+    &:first-of-type {
+      .text-16-bold;
     }
   }
 }

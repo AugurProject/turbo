@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
+import ButtonStyles from "../common/buttons.styles.less";
 import { useHistory, useLocation } from "react-router";
 import { InfoNumbers, ApprovalButton } from "../market/trading-form";
 import { BigNumber as BN } from "bignumber.js";
@@ -12,12 +13,13 @@ import {
   Utils,
   Constants,
   useApprovalStatus,
+  createBigNumber,
 } from "@augurproject/comps";
 import { AmmOutcome, MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
 import { LIQUIDITY, MARKET_LIQUIDITY, CREATE, ADD, REMOVE, SHARES, USDC } from "../constants";
 const {
-  // ButtonComps: { SecondaryThemeButton },
+  ButtonComps: { SecondaryThemeButton },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
@@ -36,7 +38,21 @@ const {
   Formatter: { formatSimpleShares, formatEther },
   Calculations: { calcPricesFromOdds },
 } = Utils;
-const { MARKET_ID_PARAM_NAME, ApprovalAction, ApprovalState, ERROR_AMOUNT } = Constants;
+const {
+  MARKET_ID_PARAM_NAME,
+  ApprovalAction,
+  ApprovalState,
+  ERROR_AMOUNT,
+  CONNECT_ACCOUNT,
+  ENTER_AMOUNT,
+  INSUFFICIENT_BALANCE,
+  ZERO,
+  SET_PRICES,
+  ONE,
+  INVALID_PRICE,
+  INVALID_PRICE_GREATER_THAN_SUBTEXT,
+  INVALID_PRICE_ADD_UP_SUBTEXT,
+} = Constants;
 
 const defaultAddLiquidityBreakdown: LiquidityBreakdown = {
   lpTokens: "0",
@@ -191,7 +207,10 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     return String(new BN(feePercent).times(new BN(10)));
   }, [tradingFeeSelection, amm?.feeRaw]);
 
+  // ERROR SECTION
   let buttonError = "";
+  let inputFormError = "";
+  let lessThanMinPrice = false;
   const priceErrors = isRemove
     ? []
     : outcomes.filter((outcome) => {
@@ -203,6 +222,26 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     buttonError = ERROR_AMOUNT;
   } else if (hasPriceErrors) {
     buttonError = "Price is not valid";
+  }
+  if (!account) inputFormError = CONNECT_ACCOUNT;
+  else if (!amount || amount === "0" || amount === "") inputFormError = ENTER_AMOUNT;
+  else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
+  else if (actionType === CREATE) {
+    let totalPrice = ZERO;
+    outcomes.forEach((outcome) => {
+      const price = outcome.price;
+      if (price === "0" || !price) {
+        inputFormError = SET_PRICES;
+      } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
+        buttonError = INVALID_PRICE;
+        lessThanMinPrice = true;
+      } else {
+        totalPrice = totalPrice.plus(createBigNumber(price));
+      }
+    });
+    if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
+      buttonError = INVALID_PRICE;
+    }
   }
 
   useEffect(() => {
@@ -250,6 +289,8 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     };
   }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
 
+  const actionButtonText = !amount ? "Enter Amount" : isRemove ? "Remove Liquidity" : "Add Liquidity";
+
   return (
     <section className={Styles.LiquidityForm}>
       <header>
@@ -274,23 +315,26 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
           chosenCash={isRemove ? SHARES : chosenCash}
           updateCash={updateCash}
           updateAmountError={() => null}
-          error={false}
+          error={hasAmountErrors}
         />
-        <div>
-          
-        </div>
-
-        <div>
+        <div className={Styles.Breakdown}>
           <span>You'll Receive</span>
           <InfoNumbers infoNumbers={getCreateBreakdown(breakdown, market, balances, isRemove)} />
         </div>
-        <div>
-          <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} />
-          {/* <SecondaryThemeButton
-            action={curPage.actionButtonAction}
+        <div className={Styles.PricesAndOutcomes}>
+          <span className={Styles.PriceInstructions}>
+            <span>{mustSetPrices ? "Set the Price" : "Current Prices"}</span>
+            {mustSetPrices && <span>(between 0.02 - 0.1). Total price of all outcomes must add up to 1.</span>}
+          </span>
+        </div>
+
+        <div className={Styles.ActionButtons}>
+          {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} />}
+          <SecondaryThemeButton
+            action={() => console.log("NYI")}
             disabled={!isApproved || inputFormError !== ""}
             error={buttonError}
-            text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
+            text={inputFormError === "" ? (buttonError ? buttonError : actionButtonText) : inputFormError}
             subText={
               buttonError === INVALID_PRICE
                 ? lessThanMinPrice
@@ -299,7 +343,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                 : null
             }
             customClass={ButtonStyles.BuySellButton}
-          /> */}
+          />
         </div>
       </main>
     </section>
