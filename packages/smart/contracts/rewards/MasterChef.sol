@@ -379,6 +379,20 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         emit Deposit(_userAddress, _pid, _amount);
     }
 
+    function depositByMarket(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _amount
+    ) public {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        deposit(_rewardPoolLookupInfo.pid, _amount);
+    }
+
     function deposit(uint256 _pid, uint256 _amount) public {
         poolInfo[_pid].lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         depositInternal(msg.sender, _pid, _amount);
@@ -430,6 +444,20 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         _user.lastActionTimestamp = block.timestamp;
 
         emit Withdraw(msg.sender, _pid, _amount, _tokenRecipientAddress);
+    }
+
+    function withdrawByMarket(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId,
+        uint256 _amount
+    ) public {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+
+        withdraw(_rewardPoolLookupInfo.pid, _amount);
     }
 
     function withdraw(uint256 _pid, uint256 _amount) public {
