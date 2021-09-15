@@ -39,6 +39,7 @@ const {
   Calculations: { calcPricesFromOdds },
 } = Utils;
 const {
+  BUY,
   MARKET_ID_PARAM_NAME,
   ApprovalAction,
   ApprovalState,
@@ -242,6 +243,10 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
       buttonError = INVALID_PRICE;
     }
+    const minimumAmount = '100';
+    if (amount) {
+      if (new BN(amount).lt(new BN(minimumAmount))) buttonError = `$${minimumAmount} Minimum deposit`;
+    }
   }
 
   useEffect(() => {
@@ -290,6 +295,11 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
 
   const actionButtonText = !amount ? "Enter Amount" : isRemove ? "Remove Liquidity" : "Add Liquidity";
+  const setPrices = (price, index) => {
+    const newOutcomes = outcomes;
+    newOutcomes[index].price = price;
+    setOutcomes([...newOutcomes]);
+  };
 
   return (
     <section className={Styles.LiquidityForm}>
@@ -326,6 +336,20 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
             <span>{mustSetPrices ? "Set the Price" : "Current Prices"}</span>
             {mustSetPrices && <span>(between 0.02 - 0.1). Total price of all outcomes must add up to 1.</span>}
           </span>
+          <OutcomesGrid
+              outcomes={outcomes}
+              selectedOutcome={null}
+              setSelectedOutcome={() => null}
+              orderType={BUY}
+              nonSelectable
+              editable={mustSetPrices && !hasInitialOdds}
+              setEditableValue={(price, index) => setPrices(price, index)}
+              ammCash={cash}
+              dontFilterInvalid
+              hasLiquidity={!mustSetPrices || hasInitialOdds}
+              marketFactoryType={market?.marketFactoryType}
+              isFutures={market?.isFuture}
+            />
         </div>
 
         <div className={Styles.ActionButtons}>

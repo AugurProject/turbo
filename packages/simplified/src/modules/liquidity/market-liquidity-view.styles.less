@@ -184,6 +184,19 @@
   grid-gap: @size-8;
 }
 
+.Breakdown {
+  display: grid;
+  grid-gap: @size-10;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 0fr;
+
+  > span:first-of-type {
+    .text-16-bold;
+
+    margin-bottom: @size-4;
+  }
+}
+
 .PriceInstructions {
   display: flex;
   flex-flow: column nowrap;
@@ -197,4 +210,10 @@
       .text-16-bold;
     }
   }
+}
+
+.PricesAndOutcomes {
+  display: grid;
+  grid-gap: @size-16;
+  grid-template-columns: 1fr;
 }
