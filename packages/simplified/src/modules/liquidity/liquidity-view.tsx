@@ -279,6 +279,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
                     pathname: makePath(MARKET_LIQUIDITY),
                     search: makeQuery({
                       [MARKET_ID_PARAM_NAME]: marketId,
+                      [MARKET_LIQUIDITY]: hasLiquidity ? CREATE : ADD,
                     }),
                   })
                 : setModal({
@@ -295,6 +296,14 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               text="-"
               small
               action={() =>
+                isFuture ? history.push({
+                  pathname: makePath(MARKET_LIQUIDITY),
+                  search: makeQuery({
+                    [MARKET_ID_PARAM_NAME]: marketId,
+                    [MARKET_LIQUIDITY]: REMOVE
+                  }),
+                }) 
+              :
                 setModal({
                   type: MODAL_ADD_LIQUIDITY,
                   market,
@@ -313,6 +322,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
                       pathname: makePath(MARKET_LIQUIDITY),
                       search: makeQuery({
                         [MARKET_ID_PARAM_NAME]: marketId,
+                        [MARKET_LIQUIDITY]: ADD
                       }),
                     })
                   : !isfinal &&

@@ -2,11 +2,10 @@ import React from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
 
-import { useHistory } from "react-router";
-import { useDataStore, Components, Utils } from "@augurproject/comps";
-import { useMarketQueryId } from "modules/market/market-view";
+import { useHistory, useLocation } from "react-router";
+import { useDataStore, Components, Utils, Constants } from "@augurproject/comps";
 import { useSimplifiedStore } from "modules/stores/simplified";
-import { LIQUIDITY } from "../constants";
+import { LIQUIDITY, MARKET_LIQUIDITY, ADD, REMOVE } from "../constants";
 const {
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea },
@@ -14,14 +13,16 @@ const {
   Icons: { WarningIcon, BackIcon },
 } = Components;
 const {
-  PathUtils: { makePath },
+  PathUtils: { makePath, parseQuery },
 } = Utils;
+const { MARKET_ID_PARAM_NAME } = Constants;
 
 export const MarketLiquidityView = () => {
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
-  const marketId = useMarketQueryId();
+  const location = useLocation();
+  const { [MARKET_ID_PARAM_NAME]: marketId, [MARKET_LIQUIDITY]: actionType } = parseQuery(location.search);
   const { markets } = useDataStore();
   const market = markets?.[marketId];
 
@@ -35,7 +36,7 @@ export const MarketLiquidityView = () => {
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <LiquidityForm />
+      <LiquidityForm actionType={actionType} />
       <LiquidityWarningFooter />
     </div>
   );
@@ -51,9 +52,9 @@ const LiquidityWarningFooter = () => (
   </article>
 );
 
-const LiquidityForm = () => {
+const LiquidityForm = ({ actionType = ADD }) => {
   const history = useHistory();
-  const title = "Add Liquidity";
+  const title = actionType === REMOVE ? "Remove Liquidity" : "Add Liquidity";
   return (
     <section className={Styles.LiquidityForm}>
       <header>
@@ -68,9 +69,7 @@ const LiquidityForm = () => {
         </button>
         {title}
       </header>
-      <main>
-        testing
-      </main>
+      <main>testing</main>
     </section>
   );
 };
