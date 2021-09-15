@@ -117,7 +117,12 @@ describe("MasterChef", () => {
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(1).toNumber()]);
       await network.provider.send("evm_mine", []);
 
-      const pendingRewardsInfo = await masterChef.getUserPendingRewardInfo(0, tom.address);
+      const pendingRewardsInfo = await masterChef.getUserPendingRewardInfo(
+        RANDOM_ADDRESS,
+        bill.address,
+        0,
+        tom.address
+      );
       expect(pendingRewardsInfo.accruedStandardRewards).to.be.equal(0);
       expect(pendingRewardsInfo.accruedEarlyDepositBonusRewards).to.be.equal(rewardsPerPeriod);
 
@@ -179,7 +184,7 @@ describe("MasterChef", () => {
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(100000).toNumber()]);
       await network.provider.send("evm_mine", []);
 
-      const otherAmount = await masterChef.getUserPendingRewardInfo(0, tom.address);
+      const otherAmount = await masterChef.getUserPendingRewardInfo(RANDOM_ADDRESS, bill.address, 0, tom.address);
       expect(otherAmount.accruedEarlyDepositBonusRewards).to.be.equal(0);
       expect(otherAmount.accruedStandardRewards).to.be.equal(0);
 
@@ -226,7 +231,12 @@ describe("MasterChef", () => {
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
             checkWithin(accRewardsPerShare, totalRewards.div(4).mul(BONE).div(initialCashAmount), BONE);
 
-            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(0, tom.address);
+            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
+              RANDOM_ADDRESS,
+              bill.address,
+              0,
+              tom.address
+            );
             checkWithin(accruedStandardRewards, totalRewards.div(4), BONE);
           });
 
@@ -240,7 +250,12 @@ describe("MasterChef", () => {
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
             checkWithin(accRewardsPerShare, totalRewards.div(2).mul(BONE).div(initialCashAmount), BONE);
 
-            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(0, tom.address);
+            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
+              RANDOM_ADDRESS,
+              bill.address,
+              0,
+              tom.address
+            );
             checkWithin(accruedStandardRewards, totalRewards.div(2), BONE);
           });
 
@@ -254,7 +269,12 @@ describe("MasterChef", () => {
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
             checkWithin(accRewardsPerShare, totalRewards.div(1).mul(BONE).div(initialCashAmount), BONE);
 
-            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(0, tom.address);
+            const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
+              RANDOM_ADDRESS,
+              bill.address,
+              0,
+              tom.address
+            );
             checkWithin(accruedStandardRewards, totalRewards.div(1), BONE);
           });
         });
@@ -316,7 +336,12 @@ describe("MasterChef", () => {
         const results = await masterChef.getTimeElapsed(0);
         expect(results).to.be.equal(poolEndTimestamp.sub(beginTimestamp).mul(BONE));
 
-        const pendingRewardInfo = await masterChef.getUserPendingRewardInfo(0, tom.address);
+        const pendingRewardInfo = await masterChef.getUserPendingRewardInfo(
+          RANDOM_ADDRESS,
+          bill.address,
+          0,
+          tom.address
+        );
 
         expect(pendingRewardInfo.accruedEarlyDepositBonusRewards).to.be.equal(0);
         checkWithin(pendingRewardInfo.accruedStandardRewards, totalRewards, BONE);
