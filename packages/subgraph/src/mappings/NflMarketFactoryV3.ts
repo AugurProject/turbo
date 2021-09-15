@@ -6,11 +6,16 @@ import {
   MarketResolved,
   NflMarketFactory as NflMarketFactoryContract,
   NflMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed
+  WinningsClaimed,
+  SharesMinted
 } from "../../generated/NflMarketFactoryV3/NflMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
+import {
+  getOrCreateInitialCostPerMarket,
+  getOrCreatePositionBalance,
+  getOrCreateSharesMinted
+} from "../helpers/CommonHelper";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = NflMarketFactoryContract.bind(contractAddress);
@@ -189,4 +194,18 @@ function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   positionBalanceEntity.save();
 
   closeAllPositions(event.address, event.params.id, marketId, senderId);
+}
+
+export function handleSharesMintedEvent(event: SharesMinted): void {
+  let id = event.transaction.hash.toHexString() + "-" + event.address.toHexString() + "-" + event.params.id.toString() + "-" + event.params.receiver.toHexString();
+  let entity = getOrCreateSharesMinted(id, true, false);
+  entity.transactionHash = event.transaction.hash.toHexString();
+  entity.timestamp = event.block.timestamp;
+  entity.marketFactory = event.address.toHexString();
+  entity.marketIndex = event.params.id.toString();
+  entity.amount = event.params.amount;
+  entity.amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
+  entity.receiver = event.params.receiver.toHexString();
+  entity.receiverId = event.params.receiver.toHexString();
+  entity.save();
 }
