@@ -8,13 +8,14 @@ import {
   RawStaticMarketBundle,
   StaticMarketBundle,
 } from "./common";
-import { AMMFactory, Grouped as GroupMarketFactory, GroupFetcher } from "../../typechain";
+import { AMMFactory, Grouped as GroupMarketFactory, GroupFetcher, MasterChef } from "../../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 
 export async function fetchInitialGroup(
   fetcher: GroupFetcher,
   marketFactory: GroupMarketFactory,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
 ): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialGroupsMarket[] }> {
@@ -27,6 +28,7 @@ export async function fetchInitialGroup(
     const [rawFactoryBundle, rawGroupBundles, lowestGroupIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
+      masterChef.address,
       offset,
       bundleSize
     );

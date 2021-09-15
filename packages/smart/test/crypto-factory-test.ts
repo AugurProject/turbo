@@ -8,11 +8,12 @@ import {
   AMMFactory,
   BPool__factory,
   Cash,
-  CryptoMarketFactoryV3,
-  FeePot,
   CryptoFetcher,
   CryptoFetcher__factory,
+  CryptoMarketFactoryV3,
   FakePriceFeed,
+  FeePot,
+  MasterChef,
   OwnedERC20__factory,
 } from "../typechain";
 import {
@@ -61,6 +62,7 @@ describe("CryptoFactory", function () {
   let shareFactor: BigNumber;
   let marketFactory: CryptoMarketFactoryV3;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
   let ethPriceMarketId: BigNumber;
   let btcPriceMarketId: BigNumber;
   let ethPriceFeed: FakePriceFeed;
@@ -88,6 +90,7 @@ describe("CryptoFactory", function () {
     feePot = (await ethers.getContract("FeePot")) as FeePot;
     shareFactor = calcShareFactor(await collateral.decimals());
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
   });
 
   it("is deployable", async () => {
@@ -433,7 +436,14 @@ describe("CryptoFactory", function () {
     { offset: PRICE_FEEDS.length, bundle: 50, ids: [8] }, // skip all open markets
   ].forEach(({ offset, bundle, ids }) => {
     it(`fetcher initial {offset=${offset},bundle=${bundle}}`, async () => {
-      const { factoryBundle, markets } = await fetchInitialCrypto(fetcher, marketFactory, ammFactory, offset, bundle);
+      const { factoryBundle, markets } = await fetchInitialCrypto(
+        fetcher,
+        marketFactory,
+        ammFactory,
+        masterChef,
+        offset,
+        bundle
+      );
       expect(factoryBundle, "factory bundle").to.deep.equal(await marketFactoryBundleCheck(marketFactory));
 
       expect(markets, "market bundles").to.deep.equal(

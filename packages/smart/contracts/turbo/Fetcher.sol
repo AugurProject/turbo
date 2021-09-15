@@ -11,6 +11,7 @@ import "./MMAMarketFactoryV3.sol";
 import "./AMMFactory.sol";
 import "./CryptoMarketFactoryV3.sol";
 import "./NBAMarketFactoryV3.sol";
+import "../rewards/MasterChef.sol";
 
 // Helper contract for grabbing huge amounts of data without overloading multicall.
 abstract contract Fetcher {
@@ -46,6 +47,7 @@ abstract contract Fetcher {
         AbstractMarketFactoryV3 factory;
         uint256 marketId;
         PoolBundle pool;
+        MasterChef.PoolStatusInfo rewards;
         OwnedERC20[] shareTokens;
         uint256 creationTimestamp;
         OwnedERC20 winner;
@@ -90,6 +92,7 @@ abstract contract Fetcher {
     function buildStaticMarketBundle(
         AbstractMarketFactoryV3 _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _marketId
     ) internal view returns (StaticMarketBundle memory _bundle) {
         AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
@@ -181,6 +184,7 @@ abstract contract SportsFetcher is Fetcher {
     function fetchInitial(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     )
@@ -193,7 +197,13 @@ abstract contract SportsFetcher is Fetcher {
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
-        (_eventBundles, _lowestEventIndex) = buildStaticEventBundles(_marketFactory, _ammFactory, _offset, _total);
+        (_eventBundles, _lowestEventIndex) = buildStaticEventBundles(
+            _marketFactory,
+            _ammFactory,
+            _masterChef,
+            _offset,
+            _total
+        );
     }
 
     function fetchDynamic(
@@ -208,6 +218,7 @@ abstract contract SportsFetcher is Fetcher {
     function buildStaticEventBundles(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     ) internal view returns (StaticEventBundle[] memory _bundles, uint256 _lowestEventIndex) {
@@ -217,7 +228,7 @@ abstract contract SportsFetcher is Fetcher {
         _total = _eventIds.length;
         _bundles = new StaticEventBundle[](_total);
         for (uint256 i; i < _total; i++) {
-            _bundles[i] = buildStaticEventBundle(_marketFactory, _ammFactory, _eventIds[i]);
+            _bundles[i] = buildStaticEventBundle(_marketFactory, _ammFactory, _masterChef, _eventIds[i]);
         }
     }
 
@@ -240,6 +251,7 @@ abstract contract SportsFetcher is Fetcher {
     function buildStaticEventBundle(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _eventId
     ) public view returns (StaticEventBundle memory _bundle) {
         Sport.SportsEvent memory _event = Sport(_marketFactory).getSportsEvent(_eventId);
@@ -249,6 +261,7 @@ abstract contract SportsFetcher is Fetcher {
             _markets[i] = buildStaticMarketBundle(
                 AbstractMarketFactoryV3(_marketFactory),
                 _ammFactory,
+                _masterChef,
                 _event.markets[i]
             );
         }
@@ -401,11 +414,17 @@ contract CryptoFetcher is Fetcher {
     function buildSpecificStaticMarketBundle(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _marketId
     ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
         CryptoMarketFactoryV3.MarketDetails memory _details =
             CryptoMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildStaticMarketBundle(CryptoMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
+        _bundle.super = buildStaticMarketBundle(
+            CryptoMarketFactoryV3(_marketFactory),
+            _ammFactory,
+            _masterChef,
+            _marketId
+        );
         _bundle.marketType = uint8(_details.marketType);
         _bundle.creationPrice = _details.creationPrice;
         _bundle.coinIndex = _details.coinIndex;
@@ -427,6 +446,7 @@ contract CryptoFetcher is Fetcher {
     function fetchInitial(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     )
@@ -446,7 +466,12 @@ contract CryptoFetcher is Fetcher {
         _total = _marketIds.length;
         _marketBundles = new SpecificStaticMarketBundle[](_total);
         for (uint256 i; i < _total; i++) {
-            _marketBundles[i] = buildSpecificStaticMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
+            _marketBundles[i] = buildSpecificStaticMarketBundle(
+                _marketFactory,
+                _ammFactory,
+                _masterChef,
+                _marketIds[i]
+            );
         }
     }
 

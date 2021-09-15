@@ -11,6 +11,7 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
+  MasterChef,
   NBAFetcher,
   NBAFetcher__factory,
   NBAMarketFactoryV3,
@@ -296,6 +297,7 @@ describe("Sports fetcher", () => {
 
   let fetcher: NBAFetcher;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
   let collateral: Cash;
   let feePot: FeePot;
 
@@ -325,6 +327,7 @@ describe("Sports fetcher", () => {
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     leastInterestingEvent = await makeTestEvent(marketFactory, {
       id: 7878,
@@ -360,7 +363,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=0,bundle=50)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 50);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -372,7 +375,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=0,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 1);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 1);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -384,7 +387,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=1,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 1, 1);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 1, 1);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -432,6 +435,7 @@ describe("Sports fetcher no markets", () => {
 
   let fetcher: NBAFetcher;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
   let collateral: Cash;
   let feePot: FeePot;
 
@@ -457,12 +461,13 @@ describe("Sports fetcher no markets", () => {
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     fetcher = await new NBAFetcher__factory(signer).deploy();
   });
 
   it("initial", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 50);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal([]);
