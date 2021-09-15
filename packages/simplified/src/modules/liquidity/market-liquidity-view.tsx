@@ -14,12 +14,13 @@ import {
   Constants,
   useApprovalStatus,
   createBigNumber,
+  useAppStatusStore,
 } from "@augurproject/comps";
 import { AmmOutcome, MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
-import { useSimplifiedStore } from "modules/stores/simplified";
+import { useSimplifiedStore } from "../stores/simplified";
 import { LIQUIDITY, MARKET_LIQUIDITY, CREATE, ADD, REMOVE, SHARES, USDC } from "../constants";
 const {
-  ButtonComps: { SecondaryThemeButton },
+  ButtonComps: { SecondaryThemeButton, TinyThemeButton },
   LabelComps: { CategoryIcon },
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
@@ -49,6 +50,8 @@ const {
   INSUFFICIENT_BALANCE,
   ZERO,
   SET_PRICES,
+  MINT_SETS,
+  MODAL_ADD_LIQUIDITY,
   ONE,
   INVALID_PRICE,
   INVALID_PRICE_GREATER_THAN_SUBTEXT,
@@ -160,6 +163,9 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
 const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const history = useHistory();
   const {
+    actions: { setModal },
+  } = useAppStatusStore();
+  const {
     account,
     balances,
     loginAccount,
@@ -167,12 +173,12 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   } = useUserStore();
   const { blocknumber, cashes }: DataState = useDataStore();
   const BackToLPPageAction = () =>
-  history.push({
-    pathname: makePath(LIQUIDITY),
-  });
+    history.push({
+      pathname: makePath(LIQUIDITY),
+    });
   const isRemove = actionType === REMOVE;
   const title = isRemove ? "Remove Liquidity" : "Add Liquidity";
-  const { amm } = market;
+  const { amm, isFuture } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
@@ -213,46 +219,15 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     return String(new BN(feePercent).times(new BN(10)));
   }, [tradingFeeSelection, amm?.feeRaw]);
 
-  // ERROR SECTION
-  let buttonError = "";
-  let inputFormError = "";
-  let lessThanMinPrice = false;
-  const priceErrors = isRemove
-    ? []
-    : outcomes.filter((outcome) => {
-        return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
-      });
-  const hasPriceErrors = priceErrors.length > 0;
-  const hasAmountErrors = isInvalidNumber(amount);
-  if (hasAmountErrors) {
-    buttonError = ERROR_AMOUNT;
-  } else if (hasPriceErrors) {
-    buttonError = "Price is not valid";
-  }
-  if (!account) inputFormError = CONNECT_ACCOUNT;
-  else if (!amount || amount === "0" || amount === "") inputFormError = ENTER_AMOUNT;
-  else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
-  else if (actionType === CREATE) {
-    let totalPrice = ZERO;
-    outcomes.forEach((outcome) => {
-      const price = outcome.price;
-      if (price === "0" || !price) {
-        inputFormError = SET_PRICES;
-      } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
-        buttonError = INVALID_PRICE;
-        lessThanMinPrice = true;
-      } else {
-        totalPrice = totalPrice.plus(createBigNumber(price));
-      }
-    });
-    if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
-      buttonError = INVALID_PRICE;
-    }
-    const minimumAmount = '100';
-    if (amount) {
-      if (new BN(amount).lt(new BN(minimumAmount))) buttonError = `$${minimumAmount} Minimum deposit`;
-    }
-  }
+  const { buttonError, inputFormError, lessThanMinPrice, hasAmountErrors } = useErrorValidation({
+    isRemove,
+    outcomes,
+    amount,
+    actionType,
+    isFuture,
+    userMaxAmount,
+    account,
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -309,12 +284,18 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   return (
     <section className={Styles.LiquidityForm}>
       <header>
-        <button
-          onClick={BackToLPPageAction}
-        >
-          {BackIcon}
-        </button>
+        <button onClick={BackToLPPageAction}>{BackIcon}</button>
         {title}
+        <TinyThemeButton
+          action={() => setModal({
+            type: MODAL_ADD_LIQUIDITY,
+            market,
+            currency: USDC,
+            liquidityModalType: MINT_SETS,
+          })}
+          text="Mint Complete Sets"
+          small
+        />
       </header>
       <main>
         <AmountInput
@@ -338,40 +319,42 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
             {mustSetPrices && <span>(between 0.02 - 0.1). Total price of all outcomes must add up to 1.</span>}
           </span>
           <OutcomesGrid
-              outcomes={outcomes}
-              selectedOutcome={null}
-              setSelectedOutcome={() => null}
-              orderType={BUY}
-              nonSelectable
-              editable={mustSetPrices && !hasInitialOdds}
-              setEditableValue={(price, index) => setPrices(price, index)}
-              ammCash={cash}
-              dontFilterInvalid
-              hasLiquidity={!mustSetPrices || hasInitialOdds}
-              marketFactoryType={market?.marketFactoryType}
-              isFutures={market?.isFuture}
-            />
+            outcomes={outcomes}
+            selectedOutcome={null}
+            setSelectedOutcome={() => null}
+            orderType={BUY}
+            nonSelectable
+            editable={mustSetPrices && !hasInitialOdds}
+            setEditableValue={(price, index) => setPrices(price, index)}
+            ammCash={cash}
+            dontFilterInvalid
+            hasLiquidity={!mustSetPrices || hasInitialOdds}
+            marketFactoryType={market?.marketFactoryType}
+            isFutures={market?.isFuture}
+          />
         </div>
 
         <div className={Styles.ActionButtons}>
           {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} />}
           <SecondaryThemeButton
-            action={() => confirmAction({
-              addTransaction,
-              breakdown,
-              setBreakdown,
-              account,
-              loginAccount,
-              market,
-              amount,
-              onChainFee,
-              outcomes,
-              cash,
-              amm,
-              isRemove,
-              estimatedLpAmount,
-              afterSigningAction: isRemove ? BackToLPPageAction : updateAmount(''),
-            })}
+            action={() =>
+              confirmAction({
+                addTransaction,
+                breakdown,
+                setBreakdown,
+                account,
+                loginAccount,
+                market,
+                amount,
+                onChainFee,
+                outcomes,
+                cash,
+                amm,
+                isRemove,
+                estimatedLpAmount,
+                afterSigningAction: isRemove ? BackToLPPageAction : updateAmount(""),
+              })
+            }
             disabled={!isApproved || inputFormError !== ""}
             error={buttonError}
             text={inputFormError === "" ? (buttonError ? buttonError : actionButtonText) : inputFormError}
@@ -479,4 +462,53 @@ const confirmAction = async ({
         });
       });
   }
+};
+
+const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, userMaxAmount, account }) => {
+  let buttonError = "";
+  let inputFormError = "";
+  let lessThanMinPrice = false;
+  const priceErrors = isRemove
+    ? []
+    : outcomes.filter((outcome) => {
+        return parseFloat(outcome.price) >= 1 || isInvalidNumber(outcome.price);
+      });
+  const hasPriceErrors = priceErrors.length > 0;
+  const hasAmountErrors = isInvalidNumber(amount);
+  if (hasAmountErrors) {
+    buttonError = ERROR_AMOUNT;
+  } else if (hasPriceErrors) {
+    buttonError = "Price is not valid";
+  }
+  if (!account) inputFormError = CONNECT_ACCOUNT;
+  else if (!amount || amount === "0" || amount === "") inputFormError = ENTER_AMOUNT;
+  else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
+  else if (actionType === CREATE) {
+    let totalPrice = ZERO;
+    outcomes.forEach((outcome) => {
+      const price = outcome.price;
+      if (price === "0" || !price) {
+        inputFormError = SET_PRICES;
+      } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
+        buttonError = INVALID_PRICE;
+        lessThanMinPrice = true;
+      } else {
+        totalPrice = totalPrice.plus(createBigNumber(price));
+      }
+    });
+    if (inputFormError === "" && !totalPrice.eq(ONE) && !isFuture) {
+      buttonError = INVALID_PRICE;
+    }
+    const minimumAmount = "100";
+    if (amount) {
+      if (new BN(amount).lt(new BN(minimumAmount))) buttonError = `$${minimumAmount} Minimum deposit`;
+    }
+  }
+
+  return {
+    buttonError,
+    inputFormError,
+    lessThanMinPrice,
+    hasAmountErrors,
+  };
 };

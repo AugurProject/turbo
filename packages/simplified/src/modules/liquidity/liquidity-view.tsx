@@ -214,7 +214,6 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       liquidityUSD,
     },
     endTimestamp,
-    isFuture,
   } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [

@@ -45,6 +45,7 @@ const {
   CREATE,
   ADD,
   REMOVE,
+  MINT_SETS,
   CONNECT_ACCOUNT,
   SET_PRICES,
   TX_STATUS,
@@ -114,7 +115,14 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
-  const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
+  const modalType =
+    liquidityModalType === MINT_SETS
+      ? MINT_SETS
+      : liquidityModalType !== REMOVE
+      ? Boolean(amm?.id)
+        ? ADD
+        : CREATE
+      : REMOVE;
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
     ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes)
@@ -326,6 +334,23 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   };
 
   const LIQUIDITY_STRINGS = {
+    [MINT_SETS]: [
+      {
+        header: "Mint Complete Sets",
+        hasAmountInput: true,
+        minimumAmount: "1",
+        rate: <span>1 USDC = 1 Complete Set</span>,
+        needsApproval: true,
+        approvalAction: ApprovalAction.MINT_SETS,
+        actionButtonText: "Mint Complete Sets",
+        actionButtonAction: mintCompleteSetsAction,
+        showMarketTitle: true,
+        confirmReceiveOverview: {
+          title: "What you will receive",
+          breakdown: getMintBreakdown(),
+        },
+      },
+    ],
     [REMOVE]: [
       {
         header: "remove all liquidity",
@@ -386,7 +411,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -464,7 +489,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -544,7 +569,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
