@@ -157,5 +157,20 @@
     .PrimaryBottomBorderRadius;
 
     padding: @size-24;
+
+    > div[class*="AmountInput"] {
+      border: none;
+      background: none;
+      padding: 0;
+
+      > span:first-of-type {
+        color: var(--primary-text);
+      }
+
+
+      > div:first-of-type {
+        .ThemeBorder;
+      }
+    }
   }
 }
