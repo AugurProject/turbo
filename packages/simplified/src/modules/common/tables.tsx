@@ -313,15 +313,15 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   } = useSimplifiedStore();
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[]).filter(
-        (position) =>
-          showResolvedPositions ||
-          position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-      )
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[]).filter(
+      (position) =>
+        showResolvedPositions ||
+        position?.claimableWinnings ||
+        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+    )
     : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
@@ -409,9 +409,9 @@ export const BonusReward = ({
   endTimestamp: number;
 }) => {
   const bonusAmount = formatToken(pendingBonusRewards)?.formatted;
-  const now = new Date().getTime() / 1000;
-  let filled = Math.floor((endTimestamp / (endTimestamp + now)) * 100);
-  if (endTimestamp < now) filled = 100;
+  const now = Math.floor(new Date().getTime() / 1000);
+  let filled = Math.floor((1 - (now / endTimestamp)) * 100);
+  if (now > endTimestamp) filled = 100;
   const dateOnly = getMarketEndtimeDate(endTimestamp);
   const countdownDuration = timeTogo(endTimestamp);
   return (
@@ -470,22 +470,22 @@ export const PositionsLiquidityViewSwitcher = ({
 
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[]).filter(
-        (position) =>
-          showResolvedPositions ||
-          position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-      )
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[]).filter(
+      (position) =>
+        showResolvedPositions ||
+        position?.claimableWinnings ||
+        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+    )
     : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-        ammExchange: ammExchanges[marketId],
-        market: markets[marketId],
-        lpTokens: lpTokens[marketId],
-      }))
+      ammExchange: ammExchanges[marketId],
+      market: markets[marketId],
+      lpTokens: lpTokens[marketId],
+    }))
     : [];
 
   const [tableView, setTableView] = useState(POSITIONS);

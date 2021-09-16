@@ -786,13 +786,20 @@ export const getUserBalances = async (
           },
           {
             reference: `${exchange.id}-reward`,
-            contractAddress: exchange.ammFactoryAddress,
-            abi: ammFactoryAbi,
+            contractAddress: getRewardsContractAddress(exchange.marketFactoryAddress),
+            abi: extractABI(
+              getRewardContract(provider, getRewardsContractAddress(exchange.marketFactoryAddress), account)
+            ),
             calls: [
               {
                 reference: `${exchange.id}-reward`,
                 methodName: POOL_PENDING_REWARDS,
-                methodParameters: [exchange.id, account],
+                methodParameters: [
+                  exchange.ammFactoryAddress,
+                  exchange.marketFactoryAddress,
+                  exchange.turboId,
+                  account,
+                ],
                 context: {
                   dataKey: exchange.marketId,
                   collection: PENDING_REWARDS_COLLECTION,
@@ -890,12 +897,12 @@ export const getUserBalances = async (
       },
     ];
   }
-  console.log("contractLpBalanceRewardsCall", contractLpBalanceRewardsCall);
+
   const balanceCalls = [
-    //...basicBalanceCalls,
-    //...contractMarketShareBalanceCall,
-    //...contractLpBalanceCall,
-    //...contractAmmFactoryApprovals,
+    ...basicBalanceCalls,
+    ...contractMarketShareBalanceCall,
+    ...contractLpBalanceCall,
+    ...contractAmmFactoryApprovals,
     ...contractLpBalanceRewardsCall,
   ];
 
