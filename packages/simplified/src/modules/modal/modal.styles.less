@@ -304,3 +304,12 @@
 .HeaderLink {
   cursor: pointer;
 }
+
+.ErrorBorder {
+  border: @size-1 solid var(--failed); 
+  svg {
+    path {
+      fill: var(--failed)
+    }
+  }
+}
