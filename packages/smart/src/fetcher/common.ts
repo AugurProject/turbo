@@ -23,7 +23,7 @@ function createFetcherPool(raw: RawFetcherPool): FetcherPool {
   };
 }
 
-interface PoolStatusInfo {
+export interface PoolStatusInfo {
   beginTimestamp: BigNumberish;
   endTimestamp: BigNumberish;
   earlyDepositEndTimestamp: BigNumberish;
@@ -33,7 +33,7 @@ interface PoolStatusInfo {
 
 type RawPoolStatusInfo = [BigNumberish, BigNumberish, BigNumberish, BigNumberish, boolean];
 
-function createPoolStatusInfo(raw: RawPoolStatusInfo): PoolStatusInfo {
+export function createPoolStatusInfo(raw: RawPoolStatusInfo): PoolStatusInfo {
   const [beginTimestamp, endTimestamp, earlyDepositEndTimestamp, totalRewardsAccrued, created] = raw;
   return { beginTimestamp, endTimestamp, earlyDepositEndTimestamp, totalRewardsAccrued, created };
 }
