@@ -16,6 +16,8 @@ import {
   getOrCreatePositionBalance,
   getOrCreateSharesMinted
 } from "../helpers/CommonHelper";
+import { GenericSharesMintedParams } from "../types";
+import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = NflMarketFactoryContract.bind(contractAddress);
@@ -197,15 +199,13 @@ function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
 }
 
 export function handleSharesMintedEvent(event: SharesMinted): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.address.toHexString() + "-" + event.params.id.toString() + "-" + event.params.receiver.toHexString();
-  let entity = getOrCreateSharesMinted(id, true, false);
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
-  entity.marketFactory = event.address.toHexString();
-  entity.marketIndex = event.params.id.toString();
-  entity.amount = event.params.amount;
-  entity.amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
-  entity.receiver = event.params.receiver.toHexString();
-  entity.receiverId = event.params.receiver.toHexString();
-  entity.save();
+  let params: GenericSharesMintedParams = {
+    hash: event.transaction.hash,
+    timestamp: event.block.timestamp,
+    marketFactory: event.address,
+    marketIndex: event.params.id,
+    amount: event.params.amount,
+    receiver: event.params.receiver
+  };
+  handleGenericSharesMintedEvent(params);
 }

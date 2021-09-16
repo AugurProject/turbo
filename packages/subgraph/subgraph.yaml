@@ -8,35 +8,7 @@ dataSources:
       name: AmmFactory
       network: mumbai
       source:
-        address: '0x3eaB11C23b6Df47BE57576D9bB929aeCF54CF5Ee'
-        abi: AmmFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/AmmFactory.ts
-        entities:
-          - PoolCreated
-          - LiquidityChanged
-          - SharesSwapped
-        abis:
-          - name: AmmFactory
-            file: ./abis/AMMFactory.json
-          - name: BPool
-            file: ./abis/BPool.json
-        eventHandlers:
-          - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-            handler: handlePoolCreatedEvent
-          - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-            handler: handleLiquidityChangedEvent
-          - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-            handler: handleSharesSwappedEvent
-    - kind: ethereum/contract
-      name: AmmFactory-5
-      network: mumbai
-      source:
-        address: '0x50a9c0201699129A69f0736f65F513BdDBc721CC'
+        address: '0x7B8E36590dBe497498c321Cb4fEa60a6695cF723'
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -64,7 +36,7 @@ dataSources:
       name: MmaMarketFactoryV3
       network: mumbai
       source:
-        address: '0x47089a6dC1A323c40ee994364e4BdBE56F785A93'
+        address: '0xdc6c80702547337aAA992A6ba09DFF920228F22d'
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:
@@ -93,36 +65,7 @@ dataSources:
       name: CryptoMarketFactoryV3
       network: mumbai
       source:
-        address: '0x5d8F5B15bdf31F8c965deB092163c323fAf77f31'
-        abi: CryptoMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/CryptoMarketFactoryV3.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-          - WinningsClaimed
-          - SharesMinted
-        abis:
-          - name: CryptoMarketFactory
-            file: ./abis/CryptoMarketFactoryV3.json
-        eventHandlers:
-          - event: MarketCreated(uint256,string[],uint256[])
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address,uint256,string)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SharesMinted(uint256,uint256,address)
-            handler: handleSharesMintedEvent
-    - kind: ethereum/contract
-      name: CryptoMarketFactoryV3-1
-      network: mumbai
-      source:
-        address: '0x4E715BE329A29398A21e8df1D12f501d6FdcFCd7'
+        address: '0x8b6f757ac16F127788A459C6dB14deD1a800D7ab'
         abi: CryptoMarketFactory
         startBlock: 15336699
       mapping:
@@ -151,7 +94,7 @@ dataSources:
       name: NflMarketFactoryV3
       network: mumbai
       source:
-        address: '0xe189c2B90DEa3bbE8A6ff88074299e87f18B7bDD'
+        address: '0xc938D0cB06EEdB54d20641E5472Fe3d025542c8C'
         abi: NflMarketFactory
         startBlock: 15336699
       mapping:
@@ -180,7 +123,7 @@ dataSources:
       name: NbaMarketFactoryV3
       network: mumbai
       source:
-        address: '0x05650996B3Fc9453647885c69ca346A076d1FfAb'
+        address: '0x44f0F8c3785F9bC36cb94Af12BAD5d611e4c5d42'
         abi: NbaMarketFactory
         startBlock: 15336699
       mapping:
@@ -209,7 +152,7 @@ dataSources:
       name: MlbMarketFactoryV3
       network: mumbai
       source:
-        address: '0xB4F6EFd8aD6ad409b032B44F12F7a9caA6B9286A'
+        address: '0xEB3E5A3ad0e6F32118d6aA95408104073ecCbBbF'
         abi: MlbMarketFactory
         startBlock: 15336699
       mapping:
@@ -224,35 +167,6 @@ dataSources:
         abis:
           - name: MlbMarketFactory
             file: ./abis/MLBMarketFactoryV3.json
-        eventHandlers:
-          - event: MarketCreated(uint256,string[],uint256[])
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address,uint256,string)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SharesMinted(uint256,uint256,address)
-            handler: handleSharesMintedEvent
-    - kind: ethereum/contract
-      name: FuturesMarketFactoryV3
-      network: mumbai
-      source:
-        address: '0xe540531CFF46b3e4F20aF5E5973C281E35151fe8'
-        abi: FuturesMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/FuturesMarketFactoryV3.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-          - WinningsClaimed
-          - SharesMinted
-        abis:
-          - name: FuturesMarketFactory
-            file: ./abis/FuturesMarketFactoryV3.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent

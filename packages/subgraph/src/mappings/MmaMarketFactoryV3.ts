@@ -16,6 +16,8 @@ import {
   getOrCreatePositionBalance,
   getOrCreateSharesMinted
 } from "../helpers/CommonHelper";
+import { GenericSharesMintedParams } from "../types";
+import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = MmaMarketFactoryContract.bind(contractAddress);
@@ -30,16 +32,6 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<strin
   }
 
   return shareTokens;
-}
-
-function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = MmaMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let initialOdds: BigInt[] = new Array<BigInt>();
-  if (!tryGetMarket.reverted) {
-    initialOdds = tryGetMarket.value.initialOdds;
-  }
-  return initialOdds;
 }
 
 function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: string): string {
@@ -195,15 +187,13 @@ function handlePositionFromClaimWinningsEventV2(event: WinningsClaimed): void {
 }
 
 export function handleSharesMintedEvent(event: SharesMinted): void {
-  let id = event.transaction.hash.toHexString() + "-" + event.address.toHexString() + "-" + event.params.id.toString() + "-" + event.params.receiver.toHexString();
-  let entity = getOrCreateSharesMinted(id, true, false);
-  entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
-  entity.marketFactory = event.address.toHexString();
-  entity.marketIndex = event.params.id.toString();
-  entity.amount = event.params.amount;
-  entity.amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
-  entity.receiver = event.params.receiver.toHexString();
-  entity.receiverId = event.params.receiver.toHexString();
-  entity.save();
+  let params: GenericSharesMintedParams = {
+    hash: event.transaction.hash,
+    timestamp: event.block.timestamp,
+    marketFactory: event.address,
+    marketIndex: event.params.id,
+    amount: event.params.amount,
+    receiver: event.params.receiver
+  };
+  handleGenericSharesMintedEvent(params);
 }
