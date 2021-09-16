@@ -158,13 +158,26 @@
     .text-20-bold;
     .PrimaryTopBorderRadius;
 
-    color: var(--primary-text);
     height: @size-74;
     border-bottom: @size-1 solid var(--theme-border);
     padding: @size-24;
     display: grid;
     grid-gap: @size-32;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto 1fr;
+
+    > button {
+      .text-20-bold;
+
+      border: none;
+      background: transparent;
+      color: var(--secondary-text);
+
+      &:hover,
+      &.selected {
+        color: var(--primary-text);
+        cursor: pointer;
+      }
+    }
   }
   
   > main {

@@ -202,8 +202,8 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     history.push({
       pathname: makePath(LIQUIDITY),
     });
-  const isRemove = actionType === REMOVE;
-  const title = isRemove ? "Remove Liquidity" : "Add Liquidity";
+  const [selectedAction, setSelectedAction] = useState(actionType);
+  const isRemove = selectedAction === REMOVE;
   const { amm, isFuture } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
@@ -240,7 +240,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
 
   const onChainFee = useMemo(() => {
     const feeOption = TRADING_FEE_OPTIONS.find((t) => t.id === tradingFeeSelection);
-    const feePercent = actionType === CREATE ? feeOption.value : amm?.feeInPercent;
+    const feePercent = selectedAction === CREATE ? feeOption.value : amm?.feeInPercent;
 
     return String(new BN(feePercent).times(new BN(10)));
   }, [tradingFeeSelection, amm?.feeRaw]);
@@ -249,7 +249,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     isRemove,
     outcomes,
     amount,
-    actionType,
+    actionType: selectedAction,
     isFuture,
     userMaxAmount,
     account,
@@ -307,9 +307,22 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     setOutcomes([...newOutcomes]);
   };
 
+  const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
+
   return (
     <section className={Styles.LiquidityForm}>
-      <header>{title}</header>
+      <header>
+        <button
+          className={classNames({ [Styles.selected]: !isRemove })}
+          onClick={() => setSelectedAction(Boolean(amm?.id) ? ADD : CREATE)}
+        >{addTitle}</button>
+        {shareBalance && (
+          <button
+            className={classNames({ [Styles.selected]: isRemove })}
+            onClick={() => setSelectedAction(REMOVE)}
+          >Remove Liquidity</button>
+        )}
+      </header>
       <main>
         <AmountInput
           heading="Deposit Amount"
