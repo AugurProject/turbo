@@ -8,7 +8,11 @@ dataSources:
       name: AmmFactory
       network: mumbai
       source:
+<<<<<<< HEAD
         address: '0x16e0D7D5C0dF010586844BFC60c435865f9E0cd1'
+=======
+        address: '0x7B8E36590dBe497498c321Cb4fEa60a6695cF723'
+>>>>>>> Reduced repetition
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -36,7 +40,11 @@ dataSources:
       name: MmaMarketFactoryV3
       network: mumbai
       source:
+<<<<<<< HEAD
         address: '0x62a790F5A710f46d618fB0243Cb440ed13f02655'
+=======
+        address: '0xdc6c80702547337aAA992A6ba09DFF920228F22d'
+>>>>>>> Reduced repetition
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:
@@ -65,6 +73,7 @@ dataSources:
       name: CryptoMarketFactoryV3
       network: mumbai
       source:
+<<<<<<< HEAD
 <<<<<<< HEAD
         address: '0xDf73B0ed460242EB8203312871221F1eE0c82FF3'
 =======
@@ -99,6 +108,9 @@ dataSources:
       source:
         address: '0x4E715BE329A29398A21e8df1D12f501d6FdcFCd7'
 >>>>>>> Added sharesMinted to all v3 market factories
+=======
+        address: '0x8b6f757ac16F127788A459C6dB14deD1a800D7ab'
+>>>>>>> Reduced repetition
         abi: CryptoMarketFactory
         startBlock: 15336699
       mapping:
@@ -127,7 +139,11 @@ dataSources:
       name: NflMarketFactoryV3
       network: mumbai
       source:
+<<<<<<< HEAD
         address: '0x31eBd440F52B537845126E9d013FEbD9E610F78A'
+=======
+        address: '0xc938D0cB06EEdB54d20641E5472Fe3d025542c8C'
+>>>>>>> Reduced repetition
         abi: NflMarketFactory
         startBlock: 15336699
       mapping:
@@ -156,7 +172,11 @@ dataSources:
       name: NbaMarketFactoryV3
       network: mumbai
       source:
+<<<<<<< HEAD
         address: '0x902c96242D4483F8761DACa8A78152fcB7dAD0B6'
+=======
+        address: '0x44f0F8c3785F9bC36cb94Af12BAD5d611e4c5d42'
+>>>>>>> Reduced repetition
         abi: NbaMarketFactory
         startBlock: 15336699
       mapping:
@@ -185,7 +205,11 @@ dataSources:
       name: MlbMarketFactoryV3
       network: mumbai
       source:
+<<<<<<< HEAD
         address: '0x2E90616F796ba8976B5A1216014Df6dEf29598E9'
+=======
+        address: '0xEB3E5A3ad0e6F32118d6aA95408104073ecCbBbF'
+>>>>>>> Reduced repetition
         abi: MlbMarketFactory
         startBlock: 15336699
       mapping:
@@ -209,6 +233,7 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     - kind: ethereum/contract
@@ -241,3 +266,5 @@ dataSources:
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
 >>>>>>> Added sharesMinted to all v3 market factories
+=======
+>>>>>>> Reduced repetition
