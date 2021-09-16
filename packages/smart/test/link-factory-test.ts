@@ -1,4 +1,4 @@
-import { ethers, network } from "hardhat";
+import { deployments, ethers, network } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
@@ -32,6 +32,7 @@ import {
   UnPromisify,
 } from "../src";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
+import { createPoolStatusInfo } from "../src/fetcher/common";
 
 const BONE = BigNumber.from(10).pow(18);
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
@@ -308,6 +309,7 @@ describe("Sports fetcher", () => {
   let leastInterestingEvent: TestEvent<BigNumber>;
 
   before(async () => {
+    await deployments.fixture();
     collateral = await new Cash__factory(signer).deploy("USDC", "USDC", 6); // 6 decimals to mimic USDC
     const reputationToken = await new Cash__factory(signer).deploy("REPv2", "REPv2", 18);
     feePot = await new FeePot__factory(signer).deploy(collateral.address, reputationToken.address);
@@ -346,9 +348,11 @@ describe("Sports fetcher", () => {
     });
 
     const initialLiquidity = dollars(10000);
-    await collateral.approve(ammFactory.address, initialLiquidity);
+    await collateral.approve(masterChef.address, initialLiquidity);
     await collateral.faucet(initialLiquidity);
-    await ammFactory.createPool(
+    await masterChef.trustAMMFactory(ammFactory.address);
+    await masterChef.createPool(
+      ammFactory.address,
       marketFactory.address,
       mostInterestingEvent.markets.h2h.id,
       initialLiquidity,
@@ -368,8 +372,8 @@ describe("Sports fetcher", () => {
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
       flatten(
-        await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
-        await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+        await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, mostInterestingEvent.id),
+        await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
       )
     );
   });
@@ -380,8 +384,8 @@ describe("Sports fetcher", () => {
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
       flatten(
-        await eventStaticBundleCheck(marketFactory, ammFactory, mostInterestingEvent.id),
-        await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+        await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, mostInterestingEvent.id),
+        await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
       )
     );
   });
@@ -391,7 +395,7 @@ describe("Sports fetcher", () => {
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
-      await eventStaticBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
+      await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
     );
   });
 
@@ -555,6 +559,7 @@ async function makeTestEvent(
 export async function eventStaticBundleCheck(
   marketFactory: Sport,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   eventId: BigNumberish
 ): Promise<InitialSportsMarket[]> {
   const event = await marketFactory.getSportsEvent(eventId);
@@ -563,6 +568,7 @@ export async function eventStaticBundleCheck(
     event.markets.map(
       async (marketId: BigNumberish, index): Promise<InitialSportsMarket> => {
         const market = await marketFactory.getMarket(marketId);
+        const rewards = await masterChef.getPoolInfo(ammFactory.address, marketFactory.address, marketId);
         return {
           // specific to this market
           factory: marketFactory.address,
@@ -589,6 +595,7 @@ export async function eventStaticBundleCheck(
             name: event.awayTeamName,
             score: event.awayScore,
           },
+          rewards: createPoolStatusInfo(rewards),
         };
       }
     )
