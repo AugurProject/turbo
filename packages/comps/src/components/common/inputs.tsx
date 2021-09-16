@@ -255,7 +255,6 @@ const Outcome = ({
           <input
             value={customVal}
             onChange={(v) => {
-              console.log("on change", typeof v.target.value, v.target.value);
               setCustomVal(`${v.target.value}`);
               setEditableValue(v.target.value && v.target.value !== "0" ? `.${v.target.value}` : `${v.target.value}`);
             }}
