@@ -5,7 +5,7 @@ import { PARA_CONFIG } from "./constants";
 import { ETH, TX_STATUS, ApprovalAction, ApprovalState, MARKET_STATUS } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
-import { getUserBalances } from "../utils/contract-calls";
+import { getUserBalances, getRewardsContractAddress } from "../utils/contract-calls";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 
 const isAsync = (obj) =>
@@ -194,6 +194,7 @@ export function useApprovalStatus({
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
   const ammFactory = amm.ammFactoryAddress;
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const ammId = amm?.id;
   const isETH = marketCashType === ETH;
@@ -220,13 +221,20 @@ export function useApprovalStatus({
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = amm?.id;
+          address = rewardContractAddress ? null : amm?.id;
+          if (rewardContractAddress) {
+            setIsApproved(APPROVED);
+          }
           break;
         }
-        case ENTER_POSITION:
-        case ADD_LIQUIDITY: {
+        case ENTER_POSITION: {
           address = isETH ? null : tokenAddress;
           checkApprovalFunction = isETH ? async () => APPROVED : checkAllowance;
+          break;
+        }
+        case ADD_LIQUIDITY: {
+          spender = rewardContractAddress || ammFactory;
+          address = tokenAddress;
           break;
         }
         case MINT_SETS: {

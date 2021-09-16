@@ -122,6 +122,10 @@ abstract contract Sport is AbstractMarketFactoryV3, LineHelper {
             _markets[i] = _original[i];
         }
     }
+
+    function getRewardEndTime(uint256 _eventId) public override returns (uint256) {
+        return getSportsEvent(_eventId).estimatedStartTime;
+    }
 }
 
 // TODO change this to work with the Fetcher contracts and use it there, since it's offchain-read-only.

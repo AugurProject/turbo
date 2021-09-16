@@ -50,8 +50,6 @@ describe.skip("AMMFactory", () => {
   let ammFactory: AMMFactory;
   let bFactory: BFactory;
 
-  let masterChef: MasterChef;
-
   let bPool: Contract;
 
   before(async () => {
@@ -76,14 +74,7 @@ describe.skip("AMMFactory", () => {
 
     bFactory = await BFactory__factory.deploy();
 
-    rewardsToken = await Cash__factory.deploy("RWS", "RWS", 18);
-
-    masterChef = await MasterChef__factory.deploy(rewardsToken.address);
-    const initialRewards = BONE.mul(10000);
-    await rewardsToken.faucet(initialRewards);
-    await rewardsToken.transfer(masterChef.address, initialRewards);
-
-    ammFactory = await AMMFactory__factory.deploy(bFactory.address, masterChef.address, swapFee);
+    ammFactory = await AMMFactory__factory.deploy(bFactory.address, swapFee);
 
     marketFactory = await TrustedMarketFactoryV3__factory.deploy(
       signer.address,
@@ -93,9 +84,6 @@ describe.skip("AMMFactory", () => {
       [stakerFee, settlementFee, protocolFee],
       signer.address
     );
-
-    // AMMFactory must be owner to call privileged methods.
-    await masterChef.trustAMMFactory(ammFactory.address);
 
     const description = "Who will win Wrestlemania III?";
     const odds = calcWeights([2, 49, 49]);

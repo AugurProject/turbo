@@ -21,7 +21,6 @@ import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
 
 const {
-  MODAL_ADD_LIQUIDITY,
   ADD,
   CREATE,
   REMOVE,
@@ -315,9 +314,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {hasRewards && (
-        <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={market.endTimestamp} />
-      )}
+      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={pendingUserRewards.endBonusTimestamp}/>}
     </article>
   );
 };

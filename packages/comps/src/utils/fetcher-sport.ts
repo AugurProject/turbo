@@ -4,6 +4,7 @@ import {
   fetchInitialSports,
   instantiateMarketFactory,
   AMMFactory__factory,
+  MasterChef__factory,
   instantiateFetcher,
   SportsFetcher,
   Sport as SportMarketFactory,
@@ -28,18 +29,18 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     config.address,
     getProviderOrSigner(provider, account)
   ) as unknown) as SportMarketFactory;
+  const masterChef = MasterChef__factory.connect(config.masterChef, getProviderOrSigner(provider, account));
   const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
 
   const { factoryBundle, markets } = await fetchInitialSports(
     fetcherContract,
     marketFactoryContract,
     ammFactoryContract,
+    masterChef,
     offset,
     bundleSize
   );
-
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
-
   const popMarkets = markets
     .map((m) => ({
       ...m,

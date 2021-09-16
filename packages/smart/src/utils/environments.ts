@@ -1,10 +1,11 @@
 import fs from "fs";
-import { addresses as originalAddresses, Addresses, ChainId, graphChainNames, MarketFactory } from "../../addresses";
+import { addresses as originalAddresses } from "../../addresses";
+import { Addresses, ChainId, graphChainNames, MarketFactory } from "../../constants";
 
-interface EnvironmentMarketFactory extends MarketFactory {
+type EnvironmentMarketFactory = MarketFactory & {
   ammFactoryGraphName: string;
   marketFactoryGraphName: string;
-}
+};
 
 interface EnvironmentAddresses extends Addresses {
   [index: string]: any;

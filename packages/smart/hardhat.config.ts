@@ -103,11 +103,13 @@ export const config: HardhatUserConfig = {
       gasPrice: 1,
     },
     maticMumbai: {
+      live: true,
       url: "https://rpc-mumbai.maticvigil.com/v1/d955b11199dbfd5871c21bdc750c994edfa52abd",
       chainId: 80001,
       confirmations: 5,
     },
     maticMainnet: {
+      live: true,
       url: "https://rpc-mainnet.maticvigil.com/",
       chainId: 137,
       gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly

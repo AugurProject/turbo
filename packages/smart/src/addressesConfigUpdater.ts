@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
-import { Addresses, MarketFactory } from "../addresses";
+import { Addresses, MarketFactory } from "../constants";
 
 const printer = ts.createPrinter();
 
@@ -67,6 +67,13 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
                                   : ts.factory.createToken(SyntaxKind.FalseKeyword)
                               ),
                             ];
+                            if (marketFactory.hasRewards)
+                              fields.push(
+                                context.factory.createPropertyAssignment(
+                                  "masterChef",
+                                  ts.factory.createStringLiteral(marketFactory.masterChef)
+                                )
+                              );
                             if (marketFactory.description) {
                               fields.push(
                                 context.factory.createPropertyAssignment(

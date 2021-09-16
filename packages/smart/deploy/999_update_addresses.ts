@@ -3,21 +3,25 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
+import { addresses as originalAddresses } from "../addresses";
+import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import {
   Addresses,
-  graphChainNames,
-  addresses as originalAddresses,
   ChainId,
-  MarketFactory,
   FetcherContractName,
+  graphChainNames,
   MARKET_FACTORY_TYPE_TO_CONTRACT_NAME,
-  MarketFactoryType,
+  MarketFactory,
   MarketFactorySubType,
-} from "../addresses";
-import { DeploymentsExtension } from "hardhat-deploy/dist/types";
+  MarketFactoryType,
+} from "../constants";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
-  if (hre.network.config.live) console.log("Done deploying! Writing deploy information to addresses.ts");
+  if (!hre.network.config.live) {
+    return;
+  }
+
+  console.log("Done deploying! Writing deploy information to addresses.ts");
 
   const { deployments } = hre;
   const chainId = parseInt(await getChainId());
@@ -26,8 +30,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { address: reputationToken } = await deployments.get("Reputation");
   const { address: balancerFactory } = await deployments.get("BFactory");
 
-  // Until Rewards, one AMM factory can handle all market factories.
   const ammFactory = await deployments.get("AMMFactory").catch(() => undefined);
+  const masterChef = await deployments.get("MasterChef").catch(() => undefined);
 
   const uploadBlockNumber = await getUploadBlockNumber(chainId as ChainId, deployments);
 
@@ -48,6 +52,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       const factory = marketFactories[index];
       if (!factory.ammFactory && ammFactory) factory.ammFactory = ammFactory.address;
       if (!factory.fetcher && fetcher) factory.fetcher = fetcher.address;
+      if (!factory.hasRewards && masterChef) {
+        marketFactories[index] = {
+          ...factory,
+          hasRewards: true,
+          masterChef: masterChef?.address || "",
+        };
+      }
     } else {
       marketFactories.unshift({
         version,
@@ -59,6 +70,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         ammFactory: ammFactory?.address || "",
         fetcher: fetcher?.address || "",
         hasRewards: true,
+        masterChef: masterChef?.address || "",
       });
     }
   }

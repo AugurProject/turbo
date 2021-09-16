@@ -3,7 +3,8 @@ import { task, types } from "hardhat/config";
 import "hardhat/types/config";
 import { makeSigner } from "./deploy";
 import { AMMFactory__factory, BPool__factory, buildContractInterfaces, ContractInterfaces } from "..";
-import { addresses, ChainId } from "../addresses";
+import { addresses } from "../addresses";
+import { ChainId } from "../constants";
 
 task("multicalls", "get total supply for bpool contract")
   .addParam("marketfactoryaddress", "address of market factory contract", undefined, types.string)

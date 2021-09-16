@@ -6,8 +6,9 @@ import "../libraries/IERC20Full.sol";
 import "../balancer/BPool.sol";
 import "./TurboShareTokenFactory.sol";
 import "./FeePot.sol";
+import "../libraries/Rewardable.sol";
 
-abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable {
+abstract contract AbstractMarketFactoryV3 is TurboShareTokenFactory, Ownable, Rewardable {
     using SafeMathUint256 for uint256;
 
     event MarketCreated(uint256 id, string[] names, uint256[] initialOdds);
