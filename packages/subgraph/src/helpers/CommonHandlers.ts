@@ -2,12 +2,13 @@ import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { BigInt } from "@graphprotocol/graph-ts/index";
-import { BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
-  getOrCreatePositionBalance
+  getOrCreatePositionBalance, getOrCreateSharesMinted
 } from "./CommonHelper";
+import { GenericSharesMintedParams } from "../types";
 
 export function handlePositionFromTradeEvent(event: SharesSwapped): void {
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
@@ -141,4 +142,18 @@ export function handlePositionFromLiquidityChangedEvent(
   positionBalanceEntity.open = sharesBigInt > ZERO;
 
   positionBalanceEntity.save();
+}
+
+export function handleGenericSharesMintedEvent(params: GenericSharesMintedParams): void {
+  let id = params.hash.toHexString() + "-" + params.marketFactory.toHexString() + "-" + params.marketIndex.toString() + "-" + params.receiver.toHexString();
+  let entity = getOrCreateSharesMinted(id, true, false);
+  entity.transactionHash = params.hash.toHexString();
+  entity.timestamp = params.timestamp;
+  entity.marketFactory = params.marketFactory.toHexString();
+  entity.marketIndex = params.marketIndex.toString();
+  entity.amount = params.amount;
+  entity.amountBigDecimal = params.amount.toBigDecimal().div(SHARES_DECIMALS);
+  entity.receiver = params.receiver.toHexString();
+  entity.receiverId = params.receiver.toHexString();
+  entity.save();
 }
