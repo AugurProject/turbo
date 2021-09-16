@@ -104,12 +104,41 @@ export const MarketLiquidityView = () => {
   const { categories } = market;
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
+      <BackBar {...{ market }} />
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
       <LiquidityForm {...{ market, actionType }} />
       <LiquidityWarningFooter />
+    </div>
+  );
+};
+
+const BackBar = ({ market }) => {
+  const history = useHistory();
+  const {
+    actions: { setModal },
+  } = useAppStatusStore();
+  const BackToLPPageAction = () =>
+    history.push({
+      pathname: makePath(LIQUIDITY),
+    });
+  return (
+    <div className={Styles.BackBar}>
+      <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
+      <TinyThemeButton
+        action={() =>
+          setModal({
+            type: MODAL_ADD_LIQUIDITY,
+            market,
+            currency: USDC,
+            liquidityModalType: MINT_SETS,
+          })
+        }
+        text="Mint Complete Sets"
+        small
+      />
     </div>
   );
 };
@@ -162,9 +191,6 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
 
 const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const history = useHistory();
-  const {
-    actions: { setModal },
-  } = useAppStatusStore();
   const {
     account,
     balances,
@@ -283,20 +309,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
 
   return (
     <section className={Styles.LiquidityForm}>
-      <header>
-        <button onClick={BackToLPPageAction}>{BackIcon}</button>
-        {title}
-        <TinyThemeButton
-          action={() => setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            currency: USDC,
-            liquidityModalType: MINT_SETS,
-          })}
-          text="Mint Complete Sets"
-          small
-        />
-      </header>
+      <header>{title}</header>
       <main>
         <AmountInput
           heading="Deposit Amount"

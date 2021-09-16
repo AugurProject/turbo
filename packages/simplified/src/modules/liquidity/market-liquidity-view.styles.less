@@ -74,6 +74,42 @@
   }
 }
 
+.BackBar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  > button:first-of-type {
+    .text-16-semi-bold;
+
+    color: var(--secondary-text);
+    grid-column: 1;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+
+    > svg {
+      height: @size-20;
+      width: @size-20;
+      margin-right: @size-8;
+    }
+
+    &:hover {
+      color: var(--primary-text);
+
+      > svg > path {
+        fill: var(--primary-text);
+      }
+    }
+  }
+}
+
 .LiquidityWarningFooter {
   .ThemeBorder;
 
@@ -128,29 +164,7 @@
     padding: @size-24;
     display: grid;
     grid-gap: @size-32;
-    grid-template-columns: auto 1fr auto;
-
-    > button:first-of-type {
-      grid-column: 1;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      justify-content: center;
-
-      > svg {
-        height: @size-20;
-        width: @size-20;
-      }
-
-      &:hover {
-        > svg > path {
-          fill: var(--primary-text);
-        }
-      }
-    }
+    grid-template-columns: auto auto auto;
   }
   
   > main {
