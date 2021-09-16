@@ -1,4 +1,4 @@
-import { AMMFactory, CryptoFetcher, CryptoMarketFactoryV3 } from "../../typechain";
+import { AMMFactory, CryptoFetcher, CryptoMarketFactoryV3, MasterChef } from "../../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
   createDynamicMarketBundle,
@@ -15,6 +15,7 @@ export async function fetchInitialCrypto(
   fetcher: CryptoFetcher,
   marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
 ): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialCryptoMarket[] }> {
@@ -27,6 +28,7 @@ export async function fetchInitialCrypto(
     const [rawFactoryBundle, rawMarketBundles, lowestMarketIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
+      masterChef.address,
       offset,
       bundleSize
     );

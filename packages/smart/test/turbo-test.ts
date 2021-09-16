@@ -144,7 +144,7 @@ describe("Turbo", () => {
     await collateral.approve(ammFactory.address, initialLiquidity);
     await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
     pool = BPool__factory.connect(signer).attach(await ammFactory.pools(marketFactory.address, marketId));
-    const lpTokenBalance = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
+    const lpTokenBalance = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
     expect(lpTokenBalance.gt(0)).to.be.true;
   });
 
@@ -153,7 +153,7 @@ describe("Turbo", () => {
     await collateral.faucet(additionalLiquidity);
     await collateral.approve(ammFactory.address, additionalLiquidity);
     await ammFactory.addLiquidity(marketFactory.address, marketId, additionalLiquidity, 0, signer.address);
-    expect(await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address)).to.equal(
+    expect(await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address)).to.equal(
       BigNumber.from("0x0579a4876265ad7fcd")
     ); // hardcoded from observation
   });
@@ -210,7 +210,7 @@ describe("Turbo", () => {
   });
 
   it("can remove liquidity", async () => {
-    const lpTokens = await ammFactory.getTokenBalance(marketFactory.address, marketId, signer.address);
+    const lpTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
     await pool.approve(ammFactory.address, lpTokens);
     await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, FAKE_ADDRESS);
     expect(await collateral.balanceOf(FAKE_ADDRESS)).to.equal(1001842805); // hardcoded from observation

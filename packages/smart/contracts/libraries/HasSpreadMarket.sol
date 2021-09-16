@@ -41,11 +41,11 @@ abstract contract HasSpreadMarket is AbstractMarketFactoryV3, Sport, CalculateLi
         uint256 _awayScore,
         int256 _targetSpread
     ) internal pure returns (uint256) {
-        int256 _actualSpread = int256(_homeScore).sub(int256(_awayScore));
+        int256 _adjustedHomeScore = int256(_homeScore) + int256(_targetSpread);
 
-        if (_actualSpread > _targetSpread) {
+        if (_adjustedHomeScore > int256(_awayScore)) {
             return SpreadHome; // home spread greater
-        } else if (_actualSpread < _targetSpread) {
+        } else if (_adjustedHomeScore < int256(_awayScore)) {
             return SpreadAway; // away spread lesser
         } else {
             // draw / tie; some sports eliminate this with half-points

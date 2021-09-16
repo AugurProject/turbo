@@ -41,6 +41,7 @@ abstract contract GroupFetcher is Fetcher {
     function fetchInitial(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     )
@@ -53,7 +54,13 @@ abstract contract GroupFetcher is Fetcher {
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
-        (_groupBundles, _lowestGroupIndex) = buildStaticGroupBundles(_marketFactory, _ammFactory, _offset, _total);
+        (_groupBundles, _lowestGroupIndex) = buildStaticGroupBundles(
+            _marketFactory,
+            _ammFactory,
+            _masterChef,
+            _offset,
+            _total
+        );
     }
 
     function fetchDynamic(
@@ -68,6 +75,7 @@ abstract contract GroupFetcher is Fetcher {
     function buildStaticGroupBundles(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     ) internal view returns (StaticGroupBundle[] memory _bundles, uint256 _lowestGroupIndex) {
@@ -77,7 +85,7 @@ abstract contract GroupFetcher is Fetcher {
         _total = _groupIds.length;
         _bundles = new StaticGroupBundle[](_total);
         for (uint256 i; i < _total; i++) {
-            _bundles[i] = buildStaticGroupBundle(_marketFactory, _ammFactory, _groupIds[i]);
+            _bundles[i] = buildStaticGroupBundle(_marketFactory, _ammFactory, _masterChef, _groupIds[i]);
         }
     }
 
@@ -100,6 +108,7 @@ abstract contract GroupFetcher is Fetcher {
     function buildStaticGroupBundle(
         address _marketFactory,
         AMMFactory _ammFactory,
+        MasterChef _masterChef,
         uint256 _groupId
     ) public view returns (StaticGroupBundle memory _bundle) {
         Grouped.MarketGroup memory _group = Grouped(_marketFactory).getGroup(_groupId);
@@ -109,6 +118,7 @@ abstract contract GroupFetcher is Fetcher {
             _markets[i] = buildStaticMarketBundle(
                 AbstractMarketFactoryV3(_marketFactory),
                 _ammFactory,
+                _masterChef,
                 _group.markets[i]
             );
         }
@@ -121,6 +131,7 @@ abstract contract GroupFetcher is Fetcher {
         _bundle.invalidMarket = buildStaticMarketBundle(
             AbstractMarketFactoryV3(_marketFactory),
             _ammFactory,
+            _masterChef,
             _group.invalidMarket
         );
         _bundle.invalidMarketName = _group.invalidMarketName;

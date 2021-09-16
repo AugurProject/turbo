@@ -51,7 +51,12 @@ export const shapeUserActvity = (
     tx.tx_type = `Claimed Proceeds`;
     return tx;
   });
-  userTransactions = userTransactions.concat(processedFees).concat(processedProceeds);
+  const processMints = (transactions?.sharesMinted || []).map((tx) => {
+    tx.tx_type = TransactionTypes.MINT_SHARES;
+    tx.marketId = { id: `${tx.marketFactory}-${tx.marketIndex}` };
+    return tx;
+  });
+  userTransactions = userTransactions.concat(processedFees).concat(processedProceeds).concat(processMints);
   return formatUserTransactionActvity(account, markets, userTransactions, usdc);
 };
 
@@ -110,6 +115,13 @@ const getActivityType = (
       }).full;
       value = `${formatCash(String(collateral.abs()), cash.name).full}`;
       subheader = `Withdrew ${lpTokens} of the pool`;
+      break;
+    }
+    case TransactionTypes.MINT_SHARES: {
+      type = "Mint Complete Sets";
+      const collateral = convertOnChainCashAmountToDisplayCashAmount(tx?.collateral, cash.decimals);
+      value = `${formatCash(String(tx?.collateral), cash.name).full}`;
+      subheader = `Mint ${tx?.collateral} Complete Sets`;
       break;
     }
     default: {

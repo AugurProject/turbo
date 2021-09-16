@@ -55,14 +55,14 @@
 
     > article {
       display: grid;
-      grid-template-columns: @size-46 @size-60 1fr;
+      grid-template-columns: @size-32 @size-60 1fr;
       grid-template-rows: @size-32;
       grid-column: span 3;
       grid-row: 1;
-      grid-gap: @size-16 0;
+      grid-gap: @size-16 @size-8;
 
       &.Trading {
-        grid-gap: 0;
+        grid-gap: 0 @size-8;
 
         > div:last-of-type {
           > button {

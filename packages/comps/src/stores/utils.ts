@@ -5,7 +5,8 @@ import { PARA_CONFIG } from "./constants";
 import { ETH, TX_STATUS, ApprovalAction, ApprovalState, MARKET_STATUS } from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
-import { getUserBalances } from "../utils/contract-calls";
+import { getUserBalances, getRewardsContractAddress } from "../utils/contract-calls";
+import { getDefaultProvider } from "../components/ConnectAccount/utils";
 
 const isAsync = (obj) =>
   !!obj && (typeof obj === "object" || typeof obj === "function") && obj.constructor.name === "AsyncFunction";
@@ -126,17 +127,15 @@ export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, tr
     actions: { updateUserBalances },
   } = useUserStore();
   useEffect(() => {
-    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) =>
-      getUserBalances(library, account, ammExchanges, cashes, markets, transactions);
+    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) => {
+      const provider = getDefaultProvider() || library;
+      return getUserBalances(provider, account, ammExchanges, cashes, markets, transactions);
+    };
+
     if (loginAccount?.library && loginAccount?.account) {
-      fetchUserBalances(
-        loginAccount.library,
-        loginAccount.account,
-        ammExchanges,
-        cashes,
-        markets,
-        transactions
-      ).then((userBalances) => updateUserBalances(userBalances));
+      fetchUserBalances(loginAccount.library, loginAccount.account, ammExchanges, cashes, markets, transactions)
+        .then((userBalances) => updateUserBalances(userBalances))
+        .catch((e) => console.error("error fetching user balances, will try again"));
     }
   }, [loginAccount?.account, loginAccount?.library, blocknumber]);
 }
@@ -195,6 +194,7 @@ export function useApprovalStatus({
   const [isApproved, setIsApproved] = useState(UNKNOWN);
   const forceCheck = useRef(false);
   const ammFactory = amm.ammFactoryAddress;
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   const { name: marketCashType, address: tokenAddress, shareToken } = cash;
   const ammId = amm?.id;
   const isETH = marketCashType === ETH;
@@ -221,13 +221,20 @@ export function useApprovalStatus({
           break;
         }
         case REMOVE_LIQUIDITY: {
-          address = amm?.id;
+          address = rewardContractAddress ? null : amm?.id;
+          if (rewardContractAddress) {
+            setIsApproved(APPROVED);
+          }
           break;
         }
-        case ENTER_POSITION:
-        case ADD_LIQUIDITY: {
+        case ENTER_POSITION: {
           address = isETH ? null : tokenAddress;
           checkApprovalFunction = isETH ? async () => APPROVED : checkAllowance;
+          break;
+        }
+        case ADD_LIQUIDITY: {
+          spender = rewardContractAddress || ammFactory;
+          address = tokenAddress;
           break;
         }
         case MINT_SETS: {

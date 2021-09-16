@@ -25,31 +25,16 @@ import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
 const {
   LabelComps: { MovementLabel, generateTooltip, WarningBanner, ReportingStateLabel },
-  PaginationComps: { sliceByPage, Pagination },
+  PaginationComps: { sliceByPage, Pagination, useQueryPagination },
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon },
 } = Components;
-const {
-  claimWinnings,
-  getCompleteSetsAmount,
-  cashOutAllShares,
-} = ContractCalls;
+const { claimWinnings, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatToken } = Formatter;
 const { timeSinceTimestamp, getMarketEndtimeFull, timeTogo, getMarketEndtimeDate } = DateUtils;
-const {
-  USDC,
-  POSITIONS,
-  LIQUIDITY,
-  ALL,
-  ADD,
-  REMOVE,
-  TRADES,
-  TX_STATUS,
-  TransactionTypes,
-  MARKET_STATUS,
-} = Constants;
+const { USDC, POSITIONS, LIQUIDITY, ALL, ADD, REMOVE, TRADES, TX_STATUS, TransactionTypes, MARKET_STATUS } = Constants;
 
 interface PositionsTableProps {
   key?: string;
@@ -328,15 +313,15 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   } = useSimplifiedStore();
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[]).filter(
-        (position) =>
-          showResolvedPositions ||
-          position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-      )
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[]).filter(
+      (position) =>
+        showResolvedPositions ||
+        position?.claimableWinnings ||
+        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+    )
     : [];
   if (claimableFirst) {
     positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
@@ -414,24 +399,36 @@ export const PositionTable = ({
   );
 };
 
-// TODO: the "40%"" below should be replaced with a real rewards calc to 
+// TODO: the "40%"" below should be replaced with a real rewards calc to
 // provide a 0%-100% string value to fill the progress bar.
-export const BonusReward = ({pendingBonusRewards, endTimestamp}: {pendingBonusRewards: string, endTimestamp: number}) => {
+export const BonusReward = ({
+  pendingBonusRewards,
+  endTimestamp,
+}: {
+  pendingBonusRewards: string;
+  endTimestamp: number;
+}) => {
   const bonusAmount = formatToken(pendingBonusRewards)?.formatted;
-  const now = new Date().getTime() / 1000;
-  let filled = Math.floor((endTimestamp / (endTimestamp + (now)) * 100));
-  if (endTimestamp < now) filled = 100;
+  const now = Math.floor(new Date().getTime() / 1000);
+  let filled = Math.floor((1 - (now / endTimestamp)) * 100);
+  if (now > endTimestamp) filled = 100;
   const dateOnly = getMarketEndtimeDate(endTimestamp);
-  const countdownDuration = timeTogo(endTimestamp)
-  return (<article className={Styles.BonusReward}>
-    <h4>Bonus Reward</h4>
-    <p>Keep your liquidity in the pool until the unlock period to get a 25% bonus on top of your rewards</p>
-    <span>
-      <span style={{ width: `${filled}%` }} />
-    </span>
-    <h4>{filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount}</h4>
-    <p>{dateOnly} ({countdownDuration})</p>
-  </article>)
+  const countdownDuration = timeTogo(endTimestamp);
+  return (
+    <article className={Styles.BonusReward}>
+      <h4>Bonus Reward</h4>
+      <p>Keep your liquidity in the pool until the unlock period to get a 20% bonus on top of your rewards</p>
+      <span>
+        <span style={{ width: `${filled}%` }} />
+      </span>
+      <h4>
+        {filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount}
+      </h4>
+      <p>
+        {dateOnly} ({countdownDuration})
+      </p>
+    </article>
+  );
 };
 
 interface PositionsLiquidityViewSwitcherProps {
@@ -453,7 +450,6 @@ export const PositionsLiquidityViewSwitcher = ({
   view,
   claimableFirst = false,
 }: PositionsLiquidityViewSwitcherProps) => {
-  const [page, setPage] = useState(1);
   const {
     balances: { lpTokens, marketShares },
   }: UserState = useUserStore();
@@ -474,25 +470,29 @@ export const PositionsLiquidityViewSwitcher = ({
 
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-        ammExchange: AmmExchange;
-        positions: PositionBalance[];
-        claimableWinnings: Winnings;
-      }[]).filter(
-        (position) =>
-          showResolvedPositions ||
-          position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-      )
+      ammExchange: AmmExchange;
+      positions: PositionBalance[];
+      claimableWinnings: Winnings;
+    }[]).filter(
+      (position) =>
+        showResolvedPositions ||
+        position?.claimableWinnings ||
+        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+    )
     : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-        ammExchange: ammExchanges[marketId],
-        market: markets[marketId],
-        lpTokens: lpTokens[marketId],
-      }))
+      ammExchange: ammExchanges[marketId],
+      market: markets[marketId],
+      lpTokens: lpTokens[marketId],
+    }))
     : [];
 
   const [tableView, setTableView] = useState(POSITIONS);
+  const [page, setPage] = useQueryPagination({
+    itemCount: tableView === POSITIONS ? positions.length : liquidities.length,
+    itemsPerPage: POSITIONS_LIQUIDITY_LIMIT,
+  });
 
   useEffect(() => {
     setPage(1);
@@ -527,9 +527,7 @@ export const PositionsLiquidityViewSwitcher = ({
       {tableView !== null && (
         <div>
           {!marketId && (positions.length > 0 || liquidities.length > 0) && (
-            <>
-              {tableView === POSITIONS && <AllPositionTable page={page} claimableFirst={claimableFirst} />}
-            </>
+            <>{tableView === POSITIONS && <AllPositionTable page={page} claimableFirst={claimableFirst} />}</>
           )}
           {!marketId &&
             ((positions.length > 0 && tableView === POSITIONS) ||
@@ -541,6 +539,7 @@ export const PositionsLiquidityViewSwitcher = ({
                 itemsPerPage={POSITIONS_LIQUIDITY_LIMIT}
                 action={(page) => setPage(page)}
                 updateLimit={() => null}
+                usePageLocation
               />
             )}
           {marketId && (

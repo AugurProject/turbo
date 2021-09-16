@@ -142,51 +142,41 @@ function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
-  let logId = id + "-" + event.transaction.hash.toHexString();
-  let log = positionBalanceEntity.log;
-  if (log) {
-    let wasAlreadySummed = log.includes(logId);
-    if (!wasAlreadySummed) {
-      log.push(logId);
-      positionBalanceEntity.log = log;
+  let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
 
-      let sharesBigInt = positionBalanceEntity.sharesBigInt - event.params.amount.abs();
+  positionBalanceEntity.positionFromAddLiquidity = false;
+  positionBalanceEntity.positionFromRemoveLiquidity = false;
+  positionBalanceEntity.hasClaimed = true;
+  positionBalanceEntity.transactionHash = event.transaction.hash.toHexString();
+  positionBalanceEntity.timestamp = event.block.timestamp;
+  positionBalanceEntity.outcomeId = outcomeId;
+  positionBalanceEntity.marketId = marketId;
+  positionBalanceEntity.market = marketId;
+  positionBalanceEntity.senderId = senderId;
+  positionBalanceEntity.sender = senderId;
 
-      positionBalanceEntity.positionFromAddLiquidity = false;
-      positionBalanceEntity.positionFromRemoveLiquidity = false;
-      positionBalanceEntity.hasClaimed = true;
-      positionBalanceEntity.transactionHash = event.transaction.hash.toHexString();
-      positionBalanceEntity.timestamp = event.block.timestamp;
-      positionBalanceEntity.outcomeId = outcomeId;
-      positionBalanceEntity.marketId = marketId;
-      positionBalanceEntity.market = marketId;
-      positionBalanceEntity.senderId = senderId;
-      positionBalanceEntity.sender = senderId;
+  let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
+  let absPayoutBigInt = positionBalanceEntity.payoutBigInt + event.params.payout.abs();
+  let payoutBigDecimal = absPayoutBigInt.toBigDecimal().div(USDC_DECIMALS);
+  let totalChangedUsd = event.params.payout - initialCostPerMarketEntity.sumOfInitialCost;
+  let totalChangeUsdBigDecimal = totalChangedUsd.toBigDecimal().div(USDC_DECIMALS);
+  positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
+  positionBalanceEntity.sharesBigInt = event.params.amount;
+  positionBalanceEntity.sharesBigDecimal = amountBigDecimal;
+  positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarketEntity.sumOfInitialCost);
+  positionBalanceEntity.initCostUsdBigInt = initialCostPerMarketEntity.sumOfInitialCost;
+  positionBalanceEntity.initCostUsdBigDecimal = initialCostPerMarketEntity.sumOfInitialCostBigDecimal;
+  positionBalanceEntity.payout = bigIntToHexString(absPayoutBigInt);
+  positionBalanceEntity.payoutBigInt = absPayoutBigInt;
+  positionBalanceEntity.payoutBigDecimal = payoutBigDecimal;
+  positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangedUsd);
+  positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
+  positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
+  positionBalanceEntity.avgPrice = initialCostPerMarketEntity.avgPrice;
+  positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
+  positionBalanceEntity.open = sharesBigInt > ZERO;
 
-      let amountBigDecimal = event.params.amount.toBigDecimal().div(SHARES_DECIMALS);
-      let absPayoutBigInt = positionBalanceEntity.payoutBigInt + event.params.payout.abs();
-      let payoutBigDecimal = absPayoutBigInt.toBigDecimal().div(USDC_DECIMALS);
-      let totalChangedUsd = event.params.payout - initialCostPerMarketEntity.sumOfInitialCost;
-      let totalChangeUsdBigDecimal = totalChangedUsd.toBigDecimal().div(USDC_DECIMALS);
-      positionBalanceEntity.shares = bigIntToHexString(event.params.amount);
-      positionBalanceEntity.sharesBigInt = event.params.amount;
-      positionBalanceEntity.sharesBigDecimal = amountBigDecimal;
-      positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostPerMarketEntity.sumOfInitialCost);
-      positionBalanceEntity.initCostUsdBigInt = initialCostPerMarketEntity.sumOfInitialCost;
-      positionBalanceEntity.initCostUsdBigDecimal = initialCostPerMarketEntity.sumOfInitialCostBigDecimal;
-      positionBalanceEntity.payout = bigIntToHexString(absPayoutBigInt);
-      positionBalanceEntity.payoutBigInt = absPayoutBigInt;
-      positionBalanceEntity.payoutBigDecimal = payoutBigDecimal;
-      positionBalanceEntity.totalChangeUsd = bigIntToHexString(totalChangedUsd);
-      positionBalanceEntity.totalChangeUsdBigInt = totalChangedUsd;
-      positionBalanceEntity.totalChangeUsdBigDecimal = totalChangeUsdBigDecimal;
-      positionBalanceEntity.avgPrice = initialCostPerMarketEntity.avgPrice;
-      positionBalanceEntity.settlementFee = bigIntToHexString(event.params.settlementFee);
-      positionBalanceEntity.open = sharesBigInt > ZERO;
+  positionBalanceEntity.save();
 
-      positionBalanceEntity.save();
-
-      closeAllPositions(event.address, event.params.id, marketId, senderId);
-    }
-  }
+  closeAllPositions(event.address, event.params.id, marketId, senderId);
 }

@@ -1,10 +1,11 @@
 import fs from "fs";
-import { addresses as originalAddresses, Addresses, ChainId, graphChainNames, MarketFactory } from "../../addresses";
+import { addresses as originalAddresses } from "../../addresses";
+import { Addresses, ChainId, graphChainNames, MarketFactory } from "../../constants";
 
-interface EnvironmentMarketFactory extends MarketFactory {
+type EnvironmentMarketFactory = MarketFactory & {
   ammFactoryGraphName: string;
   marketFactoryGraphName: string;
-}
+};
 
 interface EnvironmentAddresses extends Addresses {
   [index: string]: any;
@@ -13,6 +14,7 @@ interface EnvironmentAddresses extends Addresses {
   cryptoMarketFactoriesV3: EnvironmentMarketFactory[];
   futuresMarketFactoriesV3: EnvironmentMarketFactory[];
   marketFactories: EnvironmentMarketFactory[];
+  uniqueMarketFactories: EnvironmentMarketFactory[];
   mlbMarketFactoriesV3: EnvironmentMarketFactory[];
   mmaMarketFactoriesV1: EnvironmentMarketFactory[];
   mmaMarketFactoriesV2: EnvironmentMarketFactory[];
@@ -71,6 +73,14 @@ function generateJsonEnvironments() {
       ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
       marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
     }));
+    const uniqueMarketFactories = [];
+    const mapMarketFactories = new Map();
+    for (const marketFactory of addresses.marketFactories) {
+      if (!mapMarketFactories.has(marketFactory.ammFactory)) {
+        mapMarketFactories.set(marketFactory.ammFactory, true);
+        uniqueMarketFactories.push(marketFactory);
+      }
+    }
     const v1abstractMarketFactories = addresses.marketFactories
       .filter(({ subtype }) => subtype === "V1")
       .map((marketFactory, index) => ({
@@ -124,6 +134,7 @@ function generateJsonEnvironments() {
     addresses = {
       ...addresses,
       ...specificMarketFactories,
+      uniqueMarketFactories,
     };
     const file = JSON.stringify(addresses);
     fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);

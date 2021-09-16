@@ -23,6 +23,21 @@ function createFetcherPool(raw: RawFetcherPool): FetcherPool {
   };
 }
 
+interface PoolStatusInfo {
+  beginTimestamp: BigNumberish;
+  endTimestamp: BigNumberish;
+  earlyDepositEndTimestamp: BigNumberish;
+  totalRewardsAccrued: BigNumberish;
+  created: boolean;
+}
+
+type RawPoolStatusInfo = [BigNumberish, BigNumberish, BigNumberish, BigNumberish, boolean];
+
+function createPoolStatusInfo(raw: RawPoolStatusInfo): PoolStatusInfo {
+  const [beginTimestamp, endTimestamp, earlyDepositEndTimestamp, totalRewardsAccrued, created] = raw;
+  return { beginTimestamp, endTimestamp, earlyDepositEndTimestamp, totalRewardsAccrued, created };
+}
+
 export interface MarketFactoryBundle {
   shareFactor: BigNumberish;
   stakerFee: BigNumberish;
@@ -65,6 +80,7 @@ export interface StaticMarketBundle {
   factory: string;
   marketId: BigNumberish;
   pool: FetcherPool;
+  rewards: PoolStatusInfo;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
   winner: string;
@@ -75,6 +91,7 @@ export interface RawStaticMarketBundle {
   factory: string;
   marketId: BigNumberish;
   pool: RawFetcherPool;
+  rewards: RawPoolStatusInfo;
   shareTokens: string[];
   creationTimestamp: BigNumberish;
   winner: string;
@@ -86,6 +103,7 @@ export function createStaticMarketBundle(raw: RawStaticMarketBundle): StaticMark
     factory: raw.factory,
     marketId: raw.marketId,
     pool: createFetcherPool(raw.pool),
+    rewards: createPoolStatusInfo(raw.rewards),
     shareTokens: raw.shareTokens,
     creationTimestamp: raw.creationTimestamp,
     winner: raw.winner,

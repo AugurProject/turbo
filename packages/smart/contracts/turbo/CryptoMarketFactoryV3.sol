@@ -11,6 +11,7 @@ import "@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
 import "../libraries/CalculateLinesToBPoolOdds.sol";
 import "../libraries/Versioned.sol";
 import "../libraries/ManagedByLink.sol";
+import "../libraries/Rewardable.sol";
 
 contract CryptoMarketFactoryV3 is AbstractMarketFactoryV3, CalculateLinesToBPoolOdds, Versioned, ManagedByLink {
     using SafeMathUint256 for uint256;
@@ -250,5 +251,9 @@ contract CryptoMarketFactoryV3 is AbstractMarketFactoryV3, CalculateLinesToBPool
         uint256 _phaseId = uint256(uint16(_fullRoundId >> PHASE_OFFSET));
         uint64 _roundId = uint64(_fullRoundId) - 1;
         return uint80((_phaseId << PHASE_OFFSET) | _roundId);
+    }
+
+    function getRewardEndTime(uint256 _eventId) public override returns (uint256) {
+        return getMarketDetails(_eventId).resolutionTime;
     }
 }

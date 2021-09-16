@@ -11,7 +11,7 @@ import {
   Cash__factory,
   FeePot,
   FeePot__factory,
-  MasterChef__factory,
+  MasterChef,
   NBAFetcher,
   NBAFetcher__factory,
   NBAMarketFactoryV3,
@@ -22,12 +22,12 @@ import {
 import { BigNumber, BigNumberish } from "ethers";
 import {
   calcShareFactor,
-  SportsLinkEventStatus,
   DynamicSportsMarket,
   fetchDynamicSports,
   fetchInitialSports,
   flatten,
   InitialSportsMarket,
+  SportsLinkEventStatus,
   TypeOfClassMethod,
   UnPromisify,
 } from "../src";
@@ -297,6 +297,7 @@ describe("Sports fetcher", () => {
 
   let fetcher: NBAFetcher;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
   let collateral: Cash;
   let feePot: FeePot;
 
@@ -323,18 +324,10 @@ describe("Sports fetcher", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
-    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
-    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
-
-    const initialRewards = BONE.mul(10000);
-    await rewardsToken.faucet(initialRewards);
-    await rewardsToken.transfer(masterChef.address, initialRewards);
-
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
-
-    await masterChef.trustAMMFactory(ammFactory.address);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     leastInterestingEvent = await makeTestEvent(marketFactory, {
       id: 7878,
@@ -370,7 +363,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=0,bundle=50)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 50);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -382,7 +375,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=0,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 1);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 1);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -394,7 +387,7 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=1,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 1, 1);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 1, 1);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -442,6 +435,7 @@ describe("Sports fetcher no markets", () => {
 
   let fetcher: NBAFetcher;
   let ammFactory: AMMFactory;
+  let masterChef: MasterChef;
   let collateral: Cash;
   let feePot: FeePot;
 
@@ -464,24 +458,16 @@ describe("Sports fetcher no markets", () => {
       signer.address // pretending the deployer is a link node for testing purposes
     );
 
-    const rewardsToken = await new Cash__factory(signer).deploy("RWS", "RWS", 18);
-    const masterChef = await new MasterChef__factory(signer).deploy(rewardsToken.address);
-
-    const initialRewards = BONE.mul(10000);
-    await rewardsToken.faucet(initialRewards);
-    await rewardsToken.transfer(masterChef.address, initialRewards);
-
     const bFactory = await new BFactory__factory(signer).deploy();
     const swapFee = smallFee;
-    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, masterChef.address, swapFee);
-
-    await masterChef.trustAMMFactory(ammFactory.address);
+    ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
+    masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
     fetcher = await new NBAFetcher__factory(signer).deploy();
   });
 
   it("initial", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, 0, 50);
+    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 50);
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal([]);

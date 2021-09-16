@@ -4,6 +4,7 @@ import {
   fetchInitialGroup,
   instantiateMarketFactory,
   AMMFactory__factory,
+  MasterChef__factory,
   instantiateFetcher,
   GroupFetcher,
   Grouped as GroupMarketFactory,
@@ -30,12 +31,14 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     config.address,
     getProviderOrSigner(provider, account)
   ) as unknown) as GroupMarketFactory;
+  const masterChef = MasterChef__factory.connect(config.masterChef, getProviderOrSigner(provider, account));
   const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
 
   const { factoryBundle, markets } = await fetchInitialGroup(
     fetcherContract,
     marketFactoryContract,
     ammFactoryContract,
+    masterChef,
     offset,
     bundleSize
   );
@@ -55,7 +58,6 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     console.error(e);
   }
 
-  console.log("groups", groups);
   const groupedMarkets = Object.keys(groups).map((key) => ({
     ...factoryDetails,
     ...groups[key][0], // grab first market in the group for market descriptors

@@ -148,7 +148,7 @@ export async function getAllTransactions(account = "0x0", cb) {
       const processedSenders =
         response?.data?.senders?.length > 0
           ? { ...response.data.senders[0], userAddress: account }
-          : { claimedProceeds: [], claimedFees: [], positionBalance: [], userAddress: account };
+          : { claimedProceeds: [], claimedFees: [], positionBalance: [], sharesMinted: [], userAddress: account };
       cb({ ...processedMarkets, ...processedSenders });
     }
   }

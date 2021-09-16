@@ -227,6 +227,16 @@
   }
 }
 
+@media @breakpoint-mobile-tablet {
+  .Header {
+    > span {
+      .text-16-bold;
+      
+      white-space: nowrap;
+    }
+  }
+}
+
 .FooterText {
   .TertiaryBottomBorderRadius;
   .text-14;
@@ -293,4 +303,13 @@
 
 .HeaderLink {
   cursor: pointer;
+}
+
+.ErrorBorder {
+  border: @size-1 solid var(--failed); 
+  svg {
+    path {
+      fill: var(--failed)
+    }
+  }
 }

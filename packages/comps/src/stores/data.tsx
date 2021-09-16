@@ -50,7 +50,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { account: userAccount, loginAccount } = UserStore.get();
       const { isRpcDown, isDegraded } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-      const provider = loginAccount?.library || defaultProvider?.current;
+      const provider = defaultProvider?.current || loginAccount?.library
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
       try {
         try {

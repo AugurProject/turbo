@@ -506,8 +506,7 @@
       }
     }
 
-    &:active,
-    &.Selected {
+    &:active {
       background: var(--tiny-button-background-pressed);
       border: var(--tiny-button-border-pressed);
       color: var(--tiny-button-text-color-pressed);
@@ -522,6 +521,25 @@
         > path[stroke],
         > g > path[stroke] {
           stroke: var(--tiny-button-text-color-pressed);
+        }
+      }
+    }
+
+    &.Selected {
+      background: var(--tiny-button-background-pressed);
+      border: @size-1 solid var(--tiny-dark-button-theme-color);
+      color: var(--dark-button-theme-color);
+
+      > svg {
+        > path[fill],
+        > g > path[fill] {
+          fill: var(--dark-button-theme-color);
+        }
+
+        > line,
+        > path[stroke],
+        > g > path[stroke] {
+          stroke: var(--dark-button-theme-color);
         }
       }
     }

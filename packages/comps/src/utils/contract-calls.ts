@@ -78,6 +78,7 @@ import {
   instantiateMarketFactory,
   MarketFactory,
   MarketFactoryContract,
+  MasterChef__factory,
 } from "@augurproject/smart";
 import {
   fetcherMarketsPerConfig,
@@ -212,32 +213,58 @@ export async function addLiquidityPool(
 ): Promise<TransactionResponse> {
   if (!provider) console.error("provider is null");
   const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
-  const ammAddress = amm?.id;
+  const bPoolId = amm?.id;
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
-    !ammAddress ? "add init liquidity:" : "add additional liquidity",
+    !bPoolId ? "add init liquidity:" : "add additional liquidity",
+    "amm",
+    amm.ammFactoryAddress,
+    "factory",
     marketFactoryAddress,
+    "marketIndex",
     turboId,
     "amount",
     amount,
-    "weights",
-    weights,
-    "min",
-    minLpTokenAllowed
+    "account",
+    account
   );
-  if (!ammAddress) {
-    tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
-      // gasLimit: "800000",
-      // gasPrice: "10000000000",
-    });
+  if (rewardContractAddress) {
+    const contract = getRewardContract(provider, rewardContractAddress, account);
+    // use reward contract (master chef) to add liquidity
+    if (!bPoolId) {
+      tx = contract.createPool(amm.ammFactoryAddress, marketFactoryAddress, turboId, amount, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    } else {
+      tx = contract.addLiquidity(
+        amm.ammFactoryAddress,
+        marketFactoryAddress,
+        turboId,
+        amount,
+        minLpTokenAllowed,
+        account,
+        {
+          // gasLimit: "800000",
+          // gasPrice: "10000000000",
+        }
+      );
+    }
   } else {
-    // todo: get what the min lp token out is
-    tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
-      // gasLimit: "800000",
-      // gasPrice: "10000000000",
-    });
+    if (!bPoolId) {
+      tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    } else {
+      tx = ammFactoryContract.addLiquidity(marketFactoryAddress, turboId, amount, minLpTokenAllowed, account, {
+        // gasLimit: "800000",
+        // gasPrice: "10000000000",
+      });
+    }
   }
 
   return tx;
@@ -285,14 +312,15 @@ export async function getRemoveLiquidity(
     results = await ammFactory.callStatic
       .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
       .catch((e) => console.log(e));
-    const { _balances, _collateralOut } = results;
-    collateralOut = _collateralOut;
-    minAmounts = _balances.map((v, i) => ({
+    console.log("estimation remove liquidity, no winner", results);
+    const balances = results?._balances || [];
+    collateralOut = results?._collateralOut;
+    minAmounts = balances.map((v, i) => ({
       amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
       outcomeId: i,
       hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
     }));
-    minAmountsRaw = _balances.map((v) => new BN(String(v)).toFixed());
+    minAmountsRaw = balances.map((v) => new BN(String(v)).toFixed());
   } else {
     results = await estimateLPTokenInShares(amm?.id, provider, lpTokenBalance, account, amm?.ammOutcomes).catch((e) =>
       console.log(e)
@@ -369,10 +397,23 @@ export function doRemoveLiquidity(
   const ammFactory = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const lpBalance = convertDisplayCashAmountToOnChainCashAmount(lpTokenBalance, 18).toFixed();
   const balancerPool = getBalancerPoolContract(provider, amm?.id, account);
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
 
-  return hasWinner
-    ? balancerPool.exitPool(lpBalance, amountsRaw)
-    : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
+  if (rewardContractAddress) {
+    const contract = getRewardContract(provider, rewardContractAddress, account);
+    return contract.removeLiquidity(
+      amm.ammFactoryAddress,
+      market.marketFactoryAddress,
+      market.turboId,
+      lpBalance,
+      "0",
+      account
+    );
+  } else {
+    return hasWinner
+      ? balancerPool.exitPool(lpBalance, amountsRaw)
+      : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
+  }
 }
 
 export const estimateBuyTrade = (
@@ -615,7 +656,7 @@ const chunkedMulticall = async (
   if (!contractCalls || contractCalls.length === 0) return results;
   if (contractCalls.length < chunkSize) {
     const res = await multicall.call(contractCalls).catch((e) => {
-      console.error("multicall", callingMethod, contractCalls, e);
+      console.error("multicall", callingMethod, contractCalls);
       throw e;
     });
     results = { results: res.results, blocknumber: res.blockNumber };
@@ -628,7 +669,7 @@ const chunkedMulticall = async (
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const call = await multicall.call(chunk).catch((e) => {
-        console.error(`multicall, ${callingMethod}, chunking ${chunk.length} calls`, e);
+        console.error(`multicall, ${callingMethod} chunking ${chunk.length} calls`);
         throw e;
       });
       combined.blocknumber = call.blockNumber;
@@ -686,8 +727,9 @@ export const getUserBalances = async (
   const userMarketTransactions = getUserTransactions(transactions, account);
   const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
-  const POOL_TOKEN_BALANCE = "getTokenBalanceByPool";
-  const POOL_PENDING_REWARDS = "getPendingRewardInfoByPool";
+  const POOL_TOKEN_BALANCE = "getPoolTokenBalance"; // on master chef
+  const POOL_TOKEN_BALANCE_BAL = "getTokenBalanceByPool"; // on amm factory
+  const POOL_PENDING_REWARDS = "getUserPendingRewardInfo";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const PENDING_REWARDS_COLLECTION = "pendingRewards";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -721,13 +763,20 @@ export const getUserBalances = async (
           ...p,
           {
             reference: `${exchange.id}-lp`,
-            contractAddress: exchange.ammFactoryAddress,
-            abi: ammFactoryAbi,
+            contractAddress: getRewardsContractAddress(exchange.marketFactoryAddress),
+            abi: extractABI(
+              getRewardContract(provider, getRewardsContractAddress(exchange.marketFactoryAddress), account)
+            ),
             calls: [
               {
                 reference: `${exchange.id}-lp`,
                 methodName: POOL_TOKEN_BALANCE,
-                methodParameters: [exchange.id, account],
+                methodParameters: [
+                  exchange.ammFactoryAddress,
+                  exchange.marketFactoryAddress,
+                  exchange.turboId,
+                  account,
+                ],
                 context: {
                   dataKey: exchange.marketId,
                   collection: LP_TOKEN_COLLECTION,
@@ -740,13 +789,20 @@ export const getUserBalances = async (
           },
           {
             reference: `${exchange.id}-reward`,
-            contractAddress: exchange.ammFactoryAddress,
-            abi: ammFactoryAbi,
+            contractAddress: getRewardsContractAddress(exchange.marketFactoryAddress),
+            abi: extractABI(
+              getRewardContract(provider, getRewardsContractAddress(exchange.marketFactoryAddress), account)
+            ),
             calls: [
               {
                 reference: `${exchange.id}-reward`,
                 methodName: POOL_PENDING_REWARDS,
-                methodParameters: [exchange.id, account],
+                methodParameters: [
+                  exchange.ammFactoryAddress,
+                  exchange.marketFactoryAddress,
+                  exchange.turboId,
+                  account,
+                ],
                 context: {
                   dataKey: exchange.marketId,
                   collection: PENDING_REWARDS_COLLECTION,
@@ -844,7 +900,7 @@ export const getUserBalances = async (
       },
     ];
   }
-  // need different calls to get lp tokens and market share balances
+
   const balanceCalls = [
     ...basicBalanceCalls,
     ...contractMarketShareBalanceCall,
@@ -1437,6 +1493,10 @@ const getAmmFactoryContract = (library: Web3Provider, address: string, account?:
   return AMMFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
+const getRewardContract = (library: Web3Provider, address: string, account?: string): AMMFactory => {
+  return MasterChef__factory.connect(address, getProviderOrSigner(library, account));
+};
+
 export const faucetUSDC = async (library: Web3Provider, account?: string) => {
   const { marketFactories } = PARA_CONFIG;
   const usdcContract = marketFactories[0].collateral;
@@ -1514,12 +1574,18 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-const rewardsSupported = (ammFactories: string[]) => {
+const rewardsSupported = (ammFactories: string[]): string[] => {
   // filter out amm factories that don't support rewards, use new flag to determine if amm factory gives rewards
   const rewardable = marketFactories()
     .filter((m) => m.hasRewards)
     .map((m) => m.ammFactory);
   return ammFactories.filter((m) => rewardable.includes(m));
+};
+
+export const getRewardsContractAddress = (marketFactoryAddress: string) => {
+  // filter out amm factories that don't support rewards, use new flag to determine if amm factory gives rewards
+  const marketFactory = marketFactories().find((m) => isSameAddress(m.address, marketFactoryAddress) && m.hasRewards);
+  return marketFactory?.masterChef;
 };
 
 // adding constants here with special logic
@@ -2078,7 +2144,6 @@ const exchangesHaveLiquidity = async (exchanges: AmmExchanges, provider: Web3Pro
     const bpool = BPool__factory.connect(exchange.id, provider);
     const totalSupply = await bpool.totalSupply();
 
-    console.log("totalSupply", totalSupply);
     exchange.totalSupply = totalSupply ? totalSupply : "0";
     exchange.hasLiquidity = exchange.totalSupply !== "0";
   }
