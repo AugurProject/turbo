@@ -725,8 +725,9 @@ export const getUserBalances = async (
   const userMarketTransactions = getUserTransactions(transactions, account);
   const userClaims = transactions as UserClaimTransactions;
   const BALANCE_OF = "balanceOf";
-  const POOL_TOKEN_BALANCE = "getTokenBalanceByPool";
-  const POOL_PENDING_REWARDS = "getPendingRewardInfoByPool";
+  const POOL_TOKEN_BALANCE = "getPoolTokenBalance"; // on master chef
+  const POOL_TOKEN_BALANCE_BAL = "getTokenBalanceByPool"; // on amm factory
+  const POOL_PENDING_REWARDS = "getUserPendingRewardInfo";
   const LP_TOKEN_COLLECTION = "lpTokens";
   const PENDING_REWARDS_COLLECTION = "pendingRewards";
   const MARKET_SHARE_COLLECTION = "marketShares";
@@ -760,13 +761,20 @@ export const getUserBalances = async (
           ...p,
           {
             reference: `${exchange.id}-lp`,
-            contractAddress: exchange.ammFactoryAddress,
-            abi: ammFactoryAbi,
+            contractAddress: getRewardsContractAddress(exchange.marketFactoryAddress),
+            abi: extractABI(
+              getRewardContract(provider, getRewardsContractAddress(exchange.marketFactoryAddress), account)
+            ),
             calls: [
               {
                 reference: `${exchange.id}-lp`,
                 methodName: POOL_TOKEN_BALANCE,
-                methodParameters: [exchange.id, account],
+                methodParameters: [
+                  exchange.ammFactoryAddress,
+                  exchange.marketFactoryAddress,
+                  exchange.turboId,
+                  account,
+                ],
                 context: {
                   dataKey: exchange.marketId,
                   collection: LP_TOKEN_COLLECTION,
@@ -883,12 +891,12 @@ export const getUserBalances = async (
       },
     ];
   }
-  // need different calls to get lp tokens and market share balances
+  console.log("contractLpBalanceRewardsCall", contractLpBalanceRewardsCall);
   const balanceCalls = [
-    ...basicBalanceCalls,
-    ...contractMarketShareBalanceCall,
-    ...contractLpBalanceCall,
-    ...contractAmmFactoryApprovals,
+    //...basicBalanceCalls,
+    //...contractMarketShareBalanceCall,
+    //...contractLpBalanceCall,
+    //...contractAmmFactoryApprovals,
     ...contractLpBalanceRewardsCall,
   ];
 
@@ -1557,7 +1565,7 @@ export const getERC1155ApprovedForAll = async (
   return Boolean(isApproved);
 };
 
-const rewardsSupported = (ammFactories: string[]) => {
+const rewardsSupported = (ammFactories: string[]): string[] => {
   // filter out amm factories that don't support rewards, use new flag to determine if amm factory gives rewards
   const rewardable = marketFactories()
     .filter((m) => m.hasRewards)

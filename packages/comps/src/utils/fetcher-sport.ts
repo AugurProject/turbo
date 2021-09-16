@@ -40,7 +40,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     offset,
     bundleSize
   );
-
+  console.log("sports markets", markets);
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
 
   const popMarkets = markets
