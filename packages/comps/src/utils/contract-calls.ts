@@ -215,24 +215,26 @@ export async function addLiquidityPool(
   const ammFactoryContract = getAmmFactoryContract(provider, amm.ammFactoryAddress, account);
   const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
   const { weights, amount, marketFactoryAddress, turboId } = shapeAddLiquidityPool(amm, cash, cashAmount, outcomes);
-  const ammAddress = amm?.id;
+  const bPoolId = amm?.id;
   const minLpTokenAllowed = "0"; //sharesDisplayToOnChain(minLptokenAmount).toFixed();
   let tx = null;
   console.log(
-    !ammAddress ? "add init liquidity:" : "add additional liquidity",
+    !bPoolId ? "add init liquidity:" : "add additional liquidity",
+    "amm",
+    amm.ammFactoryAddress,
+    "factory",
     marketFactoryAddress,
+    "marketIndex",
     turboId,
     "amount",
     amount,
-    "weights",
-    weights,
-    "min",
-    minLpTokenAllowed
+    "account",
+    account
   );
   if (rewardContractAddress) {
     const contract = getRewardContract(provider, rewardContractAddress, account);
     // use reward contract (master chef) to add liquidity
-    if (!ammAddress) {
+    if (!bPoolId) {
       tx = contract.createPool(amm.ammFactoryAddress, marketFactoryAddress, turboId, amount, account, {
         // gasLimit: "800000",
         // gasPrice: "10000000000",
@@ -252,7 +254,7 @@ export async function addLiquidityPool(
       );
     }
   } else {
-    if (!ammAddress) {
+    if (!bPoolId) {
       tx = ammFactoryContract.createPool(marketFactoryAddress, turboId, amount, account, {
         // gasLimit: "800000",
         // gasPrice: "10000000000",
@@ -310,14 +312,15 @@ export async function getRemoveLiquidity(
     results = await ammFactory.callStatic
       .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
       .catch((e) => console.log(e));
-    const { _balances, _collateralOut } = results;
-    collateralOut = _collateralOut;
-    minAmounts = _balances.map((v, i) => ({
+    console.log("estimation remove liquidity, no winner", results);
+    const balances = results?._balances || [];
+    collateralOut = results?._collateralOut;
+    minAmounts = balances.map((v, i) => ({
       amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
       outcomeId: i,
       hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
     }));
-    minAmountsRaw = _balances.map((v) => new BN(String(v)).toFixed());
+    minAmountsRaw = balances.map((v) => new BN(String(v)).toFixed());
   } else {
     results = await estimateLPTokenInShares(amm?.id, provider, lpTokenBalance, account, amm?.ammOutcomes).catch((e) =>
       console.log(e)
@@ -397,7 +400,7 @@ export function doRemoveLiquidity(
   const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
 
   if (rewardContractAddress) {
-    const contract = getRewardContract(privider, rewardContractAddress, account);
+    const contract = getRewardContract(provider, rewardContractAddress, account);
     return contract.removeLiquidity(
       amm.ammFactoryAddress,
       market.marketFactoryAddress,

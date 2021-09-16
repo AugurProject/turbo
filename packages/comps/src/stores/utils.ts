@@ -222,6 +222,9 @@ export function useApprovalStatus({
         }
         case REMOVE_LIQUIDITY: {
           address = rewardContractAddress ? null : amm?.id;
+          if (rewardContractAddress) {
+            setIsApproved(APPROVED);
+          }
           break;
         }
         case ENTER_POSITION: {
