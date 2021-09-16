@@ -136,9 +136,10 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
-
+  
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
 
+  const hasPendingBonus = (new Date().getTime() / 1000) < balances.pendingRewards[amm?.marketId]?.endBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0"
   const feePercentFormatted = useMemo(() => {
     return formatPercent(amm?.feeInPercent).full;
   }, [amm?.feeInPercent]);
@@ -364,6 +365,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         actionButtonText: "confirm remove",
         actionButtonAction: confirmAction,
         showMarketTitle: true,
+        showBonusWarning: true,
         confirmOverview: {
           title: "What you are Removing",
           breakdown: [
@@ -429,6 +431,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         actionButtonAction: confirmAction,
         showMarketTitle: true,
         showConfirmWarning: true,
+        showBonusWarning: true,
         confirmOverview: {
           title: "What you are depositing",
           breakdown: [
@@ -742,6 +745,15 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             }
           />
         )}
+        {curPage.showBonusWarning && hasPendingBonus && (
+          <WarningBanner
+            className={Styles.ErrorBorder}
+            title="Increasing or removing your liquidity on a market before the bonus time is complete will result in the loss of your bonus rewards."
+            subtitle={
+              "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
+            }
+          />
+        )}        
         <section>
           {curPage.needsApproval && !isApproved && (
             <ApprovalButton amm={amm} cash={cash} actionType={curPage.approvalAction} />
