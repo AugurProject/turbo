@@ -40,9 +40,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     offset,
     bundleSize
   );
-
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
-
   const popMarkets = markets
     .map((m) => ({
       ...m,
