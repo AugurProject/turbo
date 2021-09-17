@@ -11,15 +11,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const masterChefDeploy = await deployments.get("MasterChef");
   const masterChef = MasterChef__factory.connect(masterChefDeploy.address, signer);
 
+  const BONE = BigNumber.from(10).pow(18);
   const totalRewardsPerMarket = 195;
 
-  const rewardsPerMarket = BigNumber.from(10)
-    .pow(18)
-    // 80% goes to daily.
-    .mul(totalRewardsPerMarket * 0.8);
+  // 80% goes to daily.
+  const rewardsPerMarket = BONE.mul(totalRewardsPerMarket * 0.8);
+
   const rewardDaysPerMarket = BigNumber.from(5);
   // 20% goes to early bonus.
-  const earlyDepositBonusRewards = BigNumber.from(totalRewardsPerMarket * 0.2);
+  const earlyDepositBonusRewards = BONE.mul(totalRewardsPerMarket * 0.2);
 
   await deployments
     .get("CryptoMarketFactoryV3")
