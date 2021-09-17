@@ -145,8 +145,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
   
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
-
-  const hasPendingBonus = (new Date().getTime() / 1000) < balances.pendingRewards[amm?.marketId]?.endBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0"
+  const now = (new Date().getTime() / 1000);
+  const hasPendingBonus = balances?.pendingRewards && now > balances.pendingRewards[amm?.marketId]?.endBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
   const feePercentFormatted = useMemo(() => {
     return formatPercent(amm?.feeInPercent).full;
   }, [amm?.feeInPercent]);

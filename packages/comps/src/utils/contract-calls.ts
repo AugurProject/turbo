@@ -165,15 +165,35 @@ export async function estimateAddLiquidityPool(
   let minAmountsRaw = [];
   let poolPct = "0";
 
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
+  const rewardContract = rewardContractAddress ? getRewardContract(provider, rewardContractAddress, account) : null;
+
   if (!ammAddress) {
     console.log("est add init", marketFactoryAddress, turboId, amount, weights, account);
-    results = await ammFactoryContract.callStatic.createPool(marketFactoryAddress, turboId, amount, account);
+    results = rewardContractAddress
+      ? await rewardContract.callStatic.createPool(
+          amm.ammFactoryAddress,
+          marketFactoryAddress,
+          turboId,
+          amount,
+          account
+        )
+      : await ammFactoryContract.callStatic.createPool(marketFactoryAddress, turboId, amount, account);
     tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(results || "0")));
   } else {
     // todo: get what the min lp token out is
     console.log("est add additional", marketFactoryAddress, "marketId", turboId, "amount", amount, 0, account);
 
-    results = await ammFactoryContract.callStatic.addLiquidity(marketFactoryAddress, turboId, amount, 0, account);
+    results = rewardContractAddress
+      ? await rewardContract.callStatic.addLiquidity(
+          amm.ammFactoryAddress,
+          marketFactoryAddress,
+          turboId,
+          amount,
+          0,
+          account
+        )
+      : await ammFactoryContract.callStatic.addLiquidity(marketFactoryAddress, turboId, amount, 0, account);
     if (results) {
       const { _balances, _poolAmountOut } = results;
       minAmounts = _balances
@@ -187,7 +207,6 @@ export async function estimateAddLiquidityPool(
       // lp tokens are 18 decimal
       tokenAmount = trimDecimalValue(sharesOnChainToDisplay(String(_poolAmountOut)));
 
-      console.log("amm?.totalSupply", amm?.totalSupply);
       const poolSupply = lpTokensOnChainToDisplay(amm?.totalSupply).plus(tokenAmount);
       poolPct = lpTokenPercentageAmount(tokenAmount, poolSupply);
     }
@@ -309,32 +328,24 @@ export async function getRemoveLiquidity(
   let minAmountsRaw = null;
   let collateralOut = "0";
 
-  if (!hasWinner) {
-    results = await ammFactory.callStatic
-      .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
-      .catch((e) => console.log(e));
-    console.log("estimation remove liquidity, no winner", results);
-    const balances = results?._balances || [];
-    collateralOut = results?._collateralOut;
-    minAmounts = balances.map((v, i) => ({
-      amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
-      outcomeId: i,
-      hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
-    }));
-    minAmountsRaw = balances.map((v) => new BN(String(v)).toFixed());
-  } else {
-    results = await estimateLPTokenInShares(amm?.id, provider, lpTokenBalance, account, amm?.ammOutcomes).catch((e) =>
-      console.log(e)
-    );
-    const minAmts = amm?.ammOutcomes.map((o, i) => ({
-      amount: results.minAmounts[i],
-      outcomeId: i,
-      hide: new BN(results.minAmounts[i]).lt(DUST_POSITION_AMOUNT),
-    }));
-    const minAmtsRaw = amm?.ammOutcomes.map((o, i) => results.minAmountsRaw[i]);
-    minAmounts = minAmts;
-    minAmountsRaw = minAmtsRaw;
-  }
+  const rewardContractAddress = getRewardsContractAddress(amm.marketFactoryAddress);
+  const rewardContract = rewardContractAddress ? getRewardContract(provider, rewardContractAddress, account) : null;
+  results = rewardContractAddress
+    ? await rewardContract.callStatic
+        .removeLiquidity(amm.ammFactoryAddress, market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
+        .catch((e) => console.log(e))
+    : await ammFactory.callStatic
+        .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
+        .catch((e) => console.log(e));
+
+  const balances = results ? results?._balances || results[1] : [];
+  collateralOut = results ? results?._collateralOut || results[0] || "0" : collateralOut;
+  minAmounts = balances.map((v, i) => ({
+    amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+    outcomeId: i,
+    hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+  }));
+  minAmountsRaw = balances.map((v) => new BN(String(v)).toFixed());
 
   if (!results) return null;
 
