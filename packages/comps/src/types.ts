@@ -220,6 +220,14 @@ export interface ClaimedProceeds {
   cash: Cash;
 }
 
+export interface RewardsInfo {
+  beginTimestamp: number;
+  created: boolean;
+  earlyDepositEndTimestamp: number;
+  endTimestamp: number;
+  totalRewardsAccrued: string;
+  rawTotalRewardsAccrued: string;
+}
 export interface MarketInfo {
   marketId: string;
   eventId: string;
@@ -252,6 +260,7 @@ export interface MarketInfo {
   isFuture: boolean;
   subMarkets?: { marketName: string; shareTokens: string[]; marketType: number; factory: string; marketId: number }[];
   category?: string;
+  rewards?: RewardsInfo;
 }
 
 export interface SubOutcome {

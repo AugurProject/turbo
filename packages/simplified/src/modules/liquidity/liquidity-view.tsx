@@ -204,6 +204,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       liquidityUSD,
     },
     endTimestamp,
+    rewards,
   } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
@@ -222,7 +223,13 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
   const rewardAmount = formatToken(pendingUserRewards?.balance || "0", { decimalsRounded: 2, decimals: 2 });
-  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  useEffect(() => {
+    let isMounted = true;
+    getMaticUsdPrice(loginAccount?.library).then((p) => {
+      if (isMounted) setPrice(p);
+    });
+    return () => (isMounted = false);
+  }, []);
   const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
@@ -306,10 +313,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         )}
       </div>
       {hasRewards && (
-        <BonusReward
-          pendingBonusRewards={pendingUserRewards?.pendingBonusRewards}
-          endTimestamp={pendingUserRewards.endBonusTimestamp}
-        />
+        <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} rewardsInfo={rewards} />
       )}
     </article>
   );

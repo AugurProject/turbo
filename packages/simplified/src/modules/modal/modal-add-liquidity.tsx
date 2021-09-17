@@ -553,10 +553,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
           breakdown: [
             {
-              label: "trading fee",
-              value: `${feePercentFormatted}`,
-            },
-            {
               label: "your share of the pool",
               value: `100%`,
             },
