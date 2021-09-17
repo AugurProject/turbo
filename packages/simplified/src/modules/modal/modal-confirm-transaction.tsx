@@ -4,7 +4,7 @@ import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
 import { useAppStatusStore } from "@augurproject/comps";
 
-const ModalConfirmTransaction = () => {
+const ModalConfirmTransaction = ({ transactionAction, breakdown, target, heading}) => {
   const {
     actions: { closeModal },
   } = useAppStatusStore();
