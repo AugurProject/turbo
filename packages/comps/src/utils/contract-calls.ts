@@ -2452,8 +2452,7 @@ let defaultMaticPrice = 1.34;
 export const getMaticUsdPrice = async (library: Web3Provider = null): Promise<number> => {
   if (!library) return defaultMaticPrice;
   const network = await library?.getNetwork();
-  if (network?.chainId !== POLYGON_NETWORK) return 1;
-  if (!library) return defaultPrice;
+  if (network?.chainId !== POLYGON_NETWORK) return defaultMaticPrice;
   try {
     const contract = getContract(POLYGON_PRICE_FEED_MATIC, PriceFeedABI, library);
     const data = await contract.latestRoundData();
