@@ -332,8 +332,8 @@ const LiquidityView = () => {
   const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
   const [filter, setFilter] = useState("");
   const [sortBy, setSortBy] = useState({
-    type: null,
-    direction: 1,
+    type: SORT_TYPES.EXPIRES,
+    direction: -1,
   });
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [page, setPage] = useQueryPagination({
