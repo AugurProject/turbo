@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import classNames from "classnames";
 import Styles from "./liquidity-view.styles.less";
 import {
@@ -215,7 +215,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
     [liquidityUSD]
   );
-  const [price, setPrice] = useState(1);
+  const price = useRef(1)
   const [expanded, setExpanded] = useState(false);
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
@@ -223,7 +223,10 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
   const rewardAmount = formatToken(pendingUserRewards?.balance || "0", { decimalsRounded: 2, decimals: 2 });
-  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  getMaticUsdPrice(loginAccount?.library).then(p => {
+    if (price.current !== null)
+    price.current = p;
+  });
   const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
@@ -454,3 +457,5 @@ const SortableHeaderButton = ({ setSortBy, sortBy, sortType, text }: SortableHea
     {sortBy.type === sortType && Arrow} {text} {sortType === SORT_TYPES.REWARDS ? MaticIcon : null}
   </button>
 );
+
+
