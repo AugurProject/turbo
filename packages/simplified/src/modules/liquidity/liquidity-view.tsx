@@ -211,7 +211,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   ]);
   const formattedTVL = useMemo(
     () =>
-    liquidityUSD &&
+      liquidityUSD &&
       formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
     [liquidityUSD]
   );
@@ -223,7 +223,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
   const rewardAmount = formatToken(pendingUserRewards?.balance || "0", { decimalsRounded: 2, decimals: 2 });
-  getMaticUsdPrice(loginAccount?.library).then(setPrice);
+  useEffect(() => { let isMounted = true; getMaticUsdPrice(loginAccount?.library).then(p => { if (isMounted) setPrice(p) }); return () => isMounted = false }, []);
   const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
@@ -301,7 +301,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} rewardsInfo={rewards}/>}
+      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} rewardsInfo={rewards} />}
     </article>
   );
 };
@@ -330,7 +330,7 @@ const LiquidityView = () => {
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
-  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string}) => (p.plus(r.balance)), ZERO)): "0";
+  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string }) => (p.plus(r.balance)), ZERO)) : "0";
   const handleFilterSort = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, pendingRewards, {
       filter,
