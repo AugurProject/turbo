@@ -227,7 +227,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     if (price.current !== null)
     price.current = p;
   });
-  const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
+  const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price.current).formatted;
   return (
     <article
       className={classNames(Styles.LiquidityMarketCard, {
