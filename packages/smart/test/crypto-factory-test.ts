@@ -32,8 +32,10 @@ import {
 import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 import { randomPrice } from "../tasks";
+import { createPoolStatusInfo } from "../src/fetcher/common";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
+const ZERO = BigNumber.from(0);
 
 describe("CryptoFactory", function () {
   enum CoinIndex {
@@ -266,9 +268,15 @@ describe("CryptoFactory", function () {
   it("can create pool", async () => {
     const initialLiquidity = usdcBasis.mul(1000); // 1000 of the collateral
     await collateral.faucet(initialLiquidity);
-    await collateral.approve(ammFactory.address, initialLiquidity);
+    await collateral.approve(masterChef.address, initialLiquidity);
 
-    await ammFactory.createPool(marketFactory.address, ethPriceMarketId, initialLiquidity, signer.address);
+    await masterChef.createPool(
+      ammFactory.address,
+      marketFactory.address,
+      ethPriceMarketId,
+      initialLiquidity,
+      signer.address
+    );
   });
 
   it("can buy shares", async () => {
@@ -447,7 +455,7 @@ describe("CryptoFactory", function () {
       expect(factoryBundle, "factory bundle").to.deep.equal(await marketFactoryBundleCheck(marketFactory));
 
       expect(markets, "market bundles").to.deep.equal(
-        await Promise.all(ids.map((id) => marketStaticBundleCheck(marketFactory, ammFactory, id)))
+        await Promise.all(ids.map((id) => marketStaticBundleCheck(marketFactory, ammFactory, masterChef, id)))
       );
     });
 
@@ -464,10 +472,13 @@ describe("CryptoFactory", function () {
 async function marketStaticBundleCheck(
   marketFactory: CryptoMarketFactoryV3,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   marketId: BigNumberish
 ) {
   const market = await marketFactory.getMarket(marketId);
   const marketDetails = await marketFactory.getMarketDetails(marketId);
+  const rewards = await masterChef.getPoolInfo(ammFactory.address, marketFactory.address, marketId);
+
   return {
     // for all market factories
     factory: marketFactory.address,
@@ -484,6 +495,7 @@ async function marketStaticBundleCheck(
     creationPrice: marketDetails.creationPrice,
     resolutionPrice: marketDetails.resolutionPrice,
     resolutionTime: marketDetails.resolutionTime,
+    rewards: createPoolStatusInfo(rewards),
   };
 }
 

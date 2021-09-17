@@ -4,7 +4,6 @@ import { expect } from "chai";
 
 import {
   AMMFactory,
-  BFactory__factory,
   Cash,
   FeePot,
   FuturesFetcher__factory,
@@ -28,6 +27,7 @@ import {
 import { describe } from "mocha";
 import { MAX_UINT } from "../src/bmath";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
+import { createPoolStatusInfo } from "../src/fetcher/common";
 
 const ONE_DAY = BigNumber.from(60 * 60 * 24);
 const SMALL_FEE = BigNumber.from(10).pow(16);
@@ -78,8 +78,6 @@ describe("Futures Markets", () => {
 
   let signer: SignerWithAddress;
   let collateral: Cash;
-  let reputationToken: Cash;
-  let feePot: FeePot;
   let marketFactory: FuturesMarketFactoryV3;
   let ammFactory: AMMFactory;
   let masterChef: MasterChef;
@@ -99,7 +97,6 @@ describe("Futures Markets", () => {
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
     collateral = (await ethers.getContract("Collateral")) as Cash;
-    const bFactory = await new BFactory__factory(signer).deploy();
     const shareFactor = calcShareFactor(await collateral.decimals());
     marketFactory = await new FuturesMarketFactoryV3__factory(signer).deploy(
       signer.address,
@@ -270,7 +267,9 @@ describe("Futures Markets", () => {
 
       expect(markets, "market bundles").to.deep.equal(
         flatten(
-          ...(await Promise.all(ids.map((groupId) => groupStaticBundleCheck(marketFactory, ammFactory, groupId))))
+          ...(await Promise.all(
+            ids.map((groupId) => groupStaticBundleCheck(marketFactory, ammFactory, masterChef, groupId))
+          ))
         )
       );
     });
@@ -460,12 +459,14 @@ function buildOutcomeNames(marketName: string): string[] {
 export async function groupStaticBundleCheck(
   marketFactory: Grouped,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   groupId: BigNumberish
 ): Promise<InitialGroupsMarket[]> {
   const group = await marketFactory.getGroup(groupId);
 
   async function marketCheck(marketId: BigNumberish, marketName: string, marketType: GroupMarketType) {
     const market = await marketFactory.getMarket(marketId);
+    const rewards = await masterChef.getPoolInfo(ammFactory.address, marketFactory.address, marketId);
     return {
       // specific to this market
       factory: marketFactory.address,
@@ -483,6 +484,7 @@ export async function groupStaticBundleCheck(
       marketName,
       marketType,
       category: group.category,
+      rewards: createPoolStatusInfo(rewards),
     };
   }
 

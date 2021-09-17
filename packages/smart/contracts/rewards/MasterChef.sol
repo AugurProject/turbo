@@ -258,10 +258,11 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     ) public view returns (PoolStatusInfo memory _poolStatusInfo) {
         RewardPoolLookupInfo memory _rewardPoolLookupInfo =
             rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
-        PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
 
         // This cannot revert as it will be used in a multicall.
         if (_rewardPoolLookupInfo.created) {
+            PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
+
             _poolStatusInfo.beginTimestamp = _pool.beginTimestamp;
             _poolStatusInfo.endTimestamp = _pool.endTimestamp;
             _poolStatusInfo.earlyDepositEndTimestamp =
