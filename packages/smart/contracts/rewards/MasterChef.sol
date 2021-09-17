@@ -263,10 +263,12 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         if (_rewardPoolLookupInfo.created) {
             PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
 
+            uint256 _duration = _poolStatusInfo.endTimestamp - _poolStatusInfo.beginTimestamp;
+
             _poolStatusInfo.beginTimestamp = _pool.beginTimestamp;
             _poolStatusInfo.endTimestamp = _pool.endTimestamp;
             _poolStatusInfo.earlyDepositEndTimestamp =
-                ((_poolStatusInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
+                ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
                 _pool.beginTimestamp +
                 1;
 
@@ -293,11 +295,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             uint256 accRewardsPerShare = _pool.accRewardsPerShare;
             uint256 lpSupply = _pool.lpToken.balanceOf(address(this));
 
+            uint256 _duration = _pool.endTimestamp - _pool.beginTimestamp;
+
             _pendingRewardInfo.created = true;
             _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
             _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
             _pendingRewardInfo.earlyDepositEndTimestamp =
-                ((_pendingRewardInfo.endTimestamp * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
+                ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
                 _pool.beginTimestamp +
                 1;
 
