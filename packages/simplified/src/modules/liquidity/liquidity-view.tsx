@@ -20,16 +20,7 @@ import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
 
-const {
-  ADD,
-  CREATE,
-  REMOVE,
-  ALL_MARKETS,
-  OTHER,
-  POPULAR_CATEGORIES_ICONS,
-  SPORTS,
-  MARKET_ID_PARAM_NAME,
-} = Constants;
+const { ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS, MARKET_ID_PARAM_NAME } = Constants;
 const {
   PaginationComps: { sliceByPage, useQueryPagination, Pagination },
   Links: { MarketLink },
@@ -314,7 +305,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={pendingUserRewards.endBonusTimestamp}/>}
+      {hasRewards && (
+        <BonusReward
+          pendingBonusRewards={pendingUserRewards?.pendingBonusRewards}
+          endTimestamp={pendingUserRewards.endBonusTimestamp}
+        />
+      )}
     </article>
   );
 };
@@ -360,7 +356,7 @@ const LiquidityView = () => {
 
   useEffect(() => {
     handleFilterSort();
-  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity, sortBy.type, sortBy.direction]);
+  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity, sortBy?.type, sortBy?.direction]);
 
   useEffect(() => {
     handleFilterSort();
