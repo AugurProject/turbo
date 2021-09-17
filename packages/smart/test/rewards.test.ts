@@ -80,17 +80,18 @@ describe("MasterChef", () => {
     it("should have zero rewards if EST has elapsed ", async () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
 
-      const estimatedStartTimeOneDayOutsideWindow = BigNumber.from(timestamp).sub(100);
-      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
+      const estimatedStartTimeJustBeforeNow = BigNumber.from(timestamp).sub(100);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeJustBeforeNow);
 
-      const { endTimestamp } = await masterChef.poolInfo(0);
-      expect(endTimestamp).to.be.equal(estimatedStartTimeOneDayOutsideWindow);
+      const { beginTimestamp, endTimestamp } = await masterChef.poolInfo(0);
+      expect(beginTimestamp.lte(endTimestamp)).to.be.true;
+      expect(endTimestamp).to.be.equal(estimatedStartTimeJustBeforeNow);
     });
+
     it("should wait to begin rewards if EST is in the future more than rewardPeriods days", async () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
 
       const estimatedStartTimeOneDayOutsideWindow = rewardPeriods.add(1).mul(SECONDS_PER_DAY).add(timestamp);
-
       await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
 
       const { beginTimestamp, rewardsPerSecond } = await masterChef.poolInfo(0);
