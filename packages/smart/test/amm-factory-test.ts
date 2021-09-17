@@ -285,7 +285,7 @@ describe("AMMFactory", () => {
         )
       );
 
-      expect(sharesAfter).to.deep.equal(["0", "193151727304627160820", "0"]);
+      expect(sharesAfter).to.deep.equal(["0", "194438690996976578137", "0"]);
     });
   });
 
@@ -361,7 +361,7 @@ describe("AMMFactory", () => {
       expect(sharesAfter).to.deep.equal(
         sharesGained.map((s: BigNumber, index: number) => s.add(sharesBefore[index]).toString())
       );
-      expect(sharesAfter).to.deep.equal(["17630229090909091709", "484905048517", "17630229090909091709"]);
+      expect(sharesAfter).to.deep.equal(["17749210090909091709", "232282729145", "17749210090909091709"]);
     });
 
     it("liquidity removal for collateral and burn sets", async () => {
