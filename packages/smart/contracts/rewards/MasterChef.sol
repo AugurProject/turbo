@@ -251,6 +251,13 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         return _pool.endTimestamp;
     }
 
+    function getEarlyDepositEndTimestamp(uint256 _pid) public view returns (uint256) {
+        PoolInfo storage _pool = poolInfo[_pid];
+        uint256 _duration = _pool.endTimestamp - _pool.beginTimestamp;
+
+        return ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
+    }
+
     function getPoolInfo(
         AMMFactory _ammFactory,
         AbstractMarketFactoryV3 _marketFactory,
@@ -263,14 +270,9 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         if (_rewardPoolLookupInfo.created) {
             PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
 
-            uint256 _duration = _poolStatusInfo.endTimestamp - _poolStatusInfo.beginTimestamp;
-
             _poolStatusInfo.beginTimestamp = _pool.beginTimestamp;
             _poolStatusInfo.endTimestamp = _pool.endTimestamp;
-            _poolStatusInfo.earlyDepositEndTimestamp =
-                ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
-                _pool.beginTimestamp +
-                1;
+            _poolStatusInfo.earlyDepositEndTimestamp = getEarlyDepositEndTimestamp(_rewardPoolLookupInfo.pid);
 
             _poolStatusInfo.totalRewardsAccrued =
                 (min(block.timestamp, _pool.endTimestamp) - _pool.beginTimestamp) *
@@ -300,10 +302,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _pendingRewardInfo.created = true;
             _pendingRewardInfo.beginTimestamp = _pool.beginTimestamp;
             _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
-            _pendingRewardInfo.earlyDepositEndTimestamp =
-                ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) +
-                _pool.beginTimestamp +
-                1;
+            _pendingRewardInfo.earlyDepositEndTimestamp = getEarlyDepositEndTimestamp(_rewardPoolLookupInfo.pid);
 
             if (_pool.totalEarlyDepositBonusRewardShares > 0 && block.timestamp > _pendingRewardInfo.endTimestamp) {
                 _pendingRewardInfo.accruedEarlyDepositBonusRewards = _pool
