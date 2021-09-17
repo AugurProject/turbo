@@ -19,7 +19,8 @@ export function DataReducer(state, action) {
         const hasWinner = updatedState?.markets[marketId]?.hasWinner;
         const marketTransactions = transactions[marketId];
         const amm = state[AMM_EXCHANGES][marketId];
-        const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions, hasWinner);
+        const market = state[MARKETS][marketId];
+        const { apy, vol, vol24hr } = calculateAmmTotalVolApy(amm, marketTransactions, market?.rewards, hasWinner);
         return {
           ...marketTransactions,
           apy,

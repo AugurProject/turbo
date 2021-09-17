@@ -225,12 +225,23 @@ export const decodeMarketDetailsFetcher = (marketData: any, factoryDetails: any,
     marketIndex: turboId, // use this instead of turboId
     marketFactoryType: config.type,
     ...factoryDetails,
+    rewards: formatRewards(marketData?.rewards),
   };
   const marketInfo = deriveMarketInfo(market, marketData, config.type);
   marketInfo.amm = decodePool(marketInfo, pool, factoryDetails, config);
   return marketInfo;
 };
 
+const formatRewards = (marketData) => {
+  return {
+    beginTimestamp: new BN(String(marketData?.beginTimestamp || "0")).toNumber(),
+    created: marketData?.created,
+    earlyDepositEndTimestamp: new BN(String(marketData?.earlyDepositEndTimestamp || "0")).toNumber(),
+    endTimestamp: new BN(String(marketData?.endTimestamp || "0")).toNumber(),
+    totalRewardsAccrued: String(sharesOnChainToDisplay(new BN(String(marketData?.totalRewardsAccrued || "0")))),
+    rawTotalRewardsAccrued: String(marketData?.totalRewardsAccrued),
+  };
+};
 export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails: any, config: MarketFactory) => {
   const {
     endTime,
