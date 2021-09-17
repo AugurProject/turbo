@@ -127,14 +127,19 @@
       padding-left: @size-16;
       grid-column: 1;
 
-      > a > section {
+      > a {
         width: @size-56;
-        align-items: center;
-        display: flex;
-        align-content: center;
+        height: @size-40;
+
+        > section {
+          width: @size-56;
+          height: @size-40;
+          align-items: center;
+          display: flex;
+          align-content: center;
+        }
       }
     }
-
     > section:last-of-type {
       padding-right: @size-16;
       grid-column: 2;
