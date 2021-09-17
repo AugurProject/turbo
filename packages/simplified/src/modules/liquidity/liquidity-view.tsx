@@ -203,6 +203,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       liquidityUSD,
     },
     endTimestamp,
+    rewards
   } = market;
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
@@ -300,7 +301,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} endTimestamp={pendingUserRewards.endBonusTimestamp}/>}
+      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} rewardsInfo={rewards}/>}
     </article>
   );
 };

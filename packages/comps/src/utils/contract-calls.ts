@@ -19,6 +19,7 @@ import {
   MarketInfos,
   MarketTransactions,
   PositionBalance,
+  RewardsInfo,
   UserBalances,
   UserClaimTransactions,
 } from "../types";
@@ -942,15 +943,15 @@ export const getUserBalances = async (
         pendingEarlyDepositBonusRewards,
       } = balanceValue;
       const balance = convertOnChainCashAmountToDisplayCashAmount(
-        new BN(accruedStandardRewards._hex),
+        new BN(String(accruedStandardRewards)),
         new BN(decimals)
       ).toFixed();
       const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
-        new BN(pendingEarlyDepositBonusRewards._hex),
+        new BN(String(pendingEarlyDepositBonusRewards)),
         new BN(decimals)
       ).toFixed();
       const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
-        new BN(accruedEarlyDepositBonusRewards._hex),
+        new BN(String(accruedEarlyDepositBonusRewards)),
         new BN(decimals)
       ).toFixed();
       if (rawBalance !== "0") {
@@ -1412,6 +1413,7 @@ const accumLpSharesPrice = (
 export const calculateAmmTotalVolApy = (
   amm: AmmExchange,
   transactions: MarketTransactions = {},
+  rewards: RewardsInfo,
   hasWinner: boolean = false
 ): { apy: string; vol: string; vol24hr: string } => {
   const defaultValues = { apy: undefined, vol: null, vol24hr: null };
@@ -1428,23 +1430,29 @@ export const calculateAmmTotalVolApy = (
     Number(a.timestamp) > Number(b.timestamp) ? 1 : -1
   );
   const startTimestamp = Number(sortedAddLiquidity[0].timestamp);
+  const totalTradingVolUSD = volumeTotalUSD || 0;
+  if (startTimestamp === 0) return defaultValues;
 
-  if (volumeTotalUSD === 0 || startTimestamp === 0 || feeDecimal === "0") return defaultValues;
-
-  const totalFeesInUsd = new BN(volumeTotalUSD).times(new BN(feeDecimal));
+  const totalFeesInUsd = new BN(totalTradingVolUSD).times(new BN(feeDecimal || "0"));
   const currTimestamp = Math.floor(new Date().getTime() / 1000); // current time in unix timestamp
   const secondsPast = currTimestamp - startTimestamp;
   const pastDays = Math.floor(new BN(secondsPast).div(SEC_IN_DAY).toNumber());
+  const maticPrice = defaultMaticPrice; // don't make eth call.
+  const rewardsUsd = new BN(rewards.totalRewardsAccrued || "0").times(new BN(maticPrice || "1"));
 
   const tradeFeeLiquidityPerDay = new BN(liquidityUSD).lte(DUST_LIQUIDITY_AMOUNT)
-    ? null
-    : totalFeesInUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1));
+    ? rewardsUsd.div(new BN(liquidityUSD)).div(new BN(pastDays || 1))
+    : rewardsUsd
+        .plus(totalFeesInUsd)
+        .div(new BN(liquidityUSD))
+        .div(new BN(pastDays || 1));
 
   const tradeFeePerDayInYear =
     hasWinner || !tradeFeeLiquidityPerDay
       ? undefined
       : tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
-  return { apy: tradeFeePerDayInYear, vol: volumeTotalUSD, vol24hr: volumeTotalUSD24hr };
+
+  return { apy: tradeFeePerDayInYear, vol: totalTradingVolUSD, vol24hr: volumeTotalUSD24hr };
 };
 
 const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoffTimestamp: number = 0) => {
@@ -2440,10 +2448,11 @@ export function extractABI(contract: ethers.Contract): any[] {
   return contractAbi;
 }
 
-export const getMaticUsdPrice = async (library: Web3Provider): Promise<number> => {
+let defaultMaticPrice = 1.34;
+export const getMaticUsdPrice = async (library: Web3Provider = null): Promise<number> => {
+  if (!library) return defaultMaticPrice;
   const network = await library?.getNetwork();
   if (network?.chainId !== POLYGON_NETWORK) return 1;
-  let defaultMaticPrice = 1.34;
   if (!library) return defaultPrice;
   try {
     const contract = getContract(POLYGON_PRICE_FEED_MATIC, PriceFeedABI, library);

@@ -20,6 +20,7 @@ import {
   Winnings,
   UserState,
   FormattedNumber,
+  RewardsInfo,
 } from "@augurproject/comps/build/types";
 import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
@@ -403,14 +404,17 @@ export const PositionTable = ({
 // provide a 0%-100% string value to fill the progress bar.
 export const BonusReward = ({
   pendingBonusRewards,
-  endTimestamp,
+  rewardsInfo,
 }: {
   pendingBonusRewards: string;
-  endTimestamp: number;
+  rewardsInfo: RewardsInfo;
 }) => {
   const bonusAmount = formatToken(pendingBonusRewards)?.formatted;
+  const { beginTimestamp, endTimestamp } = rewardsInfo;
   const now = Math.floor(new Date().getTime() / 1000);
-  let filled = Math.floor((1 - (now / endTimestamp)) * 100);
+  const secondsRemaining = endTimestamp - now;
+  const totalSeconds = endTimestamp - beginTimestamp;
+  let filled = (1 - (secondsRemaining / totalSeconds)) * 100
   if (now > endTimestamp) filled = 100;
   const dateOnly = getMarketEndtimeDate(endTimestamp);
   const countdownDuration = timeTogo(endTimestamp);
