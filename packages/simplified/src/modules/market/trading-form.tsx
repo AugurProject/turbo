@@ -443,12 +443,14 @@ export const ApprovalButton = ({
   actionType,
   isApproved = false,
   shareToken = null,
+  customClass = null,
 }: {
   amm?: AmmExchange;
   cash: Cash;
   actionType: string | number;
   isApproved?: boolean;
   shareToken?: string;
+  customClass?: any;
 }) => {
   const [isPendingTx, setIsPendingTx] = useState(false);
   const {
@@ -543,7 +545,7 @@ export const ApprovalButton = ({
       text={isPendingTx ? "Approving..." : buttonText}
       subText={subText}
       action={() => approve()}
-      customClass={ButtonStyles.ApproveButton}
+      customClass={customClass ? customClass : ButtonStyles.ApproveButton}
     />
   );
 };

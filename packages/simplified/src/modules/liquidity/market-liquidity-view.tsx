@@ -361,7 +361,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
         </div>
 
         <div className={Styles.ActionButtons}>
-          {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} />}
+          {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} customClass={ButtonStyles.ReviewTransactionButton} />}
           <SecondaryThemeButton
             action={() =>
               confirmAction({
@@ -391,7 +391,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                   : INVALID_PRICE_ADD_UP_SUBTEXT
                 : null
             }
-            customClass={ButtonStyles.BuySellButton}
+            customClass={ButtonStyles.ReviewTransactionButton}
           />
         </div>
       </main>
