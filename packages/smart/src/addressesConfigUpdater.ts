@@ -2,6 +2,7 @@ import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
 import { Addresses, MarketFactory } from "../constants";
+import { format } from "prettier";
 
 const printer = ts.createPrinter();
 
@@ -140,5 +141,5 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
   const transformationResult = ts.transform(sourceFile, [transformerFactory]);
   const output = printer.printNode(EmitHint.Unspecified, transformationResult.transformed[0], sourceFile);
 
-  fs.writeFileSync(addressFilePath, output);
+  fs.writeFileSync(addressFilePath, format(output));
 }
