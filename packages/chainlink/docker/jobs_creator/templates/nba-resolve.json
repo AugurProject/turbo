@@ -3,12 +3,6 @@
   "initiators": [
     {
       "type": "web"
-    },
-    {
-      "type": "cron",
-      "params": {
-        "schedule": "CRON_TZ=UTC 0 */4 * * *"
-      }
     }
   ],
   "tasks": [
