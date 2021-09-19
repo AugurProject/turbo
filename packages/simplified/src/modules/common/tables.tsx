@@ -21,6 +21,7 @@ import {
   UserState,
   FormattedNumber,
   RewardsInfo,
+  PendingUserReward,
 } from "@augurproject/comps/build/types";
 import getUSDC from "../../utils/get-usdc";
 import { useSimplifiedStore } from "../stores/simplified";
@@ -406,12 +407,13 @@ export const BonusReward = ({
   pendingBonusRewards,
   rewardsInfo,
 }: {
-  pendingBonusRewards: string;
+  pendingBonusRewards: PendingUserReward;
   rewardsInfo: RewardsInfo;
 }) => {
-  const bonusAmount = formatToken(pendingBonusRewards)?.formatted;
-  const { beginTimestamp, endTimestamp } = rewardsInfo;
+  const bonusAmount = formatToken(pendingBonusRewards?.pendingBonusRewards || "0")?.formatted;
+  const { beginTimestamp } = rewardsInfo;
   const now = Math.floor(new Date().getTime() / 1000);
+  const endTimestamp: number = pendingBonusRewards?.endBonusTimestamp || 0;
   const secondsRemaining = endTimestamp - now;
   const totalSeconds = endTimestamp - beginTimestamp;
   let filled = (1 - (secondsRemaining / totalSeconds)) * 100

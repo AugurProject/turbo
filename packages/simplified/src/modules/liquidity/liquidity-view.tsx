@@ -301,7 +301,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
           </>
         )}
       </div>
-      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards?.pendingBonusRewards} rewardsInfo={rewards} />}
+      {hasRewards && <BonusReward pendingBonusRewards={pendingUserRewards} rewardsInfo={rewards} />}
     </article>
   );
 };

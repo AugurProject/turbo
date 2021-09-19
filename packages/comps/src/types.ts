@@ -601,12 +601,15 @@ export interface Approvals {
   [address: string]: boolean;
 }
 
+export interface PendingUserReward {
+  balance: string;
+  rawBalance: string;
+  marketId: string;
+  endBonusTimestamp: number;
+  pendingBonusRewards: string;
+}
 export interface PendingRewards {
-  [marketId: string]: {
-    balance: string;
-    rawBalance: string;
-    marketId: string;
-  };
+  [marketId: string]: PendingUserReward;
 }
 export interface UserBalances {
   ETH: CurrencyBalance;
