@@ -413,8 +413,8 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     }
 
     function deposit(uint256 _pid, uint256 _amount) public {
-        poolInfo[_pid].lpToken.safeTransferFrom(msg.sender, address(this), _amount);
         depositInternal(msg.sender, _pid, _amount);
+        poolInfo[_pid].lpToken.safeTransferFrom(msg.sender, address(this), _amount);
     }
 
     // Withdraw LP tokens from MasterChef.
