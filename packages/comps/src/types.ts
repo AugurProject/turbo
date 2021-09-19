@@ -605,6 +605,7 @@ export interface PendingUserReward {
   balance: string;
   rawBalance: string;
   marketId: string;
+  endEarlyBonusTimestamp: number;
   endBonusTimestamp: number;
   pendingBonusRewards: string;
 }
