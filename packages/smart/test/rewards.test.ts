@@ -23,6 +23,7 @@ function checkWithin(actual: BigNumber, expected: BigNumber, tolerance = BONE) {
 describe("MasterChef", () => {
   let bill: SignerWithAddress;
   let tom: SignerWithAddress;
+  let chwy: SignerWithAddress;
 
   let cash: Cash;
   let rewardsToken: Cash;
@@ -54,7 +55,7 @@ describe("MasterChef", () => {
     rewardsToken = (await ethers.getContract("WrappedMatic")) as Cash;
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
-    [bill, tom] = await ethers.getSigners();
+    [bill, chwy, tom] = await ethers.getSigners();
 
     tomMasterChef = masterChef.connect(tom);
 
@@ -329,6 +330,7 @@ describe("MasterChef", () => {
 
         const poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
+        await network.provider.send("evm_mine", []);
         await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(100000).toNumber()]);
         await network.provider.send("evm_mine", []);
       });
@@ -346,6 +348,22 @@ describe("MasterChef", () => {
 
         expect(pendingRewardInfo.accruedEarlyDepositBonusRewards).to.be.equal(0);
         checkWithin(pendingRewardInfo.accruedStandardRewards, totalRewards);
+      });
+
+      it("should not payout rewards to user that enter after rewards end", async () => {
+        await cash.connect(chwy).faucet(initialCashAmount);
+        await cash.connect(chwy).approve(masterChef.address, initialCashAmount);
+
+        checkWithin(await rewardsToken.balanceOf(chwy.address), ZERO);
+
+        await masterChef.connect(chwy).deposit(0, initialCashAmount);
+        await masterChef.connect(chwy).withdraw(0, initialCashAmount);
+
+        checkWithin(await rewardsToken.balanceOf(chwy.address), ZERO);
+
+        await tomMasterChef.withdraw(0, initialCashAmount);
+
+        checkWithin(await rewardsToken.balanceOf(tom.address), totalRewards);
       });
 
       it("should send rewards on withdrawal", async () => {
