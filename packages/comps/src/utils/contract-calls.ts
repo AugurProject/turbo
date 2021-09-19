@@ -952,6 +952,7 @@ export const getUserBalances = async (
         accruedStandardRewards,
         earlyDepositEndTimestamp,
         pendingEarlyDepositBonusRewards,
+        endTimestamp,
       } = balanceValue;
       const balance = convertOnChainCashAmountToDisplayCashAmount(
         new BN(String(accruedStandardRewards)),
@@ -971,7 +972,8 @@ export const getUserBalances = async (
           rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
           marketId,
           pendingBonusRewards,
-          endBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
+          endEarlyBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
+          endBonusTimestamp: new BN(String(endTimestamp)).toNumber(),
         };
       } else {
         delete userBalances[collection][dataKey];
