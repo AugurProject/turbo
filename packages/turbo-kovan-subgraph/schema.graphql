@@ -26,6 +26,7 @@ type Market @entity {
   claimedProceeds: [ClaimedProceeds!] @derivedFrom(field: "marketId")
   teamSportsMarket: [TeamSportsMarket!] @derivedFrom(field: "marketId")
   mmaMarket: [MmaMarket!] @derivedFrom(field: "marketId")
+  nflMarket: [NflMarket!] @derivedFrom(field: "marketId")
   cryptoMarket: [CryptoMarket!] @derivedFrom(field: "marketId")
 }
 

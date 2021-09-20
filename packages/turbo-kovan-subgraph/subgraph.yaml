@@ -1,14 +1,14 @@
 specVersion: 0.0.2
-description: Subgraph for Augur Turbo (mumbai) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
+description: Subgraph for Augur Turbo (matic) contracts which tracks Markets, Trades, Liquidity, Fees and Winnings.
 repository: https://github.com/AugurProject/turbo
 schema:
   file: ./schema.graphql
 dataSources:
     - kind: ethereum/contract
       name: AmmFactory
-      network: mumbai
+      network: matic
       source:
-        address: '0xEC83b3a1f0c8b61ed1E6c92509Cd5a672771D2Dd'
+        address: '0xF515d928c9dC700969723a41038eDF34ecEf2240'
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -33,38 +33,10 @@ dataSources:
           - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
             handler: handleSharesSwappedEvent
     - kind: ethereum/contract
-      name: AmmFactory-6
-      network: mumbai
+      name: AmmFactory-4
+      network: matic
       source:
-        address: '0x7e7FCb06cC1DcBD1E6AFfFC862Ed169A336fB7Ce'
-        abi: AmmFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/AmmFactory.ts
-        entities:
-          - PoolCreated
-          - LiquidityChanged
-          - SharesSwapped
-        abis:
-          - name: AmmFactory
-            file: ./abis/AMMFactory.json
-          - name: BPool
-            file: ./abis/BPool.json
-        eventHandlers:
-          - event: PoolCreated(address,indexed address,indexed uint256,indexed address,address)
-            handler: handlePoolCreatedEvent
-          - event: LiquidityChanged(indexed address,indexed uint256,indexed address,address,int256,int256,uint256[])
-            handler: handleLiquidityChangedEvent
-          - event: SharesSwapped(indexed address,indexed uint256,indexed address,uint256,int256,int256,uint256)
-            handler: handleSharesSwappedEvent
-    - kind: ethereum/contract
-      name: AmmFactory-9
-      network: mumbai
-      source:
-        address: '0xf098b85047CfB29840a3a43194AbCb31d5C53E16'
+        address: '0x63BBEEa5085E94D1F57A5938f9a22dd485572Bb3'
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -90,9 +62,9 @@ dataSources:
             handler: handleSharesSwappedEvent
     - kind: ethereum/contract
       name: SportsLinkMarketFactoryV2
-      network: mumbai
+      network: matic
       source:
-        address: '0x27394CD54b4c7f545B0e55cBB89DC0A09b41543C'
+        address: '0xA76C803c1D3B4cc31b1B964f29357BbF23B6D6f7'
         abi: SportsLinkMarketFactory
         startBlock: 15336699
       mapping:
@@ -117,36 +89,9 @@ dataSources:
             handler: handleSettlementFeeClaimedEvent
     - kind: ethereum/contract
       name: MmaMarketFactoryV2
-      network: mumbai
+      network: matic
       source:
-        address: '0xA45b74B3544dC6dF01CdbA38558C1E914779Ac8A'
-        abi: MmaMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/MmaMarketFactory.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-        abis:
-          - name: MmaMarketFactory
-            file: ./abis/MMALinkMarketFactoryV2.json
-        eventHandlers:
-          - event: MarketCreated(uint256,address,uint256,uint8,indexed uint256,string,uint256,string,uint256,uint256)
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SettlementFeeClaimed(address,uint256,indexed address)
-            handler: handleSettlementFeeClaimedEvent
-    - kind: ethereum/contract
-      name: MmaMarketFactoryV2-1
-      network: mumbai
-      source:
-        address: '0x39Fb172fCBFBf8E594cA15a31B3bBd88E50C9B68'
+        address: '0xe296e39b44911a7fd4C741daa4eFDd345bF5a076'
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:
@@ -171,9 +116,9 @@ dataSources:
             handler: handleSettlementFeeClaimedEvent
     - kind: ethereum/contract
       name: MmaMarketFactoryV3
-      network: mumbai
+      network: matic
       source:
-        address: '0x0045FC078bb60510185CBA39f2eA352C92C0c179'
+        address: '0xdCabBAE1c5885134f42F05e60D67f6794f091732'
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:
@@ -196,37 +141,10 @@ dataSources:
           - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
             handler: handleWinningsClaimedEvent
     - kind: ethereum/contract
-      name: CryptoMarketFactoryV2
-      network: mumbai
-      source:
-        address: '0x615b63ea5a6dAE1e996E3a69aC70042B1D8f8517'
-        abi: CryptoMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/CryptoMarketFactory.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-        abis:
-          - name: CryptoMarketFactory
-            file: ./abis/CryptoMarketFactoryV2.json
-        eventHandlers:
-          - event: MarketCreated(uint256,address,indexed uint256,uint8,indexed uint256,uint256)
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SettlementFeeClaimed(address,uint256,indexed address)
-            handler: handleSettlementFeeClaimedEvent
-    - kind: ethereum/contract
       name: NflMarketFactoryV3
-      network: mumbai
+      network: matic
       source:
-        address: '0x48cb89F115A7c256a3520AAd4c9b5fA2841614C4'
+        address: '0xbF22De662212463533B7e5e2DfdD357551E5027D'
         abi: NflMarketFactory
         startBlock: 15336699
       mapping:
