@@ -79,7 +79,7 @@ type CryptoMarket @entity {
   timestamp: BigInt
   creator: String
   endTime: BigInt
-  marketType: BigInt
+  marketType: Int
   coinIndex: BigInt
   creationPrice: BigInt
   shareTokens: [String!]

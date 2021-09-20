@@ -7,10 +7,10 @@ import {
   MarketCreated,
   MarketResolved,
   WinningsClaimed,
-  SharesMinted
+  SharesMinted, CryptoMarketFactory__getMarketDetailsResultValue0Struct
 } from "../../generated/CryptoMarketFactoryV3/CryptoMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
-import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import { bigIntMillisToSeconds, bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreatePositionBalance,
@@ -62,20 +62,35 @@ function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFact
   return market;
 }
 
+function getMarketDetails(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketDetailsResultValue0Struct {
+  let contract = CryptoMarketFactoryContract.bind(contractAddress);
+  let tryGetMarket = contract.try_getMarketDetails(marketId);
+  let marketDetails: CryptoMarketFactory__getMarketDetailsResultValue0Struct;
+  if (!tryGetMarket.reverted) {
+    marketDetails = tryGetMarket.value;
+  }
+  return marketDetails;
+}
+
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
   let entity = getOrCreateCryptoMarket(marketId, true, false);
   getOrCreateMarket(marketId);
 
+  let market = getMarket(event.address, event.params.id);
+  let marketDetails = getMarketDetails(event.address, event.params.id);
+
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = event.block.timestamp;
+  entity.timestamp = market.creationTimestamp;
+  entity.marketFactory = event.address.toHexString();
+  entity.marketIndex = event.params.id.toString();
   // entity.creator = event.params.creator.toHexString();
-  // entity.endTime = bigIntMillisToSeconds(event.params.endTime);
-  // entity.marketType = BigInt.fromI32(event.params.marketType);
-  // entity.coinIndex = event.params.coinIndex;
-  // entity.creationPrice = event.params.price;
+  entity.endTime = bigIntMillisToSeconds(market.resolutionTimestamp);
+  entity.marketType = marketDetails.marketType;
+  entity.coinIndex = marketDetails.coinIndex;
+  entity.creationPrice = marketDetails.creationPrice;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = event.params.initialOdds;
 
