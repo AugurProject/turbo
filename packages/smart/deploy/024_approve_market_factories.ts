@@ -17,7 +17,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // 80% goes to daily.
   const rewardsPerMarket = BONE.mul(totalRewardsPerMarket * 0.8);
 
-  const rewardDaysPerMarket = BigNumber.from(5);
+  const rewardDaysPerMarket = BigNumber.from(7);
   // 20% goes to early bonus.
   const earlyDepositBonusRewards = BONE.mul(totalRewardsPerMarket * 0.2);
 
