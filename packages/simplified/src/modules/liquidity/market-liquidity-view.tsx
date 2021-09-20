@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
@@ -204,7 +204,6 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     });
   const [selectedAction, setSelectedAction] = useState(actionType);
   const isRemove = selectedAction === REMOVE;
-  const mostRecentToggle = useRef(isRemove);
   const { amm, isFuture } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
@@ -224,7 +223,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
 
-  const [amount, setAmount] = useState(isRemove ? userMaxAmount : "");
+  const [amount, setAmount] = useState(isRemove ? shareBalance : "");
 
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
@@ -300,7 +299,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     return () => {
       isMounted = false;
     };
-  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove]);
+  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove, selectedAction]);
 
   const actionButtonText = !amount ? "Enter Amount" : isRemove ? "Remove Liquidity" : "Add Liquidity";
   const setPrices = (price, index) => {
@@ -310,7 +309,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   };
 
   const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
-
+  console.log(breakdown, getCreateBreakdown(breakdown, market, balances, isRemove));
   return (
     <section className={classNames(Styles.LiquidityForm, { [Styles.isRemove]: isRemove })}>
       <header>
@@ -327,7 +326,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
           <button
             className={classNames({ [Styles.selected]: isRemove })}
             onClick={() => {
-              setAmount(userMaxAmount);
+              setAmount(shareBalance);
               setSelectedAction(REMOVE);
             }}
           >

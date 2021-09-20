@@ -206,6 +206,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     endTimestamp,
     rewards,
   } = market;
+  
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
@@ -274,7 +275,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
                 pathname: makePath(MARKET_LIQUIDITY),
                 search: makeQuery({
                   [MARKET_ID_PARAM_NAME]: marketId,
-                  [MARKET_LIQUIDITY]: hasLiquidity ? CREATE : ADD,
+                  [MARKET_LIQUIDITY]: hasLiquidity ? ADD : CREATE,
                 }),
               })
             }
