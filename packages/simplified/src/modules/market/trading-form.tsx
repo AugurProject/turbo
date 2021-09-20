@@ -45,7 +45,7 @@ const {
 const AVG_PRICE_TIP = "The difference between the market price and estimated price due to trade size.";
 const RATE_WARNING_THRESHOLD = 10;
 
-interface InfoNumber {
+export interface InfoNumberType {
   label: string;
   value: string;
   tooltipText?: string;
@@ -54,7 +54,7 @@ interface InfoNumber {
 }
 
 interface InfoNumbersProps {
-  infoNumbers: InfoNumber[];
+  infoNumbers: InfoNumberType[];
   unedited?: boolean;
 }
 

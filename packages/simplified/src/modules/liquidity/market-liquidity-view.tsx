@@ -18,7 +18,16 @@ import {
 } from "@augurproject/comps";
 import { AmmOutcome, MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "../stores/simplified";
-import { LIQUIDITY, MARKET_LIQUIDITY, CREATE, ADD, REMOVE, SHARES, USDC } from "../constants";
+import {
+  MODAL_CONFIRM_TRANSACTION,
+  LIQUIDITY,
+  MARKET_LIQUIDITY,
+  CREATE,
+  ADD,
+  REMOVE,
+  SHARES,
+  USDC,
+} from "../constants";
 const {
   ButtonComps: { SecondaryThemeButton, TinyThemeButton },
   LabelComps: { CategoryIcon },
@@ -36,7 +45,7 @@ const {
 } = ContractCalls;
 const {
   PathUtils: { makePath, parseQuery },
-  Formatter: { formatSimpleShares, formatEther },
+  Formatter: { formatSimpleShares, formatEther, formatCash },
   Calculations: { calcPricesFromOdds },
 } = Utils;
 const {
@@ -197,6 +206,9 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
+  const {
+    actions: { setModal },
+  } = useAppStatusStore();
   const { blocknumber, cashes }: DataState = useDataStore();
   const BackToLPPageAction = () =>
     history.push({
@@ -309,7 +321,9 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   };
 
   const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
-  console.log(breakdown, getCreateBreakdown(breakdown, market, balances, isRemove));
+
+  const infoNumbers = getCreateBreakdown(breakdown, market, balances, isRemove);
+
   return (
     <section className={classNames(Styles.LiquidityForm, { [Styles.isRemove]: isRemove })}>
       <header>
@@ -348,7 +362,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
         />
         <div className={Styles.Breakdown}>
           <span>You'll Receive</span>
-          <InfoNumbers infoNumbers={getCreateBreakdown(breakdown, market, balances, isRemove)} />
+          <InfoNumbers infoNumbers={infoNumbers} />
         </div>
         <div className={Styles.PricesAndOutcomes}>
           <span className={Styles.PriceInstructions}>
@@ -382,21 +396,53 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
           )}
           <SecondaryThemeButton
             action={() =>
-              confirmAction({
-                addTransaction,
-                breakdown,
-                setBreakdown,
-                account,
-                loginAccount,
-                market,
-                amount,
-                onChainFee,
-                outcomes,
-                cash,
-                amm,
-                isRemove,
-                estimatedLpAmount,
-                afterSigningAction: isRemove ? BackToLPPageAction : setAmount(""),
+              setModal({
+                type: MODAL_CONFIRM_TRANSACTION,
+                title: isRemove ? "Remove Liquidity" : "Add Liquidity",
+                transactionButtonText: isRemove ? "Remove" : "Add",
+                transactionAction: () =>
+                  confirmAction({
+                    addTransaction,
+                    breakdown,
+                    setBreakdown,
+                    account,
+                    loginAccount,
+                    market,
+                    amount,
+                    onChainFee,
+                    outcomes,
+                    cash,
+                    amm,
+                    isRemove,
+                    estimatedLpAmount,
+                    afterSigningAction: BackToLPPageAction,
+                  }),
+                targetDescription: {
+                  market,
+                  label: "Pool",
+                },
+                breakdowns: [
+                  {
+                    heading: "What you are depositing",
+                    infoNumbers: [
+                      {
+                        label: "amount",
+                        value: `${formatCash(amount, USDC).formatted} USDC`,
+                      },
+                    ],
+                  },
+                  {
+                    heading: "What you'll recieve",
+                    infoNumbers,
+                  },
+                  {
+                    heading: "Pool Details",
+                    infoNumbers: [{
+                      label: "Trading Fee",
+                      value: `${amm?.feeInPercent}%`,
+                    }],
+                  },
+                ],
               })
             }
             disabled={!isApproved || inputFormError !== ""}

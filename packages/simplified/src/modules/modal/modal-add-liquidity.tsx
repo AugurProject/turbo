@@ -143,10 +143,13 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
-  
+
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
-  const now = (new Date().getTime() / 1000);
-  const hasPendingBonus = balances?.pendingRewards && now > balances.pendingRewards[amm?.marketId]?.endEarlyBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
+  const now = new Date().getTime() / 1000;
+  const hasPendingBonus =
+    balances?.pendingRewards &&
+    now > balances.pendingRewards[amm?.marketId]?.endEarlyBonusTimestamp &&
+    balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
   const feePercentFormatted = useMemo(() => {
     return formatPercent(amm?.feeInPercent).full;
   }, [amm?.feeInPercent]);
@@ -773,7 +776,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
             }
           />
-        )}        
+        )}
         <section>
           {curPage.needsApproval && !isApproved && (
             <ApprovalButton amm={amm} cash={cash} actionType={curPage.approvalAction} />
