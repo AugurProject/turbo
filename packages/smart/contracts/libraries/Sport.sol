@@ -33,7 +33,7 @@ abstract contract Sport is AbstractMarketFactoryV3, LineHelper {
     // EventId => EventDetails
     mapping(uint256 => SportsEvent) public sportsEvents;
     uint256[] public listOfSportsEvents;
-
+    mapping(uint256 => uint256) public marketIdToEventIdMapping;
     uint256 constant NoContest = 0;
 
     function eventCount() public view returns (uint256) {
@@ -61,6 +61,10 @@ abstract contract Sport is AbstractMarketFactoryV3, LineHelper {
     ) internal {
         // Cannot create markets for an event twice.
         require(sportsEvents[_eventId].status == SportsEventStatus.Unknown, "event exists");
+
+        for (uint256 i = 0; i < _markets.length; i++) {
+            marketIdToEventIdMapping[_markets[i]] = _eventId;
+        }
 
         listOfSportsEvents.push(_eventId);
         sportsEvents[_eventId].status = SportsEventStatus.Scheduled; // new events must be Scheduled
@@ -123,7 +127,8 @@ abstract contract Sport is AbstractMarketFactoryV3, LineHelper {
         }
     }
 
-    function getRewardEndTime(uint256 _eventId) public override returns (uint256) {
+    function getRewardEndTime(uint256 _marketId) public view override returns (uint256) {
+        uint256 _eventId = marketIdToEventIdMapping[_marketId];
         return getSportsEvent(_eventId).estimatedStartTime;
     }
 }
