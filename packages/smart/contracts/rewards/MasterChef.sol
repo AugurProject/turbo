@@ -532,8 +532,15 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _marketId,
             _collateralIn,
             _minLPTokensOut,
-            _lpTokenRecipient
+            address(this)
         );
+
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
+        for (uint256 i = 0; i < _balances.length; i++) {
+            if (_balances[i] > 0) {
+                _market.shareTokens[i].transfer(_lpTokenRecipient, _balances[i]);
+            }
+        }
 
         depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
     }
