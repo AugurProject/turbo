@@ -77,7 +77,7 @@ contract FuturesMarketFactoryV3 is AbstractMarketFactoryV3, Grouped, ManagedByLi
         resolveGroupMarket(_marketId, false);
     }
 
-    function getRewardEndTime(uint256 _eventId) public override returns (uint256) {
+    function getRewardEndTime(uint256 _eventId) public view override returns (uint256) {
         return 0;
     }
 }
