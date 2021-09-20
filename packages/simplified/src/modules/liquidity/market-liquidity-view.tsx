@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
@@ -204,6 +204,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     });
   const [selectedAction, setSelectedAction] = useState(actionType);
   const isRemove = selectedAction === REMOVE;
+  const mostRecentToggle = useRef(isRemove);
   const { amm, isFuture } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
@@ -223,7 +224,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
 
-  const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
+  const [amount, setAmount] = useState(isRemove ? userMaxAmount : "");
 
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
@@ -271,6 +272,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     if (!valid) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
+
     async function getResults() {
       let results: LiquidityBreakdown;
       if (isRemove) {
@@ -310,24 +312,34 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
 
   return (
-    <section className={Styles.LiquidityForm}>
+    <section className={classNames(Styles.LiquidityForm, { [Styles.isRemove]: isRemove })}>
       <header>
         <button
           className={classNames({ [Styles.selected]: !isRemove })}
-          onClick={() => setSelectedAction(Boolean(amm?.id) ? ADD : CREATE)}
-        >{addTitle}</button>
+          onClick={() => {
+            setAmount(amount === userMaxAmount ? "" : amount);
+            setSelectedAction(Boolean(amm?.id) ? ADD : CREATE);
+          }}
+        >
+          {addTitle}
+        </button>
         {shareBalance && (
           <button
             className={classNames({ [Styles.selected]: isRemove })}
-            onClick={() => setSelectedAction(REMOVE)}
-          >Remove Liquidity</button>
+            onClick={() => {
+              setAmount(userMaxAmount);
+              setSelectedAction(REMOVE);
+            }}
+          >
+            Remove Liquidity
+          </button>
         )}
       </header>
       <main>
         <AmountInput
           heading="Deposit Amount"
           ammCash={cash}
-          updateInitialAmount={(amount) => updateAmount(amount)}
+          updateInitialAmount={(amount) => setAmount(amount)}
           initialAmount={amount}
           maxValue={userMaxAmount}
           chosenCash={isRemove ? SHARES : chosenCash}
@@ -361,7 +373,14 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
         </div>
 
         <div className={Styles.ActionButtons}>
-          {!isApproved && <ApprovalButton amm={amm} cash={cash} actionType={approvalActionType} customClass={ButtonStyles.ReviewTransactionButton} />}
+          {!isApproved && (
+            <ApprovalButton
+              amm={amm}
+              cash={cash}
+              actionType={approvalActionType}
+              customClass={ButtonStyles.ReviewTransactionButton}
+            />
+          )}
           <SecondaryThemeButton
             action={() =>
               confirmAction({
@@ -378,7 +397,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                 amm,
                 isRemove,
                 estimatedLpAmount,
-                afterSigningAction: isRemove ? BackToLPPageAction : updateAmount(""),
+                afterSigningAction: isRemove ? BackToLPPageAction : setAmount(""),
               })
             }
             disabled={!isApproved || inputFormError !== ""}

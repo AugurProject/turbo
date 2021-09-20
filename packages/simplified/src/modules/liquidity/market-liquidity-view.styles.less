@@ -203,6 +203,22 @@
       }
     }
   }
+
+  &.isRemove {
+    max-width: 534px;
+    width: 100%;
+
+    > main {
+
+      grid-template-columns: 1fr;
+
+      > div[class*="AmountInput"],
+      > div.PriceInstructions,
+      > div.PricesAndOutcomes {
+        display: none;
+      }
+    }
+  }
 }
 
 .ActionButtons {
