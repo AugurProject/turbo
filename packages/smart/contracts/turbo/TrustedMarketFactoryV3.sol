@@ -41,7 +41,7 @@ contract TrustedMarketFactoryV3 is AbstractMarketFactoryV3, CalculateLinesToBPoo
         return marketDetails[_id];
     }
 
-    function getRewardEndTime(uint256 _eventId) public override returns (uint256) {
+    function getRewardEndTime(uint256 _marketId) public view override returns (uint256) {
         return 0;
     }
 }

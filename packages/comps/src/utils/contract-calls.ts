@@ -952,6 +952,7 @@ export const getUserBalances = async (
         accruedStandardRewards,
         earlyDepositEndTimestamp,
         pendingEarlyDepositBonusRewards,
+        endTimestamp,
       } = balanceValue;
       const balance = convertOnChainCashAmountToDisplayCashAmount(
         new BN(String(accruedStandardRewards)),
@@ -971,7 +972,8 @@ export const getUserBalances = async (
           rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
           marketId,
           pendingBonusRewards,
-          endBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
+          endEarlyBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
+          endBonusTimestamp: new BN(String(endTimestamp)).toNumber(),
         };
       } else {
         delete userBalances[collection][dataKey];
@@ -1429,9 +1431,9 @@ export const calculateAmmTotalVolApy = (
 ): { apy: string; vol: string; vol24hr: string } => {
   const defaultValues = { apy: undefined, vol: null, vol24hr: null };
   if (!amm?.id || (transactions?.addLiquidity || []).length === 0) return defaultValues;
+  const { feeDecimal, liquidityUSD, cash, totalSupply } = amm;
 
-  const { feeDecimal, liquidityUSD, cash } = amm;
-
+  if (totalSupply === "0") return defaultValues;
   const timestamp24hr = Math.floor(new Date().getTime() / 1000 - SEC_IN_DAY);
   // calc total volume
   const volumeTotalUSD = calcTotalVolumeUSD(transactions, cash).toNumber();

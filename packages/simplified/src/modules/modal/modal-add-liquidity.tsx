@@ -146,7 +146,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
   const now = (new Date().getTime() / 1000);
-  const hasPendingBonus = balances?.pendingRewards && now > balances.pendingRewards[amm?.marketId]?.endBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
+  const hasPendingBonus = balances?.pendingRewards && now > balances.pendingRewards[amm?.marketId]?.endEarlyBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
   const feePercentFormatted = useMemo(() => {
     return formatPercent(amm?.feeInPercent).full;
   }, [amm?.feeInPercent]);

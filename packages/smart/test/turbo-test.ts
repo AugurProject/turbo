@@ -167,7 +167,7 @@ describe("Turbo", () => {
     expect(await all.balanceOf(signer.address)).to.equal(shareFactor.mul(91).add(1000)); // minted 100 sets, burned 9
     await ammFactory.buy(marketFactory.address, marketId, outcome, collateralIn, 0);
 
-    expect(await all.balanceOf(signer.address)).to.equal("4112930879157689821"); // hardcoded from observation
+    expect(await all.balanceOf(signer.address)).to.equal("4160233730836130957"); // hardcoded from observation
   });
 
   it("can see the outcome ratios in the AMM", async () => {
@@ -175,10 +175,10 @@ describe("Turbo", () => {
 
     const expectedRatios = [
       BigNumber.from(10).pow(18).toString(), // first is always 10^18
-      "0xa9c295a09ba67ffb",
-      "0xb01d32efab1c052f",
-      "0xb01d32efab1c052f",
-      "0xa911ca7fae814ca8",
+      "0xa738c278386e76fb",
+      "0xad78f7240f30042d",
+      "0xad78f7240f30042d",
+      "0xa6889b55d123db0c",
     ].map(BigNumber.from);
     ratios.forEach((price, index) => {
       expect(price.toHexString()).to.equal(expectedRatios[index].toHexString());
@@ -213,7 +213,7 @@ describe("Turbo", () => {
     const lpTokens = await ammFactory.getPoolTokenBalance(marketFactory.address, marketId, signer.address);
     await pool.approve(ammFactory.address, lpTokens);
     await ammFactory.removeLiquidity(marketFactory.address, marketId, lpTokens, 0, FAKE_ADDRESS);
-    expect(await collateral.balanceOf(FAKE_ADDRESS)).to.equal(1001842805); // hardcoded from observation
+    expect(await collateral.balanceOf(FAKE_ADDRESS)).to.equal(1001795739); // hardcoded from observation
   });
 
   it("can claim winnings", async () => {
@@ -228,7 +228,7 @@ describe("Turbo", () => {
 
     await marketFactory.claimWinnings(marketId, signer.address);
 
-    const expectedWinnings = BigNumber.from("0x3e71d7"); // hardcoded from observation
+    const expectedWinnings = BigNumber.from("0x3f29b1"); // hardcoded from observation
     expect(await collateral.balanceOf(signer.address)).to.equal(expectedWinnings);
     expect(await noContest.balanceOf(signer.address)).to.equal(0);
     expect(await all.balanceOf(signer.address)).to.equal(0);

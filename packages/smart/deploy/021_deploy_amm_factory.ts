@@ -8,7 +8,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const { address: balancerFactoryAddress } = await deployments.get("BFactory");
 
-  const swapFee = BigNumber.from(10).pow(15).mul(15); // 1.5%
+  const BONE = BigNumber.from(10).pow(18);
+  const swapFee = BONE.div(BigNumber.from(10).pow(6)); // The bpool min fee
 
   await deployments.deploy("AMMFactory", {
     from: deployer,
