@@ -314,6 +314,16 @@ export const addresses: AddressMapping = {
       {
         type: "NFL",
         subtype: "V3",
+        address: "0xe1521ad8E0Df3A1F0FAffA21a8428A45daBB5875",
+        collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
+        fetcher: "0xA1A2587b3D45E32FFf7564081Df80c78452128A5",
+        description: "nfl",
+        version: "v1.3.3",
+      },
+      {
+        type: "NFL",
+        subtype: "V3",
         address: "0xbF22De662212463533B7e5e2DfdD357551E5027D",
         collateral: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         ammFactory: "0xF515d928c9dC700969723a41038eDF34ecEf2240",
