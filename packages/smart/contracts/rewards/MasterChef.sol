@@ -573,38 +573,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             );
     }
 
-    //    function removeMultipleLiquidity(
-    //        AMMFactory[] calldata _ammFactories,
-    //        AbstractMarketFactoryV3[] calldata _marketFactories,
-    //        uint256[] calldata _marketIds,
-    //        uint256[] calldata _lpTokensIn,
-    //        uint256[] calldata _minCollateralOut,
-    //        address[] calldata _collateralRecipient
-    //    ) public returns (uint256[][] calldata _collateralOut, uint256[][] calldata _balances) {
-    //        require(
-    //            _ammFactories.length == _marketFactories.length &&
-    //                _ammFactories.length == _marketIds.length &&
-    //                _ammFactories.length == _lpTokensIn.length &&
-    //                _ammFactories.length == _minCollateralOut.length &&
-    //                _ammFactories.length == _collateralOut.length,
-    //            "Parameter arrays must all be of same length."
-    //        );
-    //
-    //        for (uint256 i = 0; i < _ammFactories.length; ++i) {
-    //            (uint256 out, uint256[] memory bal) =
-    //                removeLiquidity(
-    //                    _ammFactories[i],
-    //                    _marketFactories[i],
-    //                    _marketIds[i],
-    //                    _lpTokensIn[i],
-    //                    _minCollateralOut[i],
-    //                    _collateralRecipient[i]
-    //                );
-    //            _collateralOut.push(out);
-    //            _balances.push(bal);
-    //        }
-    //    }
-
     function withdrawRewards(uint256 _amount) external onlyOwner {
         rewardsToken.transfer(msg.sender, _amount);
     }
