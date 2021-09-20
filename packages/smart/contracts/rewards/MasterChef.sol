@@ -323,7 +323,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
             if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
                 uint256 multiplier = getTimeElapsed(_rewardPoolLookupInfo.pid);
-                accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
+                accRewardsPerShare = accRewardsPerShare.add(multiplier.mul(_pool.rewardsPerSecond).div(lpSupply));
             }
 
             _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
