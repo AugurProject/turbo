@@ -8,15 +8,7 @@ dataSources:
       name: AmmFactory
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0x16e0D7D5C0dF010586844BFC60c435865f9E0cd1'
-=======
-        address: '0x7B8E36590dBe497498c321Cb4fEa60a6695cF723'
->>>>>>> Reduced repetition
-=======
-        address: '0x7B8E36590dBe497498c321Cb4fEa60a6695cF723'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -44,15 +36,7 @@ dataSources:
       name: MmaMarketFactoryV3
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0x62a790F5A710f46d618fB0243Cb440ed13f02655'
-=======
-        address: '0xdc6c80702547337aAA992A6ba09DFF920228F22d'
->>>>>>> Reduced repetition
-=======
-        address: '0xdc6c80702547337aAA992A6ba09DFF920228F22d'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: MmaMarketFactory
         startBlock: 15336699
       mapping:
@@ -81,48 +65,7 @@ dataSources:
       name: CryptoMarketFactoryV3
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0xDf73B0ed460242EB8203312871221F1eE0c82FF3'
-=======
-        address: '0x5d8F5B15bdf31F8c965deB092163c323fAf77f31'
-        abi: CryptoMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/CryptoMarketFactoryV3.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-          - WinningsClaimed
-          - SharesMinted
-        abis:
-          - name: CryptoMarketFactory
-            file: ./abis/CryptoMarketFactoryV3.json
-        eventHandlers:
-          - event: MarketCreated(uint256,string[],uint256[])
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address,uint256,string)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SharesMinted(uint256,uint256,address)
-            handler: handleSharesMintedEvent
-    - kind: ethereum/contract
-      name: CryptoMarketFactoryV3-1
-      network: mumbai
-      source:
-        address: '0x4E715BE329A29398A21e8df1D12f501d6FdcFCd7'
->>>>>>> Added sharesMinted to all v3 market factories
-=======
-        address: '0x8b6f757ac16F127788A459C6dB14deD1a800D7ab'
->>>>>>> Reduced repetition
-=======
-        address: '0x8b6f757ac16F127788A459C6dB14deD1a800D7ab'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: CryptoMarketFactory
         startBlock: 15336699
       mapping:
@@ -151,15 +94,7 @@ dataSources:
       name: NflMarketFactoryV3
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0x31eBd440F52B537845126E9d013FEbD9E610F78A'
-=======
-        address: '0xc938D0cB06EEdB54d20641E5472Fe3d025542c8C'
->>>>>>> Reduced repetition
-=======
-        address: '0xc938D0cB06EEdB54d20641E5472Fe3d025542c8C'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: NflMarketFactory
         startBlock: 15336699
       mapping:
@@ -188,15 +123,7 @@ dataSources:
       name: NbaMarketFactoryV3
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0x902c96242D4483F8761DACa8A78152fcB7dAD0B6'
-=======
-        address: '0x44f0F8c3785F9bC36cb94Af12BAD5d611e4c5d42'
->>>>>>> Reduced repetition
-=======
-        address: '0x44f0F8c3785F9bC36cb94Af12BAD5d611e4c5d42'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: NbaMarketFactory
         startBlock: 15336699
       mapping:
@@ -225,15 +152,7 @@ dataSources:
       name: MlbMarketFactoryV3
       network: mumbai
       source:
-<<<<<<< HEAD
-<<<<<<< HEAD
         address: '0x2E90616F796ba8976B5A1216014Df6dEf29598E9'
-=======
-        address: '0xEB3E5A3ad0e6F32118d6aA95408104073ecCbBbF'
->>>>>>> Reduced repetition
-=======
-        address: '0xEB3E5A3ad0e6F32118d6aA95408104073ecCbBbF'
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
         abi: MlbMarketFactory
         startBlock: 15336699
       mapping:
@@ -257,41 +176,3 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    - kind: ethereum/contract
-      name: FuturesMarketFactoryV3
-      network: mumbai
-      source:
-        address: '0xe540531CFF46b3e4F20aF5E5973C281E35151fe8'
-        abi: FuturesMarketFactory
-        startBlock: 15336699
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.4
-        language: wasm/assemblyscript
-        file: ./src/mappings/FuturesMarketFactoryV3.ts
-        entities:
-          - MarketCreated
-          - MarketResolved
-          - WinningsClaimed
-          - SharesMinted
-        abis:
-          - name: FuturesMarketFactory
-            file: ./abis/FuturesMarketFactoryV3.json
-        eventHandlers:
-          - event: MarketCreated(uint256,string[],uint256[])
-            handler: handleMarketCreatedEvent
-          - event: MarketResolved(uint256,address,uint256,string)
-            handler: handleMarketResolvedEvent
-          - event: WinningsClaimed(uint256,address,uint256,string,uint256,uint256,uint256,indexed address)
-            handler: handleWinningsClaimedEvent
-          - event: SharesMinted(uint256,uint256,address)
-            handler: handleSharesMintedEvent
->>>>>>> Added sharesMinted to all v3 market factories
-=======
->>>>>>> Reduced repetition
-=======
->>>>>>> 6ba8d21a19a36104ff4c6cdbd31a10325525706f
