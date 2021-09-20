@@ -91,6 +91,6 @@ contract NBAMarketFactoryV3 is
     ) internal override {
         resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
         resolveSpreadMarket(_event.markets[Spread], _event.lines[Spread], _homeScore, _awayScore);
-        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[Spread], _homeScore, _awayScore);
+        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[OverUnder], _homeScore, _awayScore);
     }
 }
