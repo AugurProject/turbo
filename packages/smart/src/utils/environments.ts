@@ -8,38 +8,57 @@ interface EnvironmentMarketFactory extends MarketFactory {
 
 interface EnvironmentAddresses extends Addresses {
   [index: string]: any;
-  marketFactories: EnvironmentMarketFactory[];
-  teamSportsMarketFactoriesV1: EnvironmentMarketFactory[];
-  teamSportsMarketFactoriesV2: EnvironmentMarketFactory[];
-  mmaMarketFactoriesV1: EnvironmentMarketFactory[];
-  mmaMarketFactoriesV2: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV1: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV2: EnvironmentMarketFactory[];
+  cryptoMarketFactoriesV3: EnvironmentMarketFactory[];
+  futuresMarketFactoriesV3: EnvironmentMarketFactory[];
+  marketFactories: EnvironmentMarketFactory[];
+  uniqueMarketFactories: EnvironmentMarketFactory[];
+  mlbMarketFactoriesV3: EnvironmentMarketFactory[];
+  mmaMarketFactoriesV1: EnvironmentMarketFactory[];
+  mmaMarketFactoriesV2: EnvironmentMarketFactory[];
+  mmaMarketFactoriesV3: EnvironmentMarketFactory[];
+  nbaMarketFactoriesV3: EnvironmentMarketFactory[];
   nflMarketFactoriesV2: EnvironmentMarketFactory[];
+  nflMarketFactoriesV3: EnvironmentMarketFactory[];
+  teamSportsMarketFactoriesV1: EnvironmentMarketFactory[];
+  teamSportsMarketFactoriesV2: EnvironmentMarketFactory[];
 }
 
 const marketFactoryTypes: {
   [index: string]: string;
 } = {
-  SportsLinkV1: "teamSportsMarketFactoriesV1",
-  SportsLinkV2: "teamSportsMarketFactoriesV2",
-  MMALinkV1: "mmaMarketFactoriesV1",
-  MMALinkV2: "mmaMarketFactoriesV2",
   CryptoV1: "cryptoMarketFactoriesV1",
   CryptoV2: "cryptoMarketFactoriesV2",
+  CryptoV3: "cryptoMarketFactoriesV3",
+  FuturesV3: "futuresMarketFactoriesV3",
+  MLBV3: "mlbMarketFactoriesV3",
+  MMALinkV1: "mmaMarketFactoriesV1",
+  MMALinkV2: "mmaMarketFactoriesV2",
+  MMAV3: "mmaMarketFactoriesV3",
+  NBAV3: "nbaMarketFactoriesV3",
   NFLV2: "nflMarketFactoriesV2",
+  NFLV3: "nflMarketFactoriesV3",
+  SportsLinkV1: "teamSportsMarketFactoriesV1",
+  SportsLinkV2: "teamSportsMarketFactoriesV2",
 };
 
 const marketFactoryGraphNames: {
   [index: string]: string;
 } = {
-  SportsLinkV1: "SportsLinkMarketFactoryV1",
-  SportsLinkV2: "SportsLinkMarketFactoryV2",
-  MMALinkV1: "MmaMarketFactoryV1",
-  MMALinkV2: "MmaMarketFactoryV2",
   CryptoV1: "CryptoMarketFactoryV1",
   CryptoV2: "CryptoMarketFactoryV2",
+  CryptoV3: "CryptoMarketFactoryV3",
+  FuturesV3: "FuturesMarketFactoryV3",
+  MLBV3: "MlbMarketFactoryV3",
+  MMALinkV1: "MmaMarketFactoryV1",
+  MMALinkV2: "MmaMarketFactoryV2",
+  MMAV3: "MmaMarketFactoryV3",
+  NBAV3: "NbaMarketFactoryV3",
   NFLV2: "NflMarketFactoryV2",
+  NFLV3: "NflMarketFactoryV3",
+  SportsLinkV1: "SportsLinkMarketFactoryV1",
+  SportsLinkV2: "SportsLinkMarketFactoryV2",
 };
 
 function generateJsonEnvironments() {
@@ -53,6 +72,14 @@ function generateJsonEnvironments() {
       ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
       marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
     }));
+    const uniqueMarketFactories = [];
+    const mapMarketFactories = new Map();
+    for (const marketFactory of addresses.marketFactories) {
+      if (!mapMarketFactories.has(marketFactory.ammFactory)) {
+        mapMarketFactories.set(marketFactory.ammFactory, true);
+        uniqueMarketFactories.push(marketFactory);
+      }
+    }
     const v1abstractMarketFactories = addresses.marketFactories
       .filter(({ subtype }) => subtype === "V1")
       .map((marketFactory, index) => ({
@@ -67,7 +94,18 @@ function generateJsonEnvironments() {
         marketFactoryGraphName:
           index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
       }));
-    addresses.marketFactories = [...v1abstractMarketFactories, ...v2abstractMarketFactories];
+    const v3abstractMarketFactories = addresses.marketFactories
+      .filter(({ subtype }) => subtype === "V3")
+      .map((marketFactory, index) => ({
+        ...marketFactory,
+        marketFactoryGraphName:
+          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+      }));
+    addresses.marketFactories = [
+      ...v1abstractMarketFactories,
+      ...v2abstractMarketFactories,
+      ...v3abstractMarketFactories,
+    ];
     const specificMarketFactories: {
       [key: string]: EnvironmentMarketFactory[];
     } = {};
@@ -95,6 +133,7 @@ function generateJsonEnvironments() {
     addresses = {
       ...addresses,
       ...specificMarketFactories,
+      uniqueMarketFactories,
     };
     const file = JSON.stringify(addresses);
     fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);
