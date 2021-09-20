@@ -61,7 +61,7 @@ const TargetDescription = ({ targetDescription }) => {
   } = useSimplifiedStore();
   const { market, label, subLabel = null } = targetDescription;
   return (
-    <section>
+    <section className={Styles.TargetDescription}>
       <span>{label}</span>
       <MarketTitleArea {...{ ...market, timeFormat }} />
       {subLabel && <span>{subLabel}</span>}

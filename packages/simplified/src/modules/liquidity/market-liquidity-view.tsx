@@ -34,7 +34,7 @@ const {
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   Links: { MarketLink },
-  Icons: { WarningIcon, BackIcon, MaticIcon },
+  Icons: { WarningIcon, BackIcon, MaticIcon, USDCIcon },
 } = Components;
 const {
   checkConvertLiquidityProperties,
@@ -313,7 +313,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     };
   }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove, selectedAction]);
 
-  const actionButtonText = !amount ? "Enter Amount" : isRemove ? "Remove Liquidity" : "Add Liquidity";
+  const actionButtonText = !amount ? "Enter Amount" : "Review";
   const setPrices = (price, index) => {
     const newOutcomes = outcomes;
     newOutcomes[index].price = price;
@@ -421,28 +421,47 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                   market,
                   label: "Pool",
                 },
-                breakdowns: [
-                  {
-                    heading: "What you are depositing",
-                    infoNumbers: [
+                breakdowns: isRemove
+                  ? [
                       {
-                        label: "amount",
-                        value: `${formatCash(amount, USDC).formatted} USDC`,
+                        heading: "What you are removing:",
+                        infoNumbers: [
+                          {
+                            label: "Pooled USDC",
+                            value: `${formatCash(amount, USDC).full}`,
+                            svg: USDCIcon,
+                          },
+                        ],
+                      },
+                      {
+                        heading: "What you'll recieve",
+                        infoNumbers,
+                      },
+                    ]
+                  : [
+                      {
+                        heading: "What you are depositing",
+                        infoNumbers: [
+                          {
+                            label: "amount",
+                            value: `${formatCash(amount, USDC).formatted} USDC`,
+                          },
+                        ],
+                      },
+                      {
+                        heading: "What you'll recieve",
+                        infoNumbers,
+                      },
+                      {
+                        heading: "Pool Details",
+                        infoNumbers: [
+                          {
+                            label: "Trading Fee",
+                            value: `${amm?.feeInPercent}%`,
+                          },
+                        ],
                       },
                     ],
-                  },
-                  {
-                    heading: "What you'll recieve",
-                    infoNumbers,
-                  },
-                  {
-                    heading: "Pool Details",
-                    infoNumbers: [{
-                      label: "Trading Fee",
-                      value: `${amm?.feeInPercent}%`,
-                    }],
-                  },
-                ],
               })
             }
             disabled={!isApproved || inputFormError !== ""}
