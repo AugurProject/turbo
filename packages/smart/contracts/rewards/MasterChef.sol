@@ -107,6 +107,24 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 RewardsPerPeriod
     );
 
+    event PoolCreated(
+        address pool,
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed creator,
+        address lpTokenRecipient
+    );
+    event LiquidityChanged(
+        address indexed marketFactory,
+        uint256 indexed marketId,
+        address indexed user,
+        address recipient,
+        // from the perspective of the user. e.g. collateral is negative when adding liquidity
+        int256 collateral,
+        int256 lpTokens,
+        uint256[] sharesReturned
+    );
+
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(IERC20 _rewardsToken) {
@@ -508,6 +526,23 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
         depositInternal(_lpTokenRecipient, _nextPID, _lpTokensIn);
 
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
+        uint256[] memory _balances = new uint256[](_market.shareTokens.length);
+        for (uint256 i = 0; i < _market.shareTokens.length; i++) {
+            _balances[i] = 0;
+        }
+
+        emit PoolCreated(address(_lpToken), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _lpTokenRecipient,
+            -int256(_initialLiquidity),
+            int256(_lpTokensIn),
+            _balances
+        );
+
         return _lpTokensIn;
     }
 
@@ -543,6 +578,16 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         }
 
         depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
+
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _lpTokenRecipient,
+            -int256(_collateralIn),
+            int256(_poolAmountOut),
+            _balances
+        );
     }
 
     function removeLiquidity(
@@ -552,7 +597,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _lpTokensIn,
         uint256 _minCollateralOut,
         address _collateralRecipient
-    ) public returns (uint256, uint256[] memory) {
+    ) public returns (uint256 _collateralOut, uint256[] memory _balances) {
         RewardPoolLookupInfo memory _rewardPoolLookupInfo =
             rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
 
@@ -563,14 +608,24 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         PoolInfo storage _pool = poolInfo[_rewardPoolLookupInfo.pid];
 
         _pool.lpToken.approve(address(_ammFactory), _lpTokensIn);
-        return
-            _ammFactory.removeLiquidity(
-                _marketFactory,
-                _marketId,
-                _lpTokensIn,
-                _minCollateralOut,
-                _collateralRecipient
-            );
+
+        (_collateralOut, _balances) = _ammFactory.removeLiquidity(
+            _marketFactory,
+            _marketId,
+            _lpTokensIn,
+            _minCollateralOut,
+            _collateralRecipient
+        );
+
+        emit LiquidityChanged(
+            address(_marketFactory),
+            _marketId,
+            msg.sender,
+            _collateralRecipient,
+            int256(_collateralOut),
+            -int256(_lpTokensIn),
+            _balances
+        );
     }
 
     function withdrawRewards(uint256 _amount) external onlyOwner {
