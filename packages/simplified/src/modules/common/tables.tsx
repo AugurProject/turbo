@@ -31,7 +31,7 @@ const {
   ButtonComps: { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
-  Icons: { EthIcon, UpArrow, UsdIcon },
+  Icons: { EthIcon, UpArrow, UsdIcon, MaticIcon },
 } = Components;
 const { claimWinnings, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatToken } = Formatter;
@@ -428,7 +428,7 @@ export const BonusReward = ({
         <span style={{ width: `${filled}%` }} />
       </span>
       <h4>
-        {filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount}
+        {filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount} {MaticIcon}
       </h4>
       <p>
         {dateOnly} ({countdownDuration})
