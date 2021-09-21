@@ -8,7 +8,7 @@ dataSources:
       name: AmmFactory
       network: mumbai
       source:
-        address: '0x16e0D7D5C0dF010586844BFC60c435865f9E0cd1'
+        address: '0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34'
         abi: AmmFactory
         startBlock: 15336699
       mapping:
@@ -49,9 +49,12 @@ dataSources:
           - MarketResolved
           - WinningsClaimed
           - SharesMinted
+          - SportsEventCreated
         abis:
           - name: MmaMarketFactory
             file: ./abis/MMAMarketFactoryV3.json
+          - name: Sport
+            file: ./abis/Sport.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -61,6 +64,8 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+          - event: SportsEventCreated(uint256,uint256[],int256[],uint256,uint256,string,string,uint256)
+            handler: handleSportsEventCreatedEvent
     - kind: ethereum/contract
       name: CryptoMarketFactoryV3
       network: mumbai
@@ -107,9 +112,12 @@ dataSources:
           - MarketResolved
           - WinningsClaimed
           - SharesMinted
+          - SportsEventCreated
         abis:
           - name: NflMarketFactory
             file: ./abis/NFLMarketFactoryV3.json
+          - name: SportView
+            file: ./abis/SportView.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -119,6 +127,8 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+          - event: SportsEventCreated(uint256,uint256[],int256[],uint256,uint256,string,string,uint256)
+            handler: handleSportsEventCreatedEvent
     - kind: ethereum/contract
       name: NbaMarketFactoryV3
       network: mumbai

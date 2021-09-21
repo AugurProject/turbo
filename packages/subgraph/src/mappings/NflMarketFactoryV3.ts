@@ -6,18 +6,15 @@ import {
   MarketResolved,
   NflMarketFactory as NflMarketFactoryContract,
   NflMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed,
-  SharesMinted
+  SharesMinted,
+  WinningsClaimed
 } from "../../generated/NflMarketFactoryV3/NflMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import {
-  getOrCreateInitialCostPerMarket,
-  getOrCreatePositionBalance,
-  getOrCreateSharesMinted
-} from "../helpers/CommonHelper";
+import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
+import { SportsEventCreated } from "../../generated/NflMarketFactoryV3/NflMarketFactory";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = NflMarketFactoryContract.bind(contractAddress);
@@ -208,4 +205,20 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     receiver: event.params.receiver
   };
   handleGenericSharesMintedEvent(params);
+}
+
+export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
+  let eventId = event.params.id;
+  for(let i = 0; i < event.params.markets.length; i++) {
+    let marketIndex: BigInt[] = event.params.markets;
+    let marketId = event.address.toHexString() + "-" + marketIndex[i].toString();
+    getOrCreateMarket(marketId);
+    let market = getOrCreateNflMarket(marketId, true, false);
+    market.eventId = eventId;
+    market.homeTeamId = event.params.homeTeamId;
+    market.awayTeamId = event.params.awayTeamId;
+    market.homeTeamName = event.params.homeTeamName;
+    market.awayTeamName = event.params.awayTeamName;
+    market.estimatedStartTime = event.params.estimatedStartTime;
+  }
 }

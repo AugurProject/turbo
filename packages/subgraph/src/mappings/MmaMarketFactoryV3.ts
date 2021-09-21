@@ -7,7 +7,7 @@ import {
   MmaMarketFactory as MmaMarketFactoryContract,
   MmaMarketFactory__getMarketResultValue0Struct,
   WinningsClaimed,
-  SharesMinted
+  SharesMinted, SportsEventCreated
 } from "../../generated/MmaMarketFactoryV3/MmaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
@@ -196,4 +196,20 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     receiver: event.params.receiver
   };
   handleGenericSharesMintedEvent(params);
+}
+
+export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
+  let eventId = event.params.id;
+  for(let i = 0; i < event.params.markets.length; i++) {
+    let marketIndex: BigInt[] = event.params.markets;
+    let marketId = event.address.toHexString() + "-" + marketIndex[i].toString();
+    getOrCreateMarket(marketId);
+    let market = getOrCreateMmaMarket(marketId, true, false);
+    market.eventId = eventId;
+    market.homeFighterId = event.params.homeTeamId;
+    market.awayFighterId = event.params.awayTeamId;
+    market.homeFighterName = event.params.homeTeamName;
+    market.awayFighterName = event.params.awayTeamName;
+    market.estimatedStartTime = event.params.estimatedStartTime;
+  }
 }

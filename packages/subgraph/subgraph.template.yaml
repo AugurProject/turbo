@@ -114,9 +114,12 @@ dataSources:
           - MarketResolved
           - WinningsClaimed
           - SharesMinted
+          - SportsEventCreated
         abis:
           - name: MmaMarketFactory
             file: ./abis/MMAMarketFactory{{ subtype }}.json
+          - name: Sport
+            file: ./abis/Sport.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -126,6 +129,8 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+          - event: SportsEventCreated(uint256,uint256[],int256[],uint256,uint256,string,string,uint256)
+            handler: handleSportsEventCreatedEvent
   {{/mmaMarketFactoriesV3}}
   {{#cryptoMarketFactoriesV2}}
     - kind: ethereum/contract
@@ -238,9 +243,12 @@ dataSources:
           - MarketResolved
           - WinningsClaimed
           - SharesMinted
+          - SportsEventCreated
         abis:
           - name: NflMarketFactory
             file: ./abis/NFLMarketFactory{{ subtype }}.json
+          - name: SportView
+            file: ./abis/SportView.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -250,6 +258,8 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+          - event: SportsEventCreated(uint256,uint256[],int256[],uint256,uint256,string,string,uint256)
+            handler: handleSportsEventCreatedEvent
   {{/nflMarketFactoriesV3}}
   {{#nbaMarketFactoriesV3}}
     - kind: ethereum/contract
