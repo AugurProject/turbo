@@ -186,8 +186,8 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
       })),
     {
       label: isRemove ? "USDC" : "LP tokens",
-      value: `${breakdown?.amount ? formatSimpleShares(breakdown.amount).formatted : "-"}`,
-      svg: null,
+      value: `${breakdown?.amount ? isRemove ? formatCash(breakdown.amount, USDC).full : formatSimpleShares(breakdown.amount).formatted : "-"}`,
+      svg: isRemove ? USDCIcon : null,
     },
   ];
   const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
@@ -419,7 +419,8 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                 type: MODAL_CONFIRM_TRANSACTION,
                 title: isRemove ? "Remove Liquidity" : "Add Liquidity",
                 transactionButtonText: isRemove ? "Remove" : "Add",
-                transactionAction: () =>
+                transactionAction: ({ onTrigger = null, onCancel = null, }) => {
+                  onTrigger && onTrigger();
                   confirmAction({
                     addTransaction,
                     breakdown,
@@ -435,7 +436,9 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                     isRemove,
                     estimatedLpAmount,
                     afterSigningAction: BackToLPPageAction,
-                  }),
+                    onCancel,
+                  });
+                },
                 targetDescription: {
                   market,
                   label: "Pool",
@@ -523,6 +526,7 @@ const confirmAction = async ({
   isRemove,
   estimatedLpAmount,
   afterSigningAction = () => {},
+  onCancel = null,
 }) => {
   const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
   if (!valid) {
@@ -545,6 +549,7 @@ const confirmAction = async ({
         afterSigningAction();
       })
       .catch((error) => {
+        onCancel && onCancel();
         console.log("Error when trying to remove AMM liquidity: ", error?.message);
         addTransaction({
           hash: "remove-liquidity-failed",
@@ -582,6 +587,7 @@ const confirmAction = async ({
         afterSigningAction();
       })
       .catch((error) => {
+        onCancel && onCancel();
         console.log("Error when trying to add AMM liquidity: ", error?.message);
         addTransaction({
           hash: `add-liquidity-failed${Date.now()}`,

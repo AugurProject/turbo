@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Styles from "./modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
@@ -38,6 +38,7 @@ const ModalConfirmTransaction = ({
   title,
   footer = null,
 }: ModalConfirmTransactionProps) => {
+  const [buttonText, setButtonText] = useState(transactionButtonText);
   return (
     <section className={Styles.ModalConfirmTransaction}>
       <Header title={title} />
@@ -51,8 +52,14 @@ const ModalConfirmTransaction = ({
             </section>
           ))}
         <SecondaryThemeButton
-          action={transactionAction}
-          text={transactionButtonText}
+          action={() => {
+            transactionAction({
+              onTrigger: () => setButtonText("Awaiting signing..."),
+              onCancel: () => setButtonText(transactionButtonText),
+            });
+          }}
+          text={buttonText}
+          disabled={buttonText !== transactionButtonText}
           customClass={ButtonStyles.ReviewTransactionButton}
         />
         {footer && (
