@@ -959,7 +959,7 @@ export const getUserBalances = async (
         new BN(decimals)
       ).toFixed();
       const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
-        new BN(String(pendingEarlyDepositBonusRewards)),
+        new BN(String(pendingEarlyDepositBonusRewards || accruedEarlyDepositBonusRewards)),
         new BN(decimals)
       ).toFixed();
       const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
