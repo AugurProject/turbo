@@ -11,7 +11,7 @@ const {
   MarketCardComps: { MarketTitleArea },
 } = Components;
 
-export interface ModalConfirmTransaction {
+export interface ModalConfirmTransactionProps {
   transactionButtonText: string;
   transactionAction: Function;
   title: string;
@@ -37,7 +37,7 @@ const ModalConfirmTransaction = ({
   targetDescription,
   title,
   footer = null,
-}: ModalConfirmTransaction) => {
+}: ModalConfirmTransactionProps) => {
   return (
     <section className={Styles.ModalConfirmTransaction}>
       <Header title={title} />

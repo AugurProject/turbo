@@ -209,13 +209,15 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     actions: { addTransaction },
   } = useUserStore();
   const {
-    actions: { setModal },
+    actions: { setModal, closeModal },
   } = useAppStatusStore();
   const { blocknumber, cashes }: DataState = useDataStore();
-  const BackToLPPageAction = () =>
+  const BackToLPPageAction = () => {
     history.push({
       pathname: makePath(LIQUIDITY),
     });
+    closeModal();
+  };
   const [selectedAction, setSelectedAction] = useState(actionType);
   const isRemove = selectedAction === REMOVE;
   const { amm, isFuture } = market;
@@ -230,7 +232,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const [chosenCash, updateCash] = useState<string>(USDC);
   const [breakdown, setBreakdown] = useState(defaultAddLiquidityBreakdown);
   const [estimatedLpAmount, setEstimatedLpAmount] = useState<string>("0");
-  const [tradingFeeSelection, setTradingFeeSelection] = useState<number>(TRADING_FEE_OPTIONS[2].id);
+  const tradingFeeSelection = TRADING_FEE_OPTIONS[2].id;
   const cash: Cash = cashes ? Object.values(cashes).find((c) => c.name === USDC) : Object.values(cashes)[0];
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
@@ -435,7 +437,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                         infoNumbers: [
                           {
                             label: "Pooled USDC",
-                            value: `${formatCash(amount, USDC).full}`,
+                            value: `${formatCash(breakdown.amount, USDC).full}`,
                             svg: USDCIcon,
                           },
                         ],

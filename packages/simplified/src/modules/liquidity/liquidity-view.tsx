@@ -7,7 +7,6 @@ import {
   Utils,
   useDataStore,
   useUserStore,
-  useAppStatusStore,
   Constants,
   ContractCalls,
   Stores,
@@ -189,9 +188,6 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
-  const {
-    actions: { setModal },
-  } = useAppStatusStore();
   const {
     balances: { lpTokens, pendingRewards },
     loginAccount,
