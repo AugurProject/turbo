@@ -98,6 +98,8 @@ const TRADING_FEE_OPTIONS = [
   },
 ];
 
+const REMOVE_FOOTER_TEXT = `Removing liquidity may return shares; these shares may be sold for USDC if there is still liquidity in the pool. Winning shares can be redeemed for USDC after the market has finalized.`;
+
 export const MarketLiquidityView = () => {
   const {
     settings: { timeFormat },
@@ -421,6 +423,11 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                   market,
                   label: "Pool",
                 },
+                footer: isRemove
+                  ? {
+                      text: REMOVE_FOOTER_TEXT,
+                    }
+                  : null,
                 breakdowns: isRemove
                   ? [
                       {

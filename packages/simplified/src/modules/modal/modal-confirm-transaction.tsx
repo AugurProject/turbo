@@ -2,7 +2,7 @@ import React from "react";
 import Styles from "./modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { Header } from "./common";
-import { useAppStatusStore, Components } from "@augurproject/comps";
+import { Components } from "@augurproject/comps";
 import { InfoNumbers, InfoNumberType } from "../market/trading-form";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
@@ -24,6 +24,10 @@ export interface ModalConfirmTransaction {
     label: string;
     subLabel?: string;
   };
+  footer?: {
+    text: string;
+    emphasize: string;
+  };
 }
 
 const ModalConfirmTransaction = ({
@@ -32,6 +36,7 @@ const ModalConfirmTransaction = ({
   breakdowns = [],
   targetDescription,
   title,
+  footer = null,
 }: ModalConfirmTransaction) => {
   return (
     <section className={Styles.ModalConfirmTransaction}>
@@ -50,6 +55,12 @@ const ModalConfirmTransaction = ({
           text={transactionButtonText}
           customClass={ButtonStyles.ReviewTransactionButton}
         />
+        {footer && (
+          <div className={Styles.FooterText}>
+            {footer.text}
+            {footer.emphasize && <span>{footer.emphasize}</span>}
+          </div>
+        )}
       </main>
     </section>
   );
