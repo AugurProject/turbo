@@ -139,7 +139,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
   const now = (new Date().getTime() / 1000);
-  const hasPendingBonus = balances?.pendingRewards && now > balances.pendingRewards[amm?.marketId]?.endEarlyBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
+  const pendingRewards = balances.pendingRewards[amm?.marketId];
+  const hasPendingBonus = balances?.pendingRewards && now < pendingRewards?.endBonusTimestamp && now > pendingRewards?.endEarlyBonusTimestamp && balances.pendingRewards[amm?.marketId]?.pendingBonusRewards !== "0";
   const feePercentFormatted = useMemo(() => {
     return formatPercent(amm?.feeInPercent).full;
   }, [amm?.feeInPercent]);
@@ -171,8 +172,9 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   if (!account) inputFormError = CONNECT_ACCOUNT;
   else if (!amount || amount === "0" || amount === "") inputFormError = ENTER_AMOUNT;
   else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
-  else if (modalType === CREATE) {
+  else if (modalType === CREATE && page !== 2) {
     let totalPrice = ZERO;
+    console.log('outcomes', outcomes);
     outcomes.forEach((outcome) => {
       const price = outcome.price;
       if (price === "0" || !price) {
@@ -184,7 +186,8 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    if (inputFormError === "" && !totalPrice.eq(ONE) && !market.isFuture) {
+    console.log('totalPrice', String(totalPrice))
+    if (inputFormError === "" && !(new BN(totalPrice.toFixed(2))).eq(ONE) && !market.isFuture) {
       buttonError = INVALID_PRICE;
     }
   }
@@ -760,7 +763,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
             error={buttonError}
             text={inputFormError === "" ? (buttonError ? buttonError : curPage.actionButtonText) : inputFormError}
             subText={
-              buttonError === INVALID_PRICE
+              buttonError === INVALID_PRICE 
                 ? lessThanMinPrice
                   ? INVALID_PRICE_GREATER_THAN_SUBTEXT
                   : INVALID_PRICE_ADD_UP_SUBTEXT

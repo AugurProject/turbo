@@ -260,9 +260,17 @@
 
     line-height: @size-20;
     height: @size-20;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
 
     &:last-of-type {
       align-self: flex-end;
+    }
+    > svg {
+      height: @size-16;
+      width: @size-16;
+      margin-left: @size-4;
     }
   }
 
