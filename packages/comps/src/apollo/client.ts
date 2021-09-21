@@ -121,6 +121,7 @@ export async function getAllTransactions(account = "0x0", cb) {
     });
   } catch (e) {
     console.error(e);
+    throw e;
   }
   if (response) {
     if (response?.errors) {
