@@ -410,6 +410,7 @@ export const BonusReward = ({
   pendingBonusRewards: PendingUserReward;
   rewardsInfo: RewardsInfo;
 }) => {
+  const DONE = 100;
   const bonusAmount = formatToken(pendingBonusRewards?.pendingBonusRewards || "0")?.formatted;
   const { beginTimestamp } = rewardsInfo;
   const now = Math.floor(new Date().getTime() / 1000);
@@ -417,7 +418,7 @@ export const BonusReward = ({
   const secondsRemaining = endTimestamp - now;
   const totalSeconds = endTimestamp - beginTimestamp;
   let filled = (1 - (secondsRemaining / totalSeconds)) * 100
-  if (now > endTimestamp) filled = 100;
+  if (now > endTimestamp) filled = DONE;
   const dateOnly = getMarketEndtimeDate(endTimestamp);
   const countdownDuration = timeTogo(endTimestamp);
   return (
@@ -428,10 +429,10 @@ export const BonusReward = ({
         <span style={{ width: `${filled}%` }} />
       </span>
       <h4>
-        {filled === 100 ? `Bonus Unlocked` : `Bonus Unlock`}: {bonusAmount} {MaticIcon}
+        {filled === DONE ? `Bonus Unlocked` : `Bonus Locked`}: {bonusAmount} {MaticIcon}
       </h4>
       <p>
-        {dateOnly} ({countdownDuration})
+        {filled !== DONE ? `${dateOnly} (${countdownDuration})`: 'Remove liquidity to claim'}
       </p>
     </article>
   );
