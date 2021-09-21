@@ -218,7 +218,7 @@ describe("MasterChef", () => {
 
     describe("active pool", () => {
       describe("entry at beginning of pool", () => {
-        describe("pool info and pending rewards", () => {
+        describe("pool info", () => {
           beforeEach(async () => {
             await tomMasterChef.deposit(0, initialCashAmount);
           });
@@ -232,6 +232,41 @@ describe("MasterChef", () => {
 
             const { accRewardsPerShare } = await masterChef.poolInfo(0);
             checkWithin(accRewardsPerShare, totalRewards.div(4).mul(BONE).div(initialCashAmount));
+          });
+
+          it("should calculate correctly 50%", async () => {
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
+
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
+
+            await masterChef.updatePool(0);
+
+            const { accRewardsPerShare } = await masterChef.poolInfo(0);
+            checkWithin(accRewardsPerShare, totalRewards.div(2).mul(BONE).div(initialCashAmount));
+          });
+
+          it("should calculate correctly 100%", async () => {
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 100);
+
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
+
+            await masterChef.updatePool(0);
+
+            const { accRewardsPerShare } = await masterChef.poolInfo(0);
+            checkWithin(accRewardsPerShare, totalRewards.div(1).mul(BONE).div(initialCashAmount));
+          });
+        });
+
+        describe("pending rewards", () => {
+          beforeEach(async () => {
+            await tomMasterChef.deposit(0, initialCashAmount);
+          });
+
+          it("should calculate correctly 25%", async () => {
+            const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 25);
+
+            await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
+            await network.provider.send("evm_mine", []);
 
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,
@@ -246,11 +281,7 @@ describe("MasterChef", () => {
             const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
 
             await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
-
-            await masterChef.updatePool(0);
-
-            const { accRewardsPerShare } = await masterChef.poolInfo(0);
-            checkWithin(accRewardsPerShare, totalRewards.div(2).mul(BONE).div(initialCashAmount));
+            await network.provider.send("evm_mine", []);
 
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,
@@ -265,11 +296,7 @@ describe("MasterChef", () => {
             const newTimestamp = adjustTimestamp(beginTimestamp, poolEndTimestamp, 100);
 
             await network.provider.send("evm_setNextBlockTimestamp", [newTimestamp]);
-
-            await masterChef.updatePool(0);
-
-            const { accRewardsPerShare } = await masterChef.poolInfo(0);
-            checkWithin(accRewardsPerShare, totalRewards.div(1).mul(BONE).div(initialCashAmount));
+            await network.provider.send("evm_mine", []);
 
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,

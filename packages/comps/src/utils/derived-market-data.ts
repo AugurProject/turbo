@@ -333,7 +333,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
     ammFactoryAddress: config.ammFactory,
     marketFactoryAddress: config.address,
     hasLiquidity: created,
-    totalSupply: pool?.totalSupply || "0",
+    totalSupply: String(new BN(String(pool?.totalSupply))) || "0",
   };
 };
 

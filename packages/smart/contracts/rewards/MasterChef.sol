@@ -323,7 +323,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
 
             if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {
                 uint256 multiplier = getTimeElapsed(_rewardPoolLookupInfo.pid);
-                accRewardsPerShare = multiplier.mul(_pool.rewardsPerSecond).div(lpSupply);
+                accRewardsPerShare = accRewardsPerShare.add(multiplier.mul(_pool.rewardsPerSecond).div(lpSupply));
             }
 
             _pendingRewardInfo.accruedStandardRewards = _user.amount.mul(accRewardsPerShare).div(BONE).sub(
@@ -532,8 +532,15 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _marketId,
             _collateralIn,
             _minLPTokensOut,
-            _lpTokenRecipient
+            address(this)
         );
+
+        AbstractMarketFactoryV3.Market memory _market = _marketFactory.getMarket(_marketId);
+        for (uint256 i = 0; i < _balances.length; i++) {
+            if (_balances[i] > 0) {
+                _market.shareTokens[i].transfer(_lpTokenRecipient, _balances[i]);
+            }
+        }
 
         depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
     }
@@ -565,38 +572,6 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
                 _collateralRecipient
             );
     }
-
-    //    function removeMultipleLiquidity(
-    //        AMMFactory[] calldata _ammFactories,
-    //        AbstractMarketFactoryV3[] calldata _marketFactories,
-    //        uint256[] calldata _marketIds,
-    //        uint256[] calldata _lpTokensIn,
-    //        uint256[] calldata _minCollateralOut,
-    //        address[] calldata _collateralRecipient
-    //    ) public returns (uint256[][] calldata _collateralOut, uint256[][] calldata _balances) {
-    //        require(
-    //            _ammFactories.length == _marketFactories.length &&
-    //                _ammFactories.length == _marketIds.length &&
-    //                _ammFactories.length == _lpTokensIn.length &&
-    //                _ammFactories.length == _minCollateralOut.length &&
-    //                _ammFactories.length == _collateralOut.length,
-    //            "Parameter arrays must all be of same length."
-    //        );
-    //
-    //        for (uint256 i = 0; i < _ammFactories.length; ++i) {
-    //            (uint256 out, uint256[] memory bal) =
-    //                removeLiquidity(
-    //                    _ammFactories[i],
-    //                    _marketFactories[i],
-    //                    _marketIds[i],
-    //                    _lpTokensIn[i],
-    //                    _minCollateralOut[i],
-    //                    _collateralRecipient[i]
-    //                );
-    //            _collateralOut.push(out);
-    //            _balances.push(bal);
-    //        }
-    //    }
 
     function withdrawRewards(uint256 _amount) external onlyOwner {
         rewardsToken.transfer(msg.sender, _amount);
