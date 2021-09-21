@@ -146,6 +146,8 @@ const applyFiltersAndSort = (
 
   if (sortBy.type) {
     updatedFilteredMarkets = updatedFilteredMarkets.sort((marketA, marketB) => {
+      const aLiquidity = marketA?.amm?.liquidityUSD;
+      const bLiquidity = marketB?.amm?.liquidityUSD;
       const aTransactions = transactions ? transactions[marketA.marketId] : {};
       const bTransactions = transactions ? transactions[marketB.marketId] : {};
       const aUserLiquidity = Number(lpTokens?.[marketA.marketId]?.usdValue) || 0;
@@ -163,7 +165,7 @@ const applyFiltersAndSort = (
           return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
         }
         case SORT_TYPES.TVL: {
-          return (bTransactions?.volumeTotalUSD || 0) > (aTransactions?.volumeTotalUSD || 0)
+          return (bLiquidity || 0) > (aLiquidity || 0)
             ? direction
             : direction * -1;
         }
