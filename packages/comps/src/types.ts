@@ -608,6 +608,7 @@ export interface PendingUserReward {
   endEarlyBonusTimestamp: number;
   endBonusTimestamp: number;
   pendingBonusRewards: string;
+  earnedBonus: string;
 }
 export interface PendingRewards {
   [marketId: string]: PendingUserReward;
