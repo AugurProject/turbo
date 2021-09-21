@@ -71,4 +71,8 @@ contract FuturesMarketFactory is AbstractMarketFactoryV3, Grouped, ManagedByLink
         require(markets[_marketId].active, "market inactive");
         resolveGroupMarket(_marketId, false);
     }
+
+    function getRewardEndTime(uint256 _eventId) public view override returns (uint256) {
+        return 0;
+    }
 }

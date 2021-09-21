@@ -40,4 +40,8 @@ contract TrustedMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolO
     function getMarketDetails(uint256 _id) public view returns (MarketDetails memory) {
         return marketDetails[_id];
     }
+
+    function getRewardEndTime(uint256 _marketId) public view override returns (uint256) {
+        return 0;
+    }
 }

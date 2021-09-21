@@ -150,6 +150,9 @@ describe("NFL", () => {
 
   it("event is correct", async () => {
     const sportsEvent = await marketFactory.getSportsEvent(eventId);
+
+    expect(await marketFactory.getRewardEndTime(spreadMarketId)).to.equal(estimatedStartTime);
+
     expect(sportsEvent.status, "status").to.equal(SportsLinkEventStatus.Scheduled);
     expect(sportsEvent.markets.length, "markets.length").to.equal(3);
     expect(sportsEvent.markets[Market.HeadToHead], "markets[0]").to.equal(headToHeadMarketId);

@@ -251,4 +251,8 @@ contract CryptoMarketFactory is AbstractMarketFactoryV3, CalculateLinesToBPoolOd
         uint64 _roundId = uint64(_fullRoundId) - 1;
         return uint80((_phaseId << PHASE_OFFSET) | _roundId);
     }
+
+    function getRewardEndTime(uint256 _marketId) public view override returns (uint256) {
+        return getMarketDetails(_marketId).resolutionTime;
+    }
 }
