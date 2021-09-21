@@ -432,7 +432,7 @@ export const BonusReward = ({
         {filled === DONE ? `Bonus Unlocked` : `Bonus Locked`}: {bonusAmount} {MaticIcon}
       </h4>
       <p>
-        {filled !== DONE ? `${dateOnly} (${countdownDuration})`: ''}
+        {filled !== DONE ? `${dateOnly} (${countdownDuration})`: 'Remove liquidity to claim'}
       </p>
     </article>
   );
