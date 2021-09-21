@@ -959,19 +959,20 @@ export const getUserBalances = async (
         new BN(decimals)
       ).toFixed();
       const pendingBonusRewards = convertOnChainCashAmountToDisplayCashAmount(
-        new BN(String(pendingEarlyDepositBonusRewards || accruedEarlyDepositBonusRewards)),
+        new BN(String(pendingEarlyDepositBonusRewards)),
         new BN(decimals)
       ).toFixed();
       const earnedBonus = convertOnChainCashAmountToDisplayCashAmount(
         new BN(String(accruedEarlyDepositBonusRewards)),
         new BN(decimals)
       ).toFixed();
+      const pending = pendingBonusRewards !== "0" ? pendingBonusRewards : earnedBonus;
       if (rawBalance !== "0") {
         userBalances[collection][dataKey] = {
           balance,
           rawBalance: new BN(String(accruedStandardRewards)).toFixed(),
           marketId,
-          pendingBonusRewards,
+          pendingBonusRewards: pending,
           endEarlyBonusTimestamp: new BN(String(earlyDepositEndTimestamp)).toNumber(),
           endBonusTimestamp: new BN(String(endTimestamp)).toNumber(),
         };
