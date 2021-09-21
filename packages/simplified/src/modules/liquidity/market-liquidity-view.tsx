@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
 import Styles from "./market-liquidity-view.styles.less";
+import CommonStyles from "../modal/modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { useHistory, useLocation } from "react-router";
 import { InfoNumbers, ApprovalButton } from "../market/trading-form";
@@ -30,7 +31,7 @@ import {
 } from "../constants";
 const {
   ButtonComps: { SecondaryThemeButton, TinyThemeButton },
-  LabelComps: { CategoryIcon },
+  LabelComps: { CategoryIcon, WarningBanner },
   MarketCardComps: { MarketTitleArea, orderOutcomesForDisplay, unOrderOutcomesForDisplay },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
   Links: { MarketLink },
@@ -325,7 +326,10 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   };
 
   const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
-
+  const now = Math.floor(new Date().getTime() / 1000);
+  const pendingRewards = balances.pendingRewards?.[amm?.marketId];
+  const hasPendingBonus =
+    pendingRewards && now > pendingRewards.endEarlyBonusTimestamp && pendingRewards.pendingBonusRewards !== "0";
   const infoNumbers = getCreateBreakdown(breakdown, market, balances, isRemove);
 
   return (
@@ -365,7 +369,16 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
           error={hasAmountErrors}
         />
         <div className={Styles.Breakdown}>
-          <span>You'll Receive</span>
+          {isRemove && hasPendingBonus && (
+            <WarningBanner
+              className={CommonStyles.ErrorBorder}
+              title="Increasing or removing your liquidity on a market before the bonus time is complete will result in the loss of your bonus rewards."
+              subtitle={
+                "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
+              }
+            />
+          )}
+          <span>{isRemove ? "Remove All Liquidity" : "You'll Receive"}</span>
           <InfoNumbers infoNumbers={infoNumbers} />
         </div>
         <div className={Styles.PricesAndOutcomes}>
