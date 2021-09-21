@@ -329,9 +329,11 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
   const now = Math.floor(new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
-    pendingRewards && now > pendingRewards.endEarlyBonusTimestamp && pendingRewards.pendingBonusRewards !== "0";
+    pendingRewards &&
+    now > pendingRewards.endEarlyBonusTimestamp &&
+    now <= pendingRewards.endBonusTimestamp &&
+    pendingRewards.pendingBonusRewards !== "0";
   const infoNumbers = getCreateBreakdown(breakdown, market, balances, isRemove);
-
   return (
     <section className={classNames(Styles.LiquidityForm, { [Styles.isRemove]: isRemove })}>
       <header>
