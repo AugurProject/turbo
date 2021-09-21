@@ -23,8 +23,6 @@ describe("AMMFactory", () => {
   let secondSigner: SignerWithAddress;
   const outcomeNames = ["No Contest", "Hulk Hogan", "Undertaker"];
 
-  const RANDOM_ADDRESS = "0x0000000000000000000000000000000000000001";
-
   const usdcBasis = BigNumber.from(10).pow(6);
   const stakerFee = 0;
   const settlementFee = BigNumber.from(10).pow(15).mul(5); // 0.5%
@@ -184,6 +182,8 @@ describe("AMMFactory", () => {
         ZERO,
         secondSigner.address
       );
+
+      expect(await bPool.balanceOf(secondSigner.address)).to.equal(0);
 
       const contractResult = await ammFactory.callStatic.buy(
         marketFactory.address,
