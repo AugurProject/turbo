@@ -207,7 +207,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         svg: null,
       },
     ];
-    const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
+    const pendingRewards = new BN(balances?.pendingRewards?.[market.marketId]?.balance).plus(new BN(balances?.pendingRewards?.[market.marketId]?.earnedBonus)) || "0";
     if (pendingRewards !== "0") {
       fullBreakdown.push({
         label: `LP Rewards`,
