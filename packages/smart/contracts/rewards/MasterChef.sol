@@ -189,14 +189,14 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         IERC20 _lpToken,
         uint256 _endTimestamp
     ) internal returns (uint256 _nextPID) {
-        _nextPID = poolInfo.length;
-
         require(
             !rewardPoolLookup[_ammFactory][_marketFactory][_marketId].created,
             "Reward pool has already been created."
         );
 
         require(approvedAMMFactories[address(_ammFactory)], "AMMFactory must be approved to create pool");
+
+        _nextPID = poolInfo.length;
 
         rewardPoolLookup[_ammFactory][_marketFactory][_marketId] = RewardPoolLookupInfo({pid: _nextPID, created: true});
 
@@ -557,7 +557,21 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         RewardPoolLookupInfo memory _rewardPoolLookupInfo =
             rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
 
-        require(_rewardPoolLookupInfo.created, "Reward pool has not been created.");
+        uint256 _pid = _rewardPoolLookupInfo.pid;
+
+        // If not created should attempt to create it.
+        if (!_rewardPoolLookupInfo.created) {
+            BPool _bPool = _ammFactory.getPool(_marketFactory, _marketId);
+            require(_bPool != BPool(0), "Pool not created.");
+
+            _pid = addInternal(
+                address(_ammFactory),
+                address(_marketFactory),
+                _marketId,
+                IERC20(address(_bPool)),
+                _marketFactory.getRewardEndTime(_marketId)
+            );
+        }
 
         _marketFactory.collateral().transferFrom(msg.sender, address(this), _collateralIn);
         _marketFactory.collateral().approve(address(_ammFactory), _collateralIn);
@@ -577,7 +591,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             }
         }
 
-        depositInternal(_lpTokenRecipient, _rewardPoolLookupInfo.pid, _poolAmountOut);
+        depositInternal(_lpTokenRecipient, _pid, _poolAmountOut);
 
         emit LiquidityChanged(
             address(_marketFactory),
