@@ -219,7 +219,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   };
 
   const confirmAction = async () => {
-    const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+    const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash);
     if (!valid) {
       setBreakdown(defaultAddLiquidityBreakdown);
     }
@@ -587,7 +587,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
     const valid = isRemove
       ? true
-      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash);
     if (!valid) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }

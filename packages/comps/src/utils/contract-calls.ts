@@ -29,6 +29,8 @@ import {
 } from "../types";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
+
+// @ts-ignore
 import { ContractCallContext, ContractCallReturnContext, Multicall } from "@augurproject/ethereum-multicall";
 import { TransactionResponse, Web3Provider } from "@ethersproject/providers";
 import {
@@ -463,7 +465,7 @@ export const estimateSellTrade = (
   );
   let maxSellAmount = "0";
   const completeSets = sharesOnChainToDisplay(setsOut); // todo: debugging div 1000 need to fix
-  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)));
+  const tradeFees = String(new BN(inputDisplayAmount).times(new BN(amm.feeDecimal)).toFixed(4));
 
   const displayAmount = new BN(inputDisplayAmount);
   const averagePrice = new BN(completeSets).div(displayAmount);
@@ -1426,7 +1428,7 @@ export const calculateAmmTotalVolApy = (
   transactions: MarketTransactions,
   rewards: RewardsInfo,
   hasWinner: boolean = false
-): { apy: string; vol: string; vol24hr: string } => {
+): { apy: string; vol?: number; vol24hr?: number } => {
   const defaultValues = { apy: undefined, vol: null, vol24hr: null };
   if (!amm?.id || (transactions?.addLiquidity || []).length === 0 || Object.keys(transactions).length === 0)
     return defaultValues;
@@ -1464,7 +1466,7 @@ export const calculateAmmTotalVolApy = (
       ? undefined
       : tradeFeeLiquidityPerDay.times(DAYS_IN_YEAR).abs().times(100).toFixed(4);
 
-  return { apy: tradeFeePerDayInYear, vol: String(totalTradingVolUSD), vol24hr: String(volumeTotalUSD24hr) };
+  return { apy: tradeFeePerDayInYear, vol: totalTradingVolUSD, vol24hr: volumeTotalUSD24hr };
 };
 
 const calcTotalVolumeUSD = (transactions: MarketTransactions, cash: Cash, cutoffTimestamp: number = 0) => {
