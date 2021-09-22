@@ -19,6 +19,8 @@ describe("Math", () => {
       { home: 30, away: 37, spread: 7.0, winner: Winner.Draw },
       { home: 23, away: 20, spread: -3.0, winner: Winner.Draw },
       { home: 5, away: 1, spread: -9.0, winner: Winner.Away },
+      { home: 0, away: 0, spread: 0.5, winner: Winner.Home },
+      { home: 0, away: 0, spread: -0.5, winner: Winner.Away },
     ].forEach(({ home, away, spread, winner }) => {
       it(`calcSpreadWinner(home=${home}, away=${away}, spread=${spread}) => ${winner}`, () => {
         expect(calcSpreadWinner(home, away, spread)).to.equal(winner);
