@@ -53,6 +53,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
       const provider = defaultProvider?.current || loginAccount?.library
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
+      
       try {
         infos = await getMarketInfos(
           provider,
