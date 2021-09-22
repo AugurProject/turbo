@@ -6,11 +6,18 @@ import {
   MarketResolved,
   MmaMarketFactory as MmaMarketFactoryContract,
   MmaMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed
+  WinningsClaimed,
+  SharesMinted, SportsEventCreated
 } from "../../generated/MmaMarketFactoryV3/MmaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
+import {
+  getOrCreateInitialCostPerMarket,
+  getOrCreatePositionBalance,
+  getOrCreateSharesMinted
+} from "../helpers/CommonHelper";
+import { GenericSharesMintedParams } from "../types";
+import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = MmaMarketFactoryContract.bind(contractAddress);
@@ -25,16 +32,6 @@ function getShareTokens(contractAddress: Address, marketId: BigInt): Array<strin
   }
 
   return shareTokens;
-}
-
-function getInitialOdds(contractAddress: Address, marketId: BigInt): Array<BigInt> {
-  let contract = MmaMarketFactoryContract.bind(contractAddress);
-  let tryGetMarket = contract.try_getMarket(marketId);
-  let initialOdds: BigInt[] = new Array<BigInt>();
-  if (!tryGetMarket.reverted) {
-    initialOdds = tryGetMarket.value.initialOdds;
-  }
-  return initialOdds;
 }
 
 function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: string): string {
@@ -187,4 +184,33 @@ function handlePositionFromClaimWinningsEventV2(event: WinningsClaimed): void {
   positionBalanceEntity.save();
 
   closeAllPositions(event.address, event.params.id, marketId, senderId);
+}
+
+export function handleSharesMintedEvent(event: SharesMinted): void {
+  let params: GenericSharesMintedParams = {
+    hash: event.transaction.hash,
+    timestamp: event.block.timestamp,
+    marketFactory: event.address,
+    marketIndex: event.params.id,
+    amount: event.params.amount,
+    receiver: event.params.receiver
+  };
+  handleGenericSharesMintedEvent(params);
+}
+
+export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
+  let eventId = event.params.id;
+  let markets: BigInt[] = event.params.markets;
+  for (let i = 0; i < markets.length; i++) {
+    let marketId = event.address.toHexString() + "-" + markets[i].toString();
+    getOrCreateMarket(marketId);
+    let market = getOrCreateMmaMarket(marketId, true, false);
+    market.eventId = eventId;
+    market.homeFighterId = event.params.homeTeamId;
+    market.awayFighterId = event.params.awayTeamId;
+    market.homeFighterName = event.params.homeTeamName;
+    market.awayFighterName = event.params.awayTeamName;
+    market.estimatedStartTime = event.params.estimatedStartTime;
+    market.save();
+  }
 }
