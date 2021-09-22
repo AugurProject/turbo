@@ -602,7 +602,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
           amm,
           cash,
           amount,
-          unOrderOutcomesForDisplay(outcomes)
         );
       }
 

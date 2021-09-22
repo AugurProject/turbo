@@ -58,7 +58,6 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
           provider,
           dmarkets,
           damm,
-          cashes,
           userAccount,
           MULTICALL_MARKET_IGNORE_LIST,
           loadType,
