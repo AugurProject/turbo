@@ -6,16 +6,13 @@ import {
   MarketResolved,
   MlbMarketFactory as MlbMarketFactoryContract,
   MlbMarketFactory__getMarketResultValue0Struct,
-  WinningsClaimed,
-  SharesMinted
+  SharesMinted,
+  SportsEventCreated,
+  WinningsClaimed
 } from "../../generated/MlbMarketFactoryV3/MlbMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import {
-  getOrCreateInitialCostPerMarket,
-  getOrCreatePositionBalance,
-  getOrCreateSharesMinted
-} from "../helpers/CommonHelper";
+import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
@@ -199,4 +196,21 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     receiver: event.params.receiver
   };
   handleGenericSharesMintedEvent(params);
+}
+
+export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
+  let eventId = event.params.id;
+  let markets: BigInt[] = event.params.markets;
+  for (let i = 0; i < markets.length; i++) {
+    let marketId = event.address.toHexString() + "-" + markets[i].toString();
+    getOrCreateMarket(marketId);
+    let market = getOrCreateMlbMarket(marketId, true, false);
+    market.eventId = eventId;
+    market.homeTeamId = event.params.homeTeamId;
+    market.awayTeamId = event.params.awayTeamId;
+    market.homeTeamName = event.params.homeTeamName;
+    market.awayTeamName = event.params.awayTeamName;
+    market.estimatedStartTime = event.params.estimatedStartTime;
+    market.save();
+  }
 }

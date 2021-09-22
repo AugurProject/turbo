@@ -116,8 +116,6 @@ dataSources:
         abis:
           - name: NflMarketFactory
             file: ./abis/NFLMarketFactoryV3.json
-          - name: SportView
-            file: ./abis/SportView.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent

@@ -209,9 +209,9 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
 
 export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
   let eventId = event.params.id;
-  for(let i = 0; i < event.params.markets.length; i++) {
-    let marketIndex: BigInt[] = event.params.markets;
-    let marketId = event.address.toHexString() + "-" + marketIndex[i].toString();
+  let markets: BigInt[] = event.params.markets;
+  for (let i = 0; i < markets.length; i++) {
+    let marketId = event.address.toHexString() + "-" + markets[i].toString();
     getOrCreateMarket(marketId);
     let market = getOrCreateNflMarket(marketId, true, false);
     market.eventId = eventId;
@@ -220,5 +220,6 @@ export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
     market.homeTeamName = event.params.homeTeamName;
     market.awayTeamName = event.params.awayTeamName;
     market.estimatedStartTime = event.params.estimatedStartTime;
+    market.save();
   }
 }
