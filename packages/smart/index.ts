@@ -35,13 +35,14 @@ import {
   SportsFetcher__factory,
   GroupFetcher,
   GroupFetcher__factory,
-  CryptoPriceMarketFactoryV3,
-  CryptoPriceMarketFactoryV3__factory,
+  CryptoCurrencyMarketFactoryV3,
+  CryptoCurrencyMarketFactoryV3__factory, CryptoCurrencyFetcher
 } from "./typechain";
 import { addresses } from "./addresses";
 import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import { ChainId, MarketFactorySubType, MarketFactoryType } from "./constants";
+import { CryptoCurrencyFetcher__factory } from "./typechain";
 
 export * from "./typechain";
 export * from "./addresses";
@@ -67,7 +68,7 @@ export type MarketFactoryContract =
   | TrustedMarketFactoryV3
   | CryptoMarketFactoryV2
   | CryptoMarketFactoryV3
-  | CryptoPriceMarketFactoryV3
+  | CryptoCurrencyMarketFactoryV3
   | FuturesMarketFactoryV3
   | MMALinkMarketFactoryV2
   | MMAMarketFactoryV3
@@ -76,7 +77,7 @@ export type MarketFactoryContract =
   | NFLMarketFactoryV2
   | NFLMarketFactoryV3;
 
-export type FetcherContract = CryptoFetcher | SportsFetcher | GroupFetcher;
+export type FetcherContract = CryptoFetcher | SportsFetcher | GroupFetcher | CryptoCurrencyFetcher;
 
 export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
   const contractAddresses = addresses[chainId];
@@ -125,7 +126,7 @@ export function instantiateMarketFactory(
     },
     V3: {
       Crypto: CryptoMarketFactoryV3__factory,
-      CryptoPrice: CryptoPriceMarketFactoryV3__factory,
+      CryptoCurrency: CryptoCurrencyMarketFactoryV3__factory,
       Trusted: TrustedMarketFactoryV3__factory,
       Futures: FuturesMarketFactoryV3__factory,
       MMA: MMAMarketFactoryV3__factory,
@@ -152,6 +153,7 @@ export function instantiateFetcher(
   const mapping: InstantiationByType<FetcherContract> = {
     V3: {
       Crypto: CryptoFetcher__factory,
+      CryptoCurrency: CryptoCurrencyFetcher__factory,
       MMA: SportsFetcher__factory,
       NFL: SportsFetcher__factory,
       NBA: SportsFetcher__factory,

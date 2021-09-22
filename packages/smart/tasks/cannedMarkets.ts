@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 import {
   buildContractInterfaces,
   ContractInterfaces,
-  CryptoPriceMarketFactoryV3,
+  CryptoCurrencyMarketFactoryV3,
   FakePriceFeed__factory,
   FuturesMarketFactoryV3,
   getUpcomingFriday4pmET,
@@ -28,20 +28,20 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   await nfl(signer, contracts, confirmations);
   await mma(signer, contracts, confirmations);
   await futures(signer, contracts, confirmations);
-  await cryptoPrice(signer, contracts, confirmations);
+  await crypto(signer, contracts, confirmations);
 });
 
-async function cryptoPrice(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
-  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "CryptoPrice")]
-    .marketFactory as CryptoPriceMarketFactoryV3;
+async function crypto(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "CryptoCurrency")]
+    .marketFactory as CryptoCurrencyMarketFactoryV3;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
   try {
     interface Coin {
       name: string;
-      priceFeed: string;
-      price: BigNumber;
+      feed: string;
+      value: BigNumber;
       imprecision: number;
       currentMarket: BigNumber;
     }
@@ -61,11 +61,11 @@ async function cryptoPrice(signer: Signer, contracts: ContractInterfaces, confir
         continue;
       }
 
-      const priceFeed = FakePriceFeed__factory.connect(coin.priceFeed, signer);
-      const latest = await priceFeed.latestRoundData();
+      const feed = FakePriceFeed__factory.connect(coin.feed, signer);
+      const latest = await feed.latestRoundData();
       const round = RoundManagement.decode(latest._roundId).nextRound();
       const answer = randomPrice();
-      await priceFeed.addRound(round.id, answer, 0, now, 0).then(wait);
+      await feed.addRound(round.id, answer, 0, now, 0).then(wait);
 
       console.log(`Creating crypto price market for ${coin.name}`);
       await marketFactory.pokeCoin(coinIndex, resolutionTime, 0).then(wait);

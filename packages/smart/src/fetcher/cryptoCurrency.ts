@@ -1,4 +1,4 @@
-import { AMMFactory, CryptoPriceFetcher, CryptoPriceMarketFactoryV3 } from "../../typechain";
+import { AMMFactory, CryptoCurrencyFetcher, CryptoCurrencyMarketFactoryV3, MasterChef } from "../../typechain";
 import { BigNumber, BigNumberish } from "ethers";
 import {
   createDynamicMarketBundle,
@@ -11,28 +11,30 @@ import {
   StaticMarketBundle,
 } from "./common";
 
-export async function fetchInitialCryptoPrice(
-  fetcher: CryptoPriceFetcher,
-  marketFactory: CryptoPriceMarketFactoryV3,
+export async function fetchInitialCryptoCurrency(
+  fetcher: CryptoCurrencyFetcher,
+  marketFactory: CryptoCurrencyMarketFactoryV3,
   ammFactory: AMMFactory,
+  masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialCryptoPriceMarket[] }> {
+): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialCryptoCurrencyMarket[] }> {
   const marketCount = await marketFactory.marketCount();
 
   let factoryBundle: MarketFactoryBundle | undefined;
-  let markets: StaticCryptoPriceMarketBundle[] = [];
+  let markets: StaticCryptoCurrencyMarketBundle[] = [];
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
     const [rawFactoryBundle, rawMarketBundles, lowestMarketIndex] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
+      masterChef.address,
       offset,
       bundleSize
     );
 
     if (!factoryBundle) factoryBundle = createMarketFactoryBundle(rawFactoryBundle.super);
-    markets = markets.concat(rawMarketBundles.map(createStaticCryptoPriceMarketBundle));
+    markets = markets.concat(rawMarketBundles.map(createStaticCryptoCurrencyMarketBundle));
 
     if (lowestMarketIndex.lte(1)) break; // don't grab the 0th market, which is fake
     offset = marketCount.sub(lowestMarketIndex);
@@ -41,26 +43,28 @@ export async function fetchInitialCryptoPrice(
   return { factoryBundle, markets };
 }
 
-export async function fetchDynamicCryptoPrice(
-  fetcher: CryptoPriceFetcher,
-  marketFactory: CryptoPriceMarketFactoryV3,
+export async function fetchDynamicCryptoCurrency(
+  fetcher: CryptoCurrencyFetcher,
+  marketFactory: CryptoCurrencyMarketFactoryV3,
   ammFactory: AMMFactory,
+  // masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ markets: DynamicCryptoPriceMarketBundle[] }> {
+): Promise<{ markets: DynamicCryptoCurrencyMarketBundle[] }> {
   const marketCount = await marketFactory.marketCount();
 
-  let markets: DynamicCryptoPriceMarketBundle[] = [];
+  let markets: DynamicCryptoCurrencyMarketBundle[] = [];
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
     const [rawMarketBundles, lowestMarketIndex] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
+      // masterChef.address,
       offset,
       bundleSize
     );
 
-    markets = markets.concat(rawMarketBundles.map(createDynamicCryptoPriceMarketBundle));
+    markets = markets.concat(rawMarketBundles.map(createDynamicCryptoCurrencyMarketBundle));
 
     if (lowestMarketIndex.lte(1)) break;
     offset = marketCount.sub(lowestMarketIndex);
@@ -69,50 +73,50 @@ export async function fetchDynamicCryptoPrice(
   return { markets };
 }
 
-export interface InitialCryptoPriceMarket extends StaticMarketBundle {
+export interface InitialCryptoCurrencyMarket extends StaticMarketBundle {
   coinIndex: BigNumberish;
-  creationPrice: BigNumberish;
-  resolutionPrice: BigNumberish;
+  creationValue: BigNumberish;
+  resolutionValue: BigNumberish;
   resolutionTime: BigNumberish;
 }
 
-function createStaticCryptoPriceMarketBundle(raw: RawStaticCryptoPriceMarketBundle): StaticCryptoPriceMarketBundle {
+function createStaticCryptoCurrencyMarketBundle(raw: RawStaticCryptoCurrencyMarketBundle): StaticCryptoCurrencyMarketBundle {
   return {
     ...createStaticMarketBundle(raw.super),
     coinIndex: raw.coinIndex,
-    creationPrice: raw.creationPrice,
-    resolutionPrice: raw.resolutionPrice,
+    creationValue: raw.creationValue,
+    resolutionValue: raw.resolutionValue,
     resolutionTime: raw.resolutionTime,
   };
 }
 
-interface StaticCryptoPriceMarketBundle extends StaticMarketBundle {
+interface StaticCryptoCurrencyMarketBundle extends StaticMarketBundle {
   coinIndex: BigNumberish;
-  creationPrice: BigNumberish;
-  resolutionPrice: BigNumberish;
+  creationValue: BigNumberish;
+  resolutionValue: BigNumberish;
   resolutionTime: BigNumberish;
 }
 
-interface RawStaticCryptoPriceMarketBundle {
+interface RawStaticCryptoCurrencyMarketBundle {
   super: RawStaticMarketBundle;
   coinIndex: BigNumberish;
-  creationPrice: BigNumberish;
-  resolutionPrice: BigNumberish;
+  creationValue: BigNumberish;
+  resolutionValue: BigNumberish;
   resolutionTime: BigNumberish;
 }
 
-export interface DynamicCryptoPriceMarketBundle extends DynamicMarketBundle {
-  resolutionPrice: BigNumberish;
+export interface DynamicCryptoCurrencyMarketBundle extends DynamicMarketBundle {
+  resolutionValue: BigNumberish;
 }
 
-interface RawDynamicCryptoPriceMarketBundle {
+interface RawDynamicCryptoCurrencyMarketBundle {
   super: RawDynamicMarketBundle;
-  resolutionPrice: BigNumberish;
+  resolutionValue: BigNumberish;
 }
 
-function createDynamicCryptoPriceMarketBundle(raw: RawDynamicCryptoPriceMarketBundle): DynamicCryptoPriceMarketBundle {
+function createDynamicCryptoCurrencyMarketBundle(raw: RawDynamicCryptoCurrencyMarketBundle): DynamicCryptoCurrencyMarketBundle {
   return {
     ...createDynamicMarketBundle(raw.super),
-    resolutionPrice: raw.resolutionPrice,
+    resolutionValue: raw.resolutionValue,
   };
 }

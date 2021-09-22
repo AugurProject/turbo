@@ -1,4 +1,4 @@
 export * from "./sport";
 export * from "./crypto";
 export * from "./group";
-export * from "./cryptoPrice";
+export * from "./cryptoCurrency";
