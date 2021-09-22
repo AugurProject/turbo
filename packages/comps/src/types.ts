@@ -2,6 +2,7 @@ import { MouseEvent } from "react";
 import type { BigNumber } from "./utils/create-big-number";
 import type { TradingDirection } from "./utils/constants";
 import { ethers } from "ethers";
+import { MarketFactory } from "@augurproject/smart";
 
 export interface TextLink {
   text: string;
@@ -75,7 +76,7 @@ export interface ParaDeploys {
   collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  marketFactories: MarketFactoryConfig[];
+  marketFactories: MarketFactory[];
   info: { uploadBlockNumber: number; graphName: string };
 }
 export interface AmmTransaction {
@@ -127,7 +128,7 @@ export interface AddRemoveLiquidity {
   sender: {
     id: string;
   };
-  timestamp: string;
+  timestamp: number;
   transactionHash: string;
   outcomes: string[];
   sharesReturned: string[];
@@ -141,6 +142,7 @@ export interface ClaimWinningsTransactions {
   timestamp: string;
   transactionHash: string;
   cash: string;
+  receiver: string;
 }
 
 export interface ClaimFeesTransactions {
@@ -153,8 +155,16 @@ export interface ClaimFeesTransactions {
 export interface MarketTransactions {
   addLiquidity: AddRemoveLiquidity[];
   removeLiquidity: AddRemoveLiquidity[];
+  trades?: BuySellTransactions[];
+}
+export interface UserMarketTransactions {
+  addLiquidity: AddRemoveLiquidity[];
+  removeLiquidity: AddRemoveLiquidity[];
   buys: BuySellTransactions[];
   sells: BuySellTransactions[];
+}
+export interface AllUserMarketTransactions {
+  [marketId: string]: UserMarketTransactions;
 }
 export interface UserClaimTransactions {
   claimedFees: ClaimFeesTransactions[];
@@ -261,6 +271,7 @@ export interface MarketInfo {
   subMarkets?: { marketName: string; shareTokens: string[]; marketType: number; factory: string; marketId: number }[];
   category?: string;
   rewards?: RewardsInfo;
+  spreadLine?: number;
 }
 
 export interface SubOutcome {
@@ -286,6 +297,7 @@ export interface AmmOutcome extends MarketOutcome {
   balanceRaw: string;
   balance: string;
   marketId?: string;
+  shareToken?: string;
 }
 
 export interface Cash {
@@ -563,7 +575,6 @@ export interface CurrencyBalance extends SimpleBalance {
 }
 
 export interface Winnings {
-  shareToken: string;
   claimableBalance: string;
   userBalances: string[];
 }
@@ -621,6 +632,8 @@ export interface UserBalances {
   total24hrPositionUsd: string;
   change24hrPositionUsd: string;
   availableFundsUsd: string;
+  totalAccountValueOpenOnly: string;
+  totalCurrentLiquidityUsd: string;
   lpTokens: LPTokens;
   marketShares: AmmMarketShares;
   claimableWinnings: PositionWinnings;
@@ -629,6 +642,7 @@ export interface UserBalances {
   legacyRep?: string;
   approvals?: Approvals;
   pendingRewards?: PendingRewards;
+  totalRewards?: string;
 }
 
 export interface ProcessedData {
@@ -717,20 +731,10 @@ export interface TransactionDetails {
 export interface LiquidityBreakdown {
   amount?: string;
   minAmountsRaw?: string[];
-  minAmounts?: { amount: string; outcomeId: number; hide: boolean }[];
+  minAmounts?: { amount: string; outcomeId?: number; hide?: boolean }[];
   poolPct?: string;
   lpTokens?: string;
   cashAmount?: string;
-}
-
-export interface MarketFactoryConfig {
-  type: string;
-  subtype: string;
-  address: string;
-  collateral: string;
-  ammFactory: string;
-  description: string;
-  version: string;
 }
 
 export interface MarketFactoryNames {
