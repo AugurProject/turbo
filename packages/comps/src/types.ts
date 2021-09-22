@@ -2,6 +2,7 @@ import { MouseEvent } from "react";
 import type { BigNumber } from "./utils/create-big-number";
 import type { TradingDirection } from "./utils/constants";
 import { ethers } from "ethers";
+import { MarketFactory } from "@augurproject/smart";
 
 export interface TextLink {
   text: string;
@@ -75,7 +76,7 @@ export interface ParaDeploys {
   collateral: string;
   reputationToken: string;
   balancerFactory: string;
-  marketFactories: MarketFactoryConfig[];
+  marketFactories: MarketFactory[];
   info: { uploadBlockNumber: number; graphName: string };
 }
 export interface AmmTransaction {
@@ -734,16 +735,6 @@ export interface LiquidityBreakdown {
   poolPct?: string;
   lpTokens?: string;
   cashAmount?: string;
-}
-
-export interface MarketFactoryConfig {
-  type: string;
-  subtype: string;
-  address: string;
-  collateral: string;
-  ammFactory: string;
-  description: string;
-  version: string;
 }
 
 export interface MarketFactoryNames {
