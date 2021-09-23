@@ -6,11 +6,18 @@ import {
   FuturesMarketFactory__getMarketResultValue0Struct,
   MarketCreated,
   MarketResolved,
-  WinningsClaimed
+  WinningsClaimed,
+  SharesMinted
 } from "../../generated/FuturesMarketFactoryV3/FuturesMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
+import {
+  getOrCreateInitialCostPerMarket,
+  getOrCreatePositionBalance,
+  getOrCreateSharesMinted
+} from "../helpers/CommonHelper";
+import { GenericSharesMintedParams } from "../types";
+import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = FuturesMarketFactoryContract.bind(contractAddress);
@@ -179,4 +186,16 @@ function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   positionBalanceEntity.save();
 
   closeAllPositions(event.address, event.params.id, marketId, senderId);
+}
+
+export function handleSharesMintedEvent(event: SharesMinted): void {
+  let params: GenericSharesMintedParams = {
+    hash: event.transaction.hash,
+    timestamp: event.block.timestamp,
+    marketFactory: event.address,
+    marketIndex: event.params.id,
+    amount: event.params.amount,
+    receiver: event.params.receiver
+  };
+  handleGenericSharesMintedEvent(params);
 }

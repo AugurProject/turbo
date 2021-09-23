@@ -340,10 +340,7 @@ const LiquidityView = () => {
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
-  const rewardBalance =
-    pendingRewards && Object.values(pendingRewards).length
-      ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string }) => p.plus(r.balance), ZERO))
-      : "0";
+  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string, earnedBonus: string }) => (p.plus(r.balance).plus(r.earnedBonus)), ZERO)) : "0";
   const handleFilterSort = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, pendingRewards, {
       filter,

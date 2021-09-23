@@ -6,11 +6,15 @@ import {
   MarketResolved,
   NbaMarketFactory as NbaMarketFactoryContract,
   NbaMarketFactory__getMarketResultValue0Struct,
+  SharesMinted,
   WinningsClaimed
 } from "../../generated/NbaMarketFactoryV3/NbaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import { getOrCreateInitialCostPerMarket, getOrCreatePositionBalance } from "../helpers/CommonHelper";
+import { GenericSharesMintedParams } from "../types";
+import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
+import { SportsEventCreated } from "../../generated/NbaMarketFactoryV3/NbaMarketFactory";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
   let contract = NbaMarketFactoryContract.bind(contractAddress);
@@ -179,4 +183,33 @@ function handlePositionFromClaimWinningsEvent(event: WinningsClaimed): void {
   positionBalanceEntity.save();
 
   closeAllPositions(event.address, event.params.id, marketId, senderId);
+}
+
+export function handleSharesMintedEvent(event: SharesMinted): void {
+  let params: GenericSharesMintedParams = {
+    hash: event.transaction.hash,
+    timestamp: event.block.timestamp,
+    marketFactory: event.address,
+    marketIndex: event.params.id,
+    amount: event.params.amount,
+    receiver: event.params.receiver
+  };
+  handleGenericSharesMintedEvent(params);
+}
+
+export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
+  let eventId = event.params.id;
+  let markets: BigInt[] = event.params.markets;
+  for (let i = 0; i < markets.length; i++) {
+    let marketId = event.address.toHexString() + "-" + markets[i].toString();
+    getOrCreateMarket(marketId);
+    let market = getOrCreateNbaMarket(marketId, true, false);
+    market.eventId = eventId;
+    market.homeTeamId = event.params.homeTeamId;
+    market.awayTeamId = event.params.awayTeamId;
+    market.homeTeamName = event.params.homeTeamName;
+    market.awayTeamName = event.params.awayTeamName;
+    market.estimatedStartTime = event.params.estimatedStartTime;
+    market.save();
+  }
 }

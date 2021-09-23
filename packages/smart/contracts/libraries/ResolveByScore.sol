@@ -17,7 +17,7 @@ abstract contract ResolvesByScore is Sport, ManagedByLink {
         SportsEvent storage _event = sportsEvents[_eventId];
 
         require(_event.status == SportsEventStatus.Scheduled);
-        require(SportsEventStatus(_eventStatus) != SportsEventStatus.Scheduled);
+        require(uint8(_eventStatus) >= uint8(SportsEventStatus.Final));
 
         if (eventIsNoContest(_event, _eventStatus, _homeTeamId, _awayTeamId, WhoWonUnknown)) {
             resolveInvalidEvent(_eventId);
@@ -25,7 +25,9 @@ abstract contract ResolvesByScore is Sport, ManagedByLink {
             resolveValidEvent(_event, _homeScore, _awayScore);
         }
 
-        sportsEvents[_eventId].status = _eventStatus;
+        _event.status = _eventStatus;
+        _event.homeScore = _homeScore;
+        _event.awayScore = _awayScore;
     }
 
     function resolveValidEvent(

@@ -79,7 +79,7 @@ type CryptoMarket @entity {
   timestamp: BigInt
   creator: String
   endTime: BigInt
-  marketType: BigInt
+  marketType: Int
   coinIndex: BigInt
   creationPrice: BigInt
   shareTokens: [String!]
@@ -201,6 +201,7 @@ type Sender @entity {
   "From the perspective of the user. E.g. totalLiquidity is negative when adding liquidity."
   totalLiquidity: BigInt
   sumOfInitialCost: [InitialCostPerMarket!] @derivedFrom(field: "sender")
+  sharesMinted: [SharesMinted!] @derivedFrom(field: "receiver")
 }
 
 type AddLiquidity @entity {
@@ -324,4 +325,16 @@ type LiquidityPositionBalance @entity {
   sharesReturned: [BigInt!]!
   avgPricePerOutcome: [BigDecimal!]!
   log: [String!]!
+}
+
+type SharesMinted @entity {
+  id: ID!
+  timestamp: BigInt!
+  transactionHash: String!
+  marketFactory: String!
+  marketIndex: String!
+  amount: BigInt!
+  amountBigDecimal: BigDecimal!
+  receiver: Sender!
+  receiverId: String!
 }

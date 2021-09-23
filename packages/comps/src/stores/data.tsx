@@ -4,13 +4,12 @@ import {
   STUBBED_DATA_ACTIONS,
   PARA_CONFIG,
   NETWORK_BLOCK_REFRESH_TIME,
-  MARKET_IGNORE_LIST,
   MULTICALL_MARKET_IGNORE_LIST,
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos, fillGraphMarketsData } from "../utils/contract-calls";
-import { getAllTransactions, getMarketsData } from "../apollo/client";
+import { getMarketInfos } from "../utils/contract-calls";
+import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { AppStatusStore } from "./app-status";
 import { MARKET_LOAD_TYPE } from "../utils/constants";
@@ -35,6 +34,8 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
   } = state;
+  const { isDegraded } = AppStatusStore.get();
+
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
     DataStore.actionsSet = true;
@@ -48,67 +49,22 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     let intervalId = null;
     const getMarkets = async () => {
       const { account: userAccount, loginAccount } = UserStore.get();
-      const { isRpcDown, isDegraded } = AppStatusStore.get();
+      const { isRpcDown } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
       const provider = defaultProvider?.current || loginAccount?.library
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
+      
       try {
-        try {
+        infos = await getMarketInfos(
+          provider,
+          dmarkets,
+          damm,
+          userAccount,
+          MULTICALL_MARKET_IGNORE_LIST,
+          loadType,
+          dblock
+        );
 
-          // Throwing now until graph data can consistently pull all markets
-          //throw new Error('Temporary Graph Failover');
-
-          const { data, block, errors } = await getMarketsData();
-          if (errors) {
-            throw new Error(`Graph returned error ${errors}`);
-          }
-          const infos = await fillGraphMarketsData(
-            data,
-            cashes,
-            provider,
-            account,
-            Number(block),
-            MARKET_IGNORE_LIST,
-            loadType,
-            dmarkets,
-            damm
-          );
-
-          const infosV3 = await getMarketInfos(
-            provider,
-            dmarkets,
-            damm,
-            cashes,
-            userAccount,
-            MULTICALL_MARKET_IGNORE_LIST,
-            loadType,
-            dblock,
-            true
-          );
-
-          if (isDegraded) {
-            AppStatusStore.actions.setIsDegraded(false);
-          }
-          const blocknumber = infos.blocknumber || infosV3.blocknumber;
-          return { markets: { ...infos.markets, ...infosV3.markets }, ammExchanges: { ...infos.ammExchanges, ...infosV3.ammExchanges }, blocknumber };
-        } catch (e) {
-          // failover use multicalls
-          if (!isDegraded) {
-            AppStatusStore.actions.setIsDegraded(true);
-          }
-
-          console.log("failover to use multicall", e);
-          infos = await getMarketInfos(
-            provider,
-            dmarkets,
-            damm,
-            cashes,
-            userAccount,
-            MULTICALL_MARKET_IGNORE_LIST,
-            loadType,
-            dblock
-          );
-        }
         if (isRpcDown) {
           AppStatusStore.actions.setIsRpcDown(false);
         }
@@ -150,7 +106,13 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
   useEffect(() => {
     let isMounted = true;
     const fetchTransactions = () =>
-      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions));
+      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions))
+        .then(() => AppStatusStore.actions.setIsDegraded(false))
+        .catch(e => {
+          if (!isDegraded) {
+            AppStatusStore.actions.setIsDegraded(true);
+          }
+        });
 
     fetchTransactions();
 
