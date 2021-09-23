@@ -51,6 +51,8 @@ describe("MasterChef", () => {
 
   const SECONDS_IN_AN_HOUR = BigNumber.from(60).mul(60);
 
+  const MARKET_ID = 0;
+
   beforeEach(async () => {
     await deployments.fixture();
     cash = (await ethers.getContract("Collateral")) as Cash;
@@ -84,7 +86,7 @@ describe("MasterChef", () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
 
       const estimatedStartTimeJustBeforeNow = BigNumber.from(timestamp).sub(100);
-      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeJustBeforeNow);
+      await masterChef.add(RANDOM_ADDRESS, bill.address, MARKET_ID, cash.address, estimatedStartTimeJustBeforeNow);
 
       const { beginTimestamp, endTimestamp } = await masterChef.poolInfo(0);
       expect(beginTimestamp.lte(endTimestamp)).to.be.true;
@@ -95,12 +97,36 @@ describe("MasterChef", () => {
       const { timestamp } = await ethers.provider.getBlock("latest");
 
       const estimatedStartTimeOneDayOutsideWindow = rewardPeriods.add(1).mul(SECONDS_PER_DAY).add(timestamp);
-      await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
+      await masterChef.add(
+        RANDOM_ADDRESS,
+        bill.address,
+        MARKET_ID,
+        cash.address,
+        estimatedStartTimeOneDayOutsideWindow
+      );
 
       const { beginTimestamp, rewardsPerSecond } = await masterChef.poolInfo(0);
       // Should have an hour buffer.
       expect(beginTimestamp.sub(timestamp)).to.be.equal(SECONDS_PER_DAY.sub(SECONDS_IN_AN_HOUR));
       expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(SECONDS_PER_DAY));
+    });
+  });
+
+  describe("getPoolTokenBalance", () => {
+    beforeEach(async () => {
+      await masterChef.add(RANDOM_ADDRESS, bill.address, ZERO, cash.address, 0);
+      await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
+    });
+
+    it("should return the proper the amount LP'ed", async () => {
+      const balance = await tomMasterChef.getPoolTokenBalance(RANDOM_ADDRESS, bill.address, MARKET_ID, tom.address);
+      expect(balance).to.be.equal(initialCashAmount);
+    });
+
+    it("should not show a balance for markets not LP'ed into", async () => {
+      // NOTE: We are not lp'ed into marketId 1.
+      const balance = await tomMasterChef.getPoolTokenBalance(RANDOM_ADDRESS, bill.address, 1, tom.address);
+      expect(balance).to.be.equal(ZERO);
     });
   });
 
@@ -117,7 +143,7 @@ describe("MasterChef", () => {
     });
 
     it("should pay if deposited and left for duration of the reward pool's lifespan", async () => {
-      await tomMasterChef.deposit(0, initialCashAmount);
+      await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
 
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(1).toNumber()]);
       await network.provider.send("evm_mine", []);
@@ -125,13 +151,13 @@ describe("MasterChef", () => {
       const pendingRewardsInfo = await masterChef.getUserPendingRewardInfo(
         RANDOM_ADDRESS,
         bill.address,
-        0,
+        MARKET_ID,
         tom.address
       );
       expect(pendingRewardsInfo.accruedStandardRewards).to.be.equal(0);
       checkWithin(pendingRewardsInfo.accruedEarlyDepositBonusRewards, totalRewards);
 
-      await tomMasterChef.withdraw(0, initialCashAmount);
+      await tomMasterChef.withdraw(MARKET_ID, initialCashAmount);
 
       checkWithin(await rewardsToken.balanceOf(tom.address), totalRewards);
     });
@@ -142,12 +168,12 @@ describe("MasterChef", () => {
       await network.provider.send("evm_setNextBlockTimestamp", [timestampAfterBonusRewards]);
       await network.provider.send("evm_mine", []);
 
-      await tomMasterChef.deposit(0, initialCashAmount.div(2));
+      await tomMasterChef.deposit(MARKET_ID, initialCashAmount.div(2));
 
       const pendingRewardsInfoBeforeRewardEnd = await masterChef.getUserPendingRewardInfo(
         RANDOM_ADDRESS,
         bill.address,
-        0,
+        MARKET_ID,
         tom.address
       );
 
@@ -155,7 +181,7 @@ describe("MasterChef", () => {
       expect(pendingRewardsInfoBeforeRewardEnd.accruedEarlyDepositBonusRewards).to.be.equal(0);
       expect(pendingRewardsInfoBeforeRewardEnd.pendingEarlyDepositBonusRewards).to.be.equal(0);
 
-      await tomMasterChef.deposit(0, initialCashAmount.div(2));
+      await tomMasterChef.deposit(MARKET_ID, initialCashAmount.div(2));
 
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
       await network.provider.send("evm_mine", []);
@@ -163,7 +189,7 @@ describe("MasterChef", () => {
       const pendingRewardsInfoAfterRewardEnd = await masterChef.getUserPendingRewardInfo(
         RANDOM_ADDRESS,
         bill.address,
-        0,
+        MARKET_ID,
         tom.address
       );
 
@@ -171,22 +197,22 @@ describe("MasterChef", () => {
       expect(pendingRewardsInfoAfterRewardEnd.accruedEarlyDepositBonusRewards).to.be.equal(0);
       expect(pendingRewardsInfoAfterRewardEnd.pendingEarlyDepositBonusRewards).to.be.equal(0);
 
-      await tomMasterChef.withdraw(0, initialCashAmount);
+      await tomMasterChef.withdraw(MARKET_ID, initialCashAmount);
 
       expect(await rewardsToken.balanceOf(tom.address)).to.be.equal(0);
     });
 
     describe("double withdrawal", () => {
       it("should return early bonus", async () => {
-        await tomMasterChef.deposit(0, initialCashAmount);
+        await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
 
         await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
         await network.provider.send("evm_mine", []);
 
-        await tomMasterChef.withdraw(0, initialCashAmount.div(2));
+        await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(2));
         checkWithin(await rewardsToken.balanceOf(tom.address), totalRewards);
 
-        await tomMasterChef.withdraw(0, initialCashAmount.div(2));
+        await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(2));
         checkWithin(await rewardsToken.balanceOf(tom.address), totalRewards);
       });
     });
@@ -204,14 +230,19 @@ describe("MasterChef", () => {
     });
 
     it("should not distribute any rewards", async () => {
-      await tomMasterChef.deposit(0, initialCashAmount);
+      await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
 
       const poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.add(100000).toNumber()]);
       await network.provider.send("evm_mine", []);
 
-      const otherAmount = await masterChef.getUserPendingRewardInfo(RANDOM_ADDRESS, bill.address, 0, tom.address);
+      const otherAmount = await masterChef.getUserPendingRewardInfo(
+        RANDOM_ADDRESS,
+        bill.address,
+        MARKET_ID,
+        tom.address
+      );
       expect(otherAmount.accruedEarlyDepositBonusRewards).to.be.equal(0);
       expect(otherAmount.accruedStandardRewards).to.be.equal(0);
 
@@ -245,7 +276,7 @@ describe("MasterChef", () => {
       describe("entry at beginning of pool", () => {
         describe("pool info", () => {
           beforeEach(async () => {
-            await tomMasterChef.deposit(0, initialCashAmount);
+            await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
           });
 
           it("should calculate correctly 25%", async () => {
@@ -284,7 +315,7 @@ describe("MasterChef", () => {
 
         describe("pending rewards", () => {
           beforeEach(async () => {
-            await tomMasterChef.deposit(0, initialCashAmount);
+            await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
           });
 
           it("should calculate correctly 25%", async () => {
@@ -296,7 +327,7 @@ describe("MasterChef", () => {
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,
               bill.address,
-              0,
+              MARKET_ID,
               tom.address
             );
             checkWithin(accruedStandardRewards, totalRewards.div(4));
@@ -311,7 +342,7 @@ describe("MasterChef", () => {
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,
               bill.address,
-              0,
+              MARKET_ID,
               tom.address
             );
             checkWithin(accruedStandardRewards, totalRewards.div(2));
@@ -326,7 +357,7 @@ describe("MasterChef", () => {
             const { accruedStandardRewards } = await masterChef.getUserPendingRewardInfo(
               RANDOM_ADDRESS,
               bill.address,
-              0,
+              MARKET_ID,
               tom.address
             );
             checkWithin(accruedStandardRewards, totalRewards.div(1));
@@ -337,18 +368,18 @@ describe("MasterChef", () => {
           it("should withdraw all the rewards", async () => {
             const halfwayPoint = adjustTimestamp(beginTimestamp, poolEndTimestamp, 50);
 
-            await tomMasterChef.deposit(0, initialCashAmount);
+            await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
 
             await network.provider.send("evm_setNextBlockTimestamp", [halfwayPoint]);
 
             // it distributes all the pending rewards.
-            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(2));
             const tokenBalance = await rewardsToken.balanceOf(tom.address);
             checkWithin(tokenBalance, totalRewards.div(2));
 
             await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
 
-            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(2));
             const secondTokenBalance = await rewardsToken.balanceOf(tom.address);
             checkWithin(secondTokenBalance, totalRewards);
           });
@@ -357,20 +388,20 @@ describe("MasterChef", () => {
         describe("stake twice", () => {
           it("should not overflow", async () => {
             // Depositing twice was causing this issue.
-            await tomMasterChef.deposit(0, initialCashAmount.div(2));
-            await tomMasterChef.deposit(0, initialCashAmount.div(2));
+            await tomMasterChef.deposit(MARKET_ID, initialCashAmount.div(2));
+            await tomMasterChef.deposit(MARKET_ID, initialCashAmount.div(2));
 
             await network.provider.send("evm_setNextBlockTimestamp", [
               adjustTimestamp(beginTimestamp, poolEndTimestamp, 25),
             ]);
-            await tomMasterChef.withdraw(0, initialCashAmount.div(4));
+            await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(4));
 
             // it distributes all the pending rewards.
             const balance = await rewardsToken.balanceOf(tom.address);
             expect(totalRewards.div(4).sub(balance)).to.be.lte(100);
 
             await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
-            await tomMasterChef.withdraw(0, initialCashAmount.div(2));
+            await tomMasterChef.withdraw(MARKET_ID, initialCashAmount.div(2));
           });
         });
       });
@@ -378,7 +409,7 @@ describe("MasterChef", () => {
 
     describe("after end of pool rewards", () => {
       beforeEach(async () => {
-        await tomMasterChef.deposit(0, initialCashAmount);
+        await tomMasterChef.deposit(MARKET_ID, initialCashAmount);
 
         const poolEndTimestamp = await masterChef.getPoolRewardEndTimestamp(0);
 
@@ -394,7 +425,7 @@ describe("MasterChef", () => {
         const pendingRewardInfo = await masterChef.getUserPendingRewardInfo(
           RANDOM_ADDRESS,
           bill.address,
-          0,
+          MARKET_ID,
           tom.address
         );
 
@@ -408,18 +439,18 @@ describe("MasterChef", () => {
 
         checkWithin(await rewardsToken.balanceOf(chwy.address), ZERO);
 
-        await masterChef.connect(chwy).deposit(0, initialCashAmount);
-        await masterChef.connect(chwy).withdraw(0, initialCashAmount);
+        await masterChef.connect(chwy).deposit(MARKET_ID, initialCashAmount);
+        await masterChef.connect(chwy).withdraw(MARKET_ID, initialCashAmount);
 
         checkWithin(await rewardsToken.balanceOf(chwy.address), ZERO);
 
-        await tomMasterChef.withdraw(0, initialCashAmount);
+        await tomMasterChef.withdraw(MARKET_ID, initialCashAmount);
 
         checkWithin(await rewardsToken.balanceOf(tom.address), totalRewards);
       });
 
       it("should send rewards on withdrawal", async () => {
-        await tomMasterChef.withdraw(0, initialCashAmount);
+        await tomMasterChef.withdraw(MARKET_ID, initialCashAmount);
 
         const balance = await rewardsToken.balanceOf(tom.address);
         checkWithin(balance, totalRewards);
@@ -430,7 +461,7 @@ describe("MasterChef", () => {
 
         await rewardsToken.transfer(masterChef.address, rewardsPerPeriod.div(2));
 
-        await tomMasterChef.withdraw(0, initialCashAmount);
+        await tomMasterChef.withdraw(MARKET_ID, initialCashAmount);
 
         const balance = await rewardsToken.balanceOf(tom.address);
         expect(balance).to.be.equal(rewardsPerPeriod.div(2));
