@@ -62,7 +62,6 @@ const {
   ZERO,
   SET_PRICES,
   MINT_SETS,
-  MODAL_ADD_LIQUIDITY,
   ONE,
   INVALID_PRICE,
   INVALID_PRICE_GREATER_THAN_SUBTEXT,
@@ -133,7 +132,7 @@ export const MarketLiquidityView = () => {
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
       <LiquidityForm {...{ market, selectedAction, setSelectedAction, BackToLPPageAction }} />
-      <LiquidityWarningFooter />
+      {selectedAction !== MINT_SETS && <LiquidityWarningFooter />}
     </div>
   );
 };

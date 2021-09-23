@@ -138,6 +138,8 @@
       width: @size-20;
       height: @size-20;
       margin-right: @size-10;
+      min-width: @size-20;
+      min-height: @size-20;
 
       > path {
         fill: var(--failed);
@@ -163,7 +165,7 @@
     padding: @size-24;
     display: grid;
     grid-gap: @size-32;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: max-content max-content;
 
     > button {
       .text-16-bold;
@@ -171,6 +173,7 @@
       border: none;
       background: transparent;
       color: var(--secondary-text);
+      white-space: nowrap;
 
       &:hover,
       &.selected {
@@ -276,4 +279,75 @@
   display: grid;
   grid-gap: @size-16;
   grid-template-columns: 1fr;
+}
+
+@media @breakpoint-mobile-tiny {
+  .MarketLiquidityView {
+    padding: @size-24 @size-16 @size-72;
+
+    > * {
+      margin: 0 auto @size-24;
+    }
+
+    > a:first-of-type {
+      padding: @size-12;
+    }
+  }
+
+  .BackBar {
+    > button:first-of-type {
+      .text-14-semi-bold;
+    }
+  }
+
+  .LiquidityForm {
+    > header {
+      padding: @size-16;
+      height: @size-57;
+      grid-gap: @size-16;
+    }
+
+    > main {
+      grid-template-columns: 1fr;
+      grid-gap: @size-24;
+      padding: @size-16;
+
+      .Breakdown {
+        grid-row: 3;
+      }
+    
+      .ActionButtons {
+        grid-row: 4;
+      }
+    }
+
+    &.isRemove {
+      > main {
+        > div.Breakdown {
+          grid-row: 1;
+        }
+
+        > div.ActionButtons {
+          grid-row: 2;
+        }
+      }
+    }
+
+    &.isMint {
+      > main {
+        > div[class*="AmountInput"] {
+          grid-row: 1;
+        }
+        > div.Breakdown {
+          grid-row: 2;
+        }
+
+        > div.ActionButtons {
+          grid-row: 3;
+        }
+      }
+    }
+  }
+
+ 
 }
