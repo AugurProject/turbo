@@ -43,6 +43,7 @@ const {
   addLiquidityPool,
   estimateAddLiquidityPool,
   getRemoveLiquidity,
+  mintCompleteSets,
 } = ContractCalls;
 const {
   PathUtils: { makePath, parseQuery },
@@ -106,28 +107,28 @@ export const MarketLiquidityView = () => {
     settings: { timeFormat },
   } = useSimplifiedStore();
   const location = useLocation();
-  const { [MARKET_ID_PARAM_NAME]: marketId, [MARKET_LIQUIDITY]: actionType } = parseQuery(location.search);
+  const { [MARKET_ID_PARAM_NAME]: marketId, [MARKET_LIQUIDITY]: actionType = ADD } = parseQuery(location.search);
   const { markets } = useDataStore();
   const market = markets?.[marketId];
-
+  const [selectedAction, setSelectedAction] = useState(actionType);
   if (!market) {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
   const { categories } = market;
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
-      <BackBar {...{ market }} />
+      <BackBar {...{ market, selectedAction, setSelectedAction }} />
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <LiquidityForm {...{ market, actionType }} />
+      <LiquidityForm {...{ market, selectedAction, setSelectedAction }} />
       <LiquidityWarningFooter />
     </div>
   );
 };
 
-const BackBar = ({ market }) => {
+const BackBar = ({ market, selectedAction, setSelectedAction }) => {
   const history = useHistory();
   const {
     actions: { setModal },
@@ -136,19 +137,21 @@ const BackBar = ({ market }) => {
     history.push({
       pathname: makePath(LIQUIDITY),
     });
+  const isMint = selectedAction === MINT_SETS;
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
       <TinyThemeButton
-        action={() =>
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            currency: USDC,
-            liquidityModalType: MINT_SETS,
-          })
+        action={
+          () => setSelectedAction(isMint ? ADD : MINT_SETS)
+          // setModal({
+          //   type: MODAL_ADD_LIQUIDITY,
+          //   market,
+          //   currency: USDC,
+          //   liquidityModalType: MINT_SETS,
+          // })
         }
-        text="Mint Complete Sets"
+        text={isMint ? "Add/Remove Liquidity" : "Mint Complete Sets"}
         small
       />
     </div>
@@ -167,7 +170,8 @@ const LiquidityWarningFooter = () => (
 
 interface LiquidityFormProps {
   market: MarketInfo;
-  actionType: string;
+  selectedAction: string;
+  setSelectedAction: Function;
 }
 
 const orderMinAmountsForDisplay = (
@@ -186,7 +190,13 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
       })),
     {
       label: isRemove ? "USDC" : "LP tokens",
-      value: `${breakdown?.amount ? isRemove ? formatCash(breakdown.amount, USDC).full : formatSimpleShares(breakdown.amount).formatted : "-"}`,
+      value: `${
+        breakdown?.amount
+          ? isRemove
+            ? formatCash(breakdown.amount, USDC).full
+            : formatSimpleShares(breakdown.amount).formatted
+          : "-"
+      }`,
       svg: isRemove ? USDCIcon : null,
     },
   ];
@@ -201,7 +211,15 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
   return fullBreakdown;
 };
 
-const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
+const getMintBreakdown = (outcomes, amount) => {
+  return outcomes.map((outcome) => ({
+    label: `${outcome.name} Shares`,
+    value: `${formatSimpleShares(amount).rounded}`,
+    svg: null,
+  }));
+};
+
+const LiquidityForm = ({ market, selectedAction, setSelectedAction }: LiquidityFormProps) => {
   const history = useHistory();
   const {
     account,
@@ -219,8 +237,8 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     });
     closeModal();
   };
-  const [selectedAction, setSelectedAction] = useState(actionType);
   const isRemove = selectedAction === REMOVE;
+  const isMint = selectedAction === MINT_SETS;
   const { amm, isFuture } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
@@ -244,7 +262,11 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
 
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
-  const approvalActionType = isRemove ? ApprovalAction.REMOVE_LIQUIDITY : ApprovalAction.ADD_LIQUIDITY;
+  const approvalActionType = isRemove
+    ? ApprovalAction.REMOVE_LIQUIDITY
+    : isMint
+    ? ApprovalAction.MINT_SETS
+    : ApprovalAction.ADD_LIQUIDITY;
   const approvedMain = useApprovalStatus({
     cash,
     amm,
@@ -325,7 +347,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     setOutcomes([...newOutcomes]);
   };
 
-  const addTitle = isRemove ? "Increase Liqiudity" : "Add Liquidity";
+  const addTitle = isRemove ? "Increase Liqiudity" : isMint ? "Mint Complete Sets" : "Add Liquidity";
   const now = Math.floor(new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
@@ -333,9 +355,16 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
     now > pendingRewards.endEarlyBonusTimestamp &&
     now <= pendingRewards.endBonusTimestamp &&
     pendingRewards.pendingBonusRewards !== "0";
-  const infoNumbers = getCreateBreakdown(breakdown, market, balances, isRemove);
+  const infoNumbers = isMint
+    ? getMintBreakdown(outcomes, amount)
+    : getCreateBreakdown(breakdown, market, balances, isRemove);
   return (
-    <section className={classNames(Styles.LiquidityForm, { [Styles.isRemove]: isRemove })}>
+    <section
+      className={classNames(Styles.LiquidityForm, {
+        [Styles.isRemove]: isRemove,
+        [Styles.isMint]: isMint,
+      })}
+    >
       <header>
         <button
           className={classNames({ [Styles.selected]: !isRemove })}
@@ -346,7 +375,7 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
         >
           {addTitle}
         </button>
-        {shareBalance && (
+        {shareBalance && !isMint && (
           <button
             className={classNames({ [Styles.selected]: isRemove })}
             onClick={() => {
@@ -417,9 +446,9 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
             action={() =>
               setModal({
                 type: MODAL_CONFIRM_TRANSACTION,
-                title: isRemove ? "Remove Liquidity" : "Add Liquidity",
-                transactionButtonText: isRemove ? "Remove" : "Add",
-                transactionAction: ({ onTrigger = null, onCancel = null, }) => {
+                title: isRemove ? "Remove Liquidity" : isMint ? "Mint Complete Sets" : "Add Liquidity",
+                transactionButtonText: isRemove ? "Remove" : isMint ? "Mint" : "Add",
+                transactionAction: ({ onTrigger = null, onCancel = null }) => {
                   onTrigger && onTrigger();
                   confirmAction({
                     addTransaction,
@@ -437,11 +466,12 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                     estimatedLpAmount,
                     afterSigningAction: BackToLPPageAction,
                     onCancel,
+                    isMint,
                   });
                 },
                 targetDescription: {
                   market,
-                  label: "Pool",
+                  label: isMint ? "Market" : "Pool",
                 },
                 footer: isRemove
                   ? {
@@ -457,6 +487,22 @@ const LiquidityForm = ({ market, actionType = ADD }: LiquidityFormProps) => {
                             label: "Pooled USDC",
                             value: `${formatCash(breakdown.amount, USDC).full}`,
                             svg: USDCIcon,
+                          },
+                        ],
+                      },
+                      {
+                        heading: "What you'll recieve",
+                        infoNumbers,
+                      },
+                    ]
+                  : isMint
+                  ? [
+                      {
+                        heading: "What you are depositing",
+                        infoNumbers: [
+                          {
+                            label: "amount",
+                            value: `${formatCash(amount, USDC).formatted} USDC`,
                           },
                         ],
                       },
@@ -527,6 +573,7 @@ const confirmAction = async ({
   estimatedLpAmount,
   afterSigningAction = () => {},
   onCancel = null,
+  isMint,
 }) => {
   const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
   if (!valid) {
@@ -559,6 +606,36 @@ const confirmAction = async ({
           from: account,
           addedTime: new Date().getTime(),
           message: `Remove Liquidity`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+      });
+  } else if (isMint) {
+    await mintCompleteSets(amm, loginAccount?.library, amount, account)
+      .then((response) => {
+        const { hash } = response;
+        addTransaction({
+          hash,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          addedTime: new Date().getTime(),
+          message: `Mint Complete Sets`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+        afterSigningAction();
+      })
+      .catch((error) => {
+        onCancel && onCancel();
+        console.log("Error when trying to Mint Complete Sets: ", error?.message);
+        addTransaction({
+          hash: `mint-sets-failed${Date.now()}`,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          addedTime: new Date().getTime(),
+          message: `Mint Complete Sets`,
           marketDescription: `${market?.title} ${market?.description}`,
         });
       });
