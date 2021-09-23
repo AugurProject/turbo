@@ -334,7 +334,9 @@ describe("Futures Markets", () => {
 
           expect(markets, "market bundles").to.deep.equal(
             flatten(
-              ...(await Promise.all(ids.map((groupId) => groupStaticBundleCheck(marketFactory, ammFactory, masterChef, groupId))))
+              ...(await Promise.all(
+                ids.map((groupId) => groupStaticBundleCheck(marketFactory, ammFactory, masterChef, groupId))
+              ))
             )
           );
         });
