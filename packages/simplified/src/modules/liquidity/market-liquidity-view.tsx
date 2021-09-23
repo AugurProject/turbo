@@ -106,7 +106,11 @@ export const MarketLiquidityView = () => {
   const {
     settings: { timeFormat },
   } = useSimplifiedStore();
+  const {
+    actions: { closeModal },
+  } = useAppStatusStore();
   const location = useLocation();
+  const history = useHistory();
   const { [MARKET_ID_PARAM_NAME]: marketId, [MARKET_LIQUIDITY]: actionType = ADD } = parseQuery(location.search);
   const { markets } = useDataStore();
   const market = markets?.[marketId];
@@ -115,42 +119,32 @@ export const MarketLiquidityView = () => {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
   const { categories } = market;
+  const BackToLPPageAction = () => {
+    history.push({
+      pathname: makePath(LIQUIDITY),
+    });
+    closeModal();
+  };
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
-      <BackBar {...{ market, selectedAction, setSelectedAction }} />
+      <BackBar {...{ market, selectedAction, setSelectedAction, BackToLPPageAction }} />
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <LiquidityForm {...{ market, selectedAction, setSelectedAction }} />
+      <LiquidityForm {...{ market, selectedAction, setSelectedAction, BackToLPPageAction }} />
       <LiquidityWarningFooter />
     </div>
   );
 };
 
-const BackBar = ({ market, selectedAction, setSelectedAction }) => {
-  const history = useHistory();
-  const {
-    actions: { setModal },
-  } = useAppStatusStore();
-  const BackToLPPageAction = () =>
-    history.push({
-      pathname: makePath(LIQUIDITY),
-    });
+const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction }) => {
   const isMint = selectedAction === MINT_SETS;
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
       <TinyThemeButton
-        action={
-          () => setSelectedAction(isMint ? ADD : MINT_SETS)
-          // setModal({
-          //   type: MODAL_ADD_LIQUIDITY,
-          //   market,
-          //   currency: USDC,
-          //   liquidityModalType: MINT_SETS,
-          // })
-        }
+        action={() => setSelectedAction(isMint ? ADD : MINT_SETS)}
         text={isMint ? "Add/Remove Liquidity" : "Mint Complete Sets"}
         small
       />
@@ -172,6 +166,7 @@ interface LiquidityFormProps {
   market: MarketInfo;
   selectedAction: string;
   setSelectedAction: Function;
+  BackToLPPageAction: () => void;
 }
 
 const orderMinAmountsForDisplay = (
@@ -219,8 +214,7 @@ const getMintBreakdown = (outcomes, amount) => {
   }));
 };
 
-const LiquidityForm = ({ market, selectedAction, setSelectedAction }: LiquidityFormProps) => {
-  const history = useHistory();
+const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPageAction }: LiquidityFormProps) => {
   const {
     account,
     balances,
@@ -228,15 +222,9 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction }: LiquidityF
     actions: { addTransaction },
   } = useUserStore();
   const {
-    actions: { setModal, closeModal },
+    actions: { setModal },
   } = useAppStatusStore();
   const { blocknumber, cashes }: DataState = useDataStore();
-  const BackToLPPageAction = () => {
-    history.push({
-      pathname: makePath(LIQUIDITY),
-    });
-    closeModal();
-  };
   const isRemove = selectedAction === REMOVE;
   const isMint = selectedAction === MINT_SETS;
   const { amm, isFuture } = market;
