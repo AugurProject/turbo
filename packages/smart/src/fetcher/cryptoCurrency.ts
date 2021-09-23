@@ -80,7 +80,9 @@ export interface InitialCryptoCurrencyMarket extends StaticMarketBundle {
   resolutionTime: BigNumberish;
 }
 
-function createStaticCryptoCurrencyMarketBundle(raw: RawStaticCryptoCurrencyMarketBundle): StaticCryptoCurrencyMarketBundle {
+function createStaticCryptoCurrencyMarketBundle(
+  raw: RawStaticCryptoCurrencyMarketBundle
+): StaticCryptoCurrencyMarketBundle {
   return {
     ...createStaticMarketBundle(raw.super),
     coinIndex: raw.coinIndex,
@@ -114,7 +116,9 @@ interface RawDynamicCryptoCurrencyMarketBundle {
   resolutionValue: BigNumberish;
 }
 
-function createDynamicCryptoCurrencyMarketBundle(raw: RawDynamicCryptoCurrencyMarketBundle): DynamicCryptoCurrencyMarketBundle {
+function createDynamicCryptoCurrencyMarketBundle(
+  raw: RawDynamicCryptoCurrencyMarketBundle
+): DynamicCryptoCurrencyMarketBundle {
   return {
     ...createDynamicMarketBundle(raw.super),
     resolutionValue: raw.resolutionValue,

@@ -555,9 +555,9 @@ contract CryptoCurrencyFetcher is Fetcher {
     }
 
     function buildSpecificMarketFactoryBundle(address _marketFactory)
-    internal
-    view
-    returns (SpecificMarketFactoryBundle memory _bundle)
+        internal
+        view
+        returns (SpecificMarketFactoryBundle memory _bundle)
     {
         _bundle.super = buildMarketFactoryBundle(CryptoCurrencyMarketFactoryV3(_marketFactory));
     }
@@ -569,8 +569,13 @@ contract CryptoCurrencyFetcher is Fetcher {
         uint256 _marketId
     ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
         CryptoCurrencyMarketFactoryV3.MarketDetails memory _details =
-        CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
-        _bundle.super = buildStaticMarketBundle(CryptoCurrencyMarketFactoryV3(_marketFactory), _ammFactory, _masterChef, _marketId);
+            CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+        _bundle.super = buildStaticMarketBundle(
+            CryptoCurrencyMarketFactoryV3(_marketFactory),
+            _ammFactory,
+            _masterChef,
+            _marketId
+        );
         _bundle.creationValue = _details.creationValue;
         _bundle.coinIndex = _details.coinIndex;
         _bundle.resolutionValue = _details.resolutionValue;
@@ -583,7 +588,7 @@ contract CryptoCurrencyFetcher is Fetcher {
         uint256 _marketId
     ) internal view returns (SpecificDynamicMarketBundle memory _bundle) {
         CryptoCurrencyMarketFactoryV3.MarketDetails memory _details =
-        CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+            CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
         _bundle.super = buildDynamicMarketBundle(CryptoCurrencyMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
         _bundle.resolutionValue = _details.resolutionValue;
     }
@@ -591,17 +596,17 @@ contract CryptoCurrencyFetcher is Fetcher {
     function fetchInitial(
         address _marketFactory,
         AMMFactory _ammFactory,
-    MasterChef _masterChef,
+        MasterChef _masterChef,
         uint256 _offset,
         uint256 _total
     )
-    public
-    view
-    returns (
-        SpecificMarketFactoryBundle memory _marketFactoryBundle,
-        SpecificStaticMarketBundle[] memory _marketBundles,
-        uint256 _lowestMarketIndex
-    )
+        public
+        view
+        returns (
+            SpecificMarketFactoryBundle memory _marketFactoryBundle,
+            SpecificStaticMarketBundle[] memory _marketBundles,
+            uint256 _lowestMarketIndex
+        )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
 
@@ -611,7 +616,12 @@ contract CryptoCurrencyFetcher is Fetcher {
         _total = _marketIds.length;
         _marketBundles = new SpecificStaticMarketBundle[](_total);
         for (uint256 i; i < _total; i++) {
-            _marketBundles[i] = buildSpecificStaticMarketBundle(_marketFactory, _ammFactory, _masterChef, _marketIds[i]);
+            _marketBundles[i] = buildSpecificStaticMarketBundle(
+                _marketFactory,
+                _ammFactory,
+                _masterChef,
+                _marketIds[i]
+            );
         }
     }
 
@@ -664,7 +674,7 @@ contract CryptoCurrencyFetcher is Fetcher {
 
         if (_total > _collectedMarkets) {
             assembly {
-            // shortens array
+                // shortens array
                 mstore(_interestingMarketIds, _collectedMarkets)
             }
         }

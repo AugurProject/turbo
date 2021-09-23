@@ -36,7 +36,8 @@ import {
   GroupFetcher,
   GroupFetcher__factory,
   CryptoCurrencyMarketFactoryV3,
-  CryptoCurrencyMarketFactoryV3__factory, CryptoCurrencyFetcher
+  CryptoCurrencyMarketFactoryV3__factory,
+  CryptoCurrencyFetcher,
 } from "./typechain";
 import { addresses } from "./addresses";
 import { Signer } from "ethers";

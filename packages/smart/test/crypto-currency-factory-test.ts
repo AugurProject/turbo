@@ -433,7 +433,7 @@ async function marketStaticBundleCheck(
   marketFactory: CryptoCurrencyMarketFactoryV3,
   ammFactory: AMMFactory,
   masterChef: MasterChef,
-  marketId: BigNumberish,
+  marketId: BigNumberish
 ) {
   const market = await marketFactory.getMarket(marketId);
   const marketDetails = await marketFactory.getMarketDetails(marketId);
