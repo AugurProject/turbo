@@ -267,7 +267,11 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         RewardPoolLookupInfo memory _rewardPoolLookupInfo =
             rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
 
-        return userInfo[_rewardPoolLookupInfo.pid][_user].amount;
+        if (_rewardPoolLookupInfo.created) {
+            return userInfo[_rewardPoolLookupInfo.pid][_user].amount;
+        } else {
+            return 0;
+        }
     }
 
     function getUserAmount(uint256 _pid, address _user) external view returns (uint256) {
