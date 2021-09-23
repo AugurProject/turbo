@@ -395,6 +395,12 @@ export const PlusIcon = (
   </svg>
 );
 
+export const MinusIcon = (
+  <svg width="10" height="11" viewBox="0 0 10 11" fill="none">
+    <path d="M9 5.5H1" stroke="#8B959E" strokeWidth="2" strokeMiterlimit="10" strokeLinecap="round" />
+  </svg>
+);
+
 export const ThreeLinesIcon = (
   <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
     <path

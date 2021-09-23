@@ -143,6 +143,7 @@ export const Utils = {
   windowRef,
   getCategoryIconLabel,
   DerivedMarketData,
+  Calculations,
   ..._TeamHelpers,
 };
 export const PaginationComps = _Pagination;

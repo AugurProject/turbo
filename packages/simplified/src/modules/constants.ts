@@ -10,6 +10,8 @@ export const SCALAR = "Scalar";
 export const MARKET = "market";
 export const MARKETS = "markets";
 export const PORTFOLIO = "portfolio";
+export const LIQUIDITY = "liquidity";
+export const MARKET_LIQUIDITY = "market-liquidity";
 
 // Directions
 export const BUY = "buy";
@@ -38,7 +40,6 @@ export const ALL_CURRENCIES = "All Currencies";
 
 // Portfolio table views
 export const POSITIONS = "positions";
-export const LIQUIDITY = "liquidity";
 export const TABLES = "TABLES";
 export const ACTIVITY = "ACTIVITY";
 
@@ -204,6 +205,7 @@ export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 // Modals
 export const MODAL_ADD_LIQUIDITY = "MODAL_ADD_LIQUIDITY";
 export const MODAL_CONNECT_TO_POLYGON = "MODAL_CONNECT_TO_POLYGON";
+export const MODAL_CONFIRM_TRANSACTION = "MODAL_CONFIRM_TRANSACTION";
 
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
   primaryCategory: ALL_MARKETS,

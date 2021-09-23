@@ -19,15 +19,18 @@ import {
   Constants,
   windowRef,
 } from "@augurproject/comps";
-import { SimpleFooter } from './common/simple-footer';
-const { MARKETS, LIQUIDITY } = Constants;
+import { SimpleFooter } from "./common/simple-footer";
+const { MARKET, PORTFOLIO } = Constants;
 const { parsePath, parseQuery } = PathUtils;
-
 
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
   const { isMobile, modal } = useAppStatusStore();
-  const { sidebarType, showTradingForm, actions: { updateMarketsViewSettings }, } = useSimplifiedStore();
+  const {
+    sidebarType,
+    showTradingForm,
+    actions: { updateMarketsViewSettings },
+  } = useSimplifiedStore();
   const modalShowing = Object.keys(modal).length !== 0;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -43,7 +46,7 @@ const AppBody = () => {
         updateMarketsViewSettings({ primaryCategory: parsedQueryString.primaryCategory });
       }
       if (parsedQueryString && parsedQueryString?.subCategories) {
-        updateMarketsViewSettings({ subCategories: parsedQueryString.subCategories.split(',')});
+        updateMarketsViewSettings({ subCategories: parsedQueryString.subCategories.split(",") });
       }
     } catch (error) {
       // shallow bad params error
@@ -68,7 +71,7 @@ const AppBody = () => {
       id="mainContent"
       className={classNames(Styles.App, {
         [Styles.SidebarOut]: sidebarOut,
-        [Styles.TwoToneContent]: path !== MARKETS && path !== LIQUIDITY,
+        [Styles.TwoToneContent]: path === MARKET || path === PORTFOLIO,
         [Styles.ModalShowing]: modalShowing || showTradingForm,
       })}
     >

@@ -1,0 +1,353 @@
+@import (reference) "~assets/styles/shared";
+
+.MarketLiquidityView {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: @size-40 @size-88 @size-48;
+
+  > * {
+    max-width: 942px;
+    width: 100%;
+    margin: 0 auto @size-40;
+  }
+
+  > a:first-of-type {
+    .ThemeBorder;
+    .HoverDropShadow;
+
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    grid-gap: @size-16;
+    align-items: center;
+    outline: none;
+    padding: @size-24;
+
+    > span {
+      display: grid;
+      grid-gap: @size-4;
+
+      > span:first-of-type {
+        .text-14-semi-bold;
+
+        color: var(--primary-text);
+        line-height: 140%;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        > span:first-of-type {
+          .limit-lines(1);
+        }
+
+        > span:last-of-type {
+          .limit-lines(2);
+        }
+
+        > span:first-of-type:last-of-type {
+          .limit-lines(3);
+        }
+      }
+
+      > span:last-of-type {
+        .text-12;
+
+        color: var(--secondary-text);
+        white-space: nowrap;
+        word-break: none;
+        display: inline-block;
+        text-transform: capitalize;
+      }
+    }
+
+    &:hover {
+      background: var(--primary-bg);
+
+      > span > span:first-of-type {
+        text-decoration: underline;
+
+        > span {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.BackBar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  > button:first-of-type {
+    .text-16-semi-bold;
+
+    color: var(--secondary-text);
+    grid-column: 1;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+
+    > svg {
+      height: @size-20;
+      width: @size-20;
+      margin-right: @size-8;
+    }
+
+    &:hover {
+      color: var(--primary-text);
+
+      > svg > path {
+        fill: var(--primary-text);
+      }
+    }
+  }
+}
+
+.LiquidityWarningFooter {
+  .ThemeBorder;
+
+  padding: @size-24;
+  display: grid;
+  grid-gap: @size-24;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+
+  > p {
+    .text-14;
+
+    color: var(--primary-text);
+    margin: 0;
+    padding: 0;
+  }
+
+  > span {
+    .text-16-bold;
+
+    color: var(--primary-text);
+    display: flex;
+    flex-flow: row nowrap;
+
+    > svg {
+      width: @size-20;
+      height: @size-20;
+      margin-right: @size-10;
+      min-width: @size-20;
+      min-height: @size-20;
+
+      > path {
+        fill: var(--failed);
+      }
+    }
+  }
+}
+
+.LiquidityForm {
+  .ThemeBorder;
+  .FixedBoxShadow;
+
+  display: flex;
+  flex-flow: column nowrap;
+  background: var(--primary-bg);
+
+  > header {
+    .text-16-bold;
+    .PrimaryTopBorderRadius;
+
+    height: @size-74;
+    border-bottom: @size-1 solid var(--theme-border);
+    padding: @size-24;
+    display: grid;
+    grid-gap: @size-32;
+    grid-template-columns: max-content max-content;
+
+    > button {
+      .text-16-bold;
+
+      border: none;
+      background: transparent;
+      color: var(--secondary-text);
+      white-space: nowrap;
+
+      &:hover,
+      &.selected {
+        color: var(--primary-text);
+        cursor: pointer;
+      }
+    }
+  }
+  
+  > main {
+    .PrimaryBottomBorderRadius;
+
+    padding: @size-32;
+    display: grid;
+    grid-gap: @size-32 @size-64;
+    grid-template-columns: 0.595fr 0.405fr;
+
+    > div[class*="AmountInput"] {
+      border: none;
+      background: none;
+      padding: 0;
+
+      > span:first-of-type {
+        color: var(--primary-text);
+      }
+
+
+      > div:first-of-type {
+        .ThemeBorder;
+      }
+    }
+  }
+
+  &.isRemove {
+    max-width: 534px;
+    width: 100%;
+
+    > main {
+
+      grid-template-columns: 1fr;
+
+      > div[class*="AmountInput"],
+      > div.PriceInstructions,
+      > div.PricesAndOutcomes {
+        display: none;
+      }
+    }
+  }
+
+  &.isMint {
+    max-width: 534px;
+    width: 100%;
+
+    > main {
+
+      grid-template-columns: 1fr;
+
+      > div.PriceInstructions,
+      > div.PricesAndOutcomes {
+        display: none;
+      }
+    }
+  }
+}
+
+.ActionButtons {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: @size-8;
+  align-items: flex-start;
+  height: min-content;
+}
+
+.Breakdown {
+  display: grid;
+  grid-gap: @size-10;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 0fr;
+
+  > span:first-of-type {
+    .text-16-bold;
+
+    margin-bottom: @size-4;
+  }
+}
+
+.PriceInstructions {
+  display: flex;
+  flex-flow: column nowrap;
+
+  > span {
+    .text-14;
+
+    color: var(--primary-text);
+
+    &:first-of-type {
+      .text-16-bold;
+    }
+  }
+}
+
+.PricesAndOutcomes {
+  display: grid;
+  grid-gap: @size-16;
+  grid-template-columns: 1fr;
+}
+
+@media @breakpoint-mobile-tiny {
+  .MarketLiquidityView {
+    padding: @size-24 @size-16 @size-72;
+
+    > * {
+      margin: 0 auto @size-24;
+    }
+
+    > a:first-of-type {
+      padding: @size-12;
+    }
+  }
+
+  .BackBar {
+    > button:first-of-type {
+      .text-14-semi-bold;
+    }
+  }
+
+  .LiquidityForm {
+    > header {
+      padding: @size-16;
+      height: @size-57;
+      grid-gap: @size-16;
+    }
+
+    > main {
+      grid-template-columns: 1fr;
+      grid-gap: @size-24;
+      padding: @size-16;
+
+      .Breakdown {
+        grid-row: 3;
+      }
+    
+      .ActionButtons {
+        grid-row: 4;
+      }
+    }
+
+    &.isRemove {
+      > main {
+        > div.Breakdown {
+          grid-row: 1;
+        }
+
+        > div.ActionButtons {
+          grid-row: 2;
+        }
+      }
+    }
+
+    &.isMint {
+      > main {
+        > div[class*="AmountInput"] {
+          grid-row: 1;
+        }
+        > div.Breakdown {
+          grid-row: 2;
+        }
+
+        > div.ActionButtons {
+          grid-row: 3;
+        }
+      }
+    }
+  }
+
+ 
+}

@@ -135,7 +135,7 @@ export const TopNav = () => {
   return (
     <section
       className={classNames(Styles.TopNav, {
-        [Styles.TwoTone]: path !== MARKETS && path !== LIQUIDITY,
+        [Styles.TwoTone]: path === MARKET || path === PORTFOLIO,
         [Styles.OnMarketsView]: path === MARKET,
       })}
     >

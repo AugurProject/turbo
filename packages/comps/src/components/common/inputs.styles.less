@@ -524,7 +524,7 @@
     &.Editable {
       pointer-events: all;
       display: grid;
-      grid-template-columns: 1fr @size-80;
+      grid-template-columns: 1fr auto;
       padding: 0;
 
       > span {
@@ -538,9 +538,17 @@
         color: var(--secondary-text);
         display: flex;
         justify-content: center;
-        border-left: @size-1 solid var(--theme-border);
-        padding: @size-10 @size-16;
+        padding: @size-10 @size-12;
         align-items: center;
+
+        > span {
+          margin-left: @size-8;
+        }
+
+        > button {
+          width: @size-25;
+          height: @size-25;
+        }
 
         > input {
           .text-16-semi-bold;
@@ -550,6 +558,8 @@
           border: 0;
           outline: 0;
           caret-color: var(--primary-text);
+          width: @size-20;
+          margin-right: @size-8;
 
           &:hover,
           &:active {

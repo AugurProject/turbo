@@ -45,7 +45,7 @@ const {
 const AVG_PRICE_TIP = "The difference between the market price and estimated price due to trade size.";
 const RATE_WARNING_THRESHOLD = 10;
 
-interface InfoNumber {
+export interface InfoNumberType {
   label: string;
   value: string;
   tooltipText?: string;
@@ -54,7 +54,7 @@ interface InfoNumber {
 }
 
 interface InfoNumbersProps {
-  infoNumbers: InfoNumber[];
+  infoNumbers: InfoNumberType[];
   unedited?: boolean;
 }
 
@@ -443,12 +443,14 @@ export const ApprovalButton = ({
   actionType,
   isApproved = false,
   shareToken = null,
+  customClass = null,
 }: {
   amm?: AmmExchange;
   cash: Cash;
   actionType: string | number;
   isApproved?: boolean;
   shareToken?: string;
+  customClass?: any;
 }) => {
   const [isPendingTx, setIsPendingTx] = useState(false);
   const {
@@ -543,7 +545,7 @@ export const ApprovalButton = ({
       text={isPendingTx ? "Approving..." : buttonText}
       subText={subText}
       action={() => approve()}
-      customClass={ButtonStyles.ApproveButton}
+      customClass={customClass ? customClass : ButtonStyles.ApproveButton}
     />
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./liquidity-view.styles.less";
 import {
@@ -6,21 +7,19 @@ import {
   Utils,
   useDataStore,
   useUserStore,
-  useAppStatusStore,
   Constants,
   ContractCalls,
   Stores,
-  Formatter,
   useScrollToTopOnMount,
 } from "@augurproject/comps";
-import { categoryItems, ZERO } from "../constants";
+import { categoryItems, MARKET_LIQUIDITY, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
-const { MODAL_ADD_LIQUIDITY, ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS } = Constants;
-const { formatToken } = Formatter;
+
+const { ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS, MARKET_ID_PARAM_NAME } = Constants;
 const {
   PaginationComps: { sliceByPage, useQueryPagination, Pagination },
   Links: { MarketLink },
@@ -34,7 +33,8 @@ const {
 const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
 const {
   DateUtils: { getMarketEndtimeDate },
-  Formatter: { formatApy, formatCash },
+  Formatter: { formatApy, formatCash, formatToken },
+  PathUtils: { makeQuery, makePath },
 } = Utils;
 const {
   Utils: { isMarketFinal },
@@ -189,9 +189,6 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
     settings: { timeFormat },
   } = useSimplifiedStore();
   const {
-    actions: { setModal },
-  } = useAppStatusStore();
-  const {
     balances: { lpTokens, pendingRewards },
     loginAccount,
   } = useUserStore();
@@ -205,27 +202,33 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       liquidityUSD,
     },
     endTimestamp,
-    rewards
+    rewards,
   } = market;
+
   const marketTransactions = transactions[marketId];
   const formattedApy = useMemo(() => marketTransactions?.apy && formatApy(marketTransactions.apy).full, [
     marketTransactions?.apy,
   ]);
   const formattedTVL = useMemo(
-    () =>
-      liquidityUSD &&
-      formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
+    () => liquidityUSD && formatCash(liquidityUSD, currency, { bigUnitPostfix: true }).full,
     [liquidityUSD]
   );
   const [price, setPrice] = useState(1);
   const [expanded, setExpanded] = useState(false);
+  const history = useHistory();
   const userHasLiquidity = lpTokens?.[marketId];
   const canAddLiq = canAddLiquidity(market);
   const isfinal = isMarketFinal(market);
   const pendingUserRewards = (pendingRewards || {})[market.marketId];
   const hasRewards = pendingUserRewards?.pendingBonusRewards && pendingUserRewards?.pendingBonusRewards !== "0";
   const rewardAmount = formatToken(pendingUserRewards?.balance || "0", { decimalsRounded: 2, decimals: 2 });
-  useEffect(() => { let isMounted = true; getMaticUsdPrice(loginAccount?.library).then(p => { if (isMounted) setPrice(p) }); return () => isMounted = false }, []);
+  useEffect(() => {
+    let isMounted = true;
+    getMaticUsdPrice(loginAccount?.library).then((p) => {
+      if (isMounted) setPrice(p);
+    });
+    return () => (isMounted = false);
+  }, []);
   const rewardsInUsd = formatCash(Number(pendingUserRewards?.balance || "0") * price).formatted;
   return (
     <article
@@ -255,7 +258,9 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
-          <span>{rewardAmount.formatted} {MaticIcon}</span>
+          <span>
+            {rewardAmount.formatted} {MaticIcon}
+          </span>
           <span>(${rewardsInUsd})</span>
         </div>
         {!userHasLiquidity ? (
@@ -264,11 +269,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
             small
             disabled={!canAddLiq}
             action={() =>
-              setModal({
-                type: MODAL_ADD_LIQUIDITY,
-                market,
-                liquidityModalType: hasLiquidity ? CREATE : ADD,
-                currency,
+              history.push({
+                pathname: makePath(MARKET_LIQUIDITY),
+                search: makeQuery({
+                  [MARKET_ID_PARAM_NAME]: marketId,
+                  [MARKET_LIQUIDITY]: hasLiquidity ? ADD : CREATE,
+                }),
               })
             }
           />
@@ -278,11 +284,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               text="-"
               small
               action={() =>
-                setModal({
-                  type: MODAL_ADD_LIQUIDITY,
-                  market,
-                  currency,
-                  liquidityModalType: REMOVE,
+                history.push({
+                  pathname: makePath(MARKET_LIQUIDITY),
+                  search: makeQuery({
+                    [MARKET_ID_PARAM_NAME]: marketId,
+                    [MARKET_LIQUIDITY]: REMOVE,
+                  }),
                 })
               }
             />
@@ -292,11 +299,12 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
               disabled={isfinal || !canAddLiq}
               action={() =>
                 !isfinal &&
-                setModal({
-                  type: MODAL_ADD_LIQUIDITY,
-                  market,
-                  currency,
-                  liquidityModalType: ADD,
+                history.push({
+                  pathname: makePath(MARKET_LIQUIDITY),
+                  search: makeQuery({
+                    [MARKET_ID_PARAM_NAME]: marketId,
+                    [MARKET_LIQUIDITY]: ADD,
+                  }),
                 })
               }
             />
@@ -346,7 +354,7 @@ const LiquidityView = () => {
 
   useEffect(() => {
     handleFilterSort();
-  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity, sortBy.type, sortBy.direction]);
+  }, [filter, primaryCategory, subCategories, marketTypeFilter, onlyUserLiquidity, sortBy?.type, sortBy?.direction]);
 
   useEffect(() => {
     handleFilterSort();

@@ -18,7 +18,6 @@ import {
   Constants,
   Components,
 } from "@augurproject/comps";
-import { MaticIcon } from "@augurproject/comps/build/components/common/icons";
 const {
   checkConvertLiquidityProperties,
   doRemoveLiquidity,
@@ -30,7 +29,7 @@ const {
 const { calcPricesFromOdds } = Calculations;
 const { formatPercent, formatSimpleShares, formatEther, formatCash } = Formatter;
 const {
-  Icons: { BackIcon },
+  Icons: { BackIcon, MaticIcon },
   ButtonComps: { SecondaryThemeButton, TinyThemeButton },
   SelectionComps: { MultiButtonSelection },
   InputComps: { AmountInput, isInvalidNumber, OutcomesGrid },
@@ -46,6 +45,7 @@ const {
   CREATE,
   ADD,
   REMOVE,
+  MINT_SETS,
   CONNECT_ACCOUNT,
   SET_PRICES,
   TX_STATUS,
@@ -115,7 +115,14 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
 
   let amm = ammExchanges[market.marketId];
   const mustSetPrices = Boolean(!amm?.id);
-  const modalType = liquidityModalType !== REMOVE ? (Boolean(amm?.id) ? ADD : CREATE) : REMOVE;
+  const modalType =
+    liquidityModalType === MINT_SETS
+      ? MINT_SETS
+      : liquidityModalType !== REMOVE
+      ? Boolean(amm?.id)
+        ? ADD
+        : CREATE
+      : REMOVE;
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
     ? calcPricesFromOdds(market?.initialOdds, amm?.ammOutcomes)
@@ -136,7 +143,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
-  
+
   const [amount, updateAmount] = useState(isRemove ? userMaxAmount : "");
   const now = (new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards[amm?.marketId];
@@ -331,6 +338,23 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   };
 
   const LIQUIDITY_STRINGS = {
+    [MINT_SETS]: [
+      {
+        header: "Mint Complete Sets",
+        hasAmountInput: true,
+        minimumAmount: "1",
+        rate: <span>1 USDC = 1 Complete Set</span>,
+        needsApproval: true,
+        approvalAction: ApprovalAction.MINT_SETS,
+        actionButtonText: "Mint Complete Sets",
+        actionButtonAction: mintCompleteSetsAction,
+        showMarketTitle: true,
+        confirmReceiveOverview: {
+          title: "What you will receive",
+          breakdown: getMintBreakdown(),
+        },
+      },
+    ],
     [REMOVE]: [
       {
         header: "remove all liquidity",
@@ -392,7 +416,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -471,7 +495,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -547,7 +571,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         },
         hasAmountInput: true,
         minimumAmount: "1",
-        rate: (<span>1 USDC = 1 Complete Set</span>),
+        rate: <span>1 USDC = 1 Complete Set</span>,
         needsApproval: true,
         approvalAction: ApprovalAction.MINT_SETS,
         actionButtonText: "Mint Complete Sets",
@@ -751,7 +775,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
             }
           />
-        )}        
+        )}
         <section>
           {curPage.needsApproval && !isApproved && (
             <ApprovalButton amm={amm} cash={cash} actionType={curPage.approvalAction} />

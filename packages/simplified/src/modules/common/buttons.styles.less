@@ -71,6 +71,40 @@
   }
 }
 
+.ReviewTransactionButton {
+  .SimplifiedActionButton;
+
+  border: @size-1 solid var(--success);
+  background: var(--success);
+  color: var(--inverted-primary-text);
+
+  &:not(:disabled) {
+    &:hover {
+      background: rgba(var(--success-rgb), 0.85);
+      color: var(--inverted-primary-text);
+    }
+
+    &:focus-within:hover:active {
+      background: var(--success);
+      color: var(--inverted-primary-text);
+    }
+  }
+
+  &:not(:disabled):not(.Disabled):focus,
+  &:not(:disabled):not(.Disabled):focus-within {
+    background-color: var(--success);
+    color: var(--inverted-primary-text);
+    outline: 0;
+    border: @size-1 solid var(--success);
+    box-shadow: none;
+  }
+
+  &:not(:disabled):not(.Disabled):active {
+    background-color: var(--success);
+    color: var(--inverted-primary-text);
+  }
+}
+
 .TinyTransparentButton {
   background-color: transparent;
   border: 0;

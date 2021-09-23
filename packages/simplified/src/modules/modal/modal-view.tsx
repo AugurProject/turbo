@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ModalAddLiquidity from "./modal-add-liquidity";
+import ModalConfirmTransaction from './modal-confirm-transaction';
 import { useHistory } from "react-router";
 import Styles from "./modal.styles.less";
-import { MODAL_ADD_LIQUIDITY, MODAL_CONNECT_TO_POLYGON } from "../constants";
+import { MODAL_ADD_LIQUIDITY, MODAL_CONFIRM_TRANSACTION, MODAL_CONNECT_TO_POLYGON } from "../constants";
 import { Constants, Modals, useUserStore, useAppStatusStore } from "@augurproject/comps";
 
 const { ModalConnectWallet } = Modals;
@@ -22,6 +23,8 @@ function selectModal(type, modal, logout, closeModal, removeTransaction, isLogge
           removeTransaction={removeTransaction}
         />
       );
+    case MODAL_CONFIRM_TRANSACTION:
+      return <ModalConfirmTransaction {...modal} />;
     case MODAL_CONNECT_TO_POLYGON:
       return (
         <section className={Styles.ModalView}>

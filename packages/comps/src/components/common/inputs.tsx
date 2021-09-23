@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { EthIcon, UsdIcon, XIcon, MagnifyingGlass } from "./icons";
+import { EthIcon, UsdIcon, XIcon, MagnifyingGlass, PlusIcon, MinusIcon } from "./icons";
 import Styles from "./inputs.styles.less";
 import { getCashFormat, formatCash, formatSimpleShares, formatCashPrice } from "../../utils/format-number";
 import { USDC, ERROR_AMOUNT, SHARES, ETH, DUST_POSITION_AMOUNT, ONE } from "../../utils/constants";
@@ -68,6 +68,7 @@ export interface AmountInputProps {
   showCurrencyDropdown?: boolean;
   updateCash?: (string) => void;
   chosenCash: string;
+  heading?: string;
   rate?: React.Fragment | null;
   error?: boolean;
   updateAmountError?: Function;
@@ -83,11 +84,12 @@ export const AmountInput = ({
   showCurrencyDropdown,
   updateCash,
   chosenCash,
+  heading = "amount",
   rate,
-  ammCash,
-  updateAmountError = () => {},
-  isBuy = true,
   error,
+  updateAmountError = () => {},
+  ammCash,
+  isBuy = true,
   disabled = false,
 }: AmountInputProps) => {
   const { isLogged } = useAppStatusStore();
@@ -116,7 +118,7 @@ export const AmountInput = ({
         [Styles.Rate]: Boolean(rate),
       })}
     >
-      <span>amount</span>
+      <span>{heading}</span>
       <span onClick={setMax}>
         {isLogged && (
           <>
@@ -210,22 +212,45 @@ const Outcome = ({
     <div
       key={index}
       onClick={onClick}
-      className={classNames(Styles.Outcome, `${Styles[`color-${hasInvalidOutcome ? outcome.id + 1 : outcome.id + 2}`]}`, {
-        [Styles.Futures]: isFutures,
-        [Styles.Selected]: selected,
-        [Styles.ShowAllHighlighted]: showAllHighlighted,
-        [Styles.nonSelectable]: nonSelectable,
-        [Styles.Edited]: customVal !== "",
-        [Styles.showAsButton]: showAsButton,
-        [Styles.disabled]: !isLogged,
-        [Styles.Error]: error,
-        [Styles.noClick]: noClick,
-        [Styles.Editable]: editable,
-      })}
+      className={classNames(
+        Styles.Outcome,
+        `${Styles[`color-${hasInvalidOutcome ? outcome.id + 1 : outcome.id + 2}`]}`,
+        {
+          [Styles.Futures]: isFutures,
+          [Styles.Selected]: selected,
+          [Styles.ShowAllHighlighted]: showAllHighlighted,
+          [Styles.nonSelectable]: nonSelectable,
+          [Styles.Edited]: customVal !== "",
+          [Styles.showAsButton]: showAsButton,
+          [Styles.disabled]: !isLogged,
+          [Styles.Error]: error,
+          [Styles.noClick]: noClick,
+          [Styles.Editable]: editable,
+        }
+      )}
     >
       <span>{outcome.name}</span>
       {editable ? (
         <div onClick={() => input.current && input.current.focus()}>
+          <TinyThemeButton
+            icon={MinusIcon}
+            action={() => {
+              const curValue = new BN(customVal !== "" ? customVal : "0");
+              const newValue = curValue.minus(1);
+
+              if (!newValue.isNaN() && newValue.gte(0)) {
+                const value = newValue.toFixed();
+                if (newValue.lt(10)) {
+                  setCustomVal(`0${value}`);
+                  setEditableValue(`.0${value}`);
+                } else {
+                  setCustomVal(value);
+                  setEditableValue(`.${value}`);
+                }
+              }
+            }}
+            noHighlight
+          />
           <span>{`${prepend && symbol}0.`}</span>
           <input
             value={customVal}
@@ -237,6 +262,25 @@ const Outcome = ({
             placeholder={PLACEHOLDER}
             ref={input}
             onWheel={(e: any) => e?.target?.blur()}
+          />
+          <TinyThemeButton
+            icon={PlusIcon}
+            action={() => {
+              const curValue = new BN(customVal !== "" ? customVal : "0");
+              const newValue = curValue.plus(1);
+
+              if (!newValue.isNaN() && newValue.lte(99)) {
+                const value = newValue.toFixed();
+                if (newValue.lt(10)) {
+                  setCustomVal(`0${value}`);
+                  setEditableValue(`.0${value}`);
+                } else {
+                  setCustomVal(value);
+                  setEditableValue(`.${value}`);
+                }
+              }
+            }}
+            noHighlight
           />
         </div>
       ) : (
@@ -298,7 +342,7 @@ export const OutcomesGrid = ({
   isFutures = false,
 }: OutcomesGridProps) => {
   const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
-  const hasInvalidOutcome = sortedOutcomes.find(s => s.isInvalid);
+  const hasInvalidOutcome = sortedOutcomes.find((s) => s.isInvalid);
 
   return (
     <div
@@ -334,85 +378,3 @@ export const OutcomesGrid = ({
     </div>
   );
 };
-
-// DUMMY OUTCOMES DON'T -- need until we have data:
-// .concat([
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 3,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 3",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 4,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 4",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 5,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 5",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 6,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 6",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 7,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 7",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-//   {
-//     balance: "",
-//     balanceRaw: "",
-//     id: 8,
-//     isFinalNumerator: false,
-//     isInvalid: false,
-//     isWinner: false,
-//     name: "Colorado Rockies 8",
-//     price: "",
-//     ratio: "",
-//     ratioRaw: "",
-//     symbol: "0x541a5a6b2b1e8aa511b82c1e039980a54b14db8a",
-//   },
-// ])
