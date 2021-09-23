@@ -332,16 +332,18 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _pendingRewardInfo.endTimestamp = _pool.endTimestamp;
             _pendingRewardInfo.earlyDepositEndTimestamp = getEarlyDepositEndTimestamp(_rewardPoolLookupInfo.pid);
 
-            if (_pool.totalEarlyDepositBonusRewardShares > 0 && block.timestamp > _pendingRewardInfo.endTimestamp) {
-                _pendingRewardInfo.accruedEarlyDepositBonusRewards = _pool
-                    .earlyDepositBonusRewards
-                    .mul(_user.amount)
-                    .div(_pool.totalEarlyDepositBonusRewardShares);
-            } else if (_pool.totalEarlyDepositBonusRewardShares > 0) {
-                _pendingRewardInfo.pendingEarlyDepositBonusRewards = _pool
-                    .earlyDepositBonusRewards
-                    .mul(_user.amount)
-                    .div(_pool.totalEarlyDepositBonusRewardShares);
+            if (_user.lastActionTimestamp <= _pendingRewardInfo.earlyDepositEndTimestamp) {
+                if (_pool.totalEarlyDepositBonusRewardShares > 0 && block.timestamp > _pendingRewardInfo.endTimestamp) {
+                    _pendingRewardInfo.accruedEarlyDepositBonusRewards = _pool
+                        .earlyDepositBonusRewards
+                        .mul(_user.amount)
+                        .div(_pool.totalEarlyDepositBonusRewardShares);
+                } else if (_pool.totalEarlyDepositBonusRewardShares > 0) {
+                    _pendingRewardInfo.pendingEarlyDepositBonusRewards = _pool
+                        .earlyDepositBonusRewards
+                        .mul(_user.amount)
+                        .div(_pool.totalEarlyDepositBonusRewardShares);
+                }
             }
 
             if (block.timestamp > _pool.lastRewardTimestamp && lpSupply != 0) {

@@ -139,15 +139,37 @@ describe("MasterChef", () => {
     it("should not pay if a deposit is made after the bonus period has elapsed", async () => {
       const timestampAfterBonusRewards = adjustTimestamp(beginTimestamp, poolEndTimestamp, 15);
 
-      await tomMasterChef.deposit(0, initialCashAmount.div(2));
-
       await network.provider.send("evm_setNextBlockTimestamp", [timestampAfterBonusRewards]);
       await network.provider.send("evm_mine", []);
 
       await tomMasterChef.deposit(0, initialCashAmount.div(2));
 
+      const pendingRewardsInfoBeforeRewardEnd = await masterChef.getUserPendingRewardInfo(
+        RANDOM_ADDRESS,
+        bill.address,
+        0,
+        tom.address
+      );
+
+      expect(pendingRewardsInfoBeforeRewardEnd.accruedStandardRewards).to.be.equal(0);
+      expect(pendingRewardsInfoBeforeRewardEnd.accruedEarlyDepositBonusRewards).to.be.equal(0);
+      expect(pendingRewardsInfoBeforeRewardEnd.pendingEarlyDepositBonusRewards).to.be.equal(0);
+
+      await tomMasterChef.deposit(0, initialCashAmount.div(2));
+
       await network.provider.send("evm_setNextBlockTimestamp", [poolEndTimestamp.toNumber()]);
       await network.provider.send("evm_mine", []);
+
+      const pendingRewardsInfoAfterRewardEnd = await masterChef.getUserPendingRewardInfo(
+        RANDOM_ADDRESS,
+        bill.address,
+        0,
+        tom.address
+      );
+
+      expect(pendingRewardsInfoAfterRewardEnd.accruedStandardRewards).to.be.equal(0);
+      expect(pendingRewardsInfoAfterRewardEnd.accruedEarlyDepositBonusRewards).to.be.equal(0);
+      expect(pendingRewardsInfoAfterRewardEnd.pendingEarlyDepositBonusRewards).to.be.equal(0);
 
       await tomMasterChef.withdraw(0, initialCashAmount);
 
