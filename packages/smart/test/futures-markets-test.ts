@@ -103,7 +103,7 @@ describe("Futures Markets", () => {
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
     collateral = (await ethers.getContract("Collateral")) as Cash;
-    marketFactory = (await ethers.getContract("FuturesMarketFactory")) as FuturesMarketFactoryV3;
+    marketFactory = (await ethers.getContract("FuturesMarketFactoryV3")) as FuturesMarketFactoryV3;
   });
 
   it("deploys correctly", async () => {

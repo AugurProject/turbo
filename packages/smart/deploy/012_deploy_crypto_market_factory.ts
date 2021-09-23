@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CryptoMarketFactoryV3__factory } from "../typechain";
+import { CryptoCurrencyMarketFactoryV3__factory } from "../typechain";
 import { getCollateral, getFees } from "../src/utils/deploy";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { address: feePotAddress } = await deployments.get("FeePot");
   const fees = getFees();
 
-  const args: Parameters<CryptoMarketFactoryV3__factory["deploy"]> = [
+  const args: Parameters<CryptoCurrencyMarketFactoryV3__factory["deploy"]> = [
     deployer, // initial owner must be deployer for coins to be addable
     collateralAddress,
     shareFactor,
@@ -21,14 +21,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     linkNode,
   ];
 
-  await deployments.deploy("CryptoMarketFactoryV3", {
-    contract: "CryptoMarketFactoryV3",
+  await deployments.deploy("CryptoCurrencyMarketFactoryV3", {
+    contract: "CryptoCurrencyMarketFactoryV3",
     from: deployer,
     args,
     log: true,
   });
 
-  await deployments.deploy("CryptoFetcher", {
+  await deployments.deploy("CryptoCurrencyFetcher", {
     from: deployer,
     args: [],
     log: true,

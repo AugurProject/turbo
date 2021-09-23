@@ -22,7 +22,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const earlyDepositBonusRewards = BONE.mul(totalRewardsPerMarket * 0.2);
 
   await deployments
-    .get("CryptoMarketFactoryV3")
+    .get("CryptoCurrencyMarketFactoryV3")
     .then(({ address }) =>
       masterChef.addRewards(address, rewardsPerMarket, rewardDaysPerMarket, earlyDepositBonusRewards)
     );
