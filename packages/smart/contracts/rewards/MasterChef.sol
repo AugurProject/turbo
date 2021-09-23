@@ -108,16 +108,17 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
     );
 
     event PoolCreated(
-        address pool,
+        address indexed ammFactory,
         address indexed marketFactory,
         uint256 indexed marketId,
-        address indexed creator,
+        address creator,
         address lpTokenRecipient
     );
     event LiquidityChanged(
+        address indexed ammFactory,
         address indexed marketFactory,
         uint256 indexed marketId,
-        address indexed user,
+        address user,
         address recipient,
         // from the perspective of the user. e.g. collateral is negative when adding liquidity
         int256 collateral,
@@ -288,6 +289,28 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _duration = _pool.endTimestamp - _pool.beginTimestamp;
 
         return ((_duration * EARLY_DEPOSIT_BONUS_REWARDS_PERCENTAGE) / BONE) + _pool.beginTimestamp + 1;
+    }
+
+    function getPoolLPTokenTotalSupply(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId
+    ) public view returns (uint256) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        return poolInfo[_rewardPoolLookupInfo.pid].lpToken.totalSupply();
+    }
+
+    function getPoolLPToken(
+        AMMFactory _ammFactory,
+        AbstractMarketFactoryV3 _marketFactory,
+        uint256 _marketId
+    ) public view returns (IERC20) {
+        RewardPoolLookupInfo memory _rewardPoolLookupInfo =
+            rewardPoolLookup[address(_ammFactory)][address(_marketFactory)][_marketId];
+
+        return poolInfo[_rewardPoolLookupInfo.pid].lpToken;
     }
 
     function getPoolInfo(
@@ -543,8 +566,9 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
             _balances[i] = 0;
         }
 
-        emit PoolCreated(address(_lpToken), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
+        emit PoolCreated(address(_ammFactory), address(_marketFactory), _marketId, msg.sender, _lpTokenRecipient);
         emit LiquidityChanged(
+            address(_ammFactory),
             address(_marketFactory),
             _marketId,
             msg.sender,
@@ -605,6 +629,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         depositInternal(_lpTokenRecipient, _pid, _poolAmountOut);
 
         emit LiquidityChanged(
+            address(_ammFactory),
             address(_marketFactory),
             _marketId,
             msg.sender,
@@ -643,6 +668,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         );
 
         emit LiquidityChanged(
+            address(_ammFactory),
             address(_marketFactory),
             _marketId,
             msg.sender,
