@@ -206,6 +206,11 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
         uint256 _rewardsPeriodsInSeconds = _marketFactoryInfo.rewardsPeriods * 1 days;
         uint256 _beginTimestamp = block.timestamp;
 
+        // Add one hour buffer for LPs to withdraw before event start.
+        if (_endTimestamp != 0) {
+            _endTimestamp = _endTimestamp - 1 hours;
+        }
+
         if (_endTimestamp == 0) {
             _endTimestamp = _beginTimestamp + _rewardsPeriodsInSeconds;
         } else if ((_endTimestamp - _rewardsPeriodsInSeconds) > block.timestamp) {
@@ -219,7 +224,7 @@ contract MasterChef is OpenZeppelinOwnable.Ownable {
                 accRewardsPerShare: 0,
                 beginTimestamp: _beginTimestamp,
                 endTimestamp: _endTimestamp,
-                totalEarlyDepositBonusRewardShares: 0, // earlyDepositBonusRewards are specified per day.
+                totalEarlyDepositBonusRewardShares: 0,
                 earlyDepositBonusRewards: (_marketFactoryInfo.earlyDepositBonusRewards / 1 days) *
                     (_endTimestamp - _beginTimestamp),
                 lpToken: _lpToken,

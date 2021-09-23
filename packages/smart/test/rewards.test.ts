@@ -49,6 +49,8 @@ describe("MasterChef", () => {
 
   const initialCashAmount = BONE.mul(100);
 
+  const SECONDS_IN_AN_HOUR = BigNumber.from(60).mul(60);
+
   beforeEach(async () => {
     await deployments.fixture();
     cash = (await ethers.getContract("Collateral")) as Cash;
@@ -86,7 +88,7 @@ describe("MasterChef", () => {
 
       const { beginTimestamp, endTimestamp } = await masterChef.poolInfo(0);
       expect(beginTimestamp.lte(endTimestamp)).to.be.true;
-      expect(endTimestamp).to.be.equal(estimatedStartTimeJustBeforeNow);
+      expect(endTimestamp).to.be.equal(estimatedStartTimeJustBeforeNow.sub(SECONDS_IN_AN_HOUR));
     });
 
     it("should wait to begin rewards if EST is in the future more than rewardPeriods days", async () => {
@@ -96,7 +98,8 @@ describe("MasterChef", () => {
       await masterChef.add(RANDOM_ADDRESS, bill.address, 0, cash.address, estimatedStartTimeOneDayOutsideWindow);
 
       const { beginTimestamp, rewardsPerSecond } = await masterChef.poolInfo(0);
-      expect(beginTimestamp.sub(timestamp)).to.be.equal(SECONDS_PER_DAY);
+      // Should have an hour buffer.
+      expect(beginTimestamp.sub(timestamp)).to.be.equal(SECONDS_PER_DAY.sub(SECONDS_IN_AN_HOUR));
       expect(rewardsPerSecond).to.be.equal(rewardsPerPeriod.div(SECONDS_PER_DAY));
     });
   });
