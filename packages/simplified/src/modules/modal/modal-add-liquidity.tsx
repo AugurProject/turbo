@@ -181,10 +181,9 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
   else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
   else if (modalType === CREATE && page !== 2) {
     let totalPrice = ZERO;
-    console.log('outcomes', outcomes);
     outcomes.forEach((outcome) => {
-      const price = outcome.price;
-      if (price === "0" || !price) {
+      const price = createBigNumber(outcome.price || 0).toFixed(2);
+      if (price === "0") {
         inputFormError = SET_PRICES;
       } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
         buttonError = INVALID_PRICE;
@@ -193,7 +192,6 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    console.log('totalPrice', String(totalPrice))
     if (inputFormError === "" && !(new BN(totalPrice.toFixed(2))).eq(ONE) && !market.isFuture) {
       buttonError = INVALID_PRICE;
     }

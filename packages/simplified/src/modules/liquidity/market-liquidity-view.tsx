@@ -293,7 +293,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
 
     const valid = isRemove
       ? true
-      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+      : checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash);
     if (!valid) {
       return isMounted && setBreakdown(defaultAddLiquidityBreakdown);
     }
@@ -309,7 +309,6 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
           amm,
           cash,
           amount,
-          unOrderOutcomesForDisplay(outcomes)
         );
       }
 
@@ -562,7 +561,7 @@ const confirmAction = async ({
   onCancel = null,
   isMint,
 }) => {
-  const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash, amm);
+  const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash);
   if (!valid) {
     setBreakdown(defaultAddLiquidityBreakdown);
   }
@@ -689,10 +688,10 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, 
   else if (actionType === CREATE) {
     let totalPrice = ZERO;
     outcomes.forEach((outcome) => {
-      const price = outcome.price;
-      if (price === "0" || !price) {
+      const price = createBigNumber(outcome.price || 0);
+      if (price.eq(ZERO)) {
         inputFormError = SET_PRICES;
-      } else if (createBigNumber(price).lt(createBigNumber(MIN_PRICE))) {
+      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE)) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
