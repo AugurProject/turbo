@@ -686,14 +686,15 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, 
       const price = createBigNumber(outcome.price || 0);
       if (price.eq(ZERO)) {
         inputFormError = SET_PRICES;
-      } else if (Number(price.toFixed(2)) <= Number(MIN_PRICE)) {
+      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE)) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    if (inputFormError === "" && !totalPrice.eq(ONE) && !isFuture) {
+    const total = createBigNumber(totalPrice.toFixed(2));
+    if (inputFormError === "" && !total.eq(ONE) && !isFuture) {
       buttonError = INVALID_PRICE;
     }
     const minimumAmount = "100";
