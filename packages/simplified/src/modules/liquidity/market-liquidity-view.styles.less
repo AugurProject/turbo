@@ -165,7 +165,7 @@
     padding: @size-24;
     display: grid;
     grid-gap: @size-32;
-    grid-template-columns: max-content max-content;
+    grid-template-columns: max-content max-content 1fr;
 
     > button {
       .text-16-bold;
@@ -180,6 +180,24 @@
         color: var(--primary-text);
         cursor: pointer;
       }
+    }
+
+    > span {
+      .ThemeBorder;
+      .text-14;
+
+      display: flex;
+      flex-flow: row nowrap;
+      background: rgba(var(--success-rgb), 0.2);
+      border-color: rgba(var(--success-rgb), 0.2);
+      padding: @size-5 @size-12;
+      color: var(--success);
+      white-space: nowrap;
+      word-break: nowrap;
+      grid-column: 3;
+      margin-left: auto;
+      max-width: max-content;
+      text-transform: uppercase;
     }
   }
   
@@ -305,6 +323,15 @@
       padding: @size-16;
       height: @size-57;
       grid-gap: @size-16;
+
+      &:not(.isRemove) {
+        grid-template-columns: max-content max-content;
+
+        > span {
+          grid-column: 2;
+          margin-left: 0;
+        }
+      }
     }
 
     > main {

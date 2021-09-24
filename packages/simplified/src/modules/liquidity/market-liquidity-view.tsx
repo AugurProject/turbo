@@ -226,7 +226,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const { blocknumber, cashes }: DataState = useDataStore();
   const isRemove = selectedAction === REMOVE;
   const isMint = selectedAction === MINT_SETS;
-  const { amm, isFuture } = market;
+  const { amm, isFuture, rewards } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
@@ -303,13 +303,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
       if (isRemove) {
         results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
       } else {
-        results = await estimateAddLiquidityPool(
-          account,
-          loginAccount?.library,
-          amm,
-          cash,
-          amount,
-        );
+        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount);
       }
 
       if (!results) {
@@ -337,10 +331,10 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const now = Math.floor(new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
-    pendingRewards &&
+    (pendingRewards &&
     now > pendingRewards.endEarlyBonusTimestamp &&
     now <= pendingRewards.endBonusTimestamp &&
-    pendingRewards.pendingBonusRewards !== "0";
+    pendingRewards.pendingBonusRewards !== "0") || !rewards.created;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
     : getCreateBreakdown(breakdown, market, balances, isRemove);
@@ -372,6 +366,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
             Remove Liquidity
           </button>
         )}
+        {!shareBalance && !isMint && hasPendingBonus && <span>Eligible for bonus rewards</span>}
       </header>
       <main>
         <AmountInput
@@ -691,7 +686,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, 
       const price = createBigNumber(outcome.price || 0);
       if (price.eq(ZERO)) {
         inputFormError = SET_PRICES;
-      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE)) {
+      } else if (Number(price.toFixed(2)) <= Number(MIN_PRICE)) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
