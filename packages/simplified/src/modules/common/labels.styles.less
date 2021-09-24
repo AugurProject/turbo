@@ -91,60 +91,6 @@
   }
 }
 
-.AddLiquidity {
-  .ThemeBorder;
-  .HoverDropShadow;
-
-  background: transparent;
-  padding: @size-16;
-  display: flex;
-  flex-flow: column wrap;
-  height: fit-content;
-  cursor: pointer;
-  outline-style: none;
-
-  > span:first-of-type {
-    .text-20-bold;
-
-    text-transform: capitalize;
-    color: var(--primary-text);
-
-    > svg {
-      margin-right: @size-10;
-    }
-  }
-
-  > span:last-of-type {
-    .text-16;
-
-    margin-top: @size-8;
-    text-transform: capitalize;
-    color: var(--secondary-text);
-  }
-
-  &:not(:disabled):hover {
-    background: var(--primary-bg);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-}
-
-.AddCurrencyLiquidity {
-  .AddLiquidity;
-  .text-14-semi-bold;
-
-  align-items: center;
-  color: var(--secondary-text);
-  flex-flow: row nowrap;
-  margin-top: @size-12;
-
-  > svg {
-    margin-right: @size-12;
-  }
-}
-
 .AddLiquidityButton {
   flex-flow: column nowrap;
   min-height: @size-82;

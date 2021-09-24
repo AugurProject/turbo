@@ -38,57 +38,6 @@
   }
 }
 
-.ModalAddLiquidity {
-  .Container;
-
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: @size-395;
-  max-height: calc(100vh - @size-100);
-  overflow-y: auto;
-
-  > main {
-    > div > input {
-      margin-bottom: @size-16;
-      width: 100%;
-    }
-  }
-
-  &.showBackView {
-    > div:first-of-type {
-      cursor: pointer;
-    }
-
-    > main {
-      > div:first-of-type {
-        .text-20-bold;
-
-        cursor: default;
-        border-bottom: @size-1 solid var(--theme-border);
-        color: var(--secondary-text);
-      }
-
-      > section:not([class*="WarningBanner"]) {
-        border-bottom: @size-1 solid var(--theme-border);
-        padding-bottom: @size-24;
-
-        &:nth-last-child(3),
-        &:last-of-type {
-          border-bottom: 0;
-          padding-bottom: 0;
-        }
-      }
-    }
-  }
-
-  @media @breakpoint-mobile-tablet {
-    width: unset;
-    height: unset;
-    max-height: unset;
-  }
-}
-
 .ModalConfirmTransaction {
   .Container;
 

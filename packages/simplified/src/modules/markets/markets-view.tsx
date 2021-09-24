@@ -13,12 +13,10 @@ import {
   Constants,
   Components,
   getCategoryIconLabel,
-  ContractCalls,
 } from "@augurproject/comps";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
   ButtonComps: { SecondaryThemeButton },
@@ -45,9 +43,7 @@ const {
   LIQUIDITY,
   MARKET_STATUS,
   TWENTY_FOUR_HOUR_VOLUME,
-  CREATE,
   SPORTS,
-  MODAL_ADD_LIQUIDITY,
 } = Constants;
 
 const PAGE_LIMIT = 21;
@@ -174,7 +170,6 @@ const MarketsView = () => {
   const {
     isMobile,
     isLogged,
-    actions: { setModal },
   } = useAppStatusStore();
   const {
     marketsViewSettings,
@@ -225,18 +220,6 @@ const MarketsView = () => {
     if (marketsViewSettings[setting] !== DEFAULT_MARKET_VIEW_SETTINGS[setting]) changedFilters++;
   });
 
-  const handleNoLiquidity = (market: MarketInfo) => {
-    const { amm } = market;
-    const canAddLiq = canAddLiquidity(market);
-    if (isLogged && canAddLiq) {
-      setModal({
-        type: MODAL_ADD_LIQUIDITY,
-        market,
-        liquidityModalType: CREATE,
-        currency: amm?.cash?.name,
-      });
-    }
-  };
   return (
     <div
       className={classNames(Styles.MarketsView, {
@@ -314,7 +297,6 @@ const MarketsView = () => {
               marketId={market.marketId}
               markets={markets}
               ammExchanges={ammExchanges}
-              handleNoLiquidity={handleNoLiquidity}
               noLiquidityDisabled={!isLogged}
               timeFormat={timeFormat}
               marketTransactions={transactions[market.marketId]}
