@@ -7,7 +7,13 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC 0 */4 * * *"
+        "schedule": "CRON_TZ=EDT 8 1 * * 0,1,2,5"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=EDT 8 17,21 * * 0"
       }
     }
   ],
