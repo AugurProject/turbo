@@ -5,6 +5,7 @@ import { Addresses, ChainId, graphChainNames, MarketFactory } from "../../consta
 type EnvironmentMarketFactory = MarketFactory & {
   ammFactoryGraphName: string;
   marketFactoryGraphName: string;
+  masterChefGraphName: string;
 };
 
 interface EnvironmentAddresses extends Addresses {
@@ -15,6 +16,7 @@ interface EnvironmentAddresses extends Addresses {
   futuresMarketFactoriesV3: EnvironmentMarketFactory[];
   marketFactories: EnvironmentMarketFactory[];
   uniqueMarketFactories: EnvironmentMarketFactory[];
+  uniqueMasterChefs: EnvironmentMarketFactory[];
   mlbMarketFactoriesV3: EnvironmentMarketFactory[];
   mmaMarketFactoriesV1: EnvironmentMarketFactory[];
   mmaMarketFactoriesV2: EnvironmentMarketFactory[];
@@ -72,6 +74,7 @@ function generateJsonEnvironments() {
       ...marketFactory,
       ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
       marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
+      masterChefGraphName: index === 0 ? "MasterChef" : `MasterChef-${index}`,
     }));
     const uniqueMarketFactories = [];
     const mapMarketFactories = new Map();
@@ -79,6 +82,14 @@ function generateJsonEnvironments() {
       if (!mapMarketFactories.has(marketFactory.ammFactory)) {
         mapMarketFactories.set(marketFactory.ammFactory, true);
         uniqueMarketFactories.push(marketFactory);
+      }
+    }
+    const uniqueMasterChefs = [];
+    const mapMasterChefs = new Map();
+    for (const marketFactory of addresses.marketFactories) {
+      if (marketFactory.hasRewards && !mapMasterChefs.has(marketFactory.masterChef)) {
+        mapMasterChefs.set(marketFactory.masterChef, true);
+        uniqueMasterChefs.push(marketFactory);
       }
     }
     const v1abstractMarketFactories = addresses.marketFactories
@@ -135,6 +146,7 @@ function generateJsonEnvironments() {
       ...addresses,
       ...specificMarketFactories,
       uniqueMarketFactories,
+      uniqueMasterChefs,
     };
     const file = JSON.stringify(addresses);
     fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);
