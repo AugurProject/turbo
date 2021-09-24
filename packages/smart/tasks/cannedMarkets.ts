@@ -164,9 +164,6 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
         await marketFactory.addOutcomesToGroup(id, [name], [odds]).then(wait);
       }
 
-      console.log(`Finalizing group`);
-      await marketFactory.finalizeGroup(id).then(wait);
-
       group = await marketFactory.getGroup(id);
       console.log(`Created markets ${group.markets.join(",")} for futures ${marketFactory.address}`);
     }

@@ -21,7 +21,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     linkNode,
   ];
 
-  await deployments.deploy("FuturesMarketFactory", {
+  await deployments.deploy("FuturesMarketFactoryV3", {
     contract: "FuturesMarketFactoryV3",
     from: deployer,
     args,
