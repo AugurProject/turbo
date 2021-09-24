@@ -1,6 +1,5 @@
 // This file is updated by deployer.
 import { AddressMapping } from "./constants";
-
 export const addresses: AddressMapping = {
   137: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
@@ -141,6 +140,18 @@ export const addresses: AddressMapping = {
     reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
+      {
+        type: "Futures",
+        subtype: "V3",
+        address: "0x30c31A7468e640633F2FA6a9C8fbb87648Cf09f3",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34",
+        fetcher: "0x69aA6d9a98C5ac818124087f76e2F09Ec0DA24fA",
+        hasRewards: true,
+        masterChef: "0xa976cb47C216Ee71089b10383bDEa4e230551458",
+        description: "futures",
+        version: "FILL THIS OUT",
+      },
       {
         type: "MLB",
         subtype: "V3",
