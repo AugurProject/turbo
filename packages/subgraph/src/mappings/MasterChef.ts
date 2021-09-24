@@ -1,6 +1,6 @@
 import { LiquidityChanged, MasterChef as MasterChefContract, PoolCreated } from "../../generated/MasterChef/MasterChef";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAddLiquidity,
   getOrCreateAmmFactory,
@@ -10,8 +10,94 @@ import {
   getOrCreateRemoveLiquidity,
   getOrCreateSender
 } from "../helpers/AmmFactoryHelper";
-import { handlePositionFromLiquidityChangedMasterChefEvent } from "../helpers/CommonHandlers";
-import { getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance } from "../helpers/CommonHelper";
+import {
+  getOrCreateInitialCostPerMarket,
+  getOrCreateLiquidityPositionBalance,
+  getOrCreatePositionBalance
+} from "../helpers/CommonHelper";
+
+export function handlePositionFromLiquidityChangedMasterChefEvent(
+  event: LiquidityChanged,
+  positionFromAddLiquidity: boolean,
+  sharesReturned: BigInt,
+  outcomeId: BigInt,
+  liquidityCollateralPerShare: BigInt
+): void {
+  let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
+  let senderId = event.params.user.toHexString();
+  let id = senderId + "-" + marketId + "-" + bigIntToHexString(outcomeId);
+  let positionBalanceEntity = getOrCreatePositionBalance(id, true, false);
+  let liquidityPositionBalanceId = senderId + "-" + marketId;
+  getOrCreateMarket(marketId);
+  getOrCreateSender(senderId);
+  let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
+  let initialCostPerMarket = getOrCreateInitialCostPerMarket(id);
+  let outcomeIndex = outcomeId.toI32();
+  let array1: BigInt[] = liquidityPositionBalance.sharesReturned as BigInt[];
+  let array2: BigDecimal[] = liquidityPositionBalance.avgPricePerOutcome as BigDecimal[];
+  let sharesFromLiquidityPositionBalance: BigInt = ZERO;
+  let avgPriceFromLiquidityPositionBalance: BigDecimal = ZERO.toBigDecimal();
+
+  if (!!array1 && !!array1.length > outcomeIndex + 1) {
+    sharesFromLiquidityPositionBalance = array1[outcomeIndex];
+  }
+  if (!!array2 && !!array2.length > outcomeIndex + 1) {
+    avgPriceFromLiquidityPositionBalance = array2[outcomeIndex];
+  }
+
+  if (
+    !!sharesFromLiquidityPositionBalance &&
+    !!avgPriceFromLiquidityPositionBalance &&
+    !!initialCostPerMarket.sharesFromTradesBigDecimal &&
+    !!liquidityPositionBalance.sharesReturned
+  ) {
+    let liquidityPositionBalanceShares = sharesFromLiquidityPositionBalance.toBigDecimal().div(SHARES_DECIMALS);
+    let firstSetTimesAvg = initialCostPerMarket.sharesFromTradesBigDecimal.times(initialCostPerMarket.avgPrice);
+    let secondSetTimesAvg = liquidityPositionBalanceShares.times(avgPriceFromLiquidityPositionBalance);
+    let combineMeansUp = firstSetTimesAvg.plus(secondSetTimesAvg);
+    let combineMeansDown = initialCostPerMarket.sharesFromTradesBigDecimal.plus(liquidityPositionBalanceShares);
+    if (combineMeansDown.gt(ZERO.toBigDecimal())) {
+      initialCostPerMarket.avgPrice = combineMeansUp.div(combineMeansDown);
+      initialCostPerMarket.sharesFromTrades = initialCostPerMarket.sharesFromTrades.plus(
+        sharesFromLiquidityPositionBalance
+      );
+      initialCostPerMarket.sharesFromTradesBigDecimal = initialCostPerMarket.sharesFromTradesBigDecimal.plus(
+        liquidityPositionBalanceShares
+      );
+      initialCostPerMarket.save();
+    }
+  }
+
+  let collateral = liquidityCollateralPerShare.times(sharesReturned).abs();
+  let initialCostUsdBigInt = positionFromAddLiquidity
+    ? positionBalanceEntity.initCostUsdBigInt + collateral
+    : positionBalanceEntity.initCostUsdBigInt - collateral;
+  let sharesBigInt = positionBalanceEntity.sharesBigInt + sharesReturned.abs();
+
+  positionBalanceEntity.positionFromAddLiquidity = positionFromAddLiquidity;
+  positionBalanceEntity.positionFromRemoveLiquidity = !positionFromAddLiquidity;
+  positionBalanceEntity.hasClaimed = false;
+  positionBalanceEntity.transactionHash = event.transaction.hash.toHexString();
+  positionBalanceEntity.timestamp = event.block.timestamp;
+  positionBalanceEntity.outcomeId = bigIntToHexString(outcomeId);
+  positionBalanceEntity.marketId = marketId;
+  positionBalanceEntity.market = marketId;
+  positionBalanceEntity.senderId = senderId;
+  positionBalanceEntity.sender = senderId;
+
+  let collateralBigDecimal = initialCostUsdBigInt.toBigDecimal().div(USDC_DECIMALS);
+  let absCollateralBigDecimal = initialCostUsdBigInt.abs().toBigDecimal().div(USDC_DECIMALS);
+  let sharesReturnedBigDecimal = sharesBigInt.toBigDecimal().div(SHARES_DECIMALS);
+  positionBalanceEntity.shares = bigIntToHexString(sharesBigInt);
+  positionBalanceEntity.sharesBigInt = sharesBigInt;
+  positionBalanceEntity.sharesBigDecimal = sharesReturnedBigDecimal;
+  positionBalanceEntity.initCostUsd = bigIntToHexString(initialCostUsdBigInt);
+  positionBalanceEntity.initCostUsdBigInt = initialCostUsdBigInt;
+  positionBalanceEntity.initCostUsdBigDecimal = collateralBigDecimal;
+  positionBalanceEntity.open = sharesBigInt > ZERO;
+
+  positionBalanceEntity.save();
+}
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();

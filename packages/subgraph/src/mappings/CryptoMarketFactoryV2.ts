@@ -66,7 +66,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.timestamp = event.block.timestamp;
   entity.creator = event.params.creator.toHexString();
   entity.endTime = bigIntMillisToSeconds(event.params.endTime);
-  entity.marketType = BigInt.fromI32(event.params.marketType);
+  entity.marketType = event.params.marketType;
   entity.coinIndex = event.params.coinIndex;
   entity.creationPrice = event.params.price;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
