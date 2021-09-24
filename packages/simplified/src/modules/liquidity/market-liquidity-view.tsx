@@ -686,7 +686,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, 
       const price = createBigNumber(outcome.price || 0);
       if (price.eq(ZERO)) {
         inputFormError = SET_PRICES;
-      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE)) {
+      } else if (Number(price.toFixed(2)) <= Number(MIN_PRICE)) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
