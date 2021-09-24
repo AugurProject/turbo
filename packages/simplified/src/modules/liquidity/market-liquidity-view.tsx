@@ -226,7 +226,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const { blocknumber, cashes }: DataState = useDataStore();
   const isRemove = selectedAction === REMOVE;
   const isMint = selectedAction === MINT_SETS;
-  const { amm, isFuture } = market;
+  const { amm, isFuture, rewards } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
@@ -331,10 +331,10 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const now = Math.floor(new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
-    pendingRewards &&
+    (pendingRewards &&
     now > pendingRewards.endEarlyBonusTimestamp &&
     now <= pendingRewards.endBonusTimestamp &&
-    pendingRewards.pendingBonusRewards !== "0";
+    pendingRewards.pendingBonusRewards !== "0") || !rewards.created;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
     : getCreateBreakdown(breakdown, market, balances, isRemove);
