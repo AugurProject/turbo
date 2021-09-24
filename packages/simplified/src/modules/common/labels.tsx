@@ -8,25 +8,18 @@ import {
   Utils,
   Constants,
   LabelComps,
-  ButtonComps,
-  Stores,
   ContractCalls,
   Formatter,
 } from "@augurproject/comps";
-import type { MarketInfo } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "modules/stores/simplified";
 const { formatToken } = Formatter;
-const { canAddLiquidity, getMaticUsdPrice } = ContractCalls;
-const {
-  Utils: { isMarketFinal },
-} = Stores;
-const { CREATE, USDC, MODAL_ADD_LIQUIDITY, ADD } = Constants;
+const { getMaticUsdPrice } = ContractCalls;
+const { USDC} = Constants;
 const { ValueLabel } = LabelComps;
-const { PrimaryThemeButton } = ButtonComps;
 const {
   Formatter: { formatCash },
 } = Utils;
-const { USDCIcon, EthIcon, MaticIcon } = Icons;
+const { MaticIcon } = Icons;
 
 const handleValue = (value, cashName = USDC) =>
   formatCash(value, cashName, {
@@ -69,60 +62,6 @@ export const AppViewStats = ({ small = false, liquidity = false }) => {
       {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={usdValueLP} />}
       <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
-  );
-};
-
-export const AddLiquidity = ({ market }: { market: MarketInfo }) => {
-  const {
-    isLogged,
-    actions: { setModal },
-  } = useAppStatusStore();
-  const canAddLiq = canAddLiquidity(market);
-  return (
-    <PrimaryThemeButton
-      customClass={Styles.AddLiquidityButton}
-      title={isLogged ? "Add liquidity" : "Connect an account to add liquidity"}
-      action={() => {
-        if (isLogged) {
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            liquidityModalType: ADD,
-            currency: market?.amm?.cash?.name,
-          });
-        }
-      }}
-      disabled={!isLogged || isMarketFinal(market) || !canAddLiq}
-      text="add liquidity"
-      subText="earn fees as a liquidity provider"
-    />
-  );
-};
-
-export const AddCurrencyLiquidity = ({ market, currency }: { market: MarketInfo; currency: string }) => {
-  const {
-    isLogged,
-    actions: { setModal },
-  } = useAppStatusStore();
-  return (
-    <button
-      className={classNames(Styles.AddCurrencyLiquidity)}
-      title={isLogged ? `Create this market in ${currency}` : `Connect an account to create this market in ${currency}`}
-      onClick={() => {
-        if (isLogged) {
-          setModal({
-            type: MODAL_ADD_LIQUIDITY,
-            market,
-            liquidityModalType: CREATE,
-            currency,
-          });
-        }
-      }}
-      disabled={!isLogged || isMarketFinal(market)}
-    >
-      {currency === USDC ? USDCIcon : EthIcon}
-      {`Create this market in ${currency}`}
-    </button>
   );
 };
 
