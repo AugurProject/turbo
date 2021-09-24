@@ -303,13 +303,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
       if (isRemove) {
         results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
       } else {
-        results = await estimateAddLiquidityPool(
-          account,
-          loginAccount?.library,
-          amm,
-          cash,
-          amount,
-        );
+        results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount);
       }
 
       if (!results) {
@@ -372,6 +366,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
             Remove Liquidity
           </button>
         )}
+        {!shareBalance && !isMint && hasPendingBonus && <span>Eligible for bonus rewards</span>}
       </header>
       <main>
         <AmountInput
