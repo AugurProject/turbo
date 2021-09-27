@@ -499,11 +499,11 @@
 
       &.Final {
         > div:last-of-type {
-          flex-flow: row wrap;
-          
+          flex-flow: row nowrap;
+
           > button {
-            margin-top: @size-12;
-            margin-left: 0;
+            width: min-content;
+            margin-left: @size-8;
           }
         }
       }
