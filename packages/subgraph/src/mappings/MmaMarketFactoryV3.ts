@@ -205,6 +205,7 @@ export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
     let marketId = event.address.toHexString() + "-" + markets[i].toString();
     getOrCreateMarket(marketId);
     let market = getOrCreateMmaMarket(marketId, true, false);
+    market.marketId = marketId;
     market.eventId = eventId;
     market.homeFighterId = event.params.homeTeamId;
     market.awayFighterId = event.params.awayTeamId;
