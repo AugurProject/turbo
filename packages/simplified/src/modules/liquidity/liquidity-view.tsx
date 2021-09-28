@@ -101,7 +101,7 @@ const applyFiltersAndSort = (
 
   if (marketTypeFilter !== MARKET_TYPE_OPTIONS[0].value) {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) =>
-      marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isFuture : market.isFuture
+      marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isGrouped : market.isGrouped
     );
   }
 

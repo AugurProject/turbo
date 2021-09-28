@@ -232,6 +232,6 @@ abstract contract GroupFetcher is Fetcher {
     }
 }
 
-contract FuturesFetcher is GroupFetcher {
-    constructor() Fetcher("Futures", "TBD") {}
+contract GroupedFetcher is GroupFetcher {
+    constructor() Fetcher("Grouped", "TBD") {}
 }

@@ -19,8 +19,8 @@ import {
   NBAMarketFactoryV3,
   MLBMarketFactoryV3,
   MLBMarketFactoryV3__factory,
-  FuturesMarketFactoryV3__factory,
-  FuturesMarketFactoryV3,
+  GroupedMarketFactoryV3__factory,
+  GroupedMarketFactoryV3,
   TrustedMarketFactoryV2__factory,
   CryptoMarketFactoryV2__factory,
   MMALinkMarketFactoryV2__factory,
@@ -65,7 +65,7 @@ export type MarketFactoryContract =
   | TrustedMarketFactoryV3
   | CryptoMarketFactoryV2
   | CryptoMarketFactoryV3
-  | FuturesMarketFactoryV3
+  | GroupedMarketFactoryV3
   | MMALinkMarketFactoryV2
   | MMAMarketFactoryV3
   | NBAMarketFactoryV3
@@ -123,7 +123,7 @@ export function instantiateMarketFactory(
     V3: {
       Crypto: CryptoMarketFactoryV3__factory,
       Trusted: TrustedMarketFactoryV3__factory,
-      Futures: FuturesMarketFactoryV3__factory,
+      Grouped: GroupedMarketFactoryV3__factory,
       MMA: MMAMarketFactoryV3__factory,
       NFL: NFLMarketFactoryV3__factory,
       NBA: NBAMarketFactoryV3__factory,
@@ -152,7 +152,7 @@ export function instantiateFetcher(
       NFL: SportsFetcher__factory,
       NBA: SportsFetcher__factory,
       MLB: SportsFetcher__factory,
-      Futures: GroupFetcher__factory,
+      Grouped: GroupFetcher__factory,
     },
   };
 

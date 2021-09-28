@@ -9,7 +9,7 @@ import {
   GROUP_INVALID_MARKET,
 } from "./constants";
 
-const FUTURE_CATEGORIES = {
+const GRUOPED_CATEGORIES = {
   NFL: ["Sports", "Football", "NFL"],
 };
 
@@ -28,7 +28,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   }));
   market.title = marketData.groupName;
   market.startTimestamp = new BN(String(marketData.endTime)).toNumber();
-  return { ...market, outcomes, categories: FUTURE_CATEGORIES[market.category] };
+  return { ...market, outcomes, categories: GRUOPED_CATEGORIES[market.category] };
 };
 
 export const getResolutionRules = (market: MarketInfo): string[] => {

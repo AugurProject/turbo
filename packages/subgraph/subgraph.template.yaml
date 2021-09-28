@@ -347,27 +347,27 @@ dataSources:
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
   {{/mlbMarketFactoriesV3}}
-  {{#futuresMarketFactoriesV3}}
+  {{#groupedMarketFactoriesV3}}
     - kind: ethereum/contract
       name: {{ marketFactoryGraphName }}
       network: {{ info.graphName }}
       source:
         address: '{{ address }}'
-        abi: FuturesMarketFactory
+        abi: GroupedMarketFactory
         startBlock: {{ info.uploadBlockNumber }}
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.4
         language: wasm/assemblyscript
-        file: ./src/mappings/FuturesMarketFactory{{ subtype }}.ts
+        file: ./src/mappings/GroupedMarketFactory{{ subtype }}.ts
         entities:
           - MarketCreated
           - MarketResolved
           - WinningsClaimed
           - SharesMinted
         abis:
-          - name: FuturesMarketFactory
-            file: ./abis/FuturesMarketFactory{{ subtype }}.json
+          - name: GroupedMarketFactory
+            file: ./abis/GroupedMarketFactory{{ subtype }}.json
         eventHandlers:
           - event: MarketCreated(uint256,string[],uint256[])
             handler: handleMarketCreatedEvent
@@ -377,4 +377,4 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
-  {{/futuresMarketFactoriesV3}}
+  {{/groupedMarketFactoriesV3}}

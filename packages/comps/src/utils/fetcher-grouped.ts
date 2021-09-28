@@ -11,7 +11,7 @@ import {
 } from "@augurproject/smart";
 
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
-import { decodeBaseMarketFetcher, decodeFutureMarketDetailsFetcher } from "./derived-market-data";
+import { decodeBaseMarketFetcher, decodeGroupedMarketDetailsFetcher } from "./derived-market-data";
 import { GROUP_INVALID_MARKET } from "./constants";
 
 export const fetchContractData = async (config: MarketFactory, provider: Web3Provider, account: string) => {
@@ -69,7 +69,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     title: groups[key][0]?.groupName,
   }));
 
-  const popMarkets = groupedMarkets.map((m) => decodeFutureMarketDetailsFetcher(m, factoryDetails, config));
+  const popMarkets = groupedMarkets.map((m) => decodeGroupedMarketDetailsFetcher(m, factoryDetails, config));
 
   return popMarkets.reduce((p, m) => ({ ...p, [m.marketId]: m }), {});
 };

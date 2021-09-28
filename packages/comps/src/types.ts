@@ -267,7 +267,7 @@ export interface MarketInfo {
   spreadOuLine?: number;
   initialOdds: string[];
   isPopular?: boolean;
-  isFuture: boolean;
+  isGrouped: boolean;
   subMarkets?: { marketName: string; shareTokens: string[]; marketType: number; factory: string; marketId: number }[];
   category?: string;
   rewards?: RewardsInfo;

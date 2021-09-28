@@ -4,7 +4,7 @@ import {
   ContractInterfaces,
   CryptoMarketFactoryV3,
   FakePriceFeed__factory,
-  FuturesMarketFactoryV3,
+  GroupedMarketFactoryV3,
   getUpcomingFriday4pmET,
   MarketFactoryType,
   range,
@@ -27,7 +27,7 @@ task("cannedMarkets", "creates canned markets").setAction(async (args, hre: Hard
   await nba(signer, contracts, confirmations);
   await nfl(signer, contracts, confirmations);
   await mma(signer, contracts, confirmations);
-  await futures(signer, contracts, confirmations);
+  await grouped(signer, contracts, confirmations);
   await crypto(signer, contracts, confirmations);
 });
 
@@ -102,7 +102,7 @@ export function randomPrice(min = 1, max = 100000): BigNumber {
   return basis.mul(price.toFixed());
 }
 
-async function futures(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
+async function grouped(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
   interface Group {
     id: BigNumberish;
     name: string;
@@ -139,8 +139,8 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
     },
   ];
 
-  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Futures")]
-    .marketFactory as FuturesMarketFactoryV3;
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, "Grouped")]
+    .marketFactory as GroupedMarketFactoryV3;
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -149,7 +149,7 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
       let group = await marketFactory.getGroup(id);
       const finalized = [2, 3, 4].includes(group.status);
       if (finalized) {
-        console.log(`Skipping group "${id}" for futures because it is already finalized`);
+        console.log(`Skipping group "${id}" for grouped because it is already finalized`);
         continue;
       }
 
@@ -165,7 +165,7 @@ async function futures(signer: Signer, contracts: ContractInterfaces, confirmati
       }
 
       group = await marketFactory.getGroup(id);
-      console.log(`Created markets ${group.markets.join(",")} for futures ${marketFactory.address}`);
+      console.log(`Created markets ${group.markets.join(",")} for grouped ${marketFactory.address}`);
     }
   } finally {
     await resetLinkNode(marketFactory, originalLinkNode);

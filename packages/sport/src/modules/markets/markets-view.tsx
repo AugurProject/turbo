@@ -15,7 +15,7 @@ import {
 import { TopBanner } from "../common/top-banner";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-import { CategoriesArea, DailyFutureSwitch, CategoriesAreaTitle } from "../categories/categories";
+import { CategoriesArea, DailyGroupedSwitch, CategoriesAreaTitle } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const { canAddLiquidity } = ContractCalls;
 const {
@@ -152,9 +152,9 @@ const applyFiltersAndSort = (
     updatedFilteredMarkets = afterNow.concat(beforeNow);
   }
 
-  // TODO: Strip out futures/dailes:
+  // TODO: Strip out grouped/dailes:
   if (subCategories.length > 0) {
-    // here we should filter based on `eventTypeFilter` (0 = Daily, 1 = Futures)
+    // here we should filter based on `eventTypeFilter` (0 = Daily, 1 = Grouped)
   }
   const updatedEvents = updatedFilteredMarkets.reduce((acc, market) => {
     const output = [].concat(acc);
@@ -248,7 +248,7 @@ const MarketsView = () => {
         <ul className={classNames({[Styles.NoSubCategories]: subCategories.length === 0 })}>
           <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
           {subCategories.length > 0 && (
-            <DailyFutureSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+            <DailyGroupedSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           )}
           <SquareDropdown
             onChange={(value) => {

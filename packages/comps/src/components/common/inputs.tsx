@@ -185,7 +185,7 @@ const Outcome = ({
   noClick,
   index,
   hasLiquidity,
-  isFutures = false,
+  isGrouped = false,
   hasInvalidOutcome = false,
 }: typeof React.Component) => {
   const [customVal, setCustomVal] = useState("");
@@ -216,7 +216,7 @@ const Outcome = ({
         Styles.Outcome,
         `${Styles[`color-${hasInvalidOutcome ? outcome.id + 1 : outcome.id + 2}`]}`,
         {
-          [Styles.Futures]: isFutures,
+          [Styles.Grouped]: isGrouped,
           [Styles.Selected]: selected,
           [Styles.ShowAllHighlighted]: showAllHighlighted,
           [Styles.nonSelectable]: nonSelectable,
@@ -286,7 +286,7 @@ const Outcome = ({
       ) : (
         <span>{price}</span>
       )}
-      {isFutures && selected && (
+      {isGrouped && selected && (
         <div>
           {outcome.subOutcomes
             .sort((a, b) => b.id - a.id)
@@ -322,7 +322,7 @@ export interface OutcomesGridProps {
   noClick?: boolean;
   hasLiquidity?: boolean;
   marketFactoryType?: string;
-  isFutures?: boolean;
+  isGrouped?: boolean;
 }
 export const OutcomesGrid = ({
   outcomes,
@@ -339,7 +339,7 @@ export const OutcomesGrid = ({
   noClick,
   hasLiquidity,
   marketFactoryType,
-  isFutures = false,
+  isGrouped = false,
 }: OutcomesGridProps) => {
   const sortedOutcomes = orderOutcomesForDisplay(outcomes, marketFactoryType);
   const hasInvalidOutcome = sortedOutcomes.find((s) => s.isInvalid);
@@ -347,7 +347,7 @@ export const OutcomesGrid = ({
   return (
     <div
       className={classNames(Styles.Outcomes, {
-        [Styles.Futures]: isFutures,
+        [Styles.Grouped]: isGrouped,
         [Styles.nonSelectable]: nonSelectable,
         [Styles.showAsButtons]: showAsButtons,
         [Styles.noClick]: noClick,
@@ -371,7 +371,7 @@ export const OutcomesGrid = ({
             error={error}
             noClick={noClick}
             hasLiquidity={hasLiquidity}
-            isFutures={isFutures}
+            isGrouped={isGrouped}
             hasInvalidOutcome={hasInvalidOutcome}
           />
         ))}
