@@ -272,7 +272,7 @@
   display: flex;
   flex-direction: column;
 
-  &.Futures {
+  &.Grouped {
     overflow-y: auto;
     max-height: @size-340;
     min-height: @size-200;
@@ -346,7 +346,7 @@
     min-height: @size-48;
     max-height: @size-48;
 
-    &.Futures {
+    &.Grouped {
       min-height: auto;
       max-height: none;
     }
@@ -361,7 +361,7 @@
       &:hover {
         border: @size-1 solid @value;
 
-        &.Futures {
+        &.Grouped {
           border: @size-1 solid var(--primary-text);
         }
       };
@@ -371,7 +371,7 @@
         background: transparent;
         position: relative;
 
-        &.Futures {
+        &.Grouped {
           display: grid;
           grid-template-columns: 1fr 1fr;
           border: @size-1 solid var(--primary-text);
@@ -444,7 +444,7 @@
           }
         }
 
-        &:not(.Futures) {
+        &:not(.Grouped) {
           &:before {
             content: "";
             border-radius: inherit;

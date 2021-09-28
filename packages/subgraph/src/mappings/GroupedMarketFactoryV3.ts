@@ -1,14 +1,14 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { getOrCreateMarket, getOrCreateSender } from "../helpers/AmmFactoryHelper";
-import { getOrCreateFuturesMarket } from "../helpers/MarketFactoryHelper";
+import { getOrCreateGroupedMarket } from "../helpers/MarketFactoryHelper";
 import {
-  FuturesMarketFactory as FuturesMarketFactoryContract,
-  FuturesMarketFactory__getMarketResultValue0Struct,
+  GroupedMarketFactory as GroupedMarketFactoryContract,
+  GroupedMarketFactory__getMarketResultValue0Struct,
   MarketCreated,
   MarketResolved,
   WinningsClaimed,
   SharesMinted
-} from "../../generated/FuturesMarketFactoryV3/FuturesMarketFactory";
+} from "../../generated/GroupedMarketFactoryV3/GroupedMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import {
@@ -20,7 +20,7 @@ import { GenericSharesMintedParams } from "../types";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 
 function getShareTokens(contractAddress: Address, marketId: BigInt): Array<string> {
-  let contract = FuturesMarketFactoryContract.bind(contractAddress);
+  let contract = GroupedMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let rawShareTokens: Address[] = new Array<Address>();
   if (!tryGetMarket.reverted) {
@@ -40,10 +40,10 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): FuturesMarketFactory__getMarketResultValue0Struct {
-  let contract = FuturesMarketFactoryContract.bind(contractAddress);
+function getMarket(contractAddress: Address, marketId: BigInt): GroupedMarketFactory__getMarketResultValue0Struct {
+  let contract = GroupedMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: FuturesMarketFactory__getMarketResultValue0Struct;
+  let market: GroupedMarketFactory__getMarketResultValue0Struct;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
@@ -65,7 +65,7 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
 export function handleMarketCreatedEvent(event: MarketCreated): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateFuturesMarket(marketId, true, false);
+  let entity = getOrCreateGroupedMarket(marketId, true, false);
   getOrCreateMarket(marketId);
   let market = getMarket(event.address, event.params.id);
 
@@ -91,7 +91,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 export function handleMarketResolvedEvent(event: MarketResolved): void {
   let marketId = event.address.toHexString() + "-" + event.params.id.toString();
 
-  let entity = getOrCreateFuturesMarket(marketId, false, false);
+  let entity = getOrCreateGroupedMarket(marketId, false, false);
 
   if (entity) {
     entity.winner = event.params.winner.toHexString();

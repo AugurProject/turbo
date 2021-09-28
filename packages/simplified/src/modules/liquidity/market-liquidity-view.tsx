@@ -241,7 +241,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const { blocknumber, cashes }: DataState = useDataStore();
   const isRemove = selectedAction === REMOVE;
   const isMint = selectedAction === MINT_SETS;
-  const { amm, isFuture, rewards } = market;
+  const { amm, isGrouped, rewards } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
   const initialOutcomes = hasInitialOdds
@@ -288,7 +288,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
     outcomes,
     amount,
     actionType: selectedAction,
-    isFuture,
+    isGrouped,
     userMaxAmount,
     account,
   });
@@ -411,7 +411,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
             dontFilterInvalid
             hasLiquidity={!mustSetPrices || hasInitialOdds}
             marketFactoryType={market?.marketFactoryType}
-            isFutures={market?.isFuture}
+            isGrouped={market?.isGrouped}
           />
         </div>
         <section className={Styles.BreakdownAndAction}>
@@ -678,7 +678,7 @@ const confirmAction = async ({
   }
 };
 
-const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, userMaxAmount, account }) => {
+const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped, userMaxAmount, account }) => {
   let buttonError = "";
   let inputFormError = "";
   let lessThanMinPrice = false;
@@ -711,7 +711,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isFuture, 
       }
     });
     const total = createBigNumber(totalPrice.toFixed(2));
-    if (inputFormError === "" && !total.eq(ONE) && !isFuture) {
+    if (inputFormError === "" && !total.eq(ONE) && !isGrouped) {
       buttonError = INVALID_PRICE;
     }
     const minimumAmount = "100";

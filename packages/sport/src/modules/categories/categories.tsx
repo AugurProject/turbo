@@ -206,13 +206,13 @@ const EVENT_TYPE_OPTIONS = [
   },
   {
     id: 1,
-    label: "Futures",
+    label: "Grouped",
   },
 ];
 
-export const DailyFutureSwitch = ({ selection, setSelection }) => {
+export const DailyGroupedSwitch = ({ selection, setSelection }) => {
   return (
-    <article className={Styles.DailyFutureSwitch}>
+    <article className={Styles.DailyGroupedSwitch}>
       {EVENT_TYPE_OPTIONS.map(({ id, label }) => (
         <button
           key={`${label}-${id}`}
