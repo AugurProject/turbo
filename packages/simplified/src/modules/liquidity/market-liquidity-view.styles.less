@@ -154,7 +154,7 @@
 
   display: flex;
   flex-flow: column nowrap;
-  background: var(--primary-bg);
+  background: var(--quaternary-bg);
 
   > header {
     .text-16-bold;
@@ -263,6 +263,13 @@
   grid-gap: @size-8;
   align-items: flex-start;
   height: min-content;
+
+  > button:disabled {
+    .ThemeBorder;
+    
+    background: var(--tertiary-bg);
+    color: var(--secondary-text);
+  }
 }
 
 .Breakdown {
