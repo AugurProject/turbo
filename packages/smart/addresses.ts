@@ -143,14 +143,14 @@ export const addresses: AddressMapping = {
       {
         type: "MLB",
         subtype: "V3",
-        address: "0xB563d8578E073A47948038D1ADF795951caB897b",
+        address: "0xcBc0E622254412063f90829e8CfAA930BcA066Bb",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34",
         fetcher: "0xA91cdFE7e2750db2B227A68C990F036931208406",
         hasRewards: true,
         masterChef: "0xa976cb47C216Ee71089b10383bDEa4e230551458",
         description: "mlb",
-        version: "v1.4.0",
+        version: "FILL THIS OUT",
       },
       {
         type: "NBA",
