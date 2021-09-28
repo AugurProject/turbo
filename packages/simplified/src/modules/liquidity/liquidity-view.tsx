@@ -247,8 +247,14 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{endTimestamp ? getMarketEndtimeDate(endTimestamp) : "-"}</span>
       <span>{formattedTVL || "-"}</span>
       <span>{formattedApy || "-"}</span>
-      <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-      <span>{rewardAmount.formatted} wMATIC</span>
+      <span>
+        {userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}
+        {userHasLiquidity && <span>Init Value {formatCash(userHasLiquidity?.usdValue, currency).full}</span>}
+      </span>
+      <span>
+        {rewardAmount.formatted} wMATIC
+        {userHasLiquidity && <span>(${rewardsInUsd})</span>}
+      </span>
       <div>
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>

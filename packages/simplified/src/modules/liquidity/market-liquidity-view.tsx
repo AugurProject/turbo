@@ -485,7 +485,8 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
                         infoNumbers: [
                           {
                             label: "amount",
-                            value: `${formatCash(amount, USDC).formatted} USDC`,
+                            value: `${formatCash(amount, USDC).full}`,
+                            svg: USDCIcon,
                           },
                         ],
                       },
