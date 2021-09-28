@@ -165,9 +165,7 @@ const applyFiltersAndSort = (
           return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
         }
         case SORT_TYPES.TVL: {
-          return (bLiquidity || 0) > (aLiquidity || 0)
-            ? direction
-            : direction * -1;
+          return (bLiquidity || 0) > (aLiquidity || 0) ? direction : direction * -1;
         }
         case SORT_TYPES.LIQUIDITY: {
           return aUserLiquidity < bUserLiquidity ? direction : direction * -1;
@@ -235,6 +233,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       className={classNames(Styles.LiquidityMarketCard, {
         [Styles.HasUserLiquidity]: userHasLiquidity,
         [Styles.Expanded]: expanded,
+        [Styles.Final]: isfinal,
       })}
     >
       <MarketLink id={marketId} dontGoToMarket={false}>
@@ -274,6 +273,20 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
                 search: makeQuery({
                   [MARKET_ID_PARAM_NAME]: marketId,
                   [MARKET_LIQUIDITY]: hasLiquidity ? ADD : CREATE,
+                }),
+              })
+            }
+          />
+        ) : isfinal ? (
+          <PrimaryThemeButton
+            text="REMOVE LIQUIDITY"
+            small
+            action={() =>
+              history.push({
+                pathname: makePath(MARKET_LIQUIDITY),
+                search: makeQuery({
+                  [MARKET_ID_PARAM_NAME]: marketId,
+                  [MARKET_LIQUIDITY]: REMOVE,
                 }),
               })
             }
@@ -340,7 +353,15 @@ const LiquidityView = () => {
   const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
-  const rewardBalance = pendingRewards && Object.values(pendingRewards).length ? String(Object.values(pendingRewards).reduce((p: BigNumber, r: { balance: string, earnedBonus: string }) => (p.plus(r.balance).plus(r.earnedBonus)), ZERO)) : "0";
+  const rewardBalance =
+    pendingRewards && Object.values(pendingRewards).length
+      ? String(
+          Object.values(pendingRewards).reduce(
+            (p: BigNumber, r: { balance: string; earnedBonus: string }) => p.plus(r.balance).plus(r.earnedBonus),
+            ZERO
+          )
+        )
+      : "0";
   const handleFilterSort = () => {
     applyFiltersAndSort(Object.values(markets), setFilteredMarkets, transactions, lpTokens, pendingRewards, {
       filter,
