@@ -29,7 +29,7 @@ contract MLBMarketFactoryV3 is AbstractMarketFactoryV3, SportView, HasHeadToHead
         address _linkNode
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
-        Versioned("v1.2.0")
+        Versioned("v1.4.0")
         ManagedByLink(_linkNode)
         HasHeadToHeadMarket(HeadToHead, InvalidName)
     {}
