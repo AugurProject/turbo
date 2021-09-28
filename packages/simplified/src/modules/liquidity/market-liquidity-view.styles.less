@@ -27,7 +27,7 @@
       grid-gap: @size-4;
 
       > span:first-of-type {
-        .text-14-semi-bold;
+        .text-20-semi-bold;
 
         color: var(--primary-text);
         line-height: 140%;
@@ -200,7 +200,7 @@
       text-transform: uppercase;
     }
   }
-  
+
   > main {
     .PrimaryBottomBorderRadius;
 
@@ -218,7 +218,6 @@
         color: var(--primary-text);
       }
 
-
       > div:first-of-type {
         .ThemeBorder;
       }
@@ -230,7 +229,6 @@
     width: 100%;
 
     > main {
-
       grid-template-columns: 1fr;
 
       > div[class*="AmountInput"],
@@ -246,7 +244,6 @@
     width: 100%;
 
     > main {
-
       grid-template-columns: 1fr;
 
       > div.PriceInstructions,
@@ -316,6 +313,10 @@
 
     > a:first-of-type {
       padding: @size-12;
+
+      > span > span:first-of-type {
+        .text-14-semi-bold;
+      }
     }
   }
 
@@ -354,7 +355,7 @@
       .Breakdown {
         grid-row: 3;
       }
-    
+
       .ActionButtons {
         grid-row: 4;
       }
@@ -387,6 +388,4 @@
       }
     }
   }
-
- 
 }
