@@ -266,7 +266,7 @@
 
   > button:disabled {
     .ThemeBorder;
-    
+
     background: var(--tertiary-bg);
     color: var(--secondary-text);
   }
@@ -333,10 +333,15 @@
 
       &:not(.isRemove) {
         grid-template-columns: max-content max-content;
+        justify-content: space-between;
 
         > span {
+          .text-10-semi-bold;
+
           grid-column: 2;
           margin-left: 0;
+          height: @size-32;
+          align-items: center;
         }
       }
     }
