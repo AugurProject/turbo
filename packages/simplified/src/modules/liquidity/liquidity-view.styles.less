@@ -233,6 +233,20 @@
   }
 
   &.HasUserLiquidity {
+    > span:nth-of-type(4),
+    > span:nth-of-type(5) {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: flex-end;
+
+      > span {
+        .text-10-semi-bold;
+        display: flex;
+        flex-flow: row nowrap;
+        color: var(--secondary-text);
+      }
+    }
+
     > article:last-of-type {
       display: flex;
       grid-column: span 7;
@@ -420,6 +434,11 @@
         display: flex;
         margin-left: auto;
       }
+
+      &:nth-of-type(4),
+      &:nth-of-type(5) {
+        display: none;
+      }
     }
 
     > div:last-of-type {
@@ -461,6 +480,11 @@
       > span:nth-of-type(3) {
         margin-right: @size-12;
         justify-content: flex-end;
+      }
+
+      > span:nth-of-type(4),
+      > span:nth-of-type(5) {
+        display: none;
       }
 
       > a,

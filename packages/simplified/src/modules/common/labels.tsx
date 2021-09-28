@@ -69,8 +69,8 @@ export const AvailableLiquidityRewards = ({ balance }) => {
   const { loginAccount } = useUserStore();
   const [price, setPrice] = useState(1);
   getMaticUsdPrice(loginAccount?.library).then(setPrice);
-  const amount = formatToken(balance || "0");
-  const rewardsInUsd = formatCash(Number(balance || "0") * price).formatted;
+  const amount = formatToken(balance || "0", { decimals: 2 });
+  const rewardsInUsd = formatCash(Number(balance || "0") * price, USDC).formatted;
   return (
     <div className={Styles.AvailableLiquidityRewards}>
       <section>

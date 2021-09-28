@@ -16,6 +16,7 @@ import {
   useApprovalStatus,
   createBigNumber,
   useAppStatusStore,
+  useScrollToTopOnMount,
 } from "@augurproject/comps";
 import { AmmOutcome, MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "../stores/simplified";
@@ -108,12 +109,21 @@ export const MarketLiquidityView = () => {
   const {
     actions: { closeModal },
   } = useAppStatusStore();
+  const { balances } = useUserStore();
   const location = useLocation();
   const history = useHistory();
   const { [MARKET_ID_PARAM_NAME]: marketId, [MARKET_LIQUIDITY]: actionType = ADD } = parseQuery(location.search);
   const { markets } = useDataStore();
   const market = markets?.[marketId];
   const [selectedAction, setSelectedAction] = useState(actionType);
+  useScrollToTopOnMount();
+  const isRemove = selectedAction === REMOVE;
+  const shareBalance =
+    balances &&
+    balances.lpTokens &&
+    balances.lpTokens[market?.amm?.marketId] &&
+    balances.lpTokens[market?.amm?.marketId].balance;
+  const [amount, setAmount] = useState(isRemove ? shareBalance : "");
   if (!market) {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
@@ -126,24 +136,27 @@ export const MarketLiquidityView = () => {
   };
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
-      <BackBar {...{ market, selectedAction, setSelectedAction, BackToLPPageAction }} />
+      <BackBar {...{ market, selectedAction, setSelectedAction, BackToLPPageAction, setAmount }} />
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
-      <LiquidityForm {...{ market, selectedAction, setSelectedAction, BackToLPPageAction }} />
+      <LiquidityForm {...{ market, selectedAction, setSelectedAction, BackToLPPageAction, amount, setAmount }} />
       {selectedAction !== MINT_SETS && <LiquidityWarningFooter />}
     </div>
   );
 };
 
-const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction }) => {
+const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount }) => {
   const isMint = selectedAction === MINT_SETS;
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
       <TinyThemeButton
-        action={() => setSelectedAction(isMint ? ADD : MINT_SETS)}
+        action={() => {
+          setSelectedAction(isMint ? ADD : MINT_SETS);
+          !isMint && setAmount("");
+        }}
         text={isMint ? "Add/Remove Liquidity" : "Mint Complete Sets"}
         small
       />
@@ -213,7 +226,7 @@ const getMintBreakdown = (outcomes, amount) => {
   }));
 };
 
-const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPageAction }: LiquidityFormProps) => {
+const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPageAction, amount, setAmount }: LiquidityFormProps) => {
   const {
     account,
     balances,
@@ -244,9 +257,6 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
-
-  const [amount, setAmount] = useState(isRemove ? shareBalance : "");
-
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
   const approvalActionType = isRemove
@@ -332,9 +342,10 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
     (pendingRewards &&
-    now > pendingRewards.endEarlyBonusTimestamp &&
-    now <= pendingRewards.endBonusTimestamp &&
-    pendingRewards.pendingBonusRewards !== "0") || !rewards.created;
+      now > pendingRewards.endEarlyBonusTimestamp &&
+      now <= pendingRewards.endBonusTimestamp &&
+      pendingRewards.pendingBonusRewards !== "0") ||
+    !rewards.created;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
     : getCreateBreakdown(breakdown, market, balances, isRemove);
@@ -380,19 +391,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
           updateAmountError={() => null}
           error={hasAmountErrors}
         />
-        <div className={Styles.Breakdown}>
-          {isRemove && hasPendingBonus && (
-            <WarningBanner
-              className={CommonStyles.ErrorBorder}
-              title="Increasing or removing your liquidity on a market before the bonus time is complete will result in the loss of your bonus rewards."
-              subtitle={
-                "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
-              }
-            />
-          )}
-          <span>{isRemove ? "Remove All Liquidity" : "You'll Receive"}</span>
-          <InfoNumbers infoNumbers={infoNumbers} />
-        </div>
+
         <div className={Styles.PricesAndOutcomes}>
           <span className={Styles.PriceInstructions}>
             <span>{mustSetPrices ? "Set the Price" : "Current Prices"}</span>
@@ -413,124 +412,140 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
             isFutures={market?.isFuture}
           />
         </div>
-
-        <div className={Styles.ActionButtons}>
-          {!isApproved && (
-            <ApprovalButton
-              amm={amm}
-              cash={cash}
-              actionType={approvalActionType}
+        <section className={Styles.BreakdownAndAction}>
+          <div className={Styles.Breakdown}>
+            {isRemove && hasPendingBonus && (
+              <WarningBanner
+                className={CommonStyles.ErrorBorder}
+                title="Increasing or removing your liquidity on a market before the bonus time is complete will result in the loss of your bonus rewards."
+                subtitle={
+                  "In order to receive the bonus, your liquidity needs to remain unchanged until the bonus period is over."
+                }
+              />
+            )}
+            <span>{isRemove ? "Remove All Liquidity" : "You'll Receive"}</span>
+            <InfoNumbers infoNumbers={infoNumbers} />
+          </div>
+          <div className={Styles.ActionButtons}>
+            {!isApproved && (
+              <ApprovalButton
+                amm={amm}
+                cash={cash}
+                actionType={approvalActionType}
+                customClass={ButtonStyles.ReviewTransactionButton}
+              />
+            )}
+            <SecondaryThemeButton
+              action={() =>
+                setModal({
+                  type: MODAL_CONFIRM_TRANSACTION,
+                  title: isRemove ? "Remove Liquidity" : isMint ? "Mint Complete Sets" : "Add Liquidity",
+                  transactionButtonText: isRemove ? "Remove" : isMint ? "Mint" : "Add",
+                  transactionAction: ({ onTrigger = null, onCancel = null }) => {
+                    onTrigger && onTrigger();
+                    confirmAction({
+                      addTransaction,
+                      breakdown,
+                      setBreakdown,
+                      account,
+                      loginAccount,
+                      market,
+                      amount,
+                      onChainFee,
+                      outcomes,
+                      cash,
+                      amm,
+                      isRemove,
+                      estimatedLpAmount,
+                      afterSigningAction: BackToLPPageAction,
+                      onCancel,
+                      isMint,
+                    });
+                  },
+                  targetDescription: {
+                    market,
+                    label: isMint ? "Market" : "Pool",
+                  },
+                  footer: isRemove
+                    ? {
+                        text: REMOVE_FOOTER_TEXT,
+                      }
+                    : null,
+                  breakdowns: isRemove
+                    ? [
+                        {
+                          heading: "What you are removing:",
+                          infoNumbers: [
+                            {
+                              label: "Pooled USDC",
+                              value: `${formatCash(breakdown.amount, USDC).full}`,
+                              svg: USDCIcon,
+                            },
+                          ],
+                        },
+                        {
+                          heading: "What you'll recieve",
+                          infoNumbers,
+                        },
+                      ]
+                    : isMint
+                    ? [
+                        {
+                          heading: "What you are depositing",
+                          infoNumbers: [
+                            {
+                              label: "amount",
+                              value: `${formatCash(amount, USDC).full}`,
+                              svg: USDCIcon,
+                            },
+                          ],
+                        },
+                        {
+                          heading: "What you'll recieve",
+                          infoNumbers,
+                        },
+                      ]
+                    : [
+                        {
+                          heading: "What you are depositing",
+                          infoNumbers: [
+                            {
+                              label: "amount",
+                              value: `${formatCash(amount, USDC).full}`,
+                              svg: USDCIcon,
+                            },
+                          ],
+                        },
+                        {
+                          heading: "What you'll recieve",
+                          infoNumbers,
+                        },
+                        {
+                          heading: "Pool Details",
+                          infoNumbers: [
+                            {
+                              label: "Trading Fee",
+                              value: `${amm?.feeInPercent}%`,
+                            },
+                          ],
+                        },
+                      ],
+                })
+              }
+              disabled={!isApproved || inputFormError !== ""}
+              error={buttonError}
+              text={inputFormError === "" ? (buttonError ? buttonError : actionButtonText) : inputFormError}
+              subText={
+                buttonError === INVALID_PRICE
+                  ? lessThanMinPrice
+                    ? INVALID_PRICE_GREATER_THAN_SUBTEXT
+                    : INVALID_PRICE_ADD_UP_SUBTEXT
+                  : null
+              }
               customClass={ButtonStyles.ReviewTransactionButton}
             />
-          )}
-          <SecondaryThemeButton
-            action={() =>
-              setModal({
-                type: MODAL_CONFIRM_TRANSACTION,
-                title: isRemove ? "Remove Liquidity" : isMint ? "Mint Complete Sets" : "Add Liquidity",
-                transactionButtonText: isRemove ? "Remove" : isMint ? "Mint" : "Add",
-                transactionAction: ({ onTrigger = null, onCancel = null }) => {
-                  onTrigger && onTrigger();
-                  confirmAction({
-                    addTransaction,
-                    breakdown,
-                    setBreakdown,
-                    account,
-                    loginAccount,
-                    market,
-                    amount,
-                    onChainFee,
-                    outcomes,
-                    cash,
-                    amm,
-                    isRemove,
-                    estimatedLpAmount,
-                    afterSigningAction: BackToLPPageAction,
-                    onCancel,
-                    isMint,
-                  });
-                },
-                targetDescription: {
-                  market,
-                  label: isMint ? "Market" : "Pool",
-                },
-                footer: isRemove
-                  ? {
-                      text: REMOVE_FOOTER_TEXT,
-                    }
-                  : null,
-                breakdowns: isRemove
-                  ? [
-                      {
-                        heading: "What you are removing:",
-                        infoNumbers: [
-                          {
-                            label: "Pooled USDC",
-                            value: `${formatCash(breakdown.amount, USDC).full}`,
-                            svg: USDCIcon,
-                          },
-                        ],
-                      },
-                      {
-                        heading: "What you'll recieve",
-                        infoNumbers,
-                      },
-                    ]
-                  : isMint
-                  ? [
-                      {
-                        heading: "What you are depositing",
-                        infoNumbers: [
-                          {
-                            label: "amount",
-                            value: `${formatCash(amount, USDC).formatted} USDC`,
-                          },
-                        ],
-                      },
-                      {
-                        heading: "What you'll recieve",
-                        infoNumbers,
-                      },
-                    ]
-                  : [
-                      {
-                        heading: "What you are depositing",
-                        infoNumbers: [
-                          {
-                            label: "amount",
-                            value: `${formatCash(amount, USDC).formatted} USDC`,
-                          },
-                        ],
-                      },
-                      {
-                        heading: "What you'll recieve",
-                        infoNumbers,
-                      },
-                      {
-                        heading: "Pool Details",
-                        infoNumbers: [
-                          {
-                            label: "Trading Fee",
-                            value: `${amm?.feeInPercent}%`,
-                          },
-                        ],
-                      },
-                    ],
-              })
-            }
-            disabled={!isApproved || inputFormError !== ""}
-            error={buttonError}
-            text={inputFormError === "" ? (buttonError ? buttonError : actionButtonText) : inputFormError}
-            subText={
-              buttonError === INVALID_PRICE
-                ? lessThanMinPrice
-                  ? INVALID_PRICE_GREATER_THAN_SUBTEXT
-                  : INVALID_PRICE_ADD_UP_SUBTEXT
-                : null
-            }
-            customClass={ButtonStyles.ReviewTransactionButton}
-          />
-        </div>
+          </div>
+        </section>
       </main>
     </section>
   );
