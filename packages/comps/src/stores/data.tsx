@@ -27,7 +27,6 @@ export const DataStore = {
 
 export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children }: any) => {
   const { account } = useUserStore();
-  const defaultProvider = useRef(getDefaultProvider());
   const configCashes = getCashesInfo();
   const state = useData(configCashes);
   const {
@@ -51,7 +50,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { account: userAccount, loginAccount } = UserStore.get();
       const { isRpcDown } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-      const provider = defaultProvider?.current || loginAccount?.library
+      const provider = getDefaultProvider() || loginAccount?.library
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
       
       try {
