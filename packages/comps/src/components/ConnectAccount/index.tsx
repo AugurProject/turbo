@@ -75,7 +75,7 @@ const ConnectAccountButton = ({
       return; // No injected MM to check
     }
 
-    if ((ethereum && ethereum?.chainId === RPC_DATA?.chainId)) {
+    if (ethereum && ethereum?.chainId === RPC_DATA?.chainId) {
       setIsOnMatic(true);
     } else {
       setIsOnMatic(false);
@@ -113,7 +113,15 @@ const ConnectAccountButton = ({
       updateLoginAccount(activeWeb3);
       setIsWalletConnect(!!loginAccount?.connector?.walletConnectProvider);
     }
-  }, [loginAccount?.connector?.walletConnectProvider, account, activeWeb3.library, activeWeb3.connector, activeWeb3.chainId, activeWeb3.error, activeWeb3.active]);
+  }, [
+    loginAccount?.connector?.walletConnectProvider,
+    account,
+    activeWeb3.library,
+    activeWeb3.connector,
+    activeWeb3.chainId,
+    activeWeb3.error,
+    activeWeb3.active,
+  ]);
 
   let buttonProps = {
     action: () =>
