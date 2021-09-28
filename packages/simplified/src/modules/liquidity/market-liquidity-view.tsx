@@ -16,6 +16,7 @@ import {
   useApprovalStatus,
   createBigNumber,
   useAppStatusStore,
+  useScrollToTopOnMount,
 } from "@augurproject/comps";
 import { AmmOutcome, MarketInfo, Cash, LiquidityBreakdown, DataState } from "@augurproject/comps/build/types";
 import { useSimplifiedStore } from "../stores/simplified";
@@ -114,6 +115,7 @@ export const MarketLiquidityView = () => {
   const { markets } = useDataStore();
   const market = markets?.[marketId];
   const [selectedAction, setSelectedAction] = useState(actionType);
+  useScrollToTopOnMount();
   if (!market) {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
@@ -498,7 +500,8 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
                         infoNumbers: [
                           {
                             label: "amount",
-                            value: `${formatCash(amount, USDC).formatted} USDC`,
+                            value: `${formatCash(amount, USDC).full}`,
+                            svg: USDCIcon,
                           },
                         ],
                       },
