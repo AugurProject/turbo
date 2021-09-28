@@ -59,7 +59,7 @@ export const addresses: AddressMapping = {
       {
         type: "MLB",
         subtype: "V3",
-        address: "0x7d8c645B002252E38592db485E04973921828999",
+        address: "0xcBc0E622254412063f90829e8CfAA930BcA066Bb",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34",
         fetcher: "0xA91cdFE7e2750db2B227A68C990F036931208406",
