@@ -396,7 +396,7 @@ const TradingForm = ({ initialSelectedOutcome, amm }: TradingFormProps) => {
           dontFilterInvalid
           hasLiquidity={hasLiquidity}
           marketFactoryType={amm?.market?.marketFactoryType}
-          isFutures={amm?.market?.isFuture}
+          isGrouped={amm?.market?.isGrouped}
         />
         <AmountInput
           chosenCash={isBuy ? ammCash?.name : SHARES}

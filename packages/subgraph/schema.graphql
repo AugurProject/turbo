@@ -153,7 +153,7 @@ type NbaMarket @entity {
   initialOdds: [BigInt!]
 }
 
-type FuturesMarket @entity {
+type GroupedMarket @entity {
   id: ID!
   marketId: Market!
   marketFactory: String

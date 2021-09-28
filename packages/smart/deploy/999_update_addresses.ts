@@ -84,7 +84,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   await includeMarketFactory("NFL", sportsFetcher, "nfl");
   await includeMarketFactory("NBA", sportsFetcher, "nba");
   await includeMarketFactory("MLB", sportsFetcher, "mlb");
-  await includeMarketFactory("Futures", "FuturesFetcher", "futures");
+  await includeMarketFactory("Grouped", "GroupedFetcher", "grouped");
 
   const addresses: Addresses = {
     reputationToken,

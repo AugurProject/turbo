@@ -37,7 +37,7 @@ export const MARKET_TYPES = [
   "NBA",
   "MLB",
   "NFL",
-  "Futures",
+  "Grouped",
 ] as const;
 export type MarketFactoryType = typeof MARKET_TYPES[number];
 // V1 was the first
@@ -52,7 +52,7 @@ export type MarketFactoryContractName =
   | "MLBMarketFactoryV3"
   | "MMAMarketFactoryV3"
   | "CryptoMarketFactoryV3"
-  | "FuturesMarketFactoryV3"
+  | "GroupedMarketFactoryV3"
   | "TrustedMarketFactoryV3";
 export type FetcherContractName =
   | "NBAFetcher"
@@ -60,7 +60,7 @@ export type FetcherContractName =
   | "NFLFetcher"
   | "MLBFetcher"
   | "CryptoFetcher"
-  | "FuturesFetcher"
+  | "GroupedFetcher"
   | "";
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
@@ -72,7 +72,7 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   NBA: "NBAMarketFactoryV3",
   MMA: "MMAMarketFactoryV3",
   Crypto: "CryptoMarketFactoryV3",
-  Futures: "FuturesMarketFactoryV3",
+  Grouped: "GroupedMarketFactoryV3",
   Trusted: "TrustedMarketFactoryV3",
 };
 export const marketFactoryTypeToFetcherName: {
@@ -85,7 +85,7 @@ export const marketFactoryTypeToFetcherName: {
   MLB: "MLBFetcher",
   NBA: "NBAFetcher",
   Crypto: "CryptoFetcher",
-  Futures: "FuturesFetcher",
+  Grouped: "GroupedFetcher",
   Trusted: "",
 };
 export enum ChainId {

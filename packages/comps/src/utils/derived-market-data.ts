@@ -4,7 +4,7 @@ import * as SimpleSportsDailies from "./derived-simple-sport-dailies";
 import * as MmaDailies from "./derived-mma-dailies";
 import * as CryptoMarkets from "./derived-crypto-markets";
 import * as NflMarkets from "./derived-nfl-dailies";
-import * as FuturesMarkets from "./derived-futures-data";
+import * as GroupedMarkets from "./derived-grouped-data";
 import {
   DEFAULT_AMM_FEE_RAW,
   MARKET_FACTORY_TYPES,
@@ -21,7 +21,7 @@ import { convertOnChainCashAmountToDisplayCashAmount, sharesOnChainToDisplay } f
 import { MarketFactory } from "@augurproject/smart";
 import * as SportFetcher from "./fetcher-sport";
 import * as CryptoFetcher from "./fetcher-crypto";
-import * as FuturesFetcher from "./fetcher-future";
+import * as GroupedFetcher from "./fetcher-grouped";
 
 export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
   switch (marketInfo.marketFactoryType) {
@@ -37,8 +37,8 @@ export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
     case MARKET_FACTORY_TYPES.NFL: {
       return NflMarkets.getResolutionRules(marketInfo);
     }
-    case MARKET_FACTORY_TYPES.FUTURES: {
-      return FuturesMarkets.getResolutionRules(marketInfo);
+    case MARKET_FACTORY_TYPES.GROUPED: {
+      return GroupedMarkets.getResolutionRules(marketInfo);
     }
     default:
       return [];
@@ -84,8 +84,8 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any, marketFact
     case MARKET_FACTORY_TYPES.NFL: {
       return NflMarkets.deriveMarketInfo(market, marketData, marketFactoryType);
     }
-    case MARKET_FACTORY_TYPES.FUTURES: {
-      return FuturesMarkets.deriveMarketInfo(market, marketData);
+    case MARKET_FACTORY_TYPES.GROUPED: {
+      return GroupedMarkets.deriveMarketInfo(market, marketData);
     }
 
     default:
@@ -112,8 +112,8 @@ export const fetcherMarketsPerConfig = async (
       markets = await CryptoFetcher.fetchContractData(config, provider, account);
       break;
     }
-    case MARKET_FACTORY_TYPES.FUTURES: {
-      markets = await FuturesFetcher.fetchContractData(config, provider, account);
+    case MARKET_FACTORY_TYPES.GROUPED: {
+      markets = await GroupedFetcher.fetchContractData(config, provider, account);
       break;
     }
     default: {
@@ -242,7 +242,7 @@ const formatRewards = (marketData) => {
     rawTotalRewardsAccrued: String(marketData?.totalRewardsAccrued),
   };
 };
-export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails: any, config: MarketFactory) => {
+export const decodeGroupedMarketDetailsFetcher = (marketData: any, factoryDetails: any, config: MarketFactory) => {
   const {
     endTime,
     winner,
@@ -277,7 +277,7 @@ export const decodeFutureMarketDetailsFetcher = (marketData: any, factoryDetails
     turboId,
     marketIndex: turboId, // use this instead of turboId
     ...factoryDetails,
-    isFuture: true,
+    isGrouped: true,
     eventId,
     subMarkets: marketData.subMarkets,
     outcomes: [{}, {}], // placeholder

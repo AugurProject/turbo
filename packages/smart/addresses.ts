@@ -6,14 +6,14 @@ export const addresses: AddressMapping = {
     balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     marketFactories: [
       {
-        type: "Futures",
+        type: "Grouped",
         subtype: "V3",
         address: "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
         fetcher: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         hasRewards: false,
-        description: "futures",
+        description: "Grouped",
         version: "FILL THIS OUT",
       },
       {
@@ -28,14 +28,14 @@ export const addresses: AddressMapping = {
         version: "FILL THIS OUT",
       },
       {
-        type: "Futures",
+        type: "Grouped",
         subtype: "V3",
         address: "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
         collateral: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         ammFactory: "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690",
         fetcher: "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
         hasRewards: false,
-        description: "futures",
+        description: "Grouped",
         version: "FILL THIS OUT",
       },
       {

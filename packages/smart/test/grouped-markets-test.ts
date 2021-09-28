@@ -7,8 +7,8 @@ import {
   AMMFactory,
   Cash,
   FeePot,
-  FuturesFetcher,
-  FuturesMarketFactoryV3,
+  GroupedFetcher,
+  GroupedMarketFactoryV3,
   Grouped,
   GroupFetcher,
   MasterChef,
@@ -83,7 +83,7 @@ const invalidGroup: GroupSpec = {
   winningMarketIndex: MAX_UINT,
 };
 
-describe("Futures Markets", () => {
+describe("Grouped Markets", () => {
   beforeEach(async () => {
     await deployments.fixture();
   });
@@ -94,7 +94,7 @@ describe("Futures Markets", () => {
   });
 
   let feePot: FeePot;
-  let marketFactory: FuturesMarketFactoryV3;
+  let marketFactory: GroupedMarketFactoryV3;
   let ammFactory: AMMFactory;
   let masterChef: MasterChef;
   let collateral: Cash;
@@ -103,7 +103,7 @@ describe("Futures Markets", () => {
     ammFactory = (await ethers.getContract("AMMFactory")) as AMMFactory;
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
     collateral = (await ethers.getContract("Collateral")) as Cash;
-    marketFactory = (await ethers.getContract("FuturesMarketFactoryV3")) as FuturesMarketFactoryV3;
+    marketFactory = (await ethers.getContract("GroupedMarketFactoryV3")) as GroupedMarketFactoryV3;
   });
 
   it("deploys correctly", async () => {
@@ -307,11 +307,11 @@ describe("Futures Markets", () => {
 
       let fetcher: GroupFetcher;
       beforeEach("fetcher", async () => {
-        fetcher = (await ethers.getContract("FuturesFetcher")) as FuturesFetcher;
+        fetcher = (await ethers.getContract("GroupedFetcher")) as GroupedFetcher;
       });
 
       it("fetcher deployed correctly", async () => {
-        expect(await fetcher.marketType()).to.equal("Futures");
+        expect(await fetcher.marketType()).to.equal("Grouped");
         expect(await fetcher.version()).to.be.a("string");
       });
 
@@ -490,7 +490,7 @@ export async function groupDynamicBundleCheck(
   return [...(await Promise.all([...group.markets, group.invalidMarket].map(marketCheck)))];
 }
 
-async function initializeGroup(groupSpec: GroupSpec, marketFactory: FuturesMarketFactoryV3) {
+async function initializeGroup(groupSpec: GroupSpec, marketFactory: GroupedMarketFactoryV3) {
   await marketFactory.initializeGroup(
     groupSpec.id,
     groupSpec.name,
@@ -504,7 +504,7 @@ async function initializeGroup(groupSpec: GroupSpec, marketFactory: FuturesMarke
   }
 }
 
-async function resolveMarkets(groupSpec: GroupSpec, marketFactory: FuturesMarketFactoryV3) {
+async function resolveMarkets(groupSpec: GroupSpec, marketFactory: GroupedMarketFactoryV3) {
   const group = await marketFactory.getGroup(groupSpec.id);
 
   const maxIndex = group.markets.length; // technically max+1, but the math works out

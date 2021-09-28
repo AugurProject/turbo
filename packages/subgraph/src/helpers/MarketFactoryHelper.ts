@@ -1,6 +1,6 @@
 import {
   CryptoMarket,
-  FuturesMarket,
+  GroupedMarket,
   MlbMarket,
   MmaMarket,
   NbaMarket,
@@ -130,11 +130,11 @@ export function getOrCreateNbaMarket(id: string, createIfNotFound: boolean = tru
   return entity as NbaMarket;
 }
 
-export function getOrCreateFuturesMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): FuturesMarket {
-  let entity = FuturesMarket.load(id);
+export function getOrCreateGroupedMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): GroupedMarket {
+  let entity = GroupedMarket.load(id);
 
   if (entity == null && createIfNotFound) {
-    entity = new FuturesMarket(id);
+    entity = new GroupedMarket(id);
     let splitId = id.split("-");
     let MARKET_FACTORY_ID = 0;
     let MARKET_INDEX = 1;
@@ -146,5 +146,5 @@ export function getOrCreateFuturesMarket(id: string, createIfNotFound: boolean =
     }
   }
 
-  return entity as FuturesMarket;
+  return entity as GroupedMarket;
 }

@@ -13,7 +13,7 @@ interface EnvironmentAddresses extends Addresses {
   cryptoMarketFactoriesV1: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV2: EnvironmentMarketFactory[];
   cryptoMarketFactoriesV3: EnvironmentMarketFactory[];
-  futuresMarketFactoriesV3: EnvironmentMarketFactory[];
+  groupedMarketFactoriesV3: EnvironmentMarketFactory[];
   marketFactories: EnvironmentMarketFactory[];
   uniqueMarketFactories: EnvironmentMarketFactory[];
   uniqueMasterChefs: EnvironmentMarketFactory[];
@@ -34,7 +34,7 @@ const marketFactoryTypes: {
   CryptoV1: "cryptoMarketFactoriesV1",
   CryptoV2: "cryptoMarketFactoriesV2",
   CryptoV3: "cryptoMarketFactoriesV3",
-  FuturesV3: "futuresMarketFactoriesV3",
+  GroupedV3: "groupedMarketFactoriesV3",
   MLBV3: "mlbMarketFactoriesV3",
   MMALinkV1: "mmaMarketFactoriesV1",
   MMALinkV2: "mmaMarketFactoriesV2",
@@ -52,7 +52,7 @@ const marketFactoryGraphNames: {
   CryptoV1: "CryptoMarketFactoryV1",
   CryptoV2: "CryptoMarketFactoryV2",
   CryptoV3: "CryptoMarketFactoryV3",
-  FuturesV3: "FuturesMarketFactoryV3",
+  GroupedV3: "GroupedMarketFactoryV3",
   MLBV3: "MlbMarketFactoryV3",
   MMALinkV1: "MmaMarketFactoryV1",
   MMALinkV2: "MmaMarketFactoryV2",
