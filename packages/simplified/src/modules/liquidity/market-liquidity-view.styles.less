@@ -27,7 +27,7 @@
       grid-gap: @size-4;
 
       > span:first-of-type {
-        .text-14-semi-bold;
+        .text-20-semi-bold;
 
         color: var(--primary-text);
         line-height: 140%;
@@ -154,7 +154,7 @@
 
   display: flex;
   flex-flow: column nowrap;
-  background: var(--primary-bg);
+  background: var(--quaternary-bg);
 
   > header {
     .text-16-bold;
@@ -200,7 +200,7 @@
       text-transform: uppercase;
     }
   }
-  
+
   > main {
     .PrimaryBottomBorderRadius;
 
@@ -208,6 +208,7 @@
     display: grid;
     grid-gap: @size-32 @size-64;
     grid-template-columns: 0.595fr 0.405fr;
+    grid-auto-flow: column;
 
     > div[class*="AmountInput"] {
       border: none;
@@ -218,10 +219,17 @@
         color: var(--primary-text);
       }
 
-
       > div:first-of-type {
         .ThemeBorder;
       }
+    }
+
+    > section.BreakdownAndAction {
+      grid-row: span 2;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: min-content;
+      grid-gap: @size-32 0;
     }
   }
 
@@ -230,8 +238,8 @@
     width: 100%;
 
     > main {
-
       grid-template-columns: 1fr;
+      grid-auto-flow: dense;
 
       > div[class*="AmountInput"],
       > div.PriceInstructions,
@@ -246,8 +254,8 @@
     width: 100%;
 
     > main {
-
       grid-template-columns: 1fr;
+      grid-auto-flow: dense;
 
       > div.PriceInstructions,
       > div.PricesAndOutcomes {
@@ -263,6 +271,13 @@
   grid-gap: @size-8;
   align-items: flex-start;
   height: min-content;
+
+  > button:disabled {
+    .ThemeBorder;
+
+    background: var(--tertiary-bg);
+    color: var(--secondary-text);
+  }
 }
 
 .Breakdown {
@@ -309,6 +324,10 @@
 
     > a:first-of-type {
       padding: @size-12;
+
+      > span > span:first-of-type {
+        .text-14-semi-bold;
+      }
     }
   }
 
@@ -326,10 +345,15 @@
 
       &:not(.isRemove) {
         grid-template-columns: max-content max-content;
+        justify-content: space-between;
 
         > span {
+          .text-10-semi-bold;
+
           grid-column: 2;
           margin-left: 0;
+          height: @size-32;
+          align-items: center;
         }
       }
     }
@@ -338,25 +362,10 @@
       grid-template-columns: 1fr;
       grid-gap: @size-24;
       padding: @size-16;
+      grid-auto-flow: dense;
 
-      .Breakdown {
-        grid-row: 3;
-      }
-    
-      .ActionButtons {
-        grid-row: 4;
-      }
-    }
-
-    &.isRemove {
-      > main {
-        > div.Breakdown {
-          grid-row: 1;
-        }
-
-        > div.ActionButtons {
-          grid-row: 2;
-        }
+      > section.BreakdownAndAction {
+        grid-gap: @size-24;
       }
     }
 
@@ -365,16 +374,7 @@
         > div[class*="AmountInput"] {
           grid-row: 1;
         }
-        > div.Breakdown {
-          grid-row: 2;
-        }
-
-        > div.ActionButtons {
-          grid-row: 3;
-        }
       }
     }
   }
-
- 
 }
