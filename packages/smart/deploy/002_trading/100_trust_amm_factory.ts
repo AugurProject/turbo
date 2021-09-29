@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { makeSigner } from "../tasks";
-import { MasterChef__factory } from "../typechain";
+import { makeSigner } from "../../tasks";
+import { MasterChef__factory } from "../../typechain";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments } = hre;

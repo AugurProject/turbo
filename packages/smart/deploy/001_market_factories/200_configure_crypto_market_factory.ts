@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { PriceFeedConfig } from "../tasks";
-import { CryptoMarketFactoryV3, CryptoMarketFactoryV3__factory } from "../typechain";
-import { PRICE_FEEDS } from "../src";
+import { PriceFeedConfig } from "../../tasks";
+import { CryptoMarketFactoryV3, CryptoMarketFactoryV3__factory } from "../../typechain";
+import { PRICE_FEEDS } from "../../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

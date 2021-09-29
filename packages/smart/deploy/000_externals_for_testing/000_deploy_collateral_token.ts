@@ -13,19 +13,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       log: true,
     });
   }
-
-  if (!(await deployments.getOrNull("Reputation"))) {
-    await deployments.deploy("Reputation", {
-      // contract: "Cash",
-      contract: "PlaceholderReputationToken",
-      from: deployer,
-      args: ["PlaceholderReputationToken", "PlaceholderReputationToken", 18],
-      // args: ["REPv2", "REPv2", 18],
-      log: true,
-    });
-  }
 };
 
-func.tags = ["Tokens"];
+func.tags = ["Tokens", "CollateralToken", "Test"];
 
 export default func;
