@@ -125,6 +125,12 @@
   color: var(--failed);
 }
 
+:root[theme="DARK"] {
+  .TradingForm {
+    .ThemeBorder;
+  }
+}
+
 @media @breakpoint-mobile-tiny {
   .TradingForm {
     filter: unset;
@@ -150,6 +156,10 @@
         display: flex;
         margin-left: @size-24;
         padding: @size-12 @size-16;
+
+        > svg > path {
+          fill: var(--primary-text);
+        }
       }
     }
 
