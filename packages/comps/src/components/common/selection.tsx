@@ -11,9 +11,10 @@ import {
   UsdIcon,
   SimpleCheck,
 } from "./icons";
-import { USDC, ETH, COMING_SOON } from "../../utils/constants";
+import { USDC, ETH, COMING_SOON, THEME_OPTIONS } from "../../utils/constants";
 import { TinyThemeButton } from "./buttons";
 import { generateTooltip } from "./labels";
+import { useUserStore } from "../../stores/user";
 
 export interface NameValuePair {
   label: string;
@@ -295,7 +296,7 @@ export const MultiButtonSelection = ({ options, selection, setSelection }) => (
       <li key={`option-${id}`}>
         <TinyThemeButton
           text={label}
-          selected={selection === id }
+          selected={selection === id}
           action={() => selection !== id && setSelection(id)}
           noHighlight
         />
@@ -303,3 +304,36 @@ export const MultiButtonSelection = ({ options, selection, setSelection }) => (
     ))}
   </ul>
 );
+
+export interface ThemeSettingsLabelProps {
+  theme: string | null;
+  updateSettings: (any, string) => void;
+  wrapperCustomClass?: any;
+  buttonCustomClass?: any;
+};
+
+export const ThemeSettingsLabel = ({ theme, updateSettings, wrapperCustomClass = null, buttonCustomClass = null }: ThemeSettingsLabelProps) => {
+  const { account } = useUserStore();
+  return (
+    <>
+      <label htmlFor="Theme">Theme</label>
+      <div className={wrapperCustomClass} id="Theme">
+        <TinyThemeButton
+          customClass={{ [buttonCustomClass]: theme === THEME_OPTIONS.LIGHT }}
+          text={THEME_OPTIONS.LIGHT}
+          action={() => updateSettings({ theme: THEME_OPTIONS.LIGHT }, account)}
+        />
+        <TinyThemeButton
+          customClass={{ [buttonCustomClass]: theme === THEME_OPTIONS.DARK }}
+          text={THEME_OPTIONS.DARK}
+          action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
+        />
+        <TinyThemeButton
+          customClass={{ [buttonCustomClass]: theme === THEME_OPTIONS.AUTO }}
+          text={THEME_OPTIONS.AUTO}
+          action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
+        />
+      </div>
+    </>
+  );
+};

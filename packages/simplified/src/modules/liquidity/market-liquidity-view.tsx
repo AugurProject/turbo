@@ -179,6 +179,8 @@ interface LiquidityFormProps {
   selectedAction: string;
   setSelectedAction: Function;
   BackToLPPageAction: () => void;
+  amount: string;
+  setAmount: (string) => void;
 }
 
 const orderMinAmountsForDisplay = (

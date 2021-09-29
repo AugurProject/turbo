@@ -99,6 +99,35 @@
   }
 }
 
+.ThemeSelection {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-gap: @size-4;
+
+  &.ThemeSelection {
+    grid-template-columns: auto auto auto;
+  }
+
+  > button {
+    .text-12-semi-bold;
+    .ThemeBorder;
+
+    background: transparent;
+    color: var(--secondary-text);
+
+    &.Active {
+      border-color: var(--primary-text);
+      color: var(--primary-text);
+    }
+  }
+}
+
+:root[theme="DARK"] {
+  .TopNav > section:first-of-type > a > section > svg > g > path:not(:first-of-type) {
+    fill: var(--primary-text);
+  }
+}
+
 @media @breakpoint-tiny {
   .TopNav {
     &.OnMarketsView {

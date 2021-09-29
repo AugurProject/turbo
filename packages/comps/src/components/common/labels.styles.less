@@ -632,7 +632,6 @@
   }
 }
 
-
 .WarningBanner {
   border-radius: @size-8;
   display: grid;
@@ -661,6 +660,10 @@
 
   > div:nth-of-type(2) {
     cursor: pointer;
+  }
+
+  > div:last-of-type > svg > path {
+    fill: var(--primary-text);
   }
 }
 

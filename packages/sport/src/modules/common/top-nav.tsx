@@ -5,10 +5,9 @@ import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { useSportsStore } from "../stores/sport";
 import {
-  Icons,
   useAppStatusStore,
   useUserStore,
-  ButtonComps,
+  Components,
   ConnectAccount as CompsConnectAccount,
   useLocalStorage,
   PathUtils,
@@ -17,20 +16,31 @@ import {
   LinkLogo,
   Toasts,
   Formatter,
-  LabelComps,
-  Links,
 } from "@augurproject/comps";
 import { useBetslipStore } from "../stores/betslip";
-import { ACTIVE_BETS, THEME_OPTIONS } from "../constants";
+import { ACTIVE_BETS } from "../constants";
 import { CategoriesArea } from "../categories/categories";
-const { MarketsLink } = Links;
-const { GearIcon, SharpThreeLinesIcon, SimpleCheck, XIcon } = Icons;
-const { TinyThemeButton } = ButtonComps;
-const { generateTooltip } = LabelComps;
+const {
+  ButtonComps: { TinyThemeButton },
+  LabelComps: { generateTooltip },
+  Icons: { GearIcon, SharpThreeLinesIcon, SimpleCheck, XIcon },
+  Links: { MarketsLink },
+  SelectionComps: { ThemeSettingsLabel },
+} = Components;
 const { ConnectAccount } = CompsConnectAccount;
 const { parsePath, makePath } = PathUtils;
 const { formatCash } = Formatter;
-const { MARKET, MARKETS, PORTFOLIO, SIDEBAR_TYPES, TWELVE_HOUR_TIME, USDC, TIME_TYPE, ODDS_TYPE } = Constants;
+const {
+  MARKET,
+  MARKETS,
+  PORTFOLIO,
+  SIDEBAR_TYPES,
+  TWELVE_HOUR_TIME,
+  USDC,
+  TIME_TYPE,
+  ODDS_TYPE,
+  THEME_OPTIONS,
+} = Constants;
 
 const BETSIZE_ODDS_TO_DISPLAY_TIP = `The dollar amount shown under each odd represents the amount that can be taken at the odds shown. You can take greater than this amount, but it will impact the odds. To increase the amount, change the percentage. For example: 10% is displaying the odds you would receive if wanting to buy up to 10% of the available liquidity.`;
 
@@ -185,24 +195,14 @@ export const SettingsButton = () => {
             </div>
           </li>
           <li>
-            <label htmlFor="Theme">Theme</label>
-            <div className={Styles.ThemeSelection} id="Theme">
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.LIGHT }}
-                text={THEME_OPTIONS.LIGHT}
-                action={() => updateSettings({ theme: THEME_OPTIONS.LIGHT }, account)}
-              />
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
-                text={THEME_OPTIONS.DARK}
-                action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
-              />
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
-                text={THEME_OPTIONS.AUTO}
-                action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
-              />
-            </div>
+            <ThemeSettingsLabel
+              {...{
+                theme,
+                updateSettings,
+                wrapperCustomClass: Styles.ThemeSelection,
+                buttonCustomClass: Styles.Active,
+              }}
+            />
           </li>
         </ul>
       )}
@@ -399,7 +399,7 @@ const MobileMenu = () => {
     actions: { setSidebar },
   } = useSportsStore();
   const location = useLocation();
-  const path = parsePath(location.pathname)[0]; 
+  const path = parsePath(location.pathname)[0];
   const closeSidebar = () => setSidebar(null);
   return (
     <section className={classNames(Styles.MobileMenu, { [Styles.Open]: sidebarType === SIDEBAR_TYPES.NAVIGATION })}>

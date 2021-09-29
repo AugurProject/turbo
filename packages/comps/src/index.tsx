@@ -63,6 +63,7 @@ import {
   arrayToKeyedObjectByProp,
   useApprovalStatus,
   isMarketFinal,
+  useHandleTheming,
 } from "./stores/utils";
 import * as _ApprovalHooks from "./stores/use-approval-callback";
 import * as _GraphClient from "./apollo/client";
@@ -108,6 +109,7 @@ export const Stores = {
     arrayToKeyedObject,
     arrayToKeyedObjectByProp,
     isMarketFinal,
+    useHandleTheming,
   },
   Constants: _StoreConstants,
 };
@@ -177,6 +179,7 @@ export {
   useApprovalStatus,
   useDataStore,
   GraphDataStore,
+  useHandleTheming,
   DataStore,
   createBigNumber,
   Formatter,

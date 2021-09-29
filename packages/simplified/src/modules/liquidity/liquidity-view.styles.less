@@ -108,10 +108,16 @@
         align-items: center;
         justify-content: flex-end;
         cursor: pointer;
+        color: var(--primary-text);
 
         > svg:not([name="MaticIcon"]) {
           transform: rotate(90deg);
           margin-right: @size-4;
+
+          > path {
+            stroke: var(--primary-text);
+            fill: var(--primary-text);
+          }
         }
 
         > svg[name="MaticIcon"] {

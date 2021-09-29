@@ -4,7 +4,7 @@
   .ThemeBorder;
   .FixedBoxShadow;
 
-  align-items: baseline;
+  // align-items: baseline;
   background: var(--primary-bg);
   display: grid;
   grid-gap: @size-8;
@@ -131,6 +131,10 @@
     > svg {
       height: @size-12;
       width: @size-12;
+
+      > path {
+        fill: var(--primary-text);
+      }
     }
   }
 

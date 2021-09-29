@@ -17,6 +17,7 @@ export const DEFAULT_SIMPLIFIED_STATE = {
     showLiquidMarkets: false,
     showResolvedPositions: false,
     timeFormat: Constants.TWELVE_HOUR_TIME,
+    theme: Constants.THEME_OPTIONS.LIGHT,
   },
 };
 
