@@ -2,11 +2,20 @@ import { useEffect, useState, useRef } from "react";
 import { checkIsERC20Approved, checkIsERC1155Approved, checkAllowance } from "./use-approval-callback";
 import { Cash, MarketInfo, TransactionDetails, AmmExchange } from "../types";
 import { PARA_CONFIG } from "./constants";
-import { ETH, TX_STATUS, ApprovalAction, ApprovalState, MARKET_STATUS } from "../utils/constants";
+import {
+  ETH,
+  TX_STATUS,
+  ApprovalAction,
+  ApprovalState,
+  MARKET_STATUS,
+  TURBO_THEME_TYPES,
+  THEME_OPTIONS,
+} from "../utils/constants";
 import { useAppStatusStore } from "./app-status";
 import { useUserStore } from "./user";
 import { getUserBalances, getRewardsContractAddress } from "../utils/contract-calls";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
+import { useDataStore } from "./data";
 
 const isAsync = (obj) =>
   !!obj && (typeof obj === "object" || typeof obj === "function") && obj.constructor.name === "AsyncFunction";
@@ -280,3 +289,52 @@ export function useApprovalStatus({
 
   return isApproved;
 }
+
+export const setHTMLTheme = (theme) => document.documentElement.setAttribute("THEME", theme);
+
+export const getHTMLTheme = () => document.documentElement.getAttribute("THEME");
+
+export interface ThemeType {
+  DARK: string;
+  LIGHT: string | null;
+}
+
+export interface SettingsThemeStateType {
+  settings: {
+    theme: string | null;
+  };
+}
+
+export const useHandleTheming = (state: SettingsThemeStateType, themeTypes: ThemeType = TURBO_THEME_TYPES) => {
+  const {
+    settings: { theme },
+  } = state;
+  const { blocknumber } = useDataStore();
+
+  useEffect(() => {
+    const htmlTheme = getHTMLTheme();
+
+    switch (theme) {
+      case THEME_OPTIONS.AUTO: {
+        const date = new Date();
+        const curHour = date.getHours();
+        const expectedTheme = curHour >= 7 && curHour < 19 ? themeTypes.LIGHT : themeTypes.DARK;
+        if (htmlTheme !== expectedTheme) {
+          setHTMLTheme(expectedTheme);
+        }
+        break;
+      }
+      case THEME_OPTIONS.DARK: {
+        if (htmlTheme !== themeTypes.DARK) {
+          setHTMLTheme(themeTypes.DARK);
+        }
+        break;
+      }
+      default:
+        if (htmlTheme !== themeTypes.LIGHT) {
+          setHTMLTheme(themeTypes.LIGHT);
+        }
+        break;
+    }
+  }, [blocknumber, theme]);
+};
