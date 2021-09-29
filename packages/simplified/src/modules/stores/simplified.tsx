@@ -4,7 +4,7 @@ import { useSimplified } from "../stores/simplified-hooks";
 import { useUserStore, Stores } from "@augurproject/comps";
 
 const {
-  Utils: { getSavedUserInfo },
+  Utils: { getSavedUserInfo, useHandleTheming },
 } = Stores;
 
 const { SETTINGS } = SIMPLIFIED_STATE_KEYS;
@@ -38,6 +38,7 @@ export const SimplifiedProvider = ({ children }: any) => {
   const state = useSimplified();
 
   useLoadUserSettings();
+  useHandleTheming(state);
 
   if (!SimplifiedStore.actionsSet) {
     SimplifiedStore.actions = state.actions;

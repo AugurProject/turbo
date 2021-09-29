@@ -6,14 +6,14 @@ import {
   LOCAL_STORAGE_SETTINGS_THEME,
   MarketEvent,
 } from "./constants";
-import { THEME_OPTIONS, MIN_LIQUIDITY_AMOUNT } from "../constants";
+import { MIN_LIQUIDITY_AMOUNT } from "../constants";
 import { useSport } from "./sport-hooks";
 import { useUserStore, Stores, useDataStore, Constants } from "@augurproject/comps";
 import { MarketInfo } from "@augurproject/comps/build/types";
 const { SPORTS_MARKET_TYPE, SPORTS_THEME_TYPES } = Constants;
 
 const {
-  Utils: { getSavedUserInfo },
+  Utils: { getSavedUserInfo, useHandleTheming },
 } = Stores;
 
 const { SETTINGS } = SPORT_STATE_KEYS;
@@ -117,56 +117,12 @@ const useMarketEvents = () => {
   }, [eventIds.length, numMarkets]);
 };
 
-// const HTMLtheme = document.documentElement.getAttribute('THEME');
-// if (HTMLtheme && THEMES[HTMLtheme]) {
-//   defaultState.theme = document.documentElement.getAttribute('THEME');
-// }
-
-export const setHTMLTheme = (theme) => document.documentElement.setAttribute("THEME", theme);
-
-export const getHTMLTheme = () => document.documentElement.getAttribute("THEME");
-
-const useHandleTheming = (state) => {
-  const {
-    settings: { theme },
-  } = state;
-  const { blocknumber } = useDataStore();
-
-  useEffect(() => {
-    const htmlTheme = getHTMLTheme();
-
-    switch (theme) {
-      case THEME_OPTIONS.AUTO: {
-        const date = new Date();
-        const curHour = date.getHours();
-        const expectedTheme =
-          curHour >= 7 && curHour < 19 ? SPORTS_THEME_TYPES.SPORT_LIGHT : SPORTS_THEME_TYPES.SPORT_DARK;
-        if (htmlTheme !== expectedTheme) {
-          setHTMLTheme(expectedTheme);
-        }
-        break;
-      }
-      case THEME_OPTIONS.DARK: {
-        if (htmlTheme !== SPORTS_THEME_TYPES.SPORT_DARK) {
-          setHTMLTheme(SPORTS_THEME_TYPES.SPORT_DARK);
-        }
-        break;
-      }
-      default:
-        if (htmlTheme !== SPORTS_THEME_TYPES.SPORT_LIGHT) {
-          setHTMLTheme(SPORTS_THEME_TYPES.SPORT_LIGHT);
-        }
-        break;
-    }
-  }, [blocknumber, theme]);
-};
-
 export const SportProvider = ({ children }: any) => {
   const state = useSport();
 
   useLoadUserSettings();
   useMarketEvents();
-  useHandleTheming(state);
+  useHandleTheming(state, SPORTS_THEME_TYPES);
 
   if (!SportStore.actionsSet) {
     SportStore.actions = state.actions;
