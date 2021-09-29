@@ -203,24 +203,6 @@ export const SettingsButton = () => {
                 buttonCustomClass: Styles.Active,
               }}
             />
-            {/* <label htmlFor="Theme">Theme</label>
-            <div className={Styles.ThemeSelection} id="Theme">
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.LIGHT }}
-                text={THEME_OPTIONS.LIGHT}
-                action={() => updateSettings({ theme: THEME_OPTIONS.LIGHT }, account)}
-              />
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.DARK }}
-                text={THEME_OPTIONS.DARK}
-                action={() => updateSettings({ theme: THEME_OPTIONS.DARK }, account)}
-              />
-              <TinyThemeButton
-                customClass={{ [Styles.Active]: theme === THEME_OPTIONS.AUTO }}
-                text={THEME_OPTIONS.AUTO}
-                action={() => updateSettings({ theme: THEME_OPTIONS.AUTO }, account)}
-              />
-            </div> */}
           </li>
         </ul>
       )}

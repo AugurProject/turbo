@@ -20,13 +20,13 @@ const {
   LinkLogo,
   ConnectAccount: { ConnectAccount },
   Icons: { GearIcon, ThreeLinesIcon },
-  SelectionComps: { ToggleSwitch },
+  SelectionComps: { ToggleSwitch, ThemeSettingsLabel },
   ButtonComps: { SecondaryThemeButton },
 } = Components;
 
 export const SettingsButton = () => {
   const {
-    settings: { showResolvedPositions, showLiquidMarkets, timeFormat },
+    settings: { showResolvedPositions, showLiquidMarkets, timeFormat, theme },
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
@@ -80,6 +80,16 @@ export const SettingsButton = () => {
               setToggle={() =>
                 updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
               }
+            />
+          </li>
+          <li>
+            <ThemeSettingsLabel
+              {...{
+                theme,
+                updateSettings,
+                wrapperCustomClass: Styles.ThemeSelection,
+                buttonCustomClass: Styles.Active,
+              }}
             />
           </li>
         </ul>
