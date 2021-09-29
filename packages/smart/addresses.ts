@@ -57,15 +57,15 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
-        type: "Futures",
+        type: "Grouped",
         subtype: "V3",
-        address: "0x30c31A7468e640633F2FA6a9C8fbb87648Cf09f3",
+        address: "0x13dBC7701efe11a0BEa101F744e789984C846746",
         collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
         ammFactory: "0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34",
-        fetcher: "0x69aA6d9a98C5ac818124087f76e2F09Ec0DA24fA",
+        fetcher: "0x73F881ba82bFF3a26c7F542AaC1667990eDBC0D4",
         hasRewards: true,
         masterChef: "0xa976cb47C216Ee71089b10383bDEa4e230551458",
-        description: "futures",
+        description: "grouped",
         version: "FILL THIS OUT",
       },
       {
