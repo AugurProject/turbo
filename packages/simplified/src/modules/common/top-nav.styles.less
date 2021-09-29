@@ -122,6 +122,12 @@
   }
 }
 
+:root[theme="DARK"] {
+  .TopNav > section:first-of-type > a > section > svg > g > path:not(:first-of-type) {
+    fill: var(--primary-text);
+  }
+}
+
 @media @breakpoint-tiny {
   .TopNav {
     &.OnMarketsView {
