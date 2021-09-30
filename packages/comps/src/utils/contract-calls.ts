@@ -82,6 +82,7 @@ import {
   instantiateMarketFactory,
   MarketFactory,
   MarketFactoryContract,
+  MasterChef,
   MasterChef__factory,
 } from "@augurproject/smart";
 import { fetcherMarketsPerConfig, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
@@ -123,9 +124,10 @@ export async function mintCompleteSets(
   const marketFactoryContract = getMarketFactoryContract(provider, marketFactoryData, account);
   const totalAmount = sharesDisplayToOnChain(amount).toFixed();
   console.log("mint", marketFactoryContract.address, amm?.market?.turboId, totalAmount, account);
-  const tx = await marketFactoryContract
-    .mintShares(amm?.market?.turboId, totalAmount, account)
-    .catch((e) => console.error(e));
+  const tx = await marketFactoryContract.mintShares(amm?.market?.turboId, totalAmount, account).catch((e) => {
+    console.error(e);
+    throw e;
+  });
 
   return tx;
 }
@@ -314,10 +316,16 @@ export async function getRemoveLiquidity(
   results = rewardContractAddress
     ? await rewardContract.callStatic
         .removeLiquidity(amm.ammFactoryAddress, market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
-        .catch((e) => console.log(e))
+        .catch((e) => {
+          console.log(e);
+          throw e;
+        })
     : await ammFactory.callStatic
         .removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account) // uint256[] calldata minAmountsOut values be?
-        .catch((e) => console.log(e));
+        .catch((e) => {
+          console.log(e);
+          throw e;
+        });
 
   const balances = results ? results?._balances || results[1] : [];
   collateralOut = results ? results?._collateralOut || results[0] || "0" : collateralOut;
@@ -361,7 +369,10 @@ export async function estimateLPTokenInShares(
       lpBalance,
       outcomes.map((o) => "0")
     ) // uint256[] calldata minAmountsOut values be?
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      console.log(e);
+      throw e;
+    });
 
   if (!results) return null;
   const minAmounts = results.map((v) => ({ amount: lpTokensOnChainToDisplay(String(v)).toFixed() }));
@@ -726,7 +737,10 @@ export const getUserBalances = async (
     totalCurrentLiquidityUsd: "0",
   };
 
-  if (!account || !provider) return userBalances;
+  if (!account || !provider) {
+    console.log("returning default");
+    return userBalances;
+  }
 
   const userMarketTransactions = getUserTransactions(transactions as AllMarketsTransactions, account);
   const userClaims = transactions as UserClaimTransactions;
@@ -1199,13 +1213,12 @@ export const getLPCurrentValue = async (
 ): Promise<string> => {
   const { ammOutcomes } = amm;
   if (!ammOutcomes || ammOutcomes.length === 0 || displayBalance === "0") return null;
-  const estimate = await estimateLPTokenInShares(
-    amm.id,
-    provider,
-    displayBalance,
-    account,
-    amm.ammOutcomes
-  ).catch((error) => console.error("getLPCurrentValue estimation error", error));
+  const estimate = await estimateLPTokenInShares(amm.id, provider, displayBalance, account, amm.ammOutcomes).catch(
+    (e) => {
+      console.error("getLPCurrentValue estimation error", e);
+      throw e;
+    }
+  );
 
   if (estimate && estimate.minAmountsRaw) {
     const totalValueRaw = ammOutcomes.reduce(
@@ -1515,7 +1528,7 @@ const getAmmFactoryContract = (library: Web3Provider, address: string, account?:
   return AMMFactory__factory.connect(address, getProviderOrSigner(library, account));
 };
 
-const getRewardContract = (library: Web3Provider, address: string, account?: string): AMMFactory => {
+const getRewardContract = (library: Web3Provider, address: string, account?: string): MasterChef => {
   return MasterChef__factory.connect(address, getProviderOrSigner(library, account));
 };
 
