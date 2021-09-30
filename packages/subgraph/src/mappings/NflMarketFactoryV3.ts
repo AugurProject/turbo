@@ -47,10 +47,10 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): NflMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): NflMarketFactory__getMarketResultValue0Struct | null {
   let contract = NflMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: NflMarketFactory__getMarketResultValue0Struct;
+  let market: NflMarketFactory__getMarketResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
@@ -74,7 +74,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 
   let entity = getOrCreateNflMarket(marketId, true, false);
   getOrCreateMarket(marketId);
-  let market = getMarket(event.address, event.params.id);
+  // let market = getMarket(event.address, event.params.id);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
@@ -90,7 +90,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   // entity.awayTeamId = market.awayTeamId;
   // entity.overUnderTotal = market.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
-  entity.initialOdds = market.initialOdds;
+  entity.initialOdds = event.params.initialOdds;
 
   entity.save();
 }

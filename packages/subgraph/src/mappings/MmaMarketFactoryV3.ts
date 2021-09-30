@@ -52,10 +52,10 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): MmaMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): MmaMarketFactory__getMarketResultValue0Struct | null {
   let contract = MmaMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: MmaMarketFactory__getMarketResultValue0Struct;
+  let market: MmaMarketFactory__getMarketResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }

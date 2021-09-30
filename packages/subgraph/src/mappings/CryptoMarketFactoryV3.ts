@@ -52,20 +52,20 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketResultValue0Struct | null {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: CryptoMarketFactory__getMarketResultValue0Struct;
+  let market: CryptoMarketFactory__getMarketResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
   return market;
 }
 
-function getMarketDetails(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketDetailsResultValue0Struct {
+function getMarketDetails(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketDetailsResultValue0Struct | null {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarketDetails(marketId);
-  let marketDetails: CryptoMarketFactory__getMarketDetailsResultValue0Struct;
+  let marketDetails: CryptoMarketFactory__getMarketDetailsResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     marketDetails = tryGetMarket.value;
   }
@@ -83,16 +83,22 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
-  entity.timestamp = market.creationTimestamp;
   entity.marketFactory = event.address.toHexString();
   entity.marketIndex = event.params.id.toString();
   // entity.creator = event.params.creator.toHexString();
-  entity.endTime = bigIntMillisToSeconds(market.resolutionTimestamp);
-  entity.marketType = marketDetails.marketType;
-  entity.coinIndex = marketDetails.coinIndex;
-  entity.creationPrice = marketDetails.creationPrice;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = event.params.initialOdds;
+
+  if (market) {
+    entity.timestamp = market.creationTimestamp;
+    entity.endTime = bigIntMillisToSeconds(market.resolutionTimestamp);
+  }
+
+  if (marketDetails) {
+    entity.marketType = marketDetails.marketType;
+    entity.coinIndex = marketDetails.coinIndex;
+    entity.creationPrice = marketDetails.creationPrice;
+  }
 
   entity.save();
 }
