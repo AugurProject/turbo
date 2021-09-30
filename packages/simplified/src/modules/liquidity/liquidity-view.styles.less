@@ -14,7 +14,7 @@
 .LiquidityView {
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-auto-rows: 0fr 0fr 0fr 0fr 1fr;
+  grid-auto-rows: 0fr;
   grid-gap: @size-16;
   padding: @size-40 @size-88 @size-48;
 
@@ -72,6 +72,7 @@
       grid-template-columns: 0fr 0fr;
       grid-gap: @size-8;
       cursor: pointer;
+      margin: 0;
     }
 
     > div:last-of-type {
@@ -145,6 +146,14 @@
       grid-auto-columns: 1fr;
       grid-gap: @size-8;
     }
+  }
+
+  > ul + div {
+    margin-bottom: 0;
+  }
+
+  > div + section {
+    margin-top: @size-8;
   }
 
   > div[class*="Pagination"] {
@@ -390,6 +399,10 @@
           display: none;
         }
       }
+    }
+
+    > div + section {
+      margin-top: 0;
     }
   }
 
