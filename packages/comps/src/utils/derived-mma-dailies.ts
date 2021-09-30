@@ -14,6 +14,7 @@ const NAMING_LINE = {
 };
 const NO_CONTEST = "No Contest";
 const NO_CONTEST_TIE = "Draw/No Contest";
+const SIX_HOURS_IN_SECONDS = 6 * 60 * 60;
 
 export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const {
@@ -23,6 +24,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     estimatedStartTime,
     marketType = "0",
   } = marketData;
+
   // translate market data
   const eventId = String(coEventId._hex || coEventId);
   const homeTeamId = String(coHomeTeamId); // home team identifier
@@ -35,7 +37,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
   const homeTeam = String(marketData["homeFighterName"] || marketData["homeTeamName"]);
   const awayTeam = String(marketData["awayFighterName"] || marketData["awayTeamName"]);
   const sportId = "7";
-
+  const endTimestamp = startTimestamp + SIX_HOURS_IN_SECONDS;
   const { shareTokens } = market;
   const outcomes = decodeOutcomes(market, shareTokens, homeTeam, awayTeam, sportsMarketType);
   const { title, description } = getMarketTitle(sportId, homeTeam, awayTeam, sportsMarketType);
@@ -53,6 +55,7 @@ export const deriveMarketInfo = (market: MarketInfo, marketData: any) => {
     sportId,
     sportsMarketType,
     spreadLine: line,
+    endTimestamp,
   };
 };
 
