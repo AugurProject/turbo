@@ -18,6 +18,7 @@ import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
+import { SubCategoriesFilter } from '../markets/markets-view';
 
 const { ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS, MARKET_ID_PARAM_NAME } = Constants;
 const {
@@ -421,6 +422,13 @@ const LiquidityView = () => {
         </label>
         <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
       </ul>
+      <SubCategoriesFilter
+        {...{
+          updateCategories: updateMarketsViewSettings,
+          subCategories,
+          primaryCategory,
+        }}
+      />
       <section>
         <article>
           <span>Market</span>
