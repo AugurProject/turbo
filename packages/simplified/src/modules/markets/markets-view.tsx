@@ -167,10 +167,7 @@ const SearchButton = (props) => (
 );
 
 const MarketsView = () => {
-  const {
-    isMobile,
-    isLogged,
-  } = useAppStatusStore();
+  const { isMobile, isLogged } = useAppStatusStore();
   const {
     marketsViewSettings,
     settings: { showLiquidMarkets, timeFormat },
@@ -282,7 +279,13 @@ const MarketsView = () => {
         clearValue={() => setFilter("")}
         showFilter={showFilter}
       />
-      <SubCategoriesFilter />
+      <SubCategoriesFilter
+        {...{
+          updateCategories: updateMarketsViewSettings,
+          subCategories,
+          primaryCategory,
+        }}
+      />
       {loading ? (
         <section>
           {new Array(PAGE_LIMIT).fill(null).map((m, index) => (
@@ -325,11 +328,13 @@ const MarketsView = () => {
 
 export default MarketsView;
 
-export const SubCategoriesFilter = () => {
-  const {
-    marketsViewSettings: { primaryCategory, subCategories },
-    actions: { updateMarketsViewSettings },
-  } = useSimplifiedStore();
+export interface SubCategoriesFilterProps {
+  primaryCategory: string;
+  subCategories: Array<string>;
+  updateCategories: (update: any) => void;
+}
+
+export const SubCategoriesFilter = ({ primaryCategory, subCategories, updateCategories }: SubCategoriesFilterProps) => {
   if (primaryCategory.toLowerCase() !== "sports") return null;
   const { icon: SportsIcon } = getCategoryIconLabel([primaryCategory]);
   const { icon: MLBIcon } = getCategoryIconLabel(["Sports", "Baseball", "MLB"]);
@@ -344,7 +349,7 @@ export const SubCategoriesFilter = () => {
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.length === 0,
         })}
-        onClick={() => updateMarketsViewSettings({ subCategories: [] })}
+        onClick={() => updateCategories({ subCategories: [] })}
       >
         {SportsIcon} All Sports
       </button>
@@ -352,7 +357,7 @@ export const SubCategoriesFilter = () => {
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.includes("MLB"),
         })}
-        onClick={() => updateMarketsViewSettings({ subCategories: ["Baseball", "MLB"] })}
+        onClick={() => updateCategories({ subCategories: ["Baseball", "MLB"] })}
       >
         {MLBIcon} MLB
       </button>
@@ -360,7 +365,7 @@ export const SubCategoriesFilter = () => {
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.includes("NBA"),
         })}
-        onClick={() => updateMarketsViewSettings({ subCategories: ["Basketball", "NBA"] })}
+        onClick={() => updateCategories({ subCategories: ["Basketball", "NBA"] })}
       >
         {NBAIcon} NBA
       </button>
@@ -368,26 +373,28 @@ export const SubCategoriesFilter = () => {
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.includes("MMA"),
         })}
-        onClick={() => updateMarketsViewSettings({ subCategories: ["MMA"] })}
+        onClick={() => updateCategories({ subCategories: ["MMA"] })}
       >
         {MMAIcon} MMA
       </button>
-      {/* <button
+      {
+        /* <button
         className={classNames(Styles.SubCategoryFilterButton, {
           [Styles.selectedFilterCategory]: subCategories.includes("NHL"),
         })}
-        onClick={() => updateMarketsViewSettings({ subCategories: ["Hockey", "NHL"] })}
+        onClick={() => updateCategories({ subCategories: ["Hockey", "NHL"] })}
       >
         {HockeyIcon} NHL
       </button> */
-      <button
-        className={classNames(Styles.SubCategoryFilterButton, {
-          [Styles.selectedFilterCategory]: subCategories.includes("NFL"),
-        })}
-        onClick={() => updateMarketsViewSettings({ subCategories: ["American Football", "NFL"] })}
-      >
-        {FootballIcon} NFL
-      </button>}
+        <button
+          className={classNames(Styles.SubCategoryFilterButton, {
+            [Styles.selectedFilterCategory]: subCategories.includes("NFL"),
+          })}
+          onClick={() => updateCategories({ subCategories: ["American Football", "NFL"] })}
+        >
+          {FootballIcon} NFL
+        </button>
+      }
     </div>
   );
 };
