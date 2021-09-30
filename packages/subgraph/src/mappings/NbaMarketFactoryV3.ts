@@ -49,10 +49,10 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): NbaMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): NbaMarketFactory__getMarketResultValue0Struct | null {
   let contract = NbaMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: NbaMarketFactory__getMarketResultValue0Struct;
+  let market: NbaMarketFactory__getMarketResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
@@ -64,7 +64,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 
   let entity = getOrCreateNbaMarket(marketId, true, false);
   getOrCreateMarket(marketId);
-  let market = getMarket(event.address, event.params.id);
+  // let market = getMarket(event.address, event.params.id);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();

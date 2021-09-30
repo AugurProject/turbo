@@ -40,10 +40,10 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): GroupedMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): GroupedMarketFactory__getMarketResultValue0Struct | null {
   let contract = GroupedMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: GroupedMarketFactory__getMarketResultValue0Struct;
+  let market: GroupedMarketFactory__getMarketResultValue0Struct | null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
@@ -67,7 +67,7 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 
   let entity = getOrCreateGroupedMarket(marketId, true, false);
   getOrCreateMarket(marketId);
-  let market = getMarket(event.address, event.params.id);
+  // let market = getMarket(event.address, event.params.id);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
