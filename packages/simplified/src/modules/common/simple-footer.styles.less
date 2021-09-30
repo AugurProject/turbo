@@ -64,3 +64,19 @@
     }
   }
 }
+
+:root[theme="DARK"] {
+  .SimpleFooter {
+    > div > section {
+      display: block;
+      height: @size-24;
+      width: @size-24;
+
+      > svg {
+        > path:last-of-type {
+          fill: var(--color-brand-secondary);
+        }
+      }
+    }
+  }
+}
