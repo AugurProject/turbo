@@ -6,7 +6,6 @@ import * as CryptoMarkets from "./derived-crypto-markets";
 import * as NflMarkets from "./derived-nfl-dailies";
 import * as GroupedMarkets from "./derived-grouped-data";
 import {
-  DEFAULT_AMM_FEE_RAW,
   MARKET_FACTORY_TYPES,
   MARKET_STATUS,
   NULL_ADDRESS,
@@ -302,7 +301,7 @@ export const decodeGroupedMarketDetailsFetcher = (marketData: any, factoryDetail
 
 const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: MarketFactory): AmmExchange => {
   const outcomePrices = calculatePrices(market, pool.ratios || pool.tokenRatios, pool.weights);
-  const fee = new BN(String(pool.swapFee || DEFAULT_AMM_FEE_RAW)).toFixed();
+  const fee = new BN(String(pool.swapFee || "0")).toFixed();
   const balancesRaw = pool.balances || [];
   const weights = pool.weights;
   const id = pool.addr;

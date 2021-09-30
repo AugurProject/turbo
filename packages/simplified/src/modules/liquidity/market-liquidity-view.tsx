@@ -348,6 +348,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
       now <= pendingRewards.endBonusTimestamp &&
       pendingRewards.pendingBonusRewards !== "0") ||
     !rewards.created;
+  const earlyBonus = now < rewards.earlyDepositEndTimestamp || !rewards.earlyDepositEndTimestamp;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
     : getCreateBreakdown(breakdown, market, balances, isRemove);
@@ -379,7 +380,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
             Remove Liquidity
           </button>
         )}
-        {!shareBalance && !isMint && hasPendingBonus && <span>Eligible for bonus rewards</span>}
+        {!shareBalance && !isMint && earlyBonus && <span>Eligible for bonus rewards</span>}
       </header>
       <main>
         <AmountInput
@@ -397,7 +398,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
         <div className={Styles.PricesAndOutcomes}>
           <span className={Styles.PriceInstructions}>
             <span>{mustSetPrices ? "Set the Price" : "Current Prices"}</span>
-            {mustSetPrices && <span>(between 0.02 - 0.1). Total price of all outcomes must add up to 1.</span>}
+            {mustSetPrices && <span>(between 0.02 - 1.0). Total price of all outcomes must add up to 1.</span>}
           </span>
           <OutcomesGrid
             outcomes={outcomes}
