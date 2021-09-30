@@ -72,11 +72,13 @@ export const getTimeFormat = (timestamp, format = TWENTY_FOUR_HOUR_TIME) => {
   const inMilli = String(timestamp).length === 13 ? Number(timestamp) : Number(timestamp) * 1000;
   const date = new Date(inMilli);
   const language = navigator?.language || "en-us";
-  return date.toLocaleTimeString(language, {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: format === TWELVE_HOUR_TIME,
-  }).toUpperCase();
+  return date
+    .toLocaleTimeString(language, {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: format === TWELVE_HOUR_TIME,
+    })
+    .toUpperCase();
 };
 
 export const getDateFormat = (timestamp) => {
