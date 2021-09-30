@@ -107,6 +107,13 @@ export async function searchMarkets(searchString, cb) {
   }
 }
 
+function filterTransactions(market, marketFactories) {
+  const masterChefs = Array.from(new Set(marketFactories.map((m) => m.masterChef.toLowerCase())));
+  market.addLiquidity = market.addLiquidity.filter((m) => !masterChefs.includes(m.sender.id.toLowerCase()));
+  market.removeLiquidity = market.removeLiquidity.filter((m) => !masterChefs.includes(m.sender.id.toLowerCase()));
+  return market;
+}
+
 export async function getAllTransactions(account = "0x0", cb) {
   const clientConfig = getClientConfig();
   let response = null;
@@ -130,7 +137,7 @@ export async function getAllTransactions(account = "0x0", cb) {
     if (response?.data) {
       const processedMarkets = (response?.data?.markets || []).reduce((acc, item) => {
         let update = acc;
-        update[item.id] = item;
+        update[item.id] = filterTransactions(item, PARA_CONFIG.marketFactories);
         return update;
       }, {});
       // THIS CODE IS FOR CONVIENCE TO INSTEAD GRAB EVERYONES CLAIMS AND FEES

@@ -105,7 +105,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
   useEffect(() => {
     let isMounted = true;
     const fetchTransactions = () =>
-      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && updateTransactions(transactions))
+      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && transactions && updateTransactions(transactions))
         .then(() => AppStatusStore.actions.setIsDegraded(false))
         .catch(e => {
           if (!isDegraded) {
