@@ -11,6 +11,7 @@ import {
   useDataStore,
   useAppStatusStore,
   useUserStore,
+  MarketCardComps,
 } from "@augurproject/comps";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore } from "modules/stores/betslip";
@@ -22,9 +23,10 @@ const {
   DateUtils: { getMarketEndtimeFull },
   OddsUtils: { convertToNormalizedPrice, convertToOdds },
 } = Utils;
-const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS, MODAL_CONNECT_WALLET } = Constants;
+const { MARKET, SPORTS_MARKET_TYPE, SPORTS_MARKET_TYPE_LABELS, MODAL_CONNECT_WALLET, MARKET_FACTORY_TYPES } = Constants;
 const { ValueLabel } = LabelComps;
 const { MarketLink } = Links;
+const { orderOutcomesForDisplay } = MarketCardComps;
 
 export const EventCard = ({ marketEvent, ...props }) => {
   const {
@@ -147,9 +149,8 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
   const eventMarkets = useMarketEventMarkets(marketEvent);
-  const marketOutcomesOrderedForDisplay = []
-    .concat(marketEvent.outcomes)
-    .sort((a, b) => ([a.name, b.name].includes("No Contest") ? -1 : a.id - b.id));
+  const marketOutcomesOrderedForDisplay = orderOutcomesForDisplay([]
+    .concat(marketEvent.outcomes),MARKET_FACTORY_TYPES.NFL)
 
   return (
     <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
@@ -236,7 +237,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     ?.name?.replace(eventOutcomeName, "")
     .trim();
 
-  return (
+ return (
     <article>
       <label>{eventOutcomeName}</label>
       <button
@@ -290,7 +291,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         }}
         disabled={OUOdds === "-"}
       >
-        {OUOdds !== "-" ? (
+        {OUOdds !== "-" && overUnderLetter ? (
           <span>
             {overUnderLetter && <b>{overUnderLetter}</b>}
             {overUnderLine}
