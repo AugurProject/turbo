@@ -40,7 +40,6 @@ export const BUY: string = "buy";
 export const SELL: string = "sell";
 
 export const ADD_LIQUIDITY: string = "add liquidity";
-export const DEFAULT_AMM_FEE_RAW: string = "15000000000000000";
 export const DUST_POSITION_AMOUNT: BigNumber = createBigNumber("0.0001");
 export const DUST_POSITION_AMOUNT_ON_CHAIN: BigNumber = DUST_POSITION_AMOUNT.times(createBigNumber(10).pow(18));
 export const DUST_LIQUIDITY_AMOUNT: BigNumber = createBigNumber("1");
