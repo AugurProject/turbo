@@ -346,6 +346,8 @@ dataSources:
             handler: handleWinningsClaimedEvent
           - event: SharesMinted(uint256,uint256,address)
             handler: handleSharesMintedEvent
+          - event: SportsEventCreated(uint256,uint256[],int256[],uint256,uint256,string,string,uint256)
+            handler: handleSportsEventCreatedEvent
   {{/mlbMarketFactoriesV3}}
   {{#groupedMarketFactoriesV3}}
     - kind: ethereum/contract

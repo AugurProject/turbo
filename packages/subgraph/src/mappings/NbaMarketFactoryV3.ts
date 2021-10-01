@@ -49,10 +49,10 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): NbaMarketFactory__getMarketResultValue0Struct {
+function getMarket(contractAddress: Address, marketId: BigInt): NbaMarketFactory__getMarketResultValue0Struct | null {
   let contract = NbaMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
-  let market: NbaMarketFactory__getMarketResultValue0Struct;
+  let market: NbaMarketFactory__getMarketResultValue0Struct | null = null;
   if (!tryGetMarket.reverted) {
     market = tryGetMarket.value;
   }
@@ -64,20 +64,14 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
 
   let entity = getOrCreateNbaMarket(marketId, true, false);
   getOrCreateMarket(marketId);
-  let market = getMarket(event.address, event.params.id);
+  // let market = getMarket(event.address, event.params.id);
 
   entity.marketId = marketId;
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
   // entity.creator = market.creator.toHexString();
-  // entity.estimatedStartTime = market.estimatedStartTime;
   // entity.endTime = market.endTime;
   // entity.marketType = BigInt.fromI32(market.marketType);
-  // entity.eventId = market.eventId;
-  // entity.homeTeamName = market.homeTeamName;
-  // entity.homeTeamId = market.homeTeamId;
-  // entity.awayTeamName = market.awayTeamName;
-  // entity.awayTeamId = market.awayTeamId;
   // entity.overUnderTotal = market.score;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = event.params.initialOdds;
@@ -204,13 +198,13 @@ export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
     let marketId = event.address.toHexString() + "-" + markets[i].toString();
     getOrCreateMarket(marketId);
     let market = getOrCreateNbaMarket(marketId, true, false);
-    market.marketId = marketId;
-    market.eventId = eventId;
-    market.homeTeamId = event.params.homeTeamId;
     market.awayTeamId = event.params.awayTeamId;
-    market.homeTeamName = event.params.homeTeamName;
     market.awayTeamName = event.params.awayTeamName;
     market.estimatedStartTime = event.params.estimatedStartTime;
+    market.eventId = eventId;
+    market.homeTeamId = event.params.homeTeamId;
+    market.homeTeamName = event.params.homeTeamName;
+    market.marketId = marketId;
     market.save();
   }
 }
