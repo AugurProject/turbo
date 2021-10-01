@@ -9,7 +9,7 @@ import {
 import { MIN_LIQUIDITY_AMOUNT } from "../constants";
 import { useSport } from "./sport-hooks";
 import { useUserStore, Stores, useDataStore, Constants } from "@augurproject/comps";
-import { MarketInfo } from "@augurproject/comps/build/types";
+import { MarketInfo, MarketInfos } from "@augurproject/comps/build/types";
 const { SPORTS_MARKET_TYPE, SPORTS_THEME_TYPES } = Constants;
 
 const {
@@ -53,7 +53,8 @@ const useMarketEvents = () => {
     if (numMarkets) {
       const marketEvents = Object.keys(markets).reduce((p, marketId) => {
         const { eventId, description, startTimestamp, categories, hasWinner, amm } = markets[marketId];
-        if (!amm.hasLiquidity || amm.liquidityUSD < MIN_LIQUIDITY_AMOUNT) return p;
+        const hasOneorManyWithLiq = Object.values(markets as MarketInfos).filter(m => m.eventId === eventId && m.amm.liquidityUSD > MIN_LIQUIDITY_AMOUNT).length > 0;
+        if (!hasOneorManyWithLiq) return p;
         return Object.keys(p).includes(eventId)
           ? {
               ...p,
