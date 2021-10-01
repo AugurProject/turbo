@@ -192,7 +192,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
         totalPrice = totalPrice.plus(createBigNumber(price));
       }
     });
-    if (inputFormError === "" && !(new BN(totalPrice.toFixed(2))).eq(ONE) && !market.isFuture) {
+    if (inputFormError === "" && !(new BN(totalPrice.toFixed(2))).eq(ONE) && !market.isGrouped) {
       buttonError = INVALID_PRICE;
     }
   }
@@ -716,7 +716,7 @@ const ModalAddLiquidity = ({ market, liquidityModalType, currency }: ModalAddLiq
               dontFilterInvalid
               hasLiquidity={!mustSetPrices || hasInitialOdds}
               marketFactoryType={market?.marketFactoryType}
-              isFutures={market?.isFuture}
+              isGrouped={market?.isGrouped}
             />
           </section>
         )}

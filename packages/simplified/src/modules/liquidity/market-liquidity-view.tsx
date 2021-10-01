@@ -209,11 +209,14 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
       svg: isRemove ? USDCIcon : null,
     },
   ];
-  const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
-  if (pendingRewards !== "0") {
+  const userRewards = balances?.pendingRewards?.[market.marketId];
+  const pendingRewards = userRewards ? userRewards.balance : "0";
+  const bonusRewards = userRewards && (new Date().getTime() / 1000) >= userRewards.endBonusTimestamp ? userRewards.pendingBonusRewards : "0";
+  const totalRewards = new BN(pendingRewards).plus(new BN(bonusRewards));
+  if (totalRewards.gt(ZERO)) {
     fullBreakdown.push({
       label: `LP Rewards`,
-      value: `${formatEther(pendingRewards).formatted}`,
+      value: `${formatEther(totalRewards).formatted}`,
       svg: MaticIcon,
     });
   }
@@ -258,6 +261,8 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
+  const liquidityUSD = 
+    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue || "0";
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
@@ -481,7 +486,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
                           infoNumbers: [
                             {
                               label: "Pooled USDC",
-                              value: `${formatCash(breakdown.amount, USDC).full}`,
+                              value: `${formatCash(liquidityUSD, USDC).full}`,
                               svg: USDCIcon,
                             },
                           ],
