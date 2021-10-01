@@ -1,4 +1,4 @@
-import { TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } from "./constants";
+import { TEN_MINUTES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } from "./constants";
 
 // const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
@@ -142,4 +142,9 @@ export const getDayTimestamp = (timestamp: string) => {
   const mon = `0${Number(date.getMonth()) + 1}`.slice(-2);
   const year = date.getFullYear();
   return Number(`${year}${mon}${day}`);
+};
+
+export const isDataTooOld = (timestamp: number): boolean => {
+  const now = new Date().getTime() / 1000;
+  return now - TEN_MINUTES > timestamp;
 };

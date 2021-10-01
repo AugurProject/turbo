@@ -13,6 +13,7 @@ import {
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { decodeBaseMarketFetcher, decodeGroupedMarketDetailsFetcher } from "./derived-market-data";
 import { GROUP_INVALID_MARKET } from "./constants";
+import { isDataTooOld } from "./date-utils";
 
 export const fetchContractData = async (config: MarketFactory, provider: Web3Provider, account: string) => {
   const offset = 0;
@@ -34,7 +35,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
   const masterChef = MasterChef__factory.connect(config.masterChef, getProviderOrSigner(provider, account));
   const ammFactoryContract = AMMFactory__factory.connect(config.ammFactory, getProviderOrSigner(provider, account));
 
-  const { factoryBundle, markets } = await fetchInitialGroup(
+  const { factoryBundle, markets, timestamp } = await fetchInitialGroup(
     fetcherContract,
     marketFactoryContract,
     ammFactoryContract,
@@ -42,6 +43,11 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
     offset,
     bundleSize
   );
+
+  if (isDataTooOld(timestamp.toNumber())) {
+    console.error("node returnded data too old");
+    throw new Error("contract data too old");
+  }
 
   const factoryDetails = decodeBaseMarketFetcher(factoryBundle);
 
