@@ -209,11 +209,14 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
       svg: isRemove ? USDCIcon : null,
     },
   ];
-  const pendingRewards = balances?.pendingRewards?.[market.marketId]?.balance || "0";
-  if (pendingRewards !== "0") {
+  const userRewards = balances?.pendingRewards?.[market.marketId];
+  const pendingRewards = userRewards ? userRewards.balance : "0";
+  const bonusRewards = userRewards && (new Date().getTime() / 1000) >= userRewards.endBonusTimestamp ? userRewards.pendingBonusRewards : "0";
+  const totalRewards = new BN(pendingRewards).plus(new BN(bonusRewards));
+  if (totalRewards.gt(ZERO)) {
     fullBreakdown.push({
       label: `LP Rewards`,
-      value: `${formatEther(pendingRewards).formatted}`,
+      value: `${formatEther(totalRewards).formatted}`,
       svg: MaticIcon,
     });
   }
