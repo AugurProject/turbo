@@ -171,8 +171,8 @@ export const TopNav = () => {
               </Link>
             </li>
             <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
-              <Link to={makePath(LIQUIDITY)} placeholder="Liquidity">
-                Liquidity
+              <Link to={makePath(LIQUIDITY)} placeholder="Pools">
+                Pools
               </Link>
             </li>
           </ol>
