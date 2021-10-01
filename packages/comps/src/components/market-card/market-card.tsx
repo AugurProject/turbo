@@ -183,7 +183,7 @@ export const MarketCardView = ({
                 disabled
               />
             ) : (
-              <ValueLabel label="Liquidity Provider APY" value={formattedApy || "-"} />
+              <ValueLabel label="Liquidity Provider APR" value={formattedApy || "-"} />
             )}
           </div>
         </article>
