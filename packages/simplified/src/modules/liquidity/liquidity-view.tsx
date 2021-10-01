@@ -136,7 +136,7 @@ const applyFiltersAndSort = (
         case POOL_SORT_TYPES.EXPIRES: {
           return Number(marketA.endTimestamp) < Number(marketB.endTimestamp) ? direction : direction * -1;
         }
-        case POOL_SORT_TYPES.APY: {
+        case POOL_SORT_TYPES.APR: {
           return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
         }
         case POOL_SORT_TYPES.TVL: {
