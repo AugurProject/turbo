@@ -12,6 +12,7 @@ import {
   Stores,
   useScrollToTopOnMount,
 } from "@augurproject/comps";
+import { AppViewStats, AvailableLiquidityRewards, MaticAddMetaMaskToken } from "../common/labels";
 import {
   categoryItems,
   MARKET_LIQUIDITY,
@@ -20,7 +21,6 @@ import {
   POOL_SORT_TYPES,
   POOL_SORT_TYPE_TEXT,
 } from "../constants";
-import { AppViewStats, AvailableLiquidityRewards } from "../common/labels";
 import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
@@ -363,6 +363,8 @@ const LiquidityView = () => {
     <div className={Styles.LiquidityView}>
       <AppViewStats small liquidity />
       <AvailableLiquidityRewards balance={rewardBalance} />
+      <MaticAddMetaMaskToken />
+
       <h1>Explore LP Opportunties</h1>
       <p>
         Add Market liquidity to earn fees and rewards. <a href=".">Learn more →</a>
