@@ -4,9 +4,15 @@ import { windowRef, Stores } from "@augurproject/comps";
 const {
   Utils: { dispatchMiddleware, getSavedUserInfo },
 } = Stores;
-const { SET_SHOW_TRADING_FORM, SET_SIDEBAR, UPDATE_MARKETS_VIEW_SETTINGS, UPDATE_SETTINGS } = SIMPLIFIED_ACTIONS;
+const {
+  SET_SHOW_TRADING_FORM,
+  SET_SIDEBAR,
+  UPDATE_MARKETS_VIEW_SETTINGS,
+  UPDATE_SETTINGS,
+  UPDATE_POOLS_VIEW_SETTINGS,
+} = SIMPLIFIED_ACTIONS;
 
-const { SIDEBAR_TYPE, MARKETS_VIEW_SETTINGS, SETTINGS, SHOW_TRADING_FORM } = SIMPLIFIED_STATE_KEYS;
+const { SIDEBAR_TYPE, MARKETS_VIEW_SETTINGS, SETTINGS, SHOW_TRADING_FORM, POOLS_VIEW_SETTINGS } = SIMPLIFIED_STATE_KEYS;
 
 const updateLocalStorage = (userAccount, updatedState) => {
   const userData = getSavedUserInfo(userAccount);
@@ -47,6 +53,13 @@ export function SimplifiedReducer(state, action) {
       };
       break;
     }
+    case UPDATE_POOLS_VIEW_SETTINGS: {
+      updatedState[POOLS_VIEW_SETTINGS] = {
+        ...updatedState[POOLS_VIEW_SETTINGS],
+        ...action[POOLS_VIEW_SETTINGS],
+      };
+      break;
+    }
     case UPDATE_SETTINGS: {
       updatedState[SETTINGS] = {
         ...state[SETTINGS],
@@ -74,6 +87,7 @@ export const useSimplified = (defaultState = DEFAULT_SIMPLIFIED_STATE) => {
     actions: {
       updateMarketsViewSettings: (marketsViewSettings) =>
         dispatch({ type: UPDATE_MARKETS_VIEW_SETTINGS, marketsViewSettings }),
+      updatePoolsViewSettings: (poolsViewSettings) => dispatch({ type: UPDATE_POOLS_VIEW_SETTINGS, poolsViewSettings }),
       setShowTradingForm: (showTradingForm) => dispatch({ type: SET_SHOW_TRADING_FORM, showTradingForm }),
       setSidebar: (sidebarType) => dispatch({ type: SET_SIDEBAR, sidebarType }),
       updateSettings: (settings, account = null) => dispatch({ type: UPDATE_SETTINGS, settings, account }),
