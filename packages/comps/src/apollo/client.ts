@@ -224,10 +224,3 @@ const getClientConfig = (): { augurClient: string; blockClient: string; turboCli
   };
   return clientConfig[Number(networkId)];
 };
-
-const getCashesInfo = (): Cash[] => {
-  // this prob wont be used
-  // const { networkId } = PARA_CONFIG;
-
-  return [];
-};

@@ -1676,7 +1676,10 @@ export const getMarketInfos = async (
 ): Promise<{ markets: MarketInfos; ammExchanges: AmmExchanges; blocknumber: number }> => {
   const factories = marketFactories(loadtype);
 
-  const allMarkets = await Promise.all(factories.map((config) => fetcherMarketsPerConfig(config, provider, account)));
+  // TODO: currently filtering out market factories that don't have rewards
+  const allMarkets = await Promise.all(
+    factories.filter((f) => f.hasRewards).map((config) => fetcherMarketsPerConfig(config, provider, account))
+  );
 
   // first market infos get all markets with liquidity
   const aMarkets = allMarkets.reduce((p, data) => ({ ...p, ...data.markets }), {});
