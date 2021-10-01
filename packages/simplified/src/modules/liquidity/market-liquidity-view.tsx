@@ -262,7 +262,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
   const liquidityUSD = 
-    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue || "0";
+    (balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue) || "0";
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;

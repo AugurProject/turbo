@@ -73,7 +73,7 @@ const applyFiltersAndSort = (
   if (onlyUserLiquidity) {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => userMarkets.includes(market.marketId));
   }
-  
+
   if (marketTypeFilter !== MARKET_TYPE_OPTIONS[0].value) {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) =>
       marketTypeFilter === MARKET_TYPE_OPTIONS[1].value ? !market.isGrouped : market.isGrouped
@@ -319,13 +319,7 @@ const LiquidityView = () => {
     balances: { lpTokens, pendingRewards },
   } = useUserStore();
   const { markets, transactions } = useDataStore();
-  const {
-    marketTypeFilter,
-    sortBy,
-    primaryCategory,
-    subCategories,
-    onlyUserLiquidity
-  } = poolsViewSettings;
+  const { marketTypeFilter, sortBy, primaryCategory, subCategories, onlyUserLiquidity } = poolsViewSettings;
 
   const [filter, setFilter] = useState("");
   const [filteredMarkets, setFilteredMarkets] = useState([]);
@@ -413,7 +407,7 @@ const LiquidityView = () => {
             <SortableHeaderButton
               {...{
                 sortType,
-                setSortBy: (updates) => updatePoolsViewSettings(updates),
+                setSortBy: (sortBy) => updatePoolsViewSettings({ sortBy }),
                 sortBy,
                 text: POOL_SORT_TYPE_TEXT[sortType],
                 key: `${sortType}-sortable-button`,
