@@ -11,7 +11,10 @@ import {
   ContractCalls,
   Formatter,
 } from "@augurproject/comps";
+import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
+
 import { useSimplifiedStore } from "modules/stores/simplified";
+import { WMATIC_TOKEN_ADDRESS } from "modules/constants";
 const { formatToken } = Formatter;
 const { getMaticUsdPrice } = ContractCalls;
 const { USDC} = Constants;
@@ -83,6 +86,36 @@ export const AvailableLiquidityRewards = ({ balance }) => {
         </span>
         <span>(${rewardsInUsd})</span>
       </section>
+    </div>
+  );
+};
+
+export const MaticAddMetaMaskToken = () => {
+  const AddToken = async () => {
+    try {
+      // @ts-ignore
+      await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: WMATIC_TOKEN_ADDRESS,
+              symbol: 'WMATIC',
+              decimals: 18,
+              image: 'https://polygonscan.com/token/images/wMatic_32.png',
+            },
+          },
+      });
+    } catch {
+      console.error('MetaMask not installed or locked.')
+    }
+  };
+
+  return (
+    <div
+      className={Styles.AddMetaMaskToken}
+      onClick={() => AddToken()}>
+      <img height={12} src={MetamaskIcon} /> Add wMATIC to MetaMask
     </div>
   );
 };
