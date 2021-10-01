@@ -228,7 +228,7 @@ export const MARKET_TYPE_OPTIONS = [
 export const POOL_SORT_TYPES = {
   EXPIRES: "EXPIRES",
   TVL: "TVL",
-  APY: "APY",
+  APR: "APR",
   LIQUIDITY: "LIQUIDITY",
   REWARDS: "REWARDS",
 };
@@ -236,7 +236,7 @@ export const POOL_SORT_TYPES = {
 export const POOL_SORT_TYPE_TEXT = {
   EXPIRES: "Expires",
   TVL: "TVL",
-  APY: "APY",
+  APR: "APR",
   LIQUIDITY: "My Liquidity",
   REWARDS: "My Rewards",
 };
