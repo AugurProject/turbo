@@ -72,14 +72,8 @@ export function handleMarketCreatedEvent(event: MarketCreated): void {
   entity.transactionHash = event.transaction.hash.toHexString();
   entity.timestamp = event.block.timestamp;
   // entity.creator = event.params.creator.toHexString();
-  // entity.estimatedStartTime = event.params.estimatedStartTime;
   // entity.endTime = event.params.endTime;
   // entity.marketType = BigInt.fromI32(event.params.marketType);
-  // entity.eventId = event.params.eventId;
-  // entity.homeFighterName = event.params.homeFighterName;
-  // entity.homeFighterId = event.params.homeFighterId;
-  // entity.awayFighterName = event.params.awayFighterName;
-  // entity.awayFighterId = event.params.awayFighterId;
   entity.shareTokens = getShareTokens(event.address, event.params.id);
   entity.initialOdds = event.params.initialOdds;
 
@@ -205,13 +199,13 @@ export function handleSportsEventCreatedEvent(event: SportsEventCreated): void {
     let marketId = event.address.toHexString() + "-" + markets[i].toString();
     getOrCreateMarket(marketId);
     let market = getOrCreateMmaMarket(marketId, true, false);
-    market.marketId = marketId;
-    market.eventId = eventId;
-    market.homeFighterId = event.params.homeTeamId;
     market.awayFighterId = event.params.awayTeamId;
-    market.homeFighterName = event.params.homeTeamName;
     market.awayFighterName = event.params.awayTeamName;
     market.estimatedStartTime = event.params.estimatedStartTime;
+    market.eventId = eventId;
+    market.homeFighterId = event.params.homeTeamId;
+    market.homeFighterName = event.params.homeTeamName;
+    market.marketId = marketId;
     market.save();
   }
 }
