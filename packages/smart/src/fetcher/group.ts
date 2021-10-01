@@ -18,20 +18,23 @@ export async function fetchInitialGroup(
   masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialGroupsMarket[] }> {
+): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialGroupsMarket[]; timestamp: BigNumber | null }> {
   const groupCount = await marketFactory.groupCount();
 
   let factoryBundle: MarketFactoryBundle | undefined;
   let groupBundles: StaticGroupBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawFactoryBundle, rawGroupBundles, lowestGroupIndex] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawGroupBundles, lowestGroupIndex, _timestamp] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       masterChef.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     if (!factoryBundle) factoryBundle = createMarketFactoryBundle(rawFactoryBundle.super);
     groupBundles = groupBundles.concat(rawGroupBundles.map(createStaticGroupBundle));
@@ -68,7 +71,7 @@ export async function fetchInitialGroup(
     });
   }
 
-  return { factoryBundle, markets };
+  return { factoryBundle, markets, timestamp };
 }
 
 export async function fetchDynamicGroup(
@@ -77,18 +80,21 @@ export async function fetchDynamicGroup(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ markets: DynamicGroupsMarket[] }> {
+): Promise<{ markets: DynamicGroupsMarket[]; timestamp: BigNumber | null }> {
   const groupCount = await marketFactory.groupCount();
 
   let groupBundles: DynamicGroupBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawGroupBundles, lowestGroupIndex] = await fetcher.fetchDynamic(
+    const [rawGroupBundles, lowestGroupIndex, _timestamp] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     groupBundles = groupBundles.concat(rawGroupBundles.map(createDynamicGroupBundle));
 
@@ -113,7 +119,7 @@ export async function fetchDynamicGroup(
     });
   }
 
-  return { markets };
+  return { markets, timestamp };
 }
 
 export interface InitialGroupsMarket extends StaticMarketBundle {

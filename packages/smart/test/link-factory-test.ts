@@ -33,6 +33,7 @@ import {
 } from "../src";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 import { createPoolStatusInfo } from "../src/fetcher/common";
+import { Provider } from "@ethersproject/providers";
 
 const BONE = BigNumber.from(10).pow(18);
 const INITIAL_TOTAL_SUPPLY_OF_BPOOL = BigNumber.from(10).pow(20);
@@ -367,7 +368,14 @@ describe("Sports fetcher", () => {
   });
 
   it("initial {offset=0,bundle=50)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 50);
+    const { factoryBundle, markets, timestamp } = await fetchInitialSports(
+      fetcher,
+      marketFactory,
+      ammFactory,
+      masterChef,
+      0,
+      50
+    );
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -376,10 +384,18 @@ describe("Sports fetcher", () => {
         await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
       )
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
   });
 
   it("initial {offset=0,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 0, 1);
+    const { factoryBundle, markets, timestamp } = await fetchInitialSports(
+      fetcher,
+      marketFactory,
+      ammFactory,
+      masterChef,
+      0,
+      1
+    );
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
@@ -388,19 +404,28 @@ describe("Sports fetcher", () => {
         await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
       )
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
   });
 
   it("initial {offset=1,bundle=1)", async () => {
-    const { factoryBundle, markets } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 1, 1);
+    const { factoryBundle, markets, timestamp } = await fetchInitialSports(
+      fetcher,
+      marketFactory,
+      ammFactory,
+      masterChef,
+      1,
+      1
+    );
 
     expect(factoryBundle).to.deep.equal(await marketFactoryBundleCheck(marketFactory));
     expect(markets, "markets").to.deep.equal(
       await eventStaticBundleCheck(marketFactory, ammFactory, masterChef, leastInterestingEvent.id)
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
   });
 
   it("dynamic {offset=0,bundle=50}", async () => {
-    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 50);
+    const { markets, timestamp } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 50);
 
     expect(markets, "markets").to.deep.equal(
       flatten(
@@ -408,10 +433,11 @@ describe("Sports fetcher", () => {
         await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
       )
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
   });
 
   it("dynamic {offset=0,bundle=1}", async () => {
-    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 1);
+    const { markets, timestamp } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 0, 1);
 
     expect(markets, "markets").to.deep.equal(
       flatten(
@@ -419,14 +445,26 @@ describe("Sports fetcher", () => {
         await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
       )
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
   });
 
   it("dynamic {offset=1,bundle=1}", async () => {
-    const { markets } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 1, 1);
+    const { markets, timestamp } = await fetchDynamicSports(fetcher, marketFactory, ammFactory, 1, 1);
 
     expect(markets, "markets").to.deep.equal(
       await eventDynamicBundleCheck(marketFactory, ammFactory, leastInterestingEvent.id)
     );
+    expect(timestamp).to.deep.equal(BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp));
+  });
+
+  it("timestamp changes", async () => {
+    const originalTimestamp = (await (signer.provider as Provider).getBlock("latest")).timestamp;
+    await network.provider.send("evm_setNextBlockTimestamp", [originalTimestamp + 1_000_000]);
+    await network.provider.send("evm_mine", []);
+
+    const { timestamp } = await fetchInitialSports(fetcher, marketFactory, ammFactory, masterChef, 1, 1);
+
+    expect(timestamp).to.deep.equal(BigNumber.from(originalTimestamp + 1_000_000));
   });
 });
 

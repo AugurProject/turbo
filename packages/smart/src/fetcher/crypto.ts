@@ -18,20 +18,23 @@ export async function fetchInitialCrypto(
   masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialCryptoMarket[] }> {
+): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialCryptoMarket[]; timestamp: BigNumber | null }> {
   const marketCount = await marketFactory.marketCount();
 
   let factoryBundle: MarketFactoryBundle | undefined;
   let markets: StaticCryptoMarketBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawFactoryBundle, rawMarketBundles, lowestMarketIndex] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawMarketBundles, lowestMarketIndex, _timestamp] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       masterChef.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     if (!factoryBundle) factoryBundle = createMarketFactoryBundle(rawFactoryBundle.super);
     markets = markets.concat(rawMarketBundles.map(createStaticCryptoMarketBundle));
@@ -40,7 +43,7 @@ export async function fetchInitialCrypto(
     offset = marketCount.sub(lowestMarketIndex);
   }
 
-  return { factoryBundle, markets };
+  return { factoryBundle, markets, timestamp };
 }
 
 export async function fetchDynamicCrypto(
@@ -49,18 +52,21 @@ export async function fetchDynamicCrypto(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ markets: DynamicCryptoMarketBundle[] }> {
+): Promise<{ markets: DynamicCryptoMarketBundle[]; timestamp: BigNumber | null }> {
   const marketCount = await marketFactory.marketCount();
 
   let markets: DynamicCryptoMarketBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawMarketBundles, lowestMarketIndex] = await fetcher.fetchDynamic(
+    const [rawMarketBundles, lowestMarketIndex, _timestamp] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     markets = markets.concat(rawMarketBundles.map(createDynamicCryptoMarketBundle));
 
@@ -68,7 +74,7 @@ export async function fetchDynamicCrypto(
     offset = marketCount.sub(lowestMarketIndex);
   }
 
-  return { markets };
+  return { markets, timestamp };
 }
 
 export interface InitialCryptoMarket extends StaticMarketBundle {
