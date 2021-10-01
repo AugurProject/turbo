@@ -250,7 +250,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{formattedApy || "-"}</span>
       <span>
         {userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}
-        {userHasLiquidity && <span>Init Value {formatCash(userHasLiquidity?.usdValue, currency).full}</span>}
+        {/* {userHasLiquidity && <span>Init Value {formatCash(userHasLiquidity?.usdValue, currency).full}</span>} */}
       </span>
       <span>
         {rewardAmount.formatted} wMATIC
@@ -260,7 +260,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
           <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-          <span>init. value {formatCash(userHasLiquidity?.initCostUsd, currency).full}</span>
+          {/* <span>init. value {formatCash(userHasLiquidity?.initCostUsd, currency).full}</span> */}
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
@@ -418,7 +418,7 @@ const LiquidityView = () => {
             clean
             setToggle={() => setOnlyUserLiquidity(!onlyUserLiquidity)}
           />
-          My Liquidity Positions
+          {`My Liquidity Positions ${userMarkets.length > 0 ? `(${userMarkets.length})` : ''}`}
         </label>
         <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
       </ul>
