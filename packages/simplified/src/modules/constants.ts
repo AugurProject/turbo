@@ -207,12 +207,57 @@ export const MODAL_ADD_LIQUIDITY = "MODAL_ADD_LIQUIDITY";
 export const MODAL_CONNECT_TO_POLYGON = "MODAL_CONNECT_TO_POLYGON";
 export const MODAL_CONFIRM_TRANSACTION = "MODAL_CONFIRM_TRANSACTION";
 
+export const MARKET_TYPE_OPTIONS = [
+  {
+    label: "Daily + Long Term",
+    value: "daily+long",
+    disabled: false,
+  },
+  {
+    label: "Daily Only",
+    value: "daily",
+    disabled: false,
+  },
+  {
+    label: "Long Term Only",
+    value: "long",
+    disabled: false,
+  },
+];
+
+export const POOL_SORT_TYPES = {
+  EXPIRES: "EXPIRES",
+  TVL: "TVL",
+  APY: "APY",
+  LIQUIDITY: "LIQUIDITY",
+  REWARDS: "REWARDS",
+};
+
+export const POOL_SORT_TYPE_TEXT = {
+  EXPIRES: "Expires",
+  TVL: "TVL",
+  APY: "APY",
+  LIQUIDITY: "My Liquidity",
+  REWARDS: "My Rewards",
+};
+
 export const DEFAULT_MARKET_VIEW_SETTINGS = {
   primaryCategory: ALL_MARKETS,
   reportingState: OPEN,
   sortBy: LIQUIDITY,
   currency: ALL_CURRENCIES,
   subCategories: [],
+};
+
+export const DEFAULT_POOLS_VIEW_SETTINGS = {
+  primaryCategory: ALL_MARKETS,
+  subCategories: [],
+  onlyUserLiquidity: false,
+  marketTypeFilter: MARKET_TYPE_OPTIONS[0].value,
+  sortBy: {
+    type: POOL_SORT_TYPES.EXPIRES,
+    direction: -1,
+  },
 };
 
 export const CREATE = "create";

@@ -1,25 +1,13 @@
-import React, { useState } from 'react';
-import Styles from './sidebar.styles.less';
-import classNames from 'classnames';
-import { Link } from 'react-router-dom';
-import { useLocation } from 'react-router';
-import { SettingsButton } from '../common/top-nav';
-import {
-  Constants,
-  PathUtils,
-  Components,
-  useAppStatusStore,
-} from '@augurproject/comps';
-import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from '../constants';
-import { useSimplifiedStore } from '../stores/simplified';
-const {
-  MARKETS,
-  PORTFOLIO,
-  LIQUIDITY,
-  SIDEBAR_TYPES,
-  marketStatusItems,
-  sortByItems,
-} = Constants;
+import React, { useState } from "react";
+import Styles from "./sidebar.styles.less";
+import classNames from "classnames";
+import { Link } from "react-router-dom";
+import { useLocation } from "react-router";
+import { SettingsButton } from "../common/top-nav";
+import { Constants, PathUtils, Components, useAppStatusStore } from "@augurproject/comps";
+import { categoryItems, DEFAULT_MARKET_VIEW_SETTINGS } from "../constants";
+import { useSimplifiedStore } from "../stores/simplified";
+const { MARKETS, PORTFOLIO, LIQUIDITY, SIDEBAR_TYPES, marketStatusItems, sortByItems } = Constants;
 const {
   LinkLogo,
   SelectionComps: { RadioBarGroup },
@@ -51,13 +39,11 @@ const FilterSideBar = () => {
     actions: { updateMarketsViewSettings, setSidebar },
   } = useSimplifiedStore();
   const [localSettings, setLocalSettings] = useState(marketsViewSettings);
-  const filtersAreReset =
-    JSON.stringify(localSettings) ===
-    JSON.stringify(DEFAULT_MARKET_VIEW_SETTINGS);
+  const filtersAreReset = JSON.stringify(localSettings) === JSON.stringify(DEFAULT_MARKET_VIEW_SETTINGS);
 
-    return (
+  return (
     <>
-      <SideBarHeader header={'filters'} />
+      <SideBarHeader header={"filters"} />
       <div className={Styles.Body}>
         <RadioBarGroup
           update={(value) => {
@@ -142,13 +128,11 @@ const NavigationSideBar = () => {
               </Link>
             </li>
           )}
-          {isLogged && (
-            <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
-              <Link onClick={() => setSidebar(null)} to={makePath(LIQUIDITY)}>
-                Liquidity
-              </Link>
-            </li>
-          )}
+          <li className={classNames({ [Styles.Active]: path === LIQUIDITY })}>
+            <Link onClick={() => setSidebar(null)} to={makePath(LIQUIDITY)}>
+              Pools
+            </Link>
+          </li>
         </ol>
       </div>
       <div className={Styles.NavigationFooter}>

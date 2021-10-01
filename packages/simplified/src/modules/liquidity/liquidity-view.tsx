@@ -12,13 +12,20 @@ import {
   Stores,
   useScrollToTopOnMount,
 } from "@augurproject/comps";
-import { categoryItems, MARKET_LIQUIDITY, ZERO } from "../constants";
 import { AppViewStats, AvailableLiquidityRewards, MaticAddMetaMaskToken } from "../common/labels";
+import {
+  categoryItems,
+  MARKET_LIQUIDITY,
+  ZERO,
+  MARKET_TYPE_OPTIONS,
+  POOL_SORT_TYPES,
+  POOL_SORT_TYPE_TEXT,
+} from "../constants";
 import { BonusReward } from "../common/tables";
 import { useSimplifiedStore } from "../stores/simplified";
 import { MarketInfo } from "@augurproject/comps/build/types";
 import BigNumber from "bignumber.js";
-import { SubCategoriesFilter } from '../markets/markets-view';
+import { SubCategoriesFilter } from "../markets/markets-view";
 
 const { ADD, CREATE, REMOVE, ALL_MARKETS, OTHER, POPULAR_CATEGORIES_ICONS, SPORTS, MARKET_ID_PARAM_NAME } = Constants;
 const {
@@ -42,39 +49,6 @@ const {
 } = Stores;
 
 const PAGE_LIMIT = 50;
-const MARKET_TYPE_OPTIONS = [
-  {
-    label: "Daily + Long Term",
-    value: "daily+long",
-    disabled: false,
-  },
-  {
-    label: "Daily Only",
-    value: "daily",
-    disabled: false,
-  },
-  {
-    label: "Long Term Only",
-    value: "long",
-    disabled: false,
-  },
-];
-
-const SORT_TYPES = {
-  EXPIRES: "EXPIRES",
-  TVL: "TVL",
-  APY: "APY",
-  LIQUIDITY: "LIQUIDITY",
-  REWARDS: "REWARDS",
-};
-
-const SORT_TYPE_TEXT = {
-  EXPIRES: "Expires",
-  TVL: "TVL",
-  APY: "APY",
-  LIQUIDITY: "My Liquidity",
-  REWARDS: "My Rewards",
-};
 
 interface LiquidityMarketCardProps {
   key?: string;
@@ -159,19 +133,19 @@ const applyFiltersAndSort = (
       const { type, direction } = sortBy;
 
       switch (type) {
-        case SORT_TYPES.EXPIRES: {
+        case POOL_SORT_TYPES.EXPIRES: {
           return Number(marketA.endTimestamp) < Number(marketB.endTimestamp) ? direction : direction * -1;
         }
-        case SORT_TYPES.APY: {
+        case POOL_SORT_TYPES.APY: {
           return (Number(bTransactions?.apy) || 0) > (Number(aTransactions?.apy) || 0) ? direction : direction * -1;
         }
-        case SORT_TYPES.TVL: {
+        case POOL_SORT_TYPES.TVL: {
           return (bLiquidity || 0) > (aLiquidity || 0) ? direction : direction * -1;
         }
-        case SORT_TYPES.LIQUIDITY: {
+        case POOL_SORT_TYPES.LIQUIDITY: {
           return aUserLiquidity < bUserLiquidity ? direction : direction * -1;
         }
-        case SORT_TYPES.REWARDS: {
+        case POOL_SORT_TYPES.REWARDS: {
           return aUserRewards < bUserRewards ? direction : direction * -1;
         }
         default:
@@ -250,7 +224,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
       <span>{formattedApy || "-"}</span>
       <span>
         {userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}
-        {userHasLiquidity && <span>Init Value {formatCash(userHasLiquidity?.usdValue, currency).full}</span>}
+        {/* {userHasLiquidity && <span>Init Value {formatCash(userHasLiquidity?.usdValue, currency).full}</span>} */}
       </span>
       <span>
         {rewardAmount.formatted} wMATIC
@@ -260,7 +234,7 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
         <div className={Styles.MobileLabel}>
           <span>My Liquidity</span>
           <span>{userHasLiquidity ? formatCash(userHasLiquidity?.usdValue, currency).full : "$0.00"}</span>
-          <span>init. value {formatCash(userHasLiquidity?.initCostUsd, currency).full}</span>
+          {/* <span>init. value {formatCash(userHasLiquidity?.initCostUsd, currency).full}</span> */}
         </div>
         <div className={Styles.MobileLabel}>
           <span>My Rewards</span>
@@ -338,26 +312,21 @@ const LiquidityMarketCard = ({ market }: LiquidityMarketCardProps): React.FC => 
 
 const LiquidityView = () => {
   const {
-    marketsViewSettings,
-    actions: { updateMarketsViewSettings },
+    poolsViewSettings,
+    actions: { updatePoolsViewSettings },
   } = useSimplifiedStore();
   const {
     balances: { lpTokens, pendingRewards },
   } = useUserStore();
   const { markets, transactions } = useDataStore();
-  const [marketTypeFilter, setMarketTypeFilter] = useState(MARKET_TYPE_OPTIONS[0].value);
-  const [onlyUserLiquidity, setOnlyUserLiquidity] = useState(false);
+  const { marketTypeFilter, sortBy, primaryCategory, subCategories, onlyUserLiquidity } = poolsViewSettings;
+
   const [filter, setFilter] = useState("");
-  const [sortBy, setSortBy] = useState({
-    type: SORT_TYPES.EXPIRES,
-    direction: -1,
-  });
   const [filteredMarkets, setFilteredMarkets] = useState([]);
   const [page, setPage] = useQueryPagination({
     itemCount: filteredMarkets.length,
     itemsPerPage: PAGE_LIMIT,
   });
-  const { primaryCategory, subCategories } = marketsViewSettings;
   const marketKeys = Object.keys(markets);
   const userMarkets = Object.keys(lpTokens);
   const rewardBalance =
@@ -403,30 +372,32 @@ const LiquidityView = () => {
       <ul>
         <SquareDropdown
           onChange={(value) => {
-            updateMarketsViewSettings({ primaryCategory: value, subCategories: [] });
+            updatePoolsViewSettings({ primaryCategory: value, subCategories: [] });
           }}
           options={categoryItems}
           defaultValue={primaryCategory}
         />
         <SquareDropdown
-          onChange={(value) => setMarketTypeFilter(value)}
+          onChange={(value) => {
+            updatePoolsViewSettings({ marketTypeFilter: value });
+          }}
           options={MARKET_TYPE_OPTIONS}
-          defaultValue={MARKET_TYPE_OPTIONS[0].value}
+          defaultValue={marketTypeFilter}
         />
         <label html-for="toggleOnlyUserLiquidity">
           <ToggleSwitch
             id="toggleOnlyUserLiquidity"
             toggle={onlyUserLiquidity}
             clean
-            setToggle={() => setOnlyUserLiquidity(!onlyUserLiquidity)}
+            setToggle={() => updatePoolsViewSettings({ onlyUserLiquidity: !onlyUserLiquidity })}
           />
-          My Liquidity Positions
+          {`My Liquidity Positions ${userMarkets.length > 0 ? `(${userMarkets.length})` : ''}`}
         </label>
         <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
       </ul>
       <SubCategoriesFilter
         {...{
-          updateCategories: updateMarketsViewSettings,
+          updateCategories: updatePoolsViewSettings,
           subCategories,
           primaryCategory,
         }}
@@ -434,9 +405,15 @@ const LiquidityView = () => {
       <section>
         <article>
           <span>Market</span>
-          {Object.keys(SORT_TYPES).map((sortType) => (
+          {Object.keys(POOL_SORT_TYPES).map((sortType) => (
             <SortableHeaderButton
-              {...{ sortType, setSortBy, sortBy, text: SORT_TYPE_TEXT[sortType], key: `${sortType}-sortable-button` }}
+              {...{
+                sortType,
+                setSortBy: (sortBy) => updatePoolsViewSettings({ sortBy }),
+                sortBy,
+                text: POOL_SORT_TYPE_TEXT[sortType],
+                key: `${sortType}-sortable-button`,
+              }}
             />
           ))}
           <span />
@@ -498,6 +475,6 @@ const SortableHeaderButton = ({ setSortBy, sortBy, sortType, text }: SortableHea
       }
     }}
   >
-    {sortBy.type === sortType && Arrow} {text} {sortType === SORT_TYPES.REWARDS ? MaticIcon : null}
+    {sortBy.type === sortType && Arrow} {text} {sortType === POOL_SORT_TYPES.REWARDS ? MaticIcon : null}
   </button>
 );
