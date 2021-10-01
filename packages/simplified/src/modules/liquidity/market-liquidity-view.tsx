@@ -258,6 +258,8 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
+  const liquidityUSD = 
+    balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue || "0";
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
@@ -481,7 +483,7 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
                           infoNumbers: [
                             {
                               label: "Pooled USDC",
-                              value: `${formatCash(breakdown.amount, USDC).full}`,
+                              value: `${formatCash(liquidityUSD, USDC).full}`,
                               svg: USDCIcon,
                             },
                           ],
