@@ -18,20 +18,23 @@ export async function fetchInitialSports(
   masterChef: MasterChef,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialSportsMarket[] }> {
+): Promise<{ factoryBundle: MarketFactoryBundle; markets: InitialSportsMarket[]; timestamp: BigNumber | null }> {
   const eventCount = await marketFactory.eventCount();
 
   let factoryBundle: MarketFactoryBundle | undefined;
   let eventBundles: StaticSportsEventBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawFactoryBundle, rawEventBundles, lowestEventIndex] = await fetcher.fetchInitial(
+    const [rawFactoryBundle, rawEventBundles, lowestEventIndex, _timestamp] = await fetcher.fetchInitial(
       marketFactory.address,
       ammFactory.address,
       masterChef.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     if (!factoryBundle) factoryBundle = createMarketFactoryBundle(rawFactoryBundle.super);
     eventBundles = eventBundles.concat(rawEventBundles.map(createStaticSportsEventBundle));
@@ -65,7 +68,7 @@ export async function fetchInitialSports(
     }
   }
 
-  return { factoryBundle, markets };
+  return { factoryBundle, markets, timestamp };
 }
 
 export async function fetchDynamicSports(
@@ -74,18 +77,21 @@ export async function fetchDynamicSports(
   ammFactory: AMMFactory,
   initialOffset: BigNumberish = 0,
   bundleSize: BigNumberish = 50
-): Promise<{ markets: DynamicMarketBundle[] }> {
+): Promise<{ markets: DynamicMarketBundle[]; timestamp: BigNumber | null }> {
   const eventCount = await marketFactory.eventCount();
 
   let eventBundles: DynamicSportsEventBundle[] = [];
+  let timestamp: BigNumber | null = null;
 
   for (let offset = BigNumber.from(initialOffset); ; ) {
-    const [rawEventBundles, lowestEventIndex] = await fetcher.fetchDynamic(
+    const [rawEventBundles, lowestEventIndex, _timestamp] = await fetcher.fetchDynamic(
       marketFactory.address,
       ammFactory.address,
       offset,
       bundleSize
     );
+
+    if (timestamp === null || _timestamp < timestamp) timestamp = _timestamp;
 
     eventBundles = eventBundles.concat(rawEventBundles.map(createDynamicSportsEventBundle));
 
@@ -110,7 +116,7 @@ export async function fetchDynamicSports(
     }
   }
 
-  return { markets };
+  return { markets, timestamp };
 }
 
 export interface InitialSportsMarket extends StaticMarketBundle {

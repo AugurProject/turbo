@@ -194,7 +194,8 @@ abstract contract SportsFetcher is Fetcher {
         returns (
             SpecificMarketFactoryBundle memory _marketFactoryBundle,
             StaticEventBundle[] memory _eventBundles,
-            uint256 _lowestEventIndex
+            uint256 _lowestEventIndex,
+            uint256 _timestamp
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
@@ -205,6 +206,7 @@ abstract contract SportsFetcher is Fetcher {
             _offset,
             _total
         );
+        _timestamp = block.timestamp;
     }
 
     function fetchDynamic(
@@ -212,8 +214,17 @@ abstract contract SportsFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _offset,
         uint256 _total
-    ) public view returns (DynamicEventBundle[] memory _bundles, uint256 _lowestEventIndex) {
+    )
+        public
+        view
+        returns (
+            DynamicEventBundle[] memory _bundles,
+            uint256 _lowestEventIndex,
+            uint256 _timestamp
+        )
+    {
         (_bundles, _lowestEventIndex) = buildDynamicEventBundles(_marketFactory, _ammFactory, _offset, _total);
+        _timestamp = block.timestamp;
     }
 
     function buildStaticEventBundles(
@@ -254,7 +265,7 @@ abstract contract SportsFetcher is Fetcher {
         AMMFactory _ammFactory,
         MasterChef _masterChef,
         uint256 _eventId
-    ) public view returns (StaticEventBundle memory _bundle) {
+    ) internal view returns (StaticEventBundle memory _bundle) {
         Sport.SportsEvent memory _event = Sport(_marketFactory).getSportsEvent(_eventId);
 
         StaticMarketBundle[] memory _markets = new StaticMarketBundle[](_event.markets.length);
@@ -284,7 +295,7 @@ abstract contract SportsFetcher is Fetcher {
         address _marketFactory,
         AMMFactory _ammFactory,
         uint256 _eventId
-    ) public view returns (DynamicEventBundle memory _bundle) {
+    ) internal view returns (DynamicEventBundle memory _bundle) {
         Sport.SportsEvent memory _event = Sport(_marketFactory).getSportsEvent(_eventId);
 
         DynamicMarketBundle[] memory _markets = new DynamicMarketBundle[](_event.markets.length);
@@ -456,7 +467,8 @@ contract CryptoFetcher is Fetcher {
         returns (
             SpecificMarketFactoryBundle memory _marketFactoryBundle,
             SpecificStaticMarketBundle[] memory _marketBundles,
-            uint256 _lowestMarketIndex
+            uint256 _lowestMarketIndex,
+            uint256 _timestamp
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
@@ -474,6 +486,8 @@ contract CryptoFetcher is Fetcher {
                 _marketIds[i]
             );
         }
+
+        _timestamp = block.timestamp;
     }
 
     function fetchDynamic(
@@ -481,7 +495,15 @@ contract CryptoFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _offset,
         uint256 _total
-    ) public view returns (SpecificDynamicMarketBundle[] memory _bundles, uint256 _lowestMarketIndex) {
+    )
+        public
+        view
+        returns (
+            SpecificDynamicMarketBundle[] memory _bundles,
+            uint256 _lowestMarketIndex,
+            uint256 _timestamp
+        )
+    {
         uint256[] memory _marketIds;
         (_marketIds, _lowestMarketIndex) = listOfInterestingMarkets(_marketFactory, _offset, _total);
 
@@ -490,6 +512,8 @@ contract CryptoFetcher is Fetcher {
         for (uint256 i; i < _total; i++) {
             _bundles[i] = buildSpecificDynamicMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
         }
+
+        _timestamp = block.timestamp;
     }
 
     // Starts from the end of the markets list because newer markets are more interesting.

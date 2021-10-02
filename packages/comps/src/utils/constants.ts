@@ -159,6 +159,8 @@ export const RESOLVED_MARKET = "Resolved Market";
 export const SETTINGS_SLIPPAGE: string = "2";
 export const TWELVE_HOUR_TIME: string = "12hr";
 export const TWENTY_FOUR_HOUR_TIME: string = "24hr";
+export const TEN_MINUTES: number = 10 * 60;
+
 // graph market status
 export const MARKET_STATUS = {
   TRADING: "TRADING",
