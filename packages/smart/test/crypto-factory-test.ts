@@ -33,6 +33,7 @@ import { calculateSellCompleteSetsWithValues } from "../src/bmath";
 import { makePoolCheck, marketFactoryBundleCheck } from "./fetching";
 import { randomPrice } from "../tasks";
 import { createPoolStatusInfo } from "../src/fetcher/common";
+import { Provider } from "@ethersproject/providers";
 
 const MAX_APPROVAL = BigNumber.from(2).pow(256).sub(1);
 const ZERO = BigNumber.from(0);
@@ -444,7 +445,7 @@ describe("CryptoFactory", function () {
     { offset: PRICE_FEEDS.length, bundle: 50, ids: [8] }, // skip all open markets
   ].forEach(({ offset, bundle, ids }) => {
     it(`fetcher initial {offset=${offset},bundle=${bundle}}`, async () => {
-      const { factoryBundle, markets } = await fetchInitialCrypto(
+      const { factoryBundle, markets, timestamp } = await fetchInitialCrypto(
         fetcher,
         marketFactory,
         ammFactory,
@@ -457,13 +458,21 @@ describe("CryptoFactory", function () {
       expect(markets, "market bundles").to.deep.equal(
         await Promise.all(ids.map((id) => marketStaticBundleCheck(marketFactory, ammFactory, masterChef, id)))
       );
+
+      expect(timestamp).to.deep.equal(
+        BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp)
+      );
     });
 
     it(`fetcher dynamic {offset=${offset},bundle=${bundle}}`, async () => {
-      const { markets } = await fetchDynamicCrypto(fetcher, marketFactory, ammFactory, offset, bundle);
+      const { markets, timestamp } = await fetchDynamicCrypto(fetcher, marketFactory, ammFactory, offset, bundle);
 
       expect(markets, "market bundles").to.deep.equal(
         await Promise.all(ids.map((id) => marketDynamicBundleCheck(marketFactory, ammFactory, id)))
+      );
+
+      expect(timestamp).to.deep.equal(
+        BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp)
       );
     });
   });

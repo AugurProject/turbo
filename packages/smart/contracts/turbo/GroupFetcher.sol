@@ -50,7 +50,8 @@ abstract contract GroupFetcher is Fetcher {
         returns (
             SpecificMarketFactoryBundle memory _marketFactoryBundle,
             StaticGroupBundle[] memory _groupBundles,
-            uint256 _lowestGroupIndex
+            uint256 _lowestGroupIndex,
+            uint256 _timestamp
         )
     {
         _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
@@ -61,6 +62,7 @@ abstract contract GroupFetcher is Fetcher {
             _offset,
             _total
         );
+        _timestamp = block.timestamp;
     }
 
     function fetchDynamic(
@@ -68,8 +70,17 @@ abstract contract GroupFetcher is Fetcher {
         AMMFactory _ammFactory,
         uint256 _offset,
         uint256 _total
-    ) public view returns (DynamicGroupBundle[] memory _bundles, uint256 _lowestGroupIndex) {
+    )
+        public
+        view
+        returns (
+            DynamicGroupBundle[] memory _bundles,
+            uint256 _lowestGroupIndex,
+            uint256 _timestamp
+        )
+    {
         (_bundles, _lowestGroupIndex) = buildDynamicGroupBundles(_marketFactory, _ammFactory, _offset, _total);
+        _timestamp = block.timestamp;
     }
 
     function buildStaticGroupBundles(
@@ -110,7 +121,7 @@ abstract contract GroupFetcher is Fetcher {
         AMMFactory _ammFactory,
         MasterChef _masterChef,
         uint256 _groupId
-    ) public view returns (StaticGroupBundle memory _bundle) {
+    ) internal view returns (StaticGroupBundle memory _bundle) {
         Grouped.MarketGroup memory _group = Grouped(_marketFactory).getGroup(_groupId);
 
         StaticMarketBundle[] memory _markets = new StaticMarketBundle[](_group.markets.length);
@@ -143,7 +154,7 @@ abstract contract GroupFetcher is Fetcher {
         address _marketFactory,
         AMMFactory _ammFactory,
         uint256 _groupId
-    ) public view returns (DynamicGroupBundle memory _bundle) {
+    ) internal view returns (DynamicGroupBundle memory _bundle) {
         Grouped.MarketGroup memory _group = Grouped(_marketFactory).getGroup(_groupId);
 
         DynamicMarketBundle[] memory _markets = new DynamicMarketBundle[](_group.markets.length);

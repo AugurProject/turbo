@@ -26,6 +26,7 @@ import {
   range,
 } from "../src";
 import { createPoolStatusInfo } from "../src/fetcher/common";
+import { Provider } from "@ethersproject/providers";
 
 const now = BigNumber.from(Date.now()).div(1000);
 const ONE_DAY = BigNumber.from(60 * 60 * 24);
@@ -322,7 +323,7 @@ describe("Grouped Markets", () => {
         { offset: 3, bundle: 50, ids: [] },
       ].forEach(({ offset, bundle, ids }) => {
         it(`fetcher initial {offset=${offset},bundle=${bundle}}`, async () => {
-          const { factoryBundle, markets } = await fetchInitialGroup(
+          const { factoryBundle, markets, timestamp } = await fetchInitialGroup(
             fetcher,
             marketFactory,
             ammFactory,
@@ -339,15 +340,23 @@ describe("Grouped Markets", () => {
               ))
             )
           );
+
+          expect(timestamp).to.deep.equal(
+            BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp)
+          );
         });
 
         it(`fetcher dynamic {offset=${offset},bundle=${bundle}}`, async () => {
-          const { markets } = await fetchDynamicGroup(fetcher, marketFactory, ammFactory, offset, bundle);
+          const { markets, timestamp } = await fetchDynamicGroup(fetcher, marketFactory, ammFactory, offset, bundle);
 
           expect(markets, "market bundles").to.deep.equal(
             flatten(
               ...(await Promise.all(ids.map((groupId) => groupDynamicBundleCheck(marketFactory, ammFactory, groupId))))
             )
+          );
+
+          expect(timestamp).to.deep.equal(
+            BigNumber.from((await (signer.provider as Provider).getBlock("latest")).timestamp)
           );
         });
       });
