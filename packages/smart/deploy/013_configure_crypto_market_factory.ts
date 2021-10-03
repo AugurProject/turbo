@@ -27,10 +27,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   // finished with setup so can now set owner
   if (owner !== deployer) {
-    console.log(
-      `Transferring ownership of crypto market factory ${marketFactory.address} from ${deployer} to ${owner}`
-    );
-    await marketFactory.transferOwnership(owner);
+    const currentOwner = await marketFactory.getOwner();
+    if (currentOwner !== deployer) {
+      console.log(
+        `Not transferring ownership of crypto market factory because deployer (${deployer}) is not owner (${currentOwner})`
+      );
+    } else {
+      console.log(
+        `Transferring ownership of crypto market factory ${marketFactory.address} from ${deployer} to ${owner}`
+      );
+      await marketFactory.transferOwnership(owner);
+    }
   }
 };
 
