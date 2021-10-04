@@ -31,7 +31,7 @@ const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber; ids
   const factories = claimbleMarketsPerCash.reduce(
     (p, { ammExchange: { turboId, marketFactoryAddress }, claimableWinnings: { claimableBalance } }) => {
       const factory = p[marketFactoryAddress] || { total: new BigNumber(0), ids: [] };
-      factory.total = factory.total.plus(createBigNumber(claimableBalance));
+      factory.total = factory.total.plus(createBigNumber(claimableBalance || 0));
       factory.ids.push(turboId);
       factory.address = marketFactoryAddress;
       return { ...p, [marketFactoryAddress]: factory };
@@ -205,8 +205,8 @@ const useEventPositionsData = (sortBy: string, search: string) => {
             name: market?.outcomes?.[outcomeId]?.name,
             subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
             betId,
-            toWin: createBigNumber(test?.payout).minus(test.initCostUsd).toFixed(),
-            cashoutAmount: test.hasClaimed ? createBigNumber(test?.payout).minus(test.initCostUsd).toFixed() : test?.payout,
+            toWin: createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed(),
+            cashoutAmount: test.hasClaimed ? createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed() : test?.payout,
             canCashOut: !test?.hasClaimed,
             isWinningOutcome: outcomeId === market?.winner
           };
