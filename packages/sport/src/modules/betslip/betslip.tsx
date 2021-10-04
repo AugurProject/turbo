@@ -257,6 +257,7 @@ export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => 
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
 const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
+// eslint-disable-next-line
 const ONLY_NUMBER_VALUES_REGEX = /^\$?\.?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;
 
 const EditableBet = ({ betId, bet }) => {
