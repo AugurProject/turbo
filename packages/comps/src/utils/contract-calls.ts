@@ -61,6 +61,7 @@ import {
   ZERO,
   POLYGON_NETWORK,
   POLYGON_PRICE_FEED_MATIC,
+  MAX_LAG_BLOCKS,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -657,7 +658,8 @@ const chunkedMulticall = async (
   provider: Web3Provider,
   contractCalls,
   callingMethod: string,
-  chunkSize: number = MULTI_CALL_LIMIT
+  chunkSize: number = MULTI_CALL_LIMIT,
+  currentBlockNumber: number = 0
 ): Promise<{ blocknumber: number; results: { [key: string]: ContractCallReturnContext } }> => {
   if (!provider) {
     throw new Error("Provider not provided");
@@ -690,6 +692,11 @@ const chunkedMulticall = async (
     }
     results = combined;
   }
+  if (Math.abs(currentBlockNumber - results.blocknumber) >= MAX_LAG_BLOCKS) {
+    const msg = `user balance data more than ${MAX_LAG_BLOCKS} blocks, ${provider.connection.url}`;
+    console.error(msg);
+    throw new Error(msg);
+  }
   return results;
 };
 
@@ -708,7 +715,8 @@ export const getUserBalances = async (
   ammExchanges: AmmExchanges,
   cashes: Cashes,
   markets: MarketInfos,
-  transactions: AllMarketsTransactions | UserClaimTransactions
+  transactions: AllMarketsTransactions | UserClaimTransactions,
+  currentBlockNumber: number = 0
 ): Promise<UserBalances> => {
   const userBalances = {
     ETH: {
@@ -927,7 +935,7 @@ export const getUserBalances = async (
     ...contractLpBalanceRewardsCall,
   ];
 
-  const balanceResult = await chunkedMulticall(provider, balanceCalls, "getUserBalances", 20);
+  const balanceResult = await chunkedMulticall(provider, balanceCalls, "getUserBalances", 20, currentBlockNumber);
 
   for (let i = 0; i < Object.keys(balanceResult.results).length; i++) {
     const key = Object.keys(balanceResult.results)[i];
@@ -1778,7 +1786,7 @@ export const getMaticUsdPrice = async (library: Web3Provider = null): Promise<nu
     defaultMaticPrice = new BN(String(data?.answer)).div(new BN(10).pow(Number(8))).toNumber();
     // get price
   } catch (error) {
-    console.error("Failed to get price feed contract", error);
+    console.error(`Failed to get price feed contract, using ${defaultMaticPrice}`);
     return defaultMaticPrice;
   }
   return defaultMaticPrice;

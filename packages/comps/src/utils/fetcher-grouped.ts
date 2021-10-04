@@ -45,7 +45,7 @@ export const fetchContractData = async (config: MarketFactory, provider: Web3Pro
   );
 
   if (isDataTooOld(timestamp.toNumber())) {
-    console.error("node returnded data too old");
+    console.error("node returned data too old", provider.connection.url);
     throw new Error("contract data too old");
   }
 
