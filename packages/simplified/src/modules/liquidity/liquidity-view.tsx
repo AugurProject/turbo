@@ -364,7 +364,6 @@ const LiquidityView = () => {
       <AppViewStats small liquidity />
       <AvailableLiquidityRewards balance={rewardBalance} />
       <MaticAddMetaMaskToken />
-
       <h1>Explore LP Opportunties</h1>
       <p>
         Add Market liquidity to earn fees and rewards. <a href=".">Learn more →</a>

@@ -112,16 +112,16 @@
 }
 
 .AddMetaMaskToken {
-  .ThemeBorder;
-  .text-12-semi-bold;
-
-  border-radius: @size-4;
-  padding: @size-4;
-  color: var(--secondary-text);
+  grid-column: 2;
   cursor: pointer;
   display: flex;
-  max-width: 180px;
-  justify-content: space-around;
+  flex-flow: row nowrap;
+  max-width: max-content;
+  justify-self: flex-end;
+
+  > img {
+    margin-right: @size-4;
+  }  
 }
 
 .AvailableLiquidityRewards {
@@ -238,5 +238,9 @@
     max-width: unset;
     grid-gap: @size-12;
     padding: @size-8 @size-16;
+  }
+
+  .AddMetaMaskToken {
+    margin-bottom: @size-8;
   }
 }
