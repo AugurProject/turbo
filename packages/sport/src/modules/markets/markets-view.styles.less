@@ -172,11 +172,8 @@
         grid-gap: @size-8;
 
         &.NoSubCategories {
-          grid-template-columns: 0fr 1fr;
-
           > h2 {
-            position: absolute;
-            top: @size-64;
+            grid-column: 1;
           }
         }
 
@@ -194,11 +191,13 @@
         > article {
           margin: 0;
           grid-column: 1;
+          justify-self: flex-start;
         }
 
         > div:first-of-type {
           margin-right: 0;
           grid-column: 2;
+          justify-self: flex-end;
         }
         > div:last-of-type {
           grid-column: span 2;
