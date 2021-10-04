@@ -424,7 +424,7 @@ export const BonusReward = ({
   return (
     <article className={Styles.BonusReward}>
       <h4>Bonus Reward</h4>
-      <p>Keep your liquidity in the pool until the unlock period to get a 20% bonus on top of your rewards</p>
+      <p>Keep your liquidity in the pool until the unlock period to get a bonus on top of your rewards</p>
       <span>
         <span style={{ width: `${filled}%` }} />
       </span>
