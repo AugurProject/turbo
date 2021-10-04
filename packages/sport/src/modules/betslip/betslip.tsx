@@ -23,7 +23,7 @@ import {
 import { useSportsStore } from "modules/stores/sport";
 import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
-import { NFLSideBanner } from 'modules/common/top-banner';
+import { NFLSideBanner } from "modules/common/top-banner";
 
 const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
@@ -81,15 +81,17 @@ export const Betslip = () => {
       })}
     >
       <div ref={betslipRef}>
-      {isLogged && <SecondaryThemeButton
-          text={`Betslip (${counts[0]})`}
-          icon={SimpleChevron}
-          small
-          action={() => {
-            handleToggle(BETSLIP);
-            setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
-          }}
-        />}
+        {isLogged && (
+          <SecondaryThemeButton
+            text={`Betslip (${counts[0]})`}
+            icon={SimpleChevron}
+            small
+            action={() => {
+              handleToggle(BETSLIP);
+              setSidebar(sidebarType ? null : SIDEBAR_TYPES.BETSLIP);
+            }}
+          />
+        )}
         {counts[0] > 0 && (
           <div className={Styles.MobileBetslipButtonContainer}>
             <PrimaryThemeButton
@@ -106,11 +108,7 @@ export const Betslip = () => {
           <>
             <BetslipMain />
             <BuyApprovals />
-            {oddsChangedMessage && 
-              <div className={Styles.OddsChangedMessage}>
-                {oddsChangedMessage}
-              </div>
-            }
+            {oddsChangedMessage && <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>}
           </>
         ) : (
           <ActiveBetsMain />
@@ -259,7 +257,7 @@ export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => 
 
 const LOW_AMOUNT_ERROR = "Your bet must be greater than 0.00";
 const HIGH_AMOUNT_ERROR = "Your bet exceeds the max available for these odds";
-const ONLY_NUMBER_VALUES_REGEX = /(?:\d{1,3}(?:,\d+)*|\d+)(?:\.\d+)?$/;
+const ONLY_NUMBER_VALUES_REGEX = /^\$?\.?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/;
 
 const EditableBet = ({ betId, bet }) => {
   const {
@@ -312,7 +310,7 @@ const EditableBet = ({ betId, bet }) => {
             label="wager"
             onEdit={(e) => {
               const newValue = ONLY_NUMBER_VALUES_REGEX.exec(e.target.value)?.[0];
-              if (newValue === "") {
+              if (newValue === "" || createBigNumber(newValue).isNaN()) {
                 setError(null);
                 setUpdatedPrice(price);
                 updateBet({
@@ -353,7 +351,7 @@ const EditableBet = ({ betId, bet }) => {
               setValue(newValue);
             }}
             onBlur={(e) => {
-              const CleanValue = (value || "").split(",").join("");
+              const CleanValue = (value || "").split(",").join("").replace("$","");
               const fmtValue = formatDai(CleanValue).formatted;
               const buyAmount = getBuyAmount(amm, id, CleanValue);
               const errorCheck = checkErrors(fmtValue);
@@ -427,9 +425,9 @@ const LabeledInput = ({
         disabled={disabled}
         onKeyDown={(e) => {
           // stop passing values to onChange if they aren't valid keystrokes of // 0-9 | , | . | Backspace (for clearing input)
-          const nums = /^(?:\d|\.|,)*$/;
-          if (!nums.test(e.key) && !["Backspace", "Enter", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key))
-            e.preventDefault();
+          // const nums = /^(?:\d)*$/;
+          // if (!["Backspace", "Enter", "Delete", "ArrowLeft", "ArrowRight", "Decimal", "Comma"].includes(e.key))
+          //   e.preventDefault();
         }}
       />
     </div>
