@@ -1,5 +1,5 @@
 {
-  "name": "mlb-create",
+  "name": "Augur | MLB Market Creation - ${MLB_MARKET_FACTORY}",
   "initiators": [
     {
       "type": "web"
@@ -7,7 +7,7 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC 0 */4 * * *"
+        "schedule": "CRON_TZ=UTC 55 3,8 * * *"
       }
     }
   ],
@@ -22,7 +22,7 @@
           9,
           3
         ],
-        "daysInAdvance": 7,
+        "daysInAdvance": 1,
         "contractAddress": "${MLB_MARKET_FACTORY}"
       }
     }

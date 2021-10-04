@@ -1,5 +1,5 @@
 {
-  "name": "crypto-poke",
+  "name": "Augur | Crypto Prices - ${CRYPTO_MARKET_FACTORY}",
   "initiators": [
     {
       "type": "web"
@@ -8,12 +8,6 @@
       "type": "cron",
       "params": {
         "schedule": "CRON_TZ=UTC 1 20 * * 5"
-      }
-    },
-    {
-      "type": "cron",
-      "params": {
-        "schedule": "CRON_TZ=UTC 1 21 * * 5"
       }
     }
   ],
