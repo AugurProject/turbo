@@ -136,7 +136,8 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           canCashOut,
           isPending,
           timestamp,
-          isWinningOutcome: won
+          isWinningOutcome: won,
+          isOpen
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
@@ -145,9 +146,9 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             ? won
               ? cashout.full
               : formatCash(wager, USDC).full
-            : !canCashOut && !hasClaimed
+            : !canCashOut && !hasClaimed && isOpen
             ? CASHOUT_NOT_AVAILABLE
-            : !isApproved
+            : !isApproved && isOpen
             ? `APPROVE CASHOUT ${cashout.full}`
             : isPending
             ? `PENDING ${cashout.full}`

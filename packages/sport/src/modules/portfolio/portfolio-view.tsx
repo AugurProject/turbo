@@ -130,104 +130,109 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
   const { positionBalance } = transactions;
-  let marketIds = null;
-  let events = null;
-  let eventPositionsData = null;
-  if (sortBy === OPEN) {
-    marketIds = Array.from(
-      new Set(
+  console.log('positionBalance', positionBalance)
+  let marketIds = Array.from([
+      ...new Set(
         Object.entries(active)
           .map(([txhash, bet]: [string, BetType]) => {
+            console.log('bet in active', bet)
             return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
           })
-          .filter((i) => i)
-      )
-    );
-    events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId)))
-      .map((eventId) => marketEvents[eventId])
-      .filter((v) => v);
-    eventPositionsData = events.reduce((acc, event) => {
-      const out = { ...acc };
-      const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
-        let result = { ...a };
-        const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
-        if (event?.marketIds?.includes(marketId)) {
-          result[txhash] = bet;
-        }
-        return result;
-      }, {});
-      out[event?.eventId] = {
-        eventId: event?.eventId,
-        eventTitle: event?.description,
-        eventStartTime: event?.startTimestamp,
-        bets,
-        marketIds: event?.marketIds,
-      };
-      return out;
+      ),
+    ...new Set([...(positionBalance || [])?.map((p) => p?.marketId), ...Object.keys(marketShares)])
+  ]).filter(id => sortBy === OPEN ? !markets[id]?.hasWinner : markets[id]?.hasWinner);
+
+  const events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId)))
+    .map((eventId) => marketEvents[eventId])
+    .filter((v) => v);
+  console.log('active bets', active, events)
+
+  let eventPositionOpen = null;
+  let eventPositionClosed = null;
+
+  eventPositionOpen = events.reduce((acc, event) => {
+    const out = { ...acc };
+    const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
+      let result = { ...a };
+      const marketId = bet?.betId.slice(0, bet?.betId.lastIndexOf("-"));
+      if (event?.marketIds?.includes(marketId)) {
+        result[txhash] = bet;
+      }
+      return result;
     }, {});
-  } else {
-    marketIds = Array.from(new Set([...positionBalance?.map((p) => p?.marketId), ...Object.keys(marketShares)])).filter((v) => v);
-    events = Array.from(new Set(marketIds?.map((marketId: string) => markets?.[marketId]?.eventId)))
-      .map((eventId) => marketEvents[eventId])
-      .filter((v) => v);
-    const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
-      const userMarketShares = marketShares as any;
-      const marketPositions = userMarketShares[marketId];
-      const { market } = marketPositions.ammExchange;
-      return [...p, ...marketPositions.positions.map((pos) => ({ ...pos, marketId: market.marketId }))];
-    }, []);
-    eventPositionsData = events.reduce((acc, event) => {
-      const out = { ...acc };
-      const bets = [...positionBalance, ...marketPositions].reduce((a, test) => {
-        let result = { ...a };
-        if (event?.marketIds?.includes(test?.marketId)) {
-          const market = markets[test?.marketId];
-          const openPositions = marketShares[test?.marketId]?.positions;
-          const outcomeId =
-            test?.outcomeId?.length > 40
-              ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
-              : parseInt(test?.outcomeId);
-          const betId = `${test.marketId}-${outcomeId}`;
-          const marketPositions = (openPositions && [...openPositions?.map((pos) => ({ ...pos, marketId: market.marketId }))]) || [];
-          const testBets = processResolvedMarketsPositions({
-            marketPositions,
-            markets,
-            account,
-            transactions,
-            userTransactions,
-            active,
-            marketEvents,
-          });
-          result[betId || test?.id] = {
-            ...test,
-            wager: test?.initCostUsd,
-            price: test?.avgPrice,
-            name: market?.outcomes?.[outcomeId]?.name,
-            subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
-            betId,
-            toWin: createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed(),
-            cashoutAmount: test.hasClaimed ? createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed() : test?.payout,
-            canCashOut: !test?.hasClaimed,
-            isWinningOutcome: outcomeId === market?.winner
+    if (Object.keys(bets).length === 0) return out;
+    out[event?.eventId] = {
+      eventId: event?.eventId,
+      eventTitle: event?.description,
+      eventStartTime: event?.startTimestamp,
+      bets,
+      marketIds: event?.marketIds,
+    };
+    return out;
+  }, {});
+
+  const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
+    const userMarketShares = marketShares as any;
+    const marketPositions = userMarketShares[marketId];
+    const { market } = marketPositions.ammExchange;
+    return [...p, ...marketPositions.positions.map((pos) => ({ ...pos, marketId: market.marketId }))];
+  }, []);
+  eventPositionClosed = events.reduce((acc, event) => {
+    const out = { ...acc };
+    const bets = [...positionBalance, ...marketPositions].reduce((a, test) => {
+      let result = { ...a };
+      if (event?.marketIds?.includes(test?.marketId)) {
+        const market = markets[test?.marketId];
+        const openPositions = marketShares[test?.marketId]?.positions;
+        const outcomeId =
+          test?.outcomeId?.length > 40
+            ? market?.outcomes?.find((out) => isSameAddress(test?.outcomeId, out?.shareToken))?.id
+            : parseInt(test?.outcomeId);
+        const betId = `${test.marketId}-${outcomeId}`;
+        const marketPositions = (openPositions && [...openPositions?.map((pos) => ({ ...pos, marketId: market.marketId }))]) || [];
+        const testBets = processResolvedMarketsPositions({
+          marketPositions,
+          markets,
+          account,
+          transactions,
+          userTransactions,
+          active,
+          marketEvents,
+        });
+        result[betId || test?.id] = {
+          ...test,
+          wager: test?.initCostUsd,
+          price: test?.avgPrice,
+          name: market?.outcomes?.[outcomeId]?.name,
+          subHeading: `${SPORTS_MARKET_TYPE_LABELS[market?.sportsMarketType]}`,
+          betId,
+          toWin: createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed(),
+          cashoutAmount: !test?.open? createBigNumber(test?.payout || 0).minus(test.initCostUsd).toFixed() : test?.payout,
+          canCashOut: !test?.hasClaimed && test?.open,
+          isOpen: test?.open,
+          isWinningOutcome: outcomeId === market?.winner,
+        };
+        testBets.forEach((testBet) => {
+          result[testBet.betId] = {
+            ...testBet,
           };
-          testBets.forEach((testBet) => {
-            result[testBet.betId] = {
-              ...testBet,
-            };
-          });
-        }
-        return result;
-      }, {});
-      out[event?.eventId] = {
-        eventId: event?.eventId,
-        eventTitle: event?.description,
-        eventStartTime: event?.startTimestamp,
-        bets,
-        marketIds: event?.marketIds,
-      };
-      return out;
+        });
+      }
+      return result;
     }, {});
-  }
+    if (Object.keys(bets).length === 0) return out;
+    out[event?.eventId] = {
+      eventId: event?.eventId,
+      eventTitle: event?.description,
+      eventStartTime: event?.startTimestamp,
+      bets,
+      marketIds: event?.marketIds,
+    };
+    return out;
+  }, {});
+
+  let eventPositionsData = { ...eventPositionOpen, ...eventPositionClosed };
+  console.log('eventPositionOpen', eventPositionOpen, 'eventPositionClosed', eventPositionClosed);
   if (!!search) {
     eventPositionsData = Object.entries(eventPositionsData)
       .filter(([eventID, event]: any) => {
