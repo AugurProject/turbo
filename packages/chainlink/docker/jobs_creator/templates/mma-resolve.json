@@ -1,5 +1,5 @@
 {
-  "name": "mma-resolve",
+  "name": "Augur | MMA Market Resolution - ${MMA_MARKET_FACTORY}",
   "initiators": [
     {
       "type": "web"
@@ -7,7 +7,7 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=UTC 0 */4 * * *"
+        "schedule": "CRON_TZ=UTC 03 7 * * *"
       }
     }
   ],
@@ -17,12 +17,6 @@
       "params": {
         "sport": "mma",
         "method": "resolve",
-        "startBuffer": 86400,
-        "affiliateIds": [
-          9,
-          3
-        ],
-        "daysInAdvance": 7,
         "contractAddress": "${MMA_MARKET_FACTORY}"
       }
     }
