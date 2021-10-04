@@ -46,7 +46,7 @@ export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyA
 
 export const estimatedCashOut = (amm: AmmExchange, size: string, outcomeId: number): string => {
   if (!amm?.hasLiquidity || !size || outcomeId === undefined) return null;
-  const est = estimateSellTrade(amm, size, outcomeId, []);
+  const est = estimateSellTrade(amm, size, outcomeId, { outcomeSharesRaw: [] });
   // can sell all position or none
   return est.maxSellAmount !== "0" ? null : est.outputValue;
 };
@@ -61,7 +61,7 @@ const makeCashOut = async (
   const { cash } = amm;
   const shareAmount = bet.size;
   const defaultSlippage = "1";
-  const est = estimateSellTrade(amm, shareAmount, bet.outcomeId, []);
+  const est = estimateSellTrade(amm, shareAmount, bet.outcomeId, { outcomeSharesRaw: [] });
   // can sell all position or none
   if (est.maxSellAmount !== "0") return null;
   const response = await doTrade(
