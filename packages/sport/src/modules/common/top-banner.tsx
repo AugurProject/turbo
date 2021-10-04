@@ -9,7 +9,7 @@ export const TopBanner = () => {
   const {
     actions: { setModal },
   } = useAppStatusStore();
-  const { theme } = useSportsStore();
+  const { settings: { theme } } = useSportsStore();
   const { transactions } = useUserStore();
   return (
     <div className={Styles.TopBanner}>
@@ -20,7 +20,7 @@ export const TopBanner = () => {
       </h1>
       <PrimaryThemeButton
         text="Connect a wallet to start betting"
-        invert={theme === 'SPORTS'}
+        invert={theme === Constants.THEME_OPTIONS.LIGHT}
         action={() =>
           setModal({
             type: Constants.MODAL_CONNECT_WALLET,
