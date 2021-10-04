@@ -546,7 +546,14 @@
   }
 }
 
-.Pending {
+Button.Secondary.Pending {
+  --spinner-color-rgb: var(--primary-bg-rgb);
+  --spinner-color: var(--primary-bg);
+  --spinner-color-hover-rgb: var(--primary-text-rgb);
+  --spinner-color-hover: var(--primary-text);
+  --spinner-background: var(--color-brand);
+  --spinner-background-hover: var(--secondary-bg);
+
   background: var(--color-brand);
   border: @size-1 solid var(--color-brand);
   color: var(--inverted-primary-text);
@@ -554,37 +561,67 @@
   &:not(:active):not(:focus):not(:focus-within):not(:focus-visible) {
     > div {
       &:before {
-        background: linear-gradient(0deg, transparent 50%, rgba(var(--primary-bg-rgb), 0.25) 100%) 0% 0%,
-          linear-gradient(90deg, rgba(var(--primary-bg-rgb), 0.25) 0%, rgba(var(--primary-bg-rgb), 0.4) 100%) 100% 0%,
-          linear-gradient(180deg, rgba(var(--primary-bg-rgb), 0.4) 0%, rgba(var(--primary-bg-rgb), 0.7) 100%) 100% 100%,
-          linear-gradient(270deg, rgba(var(--primary-bg-rgb), 0.7) 0%, var(--primary-bg) 100%) 0% 100%;
+        background: linear-gradient(0deg, transparent 50%, rgba(var(--spinner-color-rgb), 0.25) 100%) 0% 0%,
+          linear-gradient(90deg, rgba(var(--spinner-color-rgb), 0.25) 0%, rgba(var(--spinner-color-rgb), 0.4) 100%) 100%
+            0%,
+          linear-gradient(180deg, var(--spinner-background) 0%, rgba(var(--spinner-color-rgb), 0.7) 100%) 100% 100%,
+          linear-gradient(270deg, rgba(var(--spinner-color-rgb), 0.7) 0%, var(--spinner-color) 100%) 0% 100%;
         background-repeat: no-repeat;
         background-size: 50% 50%;
       }
-  
+
       &:after {
-        background: var(--color-brand);
+        background: var(--spinner-background);
       }
     }
-  
+
     &:hover {
       > div {
         &:before {
-          background: linear-gradient(0deg, transparent 50%, rgba(var(--primary-text-rgb), 0.25) 100%) 0% 0%,
-            linear-gradient(90deg, rgba(var(--primary-text-rgb), 0.25) 0%, rgba(var(--primary-text-rgb), 0.4) 100%) 100%
-              0%,
-            linear-gradient(180deg, rgba(var(--primary-text-rgb), 0.4) 0%, rgba(var(--primary-text-rgb), 0.7) 100%) 100%
-              100%,
-            linear-gradient(270deg, rgba(var(--primary-text-rgb), 0.7) 0%, var(--primary-text) 100%) 0% 100%;
+          background: linear-gradient(0deg, transparent 50%, rgba(var(--spinner-color-hover-rgb), 0.25) 100%) 0% 0%,
+            linear-gradient(
+                90deg,
+                rgba(var(--spinner-color-hover-rgb), 0.25) 0%,
+                rgba(var(--spinner-color-hover-rgb), 0.4) 100%
+              )
+              100% 0%,
+            linear-gradient(
+                180deg,
+                rgba(var(--spinner-color-hover-rgb), 0.4) 0%,
+                rgba(var(--spinner-color-hover-rgb), 0.7) 100%
+              )
+              100% 100%,
+            linear-gradient(270deg, rgba(var(--spinner-color-hover-rgb), 0.7) 0%, var(--spinner-color-hover) 100%) 0%
+              100%;
           background-repeat: no-repeat;
           background-size: 50% 50%;
         }
         &:after {
-          background: var(--secondary-bg);
+          background: var(--spinner-background-hover);
         }
       }
     }
   }
+}
 
-  
+:root[theme="SPORTS"] {
+  Button.Secondary.Pending {
+    --spinner-color-rgb: var(--primary-bg-rgb);
+    --spinner-color: var(--primary-bg);
+    --spinner-color-hover-rgb: var(--primary-text-rgb);
+    --spinner-color-hover: var(--primary-text);
+    --spinner-background: var(--color-brand);
+    --spinner-background-hover: var(--primary-bg);
+  }
+}
+
+:root[theme="SPORTS_DARK"] {
+  Button.Secondary.Pending {
+    --spinner-color-rgb: var(--primary-text-rgb);
+    --spinner-color: var(--primary-text);
+    --spinner-color-hover-rgb: var(--primary-bg-rgb);
+    --spinner-color-hover: var(--primary-bg);
+    --spinner-background: var(--color-brand);
+    --spinner-background-hover: var(--primary-text);
+  }
 }
