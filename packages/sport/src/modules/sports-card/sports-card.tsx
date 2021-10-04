@@ -237,7 +237,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     ?.name?.replace(eventOutcomeName, "")
     .trim();
 
- return (
+    return (
     <article>
       <label>{eventOutcomeName}</label>
       <button
@@ -255,7 +255,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         }}
         disabled={spreadOdds === "-"}
       >
-        {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" ? <span>{outcomeSpread}</span> : <span />}
+        {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" && outcomeSpread !== "No Contest"? <span>{outcomeSpread}</span> : <span />}
         <span>{spreadOdds}</span>
       </button>
       <button
