@@ -168,12 +168,15 @@
     > article:last-of-type {
       > ul {
         display: grid;
-        grid-template-columns: 0fr 1fr;
-        grid-gap: @size-8 0;
+        grid-template-columns: 1fr;
+        grid-gap: @size-8;
 
         &.NoSubCategories {
+          grid-template-columns: 0fr 1fr;
+
           > h2 {
             position: absolute;
+            top: @size-64;
           }
         }
 
