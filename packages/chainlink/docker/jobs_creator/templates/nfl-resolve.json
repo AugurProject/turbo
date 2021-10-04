@@ -1,5 +1,5 @@
 {
-  "name": "nfl-resolve",
+  "name": "Augur | NFL Market Resolution - ${NFL_MARKET_FACTORY}",
   "initiators": [
     {
       "type": "web"
@@ -7,13 +7,37 @@
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=EDT 8 1 * * 0,1,2,5"
+        "schedule": "CRON_TZ=UTC 13 1 * * 1"
       }
     },
     {
       "type": "cron",
       "params": {
-        "schedule": "CRON_TZ=EDT 8 17,21 * * 0"
+        "schedule": "CRON_TZ=UTC 13 21 * * 0"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 13 5 * * 0,1,2,5"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 8 1 * * 1"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 8 21 * * 0"
+      }
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 8 5 * * 0,1,2,5"
       }
     }
   ],
@@ -23,12 +47,6 @@
       "params": {
         "sport": "nfl",
         "method": "resolve",
-        "startBuffer": 86400,
-        "affiliateIds": [
-          9,
-          3
-        ],
-        "daysInAdvance": 7,
         "contractAddress": "${NFL_MARKET_FACTORY}"
       }
     }
