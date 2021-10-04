@@ -136,9 +136,10 @@ export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, tr
     actions: { updateUserBalances },
   } = useUserStore();
   useEffect(() => {
-    const fetchUserBalances = (library, account, ammExchanges, cashes, markets, transactions) => {
+    const fetchUserBalances = async (library, account, ammExchanges, cashes, markets, transactions) => {
       const provider = getDefaultProvider() || library;
-      return getUserBalances(provider, account, ammExchanges, cashes, markets, transactions);
+      const currentBlockNumber = library ? await library.getBlockNumber() : 0;
+      return getUserBalances(provider, account, ammExchanges, cashes, markets, transactions, currentBlockNumber);
     };
 
     if (loginAccount?.library && loginAccount?.account) {
