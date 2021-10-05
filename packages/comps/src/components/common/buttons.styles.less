@@ -526,20 +526,20 @@
     }
 
     &.Selected {
-      background: var(--tiny-button-background-pressed);
-      border: @size-1 solid var(--tiny-dark-button-theme-color);
-      color: var(--dark-button-theme-color);
+      background: var(--tiny-button-background-selected);
+      border: @size-1 solid var(--tiny-button-border-selected);
+      color: var(--tiny-button-selected-color);
 
       > svg {
         > path[fill],
         > g > path[fill] {
-          fill: var(--dark-button-theme-color);
+          fill: var(--tiny-button-selected-color);
         }
 
         > line,
         > path[stroke],
         > g > path[stroke] {
-          stroke: var(--dark-button-theme-color);
+          stroke: var(--tiny-button-selected-color);
         }
       }
     }

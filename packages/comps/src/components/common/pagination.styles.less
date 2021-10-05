@@ -27,7 +27,7 @@
           height: @size-12;
           width: @size-12;
           margin: 0;
-          transform: rotate(90deg);
+          transform: rotate(180deg);
           transform-origin: 50% 50%;
         }
       }
@@ -37,8 +37,6 @@
           height: @size-12;
           width: @size-12;
           margin: 0;
-          transform: rotate(-90deg);
-          transform-origin: 50% 50%;
         }
       }
     }
@@ -108,6 +106,31 @@
             display: none;
           }
         }
+      }
+    }
+  }
+}
+
+:root[theme="SPORTS"],
+:root[theme="SPORTS_DARK"] {
+  .Pagination > section > button {
+    &:first-of-type {
+      > svg {
+        height: @size-12;
+        width: @size-12;
+        margin: 0;
+        transform: rotate(90deg);
+        transform-origin: 50% 50%;
+      }
+    }
+
+    &:last-of-type {
+      > svg {
+        height: @size-12;
+        width: @size-12;
+        margin: 0;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
       }
     }
   }
