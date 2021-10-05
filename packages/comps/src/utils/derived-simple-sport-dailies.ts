@@ -317,6 +317,7 @@ const sportsData = {
 
 const sportsResolutionRules = {
   "2": {
+    // NFL
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: [
         `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered
@@ -348,6 +349,7 @@ protests, or overturned decisions.`,
     },
   },
   "3": {
+    // MLB
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: [
         `The results of a game are official after (and, unless otherwise stated, bets shall be settled subject to the completion of) 5 innings of play, or 4.5 innings should the home team be leading at the commencement of the bottom of the 5th innings. Should a game be called, if the result is official in accordance with this rule, the winner will be determined by the score/stats after the last completed inning.`,
@@ -373,6 +375,7 @@ protests, or overturned decisions.`,
     },
   },
   "4": {
+    // NBA
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: [
         `At least 43 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 43 minutes of play have been completed, the game is not considered an official game and the market should resolve as 'No Contest'.`,
@@ -395,6 +398,7 @@ protests, or overturned decisions.`,
     },
   },
   "6": {
+    // NHL
     types: {
       [SPORTS_MARKET_TYPE.MONEY_LINE]: [
         `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered an official game and the market should resolve as 'No Contest'.`,

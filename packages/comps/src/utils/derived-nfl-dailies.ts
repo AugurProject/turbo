@@ -2,6 +2,7 @@ import { BigNumber as BN } from "bignumber.js";
 import { MarketInfo } from "types";
 import { NO_CONTEST_OUTCOME_ID, SPORTS_MARKET_TYPE } from "./constants";
 import { getSportTypeCategories, getSportTypeSportId } from "./team-helpers";
+import * as SimpleSportsDailies from "./derived-simple-sport-dailies";
 
 const NAMING_TEAM = {
   HOME_TEAM: "HOME_TEAM",
@@ -147,10 +148,7 @@ const getSportsTitles = (sportsMarketType: number): { title: string; description
 };
 
 export const getResolutionRules = (market: MarketInfo): string[] => {
-  if (market.sportsMarketType === undefined) return [];
-  const { sportsMarketType } = market;
-  if (!sportsResolutionRules[sportsMarketType]) return [];
-  return sportsResolutionRules[sportsMarketType];
+  return SimpleSportsDailies.getResolutionRules(market);
 };
 
 const getMarketOutcome = (sportsMarketType: number, outcomeId: number): string => {
@@ -207,35 +205,4 @@ const sportsData = {
     description: `${NAMING_TEAM.AWAY_TEAM} vs ${NAMING_TEAM.HOME_TEAM}`,
     outcomes: [NO_CONTEST, `Over ${NAMING_LINE.OVER_UNDER_LINE}.5`, `Under ${NAMING_LINE.OVER_UNDER_LINE}.5`],
   },
-};
-
-// TODO: Rules might change depending on how contract resolves over/under MMA markets, need to verify after contract is written
-const sportsResolutionRules = {
-  [SPORTS_MARKET_TYPE.MONEY_LINE]: [
-    `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is not played or if less than 55 minutes of play have been completed, the game is not considered
-    an official game and the market should resolve as 'No Contest'.`,
-    `Overtime counts towards settlement purposes.`,
-    `If the game ends in a tie, the market should resolve as 'No Contest'`,
-    `If the game is not played, the market should resolve as 'No Contest'.`,
-    `Results are determined by their natural conclusion and do not recognize postponed games,
-    protests, or overturned decisions.`,
-  ],
-  [SPORTS_MARKET_TYPE.SPREAD]: [
-    `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is
-not played or if less than 55 minutes of play have been completed, the game is not considered
-an official game and the market should resolve as 'No Contest'.`,
-    `Overtime counts towards settlement purposes.`,
-    `If the game is not played, the market should resolve as 'No Contest'.`,
-    `Results are determined by their natural conclusion and do not recognize postponed games,
-protests, or overturned decisions.`,
-  ],
-  [SPORTS_MARKET_TYPE.OVER_UNDER]: [
-    `At least 55 minutes of play must have elapsed for the game to be deemed official. If the game is
-not played or if less than 55 minutes of play have been completed, the game is not considered
-an official game and the market should resolve as 'No Contest'.`,
-    `Overtime count towards settlement purposes.`,
-    `If the game is not played, the market should resolve as 'No Contest'.`,
-    `Results are determined by their natural conclusion and do not recognize postponed games,
-protests, or overturned decisions.`,
-  ],
 };
