@@ -5,16 +5,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
 
-  if (!(await deployments.getOrNull("WrappedMatic"))) {
-    await deployments.deploy("WrappedMatic", {
-      contract: "Cash",
-      from: deployer,
-      args: ["WMATIC", "WMATIC", 18],
-      log: true,
-    });
-  }
+  await deployments.deploy("GroupedFetcher", {
+    from: deployer,
+    args: [],
+    log: true,
+  });
 };
 
-func.tags = ["RewardsTokens"];
+func.tags = ["Grouped", "Fetcher"];
+func.dependencies = [];
 
 export default func;

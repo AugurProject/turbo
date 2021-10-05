@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { FakePriceFeed__factory } from "../typechain";
-import { PRICE_FEEDS } from "../src";
+import { FakePriceFeed__factory } from "../../typechain";
+import { PRICE_FEEDS } from "../../src";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
@@ -25,7 +25,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   }
 };
 
-func.tags = ["SetPriceFeeds"];
+func.tags = ["SetPriceFeeds", "Test"];
 func.dependencies = ["PriceFeeds"];
 
 export default func;
