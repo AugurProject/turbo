@@ -3,11 +3,12 @@ import { useHistory } from "react-router";
 import classNames from "classnames";
 import Styles from "./pagination.styles.less";
 import { SecondaryThemeButton, TinyThemeButton } from "./buttons";
-import { SimpleChevron } from "./icons";
+import { SimpleChevron, Arrow } from "./icons";
 import makePath from "../../utils/links/make-path";
 import parsePath from "../../utils/links/parse-path";
 import makeQuery from "../../utils/links/make-query";
 import parseQuery from "../../utils/links/parse-query";
+import { getHTMLTheme } from "../../stores/utils";
 
 export interface PaginationProps {
   page: number;
@@ -134,9 +135,9 @@ export const useQueryPagination = ({ itemsPerPage, itemCount }) => {
       };
       history.push(newQuery);
     }
-  }, [page, totalPages, itemsPerPage, itemCount])
+  }, [page, totalPages, itemsPerPage, itemCount]);
   return [page, setPage];
-}
+};
 
 export const useQueryLocation = (page: number, totalPages: number, usePageLocation: boolean) => {
   const history = useHistory();
@@ -175,7 +176,7 @@ export const Pagination = ({
   const pagesArray = createPagesArray(page, totalPages, maxButtons);
 
   useQueryLocation(page, totalPages, usePageLocation);
-
+  const iconToUse = getHTMLTheme()?.includes("SPORT") ? SimpleChevron : Arrow;
   return (
     <div
       className={classNames(Styles.Pagination, {
@@ -184,12 +185,12 @@ export const Pagination = ({
     >
       {showPagination && (
         <section>
-          <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={SimpleChevron} />
+          <SecondaryThemeButton action={() => action(page - 1)} disabled={page === 1} icon={iconToUse} />
           {handleMiddle({ page, totalPages, pagesArray, action, useFull })}
           <SecondaryThemeButton
             action={() => action(page + 1)}
             disabled={page === totalPages || totalPages === 0}
-            icon={SimpleChevron}
+            icon={iconToUse}
           />
         </section>
       )}
