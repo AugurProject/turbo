@@ -130,12 +130,10 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
   const { positionBalance } = transactions;
-  console.log('positionBalance', positionBalance)
   let marketIds = Array.from([
       ...new Set(
         Object.entries(active)
           .map(([txhash, bet]: [string, BetType]) => {
-            console.log('bet in active', bet)
             return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
           })
       ),
@@ -145,7 +143,6 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId)))
     .map((eventId) => marketEvents[eventId])
     .filter((v) => v);
-  console.log('active bets', active, events)
 
   let eventPositionOpen = null;
   let eventPositionClosed = null;
@@ -232,7 +229,6 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   }, {});
 
   let eventPositionsData = { ...eventPositionOpen, ...eventPositionClosed };
-  console.log('eventPositionOpen', eventPositionOpen, 'eventPositionClosed', eventPositionClosed);
   if (!!search) {
     eventPositionsData = Object.entries(eventPositionsData)
       .filter(([eventID, event]: any) => {
