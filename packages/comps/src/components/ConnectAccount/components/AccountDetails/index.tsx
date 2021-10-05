@@ -11,7 +11,7 @@ import { TinyThemeButton } from "../../../common/buttons";
 import { Spinner } from "../../../common/spinner";
 import { GetWalletIcon } from "../../../common/get-wallet-icon";
 import { AbstractConnector } from "@web3-react/abstract-connector";
-import { TX_STATUS } from "../../../../utils/constants";
+import { POLYGON_NETWORK, TX_STATUS } from "../../../../utils/constants";
 import { LinkIcon, CloseIcon } from "../../../common/icons";
 import { ChainId } from "@uniswap/sdk";
 import { useUserStore } from '../../../../stores/user';
@@ -187,7 +187,7 @@ export const AccountDetails = ({
   darkMode,
   transactions,
   removeTransaction,
-  logout,
+  logout,  
 }: AccountDetailsProps) => {
   const { chainId, account, connector } = useActiveWeb3React();
   const [connectorName, setConnectorName] = useState(formatConnectorName(connector));
@@ -218,7 +218,7 @@ export const AccountDetails = ({
         <AccountCard account={account} connector={connector} connectorName={connectorName} chainId={chainId} chainName={chainName} />
       </section>
       <section>
-        {!process.env.HIDE_FAUCET && <TinyThemeButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
+        {Number(chainId) !== POLYGON_NETWORK && <TinyThemeButton action={() => faucetUSDC(provider, account)} text="Faucet 10k USDC" />}
         <TinyThemeButton action={() => openOptions()} text="Switch Wallet" />
         {connector !== injected && (connector as any)?.walletConnectProvider?.qrcode && (
           <TinyThemeButton action={() => (connector as any).walletConnectProvider?.disconnect()} text="Sign Out" />
