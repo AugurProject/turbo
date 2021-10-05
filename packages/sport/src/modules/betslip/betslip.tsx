@@ -550,7 +550,7 @@ export const TicketBreakdown = ({ bet, timeFormat }) => {
       <li>
         <span>To Win</span>
         <DashlineNormal />
-        <span>{`${formatCash(toWin, USDC).full}`}</span>
+        <span>{toWin}</span>
       </li>
       <li>
         <span>Date</span>

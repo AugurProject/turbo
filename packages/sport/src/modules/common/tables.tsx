@@ -94,11 +94,11 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, hasClaimed, wager, cashout, isWinningOutcome }) => {
-    const isPositive = isWinningOutcome || Number(wager) < Number(cashout);
+  const determineClasses = ({ canCashOut, isOpen, hasClaimed, wager, cashout, isWinningOutcome }) => {
+    const isPositive = isWinningOutcome || Number(wager) <= Number(cashout);
     return {
       [Styles.CanCashOut]: canCashOut,
-      [Styles.hasClaimed]: hasClaimed,
+      [Styles.hasClaimed]: hasClaimed || !isOpen,
       [Styles.PositiveCashout]: isPositive,
       [Styles.NegativeCashout]: !isPositive,
     };
@@ -141,7 +141,20 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
-        const buttonName =
+        let subtext = "";
+        let buttonName = "";
+        if (isOpen) {
+          if (!canCashOut) buttonName = CASHOUT_NOT_AVAILABLE
+          if (isApproved) {
+            buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;  
+          } else {
+            buttonName = `APPROVE CASHOUT ${cashout.full}`;
+          }          
+        } else {
+          // label won or lost
+          subtext = Number(cashoutAmount) >= 0 ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
+        }
+        /*
           !canCashOut && hasClaimed
             ? won
               ? cashout.full
@@ -152,9 +165,9 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             ? `APPROVE CASHOUT ${cashout.full}`
             : isPending
             ? `PENDING ${cashout.full}`
-            : `CASHOUT: ${cashout.full}`;
-
+            : Number(cashoutAmount) >= 0 ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`;
         const subtext = !canCashOut && hasClaimed ? (won ? "WON:" : "LOSS:") : null;
+*/
         return (
           <ul key={tx_hash}>
             <li>
@@ -167,7 +180,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
-                customClass={determineClasses({ ...bet, cashout: cashout.formatted })}
+                customClass={determineClasses({ ...bet, cashout: cashoutAmount })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
                 reverseContent={!canCashOut && hasClaimed}

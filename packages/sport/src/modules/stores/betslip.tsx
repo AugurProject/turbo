@@ -41,7 +41,7 @@ export const processResolvedMarketsPositions = ({
       ?.filter((ut) => new BN(position.outcomeId).eq(new BN(ut.outcome)))
       .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
     const marketEvent = marketEvents[market.eventId];
-    const toWin = new BN(position.quantity).minus(new BN(position.initCostUsd));
+    const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0)).toFixed();
     const { name } = market.outcomes.find((outcome) => outcome.id === position.outcomeId);
     const cashoutAmount = isWinningOutcome
       ? toWin
@@ -64,12 +64,13 @@ export const processResolvedMarketsPositions = ({
       size: position.quantity,
       outcomeId: position.outcomeId,
       cashoutAmount,
-      canCashOut: false,
+      canCashOut: true,
       isPending: false,
       isApproved: true,
       status,
       isWinningOutcome,
-      hasClaimed: true,
+      hasClaimed: false,
+      isOpen: market.hasWinner ? isWinningOutcome : true,
     });
   }
 
@@ -107,7 +108,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         ?.filter((ut) => new BN(position.outcomeId).eq(new BN(ut.outcome)))
         .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
       const marketEvent = marketEvents[market.eventId];
-      const toWin = new BN(position.quantity).minus(new BN(position.initCostUsd));
+      const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0));
       const { name } = market.outcomes.find((outcome) => outcome.id === position.outcomeId);
       const cashoutAmount = estimatedCashOut(market.amm, position.quantity, position.outcomeId);
       const isApproved = await isCashOutApproved(loginAccount, position.outcomeId, market, transactions);
@@ -134,6 +135,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         isApproved,
         status,
         hasWinner: market.hasWinner,
+        isOpen: true,
       });
     }
     // remove cashed out bets
