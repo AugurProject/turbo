@@ -206,7 +206,7 @@ const EVENT_TYPE_OPTIONS = [
   },
   {
     id: 1,
-    label: "Grouped",
+    label: "Long Term",
   },
 ];
 
