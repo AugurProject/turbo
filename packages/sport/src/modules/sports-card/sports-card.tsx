@@ -149,8 +149,10 @@ export const SportsCardComboOutcomes = ({ marketEvent }) => {
   const path = parsePath(location.pathname)[0];
   const isMarketPage = path === MARKET;
   const eventMarkets = useMarketEventMarkets(marketEvent);
-  const marketOutcomesOrderedForDisplay = orderOutcomesForDisplay([]
-    .concat(marketEvent.outcomes),MARKET_FACTORY_TYPES.NFL)
+  const marketOutcomesOrderedForDisplay = orderOutcomesForDisplay(
+    [].concat(marketEvent.outcomes),
+    MARKET_FACTORY_TYPES.NFL
+  );
 
   return (
     <section className={classNames(Styles.SportsCardComboOutcomes, { [Styles.MarketPage]: isMarketPage })}>
@@ -237,7 +239,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
     ?.name?.replace(eventOutcomeName, "")
     .trim();
 
-    return (
+  return (
     <article>
       <label>{eventOutcomeName}</label>
       <button
@@ -255,7 +257,11 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         }}
         disabled={spreadOdds === "-"}
       >
-        {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" && outcomeSpread !== "No Contest"? <span>{outcomeSpread}</span> : <span />}
+        {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" && outcomeSpread !== "No Contest" ? (
+          <span>{outcomeSpread}</span>
+        ) : (
+          <span />
+        )}
         <span>{spreadOdds}</span>
       </button>
       <button
@@ -292,10 +298,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         disabled={OUOdds === "-"}
       >
         {OUOdds !== "-" && overUnderLetter ? (
-          <span>
-            {overUnderLetter && <b>{overUnderLetter}</b>}
-            {overUnderLine}
-          </span>
+          <span>{overUnderLetter ? `${overUnderLetter} ${overUnderLine}` : `${overUnderLine}`}</span>
         ) : (
           <span />
         )}
