@@ -484,7 +484,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     ? `PENDING $${cashout}`
     : `CASHOUT: $${cashout}`;
 
-  const isPositiveCashout = Number(bet.wager) < Number(cashout);
+  const isPositiveCashout = Number(bet.wager) <= Number(cashout);
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
