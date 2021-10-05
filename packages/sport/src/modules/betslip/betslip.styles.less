@@ -134,7 +134,7 @@
     &.Open {
       left: 0;
       right: 0;
-      background: rgba(var(--primary-text-rgb), 0.40);
+      background: rgba(var(--primary-text-rgb), 0.4);
       width: 100vw;
 
       > div {
@@ -163,7 +163,7 @@
 
     &.NavOpen {
       display: none;
-      
+
       > div > div,
       > div > button[class*="BaseNormalButton"] {
         display: none;
@@ -176,6 +176,10 @@
   .Betslip {
     > div {
       min-height: unset;
+    }
+
+    &.NavOpen > div > div.MobileBetslipButtonContainer {
+      display: none;
     }
   }
 }
@@ -213,6 +217,10 @@
     &.Open > div {
       border: 0;
       width: 100vw;
+    }
+
+    &.NavOpen > div > div.MobileBetslipButtonContainer {
+      display: none;
     }
   }
 }
@@ -587,14 +595,14 @@ button.FlipContent {
 }
 
 .OddsChange {
-  background: rgba(var(--warning-rgb), 0.30);
+  background: rgba(var(--warning-rgb), 0.3);
 }
 
 .OddsChangedMessage {
   .text-10-semi-bold;
 
   color: var(--primary-text);
-  background: rgba(var(--warning-rgb), 0.30);
+  background: rgba(var(--warning-rgb), 0.3);
   border-top: @size-1 solid var(--theme-border);
   padding: @size-6 @size-12;
   display: flex;
