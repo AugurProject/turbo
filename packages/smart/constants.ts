@@ -31,6 +31,7 @@ export type MarketFactory = {
 export const MARKET_TYPES = [
   "Trusted",
   "Crypto",
+  "CryptoCurrency",
   "SportsLink",
   "MMALink",
   "MMA",
@@ -53,6 +54,7 @@ export type MarketFactoryContractName =
   | "MMAMarketFactoryV3"
   | "CryptoMarketFactoryV3"
   | "GroupedMarketFactoryV3"
+  | "CryptoCurrencyMarketFactoryV3"
   | "TrustedMarketFactoryV3";
 export type FetcherContractName =
   | "NBAFetcher"
@@ -61,6 +63,7 @@ export type FetcherContractName =
   | "MLBFetcher"
   | "CryptoFetcher"
   | "GroupedFetcher"
+  | "CryptoCurrencyFetcher"
   | "";
 export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   [Property in MarketFactoryType]: MarketFactoryContractName;
@@ -73,6 +76,7 @@ export const MARKET_FACTORY_TYPE_TO_CONTRACT_NAME: {
   MMA: "MMAMarketFactoryV3",
   Crypto: "CryptoMarketFactoryV3",
   Grouped: "GroupedMarketFactoryV3",
+  CryptoCurrency: "CryptoCurrencyMarketFactoryV3",
   Trusted: "TrustedMarketFactoryV3",
 };
 export const marketFactoryTypeToFetcherName: {
@@ -86,6 +90,7 @@ export const marketFactoryTypeToFetcherName: {
   NBA: "NBAFetcher",
   Crypto: "CryptoFetcher",
   Grouped: "GroupedFetcher",
+  CryptoCurrency: "CryptoCurrencyFetcher",
   Trusted: "",
 };
 export enum ChainId {

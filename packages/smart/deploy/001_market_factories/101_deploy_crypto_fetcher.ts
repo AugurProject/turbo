@@ -5,7 +5,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
 
-  await deployments.deploy("CryptoFetcher", {
+  await deployments.deploy("CryptoCurrencyFetcher", {
     from: deployer,
     args: [],
     log: true,
