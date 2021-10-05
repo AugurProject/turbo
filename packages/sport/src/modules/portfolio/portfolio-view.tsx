@@ -6,7 +6,7 @@ import { Formatter, Constants, createBigNumber, Stores, SEO, Components } from "
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
-import { DailyGroupedSwitch } from "../categories/categories";
+import { DailyLongSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore, processResolvedMarketsPositions } from "../stores/betslip";
 import { BetType } from "../stores/constants";
@@ -130,12 +130,10 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const { marketEvents } = useSportsStore();
   const { active } = useBetslipStore();
   const { positionBalance } = transactions;
-  console.log('positionBalance', positionBalance)
   let marketIds = Array.from([
       ...new Set(
         Object.entries(active)
           .map(([txhash, bet]: [string, BetType]) => {
-            console.log('bet in active', bet)
             return bet.betId.slice(0, bet.betId.lastIndexOf("-"));
           })
       ),
@@ -145,7 +143,6 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const events = Array.from(new Set(marketIds.map((marketId) => markets?.[marketId]?.eventId)))
     .map((eventId) => marketEvents[eventId])
     .filter((v) => v);
-  console.log('active bets', active, events)
 
   let eventPositionOpen = null;
   let eventPositionClosed = null;
@@ -232,7 +229,6 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   }, {});
 
   let eventPositionsData = { ...eventPositionOpen, ...eventPositionClosed };
-  console.log('eventPositionOpen', eventPositionOpen, 'eventPositionClosed', eventPositionClosed);
   if (!!search) {
     eventPositionsData = Object.entries(eventPositionsData)
       .filter(([eventID, event]: any) => {
@@ -282,7 +278,7 @@ export const PortfolioView = () => {
             defaultValue={sortBy}
             preLabel="Market Status"
           />
-          <DailyGroupedSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+          <DailyLongSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
           <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
         </ul>

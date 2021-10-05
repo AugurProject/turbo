@@ -4,18 +4,6 @@
   min-width: 210px;
   margin-right: @size-40;
 
-  &.Inverted {
-    margin-right: 0;
-
-    > h2,
-    > h3 {
-      color: var(--primary-bg);
-    }
-    > article:last-of-type {
-      border-bottom: @size-1 dashed var(--secondary-text);
-    }
-  }
-
   > h2 {
     .text-20-bold;
 
@@ -193,21 +181,31 @@
 }
 
 .CategoriesArea.Inverted {
+  margin-right: 0;
+
+  > h2,
+  > h3 {
+    color: var(--inverted-primary-text);
+  }
+  > article:last-of-type {
+    border-bottom: @size-1 dashed var(--secondary-text);
+  }
+
   .RemoveCategoryButton {
     color: var(--secondary-text);
-  
+
     &:hover {
       color: var(--primary-text);
-  
+
       > span {
         border-color: var(--primary-text);
       }
     }
-  
+
     > span {
       background: var(--primary-bg);
       border: @size-1 solid var(--tertiary-text);
-  
+
       > svg {
         > path {
           fill: var(--primary-text);
@@ -236,36 +234,36 @@
         .NumberBox;
 
         border: @size-1 solid var(--secondary-text);
-        background: var(--primary-text);
-        color: var(--primary-bg);
+        background: var(--inverted-primary-bg);
+        color: var(--inverted-primary-text);
       }
 
       &:hover {
         > span {
           border-color: var(--primary-bg);
-          color: var(--primary-bg);
+          color: var(--primary-text);
         }
       }
 
       &.SelectedCategory {
-        color: var(--primary-bg);
+        color: var(--inverted-primary-text);
 
         > span {
-          background: var(--primary-bg);
-          border-color: var(--primary-bg);
-          color: var(--primary-text);
+          background: var(--inverted-primary-text);
+          border-color: var(--inverted-primary-text);
+          color: var(--inverted-primary-bg);
         }
 
         > svg {
           > path[fill],
           > g > path[fill] {
-            fill: var(--primary-bg);
+            fill: var(--inverted-primary-text);
           }
-  
+
           > line,
           > path[stroke],
           > g > path[stroke] {
-            stroke: var(--primary-bg);
+            stroke: var(--inverted-primary-text);
           }
         }
       }
@@ -302,13 +300,7 @@
   }
 }
 
-@media @breakpoint-mobile-tablet {
-  .CategoriesArea:not(.Inverted) {
-    display: none;
-  }
-}
-
-.DailyGroupedSwitch {
+.DailyLongSwitch {
   .PrimaryBorderRadius;
 
   display: flex;
@@ -332,6 +324,7 @@
     min-height: @size-40;
     max-height: @size-40;
     cursor: pointer;
+    white-space: nowrap;
 
     &.Selected {
       border-color: var(--primary-text);
@@ -350,5 +343,15 @@
       opacity: 0.95;
       cursor: not-allowed;
     }
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .CategoriesArea:not(.Inverted) {
+    display: none;
+  }
+
+  .DailyLongSwitch > button {
+    padding: @size-12 @size-16;
   }
 }
