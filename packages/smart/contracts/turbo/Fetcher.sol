@@ -12,6 +12,7 @@ import "./AMMFactory.sol";
 import "./CryptoMarketFactoryV3.sol";
 import "./NBAMarketFactoryV3.sol";
 import "../rewards/MasterChef.sol";
+import "./CryptoCurrencyMarketFactoryV3.sol";
 
 // Helper contract for grabbing huge amounts of data without overloading multicall.
 abstract contract Fetcher {
@@ -453,6 +454,167 @@ contract CryptoFetcher is Fetcher {
             CryptoMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
         _bundle.super = buildDynamicMarketBundle(CryptoMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
         _bundle.resolutionPrice = _details.resolutionPrice;
+    }
+
+    function fetchInitial(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        MasterChef _masterChef,
+        uint256 _offset,
+        uint256 _total
+    )
+        public
+        view
+        returns (
+            SpecificMarketFactoryBundle memory _marketFactoryBundle,
+            SpecificStaticMarketBundle[] memory _marketBundles,
+            uint256 _lowestMarketIndex,
+            uint256 _timestamp
+        )
+    {
+        _marketFactoryBundle = buildSpecificMarketFactoryBundle(_marketFactory);
+
+        uint256[] memory _marketIds;
+        (_marketIds, _lowestMarketIndex) = listOfInterestingMarkets(_marketFactory, _offset, _total);
+
+        _total = _marketIds.length;
+        _marketBundles = new SpecificStaticMarketBundle[](_total);
+        for (uint256 i; i < _total; i++) {
+            _marketBundles[i] = buildSpecificStaticMarketBundle(
+                _marketFactory,
+                _ammFactory,
+                _masterChef,
+                _marketIds[i]
+            );
+        }
+
+        _timestamp = block.timestamp;
+    }
+
+    function fetchDynamic(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _offset,
+        uint256 _total
+    )
+        public
+        view
+        returns (
+            SpecificDynamicMarketBundle[] memory _bundles,
+            uint256 _lowestMarketIndex,
+            uint256 _timestamp
+        )
+    {
+        uint256[] memory _marketIds;
+        (_marketIds, _lowestMarketIndex) = listOfInterestingMarkets(_marketFactory, _offset, _total);
+
+        _total = _marketIds.length;
+        _bundles = new SpecificDynamicMarketBundle[](_total);
+        for (uint256 i; i < _total; i++) {
+            _bundles[i] = buildSpecificDynamicMarketBundle(_marketFactory, _ammFactory, _marketIds[i]);
+        }
+
+        _timestamp = block.timestamp;
+    }
+
+    // Starts from the end of the markets list because newer markets are more interesting.
+    // _offset is skipping all markets, not just interesting markets
+    function listOfInterestingMarkets(
+        address _marketFactory,
+        uint256 _offset,
+        uint256 _total
+    ) internal view returns (uint256[] memory _interestingMarketIds, uint256 _marketId) {
+        _interestingMarketIds = new uint256[](_total);
+        uint256 _max = AbstractMarketFactoryV3(_marketFactory).marketCount() - 1;
+
+        // No markets so return nothing. (needed to prevent integer underflow below)
+        if (_max == 0 || _offset >= _max) {
+            return (new uint256[](0), 0);
+        }
+
+        // Starts at the end, less offset.
+        // Stops before the 0th market since that market is always fake.
+        uint256 _collectedMarkets = 0;
+        _marketId = _max - _offset;
+
+        while (true) {
+            if (openOrHasWinningShares(AbstractMarketFactoryV3(_marketFactory), _marketId)) {
+                _interestingMarketIds[_collectedMarkets] = _marketId;
+                _collectedMarkets++;
+            }
+
+            if (_collectedMarkets >= _total) break;
+            if (_marketId == 1) break; // skipping 0th market, which is fake
+            _marketId--; // starts out oone too high, so this works
+        }
+
+        if (_total > _collectedMarkets) {
+            assembly {
+                // shortens array
+                mstore(_interestingMarketIds, _collectedMarkets)
+            }
+        }
+    }
+}
+
+contract CryptoCurrencyFetcher is Fetcher {
+    constructor() Fetcher("CryptoCurrency", "TBD") {}
+
+    struct SpecificMarketFactoryBundle {
+        MarketFactoryBundle super;
+    }
+
+    struct SpecificStaticMarketBundle {
+        StaticMarketBundle super;
+        uint256 coinIndex;
+        uint256 creationValue;
+        uint256 resolutionTime;
+        // Dynamics
+        uint256 resolutionValue;
+    }
+
+    struct SpecificDynamicMarketBundle {
+        DynamicMarketBundle super;
+        uint256 resolutionValue;
+    }
+
+    function buildSpecificMarketFactoryBundle(address _marketFactory)
+        internal
+        view
+        returns (SpecificMarketFactoryBundle memory _bundle)
+    {
+        _bundle.super = buildMarketFactoryBundle(CryptoCurrencyMarketFactoryV3(_marketFactory));
+    }
+
+    function buildSpecificStaticMarketBundle(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        MasterChef _masterChef,
+        uint256 _marketId
+    ) internal view returns (SpecificStaticMarketBundle memory _bundle) {
+        CryptoCurrencyMarketFactoryV3.MarketDetails memory _details =
+            CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+        _bundle.super = buildStaticMarketBundle(
+            CryptoCurrencyMarketFactoryV3(_marketFactory),
+            _ammFactory,
+            _masterChef,
+            _marketId
+        );
+        _bundle.creationValue = _details.creationValue;
+        _bundle.coinIndex = _details.coinIndex;
+        _bundle.resolutionValue = _details.resolutionValue;
+        _bundle.resolutionTime = _details.resolutionTime;
+    }
+
+    function buildSpecificDynamicMarketBundle(
+        address _marketFactory,
+        AMMFactory _ammFactory,
+        uint256 _marketId
+    ) internal view returns (SpecificDynamicMarketBundle memory _bundle) {
+        CryptoCurrencyMarketFactoryV3.MarketDetails memory _details =
+            CryptoCurrencyMarketFactoryV3(_marketFactory).getMarketDetails(_marketId);
+        _bundle.super = buildDynamicMarketBundle(CryptoCurrencyMarketFactoryV3(_marketFactory), _ammFactory, _marketId);
+        _bundle.resolutionValue = _details.resolutionValue;
     }
 
     function fetchInitial(
