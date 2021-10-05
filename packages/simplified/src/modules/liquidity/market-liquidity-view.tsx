@@ -166,9 +166,6 @@ const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmo
 
 const LiquidityWarningFooter = () => (
   <article className={Styles.LiquidityWarningFooter}>
-    <p>
-      Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.
-    </p>
     <span>{WarningIcon} Remove liquidity before the winning outcome is known to prevent any loss of funds</span>
   </article>
 );
