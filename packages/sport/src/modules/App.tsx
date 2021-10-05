@@ -19,7 +19,7 @@ import {
   windowRef,
 } from "@augurproject/comps";
 import { Betslip } from "./betslip/betslip";
-import { BetslipProvider } from './stores/betslip';
+import { BetslipProvider, useBetslipStore } from './stores/betslip';
 import { SportsFooter } from './common/sports-footer';
 
 const { PORTFOLIO, MARKET_LOAD_TYPE } = Constants;
@@ -31,6 +31,7 @@ const AppBody = () => {
     modal,
   } = useAppStatusStore();
   const { sidebarType } = useSportsStore();
+  const { bets } = useBetslipStore();
   const modalShowing = Object.keys(modal).length !== 0;
   const location = useLocation();
   const path = parsePath(location.pathname)[0];
@@ -57,7 +58,8 @@ const AppBody = () => {
       className={classNames(Styles.App, {
         [Styles.ModalShowing]: modalShowing,
         [Styles.BetslipShowing]: sidebarType !== null,
-        [Styles.MyBets]: path === PORTFOLIO
+        [Styles.MyBets]: path === PORTFOLIO,
+        [Styles.HasBetsInBetslip]: Object.keys(bets).length > 0
       })}
     >
       {modalShowing && <ModalView />}

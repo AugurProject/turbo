@@ -210,9 +210,9 @@ const EVENT_TYPE_OPTIONS = [
   },
 ];
 
-export const DailyGroupedSwitch = ({ selection, setSelection }) => {
+export const DailyLongSwitch = ({ selection, setSelection }) => {
   return (
-    <article className={Styles.DailyGroupedSwitch}>
+    <article className={Styles.DailyLongSwitch}>
       {EVENT_TYPE_OPTIONS.map(({ id, label }) => (
         <button
           key={`${label}-${id}`}
