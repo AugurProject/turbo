@@ -15,7 +15,7 @@ import {
 import { TopBanner } from "../common/top-banner";
 import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
-import { CategoriesArea, DailyGroupedSwitch, CategoriesAreaTitle } from "../categories/categories";
+import { CategoriesArea, DailyLongSwitch, CategoriesAreaTitle } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
 const { canAddLiquidity } = ContractCalls;
 const {
@@ -248,7 +248,7 @@ const MarketsView = () => {
         <ul className={classNames({[Styles.NoSubCategories]: subCategories.length === 0 })}>
           <CategoriesAreaTitle text={selectedCategories[selectedCategories.length - 1]} />
           {subCategories.length > 0 && (
-            <DailyGroupedSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+            <DailyLongSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           )}
           <SquareDropdown
             onChange={(value) => {

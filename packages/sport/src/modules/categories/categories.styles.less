@@ -302,13 +302,7 @@
   }
 }
 
-@media @breakpoint-mobile-tablet {
-  .CategoriesArea:not(.Inverted) {
-    display: none;
-  }
-}
-
-.DailyGroupedSwitch {
+.DailyLongSwitch {
   .PrimaryBorderRadius;
 
   display: flex;
@@ -350,5 +344,15 @@
       opacity: 0.95;
       cursor: not-allowed;
     }
+  }
+}
+
+@media @breakpoint-mobile-tablet {
+  .CategoriesArea:not(.Inverted) {
+    display: none;
+  }
+  
+  .DailyLongSwitch > button {
+    padding: @size-12 @size-16;
   }
 }

@@ -6,7 +6,7 @@ import { Formatter, Constants, createBigNumber, Stores, SEO, Components } from "
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
-import { DailyGroupedSwitch } from "../categories/categories";
+import { DailyLongSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
 import { useBetslipStore, processResolvedMarketsPositions } from "../stores/betslip";
 import { BetType } from "../stores/constants";
@@ -282,7 +282,7 @@ export const PortfolioView = () => {
             defaultValue={sortBy}
             preLabel="Market Status"
           />
-          <DailyGroupedSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
+          <DailyLongSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           <SecondaryThemeButton text="YOUR ACTIVITY" action={() => setShowActivity(!showActivity)} small />
           <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
         </ul>
