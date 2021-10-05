@@ -47,6 +47,7 @@ const {
 } = Constants;
 
 const PAGE_LIMIT = 21;
+const MIN_LIQUIDITY_AMOUNT = 1;
 
 const applyFiltersAndSort = (
   passedInMarkets,
@@ -77,7 +78,7 @@ const applyFiltersAndSort = (
   }
 
   updatedFilteredMarkets = updatedFilteredMarkets.filter((market: MarketInfo) => {
-    if (showLiquidMarkets && (!market.amm || !market.amm.hasLiquidity)) {
+    if (showLiquidMarkets && (!market.amm || !market.amm.id || Number(market.amm.liquidityUSD) <= MIN_LIQUIDITY_AMOUNT)) {
       return false;
     }
     if (
