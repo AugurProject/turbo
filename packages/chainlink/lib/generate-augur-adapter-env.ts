@@ -14,11 +14,12 @@ const findMarketFactory = (marketFactoryType: MarketFactoryType): string => {
 };
 
 const generateTemplate = () => {
-  console.log(`CRYPTO_MARKET_FACTORY=${findMarketFactory("Crypto")}
-MLB_MARKET_FACTORY=${findMarketFactory("SportsLink")}
-MMA_MARKET_FACTORY=${findMarketFactory("MMALink")}
-NBA_MARKET_FACTORY=${findMarketFactory("SportsLink")}
-NFL_MARKET_FACTORY=${findMarketFactory("NFL")}  
+  console.log(`CRYPTO_MARKET_FACTORY=${findMarketFactory("CryptoCurrency")}
+MLB_MARKET_FACTORY=${findMarketFactory("MLB")}
+MMA_MARKET_FACTORY=${findMarketFactory("MMA")}
+NBA_MARKET_FACTORY=${findMarketFactory("NBA")}
+NFL_MARKET_FACTORY=${findMarketFactory("NFL")}
+GROUPED_MARKET_FACTORY=${findMarketFactory("Grouped")}
 `);
 };
 
