@@ -28,7 +28,7 @@
           flex: 1 100%;
           border: @size-1 solid var(--theme-border);
           border-radius: @size-8;
-          background: rgba(250, 251, 252, 0.9);
+          background: rgba(var(--quaternary-bg-rgb), 0.9);
           padding: @size-8;
 
           > h5 {
@@ -60,6 +60,7 @@
                 grid-column: 2;
                 grid-row: 1;
                 text-transform: capitalize;
+                color: var(--secondary-text);
               }
 
               > span:last-of-type {
@@ -67,6 +68,7 @@
 
                 grid-column: 2;
                 grid-row: 2;
+                color: var(--primary-text);
               }
             }
           }
