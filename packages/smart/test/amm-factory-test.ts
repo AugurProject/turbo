@@ -7,6 +7,7 @@ import {
   AMMFactory,
   BPool__factory,
   Cash,
+  ERC20__factory,
   FeePot,
   MasterChef,
   TrustedMarketFactoryV3,
@@ -18,6 +19,7 @@ import { buyWithValues, calculateSellCompleteSets, calculateSellCompleteSetsWith
 
 describe("AMMFactory", () => {
   let BPool__factory: BPool__factory;
+  let ERC20__factory: ERC20__factory;
 
   let signer: SignerWithAddress;
   let secondSigner: SignerWithAddress;
@@ -45,8 +47,11 @@ describe("AMMFactory", () => {
   let shareTokens: Contract[];
   let bPool: Contract;
 
+  const INVALID_OUTCOME = 0;
+
   before(async () => {
     BPool__factory = await ethers.getContractFactory("BPool");
+    ERC20__factory = await ethers.getContractFactory("ERC20");
   });
 
   beforeEach(async () => {
@@ -75,6 +80,41 @@ describe("AMMFactory", () => {
 
     const { shareTokens: shareTokenAddresses } = await marketFactory.getMarket(marketId.toString());
     shareTokens = shareTokenAddresses.map((address: string) => collateral.attach(address).connect(secondSigner));
+  });
+
+  describe("calculateSellCompleteSets ERR_MAX_IN_RATIO", () => {
+    const initialLiquidity = usdcBasis.mul(100);
+    const additionalLiquidity = usdcBasis.mul(10);
+
+    beforeEach(async () => {
+      await collateral.faucet(initialLiquidity);
+      await collateral.approve(ammFactory.address, initialLiquidity);
+      await ammFactory.createPool(marketFactory.address, marketId, initialLiquidity, signer.address);
+
+      await collateral.faucet(additionalLiquidity);
+      await collateral.approve(ammFactory.address, additionalLiquidity);
+
+      await ammFactory.buy(marketFactory.address, marketId, INVALID_OUTCOME, additionalLiquidity, 0);
+    });
+
+    it("should do not revert", async () => {
+      const market = await marketFactory.getMarket(marketId);
+      const invalidShareToken = ERC20__factory.attach(market.shareTokens[0]);
+      const outcomeBalance = await invalidShareToken.balanceOf(signer.address);
+      await invalidShareToken.approve(ammFactory.address, outcomeBalance);
+
+      const [tokenAmountOut, _shareTokensIn] = await calculateSellCompleteSetsWithValues(
+        ammFactory as AMMFactory,
+        (marketFactory as unknown) as AbstractMarketFactoryV2,
+        marketId.toString(),
+        0,
+        outcomeBalance.toString()
+      );
+
+      await expect(
+        ammFactory.sellForCollateral(marketFactory.address, marketId, INVALID_OUTCOME, _shareTokensIn, tokenAmountOut)
+      ).to.not.revertedWith("ERR_MAX_IN_RATIO");
+    });
   });
 
   describe("AMMFactory already has pool", () => {
