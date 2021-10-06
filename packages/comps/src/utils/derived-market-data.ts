@@ -24,23 +24,19 @@ import * as GroupedFetcher from "./fetcher-grouped";
 
 export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
   switch (marketInfo.marketFactoryType) {
-    case MARKET_FACTORY_TYPES.SPORTSLINK: {
-      return SimpleSportsDailies.getResolutionRules(marketInfo);
-    }
     case MARKET_FACTORY_TYPES.CRYPTO: {
       return CryptoMarkets.getResolutionRules(marketInfo);
     }
+    case MARKET_FACTORY_TYPES.MMA:
     case MARKET_FACTORY_TYPES.MMALINK: {
       return MmaDailies.getResolutionRules(marketInfo);
-    }
-    case MARKET_FACTORY_TYPES.NFL: {
-      return NflMarkets.getResolutionRules(marketInfo);
     }
     case MARKET_FACTORY_TYPES.GROUPED: {
       return GroupedMarkets.getResolutionRules(marketInfo);
     }
     default:
-      return [];
+      // NFL, MLB, NBA, NHL
+      return SimpleSportsDailies.getResolutionRules(marketInfo);
   }
 };
 
