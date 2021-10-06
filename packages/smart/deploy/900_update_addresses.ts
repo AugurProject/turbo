@@ -80,6 +80,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   // Add new market factories. Only new ones.
   const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];
   await includeMarketFactory("CryptoCurrency", "CryptoCurrencyFetcher", "crypto prices");
+  await includeMarketFactory("CryptoCurrencyMarketCap", "CryptoCurrencyFetcher", "crypto market caps");
   await includeMarketFactory("MMA", sportsFetcher, "mma/ufc");
   await includeMarketFactory("NFL", sportsFetcher, "nfl");
   await includeMarketFactory("NBA", sportsFetcher, "nba");

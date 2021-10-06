@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { PriceFeedConfig } from "../../tasks";
+import { MarketCapFeedConfig } from "../../tasks";
 import { CryptoCurrencyMarketFactoryV3, CryptoCurrencyMarketFactoryV3__factory } from "../../typechain";
-import { PRICE_FEEDS } from "../../src";
+import { MARKET_CAP_FEEDS } from "../../src";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -16,10 +16,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   );
 
   if (await shouldAddCoins(marketFactory)) {
-    for (const { symbol, priceFeedAddress, imprecision } of await getCoinList(deployments)) {
+    for (const { symbol, marketCapFeedAddress, imprecision } of await getCoinList(deployments)) {
       if (hre.network.config.live)
-        console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${priceFeedAddress}"`);
-      await marketFactory.addCoin(symbol, priceFeedAddress, imprecision);
+        console.log(`Adding coin "${symbol}" to crypto market factory, with feed "${marketCapFeedAddress}"`);
+      await marketFactory.addCoin(symbol, marketCapFeedAddress, imprecision);
     }
   } else {
     console.log("Not configuring coins for crypto market factory because it already has coins");
@@ -47,18 +47,18 @@ async function shouldAddCoins(marketFactory: CryptoCurrencyMarketFactoryV3): Pro
   return coinCount == 1;
 }
 
-// If the price feeds are specified then use them. Else, use fake coins.
-async function getCoinList(deployments: DeploymentsExtension): Promise<PriceFeedConfig[]> {
+// If the market cap feeds are specified then use them. Else, use fake coins.
+async function getCoinList(deployments: DeploymentsExtension): Promise<MarketCapFeedConfig[]> {
   return await Promise.all(
-    PRICE_FEEDS.map(async (coin) => ({
+    MARKET_CAP_FEEDS.map(async (coin) => ({
       symbol: coin.symbol,
-      priceFeedAddress: (await deployments.get(coin.deploymentName)).address,
+      marketCapFeedAddress: (await deployments.get(coin.deploymentName)).address,
       imprecision: coin.imprecision,
     }))
   );
 }
 
-func.tags = ["ConfigureCryptoMarketFactory", "Crypto", "CryptoPrice"];
-func.dependencies = ["CryptoPriceMarketFactory"];
+func.tags = ["ConfigureCryptoMarketFactory", "Crypto", "CryptoMarketCap"];
+func.dependencies = ["CryptoMarketCapMarketFactory"];
 
 export default func;

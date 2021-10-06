@@ -53,6 +53,12 @@ export interface PriceFeedConfig {
   imprecision: number;
 }
 
+export interface MarketCapFeedConfig {
+  symbol: string;
+  marketCapFeedAddress: string;
+  imprecision: number;
+}
+
 declare module "hardhat/types/config" {
   export interface HardhatNetworkUserConfig {
     confirmations?: number;

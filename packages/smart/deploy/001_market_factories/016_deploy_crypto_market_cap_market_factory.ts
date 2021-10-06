@@ -21,7 +21,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     linkNode,
   ];
 
-  await deployments.deploy("CryptoCurrencyMarketFactoryV3", {
+  await deployments.deploy("CryptoCurrencyMarketCapMarketFactoryV3", {
     contract: "CryptoCurrencyMarketFactoryV3",
     from: deployer,
     args,
@@ -29,7 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   });
 };
 
-func.tags = ["CryptoMarketFactory", "CryptoPriceMarketFactory", "Crypto", "CryptoPrice"];
+func.tags = ["CryptoMarketFactory", "CryptoMarketCapMarketFactory", "Crypto", "CryptoMarketCap"];
 func.dependencies = ["Tokens", "FeePot", "BFactory"];
 
 export default func;
