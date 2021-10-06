@@ -136,7 +136,6 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           canCashOut,
           isPending,
           timestamp,
-          isWinningOutcome: won,
           isOpen
         } = bet;
         const market = markets[marketId];
