@@ -106,7 +106,7 @@ export interface ActiveBetStateType {
 }
 
 export interface BetslipStateType {
-  oddsChangedMessage: null | string;
+  betsChangedMessages: { [betId: string]: string };
   selectedView: string;
   selectedCount: number;
   bets: BetStateType;
@@ -120,7 +120,7 @@ export const DEFAULT_BET = {
 };
 
 export const DEFAULT_BETSLIP_STATE: BetslipStateType = {
-  oddsChangedMessage: null,
+  betsChangedMessages: {},
   selectedView: BETSLIP,
   selectedCount: 0,
   bets: {},
@@ -128,7 +128,7 @@ export const DEFAULT_BETSLIP_STATE: BetslipStateType = {
 };
 
 export const STUBBED_BETSLIP_ACTIONS = {
-  setOddsChangedMessage: (message = null) => {},
+  setBetsChangedMessages: (betsChangedMessages = {}) => {},
   toggleSelectedView: () => {},
   addBet: (bet) => {},
   removeBet: (betId) => {},
@@ -140,7 +140,7 @@ export const STUBBED_BETSLIP_ACTIONS = {
 };
 
 export const BETSLIP_STATE_KEYS = {
-  ODDS_CHANGED_MESSAGE: "oddsChangedMessage",
+  BETS_CHANGED_MESSAGES: "betsChangedMessages",
   SELECTED_VIEW: "selectedView",
   SELECTED_COUNT: "selectedCount",
   BETS: "bets",
@@ -148,7 +148,7 @@ export const BETSLIP_STATE_KEYS = {
 };
 
 export const BETSLIP_ACTIONS = {
-  SET_ODDS_CHANGED_MESSAGE: "SET_ODDS_CHANGED_MESSAGE",
+  SET_BETS_CHANGED_MESSAGES: "SET_BETS_CHANGED_MESSAGES",
   TOGGLE_SELECTED_VIEW: "TOGGLE_SELECTED_VIEW",
   ADD_BET: "ADD_BET",
   REMOVE_BET: "REMOVE_BET",
