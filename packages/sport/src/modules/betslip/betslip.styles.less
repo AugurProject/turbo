@@ -595,20 +595,32 @@ button.FlipContent {
 }
 
 .OddsChange {
-  background: rgba(var(--warning-rgb), 0.3);
+  background: rgba(var(--warning-rgb), 0.15);
+
+  &.isPositive {
+    background: rgba(var(--success-rgb), 0.2);
+  }
 }
 
 .OddsChangedMessage {
   .text-10-semi-bold;
 
   color: var(--primary-text);
-  background: rgba(var(--warning-rgb), 0.3);
+  background: rgba(var(--warning-rgb), 0.15);
   border-top: @size-1 solid var(--theme-border);
   padding: @size-6 @size-12;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
+}
+
+.BetsChangedMessage {
+  .OddsChangedMessage;
+
+  &.isPositive {
+    background: rgba(var(--success-rgb), 0.2);
+  }
 }
 
 .BetReceipt {

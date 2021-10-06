@@ -46,7 +46,6 @@ export const Betslip = () => {
   const {
     selectedView,
     active,
-    oddsChangedMessage,
     bets,
     actions: { toggleSelectedView },
   } = useBetslipStore();
@@ -109,7 +108,6 @@ export const Betslip = () => {
           <>
             <BetslipMain />
             <BuyApprovals />
-            {oddsChangedMessage && <div className={Styles.OddsChangedMessage}>{oddsChangedMessage}</div>}
           </>
         ) : (
           <ActiveBetsMain />
@@ -165,8 +163,7 @@ export const BetslipMain = () => {
   const {
     bets,
     selectedCount,
-    oddsChangedMessage,
-    actions: { setOddsChangedMessage },
+    actions: { setBetsChangedMessages },
   } = useBetslipStore();
 
   const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
@@ -175,21 +172,18 @@ export const BetslipMain = () => {
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
-      if (acc === null && bet?.price && bet?.wagerAvgPrice && bet?.wager) {
+      if (bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
-          return ODDS_CHANGED_ORDER_SIZE;
+          return { ...acc, [betId]: ODDS_CHANGED_ORDER_SIZE };
         } else if (bet?.price !== bet?.wagerAvgPrice) {
-          return ODDS_CHANGED_SINCE_SELECTION;
+          return { ...acc, [betId]: ODDS_CHANGED_SINCE_SELECTION };
         } else {
-          return null;
+          return acc;
         }
       }
-      if (acc !== null) return acc;
-      return null;
-    }, null);
-    if (anyBetsChanged !== oddsChangedMessage) {
-      setOddsChangedMessage(anyBetsChanged);
-    }
+      return {};
+    }, {});
+    setBetsChangedMessages(anyBetsChanged);
   }, [valuesToWatch.toString()]);
 
   return isLogged && selectedCount > 0 ? (
@@ -266,6 +260,7 @@ const EditableBet = ({ betId, bet }) => {
     settings: { oddsFormat },
   } = useSportsStore();
   const {
+    betsChangedMessages,
     actions: { removeBet, updateBet },
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
@@ -281,6 +276,8 @@ const EditableBet = ({ betId, bet }) => {
     : "-";
   const hasOddsChanged =
     initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
+  const isPositiveOddsChange = Number(initialOdds.current) > Number(updatedPrice);
+  const hasBetMessage = Boolean(betsChangedMessages?.[betId]);
   const checkErrors = (value: string) => {
     let returnError = null;
     const test = value.split(",").join("");
@@ -304,7 +301,11 @@ const EditableBet = ({ betId, bet }) => {
       <main>
         <div>
           <h6>{name}</h6>
-          <span className={classNames({ [Styles.OddsChange]: hasOddsChanged })}>{displayOdds}</span>
+          <span
+            className={classNames({ [Styles.OddsChange]: hasOddsChanged, [Styles.isPositive]: isPositiveOddsChange })}
+          >
+            {displayOdds}
+          </span>
           <button onClick={() => removeBet(betId)}>{TrashIcon}</button>
         </div>
         <div className={Styles.EditableArea}>
@@ -353,7 +354,7 @@ const EditableBet = ({ betId, bet }) => {
               setValue(newValue);
             }}
             onBlur={(e) => {
-              const CleanValue = (value || "").split(",").join("").replace("$","");
+              const CleanValue = (value || "").split(",").join("").replace("$", "");
               const fmtValue = formatDai(CleanValue).formatted;
               const buyAmount = getBuyAmount(amm, id, CleanValue);
               const errorCheck = checkErrors(fmtValue);
@@ -395,6 +396,15 @@ const EditableBet = ({ betId, bet }) => {
           {error && <span>{error}</span>}
         </div>
       </main>
+      {hasBetMessage && (
+        <div
+          className={classNames(Styles.BetsChangedMessage, {
+            [Styles.isPositive]: isPositiveOddsChange,
+          })}
+        >
+          {betsChangedMessages[betId]}
+        </div>
+      )}
     </article>
   );
 };

@@ -6,7 +6,7 @@ const {
   Utils: { dispatchMiddleware },
 } = Stores;
 const {
-  SET_ODDS_CHANGED_MESSAGE,
+  SET_BETS_CHANGED_MESSAGES,
   TOGGLE_SELECTED_VIEW,
   ADD_BET,
   REMOVE_BET,
@@ -17,7 +17,7 @@ const {
   REMOVE_ACTIVE,
   CLEAR_BETSLIP,
 } = BETSLIP_ACTIONS;
-const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT, ODDS_CHANGED_MESSAGE } = BETSLIP_STATE_KEYS;
+const { SELECTED_VIEW, BETS, ACTIVE, SELECTED_COUNT, BETS_CHANGED_MESSAGES } = BETSLIP_STATE_KEYS;
 
 export function BetslipReducer(state, action) {
   const updatedState = { ...state };
@@ -25,8 +25,8 @@ export function BetslipReducer(state, action) {
   const timestamp = Math.floor(date.getTime() / 1000);
 
   switch (action.type) {
-    case SET_ODDS_CHANGED_MESSAGE: {
-      updatedState[ODDS_CHANGED_MESSAGE] = action.message;
+    case SET_BETS_CHANGED_MESSAGES: {
+      updatedState[BETS_CHANGED_MESSAGES] = action.betsChangedMessages;
       break;
     }
     case TOGGLE_SELECTED_VIEW: {
@@ -120,7 +120,8 @@ export const useBetslip = (defaultState = DEFAULT_BETSLIP_STATE) => {
   return {
     ...state,
     actions: {
-      setOddsChangedMessage: (message) => dispatch({ type: SET_ODDS_CHANGED_MESSAGE, message }),
+      setBetsChangedMessages: (betsChangedMessages) =>
+        dispatch({ type: SET_BETS_CHANGED_MESSAGES, betsChangedMessages }),
       toggleSelectedView: () => dispatch({ type: TOGGLE_SELECTED_VIEW }),
       addBet: (bet) => dispatch({ type: ADD_BET, bet }),
       removeBet: (betId) => dispatch({ type: REMOVE_BET, betId }),
