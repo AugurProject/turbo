@@ -1,6 +1,6 @@
 {
   "name": "@augurproject/smart",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "main": "dist",
   "repository": "https://github.com/AugurProject/turbo/packages/smart",
   "license": "MIT",
