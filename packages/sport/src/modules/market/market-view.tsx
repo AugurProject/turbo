@@ -191,7 +191,7 @@ const MarketView = ({ defaultMarket = null }) => {
       <SportsCardOutcomes {...{ ...market }} />
     );
 
-  const details = getResolutionRules(market.sportsMarketType);
+  const details = getResolutionRules(market);
   const { startTimestamp, winner, description: marketDescription } = market;
   const { description } = marketEvent || { description: marketDescription };
   const winningOutcome = market.amm?.ammOutcomes?.find((o) => o.id === winner);
