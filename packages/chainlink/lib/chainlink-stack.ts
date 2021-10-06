@@ -166,6 +166,7 @@ export class ChainlinkStack extends cdk.Stack {
         ADMIN_CREDENTIALS_FILE: "/chainlink/.api",
         BRIDGE_URL: "http://localhost:8080",
         CRYPTO_MARKET_FACTORY: findMarketFactory("CryptoCurrency"),
+        CRYPTO_MARKET_CAP_MARKET_FACTORY: findMarketFactory("CryptoCurrencyMarketCap"),
         MLB_MARKET_FACTORY: findMarketFactory("MLB"),
         MMA_MARKET_FACTORY: findMarketFactory("MMA"),
         NBA_MARKET_FACTORY: findMarketFactory("NBA"),

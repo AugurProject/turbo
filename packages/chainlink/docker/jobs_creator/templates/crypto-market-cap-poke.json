@@ -1,0 +1,23 @@
+{
+  "name": "Augur | Crypto Market Caps - ${CRYPTO_MARKET_CAP_MARKET_FACTORY}",
+  "initiators": [
+    {
+      "type": "web"
+    },
+    {
+      "type": "cron",
+      "params": {
+        "schedule": "CRON_TZ=UTC 1 20 * * 5"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "method": "poke",
+        "contractAddress": "${CRYPTO_MARKET_CAP_MARKET_FACTORY}"
+      }
+    }
+  ]
+}
