@@ -358,16 +358,13 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   };
 
   useEffect(() => {
-    console.log("1");
     handleFilterSort();
   }, [filter]);
 
   useEffect(() => {
-    console.log("2");
     handleFilterSort();
   }, [positions.length, Object.values(marketShares || {}).length]);
 
-  console.log(filteredMarketPositions);
   const positionVis = sliceByPage(filteredMarketPositions, page, POSITIONS_LIQUIDITY_LIMIT).map((position) => {
     return (
       <PositionTable
