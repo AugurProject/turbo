@@ -2,7 +2,7 @@
 
 .TopNav {
   align-items: center;
-  background: transparent;
+  background: var(--inverted-primary-bg);
   border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row wrap;
@@ -36,7 +36,8 @@
 
   > section {
     align-items: center;
-    background: var(--secondary-bg);
+    background: var(--inverted-primary-bg);
+    border-color: var(--secondary-text);
     box-sizing: border-box;
     display: inline-grid;
     grid-template-columns: auto auto;
@@ -56,6 +57,10 @@
       > a:first-of-type > section {
         height: @size-32;
         width: @size-96;
+
+        > svg > g > path:not(:first-of-type) {
+          fill: var(--inverted-primary-text);
+        }
       }
 
       @media @breakpoint-mobile-tablet {
@@ -74,7 +79,14 @@
         > li {
           flex: 0 auto;
           margin-right: @size-40;
+          display: flex;
+          flex-flow: column nowrap;
+          height: 100%;
+          min-height: 100%;
+          align-items: center;
+          justify-content: center;
 
+         
           &:last-of-type {
             margin-right: 0;
           }
@@ -85,23 +97,28 @@
             text-transform: uppercase;
             color: var(--tertiary-text);
             white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
           }
 
           &:hover {
             > a {
-              color: var(--primary-text);
+              color: var(--inverted-primary-text);
 
               &[disabled] {
-                color: var(--tertiary-text);
+                color: var(--secondary-text);
               }
             }
           }
 
-          &.Active {
+          &.Active,
+          &.Active:hover {
             > a {
-              color: var(--primary-text);
+              color: var(--inverted-primary-text);
             }
           }
+
         }
       }
     }
@@ -112,6 +129,22 @@
       grid-gap: @size-8;
       align-items: center;
       justify-content: flex-end;
+
+      > div:first-of-type {
+        grid-column: 2;
+        grid-row: 1;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        > span {
+          .text-16-bold;
+
+          color: var(--inverted-primary-text);
+          margin-right: @size-16;
+          margin-left: @size-24;
+        }
+      }
 
       > div > button {
         // account button
@@ -483,77 +516,7 @@
   }
 }
 
-:root[theme="SPORTS_DARK"],
-:root[theme="SPORTS"] {
-  .TopNav {
-    background: var(--inverted-primary-bg);
-
-    > section {
-      background: var(--inverted-primary-bg);
-      border-color: var(--secondary-text);
-
-      &:first-of-type {
-        > a > section > svg > g > path:not(:first-of-type) {
-          fill: var(--inverted-primary-text);
-        }
-
-        > ol {
-          // border-top: @size-1 solid var(--secondary-text);
-
-          > li {
-            display: flex;
-            flex-flow: column nowrap;
-            height: 100%;
-            min-height: 100%;
-            align-items: center;
-            justify-content: center;
-
-            > a {
-              height: 100%;
-              display: flex;
-              align-items: center;
-            }
-
-            &:hover {
-              > a {
-                color: var(--inverted-primary-text);
-
-                &[disabled] {
-                  color: var(--secondary-text);
-                }
-              }
-            }
-
-            &.Active,
-            &.Active:hover {
-              > a {
-                color: var(--inverted-primary-text);
-              }
-            }
-          }
-        }
-      }
-
-      &:last-of-type {
-        > div:first-of-type {
-          grid-column: 2;
-          grid-row: 1;
-          display: flex;
-          flex-flow: row nowrap;
-          align-items: center;
-
-          > span {
-            .text-16-bold;
-
-            color: var(--inverted-primary-text);
-            margin-right: @size-16;
-            margin-left: @size-24;
-          }
-        }
-      }
-    }
-  }
-
+:root[theme="SPORTS_DARK"] {
   .SettingsMenuWrapper {
     &.Open {
       @media @breakpoint-mobile-tablet {
