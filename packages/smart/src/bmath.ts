@@ -258,6 +258,14 @@ export function calculateSellCompleteSets(
         _tokenWeights,
         _swapFee
       );
+
+      let _currentOutcomeTokenBalance = _tokenBalances[_outcome];
+      for (let i = 0; i < _tokensInPerOutcome.length; i++) {
+        if (i === _outcome) continue;
+        assert(_tokensInPerOutcome[i].lte(bmul(_currentOutcomeTokenBalance, MAX_OUT_RATIO)), "ERR_MAX_OUT_RATIO");
+        _currentOutcomeTokenBalance = _currentOutcomeTokenBalance.add(_tokensInPerOutcome[i]);
+      }
+
       tokensInPerOutcome = _tokensInPerOutcome.map((m) => m.toString());
 
       if ((_shareTokensIn.sub(total).abs().lte(TOLERANCE) && _shareTokensIn.gt(total)) || upper.sub(lower).lt(2)) {
@@ -276,6 +284,7 @@ export function calculateSellCompleteSets(
       // On error we go lower.
       upper = tokenAmountOut;
       tokenAmountOut = upper.sub(lower).div(2).add(lower);
+      tokensInPerOutcome = [];
     }
     counter++;
   }
