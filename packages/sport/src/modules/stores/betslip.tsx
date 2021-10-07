@@ -20,13 +20,11 @@ export const BetslipStore = {
   actions: STUBBED_BETSLIP_ACTIONS,
 };
 
-export const processResolvedMarketsPositions = ({
+export const processCloseddMarketsPositions = ({
   marketPositions,
   markets,
   account,
   transactions,
-  userTransactions,
-  active,
   marketEvents,
 }) => {
   const bets = [];
@@ -47,8 +45,6 @@ export const processResolvedMarketsPositions = ({
       ? toWin
       : estimatedCashOut(market.amm, position.quantity, position.outcomeId);
     const betId = `${market.marketId}-${position.outcomeId}`;
-    const activeBet = active[betId];
-    const status = userTransactions.find((t) => t.hash === activeBet?.hash)?.status || TX_STATUS.CONFIRMED;
 
     bets.push({
       heading: `${marketEvent?.description}`,
@@ -64,10 +60,9 @@ export const processResolvedMarketsPositions = ({
       size: position.quantity,
       outcomeId: position.outcomeId,
       cashoutAmount,
-      canCashOut: true,
+      canCashOut: false,
       isPending: false,
-      isApproved: true,
-      status,
+      status: TX_STATUS.CONFIRMED,
       isWinningOutcome,
       hasClaimed: false,
       isOpen: market.hasWinner ? isWinningOutcome : true,

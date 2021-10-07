@@ -8,7 +8,7 @@ import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 import { DailyLongSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
-import { useBetslipStore, processResolvedMarketsPositions } from "../stores/betslip";
+import { useBetslipStore, processCloseddMarketsPositions } from "../stores/betslip";
 import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
@@ -168,15 +168,9 @@ const useEventPositionsData = (sortBy: string, search: string) => {
     return out;
   }, {});
 
-  const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
-    const userMarketShares = marketShares as any;
-    const marketPositions = userMarketShares[marketId];
-    const { market } = marketPositions.ammExchange;
-    return [...p, ...marketPositions.positions.map((pos) => ({ ...pos, marketId: market.marketId }))];
-  }, []);
   eventPositionClosed = events.reduce((acc, event) => {
     const out = { ...acc };
-    const bets = [...positionBalance, ...marketPositions].reduce((a, test) => {
+    const bets = [...positionBalance].reduce((a, test) => {
       let result = { ...a };
       if (event?.marketIds?.includes(test?.marketId)) {
         const market = markets[test?.marketId];
@@ -187,13 +181,11 @@ const useEventPositionsData = (sortBy: string, search: string) => {
             : parseInt(test?.outcomeId);
         const betId = `${test.marketId}-${outcomeId}`;
         const marketPositions = (openPositions && [...openPositions?.map((pos) => ({ ...pos, marketId: market.marketId }))]) || [];
-        const testBets = processResolvedMarketsPositions({
+        const testBets = processCloseddMarketsPositions({
           marketPositions,
           markets,
           account,
           transactions,
-          userTransactions,
-          active,
           marketEvents,
         });
         result[betId || test?.id] = {
@@ -228,7 +220,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
     return out;
   }, {});
 
-  let eventPositionsData = { ...eventPositionOpen, ...eventPositionClosed };
+  let eventPositionsData = { ...eventPositionClosed, ...eventPositionOpen };
   if (!!search) {
     eventPositionsData = Object.entries(eventPositionsData)
       .filter(([eventID, event]: any) => {
