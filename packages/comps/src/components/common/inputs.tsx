@@ -35,7 +35,7 @@ export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchI
 
   return (
     <div className={Styles.SearchInput}>
-      {MagnifyingGlass}
+      {value && MagnifyingGlass}
       <input
         ref={input}
         placeholder="Search for a market"
@@ -44,7 +44,7 @@ export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchI
         onKeyPress={(event) => keypressHandler(event)}
       />
       <div className={classNames({ [Styles.faded]: !value })} onClick={clearValue}>
-        {XIcon}
+        {!value ? MagnifyingGlass : XIcon}
       </div>
     </div>
   );

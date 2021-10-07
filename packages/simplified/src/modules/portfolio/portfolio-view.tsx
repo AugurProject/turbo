@@ -238,7 +238,6 @@ export const PortfolioView = () => {
           showActivityButton={isMobile}
           setTables={() => setView(TABLES)}
           setActivity={() => setView(ACTIVITY)}
-          view={view}
           claimableFirst
         />
         {view === ACTIVITY && <Activity />}

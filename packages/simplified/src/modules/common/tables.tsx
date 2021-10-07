@@ -32,6 +32,7 @@ const {
   SelectionComps: { SmallDropdown },
   Links: { AddressLink, MarketLink, ReceiptLink },
   Icons: { EthIcon, UpArrow, UsdIcon, MaticIcon },
+  InputComps: { SearchInput },
 } = Components;
 const { claimWinnings, getCompleteSetsAmount, cashOutAllShares } = ContractCalls;
 const { formatDai, formatCash, formatSimplePrice, formatSimpleShares, formatPercent, formatToken } = Formatter;
@@ -306,6 +307,30 @@ export const PositionFooter = ({
   );
 };
 
+const applyFiltersAndSort = (passedInPositions, filter, setFilteredMarketPositions, claimableFirst) => {
+  let updatedFilteredPositions = passedInPositions;
+  if (filter !== "") {
+    updatedFilteredPositions = updatedFilteredPositions.filter((position) => {
+      const { title, description, categories, outcomes } = position?.ammExchange?.market;
+      const searchRegex = new RegExp(filter, "i");
+      const matchTitle = searchRegex.test(title);
+      const matchDescription = searchRegex.test(description);
+      const matchCategories = searchRegex.test(JSON.stringify(categories));
+      const matchOutcomes = searchRegex.test(JSON.stringify(outcomes.map((outcome) => outcome.name)));
+      if (matchTitle || matchDescription || matchCategories || matchOutcomes) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  if (claimableFirst) {
+    updatedFilteredPositions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
+  }
+  setFilteredMarketPositions(updatedFilteredPositions);
+}
+
+
 export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     balances: { marketShares },
@@ -313,22 +338,34 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
     settings: { showResolvedPositions },
   } = useSimplifiedStore();
+  const [filter, setFilter] = useState("");
+  const [filteredMarketPositions, setFilteredMarketPositions] = useState([]);
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    }[]).filter(
-      (position) =>
-        showResolvedPositions ||
-        position?.claimableWinnings ||
-        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-    )
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
     : [];
-  if (claimableFirst) {
-    positions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
-  }
-  const positionVis = sliceByPage(positions, page, POSITIONS_LIQUIDITY_LIMIT).map((position) => {
+
+  const handleFilterSort = () => {
+    applyFiltersAndSort(positions, filter, setFilteredMarketPositions, claimableFirst);
+  };
+
+  useEffect(() => {
+    handleFilterSort();
+  }, [filter]);
+
+  useEffect(() => {
+    handleFilterSort();
+  }, [positions.length, Object.values(marketShares || {}).length]);
+
+  const positionVis = sliceByPage(filteredMarketPositions, page, POSITIONS_LIQUIDITY_LIMIT).map((position) => {
     return (
       <PositionTable
         key={`${position.ammExchange.marketId}-PositionsTable`}
@@ -340,7 +377,10 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
     );
   });
 
-  return <>{positionVis}</>;
+  return <>
+    <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
+    {positionVis}
+  </>;
 };
 
 export const PositionTable = ({
@@ -417,7 +457,7 @@ export const BonusReward = ({
   const endTimestamp: number = pendingBonusRewards?.endBonusTimestamp || 0;
   const secondsRemaining = endTimestamp - now;
   const totalSeconds = endTimestamp - beginTimestamp;
-  let filled = (1 - (secondsRemaining / totalSeconds)) * 100
+  let filled = (1 - secondsRemaining / totalSeconds) * 100;
   if (now > endTimestamp) filled = DONE;
   const dateOnly = getMarketEndtimeDate(endTimestamp);
   const countdownDuration = timeTogo(endTimestamp);
@@ -431,9 +471,7 @@ export const BonusReward = ({
       <h4>
         {filled === DONE ? `Bonus Unlocked` : `Bonus Locked`}: {bonusAmount} {MaticIcon}
       </h4>
-      <p>
-        {filled !== DONE ? `${dateOnly} (${countdownDuration})`: 'Remove liquidity to claim'}
-      </p>
+      <p>{filled !== DONE ? `${dateOnly} (${countdownDuration})` : "Remove liquidity to claim"}</p>
     </article>
   );
 };
@@ -443,18 +481,16 @@ interface PositionsLiquidityViewSwitcherProps {
   showActivityButton?: boolean;
   setActivity?: Function;
   setTables?: Function;
-  view?: string;
   claimableFirst?: boolean;
 }
 
-const POSITIONS_LIQUIDITY_LIMIT = 5;
+const POSITIONS_LIQUIDITY_LIMIT = 50;
 
 export const PositionsLiquidityViewSwitcher = ({
   ammExchange,
   showActivityButton,
   setActivity,
   setTables,
-  view,
   claimableFirst = false,
 }: PositionsLiquidityViewSwitcherProps) => {
   const {
@@ -477,22 +513,22 @@ export const PositionsLiquidityViewSwitcher = ({
 
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
-      ammExchange: AmmExchange;
-      positions: PositionBalance[];
-      claimableWinnings: Winnings;
-    }[]).filter(
-      (position) =>
-        showResolvedPositions ||
-        position?.claimableWinnings ||
-        (!showResolvedPositions && !position.ammExchange.market.hasWinner)
-    )
+        ammExchange: AmmExchange;
+        positions: PositionBalance[];
+        claimableWinnings: Winnings;
+      }[]).filter(
+        (position) =>
+          showResolvedPositions ||
+          position?.claimableWinnings ||
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+      )
     : [];
   const liquidities = lpTokens
     ? Object.keys(lpTokens).map((marketId) => ({
-      ammExchange: ammExchanges[marketId],
-      market: markets[marketId],
-      lpTokens: lpTokens[marketId],
-    }))
+        ammExchange: ammExchanges[marketId],
+        market: markets[marketId],
+        lpTokens: lpTokens[marketId],
+      }))
     : [];
 
   const [tableView, setTableView] = useState(POSITIONS);
