@@ -57,6 +57,18 @@ export const addresses: AddressMapping = {
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
       {
+        type: "CryptoCurrencyMarketCap",
+        subtype: "V3",
+        address: "0x189fC6B889D277fD91d0d2a11dB2470e58E1ba7A",
+        collateral: "0x5799bFe361BEea69f808328FF4884DF92f1f66f0",
+        ammFactory: "0xDcf4173FC3947bC2CbAB929559b7f38Cb25Bef34",
+        fetcher: "0x4D32E966a79bFB049Fc48655e6Ae8785ed34e44f",
+        hasRewards: true,
+        masterChef: "0xa976cb47C216Ee71089b10383bDEa4e230551458",
+        description: "crypto market caps",
+        version: "FILL THIS OUT",
+      },
+      {
         type: "MLB",
         subtype: "V3",
         address: "0x930fdaC8CBeC4279401a2bf864eeeaa85c00123D",
