@@ -3,7 +3,6 @@
 .TopNav {
   align-items: center;
   background: var(--inverted-primary-bg);
-  // border-bottom: @size-1 solid var(--theme-border);
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
@@ -86,7 +85,6 @@
           align-items: center;
           justify-content: center;
 
-         
           &:last-of-type {
             margin-right: 0;
           }
@@ -118,7 +116,6 @@
               color: var(--inverted-primary-text);
             }
           }
-
         }
       }
     }
@@ -179,7 +176,6 @@
       padding-left: @size-44;
     }
     &.TwoTone > section:last-of-type {
-      // max-width: @size-340;
       width: @size-340;
       padding-right: @size-44;
     }
@@ -300,7 +296,7 @@
 
   > button {
     background-color: transparent;
-    border: @size-1 solid rgba(var(--secondary-text-rgb), 0.50);
+    border: @size-1 solid rgba(var(--secondary-text-rgb), 0.5);
     border-bottom: 0;
     border-top: 0;
     border-radius: 0;
@@ -517,12 +513,25 @@
 }
 
 :root[theme="SPORTS_DARK"] {
+  @media @breakpoint-mobile-tablet {
+    .TopNav > article:not([class*="Toast"]) > button:first-of-type {
+      border-color: var(--theme-border);
+    }
+  }
+
   .SettingsMenuWrapper {
+    > button {
+      border-color: var(--theme-border);
+    }
     &.Open {
       @media @breakpoint-mobile-tablet {
         background: rgba(var(--primary-bg-rgb), 0.9);
       }
     }
+  }
+
+  .MobileMenuButton {
+    border-color: var(--theme-border);
   }
 }
 
@@ -570,14 +579,14 @@
 
       > section {
         width: @size-120;
-        
+
         > svg {
           height: @size-24;
-        
+
           > g:first-of-type > path:not(:first-of-type) {
             fill: var(--color-brand-secondary);
           }
-        } 
+        }
       }
     }
 
@@ -658,8 +667,6 @@
         max-height: @size-64;
         height: @size-64;
       }
-
-     
     }
   }
 }
