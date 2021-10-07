@@ -24,6 +24,26 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
    email: `team@forecastfoundation.org`
    password: `PASSword123!!!`
 
+### Deploy to AWS
+
+[AWS CLI](https://aws.amazon.com/cli/) is assumed to be installed and authenticated.
+
+First authenticate to docker repository and run 
+
+    yarn authenticate:aws
+
+To build adapters run the following at the root of the external-adapters-js project.
+
+    docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --build-arg location=./packages/composites/augur --build-arg package="@chainlink/augur-adapter" -t public.ecr.aws/augur/adapters/augur-adapter:latest .
+
+If the job definition have changed run
+
+    yarn build:docker
+
+To update chainlink stack
+
+    yarn deploy:aws 
+
 ### Required Files
 
 #### augur-adapter.env

@@ -12,7 +12,8 @@
     "test": "jest",
     "cdk": "cdk",
     "generate:env": "ts-node ./lib/generate-augur-adapter-env.ts > augur-jobs-creator.env",
-    "deploy:aws": "yarn cdk synth && yarn cdk deploy"
+    "deploy:aws": "yarn cdk synth && yarn cdk deploy --force",
+    "authenticate:aws": "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/augur"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",
