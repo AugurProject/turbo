@@ -8,27 +8,15 @@ import "./AbstractMarketFactoryV3.sol";
 import "./FeePot.sol";
 import "../libraries/SafeMathInt256.sol";
 import "../libraries/Sport.sol";
-import "../libraries/HasHeadToHeadMarket.sol";
 import "../libraries/HasSpreadMarket.sol";
-import "../libraries/HasOverUnderMarket.sol";
 import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
 
-contract NBAMarketFactoryV3 is
-    AbstractMarketFactoryV3,
-    SportView,
-    HasHeadToHeadMarket,
-    HasSpreadMarket,
-    HasOverUnderMarket,
-    ResolvesByScore,
-    Versioned
-{
+contract NBAMarketFactoryV3 is AbstractMarketFactoryV3, SportView, HasSpreadMarket, ResolvesByScore, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
-    uint256 constant HeadToHead = 0;
-    uint256 constant Spread = 1;
-    uint256 constant OverUnder = 2;
+    uint256 constant Spread = 0;
     string constant InvalidName = "No Contest";
 
     constructor(
@@ -41,11 +29,9 @@ contract NBAMarketFactoryV3 is
         address _linkNode
     )
         AbstractMarketFactoryV3(_owner, _collateral, _shareFactor, _feePot, _fees, _protocol)
-        Versioned("1.2.0")
+        Versioned("1.5.0")
         ManagedByLink(_linkNode)
-        HasHeadToHeadMarket(HeadToHead, InvalidName)
         HasSpreadMarket(Spread, InvalidName)
-        HasOverUnderMarket(OverUnder, InvalidName)
     {}
 
     function createEvent(
@@ -55,15 +41,13 @@ contract NBAMarketFactoryV3 is
         string memory _awayTeamName,
         uint256 _awayTeamId,
         uint256 _startTimestamp,
-        int256 _homeSpread,
-        int256 _totalScore,
-        int256[2] memory _moneylines // [home,away]
+        int256 _homeSpread
     ) public onlyLinkNode returns (uint256[] memory _marketIds) {
-        _marketIds = makeMarkets(_moneylines, _homeTeamName, _awayTeamName);
+        _marketIds = makeMarkets(_homeTeamName, _awayTeamName);
         makeSportsEvent(
             _eventId,
             _marketIds,
-            build3Lines(_homeSpread, _totalScore),
+            makeLine(_homeSpread),
             _startTimestamp,
             _homeTeamId,
             _awayTeamId,
@@ -72,16 +56,17 @@ contract NBAMarketFactoryV3 is
         );
     }
 
-    function makeMarkets(
-        int256[2] memory _moneylines,
-        string memory _homeTeamName,
-        string memory _awayTeamName
-    ) internal returns (uint256[] memory _marketIds) {
-        _marketIds = new uint256[](3);
-
-        _marketIds[HeadToHead] = makeHeadToHeadMarket(_moneylines, _homeTeamName, _awayTeamName);
+    function makeMarkets(string memory _homeTeamName, string memory _awayTeamName)
+        internal
+        returns (uint256[] memory _marketIds)
+    {
+        _marketIds = new uint256[](1);
         _marketIds[Spread] = makeSpreadMarket(_homeTeamName, _awayTeamName);
-        _marketIds[OverUnder] = makeOverUnderMarket();
+    }
+
+    function makeLine(int256 _homeSpread) internal pure returns (int256[] memory _line) {
+        _line = build1Line();
+        _line[0] = addHalfPoint(_homeSpread);
     }
 
     function resolveValidEvent(
@@ -89,8 +74,6 @@ contract NBAMarketFactoryV3 is
         uint256 _homeScore,
         uint256 _awayScore
     ) internal override {
-        resolveHeadToHeadMarket(_event.markets[HeadToHead], _homeScore, _awayScore);
         resolveSpreadMarket(_event.markets[Spread], _event.lines[Spread], _homeScore, _awayScore);
-        resolveOverUnderMarket(_event.markets[OverUnder], _event.lines[OverUnder], _homeScore, _awayScore);
     }
 }
