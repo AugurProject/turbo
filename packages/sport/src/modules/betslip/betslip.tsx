@@ -215,7 +215,7 @@ export const ActiveBetsMain = () => {
   );
 };
 
-export const EmptyBetslip = ({ loggedMessage = "Need help placing a bet?" }) => {
+export const EmptyBetslip = ({ loggedMessage = "" }) => {
   const {
     isLogged,
     actions: { setModal },

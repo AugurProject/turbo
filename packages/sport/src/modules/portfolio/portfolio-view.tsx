@@ -8,7 +8,7 @@ import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
 import { DailyLongSwitch } from "../categories/categories";
 import { useSportsStore } from "../stores/sport";
-import { useBetslipStore, processClosedMarketsPositions } from "../stores/betslip";
+import { useBetslipStore, processClosedMarketShares, processClosedPositionBalances } from "../stores/betslip";
 import { BetType } from "../stores/constants";
 import BigNumber from "bignumber.js";
 import { claimAll } from "modules/utils";
@@ -130,10 +130,13 @@ const useEventPositionsData = (sortBy: string, search: string) => {
   const { active } = useBetslipStore();
   const { positionBalance } = transactions;
 
-  let marketIds = Array.from([
+  const activeMarketIds = Object.values(active)
+    .map(bet => (bet as unknown as BetType).marketId)
+    .filter(id => sortBy === OPEN ? !markets[id]?.hasWinner : markets[id]?.hasWinner);
+
+  const marketIds = Array.from([
       ...new Set(
-        Object.values(active)
-          .map(bet => (bet as unknown as BetType).marketId)
+        activeMarketIds
       ),
     ...new Set([...(positionBalance || [])?.map((p) => p?.marketId), ...Object.keys(marketShares)])
   ]).filter(id => sortBy === OPEN ? !markets[id]?.hasWinner : markets[id]?.hasWinner);
@@ -165,21 +168,34 @@ const useEventPositionsData = (sortBy: string, search: string) => {
 
   let eventPositionsData = events.reduce((acc, event) => {
     const out = { ...acc };
-    const getBets = [...Object.values(marketShares), ...(positionBalance || [])].filter(b => event.marketIds.includes(b.marketId));
-    const bets = processClosedMarketsPositions({
+    const getBets = ([...Object.keys(marketShares)] || [])
+      .filter(marketId => event.marketIds.includes(marketId) && !activeMarketIds.includes(marketId))
+      .reduce((p, marketId) => ([...p, ...marketShares[marketId].positions]),[]);
+    const getPositions = [...(positionBalance || [])]
+      .filter(b => event.marketIds.includes(b.marketId));
+    
+    const bets = processClosedMarketShares({
       marketPositions: getBets,
       markets,
       account,
       transactions,
       marketEvents,
-    }).reduce((p, bet) => ({ ...p, [bet.betId]: bet }), {});
+    });
 
-    if (Object.keys(bets).length === 0) return out;
+    const betsPositions = processClosedPositionBalances({
+      marketPositions: getPositions,
+      markets,
+      marketEvents,
+    });
+    
+    const allBets = [...bets, ...betsPositions].reduce((p, bet) => ({ ...p, [bet.betId]: bet }), {});
+
+    if (Object.keys(allBets).length === 0) return out;
     out[event?.eventId] = {
       eventId: event?.eventId,
       eventTitle: event?.description,
       eventStartTime: event?.startTimestamp,
-      bets: {...(out[event?.eventId]?.bets || {}), ...bets},
+      bets: {...(out[event?.eventId]?.bets || {}), ...allBets},
       marketIds: event?.marketIds,
     };
     return out;

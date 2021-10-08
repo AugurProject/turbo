@@ -20,7 +20,7 @@ export const BetslipStore = {
   actions: STUBBED_BETSLIP_ACTIONS,
 };
 
-export const processClosedMarketsPositions = ({
+export const processClosedMarketShares = ({
   marketPositions,
   markets,
   account,
@@ -44,7 +44,7 @@ export const processClosedMarketsPositions = ({
     const cashoutAmount = isWinningOutcome
       ? new BN(position.quantity || position.payout).toFixed()
       : new BN(position.initCostUsd || 0).toFixed();
-    const betId = `${market.marketId}-${position.outcomeId}-${position.timestamp}`;
+    const betId = `${market.marketId}-${position.outcomeId}-${position.timestamp}-ms`;
 
     bets.push({
       heading: `${marketEvent?.description}`,
@@ -53,7 +53,7 @@ export const processClosedMarketsPositions = ({
       price: position.avgPrice,
       wager: formatCash(position.initCostUsd, USDC).formatted,
       toWin: market.hasWinner ? formatCash(cashoutAmount, USDC).formatted : formatCash(toWin, USDC).formatted,
-      timestamp: mostRecentUserTrade ? mostRecentUserTrade?.timestamp : null,
+      timestamp: mostRecentUserTrade ? Number(mostRecentUserTrade?.timestamp) : null,
       hash: mostRecentUserTrade ? mostRecentUserTrade?.transactionHash : null,
       betId,
       marketId: market.marketId,
@@ -71,6 +71,52 @@ export const processClosedMarketsPositions = ({
 
   return bets;
 };
+
+// closed position data from the graph
+export const processClosedPositionBalances = ({
+  marketPositions,
+  markets,
+  marketEvents,
+}) => {
+  const bets = [];
+  for (let i = 0; i < marketPositions.length; i++) {
+    const position = marketPositions[i];
+    const marketId = position.marketId;
+    const market = markets[marketId];
+    const outcomeId = new BN(position.outcomeId).toNumber();
+    const isWinningOutcome = new BN(market?.winner).eq(new BN(outcomeId));
+    const marketEvent = marketEvents[market.eventId];
+    const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0)).toFixed();
+    const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(outcomeId)));
+    const cashoutAmount = new BN(position.payout || position.initCostUsd).toFixed()
+    const betId = `${market.marketId}-${outcomeId}-${position.timestamp}`;
+
+    bets.push({
+      heading: `${marketEvent?.description}`,
+      subHeading: `${SPORTS_MARKET_TYPE_LABELS[market.sportsMarketType]}`,
+      name,
+      price: position.avgPrice,
+      wager: formatCash(position.initCostUsd, USDC).formatted,
+      toWin: market.hasWinner ? formatCash(cashoutAmount, USDC).formatted : formatCash(toWin, USDC).formatted,
+      timestamp: Number(position?.timestamp) || null,
+      hash: position?.transactionHash,
+      betId,
+      marketId: market.marketId,
+      size: position.quantity,
+      outcomeId,
+      cashoutAmount,
+      canCashOut: false,
+      isPending: false,
+      status: TX_STATUS.CONFIRMED,
+      isWinningOutcome,
+      hasClaimed: true,
+      isOpen: false,
+    });
+  }
+
+  return bets;
+};
+
 
 const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, removeActive } }) => {
   const { marketEvents } = useSportsStore();
@@ -110,6 +156,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
       const activeBet = active[betId];
       const status = userTransactions.find((t) => t.hash === activeBet?.hash)?.status || TX_STATUS.CONFIRMED;
 
+      if (market.hasWinner) continue;
       bets.push({
         heading: `${marketEvent?.description}`,
         subHeading: `${SPORTS_MARKET_TYPE_LABELS[market.sportsMarketType]}`,
