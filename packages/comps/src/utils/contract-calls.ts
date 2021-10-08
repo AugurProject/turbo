@@ -1014,7 +1014,8 @@ export const getUserBalances = async (
             outcomeId,
             exchange,
             account,
-            userClaims
+            userClaims,
+            marketId
           );
           if (position) userBalances[collection][marketId].positions.push(position);
           userBalances[collection][marketId].outcomeSharesRaw[outcomeId] = rawBalance;
@@ -1034,7 +1035,8 @@ export const getUserBalances = async (
             outcomeId,
             exchange,
             account,
-            userClaims
+            userClaims,
+            marketId
           );
           if (position) userBalances[collection][marketId].positions.push(position);
           userBalances[collection][marketId].outcomeSharesRaw[outcomeId] = rawBalance;
@@ -1146,7 +1148,8 @@ const getPositionUsdValues = (
   outcome: string,
   amm: AmmExchange,
   account: string,
-  userClaims: UserClaimTransactions
+  userClaims: UserClaimTransactions,
+  marketId: string
 ): PositionBalance => {
   let past24hrUsdValue = null;
   let change24hrPositionUsd = null;
@@ -1210,6 +1213,7 @@ const getPositionUsdValues = (
     positionFromAddLiquidity,
     positionFromRemoveLiquidity,
     timestamp,
+    marketId,
   };
 };
 
