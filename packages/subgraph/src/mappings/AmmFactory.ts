@@ -94,6 +94,7 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
   let absCollateral = event.params.collateral.abs();
   let absCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
   liquidityPositionBalance.addCollateral = liquidityPositionBalance.addCollateral + absCollateral;
@@ -104,6 +105,8 @@ function addLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | null):
   addLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   addLiquidityEntity.timestamp = event.block.timestamp;
   addLiquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  addLiquidityEntity.collateralBigInt = event.params.collateral;
+  addLiquidityEntity.collateralBigDecimal = collateralBigDecimal;
   addLiquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
   addLiquidityEntity.marketId = marketId;
   addLiquidityEntity.sender = senderId;
@@ -134,6 +137,7 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   let removeLiquidityEntity = getOrCreateRemoveLiquidity(id, true, false);
   let liquidityPositionBalanceId = senderId + "-" + marketId;
   let sharesReturnedArray: BigInt[] = event.params.sharesReturned;
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
   let absCollateral = event.params.collateral.abs();
   let absCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
   getOrCreateMarket(marketId);
@@ -173,6 +177,8 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   removeLiquidityEntity.timestamp = event.block.timestamp;
   removeLiquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  removeLiquidityEntity.collateralBigInt = event.params.collateral;
+  removeLiquidityEntity.collateralBigDecimal = collateralBigDecimal;
   removeLiquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
   removeLiquidityEntity.marketId = marketId;
   removeLiquidityEntity.sender = senderId;
@@ -218,6 +224,7 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let poolAddress = ammContractInstance.pools(event.params.marketFactory, event.params.marketId);
   let bPool = BPoolContract.bind(poolAddress);
   let totalSupply: BigInt | null = null;
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
 
   liquidityEntity.transactionHash = event.transaction.hash.toHexString();
   liquidityEntity.timestamp = event.block.timestamp;
@@ -226,6 +233,8 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   liquidityEntity.sender = senderId;
   liquidityEntity.recipient = event.params.recipient.toHexString();
   liquidityEntity.collateral = bigIntToHexString(event.params.collateral);
+  liquidityEntity.collateralBigInt = event.params.collateral;
+  liquidityEntity.collateralBigDecimal = collateralBigDecimal;
   liquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
   liquidityEntity.sharesReturned = event.params.sharesReturned;
 
@@ -254,13 +263,20 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   getOrCreateSender(senderId);
 
   let outcome = bigIntToHexString(event.params.outcome);
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let sharesBigDecimal = event.params.shares.toBigDecimal().div(SHARES_DECIMALS);
+
   tradeEntity.marketFactory = event.params.marketFactory.toHexString();
   tradeEntity.marketId = marketId;
   tradeEntity.user = senderId;
   tradeEntity.sender = senderId;
   tradeEntity.outcome = outcome;
   tradeEntity.collateral = bigIntToHexString(event.params.collateral);
+  tradeEntity.collateralBigInt = event.params.collateral;
+  tradeEntity.collateralBigDecimal = collateralBigDecimal;
   tradeEntity.shares = bigIntToHexString(event.params.shares);
+  tradeEntity.sharesBigInt = event.params.shares;
+  tradeEntity.sharesBigDecimal = sharesBigDecimal;
   tradeEntity.price = event.params.price.toBigDecimal().div(BigInt.fromI32(10).pow(18).toBigDecimal());
 
   tradeEntity.transactionHash = event.transaction.hash.toHexString();

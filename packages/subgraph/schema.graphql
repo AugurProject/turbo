@@ -185,6 +185,8 @@ type Liquidity @entity {
   recipient: String!
   "From the perspective of the user. E.g. collateral is negative when adding liquidity."
   collateral: String!
+  collateralBigInt: BigInt!
+  collateralBigDecimal: BigDecimal!
   lpTokens: String!
   sharesReturned: [BigInt!]
   totalSupply: BigInt
@@ -211,6 +213,8 @@ type AddLiquidity @entity {
   transactionHash: String!
   timestamp: BigInt!
   collateral: String!
+  collateralBigInt: BigInt!
+  collateralBigDecimal: BigDecimal!
   lpTokens: String!
   sharesReturned: [BigInt!]
   totalSupply: BigInt
@@ -231,6 +235,8 @@ type RemoveLiquidity @entity {
   timestamp: BigInt!
   outcomes: [Outcomes!]! @derivedFrom(field: "removeLiquidity")
   collateral: String!
+  collateralBigInt: BigInt!
+  collateralBigDecimal: BigDecimal!
   lpTokens: String!
   sharesReturned: [BigInt!]
   totalSupply: BigInt
@@ -245,7 +251,11 @@ type Trade @entity {
   outcome: String!
   "From the perspective of the user. E.g. collateral is negative when buying."
   collateral: String!
+  collateralBigInt: BigInt!
+  collateralBigDecimal: BigDecimal!
   shares: String!
+  sharesBigInt: BigInt!
+  sharesBigDecimal: BigDecimal!
   price: BigDecimal!
   transactionHash: String!
   timestamp: BigInt!
