@@ -142,11 +142,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
     .map((eventId) => marketEvents[eventId])
     .filter((v) => v);
 
-
-  let eventPositionActive = null;
-  let eventPositionClosed = null;
-
-  eventPositionActive = events.reduce((acc, event) => {
+  const eventPositions = events.reduce((acc, event) => {
     const out = { ...acc };
     const bets = Object.entries(active).reduce((a, [txhash, bet]: [string, BetType]) => {
       let result = { ...a };
@@ -167,7 +163,7 @@ const useEventPositionsData = (sortBy: string, search: string) => {
     return out;
   }, {});
 
-  eventPositionClosed = events.reduce((acc, event) => {
+  let eventPositionsData = events.reduce((acc, event) => {
     const out = { ...acc };
     const getBets = [...Object.values(marketShares), ...(positionBalance || [])].filter(b => event.marketIds.includes(b.marketId));
     const bets = processClosedMarketsPositions({
@@ -183,13 +179,12 @@ const useEventPositionsData = (sortBy: string, search: string) => {
       eventId: event?.eventId,
       eventTitle: event?.description,
       eventStartTime: event?.startTimestamp,
-      bets,
+      bets: {...(out[event?.eventId]?.bets || {}), ...bets},
       marketIds: event?.marketIds,
     };
     return out;
-  }, {});
+  }, eventPositions);
 
-  let eventPositionsData = { ...eventPositionClosed, ...eventPositionActive };
   if (!!search) {
     eventPositionsData = Object.entries(eventPositionsData)
       .filter(([eventID, event]: any) => {
