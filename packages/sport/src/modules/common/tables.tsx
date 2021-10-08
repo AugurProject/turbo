@@ -95,7 +95,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   } = useUserStore();
   const { markets } = useDataStore();
   const determineClasses = ({ canCashOut, isOpen, hasClaimed, wager, cashout, isWinningOutcome }) => {
-    const isPositive = isWinningOutcome || Number(wager) <= Number(cashout);
+    const isPositive = isOpen ? Number(wager) <= Number(cashout) : isWinningOutcome;
     return {
       [Styles.CanCashOut]: canCashOut,
       [Styles.hasClaimed]: hasClaimed || !isOpen,
@@ -136,22 +136,24 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           canCashOut,
           isPending,
           timestamp,
-          isOpen
+          isOpen,
+          isWinningOutcome
         } = bet;
         const market = markets[marketId];
         const cashout = formatCash(cashoutAmount, USDC);
         let subtext = "";
         let buttonName = "";
         if (isOpen) {
-          if (!canCashOut) buttonName = CASHOUT_NOT_AVAILABLE
-          if (isApproved) {
-            buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;  
+          if (!canCashOut) {
+            buttonName = CASHOUT_NOT_AVAILABLE
+          } else if (isApproved) {
+            buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
           } else {
             buttonName = `APPROVE CASHOUT ${cashout.full}`;
-          }          
+          }
         } else {
           // label won or lost
-          subtext = Number(cashoutAmount) >= 0 ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
+          subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
         }
         /*
           !canCashOut && hasClaimed
@@ -179,7 +181,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
-                customClass={determineClasses({ ...bet, cashout: cashoutAmount })}
+                customClass={determineClasses({ ...bet, cashout: cashout.formattedValue })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
                 reverseContent={!canCashOut && hasClaimed}

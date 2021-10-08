@@ -20,7 +20,7 @@ export const BetslipStore = {
   actions: STUBBED_BETSLIP_ACTIONS,
 };
 
-export const processCloseddMarketsPositions = ({
+export const processClosedMarketsPositions = ({
   marketPositions,
   markets,
   account,
@@ -32,7 +32,7 @@ export const processCloseddMarketsPositions = ({
     const position = marketPositions[i];
     const marketId = position.marketId;
     const market = markets[marketId];
-    const isWinningOutcome = Number(market?.winner) === Number(position?.outcomeId);
+    const isWinningOutcome = new BN(market?.winner).eq(new BN(position?.outcomeId));
     const marketTrades = transactions?.[marketId]?.trades;
     const mostRecentUserTrade = marketTrades
       ?.filter((t) => isSameAddress(t.user, account))
@@ -40,11 +40,11 @@ export const processCloseddMarketsPositions = ({
       .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
     const marketEvent = marketEvents[market.eventId];
     const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0)).toFixed();
-    const { name } = market.outcomes.find((outcome) => outcome.id === position.outcomeId);
+    const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(position.outcomeId)));
     const cashoutAmount = isWinningOutcome
-      ? toWin
-      : estimatedCashOut(market.amm, position.quantity, position.outcomeId);
-    const betId = `${market.marketId}-${position.outcomeId}`;
+      ? new BN(position.quantity || position.payout).toFixed()
+      : new BN(position.initCostUsd || 0).toFixed();
+    const betId = `${market.marketId}-${position.outcomeId}-${position.timestamp}`;
 
     bets.push({
       heading: `${marketEvent?.description}`,
@@ -52,7 +52,7 @@ export const processCloseddMarketsPositions = ({
       name,
       price: position.avgPrice,
       wager: formatCash(position.initCostUsd, USDC).formatted,
-      toWin: formatCash(toWin, USDC).formatted,
+      toWin: market.hasWinner ? formatCash(cashoutAmount, USDC).formatted : formatCash(toWin, USDC).formatted,
       timestamp: mostRecentUserTrade ? mostRecentUserTrade?.timestamp : null,
       hash: mostRecentUserTrade ? mostRecentUserTrade?.transactionHash : null,
       betId,
@@ -65,7 +65,7 @@ export const processCloseddMarketsPositions = ({
       status: TX_STATUS.CONFIRMED,
       isWinningOutcome,
       hasClaimed: false,
-      isOpen: market.hasWinner ? isWinningOutcome : true,
+      isOpen: !market.hasWinner,
     });
   }
 
@@ -88,7 +88,6 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
       const userMarketShares = marketShares as AmmMarketShares;
       const marketPositions = userMarketShares[marketId];
       const { market } = marketPositions.ammExchange;
-      if (market.hasWinner) return p;
 
       return [...p, ...marketPositions.positions.map((pos) => ({ ...pos, marketId: market.marketId }))];
     }, []);
@@ -125,12 +124,12 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         size: position.quantity,
         outcomeId: position.outcomeId,
         cashoutAmount,
-        canCashOut: cashoutAmount !== null,
+        canCashOut: !market.hasWinner && cashoutAmount !== null,
         isPending: status === TX_STATUS.PENDING,
         isApproved,
         status,
         hasWinner: market.hasWinner,
-        isOpen: true,
+        isOpen: !market.hasWinner,
       });
     }
     // remove cashed out bets

@@ -53,7 +53,7 @@ const useMarketEvents = () => {
     if (numMarkets) {
       const marketEvents = Object.keys(markets).reduce((p, marketId) => {
         const { eventId, description, startTimestamp, categories, hasWinner } = markets[marketId];
-        const hasOneorManyWithLiq = Object.values(markets as MarketInfos).filter(m => m.eventId === eventId && m.amm.liquidityUSD > MIN_LIQUIDITY_AMOUNT).length > 0;
+        const hasOneorManyWithLiq = Object.values(markets as MarketInfos).filter(m => m.eventId === eventId && (m.amm.liquidityUSD > MIN_LIQUIDITY_AMOUNT || hasWinner));
         if (!hasOneorManyWithLiq) return p;
         return Object.keys(p).includes(eventId)
           ? {
