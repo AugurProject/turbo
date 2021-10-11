@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import classNames from "classnames";
 import Styles from "./portfolio-view.styles.less";
 import Activity from "./activity";
-import { Formatter, Constants, createBigNumber, Stores, SEO, Components } from "@augurproject/comps";
+import { Formatter, Constants, createBigNumber, Stores, SEO, Components, ContractCalls } from "@augurproject/comps";
 import { PORTFOLIO_HEAD_TAGS } from "../seo-config";
 import { Cash } from "@augurproject/comps/build/types";
 import { EventBetsSection } from "../common/tables";
@@ -26,6 +26,7 @@ const {
   InputComps: { SearchInput },
   LabelComps: { NetworkMismatchBanner },
 } = Components;
+const { getMarketFactoryData } = ContractCalls;
 
 const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber; ids: string[]; address: string }[] => {
   const factories = claimbleMarketsPerCash.reduce(
@@ -34,6 +35,7 @@ const calculateTotalWinnings = (claimbleMarketsPerCash): { total: BigNumber; ids
       factory.total = factory.total.plus(createBigNumber(claimableBalance || 0));
       factory.ids.push(turboId);
       factory.address = marketFactoryAddress;
+      factory.name = getMarketFactoryData(marketFactoryAddress)?.description?.toUpperCase();
       return { ...p, [marketFactoryAddress]: factory };
     },
     {}
@@ -77,7 +79,7 @@ const ClaimableTicket = ({
     <section className={Styles.ClaimableTicket}>
       {WinnerMedal}
       <p>
-        You have <b>{amount}</b> in winnings to claim in markets
+        You have <b>{amount}</b> {`in winnings to claim on ${USDCTotal.name} markets`}
       </p>
       <PrimaryThemeButton
         text={!pendingClaim ? `Claim Winnings` : `Awaiting Signature`}

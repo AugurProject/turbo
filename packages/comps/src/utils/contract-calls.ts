@@ -1650,7 +1650,7 @@ const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): Market
     ? PARA_CONFIG.marketFactories.filter((c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO)
     : PARA_CONFIG.marketFactories;
 
-const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {
+export const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {
   const factory = marketFactories().find((m) => m.address.toLowerCase() === marketFactoryAddress.toLowerCase());
   if (!factory) return null;
   return factory;
