@@ -87,7 +87,7 @@ export const processClosedPositionBalances = ({
     const isWinningOutcome = new BN(market?.winner).eq(new BN(outcomeId));
     const marketEvent = marketEvents[market.eventId];
     const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(outcomeId)));
-    const cashoutAmount = new BN(position.initCostUsd).minus(position.payout).toFixed()
+    const cashoutAmount = new BN(position.payout).minus(new BN(position.initCostUsd)).toFixed()
     const betId = `${market.marketId}-${outcomeId}-${position.timestamp}`;
 
     bets.push({
