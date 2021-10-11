@@ -9,6 +9,7 @@ import {
   MarketFactoryType,
   range,
   NBAMarketFactoryV3,
+  NFLMarketFactoryV3,
 } from "..";
 import { ManagedByLink, MMAMarketFactoryV3 } from "../typechain";
 import { BigNumber, BigNumberish, ContractReceipt, ContractTransaction, Signer } from "ethers";
@@ -185,26 +186,26 @@ async function nfl(signer: Signer, contracts: ContractInterfaces, confirmations:
 }
 
 async function nba(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
-  const events: SportsSpecifierThreeLines[] = [
+  const events: SportsSpecifierOneLineSpread[] = [
     {
       id: "0xbbb00a1",
       home: { id: 0x61, name: "Torpedos" },
       away: { id: 0x62, name: "Missiles" },
-      lines: { spread: -40, ou: 80, h2h: [-100, +500] },
+      lines: { spread: -40 },
     },
     {
       id: "0xbbb00a2",
       home: { id: 0x611, name: "Swords" },
       away: { id: 0x612, name: "Lances" },
-      lines: { spread: 90, ou: 1000, h2h: [50, -200] },
+      lines: { spread: 90 },
     },
   ];
 
-  return sport3(signer, contracts, confirmations, events, "NBA");
+  return sport1Spread(signer, contracts, confirmations, events, "NBA");
 }
 
 async function mma(signer: Signer, contracts: ContractInterfaces, confirmations: number) {
-  const events: SportsSpecifierOneLine[] = [
+  const events: SportsSpecifierOneLineH2H[] = [
     {
       id: "0xbbb00a1",
       home: { id: 0x61, name: "Torpedos" },
@@ -219,7 +220,7 @@ async function mma(signer: Signer, contracts: ContractInterfaces, confirmations:
     },
   ];
 
-  return sport1(signer, contracts, confirmations, events, "MMA");
+  return sport1H2H(signer, contracts, confirmations, events, "MMA");
 }
 
 interface SportSpecifier {
@@ -228,24 +229,31 @@ interface SportSpecifier {
   away: { id: number; name: string };
 }
 
-interface SportsSpecifierOneLine extends SportSpecifier {
-  lines: OneLine;
+interface SportsSpecifierOneLineH2H extends SportSpecifier {
+  lines: OneLineH2H;
+}
+interface SportsSpecifierOneLineSpread extends SportSpecifier {
+  lines: OneLineSpread;
 }
 interface SportsSpecifierThreeLines extends SportSpecifier {
   lines: ThreeLines;
 }
 
-interface OneLine {
+interface OneLineH2H {
   h2h: [number, number];
 }
 
-interface ThreeLines extends OneLine {
+interface OneLineSpread {
+  spread: number;
+}
+
+interface ThreeLines extends OneLineH2H {
   spread: number;
   ou: number;
 }
 
 // Handles any post-refactor sport with 3 markets (h2h, spread, O/U).
-// So not SportsLink, MMA, or MLB. Works for NFL, NBA, MLB.
+// Works for NFL. Does not work for SportsLink, MMA, MLB, or NBA.
 async function sport3(
   signer: Signer,
   contracts: ContractInterfaces,
@@ -254,7 +262,7 @@ async function sport3(
   marketType: MarketFactoryType
 ) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
-    .marketFactory as NBAMarketFactoryV3; // NBA market factory interface works for the other 3-sports too
+    .marketFactory as NFLMarketFactoryV3; // NFL market factory interface works for the other 3-sports too
 
   const originalLinkNode = await handleLinkNode(marketFactory, signer);
 
@@ -286,13 +294,13 @@ async function sport3(
   }
 }
 
-// Handles any post-refactor sport with 1 market (h2h).
+// Handles any post-refactor sport with 1 h2h market.
 // Works with MMA and MLB.
-async function sport1(
+async function sport1H2H(
   signer: Signer,
   contracts: ContractInterfaces,
   confirmations: number,
-  events: SportsSpecifierOneLine[],
+  events: SportsSpecifierOneLineH2H[],
   marketType: MarketFactoryType
 ) {
   const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
@@ -317,6 +325,48 @@ async function sport1(
       const startTime = makeTime(60 * 5); // 5 minutes from now
       await marketFactory
         .createEvent(id, home.name, home.id, away.name, away.id, startTime, lines.h2h)
+        .then((tx: ContractTransaction) => tx.wait(confirmations));
+
+      const marketCount = await marketFactory.marketCount().then((bn: BigNumber) => bn.toNumber());
+      const m1 = marketCount - 1;
+      console.log(`Created market ${m1} for ${marketType} ${marketFactory.address}`);
+    }
+  } finally {
+    await resetLinkNode(marketFactory, originalLinkNode);
+  }
+}
+
+// Handles sports with only spread market.
+// Works with NBA..
+async function sport1Spread(
+  signer: Signer,
+  contracts: ContractInterfaces,
+  confirmations: number,
+  events: SportsSpecifierOneLineSpread[],
+  marketType: MarketFactoryType
+) {
+  const marketFactory = contracts.MarketFactories[marketFactoryIndex(contracts, marketType)]
+    .marketFactory as NBAMarketFactoryV3;
+
+  const originalLinkNode = await handleLinkNode(marketFactory, signer);
+
+  try {
+    for (const { id, home, away, lines } of events) {
+      const exists = (await marketFactory.getSportsEvent(id)).status !== 0;
+      if (exists) {
+        console.log(`Skipping event "${id}" for ${marketType} because it already exists`);
+        continue;
+      }
+
+      console.log(`Creating event for ${marketType}:`);
+      console.log(`    Event ID: ${id}`);
+      console.log(`    Home: ${home.name} (${home.id})`);
+      console.log(`    Away: ${away.name} (${away.id})`);
+      console.log(`    Spread: ${lines.spread}`);
+
+      const startTime = makeTime(60 * 5); // 5 minutes from now
+      await marketFactory
+        .createEvent(id, home.name, home.id, away.name, away.id, startTime, lines.spread)
         .then((tx: ContractTransaction) => tx.wait(confirmations));
 
       const marketCount = await marketFactory.marketCount().then((bn: BigNumber) => bn.toNumber());

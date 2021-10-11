@@ -13,7 +13,7 @@ abstract contract LineHelper {
         _lines[2] = addHalfPoint(_totalScore);
     }
 
-    function addHalfPoint(int256 _line) private pure returns (int256) {
+    function addHalfPoint(int256 _line) internal pure returns (int256) {
         // The line is a quantity of tenths. So 55 is 5.5 and -6 is -60.
         // If the line is a whole number then make it a half point more extreme, to eliminate ties.
         // So 50 becomes 55, -60 becomes -65, and 0 becomes 5.
