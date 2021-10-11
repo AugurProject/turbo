@@ -110,6 +110,7 @@ export const processClosedPositionBalances = ({
       isWinningOutcome,
       hasClaimed: true,
       isOpen: false,
+      isCashout: !position.hasClaimed
     });
   }
 
