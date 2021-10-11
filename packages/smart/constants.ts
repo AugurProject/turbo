@@ -117,6 +117,7 @@ export const graphChainNames: {
   kovan: "kovan",
   maticMumbai: "mumbai",
   maticMainnet: "matic",
+  testMaticMainnet: "matic",
 };
 export type AddressMapping = {
   [id in NetworkNames]?: Addresses;
