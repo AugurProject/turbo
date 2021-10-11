@@ -1,12 +1,12 @@
 import * as ts from "typescript";
 import { EmitHint, SyntaxKind } from "typescript";
 import * as fs from "fs";
-import { Addresses, MarketFactory } from "../constants";
+import { Addresses, MarketFactory, NetworkNames } from "../constants";
 import { format } from "prettier";
 
 const printer = ts.createPrinter();
 
-export function updateAddressConfig(addressFilePath: string, chainId: number, addresses: Addresses): void {
+export function updateAddressConfig(addressFilePath: string, networkName: NetworkNames, addresses: Addresses): void {
   const sourceFile = ts.createSourceFile(
     "addresses.ts",
     fs.readFileSync(addressFilePath, "utf8"),
@@ -25,10 +25,10 @@ export function updateAddressConfig(addressFilePath: string, chainId: number, ad
             context.factory.createObjectLiteralExpression([
               // Remove object with passed chainId if present.
               ...objectDef.properties.filter((node) => {
-                return node.name?.getText(sourceFile) !== `${chainId}`;
+                return node.name?.getText(sourceFile) !== `${networkName}`;
               }),
               context.factory.createPropertyAssignment(
-                `${chainId}`,
+                `${networkName}`,
                 ts.factory.createObjectLiteralExpression(
                   Object.entries(addresses).map(([key, val]) => {
                     if (key === "marketFactories") {

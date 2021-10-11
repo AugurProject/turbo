@@ -93,26 +93,31 @@ export const marketFactoryTypeToFetcherName: {
   CryptoCurrency: "CryptoCurrencyFetcher",
   Trusted: "",
 };
-export enum ChainId {
-  Mainnet = 1,
-  Ropsten = 3,
-  Rinkeby = 4,
-  Kovan = 42,
-  HardHat = 31337,
-  ArbitrumKovan4 = 212984383488152,
-  MaticMumbai = 80001,
-  MaticMainnet = 137,
-}
+
+export const networkNames = [
+  "mainnet",
+  "ropsten",
+  "rinkeby",
+  "kovan",
+  "hardhat",
+  "arbitrumKovan4",
+  "maticMumbai",
+  "maticMainnet",
+  "testMaticMainnet",
+] as const;
+
+export type NetworkNames = typeof networkNames[number];
+
 export const graphChainNames: {
-  [chainId: number]: string;
+  [p in NetworkNames]?: string;
 } = {
-  1: "mainnet",
-  3: "ropsten",
-  4: "rinkeby",
-  42: "kovan",
-  80001: "mumbai",
-  137: "matic",
+  mainnet: "mainnet",
+  ropsten: "ropsten",
+  rinkeby: "rinkeby",
+  kovan: "kovan",
+  maticMumbai: "mumbai",
+  maticMainnet: "matic",
 };
 export type AddressMapping = {
-  [id in ChainId]?: Addresses;
+  [id in NetworkNames]?: Addresses;
 };

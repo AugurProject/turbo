@@ -1,64 +1,69 @@
 import { task } from "hardhat/config";
 import { addresses } from "../addresses";
-import { ChainId, MARKET_FACTORY_TYPE_TO_CONTRACT_NAME, marketFactoryTypeToFetcherName } from "../constants";
+import { MARKET_FACTORY_TYPE_TO_CONTRACT_NAME, marketFactoryTypeToFetcherName } from "../constants";
+import { isNetworkName } from "./common";
 
 task("tenderly:verify:all", "Push contracts to tenderly", async (args, hre) => {
-  const { chainId } = await hre.ethers.provider.getNetwork();
+  const { network } = hre;
 
-  const deployedAddresses = addresses[chainId as ChainId];
-  if (!deployedAddresses) return console.warn(`No contracts known for chainid "${chainId}"`);
+  if (isNetworkName(network.name)) {
+    const deployedAddresses = addresses[network.name];
+    if (!deployedAddresses) return console.warn(`No contracts known for networkName "${network.name}"`);
 
-  const contracts = [
-    {
-      name: "BFactory",
-      address: deployedAddresses.balancerFactory,
-    },
-    {
-      name: "Reputation",
-      address: deployedAddresses.reputationToken,
-    },
-  ];
+    const contracts = [
+      {
+        name: "BFactory",
+        address: deployedAddresses.balancerFactory,
+      },
+      {
+        name: "Reputation",
+        address: deployedAddresses.reputationToken,
+      },
+    ];
 
-  for (const marketFactory of deployedAddresses.marketFactories) {
-    const { ammFactory, fetcher, address, type, collateral } = marketFactory;
+    for (const marketFactory of deployedAddresses.marketFactories) {
+      const { ammFactory, fetcher, address, type, collateral } = marketFactory;
 
-    contracts.push({
-      name: "AMMFactory",
-      address: ammFactory,
-    });
-
-    // Fails to verify in production because real collateral (USDC) is used.
-    contracts.push({
-      name: "Cash",
-      address: collateral,
-    });
-
-    contracts.push({
-      name: MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type],
-      address,
-    });
-
-    // Fetchers aren't always defined
-    if (fetcher !== "") {
       contracts.push({
-        name: marketFactoryTypeToFetcherName[type],
-        address: fetcher,
+        name: "AMMFactory",
+        address: ammFactory,
       });
+
+      // Fails to verify in production because real collateral (USDC) is used.
+      contracts.push({
+        name: "Cash",
+        address: collateral,
+      });
+
+      contracts.push({
+        name: MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type],
+        address,
+      });
+
+      // Fetchers aren't always defined
+      if (fetcher !== "") {
+        contracts.push({
+          name: marketFactoryTypeToFetcherName[type],
+          address: fetcher,
+        });
+      }
     }
-  }
 
-  const addrs: string[] = [];
-  const uniqueContracts = contracts.filter((c) => {
-    const keep = !addrs.includes(c.address);
-    if (keep) addrs.push(c.address);
-    return keep;
-  });
+    const addrs: string[] = [];
+    const uniqueContracts = contracts.filter((c) => {
+      const keep = !addrs.includes(c.address);
+      if (keep) addrs.push(c.address);
+      return keep;
+    });
 
-  console.log(`Attempting to verify ${uniqueContracts.length} contracts for network ${chainId}.`);
+    console.log(`Attempting to verify ${uniqueContracts.length} contracts for network ${network.name}.`);
 
-  // One at a time because some will fail for various benign reasons.
-  for (const contract of uniqueContracts) {
-    console.log(`Verifying ${contract.name} @ ${contract.address}`);
-    await hre.tenderly.verify([contract]);
+    // One at a time because some will fail for various benign reasons.
+    for (const contract of uniqueContracts) {
+      console.log(`Verifying ${contract.name} @ ${contract.address}`);
+      await hre.tenderly.verify([contract]);
+    }
+  } else {
+    throw new Error(`Invalid network name ${network.name}.`);
   }
 });

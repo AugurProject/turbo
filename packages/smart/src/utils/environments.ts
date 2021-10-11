@@ -1,6 +1,7 @@
 import fs from "fs";
 import { addresses as originalAddresses } from "../../addresses";
-import { Addresses, ChainId, graphChainNames, MarketFactory } from "../../constants";
+import { Addresses, graphChainNames, MarketFactory } from "../../constants";
+import { isNetworkName } from "../../tasks/common";
 
 type EnvironmentMarketFactory = MarketFactory & {
   ammFactoryGraphName: string;
@@ -68,88 +69,90 @@ function generateJsonEnvironments() {
   const networks: string[] = Object.keys(originalAddresses);
   fs.mkdirSync("environments", { recursive: true });
   for (let i = 0; i < networks.length; i++) {
-    const key = Number(networks[i]) as ChainId;
-    let addresses = originalAddresses[key] as EnvironmentAddresses;
-    addresses.marketFactories = addresses.marketFactories.map((marketFactory, index) => ({
-      ...marketFactory,
-      ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
-      marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
-      masterChefGraphName: index === 0 ? "MasterChef" : `MasterChef-${index}`,
-    }));
-    const uniqueMarketFactories = [];
-    const mapMarketFactories = new Map();
-    for (const marketFactory of addresses.marketFactories) {
-      if (!mapMarketFactories.has(marketFactory.ammFactory)) {
-        mapMarketFactories.set(marketFactory.ammFactory, true);
-        uniqueMarketFactories.push(marketFactory);
-      }
-    }
-    const uniqueMasterChefs = [];
-    const mapMasterChefs = new Map();
-    for (const marketFactory of addresses.marketFactories) {
-      if (marketFactory.hasRewards && !mapMasterChefs.has(marketFactory.masterChef)) {
-        mapMasterChefs.set(marketFactory.masterChef, true);
-        uniqueMasterChefs.push(marketFactory);
-      }
-    }
-    const v1abstractMarketFactories = addresses.marketFactories
-      .filter(({ subtype }) => subtype === "V1")
-      .map((marketFactory, index) => ({
+    const networkName = networks[i];
+    if (isNetworkName(networkName)) {
+      let addresses = originalAddresses[networkName] as EnvironmentAddresses;
+      addresses.marketFactories = addresses.marketFactories.map((marketFactory, index) => ({
         ...marketFactory,
-        marketFactoryGraphName:
-          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+        ammFactoryGraphName: index === 0 ? "AmmFactory" : `AmmFactory-${index}`,
+        marketFactoryGraphName: `AbstractMarketFactory${marketFactory.subtype}`,
+        masterChefGraphName: index === 0 ? "MasterChef" : `MasterChef-${index}`,
       }));
-    const v2abstractMarketFactories = addresses.marketFactories
-      .filter(({ subtype }) => subtype === "V2")
-      .map((marketFactory, index) => ({
-        ...marketFactory,
-        marketFactoryGraphName:
-          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
-      }));
-    const v3abstractMarketFactories = addresses.marketFactories
-      .filter(({ subtype }) => subtype === "V3")
-      .map((marketFactory, index) => ({
-        ...marketFactory,
-        marketFactoryGraphName:
-          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
-      }));
-    addresses.marketFactories = [
-      ...v1abstractMarketFactories,
-      ...v2abstractMarketFactories,
-      ...v3abstractMarketFactories,
-    ];
-    const specificMarketFactories: {
-      [key: string]: EnvironmentMarketFactory[];
-    } = {};
-    addresses.marketFactories.forEach((marketFactory) => {
-      const marketFactoryType = marketFactory.type + marketFactory.subtype;
-      const marketFactoryName = marketFactoryTypes[marketFactoryType];
-      const marketFactoryGraphName = marketFactoryGraphNames[marketFactoryType];
-      if (marketFactoryName) {
-        if (!specificMarketFactories[marketFactoryName]) {
-          specificMarketFactories[marketFactoryName] = [];
+      const uniqueMarketFactories = [];
+      const mapMarketFactories = new Map();
+      for (const marketFactory of addresses.marketFactories) {
+        if (!mapMarketFactories.has(marketFactory.ammFactory)) {
+          mapMarketFactories.set(marketFactory.ammFactory, true);
+          uniqueMarketFactories.push(marketFactory);
         }
-        specificMarketFactories[marketFactoryName].push({
-          ...marketFactory,
-          marketFactoryGraphName: marketFactoryGraphName,
-        });
       }
-    });
-    Object.keys(specificMarketFactories).forEach((key) => {
-      specificMarketFactories[key] = specificMarketFactories[key].map((marketFactory, index) => ({
-        ...marketFactory,
-        marketFactoryGraphName:
-          index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
-      }));
-    });
-    addresses = {
-      ...addresses,
-      ...specificMarketFactories,
-      uniqueMarketFactories,
-      uniqueMasterChefs,
-    };
-    const file = JSON.stringify(addresses);
-    fs.writeFileSync(`environments/${graphChainNames[Number(networks[i])]}.json`, file);
+      const uniqueMasterChefs = [];
+      const mapMasterChefs = new Map();
+      for (const marketFactory of addresses.marketFactories) {
+        if (marketFactory.hasRewards && !mapMasterChefs.has(marketFactory.masterChef)) {
+          mapMasterChefs.set(marketFactory.masterChef, true);
+          uniqueMasterChefs.push(marketFactory);
+        }
+      }
+      const v1abstractMarketFactories = addresses.marketFactories
+        .filter(({ subtype }) => subtype === "V1")
+        .map((marketFactory, index) => ({
+          ...marketFactory,
+          marketFactoryGraphName:
+            index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+        }));
+      const v2abstractMarketFactories = addresses.marketFactories
+        .filter(({ subtype }) => subtype === "V2")
+        .map((marketFactory, index) => ({
+          ...marketFactory,
+          marketFactoryGraphName:
+            index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+        }));
+      const v3abstractMarketFactories = addresses.marketFactories
+        .filter(({ subtype }) => subtype === "V3")
+        .map((marketFactory, index) => ({
+          ...marketFactory,
+          marketFactoryGraphName:
+            index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+        }));
+      addresses.marketFactories = [
+        ...v1abstractMarketFactories,
+        ...v2abstractMarketFactories,
+        ...v3abstractMarketFactories,
+      ];
+      const specificMarketFactories: {
+        [key: string]: EnvironmentMarketFactory[];
+      } = {};
+      addresses.marketFactories.forEach((marketFactory) => {
+        const marketFactoryType = marketFactory.type + marketFactory.subtype;
+        const marketFactoryName = marketFactoryTypes[marketFactoryType];
+        const marketFactoryGraphName = marketFactoryGraphNames[marketFactoryType];
+        if (marketFactoryName) {
+          if (!specificMarketFactories[marketFactoryName]) {
+            specificMarketFactories[marketFactoryName] = [];
+          }
+          specificMarketFactories[marketFactoryName].push({
+            ...marketFactory,
+            marketFactoryGraphName: marketFactoryGraphName,
+          });
+        }
+      });
+      Object.keys(specificMarketFactories).forEach((key) => {
+        specificMarketFactories[key] = specificMarketFactories[key].map((marketFactory, index) => ({
+          ...marketFactory,
+          marketFactoryGraphName:
+            index === 0 ? marketFactory.marketFactoryGraphName : marketFactory.marketFactoryGraphName + "-" + index,
+        }));
+      });
+      addresses = {
+        ...addresses,
+        ...specificMarketFactories,
+        uniqueMarketFactories,
+        uniqueMasterChefs,
+      };
+      const file = JSON.stringify(addresses);
+      fs.writeFileSync(`environments/${graphChainNames[networkName]}.json`, file);
+    }
   }
 }
 

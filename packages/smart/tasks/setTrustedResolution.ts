@@ -12,11 +12,10 @@ task("setTrustedResolution", "Set market resolution for the TrustedMarketFactory
   .setAction(async ({ turbo: marketId, outcomes, index }, hre) => {
     if (!Array.isArray(outcomes) || outcomes.some(isNaN))
       throw Error(`Outcomes must be an array of strings that represent numbers, not ${outcomes}`);
-    const { ethers } = hre;
+    const { network } = hre;
 
     const signer = await makeSigner(hre);
-    const network = await ethers.provider.getNetwork();
-    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.name);
     const { MarketFactories } = contracts;
     const marketFactory = MarketFactories[index].marketFactory as SportsLinkMarketFactoryV2;
     await marketFactory.trustedSetResolution(marketId, outcomes);

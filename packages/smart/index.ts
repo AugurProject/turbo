@@ -3,47 +3,48 @@ import {
   AMMFactory__factory,
   Cash,
   Cash__factory,
-  SportsLinkMarketFactoryV2,
-  SportsLinkMarketFactoryV2__factory,
-  TrustedMarketFactoryV3,
-  TrustedMarketFactoryV3__factory,
-  CryptoMarketFactoryV3__factory,
-  CryptoMarketFactoryV3,
-  MMAMarketFactoryV3,
-  MMAMarketFactoryV3__factory,
-  SportsLinkMarketFactoryV1__factory,
-  SportsLinkMarketFactoryV1,
-  NFLMarketFactoryV3__factory,
-  NFLMarketFactoryV3,
-  NBAMarketFactoryV3__factory,
-  NBAMarketFactoryV3,
-  MLBMarketFactoryV3,
-  MLBMarketFactoryV3__factory,
-  GroupedMarketFactoryV3__factory,
-  GroupedMarketFactoryV3,
-  TrustedMarketFactoryV2__factory,
-  CryptoMarketFactoryV2__factory,
-  MMALinkMarketFactoryV2__factory,
-  NFLMarketFactoryV2__factory,
-  TrustedMarketFactoryV2,
-  CryptoMarketFactoryV2,
-  MMALinkMarketFactoryV2,
-  NFLMarketFactoryV2,
-  SportsFetcher,
-  CryptoFetcher,
-  CryptoFetcher__factory,
-  SportsFetcher__factory,
-  GroupFetcher,
-  GroupFetcher__factory,
+  CryptoCurrencyFetcher,
+  CryptoCurrencyFetcher__factory,
   CryptoCurrencyMarketFactoryV3,
   CryptoCurrencyMarketFactoryV3__factory,
-  CryptoCurrencyFetcher,
+  CryptoFetcher,
+  CryptoFetcher__factory,
+  CryptoMarketFactoryV2,
+  CryptoMarketFactoryV2__factory,
+  CryptoMarketFactoryV3,
+  CryptoMarketFactoryV3__factory,
+  GroupedMarketFactoryV3,
+  GroupedMarketFactoryV3__factory,
+  GroupFetcher,
+  GroupFetcher__factory,
+  MLBMarketFactoryV3,
+  MLBMarketFactoryV3__factory,
+  MMALinkMarketFactoryV2,
+  MMALinkMarketFactoryV2__factory,
+  MMAMarketFactoryV3,
+  MMAMarketFactoryV3__factory,
+  NBAMarketFactoryV3,
+  NBAMarketFactoryV3__factory,
+  NFLMarketFactoryV2,
+  NFLMarketFactoryV2__factory,
+  NFLMarketFactoryV3,
+  NFLMarketFactoryV3__factory,
+  SportsFetcher,
+  SportsFetcher__factory,
+  SportsLinkMarketFactoryV1,
+  SportsLinkMarketFactoryV1__factory,
+  SportsLinkMarketFactoryV2,
+  SportsLinkMarketFactoryV2__factory,
+  TrustedMarketFactoryV2,
+  TrustedMarketFactoryV2__factory,
+  TrustedMarketFactoryV3,
+  TrustedMarketFactoryV3__factory,
 } from "./typechain";
 import { addresses } from "./addresses";
 import { Signer } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import { ChainId, MarketFactorySubType, MarketFactoryType } from "./constants";
-import { CryptoCurrencyFetcher__factory } from "./typechain";
+import { MarketFactorySubType, MarketFactoryType } from "./constants";
+import { isNetworkName } from "./tasks/common";
 
 export * from "./typechain";
 export * from "./addresses";
@@ -80,22 +81,26 @@ export type MarketFactoryContract =
 
 export type FetcherContract = CryptoFetcher | SportsFetcher | GroupFetcher | CryptoCurrencyFetcher;
 
-export function buildContractInterfaces(signerOrProvider: Signer | Provider, chainId: ChainId): ContractInterfaces {
-  const contractAddresses = addresses[chainId];
-  if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${chainId} not found.`);
+export function buildContractInterfaces(signerOrProvider: Signer | Provider, networkName: string): ContractInterfaces {
+  if (isNetworkName(networkName)) {
+    const contractAddresses = addresses[networkName];
+    if (typeof contractAddresses === "undefined") throw new Error(`Addresses for chain ${networkName} not found.`);
 
-  const MarketFactories = contractAddresses.marketFactories.map(
-    ({ type, subtype, address, ammFactory: ammFactoryAddress }) => {
-      const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, subtype, address, signerOrProvider);
-      const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
-      return { marketFactory, ammFactory, marketFactoryType: type, marketFactorySubType: subtype };
-    }
-  );
+    const MarketFactories = contractAddresses.marketFactories.map(
+      ({ type, subtype, address, ammFactory: ammFactoryAddress }) => {
+        const marketFactory: MarketFactoryContract = instantiateMarketFactory(type, subtype, address, signerOrProvider);
+        const ammFactory = AMMFactory__factory.connect(ammFactoryAddress, signerOrProvider);
+        return { marketFactory, ammFactory, marketFactoryType: type, marketFactorySubType: subtype };
+      }
+    );
 
-  return {
-    ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
-    MarketFactories,
-  };
+    return {
+      ReputationToken: Cash__factory.connect(contractAddresses.reputationToken, signerOrProvider),
+      MarketFactories,
+    };
+  } else {
+    throw new Error(`Invalid network name ${networkName}.`);
+  }
 }
 
 type InstantiationByType<T> = {

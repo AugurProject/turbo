@@ -1,20 +1,20 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { getChainId } from "hardhat";
 import path from "path";
 import { updateAddressConfig } from "../src/addressesConfigUpdater";
 import { addresses as originalAddresses } from "../addresses";
 import { DeploymentsExtension } from "hardhat-deploy/dist/types";
 import {
   Addresses,
-  ChainId,
   FetcherContractName,
   graphChainNames,
   MARKET_FACTORY_TYPE_TO_CONTRACT_NAME,
   MarketFactory,
   MarketFactorySubType,
   MarketFactoryType,
+  NetworkNames,
 } from "../constants";
+import { isNetworkName } from "../tasks/common";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   if (!hre.network.config.live) {
@@ -23,83 +23,89 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   console.log("Done deploying! Writing deploy information to addresses.ts");
 
-  const { deployments } = hre;
-  const chainId = parseInt(await getChainId());
+  const { deployments, network } = hre;
+  const networkName = network.name;
 
-  const { address: collateral } = await deployments.get("Collateral");
-  const { address: reputationToken } = await deployments.get("Reputation");
-  const { address: balancerFactory } = await deployments.get("BFactory");
+  if (isNetworkName(networkName)) {
+    const { address: collateral } = await deployments.get("Collateral");
+    const { address: reputationToken } = await deployments.get("Reputation");
+    const { address: balancerFactory } = await deployments.get("BFactory");
 
-  const ammFactory = await deployments.get("AMMFactory").catch(() => undefined);
-  const masterChef = await deployments.get("MasterChef").catch(() => undefined);
+    const ammFactory = await deployments.get("AMMFactory").catch(() => undefined);
+    const masterChef = await deployments.get("MasterChef").catch(() => undefined);
 
-  const uploadBlockNumber = await getUploadBlockNumber(chainId as ChainId, deployments);
+    const uploadBlockNumber = await getUploadBlockNumber(network.name as NetworkNames, deployments);
 
-  const version = "FILL THIS OUT"; // version of a particular market factory
-  const subtype: MarketFactorySubType = "V3";
+    const version = "FILL THIS OUT"; // version of a particular market factory
+    const subtype: MarketFactorySubType = "V3";
 
-  async function includeMarketFactory(type: MarketFactoryType, fetcherName: FetcherContractName, description: string) {
-    const factoryName = MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type];
-    const marketFactory = await deployments.getOrNull(factoryName);
-    const fetcher = await deployments.getOrNull(fetcherName);
+    async function includeMarketFactory(
+      type: MarketFactoryType,
+      fetcherName: FetcherContractName,
+      description: string
+    ) {
+      const factoryName = MARKET_FACTORY_TYPE_TO_CONTRACT_NAME[type];
+      const marketFactory = await deployments.getOrNull(factoryName);
+      const fetcher = await deployments.getOrNull(fetcherName);
 
-    if (!marketFactory) return;
+      if (!marketFactory) return;
 
-    const index = getFactoryIndex(marketFactories, marketFactory.address);
-    const hasFactory = index !== -1;
+      const index = getFactoryIndex(marketFactories, marketFactory.address);
+      const hasFactory = index !== -1;
 
-    if (hasFactory) {
-      const factory = marketFactories[index];
-      if (!factory.ammFactory && ammFactory) factory.ammFactory = ammFactory.address;
-      if (fetcher) factory.fetcher = fetcher.address;
-      if (masterChef) {
-        marketFactories[index] = {
-          ...factory,
+      if (hasFactory) {
+        const factory = marketFactories[index];
+        if (!factory.ammFactory && ammFactory) factory.ammFactory = ammFactory.address;
+        if (fetcher) factory.fetcher = fetcher.address;
+        if (masterChef) {
+          marketFactories[index] = {
+            ...factory,
+            hasRewards: true,
+            masterChef: masterChef?.address || "",
+          };
+        }
+      } else {
+        marketFactories.unshift({
+          version,
+          description,
+          type,
+          subtype,
+          address: marketFactory.address,
+          collateral,
+          ammFactory: ammFactory?.address || "",
+          fetcher: fetcher?.address || "",
           hasRewards: true,
           masterChef: masterChef?.address || "",
-        };
+        });
       }
-    } else {
-      marketFactories.unshift({
-        version,
-        description,
-        type,
-        subtype,
-        address: marketFactory.address,
-        collateral,
-        ammFactory: ammFactory?.address || "",
-        fetcher: fetcher?.address || "",
-        hasRewards: true,
-        masterChef: masterChef?.address || "",
-      });
     }
+
+    const sportsFetcher: FetcherContractName = "NBAFetcher"; // the sports are similar enough that one fetcher works for all of them
+
+    // Add new market factories. Only new ones.
+    const marketFactories: MarketFactory[] = originalAddresses[network.name as NetworkNames]?.marketFactories || [];
+    await includeMarketFactory("CryptoCurrency", "CryptoCurrencyFetcher", "crypto prices");
+    await includeMarketFactory("MMA", sportsFetcher, "mma/ufc");
+    await includeMarketFactory("NFL", sportsFetcher, "nfl");
+    await includeMarketFactory("NBA", sportsFetcher, "nba");
+    await includeMarketFactory("MLB", sportsFetcher, "mlb");
+    await includeMarketFactory("Grouped", "GroupedFetcher", "grouped");
+
+    const addresses: Addresses = {
+      reputationToken,
+      balancerFactory,
+      marketFactories,
+      info: {
+        graphName: graphChainNames[networkName],
+        uploadBlockNumber,
+      },
+    };
+
+    if (hre.network.config.live) console.log(JSON.stringify(addresses, null, 2));
+
+    const addressFilePath = path.resolve(__dirname, "../addresses.ts");
+    updateAddressConfig(addressFilePath, networkName, addresses);
   }
-
-  const sportsFetcher: FetcherContractName = "NBAFetcher"; // the sports are similar enough that one fetcher works for all of them
-
-  // Add new market factories. Only new ones.
-  const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];
-  await includeMarketFactory("CryptoCurrency", "CryptoCurrencyFetcher", "crypto prices");
-  await includeMarketFactory("MMA", sportsFetcher, "mma/ufc");
-  await includeMarketFactory("NFL", sportsFetcher, "nfl");
-  await includeMarketFactory("NBA", sportsFetcher, "nba");
-  await includeMarketFactory("MLB", sportsFetcher, "mlb");
-  await includeMarketFactory("Grouped", "GroupedFetcher", "grouped");
-
-  const addresses: Addresses = {
-    reputationToken,
-    balancerFactory,
-    marketFactories,
-    info: {
-      graphName: graphChainNames[chainId],
-      uploadBlockNumber,
-    },
-  };
-
-  if (hre.network.config.live) console.log(JSON.stringify(addresses, null, 2));
-
-  const addressFilePath = path.resolve(__dirname, "../addresses.ts");
-  updateAddressConfig(addressFilePath, chainId, addresses);
 };
 
 function getFactoryIndex(marketFactories: MarketFactory[], address: string): number {
@@ -109,8 +115,8 @@ function getFactoryIndex(marketFactories: MarketFactory[], address: string): num
 // Use the existing uploadBlockNumber, if there is one.
 // Else, go through all deployments and find the smallest block number.
 // If somehow that doesn't yield anything, default to zero.
-async function getUploadBlockNumber(chainId: ChainId, deployments: DeploymentsExtension): Promise<number> {
-  const previous = originalAddresses[chainId]?.info.uploadBlockNumber;
+async function getUploadBlockNumber(networkName: NetworkNames, deployments: DeploymentsExtension): Promise<number> {
+  const previous = originalAddresses[networkName]?.info.uploadBlockNumber;
   if (previous) return previous;
 
   const deployed = Object.values(await deployments.all())

@@ -8,11 +8,10 @@ task("getMarket", "retreive market")
   .setAction(async ({ marketFactory, marketId }: { marketFactory: string; marketId: number }, hre) => {
     console.log(`Getting market data for ${marketFactory}-${marketId}`);
 
-    const { ethers } = hre;
+    const { network } = hre;
     const signer = await makeSigner(hre);
-    const network = await ethers.provider.getNetwork();
 
-    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.name);
     const { MarketFactories } = contracts as ContractInterfaces;
 
     const [contract] = MarketFactories.filter((f) => f.marketFactory.address === marketFactory).map(

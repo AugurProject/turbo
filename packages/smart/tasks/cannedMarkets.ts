@@ -4,12 +4,12 @@ import {
   ContractInterfaces,
   CryptoCurrencyMarketFactoryV3,
   FakePriceFeed__factory,
-  GroupedMarketFactoryV3,
   getUpcomingFriday4pmET,
+  GroupedMarketFactoryV3,
   MarketFactoryType,
-  range,
   NBAMarketFactoryV3,
   NFLMarketFactoryV3,
+  range,
 } from "..";
 import { ManagedByLink, MMAMarketFactoryV3 } from "../typechain";
 import { BigNumber, BigNumberish, ContractReceipt, ContractTransaction, Signer } from "ethers";
@@ -19,11 +19,10 @@ import { RoundManagement } from "../src";
 
 task("cannedMarkets", "creates canned markets").setAction(async (args, hre: HardhatRuntimeEnvironment) => {
   console.log("Creating canned markets");
-  const { ethers } = hre;
+  const { network } = hre;
   const signer = await makeSigner(hre);
   const confirmations = hre.network.config.confirmations || 0;
-  const network = await ethers.provider.getNetwork();
-  const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+  const contracts: ContractInterfaces = buildContractInterfaces(signer, network.name);
 
   await nba(signer, contracts, confirmations);
   await nfl(signer, contracts, confirmations);

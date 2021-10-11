@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && yarn contracts:build && tsc -b",
+    "build:ts": "tsc -b",
     "release": "tsc -b --clean && yarn contracts:build && tsc -b tsconfig.release.json",
     "prebuild:watch": "yarn contracts:build",
     "build:watch": "tsc -b -w",

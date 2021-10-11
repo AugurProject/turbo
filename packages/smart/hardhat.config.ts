@@ -115,6 +115,13 @@ export const config: HardhatUserConfig = {
       gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
       gasPrice: 20000000000,
     },
+    testMaticMainnet: {
+      live: true,
+      url: "https://rpc-mainnet.maticvigil.com/",
+      chainId: 137,
+      gas: 10000000, // to fit createPool calls, which fails to estimate gas correctly
+      gasPrice: 20000000000,
+    },
   },
   docgen: {
     path: "./docs",

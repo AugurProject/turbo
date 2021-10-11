@@ -4,11 +4,10 @@ import { makeSigner } from "./deploy";
 
 task("markets", "retreive markets").setAction(async (args, hre) => {
   console.log("get markets data");
-  const { ethers } = hre;
+  const { network } = hre;
   const signer = await makeSigner(hre);
-  const network = await ethers.provider.getNetwork();
 
-  const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+  const contracts: ContractInterfaces = buildContractInterfaces(signer, network.name);
   const { MarketFactories } = contracts as ContractInterfaces;
 
   const deferredPromises = Object.entries(MarketFactories).map(([name, { marketFactory }]) => async () => {

@@ -1,7 +1,8 @@
 // This file is updated by deployer.
 import { AddressMapping } from "./constants";
+
 export const addresses: AddressMapping = {
-  31337: {
+  hardhat: {
     reputationToken: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
     balancerFactory: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     marketFactories: [
@@ -52,7 +53,7 @@ export const addresses: AddressMapping = {
     ],
     info: { uploadBlockNumber: 1, graphName: "" },
   },
-  80001: {
+  maticMumbai: {
     reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
     marketFactories: [
@@ -131,7 +132,7 @@ export const addresses: AddressMapping = {
     ],
     info: { uploadBlockNumber: 15336699, graphName: "mumbai" },
   },
-  137: {
+  maticMainnet: {
     reputationToken: "0x435C88888388D73BD97dab3B3EE1773B084E0cdd",
     balancerFactory: "0x3eC09e2A4699951179B61c03434636746aBE61AA",
     marketFactories: [

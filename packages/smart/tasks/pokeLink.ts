@@ -7,10 +7,9 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 task("pokeLinkCreateMLB", "create MLB markets")
   .addParam("index", "index of market factory to use, in addresses.ts", 0, types.int)
   .setAction(async ({ index }, hre: HardhatRuntimeEnvironment) => {
-    const { ethers } = hre;
+    const { ethers, network } = hre;
     const signer = await makeSigner(hre);
-    const network = await ethers.provider.getNetwork();
-    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.chainId);
+    const contracts: ContractInterfaces = buildContractInterfaces(signer, network.name);
 
     const { MarketFactories } = contracts;
 
