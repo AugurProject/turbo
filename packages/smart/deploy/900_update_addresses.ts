@@ -75,7 +75,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     }
   }
 
-  const sportsFetcher: FetcherContractName = "NBAFetcher"; // the sports are similar enough that one fetcher works for all of them
+  const sportsFetcher: FetcherContractName = "SportsFetcher"; // the sports are similar enough that one fetcher works for all of them
 
   // Add new market factories. Only new ones.
   const marketFactories: MarketFactory[] = originalAddresses[chainId as ChainId]?.marketFactories || [];

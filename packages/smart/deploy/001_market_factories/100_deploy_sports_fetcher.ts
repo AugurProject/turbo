@@ -5,8 +5,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts();
 
-  // all sports can use the same fetcher
-  await deployments.deploy("NBAFetcher", {
+  await deployments.deploy("SportsFetcher", {
     from: deployer,
     args: [],
     log: true,

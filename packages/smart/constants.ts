@@ -57,7 +57,7 @@ export type MarketFactoryContractName =
   | "CryptoCurrencyMarketFactoryV3"
   | "TrustedMarketFactoryV3";
 export type FetcherContractName =
-  | "NBAFetcher"
+  | "SportsFetcher"
   | "MMAFetcher"
   | "NFLFetcher"
   | "MLBFetcher"
@@ -87,7 +87,7 @@ export const marketFactoryTypeToFetcherName: {
   MMA: "MMAFetcher",
   NFL: "NFLFetcher",
   MLB: "MLBFetcher",
-  NBA: "NBAFetcher",
+  NBA: "SportsFetcher",
   Crypto: "CryptoFetcher",
   Grouped: "GroupedFetcher",
   CryptoCurrency: "CryptoCurrencyFetcher",

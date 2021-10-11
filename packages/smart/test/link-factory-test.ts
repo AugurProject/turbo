@@ -12,8 +12,8 @@ import {
   FeePot,
   FeePot__factory,
   MasterChef,
-  NBAFetcher,
-  NBAFetcher__factory,
+  SportsFetcher,
+  SportsFetcher__factory,
   NBAMarketFactoryV3,
   NBAMarketFactoryV3__factory,
   OwnedERC20__factory,
@@ -194,8 +194,13 @@ describe("NBA", () => {
     expect(sportsEvent.awayScore, "awayScore").to.equal(0);
   });
 
+  let fetcher: SportsFetcher;
+  beforeEach(async () => {
+    fetcher = (await ethers.getContract("SportsFetcher")) as SportsFetcher;
+  });
+
   it("lists resolvable events", async () => {
-    const events = await marketFactory.listResolvableEvents();
+    const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
     expect(events.length).to.equal(1);
     expect(Number(events[0])).to.equal(eventId);
   });
@@ -218,7 +223,7 @@ describe("NBA", () => {
   });
 
   it("stops listing resolved events", async () => {
-    const events = await marketFactory.listResolvableEvents();
+    const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
     expect(events.length).to.equal(0);
   });
 });
@@ -297,7 +302,7 @@ describe("Sports fetcher", () => {
     [signer] = await ethers.getSigners();
   });
 
-  let fetcher: NBAFetcher;
+  let fetcher: SportsFetcher;
   let ammFactory: AMMFactory;
   let masterChef: MasterChef;
   let collateral: Cash;
@@ -362,8 +367,8 @@ describe("Sports fetcher", () => {
   });
 
   it("is deployable", async () => {
-    fetcher = await new NBAFetcher__factory(signer).deploy();
-    expect(await fetcher.marketType()).to.equal("NBA");
+    fetcher = await new SportsFetcher__factory(signer).deploy();
+    expect(await fetcher.marketType()).to.equal("Sports");
     expect(await fetcher.version()).to.be.a("string");
   });
 
@@ -475,7 +480,7 @@ describe("Sports fetcher no markets", () => {
     [signer] = await ethers.getSigners();
   });
 
-  let fetcher: NBAFetcher;
+  let fetcher: SportsFetcher;
   let ammFactory: AMMFactory;
   let masterChef: MasterChef;
   let collateral: Cash;
@@ -505,7 +510,7 @@ describe("Sports fetcher no markets", () => {
     ammFactory = await new AMMFactory__factory(signer).deploy(bFactory.address, swapFee);
     masterChef = (await ethers.getContract("MasterChef")) as MasterChef;
 
-    fetcher = await new NBAFetcher__factory(signer).deploy();
+    fetcher = await new SportsFetcher__factory(signer).deploy();
   });
 
   it("initial", async () => {

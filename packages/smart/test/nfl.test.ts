@@ -10,6 +10,7 @@ import {
   NFLMarketFactoryV3,
   NFLMarketFactoryV3__factory,
   OwnedERC20__factory,
+  SportsFetcher,
 } from "../typechain";
 import { BigNumber } from "ethers";
 import { calcShareFactor, SportsLinkEventStatus } from "../src";
@@ -171,10 +172,16 @@ describe("NFL", () => {
     expect(sportsEvent.awayScore, "awayScore").to.equal(0);
   });
 
+  let fetcher: SportsFetcher;
+  beforeEach(async () => {
+    fetcher = (await ethers.getContract("SportsFetcher")) as SportsFetcher;
+  });
+
   it("lists resolvable events", async () => {
-    const events = await marketFactory.listResolvableEvents();
-    expect(events.length).to.equal(1);
-    expect(Number(events[0])).to.equal(eventId);
+    const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
+    expect(events.length, "events.length").to.equal(1);
+    expect(Number(events[0]), "event id").to.equal(eventId);
+    expect(index, "index").to.equal(0);
   });
 
   it("can resolve markets", async () => {
@@ -191,7 +198,7 @@ describe("NFL", () => {
   });
 
   it("stops listing resolved events", async () => {
-    const events = await marketFactory.listResolvableEvents();
+    const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
     expect(events.length).to.equal(0);
   });
 });

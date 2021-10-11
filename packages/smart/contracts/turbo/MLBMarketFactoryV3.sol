@@ -12,7 +12,7 @@ import "../libraries/HasHeadToHeadMarket.sol";
 import "../libraries/ResolveByScore.sol";
 import "../libraries/Versioned.sol";
 
-contract MLBMarketFactoryV3 is AbstractMarketFactoryV3, SportView, HasHeadToHeadMarket, ResolvesByScore, Versioned {
+contract MLBMarketFactoryV3 is AbstractMarketFactoryV3, Sport, HasHeadToHeadMarket, ResolvesByScore, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
