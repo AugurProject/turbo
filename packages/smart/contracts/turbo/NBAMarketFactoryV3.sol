@@ -16,7 +16,7 @@ import "../libraries/Versioned.sol";
 
 contract NBAMarketFactoryV3 is
     AbstractMarketFactoryV3,
-    SportView,
+    Sport,
     HasHeadToHeadMarket,
     HasSpreadMarket,
     HasOverUnderMarket,

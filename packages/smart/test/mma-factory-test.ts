@@ -2,7 +2,7 @@ import { deployments, ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { expect } from "chai";
 
-import { Cash, MMAMarketFactoryV3, OwnedERC20__factory } from "../typechain";
+import { Cash, MMAMarketFactoryV3, OwnedERC20__factory, SportsFetcher } from "../typechain";
 import { BigNumber } from "ethers";
 import { MMAWhoWon, SportsLinkEventStatus } from "../src";
 
@@ -66,8 +66,13 @@ describe("MMA Factory", () => {
     expect(await home.name()).to.equal(homeTeamName);
   });
 
+  let fetcher: SportsFetcher;
+  beforeEach(async () => {
+    fetcher = (await ethers.getContract("SportsFetcher")) as SportsFetcher;
+  });
+
   it("lists resolvable events", async () => {
-    const events = await marketFactory.listResolvableEvents();
+    const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
     expect(events.length).to.equal(1);
     expect(Number(events[0])).to.equal(eventId);
   });
@@ -83,7 +88,7 @@ describe("MMA Factory", () => {
     });
 
     it("stops listing resolved events", async () => {
-      const events = await marketFactory.listResolvableEvents();
+      const [events, index] = await fetcher.listResolvableEvents(marketFactory.address, 0, 100);
       expect(events.length).to.equal(0);
     });
   });

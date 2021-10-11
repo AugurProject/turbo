@@ -10,7 +10,7 @@ import "../libraries/ResolveByFiat.sol";
 import "../libraries/HasHeadToHeadMarket.sol";
 import "../libraries/Versioned.sol";
 
-contract MMAMarketFactoryV3 is AbstractMarketFactoryV3, SportView, ResolvesByFiat, HasHeadToHeadMarket, Versioned {
+contract MMAMarketFactoryV3 is AbstractMarketFactoryV3, Sport, ResolvesByFiat, HasHeadToHeadMarket, Versioned {
     using SafeMathUint256 for uint256;
     using SafeMathInt256 for int256;
 
