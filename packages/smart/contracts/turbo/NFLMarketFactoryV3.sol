@@ -18,7 +18,7 @@ import "../libraries/Versioned.sol";
 // As a consequence, half points are not added to the lines.
 contract NFLMarketFactoryV3 is
     AbstractMarketFactoryV3,
-    SportView,
+    Sport,
     HasHeadToHeadMarket,
     HasSpreadMarket,
     HasOverUnderMarket,

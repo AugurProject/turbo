@@ -19,7 +19,7 @@ import "../libraries/Versioned.sol";
 // and the invalid outcome is just No Contest.
 contract NCAAFBMarketFactoryV3 is
     AbstractMarketFactoryV3,
-    SportView,
+    Sport,
     HasHeadToHeadMarket,
     HasSpreadMarket,
     HasOverUnderMarket,
