@@ -42,7 +42,7 @@ export const processClosedMarketShares = ({
     const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0)).toFixed();
     const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(position.outcomeId)));
     const cashoutAmount = isWinningOutcome
-      ? new BN(position.quantity || position.payout).toFixed()
+      ? toWin
       : new BN(position.initCostUsd || 0).toFixed();
     const betId = `${market.marketId}-${position.outcomeId}-${position.timestamp}-ms`;
 
