@@ -9,3 +9,5 @@ typechain
 
 # abis
 abi
+
+environments/undefined.json
