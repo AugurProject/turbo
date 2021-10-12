@@ -66,7 +66,7 @@ const ModalView = () => {
 
   useEffect(() => {
     const handleWindowOnClick = (event) => {
-      if (modal && !!event.target && modalRef?.current !== null && !modalRef?.current?.contains(event.target)) {
+      if (modal && !!event.target && modalRef?.current !== null && modalRef.current === event.target) {
         closeModal();
       }
     };
@@ -87,11 +87,9 @@ const ModalView = () => {
       if (history.action === "POP") {
         if (locationKeys[1] === location.key) {
           setLocationKeys(([_, ...keys]) => keys);
-
           closeModal();
         } else {
           setLocationKeys((keys) => [location.key, ...keys]);
-
           closeModal();
         }
       }
@@ -101,8 +99,8 @@ const ModalView = () => {
   const Modal = selectModal(modal.type, modal, logout, closeModal, removeTransaction, isLogged, isMobile);
 
   return (
-    <section className={Styles.ModalView}>
-      <div ref={modalRef}>{Modal}</div>
+    <section className={Styles.ModalView} ref={modalRef}>
+      <div>{Modal}</div>
     </section>
   );
 };
