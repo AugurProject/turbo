@@ -39,7 +39,7 @@ export const processClosedMarketShares = ({
       ?.filter((ut) => new BN(position.outcomeId).eq(new BN(ut.outcome)))
       .sort((a, b) => Number(a.timestamp) - Number(b.timestamp))[0];
     const marketEvent = marketEvents[market.eventId];
-    const toWin = new BN(position.quantity || 0).minus(new BN(position.initCostUsd || 0)).toFixed();
+    const toWin = new BN(position.quantity || 0).toFixed();
     const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(position.outcomeId)));
     const cashoutAmount = isWinningOutcome
       ? toWin
@@ -52,7 +52,7 @@ export const processClosedMarketShares = ({
       name,
       price: position.avgPrice,
       wager: formatCash(position.initCostUsd, USDC).formatted,
-      toWin: market.hasWinner ? formatCash(cashoutAmount, USDC).formatted : formatCash(toWin, USDC).formatted,
+      toWin: isWinningOutcome ? formatCash(toWin, USDC).formatted : "0.00",
       timestamp: mostRecentUserTrade ? Number(mostRecentUserTrade?.timestamp) : null,
       hash: mostRecentUserTrade ? mostRecentUserTrade?.transactionHash : null,
       betId,
@@ -60,6 +60,7 @@ export const processClosedMarketShares = ({
       size: position.quantity,
       outcomeId: position.outcomeId,
       cashoutAmount,
+      cashoutAmountAbs: new BN(cashoutAmount).abs().toFixed(),
       canCashOut: false,
       isPending: false,
       status: TX_STATUS.CONFIRMED,
@@ -87,7 +88,7 @@ export const processClosedPositionBalances = ({
     const isWinningOutcome = new BN(market?.winner).eq(new BN(outcomeId));
     const marketEvent = marketEvents[market.eventId];
     const { name } = market.outcomes.find((outcome) => new BN(outcome.id).eq(new BN(outcomeId)));
-    const cashoutAmount = new BN(position.payout).minus(new BN(position.initCostUsd)).toFixed()
+    const cashoutAmount = new BN(position.payout || 0).minus(new BN(position.initCostUsd || 0));
     const betId = `${market.marketId}-${outcomeId}-${position.timestamp}`;
 
     bets.push({
@@ -103,7 +104,8 @@ export const processClosedPositionBalances = ({
       marketId: market.marketId,
       size: position.quantity,
       outcomeId,
-      cashoutAmount,
+      cashoutAmount: cashoutAmount.toFixed(),
+      cashoutAmountAbs: cashoutAmount.abs().toFixed(),
       canCashOut: false,
       isPending: false,
       status: TX_STATUS.CONFIRMED,
@@ -171,6 +173,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         size: position.quantity,
         outcomeId: position.outcomeId,
         cashoutAmount,
+        cashoutAmountAbs: new BN(cashoutAmount).abs().toFixed(),
         canCashOut: !market.hasWinner && cashoutAmount !== null,
         isPending: status === TX_STATUS.PENDING,
         isApproved,
