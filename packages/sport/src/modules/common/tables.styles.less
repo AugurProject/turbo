@@ -195,9 +195,12 @@
 
           &.hasClaimed {
             opacity: 1;
+            // border-color: var(--primary-text);
+            border: 0;
+            
             > span:last-of-type {
               margin-right: @size-4;
-              color: var(--secondary-text);
+              color: var(--primary-text);
             }
 
             > span:first-of-type {
@@ -206,12 +209,12 @@
 
             &.PositiveCashout {
               background: rgba(var(--success-rgb), 0.15);
-              border-color: rgba(var(--success-rgb), 0.15);
+              // border-color: rgba(var(--success-rgb), 0.15);
             }
 
             &.NegativeCashout {
               background: rgba(var(--failed-rgb), 0.15);
-              border-color: rgba(var(--failed-rgb), 0.15);
+              // border-color: rgba(var(--failed-rgb), 0.15);
             }
             
             &:hover:not(:disabled) {
