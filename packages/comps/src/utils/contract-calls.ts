@@ -1064,7 +1064,6 @@ export const getUserBalances = async (
     }
   });
   const availableFundsUsd = String(new BN(userBalances.USDC.usdValue));
-  const totalAccountValue = String(new BN(availableFundsUsd).plus(new BN(userPositions.totalPositionUsd)));
   await populateInitLPValues(userBalances.lpTokens, provider, ammExchanges, account);
   const totalCurrentLiquidityUsd = String(
     Object.values((userBalances.lpTokens as unknown) as LPTokenBalance[]).reduce(
@@ -1072,9 +1071,13 @@ export const getUserBalances = async (
       ZERO
     )
   );
-
+  const totalAccountValue = String(
+    new BN(availableFundsUsd).plus(new BN(userPositions.totalPositionUsd)).plus(new BN(totalCurrentLiquidityUsd))
+  );
   const userOpenPositions = getTotalPositions(openMarketShares);
-  const totalAccountValueOpenOnly = String(new BN(availableFundsUsd).plus(new BN(userOpenPositions.totalPositionUsd)));
+  const totalAccountValueOpenOnly = String(
+    new BN(availableFundsUsd).plus(new BN(userOpenPositions.totalPositionUsd)).plus(new BN(totalCurrentLiquidityUsd))
+  );
   const userOpenPositionsOpenOnly = {
     change24hrPositionUsdOpenOnly: userOpenPositions.change24hrPositionUsd,
     total24hrPositionUsdOpenOnly: userOpenPositions.total24hrPositionUsd,
