@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import {
   DEFAULT_DATA_STATE,
   STUBBED_DATA_ACTIONS,
@@ -11,7 +11,7 @@ import { useUserStore, UserStore } from "./user";
 import { getMarketInfos } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
-import { AppStatusStore } from "./app-status";
+import { useAppStatusStore, AppStatusStore } from "./app-status";
 import { MARKET_LOAD_TYPE } from "../utils/constants";
 
 export const DataContext = React.createContext({
@@ -33,7 +33,10 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
   } = state;
-  const { isDegraded } = AppStatusStore.get();
+  const {
+    isDegraded,
+    actions: { setIsRpcDown, setIsDegraded },
+  } = useAppStatusStore();
 
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
@@ -50,9 +53,9 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { account: userAccount, loginAccount } = UserStore.get();
       const { isRpcDown } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
-      const provider = getDefaultProvider() || loginAccount?.library
+      const provider = getDefaultProvider() || loginAccount?.library;
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
-      
+
       try {
         infos = await getMarketInfos(
           provider,
@@ -65,14 +68,14 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
         );
 
         if (isRpcDown) {
-          AppStatusStore.actions.setIsRpcDown(false);
+          setIsRpcDown(false);
         }
         return infos;
       } catch (e) {
         if (e.data?.error?.details) {
           if (e.data?.error?.details.toLowerCase().indexOf("rate limit") !== -1) {
             if (e.data?.error?.data?.rate_violated.toLowerCase().indexOf("700 per 1 minute") !== -1) {
-              AppStatusStore.actions.setIsRpcDown(true);
+              setIsRpcDown(true);
             }
           }
         }
@@ -105,12 +108,13 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
   useEffect(() => {
     let isMounted = true;
     const fetchTransactions = () =>
-      getAllTransactions(account?.toLowerCase(), (transactions) => isMounted && transactions && updateTransactions(transactions))
-        .then(() => AppStatusStore.actions.setIsDegraded(false))
-        .catch(e => {
-          if (!isDegraded) {
-            AppStatusStore.actions.setIsDegraded(true);
-          }
+      getAllTransactions(
+        account?.toLowerCase(),
+        (transactions) => isMounted && transactions && updateTransactions(transactions)
+      )
+        .then(() => isDegraded && setIsDegraded(false))
+        .catch((e) => {
+          !isDegraded && setIsDegraded(true);
         });
 
     fetchTransactions();
