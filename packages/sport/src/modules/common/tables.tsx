@@ -126,6 +126,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
         const {
           marketId,
           cashoutAmount,
+          cashoutAmountAbs,
           price,
           subHeading,
           name,
@@ -141,7 +142,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
           isCashout
         } = bet;
         const market = markets[marketId];
-        const cashout = formatCash(cashoutAmount, USDC);
+        const cashout = formatCash(cashoutAmountAbs || cashoutAmount, USDC);
         let subtext = "";
         let buttonName = "";
         if (isOpen) {
@@ -186,7 +187,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
               <TinyThemeButton
-                customClass={determineClasses({ ...bet, cashout: cashout.formattedValue })}
+                customClass={determineClasses({ ...bet, cashout: cashoutAmount })}
                 action={() => doApproveOrCashOut(loginAccount, bet, market)}
                 disabled={isPending || !canCashOut}
                 reverseContent={!canCashOut && hasClaimed}
