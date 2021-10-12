@@ -18,9 +18,10 @@ export interface SearchInputProps {
   onChange: React.ChangeEventHandler;
   clearValue: React.MouseEventHandler;
   showFilter?: boolean;
+  placeHolder?: string;
 }
 
-export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchInputProps) => {
+export const SearchInput = ({ placeHolder = "Search for a market", value, onChange, clearValue, showFilter }: SearchInputProps) => {
   const input = useRef(null);
 
   useEffect(() => {
@@ -35,16 +36,16 @@ export const SearchInput = ({ value, onChange, clearValue, showFilter }: SearchI
 
   return (
     <div className={Styles.SearchInput}>
-      {value && MagnifyingGlass}
+      {MagnifyingGlass}
       <input
         ref={input}
-        placeholder="Search for a market"
+        placeholder={placeHolder}
         value={value}
         onChange={onChange}
         onKeyPress={(event) => keypressHandler(event)}
       />
       <div className={classNames({ [Styles.faded]: !value })} onClick={clearValue}>
-        {!value ? MagnifyingGlass : XIcon}
+        {!value ? '' : XIcon}
       </div>
     </div>
   );
