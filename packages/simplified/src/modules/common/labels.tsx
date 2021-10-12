@@ -58,12 +58,12 @@ export const AppViewStats = ({ small = false, liquidity = false, trading = false
     balances?.totalCurrentLiquidityUsd,
   ]);
   return (
-    <div className={classNames(Styles.AppStats, { [Styles.small]: small, [Styles.full]: liquidity && trading })}>
+    <div className={classNames(Styles.AppStats, { [Styles.small]: small, [Styles.full]: liquidity && trading, [Styles.LPOnly]: liquidity && !trading })}>
       <ValueLabel large={!small} label="total acc value" light={!isLogged} value={totalAccountValue} small={small} />
       {trading && (
         <ValueLabel large={!small} label="trading positions" light={!isLogged} value={positionsValue} small={small} />
       )}
-      {liquidity && <ValueLabel large={!small} small={small} label="LP Positions" value={usdValueLP} />}
+      {liquidity && <ValueLabel large={!small} small={small} label="Liquidity Positions" value={usdValueLP} />}
       <ValueLabel large={!small} small={small} label="Available USDC" value={usdValueUSDC} />
     </div>
   );

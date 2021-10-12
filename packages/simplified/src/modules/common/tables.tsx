@@ -378,7 +378,7 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   });
 
   return <>
-    <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
+    <SearchInput placeHolder="Search Positions" value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
     {positionVis}
   </>;
 };
