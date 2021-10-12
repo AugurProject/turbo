@@ -8,7 +8,7 @@
   color: var(--primary-text);
   display: flex;
   align-items: center;
-  height: @size-56;
+  height: @size-48;
 
   &:focus-within {
     border: @size-1 solid var(--secondary-text);
@@ -17,8 +17,10 @@
   > svg {
     height: @size-16;
     width: @size-16;
+    min-height: @size-16;
+    min-width: @size-16;
+    margin-left: @size-12;
     // input has padding, no need to space svg, instead space from left side.
-    margin-left: @size-8;
 
     > path {
       fill: var(--primary-text);
@@ -31,7 +33,7 @@
     width: @size-16;
     height: @size-16;
     display: flex;
-    margin: 0 @size-12;
+    margin: 0 @size-24 0 @size-12;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -69,6 +71,7 @@
     background: var(--primary-bg);
     color: var(--primary-text);
     border: 0;
+    // padding-left: @size-24;
 
     &:focus,
     &:active {

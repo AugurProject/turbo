@@ -232,7 +232,7 @@ export const PortfolioView = () => {
       <SEO {...PORTFOLIO_HEAD_TAGS} />
       <section>
         <NetworkMismatchBanner />
-        <AppViewStats small />
+        <AppViewStats small trading />
         <ClaimWinningsSection />
         <PositionsLiquidityViewSwitcher
           showActivityButton={isMobile}

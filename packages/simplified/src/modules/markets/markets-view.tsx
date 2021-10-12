@@ -226,7 +226,7 @@ const MarketsView = () => {
     >
       <SEO {...MARKETS_LIST_HEAD_TAGS} />
       <NetworkMismatchBanner />
-      {isLogged ? <AppViewStats small /> : <TopBanner />}
+      {isLogged ? <AppViewStats small liquidity trading /> : <TopBanner />}
       {isMobile && (
         <div>
           <SecondaryThemeButton
