@@ -553,10 +553,13 @@ Button.Secondary.Pending {
   --spinner-color-hover: var(--primary-text);
   --spinner-background: var(--color-brand);
   --spinner-background-hover: var(--secondary-bg);
+  --base-background: var(--color-brand);
+  --base-border-color: var(--color-brand);
+  --base-color: var(--inverted-primary-text);
 
-  background: var(--color-brand);
-  border: @size-1 solid var(--color-brand);
-  color: var(--inverted-primary-text);
+  background: var(--base-background);
+  border: @size-1 solid var(--base-border-color);
+  color: var(--base-color);
 
   &:not(:active):not(:focus):not(:focus-within):not(:focus-visible) {
     > div {
@@ -604,24 +607,17 @@ Button.Secondary.Pending {
   }
 }
 
-:root[theme="SPORTS"] {
-  Button.Secondary.Pending {
-    --spinner-color-rgb: var(--primary-bg-rgb);
-    --spinner-color: var(--primary-bg);
-    --spinner-color-hover-rgb: var(--primary-text-rgb);
-    --spinner-color-hover: var(--primary-text);
-    --spinner-background: var(--color-brand);
-    --spinner-background-hover: var(--primary-bg);
-  }
-}
-
+:root[theme="SPORTS"],
 :root[theme="SPORTS_DARK"] {
   Button.Secondary.Pending {
-    --spinner-color-rgb: var(--primary-text-rgb);
-    --spinner-color: var(--primary-text);
-    --spinner-color-hover-rgb: var(--primary-bg-rgb);
-    --spinner-color-hover: var(--primary-bg);
-    --spinner-background: var(--color-brand);
-    --spinner-background-hover: var(--primary-text);
+    --spinner-color-rgb: var(--inverted-primary-bg-rgb);
+    --spinner-color: var(--inverted-primary-bg);
+    --spinner-color-hover-rgb: var(--inverted-primary-bg-rgb);
+    --spinner-color-hover: var(--inverted-primary-bg);
+    --spinner-background: var(--inverted-primary-text);
+    --spinner-background-hover: var(--inverted-primary-text);
+    --base-background: var(--inverted-primary-text);
+    --base-border-color: var(--inverted-primary-text);
+    --base-color: var(--inverted-primary-bg);
   }
 }
