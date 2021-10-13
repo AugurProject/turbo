@@ -256,7 +256,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
             });
         }}
         title={
-          spreadOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : spreadOdds
+          spreadOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null
         }
         disabled={spreadOdds === "-"}
       >
@@ -283,7 +283,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         title={
           moneyLineOdds === "-"
             ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
-            : moneyLineOdds
+            : null
         }
         disabled={moneyLineOdds === "-"}
       >
@@ -306,7 +306,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         title={
           OUOdds === "-"
             ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
-            : OUOdds
+            : null
         }
         disabled={OUOdds === "-"}
       >
@@ -376,7 +376,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
               });
           }
         }}
-        title={odds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : odds}
+        title={odds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null}
         disabled={odds === "-"}
       >
         {odds}
