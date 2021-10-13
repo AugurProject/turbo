@@ -255,6 +255,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[spreadMarket.sportsMarketType]}`,
             });
         }}
+        title={
+          spreadOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : spreadOdds
+        }
         disabled={spreadOdds === "-"}
       >
         {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" && outcomeSpread !== "No Contest" ? (
@@ -277,6 +280,11 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[moneyLineMarket.sportsMarketType]}`,
             });
         }}
+        title={
+          moneyLineOdds === "-"
+            ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
+            : moneyLineOdds
+        }
         disabled={moneyLineOdds === "-"}
       >
         <span />
@@ -295,6 +303,11 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[OUMarket.sportsMarketType]}`,
             });
         }}
+        title={
+          OUOdds === "-"
+            ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
+            : OUOdds
+        }
         disabled={OUOdds === "-"}
       >
         {OUOdds !== "-" && overUnderLetter ? (
@@ -363,6 +376,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
               });
           }
         }}
+        title={odds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : odds}
         disabled={odds === "-"}
       >
         {odds}
