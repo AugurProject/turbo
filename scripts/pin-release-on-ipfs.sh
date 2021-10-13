@@ -3,7 +3,7 @@
 # Found: https://gist.github.com/lukechilds/a83e1d7127b78fef38c2914c4ececc3c
 CURRENT_VERSION=$(curl --silent "https://api.github.com/repos/AugurProject/turbo/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/');
 VERSION="${VERSION:-$CURRENT_VERSION}"
-APP="${APP:-simplified}
+APP="${APP:-turbo}
 curl -OL "https://github.com/AugurProject/turbo/releases/download/$VERSION/$APP.tar.gz";
 
 tar -xzf $APP.tar.gz;
