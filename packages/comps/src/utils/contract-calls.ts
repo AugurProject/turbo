@@ -1822,7 +1822,6 @@ export const getRewardsStatus = async (library: Web3Provider = null): Promise<{ 
       .div(new BN(10).pow(Number(18)))
       .decimalPlaces(0, 1)
       .toNumber();
-    console.log("amount", amount);
     const isLow = amount < REWARDS_AMOUNT_CUTOFF;
     const isEmpty = amount === 0;
     return { isLow, isEmpty };
