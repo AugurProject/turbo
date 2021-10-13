@@ -167,22 +167,24 @@ export const BetslipMain = () => {
     actions: { setBetsChangedMessages },
   } = useBetslipStore();
 
-  const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
-    return `${bet.wagerAvgPrice}-${bet.wager}`;
-  });
+  const valuesToWatch = Object.entries(bets).map(
+    ([betId, bet]: [string, BetType]) => `${bet.betId}-${bet.price}-${bet.wager}`
+  );
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
+      console.log(bet.wager, bet.price, bet.wagerAvgPrice);
       if (bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return { ...acc, [betId]: ODDS_CHANGED_ORDER_SIZE };
-        } else if (bet?.price !== bet?.wagerAvgPrice) {
+        } else if (bet?.initialPrice !== bet?.wagerAvgPrice) {
           return { ...acc, [betId]: ODDS_CHANGED_SINCE_SELECTION };
         } else {
+          delete acc[betId];
           return acc;
         }
       }
-      return {};
+      return acc;
     }, {});
     setBetsChangedMessages(anyBetsChanged);
   }, [valuesToWatch.toString()]);
@@ -266,17 +268,17 @@ const EditableBet = ({ betId, bet }) => {
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
 
-  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
+  const { id, marketId, heading, subHeading, name, price, initialPrice, wager, toWin, size, wagerAvgPrice } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
-  const [updatedPrice, setUpdatedPrice] = useState(price);
-  const initialOdds = useRef(price);
+  const [updatedPrice, setUpdatedPrice] = useState(wagerAvgPrice);
+  const initialOdds = useRef(initialPrice);
   const displayOdds = updatedPrice
     ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full
     : "-";
-  const hasOddsChanged =
-    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
+  const hasOddsChanged = wager && price ?
+    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size)) : false;
   const isPositiveOddsChange = Number(initialOdds.current) > Number(updatedPrice);
   const hasBetMessage = Boolean(betsChangedMessages?.[betId]);
   const checkErrors = (value: string) => {
@@ -287,7 +289,6 @@ const EditableBet = ({ betId, bet }) => {
     }
     return returnError;
   };
-
   return (
     <article className={Styles.EditableBet}>
       <header>
@@ -513,13 +514,21 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
   const cashout = formatCash(cashoutAmountAbs || cashoutAmount, USDC);
   let subtext = "";
   let buttonName = "";
-  let customClass = determineClasses({ canCashOut, isOpen, hasClaimed, wager, cashout: cashoutAmount, isCashout, isWinningOutcome  });
+  let customClass = determineClasses({
+    canCashOut,
+    isOpen,
+    hasClaimed,
+    wager,
+    cashout: cashoutAmount,
+    isCashout,
+    isWinningOutcome,
+  });
   if (status === TX_STATUS.PENDING) {
     buttonName = `PENDING ${cashout.full}`;
     customClass = null;
   } else if (isOpen) {
     if (!canCashOut) {
-      buttonName = CASHOUT_NOT_AVAILABLE
+      buttonName = CASHOUT_NOT_AVAILABLE;
     } else if (isApproved) {
       buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
     } else {
@@ -530,10 +539,10 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     if (isCashout) {
       subtext = `CASHOUT: ${cashout.full}`;
     } else {
-      subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
+      subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`;
     }
   }
-  
+
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
       <header>{heading}</header>
@@ -550,9 +559,7 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        <div
-          className={classNames(Styles.Cashout, txStatus.class)}
-        >
+        <div className={classNames(Styles.Cashout, txStatus.class)}>
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
           <TinyThemeButton
             customClass={customClass}

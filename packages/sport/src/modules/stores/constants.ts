@@ -70,6 +70,7 @@ export interface BetType {
   wager: string | null;
   toWin: string | null;
   price: string;
+  initialPrice: string;
   size?: string;
   wagerAvgPrice: string | null;
   name: string;
