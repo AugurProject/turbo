@@ -95,7 +95,8 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   } = useUserStore();
   const { markets } = useDataStore();
   const determineClasses = ({ canCashOut, isOpen, hasClaimed, wager, cashout, isWinningOutcome, isCashout }) => {
-    const isPositive = isOpen ? Number(wager) <= Number(cashout) : isCashout ? cashout > 0 : isWinningOutcome;
+    const roundedCashout = formatCash(cashout || 0).formattedValue;
+    const isPositive = isOpen ? Number(wager) <= Number(roundedCashout) : isCashout ? cashout > 0 : isWinningOutcome;
     return {
       [Styles.CanCashOut]: canCashOut,
       [Styles.hasClaimed]: hasClaimed || !isOpen,
