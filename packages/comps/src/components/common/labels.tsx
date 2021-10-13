@@ -327,7 +327,7 @@ export const NetworkMismatchBanner = () => {
         >
           Degraded Service. Some data will be slow to load or unavailable.
       </article>}      
-      {true && <article
+      {isLowRewards && <article
           className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
