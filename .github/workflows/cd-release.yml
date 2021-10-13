@@ -54,12 +54,22 @@ jobs:
           files: |
             ./build
           outPath: release.tar.gz
+      - name: Compress sporsbook action step
+        uses: master-atul/tar-action@v1.0.2
+        id: compress
+        with:
+          command: c
+          cwd: ./packages/sport/
+          files: |
+            ./build
+          outPath: sport.tar.gz
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           files: |
             LICENSE
+            sport.tar.gz
             release.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
