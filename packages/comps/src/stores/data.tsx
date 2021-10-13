@@ -8,7 +8,7 @@ import {
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos, getRewardsBalance } from "../utils/contract-calls";
+import { getMarketInfos, getRewardsStatus } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
 import { AppStatusStore } from "./app-status";
@@ -68,7 +68,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
           setIsRpcDown(false);
         }
 
-        getRewardsBalance(provider).then(status => setRewardsStatus(status));
+        getRewardsStatus(provider).then(status => setRewardsStatus(status));
 
         return infos;
       } catch (e) {

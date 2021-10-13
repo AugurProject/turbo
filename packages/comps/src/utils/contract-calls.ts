@@ -1804,7 +1804,7 @@ export const getMaticUsdPrice = async (library: Web3Provider = null): Promise<nu
   return defaultMaticPrice;
 };
 
-export const getRewardsBalance = async (
+export const getRewardsStatus = async (
   library: Web3Provider = null
 ): Promise<{ isLow: boolean; isEmpty: boolean }> => {
   const defaultValue = { isLow: false, isEmpty: false };
