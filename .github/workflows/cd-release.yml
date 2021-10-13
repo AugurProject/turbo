@@ -53,7 +53,7 @@ jobs:
           cwd: ./packages/simplified/
           files: |
             ./build
-          outPath: release.tar.gz
+          outPath: turbo.tar.gz
       - name: Compress sporsbook action step
         uses: master-atul/tar-action@v1.0.2
         id: compress
