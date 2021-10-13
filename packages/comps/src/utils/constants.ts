@@ -11,6 +11,9 @@ import { EthIcon, UsdIcon } from "../components/common/icons";
 
 export const POLYGON_NETWORK = 137;
 export const POLYGON_PRICE_FEED_MATIC = "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0";
+export const WMATIC_TOKEN_ADDRESS = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
+export const REWARDS_AMOUNT_CUTOFF = 3000;
+
 // # Market Types
 // should not be used, will be refactored out.
 export const YES_NO = "YesNo";

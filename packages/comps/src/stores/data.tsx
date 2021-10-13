@@ -8,10 +8,10 @@ import {
 } from "./constants";
 import { useData } from "./data-hooks";
 import { useUserStore, UserStore } from "./user";
-import { getMarketInfos } from "../utils/contract-calls";
+import { getMarketInfos, getRewardsStatus } from "../utils/contract-calls";
 import { getAllTransactions } from "../apollo/client";
 import { getDefaultProvider } from "../components/ConnectAccount/utils";
-import { useAppStatusStore, AppStatusStore } from "./app-status";
+import { AppStatusStore } from "./app-status";
 import { MARKET_LOAD_TYPE } from "../utils/constants";
 
 export const DataContext = React.createContext({
@@ -33,10 +33,6 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     cashes,
     actions: { updateDataHeartbeat, updateTransactions },
   } = state;
-  const {
-    isDegraded,
-    actions: { setIsRpcDown, setIsDegraded },
-  } = useAppStatusStore();
 
   if (!DataStore.actionsSet) {
     DataStore.actions = state.actions;
@@ -53,6 +49,7 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
       const { account: userAccount, loginAccount } = UserStore.get();
       const { isRpcDown } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
+      const { actions: { setRewardsStatus, setIsRpcDown } } = AppStatusStore;
       const provider = getDefaultProvider() || loginAccount?.library;
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
 
@@ -70,6 +67,9 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
         if (isRpcDown) {
           setIsRpcDown(false);
         }
+
+        getRewardsStatus(provider).then(status => setRewardsStatus(status));
+
         return infos;
       } catch (e) {
         if (e.data?.error?.details) {
@@ -107,12 +107,16 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
 
   useEffect(() => {
     let isMounted = true;
+    const { actions: { setIsDegraded } } = AppStatusStore;
+    const { isDegraded } = AppStatusStore.get();
     const fetchTransactions = () =>
       getAllTransactions(
         account?.toLowerCase(),
         (transactions) => isMounted && transactions && updateTransactions(transactions)
       )
-        .then(() => isDegraded && setIsDegraded(false))
+        .then(() => {
+          isDegraded && setIsDegraded(false)
+        })
         .catch((e) => {
           !isDegraded && setIsDegraded(true);
         });

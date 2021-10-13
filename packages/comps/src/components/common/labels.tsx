@@ -266,7 +266,7 @@ export const MovementLabel = ({ value, numberValue }: MovementLabelProps) => {
 
 export const NetworkMismatchBanner = () => {
   const { errors } = useDataStore();
-  const { isRpcDown, isDegraded } = useAppStatusStore();
+  const { isRpcDown, isDegraded, isLowRewards, isEmptyRewards } = useAppStatusStore();
   const { loginAccount, balances } = useUserStore();
   const { error } = useWeb3React();
   const { networkId } = PARA_CONFIG;
@@ -327,6 +327,20 @@ export const NetworkMismatchBanner = () => {
         >
           Degraded Service. Some data will be slow to load or unavailable.
       </article>}      
+      {isLowRewards && <article
+          className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          Rewards contract has a low balance. <ExternalLink label="Learn More." URL="https://help.augur.net" />
+      </article>}    
+      {isEmptyRewards && <article
+          className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
+            [Styles.Market]: path === MARKET,
+          })}
+        >
+          Rewards contract is depleted. <ExternalLink label="Learn More." URL="https://help.augur.net" />
+      </article>}         
     </>
   );
 };

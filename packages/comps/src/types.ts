@@ -680,6 +680,8 @@ export interface AppStatusState {
   isLogged: boolean;
   isRpcDown: boolean;
   isDegraded: boolean;
+  isLowRewards: boolean;
+  isEmptyRewards: boolean;
   modal: Modal;
 }
 

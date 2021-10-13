@@ -12,12 +12,11 @@ import {
 } from "@augurproject/comps";
 // @ts-ignore
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
-
 import { useSimplifiedStore } from "modules/stores/simplified";
-import { WMATIC_TOKEN_ADDRESS } from "modules/constants";
+
 const { formatToken } = Formatter;
 const { getMaticUsdPrice } = ContractCalls;
-const { USDC } = Constants;
+const { USDC, WMATIC_TOKEN_ADDRESS } = Constants;
 const {
   Formatter: { formatCash },
 } = Utils;

@@ -62,6 +62,8 @@ import {
   POLYGON_NETWORK,
   POLYGON_PRICE_FEED_MATIC,
   MAX_LAG_BLOCKS,
+  WMATIC_TOKEN_ADDRESS,
+  REWARDS_AMOUNT_CUTOFF,
 } from "./constants";
 import { getProviderOrSigner } from "../components/ConnectAccount/utils";
 import { createBigNumber } from "./create-big-number";
@@ -1800,4 +1802,31 @@ export const getMaticUsdPrice = async (library: Web3Provider = null): Promise<nu
     return defaultMaticPrice;
   }
   return defaultMaticPrice;
+};
+
+export const getRewardsStatus = async (library: Web3Provider = null): Promise<{ isLow: boolean; isEmpty: boolean }> => {
+  const defaultValue = { isLow: false, isEmpty: false };
+  if (!library) return defaultValue;
+  const factories = marketFactories();
+  if (!factories || factories.length === 0) return defaultValue;
+
+  const masterChef = factories[0]?.masterChef;
+  const wmatic = WMATIC_TOKEN_ADDRESS;
+  const network = await library?.getNetwork();
+  if (network?.chainId !== POLYGON_NETWORK) return defaultValue;
+
+  try {
+    const contract = getErc20Contract(wmatic, library, null);
+    const value = await contract.balanceOf(masterChef);
+    const amount = new BN(String(value))
+      .div(new BN(10).pow(Number(18)))
+      .decimalPlaces(0, 1)
+      .toNumber();
+    const isLow = amount < REWARDS_AMOUNT_CUTOFF;
+    const isEmpty = amount === 0;
+    return { isLow, isEmpty };
+  } catch (error) {
+    console.error(`Failed to get price feed contract, using ${defaultMaticPrice}`);
+  }
+  return defaultValue;
 };
