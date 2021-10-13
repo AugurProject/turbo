@@ -28,7 +28,6 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
   const size = new BN(outcome.balance || "0")
     .times(new BN(outcome.price || "0"))
     .times(new BN(liquidityPortion))
-    .decimalPlaces(0, 1)
     .toFixed();
   const est = estimateBuyTrade(amm, size, Number(id), amm?.cash);
   return { size, price: est?.averagePrice };
