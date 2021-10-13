@@ -427,7 +427,9 @@ export const estimateBuyTrade = (
   selectedOutcomeId: number,
   cash: Cash
 ): EstimateTradeResult | null => {
-  const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals).toFixed();
+  const amount = convertDisplayCashAmountToOnChainCashAmount(inputDisplayAmount, cash.decimals)
+    .decimalPlaces(0, 1)
+    .toFixed();
   let result = null;
   try {
     result = estimateBuy(amm.shareFactor, selectedOutcomeId, amount, amm.balancesRaw, amm.weights, amm.feeRaw);
