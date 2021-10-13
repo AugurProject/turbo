@@ -24,8 +24,9 @@ import { useSportsStore } from "modules/stores/sport";
 import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
 import { NFLSideBanner } from "modules/common/top-banner";
+import { determineClasses } from "modules/common/tables";
 
-const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
+const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES, USDC } = Constants;
 const { SimpleCheck, SimpleChevron, XIcon } = Icons;
@@ -458,8 +459,24 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
-  const market = markets[bet.marketId];
+  const {
+    marketId,
+    heading,
+    price,
+    cashoutAmount,
+    cashoutAmountAbs,
+    name,
+    hasClaimed,
+    isApproved,
+    canCashOut,
+    isPending,
+    isOpen,
+    isWinningOutcome,
+    isCashout,
+    status,
+    wager,
+  } = bet;
+  const market = markets[marketId];
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -486,16 +503,6 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
       break;
   }
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
-  const cashout = formatDai(bet.cashoutAmount).formatted;
-  const buttonName = !canCashOut
-    ? CASHOUT_NOT_AVAILABLE
-    : !isApproved
-    ? `APPROVE CASHOUT $${cashout}`
-    : isPending
-    ? `PENDING $${cashout}`
-    : `CASHOUT: $${cashout}`;
-
-  const isPositiveCashout = Number(bet.wager) <= Number(cashout);
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
@@ -503,7 +510,30 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
       updateActive({ ...bet, hash: txDetails.hash }, true);
     }
   };
-
+  const cashout = formatCash(cashoutAmountAbs || cashoutAmount, USDC);
+  let subtext = "";
+  let buttonName = "";
+  let customClass = determineClasses({ canCashOut, isOpen, hasClaimed, wager, cashout: cashoutAmount, isCashout, isWinningOutcome  });
+  if (status === TX_STATUS.PENDING) {
+    buttonName = `PENDING ${cashout.full}`;
+    customClass = null;
+  } else if (isOpen) {
+    if (!canCashOut) {
+      buttonName = CASHOUT_NOT_AVAILABLE
+    } else if (isApproved) {
+      buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
+    } else {
+      buttonName = `APPROVE CASHOUT ${cashout.full}`;
+    }
+  } else {
+    // label won or lost
+    if (isCashout) {
+      subtext = `CASHOUT: ${cashout.full}`;
+    } else {
+      subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
+    }
+  }
+  
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
       <header>{heading}</header>
@@ -521,15 +551,17 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
           </span>
         )}
         <div
-          className={classNames(Styles.Cashout, txStatus.class, {
-            [Styles.Positive]: canCashOut && isPositiveCashout,
-            [Styles.Negative]: canCashOut && !isPositiveCashout,
-          })}
+          className={classNames(Styles.Cashout, txStatus.class)}
         >
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-          <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
-            {buttonName}
-          </button>
+          <TinyThemeButton
+            customClass={customClass}
+            action={() => doApproveOrCashOut(loginAccount, bet, market)}
+            disabled={isPending || !canCashOut}
+            reverseContent={!canCashOut && hasClaimed}
+            subText={subtext}
+            text={buttonName}
+          />
         </div>
       </main>
     </article>
