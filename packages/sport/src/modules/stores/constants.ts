@@ -70,6 +70,7 @@ export interface BetType {
   wager: string | null;
   toWin: string | null;
   price: string;
+  initialPrice: string;
   size?: string;
   wagerAvgPrice: string | null;
   name: string;
@@ -100,6 +101,11 @@ export interface ActiveBetType {
   isPending: boolean;
   status: string;
   hasWinner?: boolean;
+  cashoutAmountAbs?: string;
+  hasClaimed: boolean;
+  isOpen: boolean;
+  isWinningOutcome: boolean;
+  isCashout: boolean;
 }
 export interface ActiveBetStateType {
   [betId: string]: ActiveBetType;

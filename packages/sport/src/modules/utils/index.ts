@@ -13,6 +13,7 @@ const { estimateBuyTrade, estimateSellTrade } = ContractCalls;
 export interface SizedPrice {
   size: string;
   price: string;
+  initialPrice: string;
 }
 
 export interface BuyAmount {
@@ -30,7 +31,7 @@ export const getSizedPrice = (amm: AmmExchange, id: number, liquidityPortion: nu
     .times(new BN(liquidityPortion))
     .toFixed();
   const est = estimateBuyTrade(amm, size, Number(id), amm?.cash);
-  return { size, price: est?.averagePrice };
+  return { size, price: est?.averagePrice, initialPrice: est?.averagePrice };
 };
 
 export const getBuyAmount = (amm: AmmExchange, id: number, amount: string): BuyAmount | null => {

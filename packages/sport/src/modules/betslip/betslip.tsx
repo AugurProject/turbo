@@ -24,8 +24,9 @@ import { useSportsStore } from "modules/stores/sport";
 import { approveOrCashOut, getBuyAmount, makeBet } from "modules/utils";
 import { BuyApprovals, useUserApprovals } from "modules/common/buy-approvals";
 import { NFLSideBanner } from "modules/common/top-banner";
+import { determineClasses } from "modules/common/tables";
 
-const { PrimaryThemeButton, SecondaryThemeButton } = ButtonComps;
+const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES, USDC } = Constants;
 const { SimpleCheck, SimpleChevron, XIcon } = Icons;
@@ -166,22 +167,24 @@ export const BetslipMain = () => {
     actions: { setBetsChangedMessages },
   } = useBetslipStore();
 
-  const valuesToWatch = Object.entries(bets).map(([betId, bet]: [string, BetType]) => {
-    return `${bet.wagerAvgPrice}-${bet.wager}`;
-  });
+  const valuesToWatch = Object.entries(bets).map(
+    ([betId, bet]: [string, BetType]) => `${bet.betId}-${bet.price}-${bet.wager}`
+  );
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
+      console.log(bet.wager, bet.price, bet.wagerAvgPrice);
       if (bet?.price && bet?.wagerAvgPrice && bet?.wager) {
         if (createBigNumber(bet.wager).gt(bet.size)) {
           return { ...acc, [betId]: ODDS_CHANGED_ORDER_SIZE };
-        } else if (bet?.price !== bet?.wagerAvgPrice) {
+        } else if (bet?.initialPrice !== bet?.wagerAvgPrice) {
           return { ...acc, [betId]: ODDS_CHANGED_SINCE_SELECTION };
         } else {
+          delete acc[betId];
           return acc;
         }
       }
-      return {};
+      return acc;
     }, {});
     setBetsChangedMessages(anyBetsChanged);
   }, [valuesToWatch.toString()]);
@@ -265,17 +268,17 @@ const EditableBet = ({ betId, bet }) => {
   } = useBetslipStore();
   const { ammExchanges } = useDataStore();
 
-  const { id, marketId, heading, subHeading, name, price, wager, toWin, size } = bet;
+  const { id, marketId, heading, subHeading, name, price, initialPrice, wager, toWin, size, wagerAvgPrice } = bet;
   const amm = ammExchanges[marketId];
   const [error, setError] = useState(null);
   const [value, setValue] = useState(wager);
-  const [updatedPrice, setUpdatedPrice] = useState(price);
-  const initialOdds = useRef(price);
+  const [updatedPrice, setUpdatedPrice] = useState(wagerAvgPrice);
+  const initialOdds = useRef(initialPrice);
   const displayOdds = updatedPrice
     ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full
     : "-";
-  const hasOddsChanged =
-    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size));
+  const hasOddsChanged = wager && price ?
+    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size)) : false;
   const isPositiveOddsChange = Number(initialOdds.current) > Number(updatedPrice);
   const hasBetMessage = Boolean(betsChangedMessages?.[betId]);
   const checkErrors = (value: string) => {
@@ -286,7 +289,6 @@ const EditableBet = ({ betId, bet }) => {
     }
     return returnError;
   };
-
   return (
     <article className={Styles.EditableBet}>
       <header>
@@ -458,8 +460,24 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     loginAccount,
     actions: { addTransaction },
   } = useUserStore();
-  const { price, name, heading, isApproved, canCashOut, isPending, status } = bet;
-  const market = markets[bet.marketId];
+  const {
+    marketId,
+    heading,
+    price,
+    cashoutAmount,
+    cashoutAmountAbs,
+    name,
+    hasClaimed,
+    isApproved,
+    canCashOut,
+    isPending,
+    isOpen,
+    isWinningOutcome,
+    isCashout,
+    status,
+    wager,
+  } = bet;
+  const market = markets[marketId];
   const txStatus = {
     message: null,
     icon: PendingIcon,
@@ -486,16 +504,6 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
       break;
   }
   const displayOdds = convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full;
-  const cashout = formatDai(bet.cashoutAmount).formatted;
-  const buttonName = !canCashOut
-    ? CASHOUT_NOT_AVAILABLE
-    : !isApproved
-    ? `APPROVE CASHOUT $${cashout}`
-    : isPending
-    ? `PENDING $${cashout}`
-    : `CASHOUT: $${cashout}`;
-
-  const isPositiveCashout = Number(bet.wager) <= Number(cashout);
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
@@ -503,6 +511,37 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
       updateActive({ ...bet, hash: txDetails.hash }, true);
     }
   };
+  const cashout = formatCash(cashoutAmountAbs || cashoutAmount, USDC);
+  let subtext = "";
+  let buttonName = "";
+  let customClass = determineClasses({
+    canCashOut,
+    isOpen,
+    hasClaimed,
+    wager,
+    cashout: cashoutAmount,
+    isCashout,
+    isWinningOutcome,
+  });
+  if (status === TX_STATUS.PENDING) {
+    buttonName = `PENDING ${cashout.full}`;
+    customClass = null;
+  } else if (isOpen) {
+    if (!canCashOut) {
+      buttonName = CASHOUT_NOT_AVAILABLE;
+    } else if (isApproved) {
+      buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
+    } else {
+      buttonName = `APPROVE CASHOUT ${cashout.full}`;
+    }
+  } else {
+    // label won or lost
+    if (isCashout) {
+      subtext = `CASHOUT: ${cashout.full}`;
+    } else {
+      subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`;
+    }
+  }
 
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
@@ -520,16 +559,16 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
             <button onClick={() => console.log("retry tx")}>Retry.</button>
           </span>
         )}
-        <div
-          className={classNames(Styles.Cashout, txStatus.class, {
-            [Styles.Positive]: canCashOut && isPositiveCashout,
-            [Styles.Negative]: canCashOut && !isPositiveCashout,
-          })}
-        >
+        <div className={classNames(Styles.Cashout, txStatus.class)}>
           {isPending && <ReceiptLink hash={tx_hash} label="VIEW TX" icon />}
-          <button disabled={isPending || !canCashOut} onClick={() => doApproveOrCashOut(loginAccount, bet, market)}>
-            {buttonName}
-          </button>
+          <TinyThemeButton
+            customClass={customClass}
+            action={() => doApproveOrCashOut(loginAccount, bet, market)}
+            disabled={isPending || !canCashOut}
+            reverseContent={!canCashOut && hasClaimed}
+            subText={subtext}
+            text={buttonName}
+          />
         </div>
       </main>
     </article>
@@ -560,7 +599,7 @@ export const TicketBreakdown = ({ bet, timeFormat }) => {
       <li>
         <span>To Win</span>
         <DashlineNormal />
-        <span>{toWin}</span>
+        <span>{formatCash(toWin, USDC).full}</span>
       </li>
       <li>
         <span>Date</span>

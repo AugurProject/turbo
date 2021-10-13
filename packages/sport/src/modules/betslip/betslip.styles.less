@@ -772,7 +772,7 @@ button.FlipContent {
     }
   }
 
-  > button {
+  > button[class*="Tiny"] {
     .ThemeBorder;
     .text-10-semi-bold;
 
@@ -797,19 +797,49 @@ button.FlipContent {
     &:disabled {
       opacity: 0.25;
     }
-  }
+    &[class*="CanCashOut"] {
+      &[class*="PositiveCashout"] {
+        background: rgba(var(--success-rgb), 0.15);
+        border-color: var(--success);
+      }
+      &[class*="NegativeCashout"] {
+        background: rgba(var(--failed-rgb), 0.15);
+        border-color: var(--failed);
+      }
 
-  &.Positive {
-    > button {
-      background: rgba(var(--success-rgb), 0.15);
-      border-color: var(--success);
+      &:hover:not(:disabled) {
+        border-color: var(--primary-text);
+        background: var(--primary-text);
+        color: var(--primary-bg);
+      }
     }
-  }
 
-  &.Negative {
-    > button {
-      background: rgba(var(--failed-rgb), 0.15);
-      border-color: var(--failed);
+    &[class*="hasClaimed"] {
+      opacity: 1;
+      border: 0;
+
+      > span:last-of-type {
+        margin-right: @size-4;
+        color: var(--primary-text);
+      }
+
+      > span:first-of-type {
+        color: var(--primary-text);
+      }
+
+      &[class*="PositiveCashout"] {
+        background: rgba(var(--success-rgb), 0.15);
+      }
+
+      &[class*="NegativeCashout"] {
+        background: rgba(var(--failed-rgb), 0.15);
+      }
+
+      &:hover:not(:disabled) {
+        border-color: var(--primary-text);
+        background: var(--primary-text);
+        color: var(--primary-bg);
+      }
     }
   }
 }

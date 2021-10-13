@@ -82,6 +82,17 @@ const EventTableHeading = ({ Event }) => {
   );
 };
 
+export const determineClasses = ({ canCashOut, isOpen, hasClaimed, wager, cashout, isWinningOutcome, isCashout }) => {
+  const roundedCashout = formatCash(cashout || 0).formattedValue;
+  const isPositive = isOpen ? Number(wager) <= Number(roundedCashout) : isCashout ? cashout > 0 : isWinningOutcome;
+  return {
+    [Styles.CanCashOut]: canCashOut,
+    [Styles.hasClaimed]: hasClaimed || !isOpen,
+    [Styles.PositiveCashout]: isPositive,
+    [Styles.NegativeCashout]: !isPositive,
+  };
+};
+
 const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
   const {
     settings: { oddsFormat, timeFormat },
@@ -94,17 +105,6 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
     actions: { addTransaction },
   } = useUserStore();
   const { markets } = useDataStore();
-  const determineClasses = ({ canCashOut, isOpen, hasClaimed, wager, cashout, isWinningOutcome, isCashout }) => {
-    const roundedCashout = formatCash(cashout || 0).formattedValue;
-    const isPositive = isOpen ? Number(wager) <= Number(roundedCashout) : isCashout ? cashout > 0 : isWinningOutcome;
-    return {
-      [Styles.CanCashOut]: canCashOut,
-      [Styles.hasClaimed]: hasClaimed || !isOpen,
-      [Styles.PositiveCashout]: isPositive,
-      [Styles.NegativeCashout]: !isPositive,
-    };
-  };
-
   const doApproveOrCashOut = async (loginAccount, bet, market) => {
     const txDetails = await approveOrCashOut(loginAccount, bet, market);
     if (txDetails?.hash) {
@@ -162,20 +162,6 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
             subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`
           }
         }
-        /*
-          !canCashOut && hasClaimed
-            ? won
-              ? cashout.full
-              : formatCash(wager, USDC).full
-            : !canCashOut && !hasClaimed && isOpen
-            ? CASHOUT_NOT_AVAILABLE
-            : !isApproved && isOpen
-            ? `APPROVE CASHOUT ${cashout.full}`
-            : isPending
-            ? `PENDING ${cashout.full}`
-            : Number(cashoutAmount) >= 0 ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`;
-        const subtext = !canCashOut && hasClaimed ? (won ? "WON:" : "LOSS:") : null;
-*/
         return (
           <ul key={tx_hash}>
             <li>
