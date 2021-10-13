@@ -1006,7 +1006,8 @@ export const getUserBalances = async (
         const existingMarketShares = userBalances[collection][marketId];
         const marketTransactions = userMarketTransactions[marketId];
         const exchange = ammExchanges[marketId];
-        if (existingMarketShares) {
+        const isDust = new BN(rawBalance).lt(DUST_POSITION_AMOUNT_ON_CHAIN);
+        if (existingMarketShares && !isDust) {
           const position = getPositionUsdValues(
             marketTransactions,
             rawBalance,
@@ -1020,7 +1021,7 @@ export const getUserBalances = async (
           if (position) userBalances[collection][marketId].positions.push(position);
           userBalances[collection][marketId].outcomeSharesRaw[outcomeId] = rawBalance;
           userBalances[collection][marketId].outcomeShares[outcomeId] = fixedShareBalance;
-        } else if (fixedShareBalance !== "0") {
+        } else if (!isDust) {
           userBalances[collection][marketId] = {
             ammExchange: exchange,
             positions: [],
