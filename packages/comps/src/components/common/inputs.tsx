@@ -21,7 +21,7 @@ export interface SearchInputProps {
   placeHolder?: string;
 }
 
-export const SearchInput = ({ placeHolder = "Search for a market", value, onChange, clearValue, showFilter }: SearchInputProps) => {
+export const SearchInput = ({ placeHolder = "Search Markets", value, onChange, clearValue, showFilter }: SearchInputProps) => {
   const input = useRef(null);
 
   useEffect(() => {
