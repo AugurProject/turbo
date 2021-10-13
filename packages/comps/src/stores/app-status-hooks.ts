@@ -2,9 +2,17 @@ import { useReducer } from "react";
 import { APP_STATUS_ACTIONS, MOCK_APP_STATUS_STATE, APP_STATE_KEYS } from "./constants";
 import { windowRef } from "../utils/window-ref";
 import { dispatchMiddleware } from "./utils";
-const { SET_IS_MOBILE, SET_MODAL, CLOSE_MODAL, SET_IS_LOGGED, SET_RPC_DOWN, SET_DEGRADED } = APP_STATUS_ACTIONS;
+const {
+  SET_IS_MOBILE,
+  SET_MODAL,
+  CLOSE_MODAL,
+  SET_IS_LOGGED,
+  SET_RPC_DOWN,
+  SET_DEGRADED,
+  SET_REWARDS_STATUS,
+} = APP_STATUS_ACTIONS;
 
-const { IS_MOBILE, MODAL, IS_LOGGED, IS_RPC_DOWN, IS_DEGRADED } = APP_STATE_KEYS;
+const { IS_MOBILE, MODAL, IS_LOGGED, IS_RPC_DOWN, IS_DEGRADED, IS_LOW_REWARDS, IS_EMPTY_REWARDS } = APP_STATE_KEYS;
 
 export function AppStatusReducer(state, action) {
   const updatedState = { ...state };
@@ -36,6 +44,12 @@ export function AppStatusReducer(state, action) {
       updatedState[IS_DEGRADED] = Boolean(isDegraded);
       break;
     }
+    case SET_REWARDS_STATUS: {
+      const { rewardsStatus } = action;
+      updatedState[IS_LOW_REWARDS] = Boolean(rewardsStatus.isLow);
+      updatedState[IS_EMPTY_REWARDS] = Boolean(rewardsStatus.isEmpty);
+      break;
+    }
     default:
       console.log(`Error: ${action.type} not caught by App Status reducer`);
   }
@@ -57,6 +71,7 @@ export const useAppStatus = (defaultState = MOCK_APP_STATUS_STATE) => {
       setIsLogged: (account) => dispatch({ type: SET_IS_LOGGED, account }),
       setIsRpcDown: (isRpcDown) => dispatch({ type: SET_RPC_DOWN, isRpcDown }),
       setIsDegraded: (isDegraded) => dispatch({ type: SET_DEGRADED, isDegraded }),
+      setRewardsStatus: (rewardsStatus) => dispatch({ type: SET_REWARDS_STATUS, rewardsStatus }),
     },
   };
 };

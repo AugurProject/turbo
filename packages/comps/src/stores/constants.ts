@@ -106,6 +106,7 @@ export const STUBBED_APP_STATUS_ACTIONS = {
   setIsLogged: (account) => {},
   setIsRpcDown: (rpcDown) => {},
   setIsDegraded: (isDegraded) => {},
+  setRewardsStatus: (rewardsStatus) => {},
 };
 
 export const DEFAULT_APP_STATUS_STATE: AppStatusState = {
@@ -113,6 +114,8 @@ export const DEFAULT_APP_STATUS_STATE: AppStatusState = {
   isLogged: false,
   isRpcDown: false,
   isDegraded: false,
+  isLowRewards: false,
+  isEmptyRewards: false,
   modal: {},
 };
 
@@ -122,6 +125,8 @@ export const APP_STATE_KEYS = {
   IS_LOGGED: "isLogged",
   IS_RPC_DOWN: "isRpcDown",
   IS_DEGRADED: "isDegraded",
+  IS_LOW_REWARDS: "isLowRewards",
+  IS_EMPTY_REWARDS: "isEmptyRewards",
 };
 
 export const APP_STATUS_ACTIONS = {
@@ -131,6 +136,7 @@ export const APP_STATUS_ACTIONS = {
   SET_IS_LOGGED: "SET_IS_LOGGED",
   SET_RPC_DOWN: "SET_RPC_DOWN",
   SET_DEGRADED: "SET_DEGRADED",
+  SET_REWARDS_STATUS: "SET_REWARDS_STATUS",
 };
 
 export const MOCK_APP_STATUS_STATE = {
