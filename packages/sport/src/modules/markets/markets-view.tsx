@@ -44,7 +44,7 @@ const {
   MODAL_ADD_LIQUIDITY,
 } = Constants;
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 20;
 
 const applyFiltersAndSort = (
   passedInMarkets,
