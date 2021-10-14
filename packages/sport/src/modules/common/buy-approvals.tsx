@@ -22,7 +22,8 @@ const { TX_STATUS } = Constants;
 const { ammFactoryMarketNames } = ContractCalls;
 const { generateTooltip } = LabelComps;
 
-const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+// const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
+const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once.`;
 
 export const useUserApprovals = (): {
   allFactoryAddresses: string[];
@@ -93,7 +94,7 @@ export const BuyApprovals = () => {
     return null;
   };
   const getPreTitle = (ammFactoryAddress) => {
-    return hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED ? `Can now bet` : `Allow betting`;
+    return hashStatus[txHashes[ammFactoryAddress]] === TX_STATUS.CONFIRMED ? `Can now bet` : `Approve betting`;
   };
 
   const showReset = false; // used for debugging
@@ -112,7 +113,7 @@ export const BuyApprovals = () => {
             disabled={!!hashStatus[txHashes[ammFactoryAddress]]}
             action={() => doApproval(loginAccount, ammFactoryAddress)}
             icon={getIcon(ammFactoryAddress)}
-            text={`${getPreTitle(ammFactoryAddress)} on ${factoryNames[ammFactoryAddress]} markets`}
+            text={`${getPreTitle(ammFactoryAddress)} on markets`}
           />
           {generateTooltip(APPROVAL_NEEDED, `${ammFactoryAddress}-approval-tip`)}
         </div>
