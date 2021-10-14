@@ -160,6 +160,8 @@ const BetslipHeader = ({ counts, handleToggle }: { counts: number[]; handleToggl
 const ODDS_CHANGED_SINCE_SELECTION = `Highlighted odds changed since you selected them.`;
 const ODDS_CHANGED_ORDER_SIZE = `You are trying to take more than is available at these odds. You can place the bet with the new odds or adjust your bet size.`;
 
+const HALF_PENNY = createBigNumber(0.005);
+
 export const BetslipMain = () => {
   const { isLogged } = useAppStatusStore();
   const {
@@ -174,9 +176,8 @@ export const BetslipMain = () => {
 
   useEffect(() => {
     const anyBetsChanged = Object.entries(bets).reduce((acc, [betId, bet]: [string, BetType]) => {
-      console.log(bet.wager, bet.price, bet.wagerAvgPrice);
       if (bet?.price && bet?.wagerAvgPrice && bet?.wager) {
-        if (createBigNumber(bet.wager).gt(bet.size)) {
+        if (createBigNumber(bet.wager).minus(HALF_PENNY).gt(bet.size)) {
           return { ...acc, [betId]: ODDS_CHANGED_ORDER_SIZE };
         } else if (bet?.initialPrice !== bet?.wagerAvgPrice) {
           return { ...acc, [betId]: ODDS_CHANGED_SINCE_SELECTION };
@@ -279,7 +280,7 @@ const EditableBet = ({ betId, bet }) => {
     ? convertToOdds(convertToNormalizedPrice({ price: updatedPrice }), oddsFormat).full
     : "-";
   const hasOddsChanged = wager && price ?
-    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && Number(wager) > Number(size)) : false;
+    initialOdds.current !== updatedPrice || (initialOdds.current === updatedPrice && (Number(wager) - HALF_PENNY.toNumber()) > Number(size)) : false;
   const isPositiveOddsChange = Number(initialOdds.current) > Number(updatedPrice);
   const hasBetMessage = Boolean(betsChangedMessages?.[betId]);
   const checkErrors = (value: string) => {
