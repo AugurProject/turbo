@@ -48,6 +48,7 @@ export const Betslip = () => {
     selectedView,
     active,
     bets,
+    selectedCount,
     actions: { toggleSelectedView },
   } = useBetslipStore();
   const betslipRef = useRef(null);
@@ -108,7 +109,7 @@ export const Betslip = () => {
         {selectedView === BETSLIP ? (
           <>
             <BetslipMain />
-            <BuyApprovals />
+            {isLogged && selectedCount > 0 && <BuyApprovals />}
           </>
         ) : (
           <ActiveBetsMain />
