@@ -525,26 +525,14 @@ const BetReciept = ({ tx_hash, bet }: { tx_hash: string; bet: ActiveBetType }) =
     isCashout,
     isWinningOutcome,
   });
-  if (status === TX_STATUS.PENDING) {
-    buttonName = `PENDING ${cashout.full}`;
+  if (!canCashOut) {
+    buttonName = CASHOUT_NOT_AVAILABLE;
     customClass = null;
-  } else if (isOpen) {
-    if (!canCashOut) {
-      buttonName = CASHOUT_NOT_AVAILABLE;
-    } else if (isApproved) {
-      buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
-    } else {
-      buttonName = `APPROVE CASHOUT ${cashout.full}`;
-    }
+  } else if (isApproved) {
+    buttonName = isPending ? `PENDING ${cashout.full}` : `CASHOUT ${cashout.full}`;
   } else {
-    // label won or lost
-    if (isCashout) {
-      subtext = `CASHOUT: ${cashout.full}`;
-    } else {
-      subtext = isWinningOutcome ? `WON: ${cashout.full}` : `LOSS: ${cashout.full}`;
-    }
+    buttonName = `APPROVE CASHOUT ${cashout.full}`;
   }
-
   return (
     <article className={classNames(Styles.BetReceipt, txStatus.class)}>
       <header>{heading}</header>

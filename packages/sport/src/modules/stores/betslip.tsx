@@ -130,6 +130,8 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
   } = useUserStore();
   const { markets, transactions, blocknumber } = useDataStore();
 
+  const pendingTransactionCount = userTransactions.filter(transaction => transaction.status === TX_STATUS.PENDING);
+
   useEffect(async () => {
     if (!account) return null;
     const marketPositions = Object.keys(marketShares).reduce((p, marketId) => {
@@ -194,7 +196,7 @@ const usePersistentActiveBets = ({ active, actions: { updateActive, addActive, r
         active[bet.betId] ? updateActive(bet, true) : addActive(bet, true);
       });
     }
-  }, [account, blocknumber, Object.keys(marketShares).length]);
+  }, [account, blocknumber, Object.keys(marketShares).length, pendingTransactionCount.length]);
 };
 
 const useClearOnLogout = ({ actions: { clearBetslip } }) => {
