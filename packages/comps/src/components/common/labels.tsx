@@ -332,14 +332,14 @@ export const NetworkMismatchBanner = () => {
             [Styles.Market]: path === MARKET,
           })}
         >
-          Rewards contract has a low balance. <ExternalLink label="Learn More." URL="https://help.augur.net" />
+          Rewards contract has a low balance. <ExternalLink label="Learn More." URL="https://help.augur.net/providing-liquidity/claiming-lp-rewards" />
       </article>}    
       {isEmptyRewards && <article
           className={classNames(Styles.NetworkMismatch, Styles.NetworkWarningBanner, {
             [Styles.Market]: path === MARKET,
           })}
         >
-          Rewards contract is depleted. <ExternalLink label="Learn More." URL="https://help.augur.net" />
+          Rewards contract is depleted. <ExternalLink label="Learn More." URL="https://help.augur.net/providing-liquidity/claiming-lp-rewards" />
       </article>}         
     </>
   );
