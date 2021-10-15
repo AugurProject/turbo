@@ -297,6 +297,7 @@ export const NULL_ADDRESS: string = "0x0000000000000000000000000000000000000000"
 export const MODAL_ADD_LIQUIDITY: string = "MODAL_ADD_LIQUIDITY";
 export const MODAL_CONNECT_WALLET: string = "MODAL_CONNECT_WALLET";
 export const MODAL_CONNECT_TO_POLYGON: string = "MODAL_CONNECT_TO_POLYGON";
+export const MODAL_SORT_BY: string = "MODAL_SORT_BY";
 
 export const CREATE: string = "create";
 export const MINT_SETS: string = "mintSets";

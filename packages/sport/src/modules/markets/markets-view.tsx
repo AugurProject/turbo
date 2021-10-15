@@ -17,6 +17,7 @@ import type { MarketInfo } from "@augurproject/comps/build/types";
 import { MARKETS_LIST_HEAD_TAGS } from "../seo-config";
 import { CategoriesArea, DailyLongSwitch, CategoriesAreaTitle } from "../categories/categories";
 import { EventCard } from "../sports-card/sports-card";
+import { MODAL_SORT_BY } from "@augurproject/comps/build/utils/constants";
 const { canAddLiquidity } = ContractCalls;
 const {
   SelectionComps: { SquareDropdown },
@@ -24,6 +25,7 @@ const {
   PaginationComps: { Pagination, sliceByPage },
   InputComps: { SearchInput },
   LabelComps: { NetworkMismatchBanner },
+  Icons: { SimpleChevron },
 } = Components;
 const {
   ALL_CURRENCIES,
@@ -169,9 +171,22 @@ const applyFiltersAndSort = (
   setFilteredEvents(updatedEvents);
 };
 
+const MobileSortByButton = ({action, sortBy}) => {
+  return (
+    <div onClick={() => action()} className={Styles.MobileSortByButton}>
+      <span>Sort by:</span>
+      <button>
+        <span>{sortBy}</span>
+        {SimpleChevron}
+      </button>
+    </div>
+  )
+}
+
 const MarketsView = () => {
   const {
     isLogged,
+    isMobile,
     actions: { setModal },
   } = useAppStatusStore();
   const {
@@ -238,6 +253,18 @@ const MarketsView = () => {
       });
     }
   };
+
+  const sortByModal = () => {
+    setModal({
+      type: MODAL_SORT_BY,
+      options: sortByItems,
+      action: value => updateMarketsViewSettings({ sortBy: value }),
+      defaultValue: sortBy,
+      selected: sortBy,
+      title: "Sort By",
+    });
+  }
+
   return (
     <div className={Styles.MarketsView}>
       <CategoriesArea filteredMarkets={filteredEvents} />
@@ -250,14 +277,21 @@ const MarketsView = () => {
           {subCategories.length > 0 && (
             <DailyLongSwitch selection={eventTypeFilter} setSelection={(id) => setEventTypeFilter(id)} />
           )}
-          <SquareDropdown
-            onChange={(value) => {
-              updateMarketsViewSettings({ sortBy: value });
-            }}
-            options={sortByItems}
-            defaultValue={sortBy}
-            preLabel="Sort By"
-          />
+          {isMobile ? (
+            <MobileSortByButton
+              action={sortByModal}
+              sortBy={sortBy}
+            />
+          ) : (
+            <SquareDropdown
+              onChange={(value) => {
+                updateMarketsViewSettings({ sortBy: value });
+              }}
+              options={sortByItems}
+              defaultValue={sortBy}
+              preLabel="Sort By"
+            />
+          )}
           <SearchInput value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
         </ul>
         {loading ? (

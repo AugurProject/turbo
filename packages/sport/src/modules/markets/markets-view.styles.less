@@ -107,6 +107,59 @@
   }
 }
 
+.MobileSortByButton {
+  display: flex;
+  flex-flow: row nowrap;
+
+  > span {
+    .text-14;
+
+    color: var(--secondary-text);
+    display: flex;
+    flex-flow: row nowrap;
+    white-space: nowrap;
+    align-items: center;
+    justify-content: center;
+    margin-right: @size-4;
+  }
+
+  > button {
+    color: var(--primary-text);
+    border: 0;
+    background: transparent;
+    padding: 0;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:hover {
+      border: 0;
+    }
+
+    > span {
+      .text-14;
+
+      border-bottom: @size-1 dotted var(--primary-text);
+      text-transform: capitalize;
+
+      &:hover {
+        border-bottom: @size-1 solid var(--primary-text);
+      }
+    }
+
+    > svg {
+      margin-left: @size-4;
+      height: @size-5;
+      width: @size-9;
+
+      > path {
+        fill: var(--primary-text);
+      }
+    }
+  }
+}
+
 :root[theme="SPORTS_DARK"],
 :root[theme="SPORTS"] {
   .MarketsView {

@@ -68,6 +68,7 @@ import {
 import * as _ApprovalHooks from "./stores/use-approval-callback";
 import * as _GraphClient from "./apollo/client";
 import ModalConnectWallet from "./components/modal/modal-connect-wallet";
+import ModalSelection from "./components/modal/modal-selection";
 import { ToggleSwitch, BuySellToggleSwitch } from "./components/common/toggle-switch";
 import { Toasts } from "./components/toasts/toasts";
 
@@ -209,6 +210,7 @@ export const Components = {
 };
 export const Modals = {
   ModalConnectWallet,
+  ModalSelection,
 };
 // create default object
 const AugurComps = {

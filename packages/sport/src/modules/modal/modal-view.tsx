@@ -4,7 +4,7 @@ import { useHistory } from "react-router";
 import Styles from "./modal.styles.less";
 import { MODAL_ADD_LIQUIDITY, TURBO_NO_ACCESS_MODAL, MODAL_EVENT_RULES } from "../constants";
 import { Constants, Modals, useUserStore, useAppStatusStore } from "@augurproject/comps";
-const { ModalConnectWallet } = Modals;
+const { ModalConnectWallet, ModalSelection } = Modals;
 
 function selectModal(type, modal, logout, closeModal, removeTransaction, isLogged, isMobile) {
   switch (type) {
@@ -29,6 +29,13 @@ function selectModal(type, modal, logout, closeModal, removeTransaction, isLogge
           removeTransaction={removeTransaction}
         />
       );
+    case Constants.MODAL_SORT_BY:
+      return (
+        <ModalSelection
+          {...modal}
+          closeModal={closeModal}
+        />
+      )
     default:
       return <div />;
   }
