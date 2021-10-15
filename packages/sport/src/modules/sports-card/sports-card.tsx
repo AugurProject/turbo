@@ -201,13 +201,17 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   const { name: eventOutcomeName, id: eventOutcomeId } = eventOutcome;
   const { 0: moneyLineMarket, 1: spreadMarket, 2: OUMarket } = eventMarkets;
   const { spreadLine, overUnderLine } = marketEvent;
+  const SpreadTradable = !spreadMarket.hasWinner;
+  const MoneyLineTradable = !moneyLineMarket.hasWinner;
+  const OUTradable = !OUMarket.hasWinner;
+
   const spreadSizePrice = useMemo(() => getSizedPrice(spreadMarket?.amm, eventOutcomeId, betSizeToOdds), [
     spreadMarket?.amm?.ammOutcomes[eventOutcomeId]?.balance,
     betSizeToOdds,
   ]);
   const spreadOdds = useMemo(
     () =>
-      spreadSizePrice?.price
+      spreadSizePrice?.price && SpreadTradable
         ? convertToOdds(convertToNormalizedPrice({ price: spreadSizePrice.price }), oddsFormat).full
         : "-",
     [spreadSizePrice, oddsFormat]
@@ -218,7 +222,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   ]);
   const moneyLineOdds = useMemo(
     () =>
-      moneyLineSizePrice?.price
+      moneyLineSizePrice?.price && MoneyLineTradable
         ? convertToOdds(convertToNormalizedPrice({ price: moneyLineSizePrice.price }), oddsFormat).full
         : "-",
     [moneyLineSizePrice, oddsFormat]
@@ -229,7 +233,9 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
   ]);
   const OUOdds = useMemo(
     () =>
-      OUSizePrice?.price ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full : "-",
+      OUSizePrice?.price && OUTradable
+        ? convertToOdds(convertToNormalizedPrice({ price: OUSizePrice.price }), oddsFormat).full
+        : "-",
     [OUSizePrice, oddsFormat]
   );
   const firstOULetter = OUMarket?.amm?.ammOutcomes[eventOutcomeId]?.name.slice(0, 1);
@@ -244,7 +250,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
       <label>{eventOutcomeName}</label>
       <button
         onClick={() => {
-          spreadSizePrice &&
+          SpreadTradable &&
+            spreadSizePrice &&
             !bets[`${spreadMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...spreadMarket.amm.ammOutcomes[eventOutcomeId],
@@ -255,9 +262,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[spreadMarket.sportsMarketType]}`,
             });
         }}
-        title={
-          spreadOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null
-        }
+        title={spreadOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null}
         disabled={spreadOdds === "-"}
       >
         {spreadLine && spreadOdds !== "-" && outcomeSpread !== "" && outcomeSpread !== "No Contest" ? (
@@ -269,7 +274,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
       </button>
       <button
         onClick={() => {
-          moneyLineSizePrice &&
+          MoneyLineTradable &&
+            moneyLineSizePrice &&
             !bets[`${moneyLineMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...moneyLineMarket.amm.ammOutcomes[eventOutcomeId],
@@ -280,11 +286,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[moneyLineMarket.sportsMarketType]}`,
             });
         }}
-        title={
-          moneyLineOdds === "-"
-            ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
-            : null
-        }
+        title={moneyLineOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null}
         disabled={moneyLineOdds === "-"}
       >
         <span />
@@ -292,7 +294,8 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
       </button>
       <button
         onClick={() => {
-          OUSizePrice &&
+          OUTradable &&
+            OUSizePrice &&
             !bets[`${OUMarket.marketId}-${eventOutcomeId}`] &&
             addBet({
               ...OUMarket.amm.ammOutcomes[eventOutcomeId],
@@ -303,11 +306,7 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
               subHeading: `${SPORTS_MARKET_TYPE_LABELS[OUMarket.sportsMarketType]}`,
             });
         }}
-        title={
-          OUOdds === "-"
-            ? "Decrease 'Bet Size to Odds Display' in settings to show available odds"
-            : null
-        }
+        title={OUOdds === "-" ? "Decrease 'Bet Size to Odds Display' in settings to show available odds" : null}
         disabled={OUOdds === "-"}
       >
         {OUOdds !== "-" && overUnderLetter ? (
@@ -318,14 +317,20 @@ const ComboOutcomeRow = ({ eventMarkets, eventOutcome, marketEvent, ...props }) 
         <span>{OUOdds}</span>
       </button>
       <span>
-        {spreadSizePrice?.size && spreadSizePrice?.size !== "0" && <span>{formatDai(spreadSizePrice?.size).full}</span>}
+        {spreadSizePrice?.size && spreadSizePrice?.size !== "0" && SpreadTradable && (
+          <span>{formatDai(spreadSizePrice?.size).full}</span>
+        )}
       </span>
       <span>
-        {moneyLineSizePrice?.size && moneyLineSizePrice?.size !== "0" && (
+        {moneyLineSizePrice?.size && moneyLineSizePrice?.size !== "0" && MoneyLineTradable && (
           <span>{formatDai(moneyLineSizePrice?.size).full}</span>
         )}
       </span>
-      <span>{OUSizePrice?.size && OUSizePrice?.size !== "0" && <span>{formatDai(OUSizePrice?.size).full}</span>}</span>
+      <span>
+        {OUSizePrice?.size && OUSizePrice?.size !== "0" && OUTradable && (
+          <span>{formatDai(OUSizePrice?.size).full}</span>
+        )}
+      </span>
     </article>
   );
 };
@@ -345,12 +350,16 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
   } = useAppStatusStore();
   const { transactions } = useUserStore();
   const { id, name } = outcome;
+  const MarketTradable = !amm?.market?.hasWinner;
   const sizedPrice = useMemo(() => getSizedPrice(amm, id, betSizeToOdds), [outcome.balance, betSizeToOdds]);
   const odds = useMemo(
     () =>
-      sizedPrice?.price ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full : "-",
+      sizedPrice?.price && MarketTradable
+        ? convertToOdds(convertToNormalizedPrice({ price: sizedPrice.price }), oddsFormat).full
+        : "-",
     [sizedPrice, oddsFormat]
   );
+
   return (
     <div className={Styles.SportsOutcomeButton}>
       <label>{name}</label>
@@ -364,7 +373,8 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
               transactions,
             });
           } else {
-            sizedPrice &&
+            MarketTradable &&
+              sizedPrice &&
               !bets[`${marketId}-${id}`] &&
               addBet({
                 ...outcome,
@@ -381,7 +391,7 @@ const SportsOutcomeButton = ({ outcome, marketId, description, amm, eventId, spo
       >
         {odds}
       </button>
-      {sizedPrice?.size && sizedPrice.size !== "0" && <span>{formatDai(sizedPrice?.size).full}</span>}
+      {sizedPrice?.size && sizedPrice.size !== "0" && MarketTradable && <span>{formatDai(sizedPrice?.size).full}</span>}
     </div>
   );
 };
