@@ -169,7 +169,7 @@ const EventTableMain = ({ bets }: { [tx_hash: string]: ActiveBetType }) => {
               <span>{subHeading}</span>
             </li>
             <li>{wager === "0.00" ? "-" : formatCash(wager.replaceAll(',', ''), USDC).full}</li>
-            <li>{convertToOdds(convertToNormalizedPrice({ price }), oddsFormat).full}</li>
+            <li>{convertToOdds(convertToNormalizedPrice({ price: price || 0 }), oddsFormat).full}</li>
             <li>{toWin && toWin !== "0" ? formatCash(toWin.replaceAll(',', ''), USDC).full : "-"}</li>
             <li>{getMarketEndtimeFull(timestamp, timeFormat)}</li>
             <li>
