@@ -1655,7 +1655,9 @@ export const canAddLiquidity = (market: MarketInfo): boolean => {
 
 const marketFactories = (loadtype: string = MARKET_LOAD_TYPE.SIMPLIFIED): MarketFactory[] =>
   loadtype === MARKET_LOAD_TYPE.SPORT
-    ? PARA_CONFIG.marketFactories.filter((c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO)
+    ? PARA_CONFIG.marketFactories.filter(
+        (c) => c.type !== MARKET_FACTORY_TYPES.CRYPTO && c.type !== MARKET_FACTORY_TYPES.CRYPTO_CURRENCY
+      )
     : PARA_CONFIG.marketFactories;
 
 export const getMarketFactoryData = (marketFactoryAddress: string): MarketFactory => {

@@ -7,7 +7,6 @@ import {
   Icons,
   ButtonComps,
   Constants,
-  ContractCalls,
   LabelComps,
 } from "@augurproject/comps";
 import { Cash } from "@augurproject/comps/build/types";
@@ -19,7 +18,6 @@ import { PendingIcon } from "../betslip/betslip";
 const { SimpleCheck } = Icons;
 const { PrimaryThemeButton } = ButtonComps;
 const { TX_STATUS } = Constants;
-const { ammFactoryMarketNames } = ContractCalls;
 const { generateTooltip } = LabelComps;
 
 // const APPROVAL_NEEDED = `An Approval transaction is required to give contracts permission to accept your USDC. You only need to do this once per market type.`;
@@ -60,7 +58,6 @@ export const BuyApprovals = () => {
   } = useUserStore();
   const { bets } = useBetslipStore();
   const { cashes } = useDataStore();
-  const factoryNames = ammFactoryMarketNames();
   const [txHashes, setTxHashes] = useState<{ [address: string]: string }>({});
   const [needsApproval, setNeedsApproval] = useState<string[]>([]);
   const [allAmmFactoryAddresses, setAllAmmFactoryAddresses] = useState([]);
