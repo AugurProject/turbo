@@ -400,3 +400,44 @@
     padding: 0;
   }
 }
+
+.ModalSelection {
+  width: 100%;
+
+  > header {
+    .text-12-semi-bold;
+
+    background-color: var(--secondary-bg);
+    border-bottom: @size-1 solid var(--theme-border);
+    padding: @size-14;
+    text-transform: uppercase;
+  }
+
+  > main {
+    > ul {
+      padding: 0 @size-16;
+
+      > li {
+        .text-14;
+
+        color: var(--secondary-text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        padding: @size-12 0;
+        text-transform: capitalize;
+
+        &:not(:last-of-type) {
+          border-bottom: @size-1 solid var(--theme-border);
+        }
+
+        &.selected {
+          .text-14-bold;
+
+          color: var(--primary-text);
+        }
+      }
+    }
+  }
+}
