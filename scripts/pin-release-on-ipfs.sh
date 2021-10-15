@@ -15,7 +15,7 @@ echo "CIDv0: $IPFS_HASH_CIDv0";
 echo "CIDv1: $IPFS_HASH_CIDv1";
 
 rm -rf build;
-rm release.tar.gz;
+rm $APP.tar.gz;
 
 echo "Propagating Hash";
 curl --retry 100 "https://$IPFS_HASH_CIDv1.ipfs.dweb.link" ;
