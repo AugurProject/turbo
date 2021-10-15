@@ -47,7 +47,7 @@ jobs:
           yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
       - name: Compress action step
         uses: master-atul/tar-action@v1.0.2
-        id: compress
+        id: compress-turbo
         with:
           command: c
           cwd: ./packages/simplified/
@@ -56,7 +56,7 @@ jobs:
           outPath: turbo.tar.gz
       - name: Compress sporsbook action step
         uses: master-atul/tar-action@v1.0.2
-        id: compress
+        id: compress-sport
         with:
           command: c
           cwd: ./packages/sport/
