@@ -30,6 +30,7 @@ jobs:
       - run: yarn
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") yarn build
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" HIDE_FAUCET="true" yarn simp build
+      - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" HIDE_FAUCET="true" yarn sport build
       - run: yarn smart generate:environments
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v6.2
