@@ -40,7 +40,6 @@ export interface DropdownProps {
   preLabel?: string;
   preLabelClean?: boolean;
   dontCheckInvalid?: boolean;
-  isSquareDropdown?: boolean;
 }
 
 function findSelected(options, defaultVal) {
@@ -69,7 +68,6 @@ export const Dropdown = ({
   preLabel,
   preLabelClean,
   onChange,
-  isSquareDropdown,
 }: DropdownProps) => {
   const labelRef = useRef(null);
   const refDropdown = useRef(null);
@@ -143,7 +141,7 @@ export const Dropdown = ({
       </button>
       <div
         className={classNames({
-          [`${Styles.mobileOverlay}`]: isSquareDropdown && showList,
+          [`${Styles.mobileOverlay}`]: showList,
         })}
       >
         <div
@@ -186,7 +184,7 @@ export const Dropdown = ({
   );
 };
 
-export const SquareDropdown = (props: DropdownProps) => <Dropdown {...props} isSquareDropdown />;
+export const SquareDropdown = (props: DropdownProps) => <Dropdown {...props} />;
 
 export const SmallDropdown = (props: DropdownProps) => <Dropdown {...props} className={Styles.SmallDropdown} />;
 
