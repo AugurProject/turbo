@@ -7,14 +7,14 @@ import {
   MarketCreated,
   MarketResolved,
   WinningsClaimed,
-  SharesMinted
+  SharesMinted,
 } from "../../generated/GroupedMarketFactoryV3/GroupedMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted
+  getOrCreateSharesMinted,
 } from "../helpers/CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
@@ -40,7 +40,10 @@ function getOutcomeId(contractAddress: Address, marketId: BigInt, shareToken: st
   return bigIntToHexString(outcomeId);
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): GroupedMarketFactory__getMarketResultValue0Struct | null {
+function getMarket(
+  contractAddress: Address,
+  marketId: BigInt
+): GroupedMarketFactory__getMarketResultValue0Struct | null {
   let contract = GroupedMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let market: GroupedMarketFactory__getMarketResultValue0Struct | null;
@@ -195,7 +198,7 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     marketFactory: event.address,
     marketIndex: event.params.id,
     amount: event.params.amount,
-    receiver: event.params.receiver
+    receiver: event.params.receiver,
   };
   handleGenericSharesMintedEvent(params);
 }

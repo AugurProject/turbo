@@ -7,14 +7,15 @@ import {
   MmaMarketFactory as MmaMarketFactoryContract,
   MmaMarketFactory__getMarketResultValue0Struct,
   WinningsClaimed,
-  SharesMinted, SportsEventCreated
+  SharesMinted,
+  SportsEventCreated,
 } from "../../generated/MmaMarketFactoryV3/MmaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted
+  getOrCreateSharesMinted,
 } from "../helpers/CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
@@ -187,7 +188,7 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     marketFactory: event.address,
     marketIndex: event.params.id,
     amount: event.params.amount,
-    receiver: event.params.receiver
+    receiver: event.params.receiver,
   };
   handleGenericSharesMintedEvent(params);
 }

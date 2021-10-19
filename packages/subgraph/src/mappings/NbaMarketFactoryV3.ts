@@ -7,7 +7,7 @@ import {
   NbaMarketFactory as NbaMarketFactoryContract,
   NbaMarketFactory__getMarketResultValue0Struct,
   SharesMinted,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/NbaMarketFactoryV3/NbaMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
@@ -186,7 +186,7 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     marketFactory: event.address,
     marketIndex: event.params.id,
     amount: event.params.amount,
-    receiver: event.params.receiver
+    receiver: event.params.receiver,
   };
   handleGenericSharesMintedEvent(params);
 }

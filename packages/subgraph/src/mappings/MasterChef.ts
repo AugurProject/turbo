@@ -8,12 +8,12 @@ import {
   getOrCreateMarket,
   getOrCreateOutcomes,
   getOrCreateRemoveLiquidity,
-  getOrCreateSender
+  getOrCreateSender,
 } from "../helpers/AmmFactoryHelper";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
-  getOrCreatePositionBalance
+  getOrCreatePositionBalance,
 } from "../helpers/CommonHelper";
 
 export function handlePositionFromLiquidityChangedMasterChefEvent(
@@ -300,7 +300,11 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   sender.save();
 
   let masterChefContractInstance = MasterChefContract.bind(event.address);
-  let tryTotalSupply = masterChefContractInstance.try_getPoolLPTokenTotalSupply(event.params.ammFactory, event.params.marketFactory, event.params.marketId);
+  let tryTotalSupply = masterChefContractInstance.try_getPoolLPTokenTotalSupply(
+    event.params.ammFactory,
+    event.params.marketFactory,
+    event.params.marketId
+  );
   let totalSupply: BigInt | null = null;
   let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
 
