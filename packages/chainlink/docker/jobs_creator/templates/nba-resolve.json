@@ -1,0 +1,24 @@
+{
+  "name": "Augur | NBA Market Resolution - ${NBA_MARKET_FACTORY}",
+  "initiators": [
+    {
+      "type": "web"
+    }
+  ],
+  "tasks": [
+    {
+      "type": "augur-adapter",
+      "params": {
+        "sport": "nba",
+        "method": "resolve",
+        "startBuffer": 86400,
+        "affiliateIds": [
+          9,
+          3
+        ],
+        "daysInAdvance": 7,
+        "contractAddress": "${NBA_MARKET_FACTORY}"
+      }
+    }
+  ]
+}
