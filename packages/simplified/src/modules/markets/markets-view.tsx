@@ -56,12 +56,6 @@ const applyFiltersAndSort = (
   { filter, primaryCategory, subCategories, sortBy, currency, reportingState, showLiquidMarkets }
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
-
-  // // immediately sort by event id and turbo id.
-  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
-  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  // );
-
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
       const { title, description, categories, outcomes } = market;
