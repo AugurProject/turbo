@@ -57,10 +57,10 @@ const applyFiltersAndSort = (
 ) => {
   let updatedFilteredMarkets = passedInMarkets;
 
-  // immediately sort by event id and turbo id.
-  updatedFilteredMarkets = updatedFilteredMarkets.sort(
-    (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
-  );
+  // // immediately sort by event id and turbo id.
+  // updatedFilteredMarkets = updatedFilteredMarkets.sort(
+  //   (a, b) => Number(a.eventId + a.turboId) - Number(b.eventId + b.turboId)
+  // );
 
   if (filter !== "") {
     updatedFilteredMarkets = updatedFilteredMarkets.filter((market) => {
@@ -78,7 +78,10 @@ const applyFiltersAndSort = (
   }
 
   updatedFilteredMarkets = updatedFilteredMarkets.filter((market: MarketInfo) => {
-    if (showLiquidMarkets && (!market.amm || !market.amm.id || Number(market.amm.liquidityUSD) <= MIN_LIQUIDITY_AMOUNT)) {
+    if (
+      showLiquidMarkets &&
+      (!market.amm || !market.amm.id || Number(market.amm.liquidityUSD) <= MIN_LIQUIDITY_AMOUNT)
+    ) {
       return false;
     }
     if (
@@ -138,29 +141,32 @@ const applyFiltersAndSort = (
     }
     return true;
   });
+  if (reportingState === OPEN) {
+    if (sortBy !== STARTS_SOON) {
+      // if we aren't doing start time, then move illiquid markets to the back
+      // half of the list, also sort by start time ascending for those.
+      const sortedIlliquid = updatedFilteredMarkets
+        .filter((m) => m?.amm?.id === null)
+        .sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
 
-  if (sortBy !== STARTS_SOON) {
-    // if we aren't doing start time, then move illiquid markets to the back
-    // half of the list, also sort by start time ascending for those.
-    const sortedIlliquid = updatedFilteredMarkets
-      .filter((m) => m?.amm?.id === null)
-      .sort((a, b) => (a?.startTimestamp > b?.startTimestamp ? 1 : -1));
+      updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
+    }
 
-    updatedFilteredMarkets = updatedFilteredMarkets.filter((m) => m?.amm?.id !== null).concat(sortedIlliquid);
+    // Move games where the start time is < current time
+    const now = Date.now();
+    const isExpired = (market) => {
+      var thirtyHoursLaterMillis = market.startTimestamp
+        ? (market.startTimestamp + 30 * 60 * 60) * 1000
+        : market.endTimestamp;
+      return now >= thirtyHoursLaterMillis;
+    };
+
+    const expired = updatedFilteredMarkets.filter((m) => isExpired(m));
+    const scheduled = updatedFilteredMarkets.filter((m) => !isExpired(m));
+    setFilteredMarkets([...scheduled, ...expired]);
+  } else {
+    setFilteredMarkets(updatedFilteredMarkets);
   }
-
-  // Move games where the start time is < current time
-  const now = Date.now();
-  const isExpired = (market) => {
-    var thirtyHoursLaterMillis = market.startTimestamp
-      ? (market.startTimestamp + 30 * 60 * 60) * 1000
-      : market.endTimestamp;
-    return now >= thirtyHoursLaterMillis;
-  };
-
-  const expired = updatedFilteredMarkets.filter((m) => isExpired(m));
-  const scheduled = updatedFilteredMarkets.filter((m) => !isExpired(m));
-  setFilteredMarkets([...scheduled, ...expired]);
 };
 
 const SearchButton = (props) => (
