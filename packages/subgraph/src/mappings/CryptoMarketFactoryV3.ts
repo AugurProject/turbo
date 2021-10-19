@@ -7,14 +7,15 @@ import {
   MarketCreated,
   MarketResolved,
   WinningsClaimed,
-  SharesMinted, CryptoMarketFactory__getMarketDetailsResultValue0Struct
+  SharesMinted,
+  CryptoMarketFactory__getMarketDetailsResultValue0Struct,
 } from "../../generated/CryptoMarketFactoryV3/CryptoMarketFactory";
 import { getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntMillisToSeconds, bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted
+  getOrCreateSharesMinted,
 } from "../helpers/CommonHelper";
 import { handleGenericSharesMintedEvent } from "../helpers/CommonHandlers";
 import { GenericSharesMintedParams } from "../types";
@@ -52,7 +53,10 @@ function closeAllPositions(contractAddress: Address, marketIndex: BigInt, market
   }
 }
 
-function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketResultValue0Struct | null {
+function getMarket(
+  contractAddress: Address,
+  marketId: BigInt
+): CryptoMarketFactory__getMarketResultValue0Struct | null {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarket(marketId);
   let market: CryptoMarketFactory__getMarketResultValue0Struct | null = null;
@@ -62,7 +66,10 @@ function getMarket(contractAddress: Address, marketId: BigInt): CryptoMarketFact
   return market;
 }
 
-function getMarketDetails(contractAddress: Address, marketId: BigInt): CryptoMarketFactory__getMarketDetailsResultValue0Struct | null {
+function getMarketDetails(
+  contractAddress: Address,
+  marketId: BigInt
+): CryptoMarketFactory__getMarketDetailsResultValue0Struct | null {
   let contract = CryptoMarketFactoryContract.bind(contractAddress);
   let tryGetMarket = contract.try_getMarketDetails(marketId);
   let marketDetails: CryptoMarketFactory__getMarketDetailsResultValue0Struct | null = null;
@@ -210,7 +217,7 @@ export function handleSharesMintedEvent(event: SharesMinted): void {
     marketFactory: event.address,
     marketIndex: event.params.id,
     amount: event.params.amount,
-    receiver: event.params.receiver
+    receiver: event.params.receiver,
   };
   handleGenericSharesMintedEvent(params);
 }

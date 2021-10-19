@@ -7,7 +7,7 @@ import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted
+  getOrCreateSharesMinted,
 } from "./CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 
@@ -23,9 +23,7 @@ export function handlePositionFromTradeEvent(event: SharesSwapped): void {
   let buy = event.params.collateral < ZERO;
   let collateral = event.params.collateral.abs();
   let shares = event.params.shares.abs();
-  let sharesBigInt = buy
-    ? positionBalanceEntity.sharesBigInt + shares
-    : positionBalanceEntity.sharesBigInt - shares;
+  let sharesBigInt = buy ? positionBalanceEntity.sharesBigInt + shares : positionBalanceEntity.sharesBigInt - shares;
 
   positionBalanceEntity.positionFromAddLiquidity = false;
   positionBalanceEntity.positionFromRemoveLiquidity = false;
@@ -146,7 +144,14 @@ export function handlePositionFromLiquidityChangedEvent(
 }
 
 export function handleGenericSharesMintedEvent(params: GenericSharesMintedParams): void {
-  let id = params.hash.toHexString() + "-" + params.marketFactory.toHexString() + "-" + params.marketIndex.toString() + "-" + params.receiver.toHexString();
+  let id =
+    params.hash.toHexString() +
+    "-" +
+    params.marketFactory.toHexString() +
+    "-" +
+    params.marketIndex.toString() +
+    "-" +
+    params.receiver.toHexString();
   let entity = getOrCreateSharesMinted(id, true, false);
   entity.transactionHash = params.hash.toHexString();
   entity.timestamp = params.timestamp;

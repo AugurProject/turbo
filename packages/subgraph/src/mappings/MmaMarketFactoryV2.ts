@@ -6,7 +6,7 @@ import {
   MarketResolved,
   MmaMarketFactory as MmaMarketFactoryContract,
   SettlementFeeClaimed,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/MmaMarketFactoryV2/MmaMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";

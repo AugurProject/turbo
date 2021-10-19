@@ -1,14 +1,14 @@
-declare module '*.less' {
+declare module "*.less" {
   const resource: { [key: string]: string };
   export = resource;
 }
 
-declare module '*.png' {
+declare module "*.png" {
   const value: any;
   export default value;
 }
 
-declare module '*.svg' {
+declare module "*.svg" {
   const value: any;
   export default value;
 }

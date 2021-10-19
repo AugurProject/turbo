@@ -23,7 +23,7 @@ import { CategoriesArea } from "../categories/categories";
 const {
   ButtonComps: { TinyThemeButton },
   LabelComps: { generateTooltip },
-  Icons: { GearIcon, SharpThreeLinesIcon, SimpleCheck, XIcon },
+  Icons: { GearIcon, SharpThreeLinesIcon, SimpleCheck, XIcon, USDCIcon },
   Links: { MarketsLink },
   SelectionComps: { ThemeSettingsLabel },
 } = Components;
@@ -303,7 +303,7 @@ export const TopNav = () => {
       </section>
       <section>
         <div>
-          {isLogged && <span>{usdValueUSDC}</span>}
+          {isLogged && <span>{usdValueUSDC}{USDCIcon}</span>}
           <ConnectAccount
             {...{
               updateLoginAccount: handleAccountUpdate,
