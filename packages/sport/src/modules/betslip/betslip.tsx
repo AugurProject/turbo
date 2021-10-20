@@ -29,7 +29,7 @@ import { determineClasses } from "modules/common/tables";
 const { PrimaryThemeButton, SecondaryThemeButton, TinyThemeButton } = ButtonComps;
 const { makePath } = PathUtils;
 const { MODAL_CONNECT_WALLET, TX_STATUS, PORTFOLIO, ZERO, SIDEBAR_TYPES, USDC } = Constants;
-const { SimpleCheck, SimpleChevron, XIcon, USDCIcon } = Icons;
+const { SimpleCheck, SimpleChevron, XIcon } = Icons;
 const { getDateTimeFormat } = DateUtils;
 const { formatDai, formatCash } = Formatter;
 const { convertToNormalizedPrice, convertToOdds } = OddsUtils;
@@ -644,8 +644,8 @@ const BetslipFooter = () => {
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}{USDCIcon}</b> to win{" "}
-            {isInvalid ? <b>-</b> : <b>{formatDai(totalToWin).full}{USDCIcon}</b>}
+          You're betting <b>{formatDai(totalWager).full}</b> to win{" "}
+            <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b>
           </p>
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />
           <PrimaryThemeButton
