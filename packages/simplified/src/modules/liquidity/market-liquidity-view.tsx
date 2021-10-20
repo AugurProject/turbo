@@ -166,7 +166,10 @@ const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmo
 
 const LiquidityWarningFooter = () => (
   <article className={Styles.LiquidityWarningFooter}>
-    <span>{WarningIcon} Remove liquidity before the winning outcome is known to prevent any loss of funds</span>
+    <span>
+      {WarningIcon} Remove liquidity before the winning outcome is known. Failure to do so can result in a total loss of
+      funds.
+    </span>
   </article>
 );
 
@@ -207,7 +210,8 @@ const getCreateBreakdown = (breakdown, market, balances, isRemove = false) => {
   ];
   const userRewards = balances?.pendingRewards?.[market.marketId];
   const pendingRewards = userRewards ? userRewards.balance : "0";
-  const bonusRewards = userRewards && (new Date().getTime() / 1000) >= userRewards.endBonusTimestamp ? userRewards.pendingBonusRewards : "0";
+  const bonusRewards =
+    userRewards && new Date().getTime() / 1000 >= userRewards.endBonusTimestamp ? userRewards.pendingBonusRewards : "0";
   const totalRewards = new BN(pendingRewards).plus(new BN(bonusRewards));
   if (totalRewards.gt(ZERO)) {
     fullBreakdown.push({
@@ -227,7 +231,14 @@ const getMintBreakdown = (outcomes, amount) => {
   }));
 };
 
-const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPageAction, amount, setAmount }: LiquidityFormProps) => {
+const LiquidityForm = ({
+  market,
+  selectedAction,
+  setSelectedAction,
+  BackToLPPageAction,
+  amount,
+  setAmount,
+}: LiquidityFormProps) => {
   const {
     account,
     balances,
@@ -257,8 +268,9 @@ const LiquidityForm = ({ market, selectedAction, setSelectedAction, BackToLPPage
   const userTokenBalance = cash?.name ? balances[cash?.name]?.balance : "0";
   const shareBalance =
     balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].balance;
-  const liquidityUSD = 
-    (balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue) || "0";
+  const liquidityUSD =
+    (balances && balances.lpTokens && balances.lpTokens[amm?.marketId] && balances.lpTokens[amm?.marketId].usdValue) ||
+    "0";
   const userMaxAmount = isRemove ? shareBalance : userTokenBalance;
   const approvedToTransfer = ApprovalState.APPROVED;
   const isApprovedToTransfer = approvedToTransfer === ApprovalState.APPROVED;
@@ -680,6 +692,8 @@ const confirmAction = async ({
   }
 };
 
+const MIN_LIQUIDITY_ADD_AMOUNT = "200.00";
+
 const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped, userMaxAmount, account }) => {
   let buttonError = "";
   let inputFormError = "";
@@ -699,7 +713,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped,
   if (!account) inputFormError = CONNECT_ACCOUNT;
   else if (!amount || amount === "0" || amount === "") inputFormError = ENTER_AMOUNT;
   else if (new BN(amount).gt(new BN(userMaxAmount))) inputFormError = INSUFFICIENT_BALANCE;
-  else if (actionType === CREATE) {
+  else if ([CREATE, ADD].includes(actionType)) {
     let totalPrice = ZERO;
     outcomes.forEach((outcome) => {
       const price = createBigNumber(outcome.price || 0);
@@ -716,9 +730,9 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped,
     if (inputFormError === "" && !total.eq(ONE) && !isGrouped) {
       buttonError = INVALID_PRICE;
     }
-    const minimumAmount = "100";
     if (amount) {
-      if (new BN(amount).lt(new BN(minimumAmount))) buttonError = `$${minimumAmount} Minimum deposit`;
+      if (new BN(amount).lt(new BN(MIN_LIQUIDITY_ADD_AMOUNT)))
+        buttonError = `$${MIN_LIQUIDITY_ADD_AMOUNT} Minimum deposit`;
     }
   }
 
