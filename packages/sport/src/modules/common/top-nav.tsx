@@ -335,6 +335,7 @@ export const TopNav = () => {
             />
           </svg>
         </MarketsLink>
+        {isLogged && <span>{usdValueUSDC}{USDCIcon}</span>}
         <button
           onClick={() => {
             selectedView !== ACTIVE_BETS && toggleSelectedView();
