@@ -263,7 +263,7 @@ export const TopNav = () => {
 
   const usdValueUSDC = useMemo(
     () =>
-      formatCash(balances?.USDC?.usdValue || 0, USDC, {
+      formatCash(10 || balances?.USDC?.usdValue || 0, USDC, {
         bigUnitPostfix: true,
       }).full,
     [balances?.USDC?.usdValue]
