@@ -143,7 +143,6 @@
           display: flex;
           align-items: center;
 
-          // style USDCIcon
           > svg {
             width: @size-16;
             height: @size-16;
@@ -208,6 +207,22 @@
         justify-content: center;
       }
 
+      > span {
+        .text-16-bold;
+
+        color: var(--inverted-primary-text);
+          margin-right: @size-16;
+          margin-left: @size-24;
+          display: flex;
+          align-items: center;
+
+          > svg {
+            width: @size-16;
+            height: @size-16;
+            margin-left: @size-4;
+          }
+      }
+
       > button:first-of-type {
         background: transparent;
         border: 0;
@@ -267,15 +282,6 @@
 
     > section {
       display: none;
-      // &:last-of-type {
-      //   display: unset;
-      //   > div:first-of-type {
-      //     display: flex;
-      //     > span {
-            
-      //     }
-      //   }
-      // }
     }
   }
 }
