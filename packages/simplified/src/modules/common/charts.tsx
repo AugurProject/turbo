@@ -453,7 +453,7 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
 });
 
 export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) =>
-  orderOutcomesForDisplay(amm.ammOutcomes).map((outcome, outcomeIdx) => ({
+  orderOutcomesForDisplay(amm.ammOutcomes, amm?.market?.marketFactoryType).map((outcome, outcomeIdx) => ({
     ...outcome,
     outcomeIdx,
     label: (outcome?.name).toLowerCase(),
