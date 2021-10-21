@@ -269,7 +269,6 @@ const Outcome = ({
             action={() => {
               const curValue = new BN(customVal !== "" ? customVal : "0");
               const newValue = curValue.plus(1);
-
               if (!newValue.isNaN() && newValue.lte(99)) {
                 const value = newValue.toFixed();
                 if (newValue.lt(10)) {
