@@ -226,7 +226,12 @@ export const PriceHistoryChart = ({
     };
   }, []);
 
-  return <section className={Styles.PriceHistoryChart} ref={container} />;
+  return (
+    <section
+      className={Styles.PriceHistoryChart}
+      ref={container}
+    />
+  );
 };
 
 export const SelectOutcomeButton = ({
@@ -267,6 +272,7 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
     setSelectedOutcomes(updates);
   };
   const marketHasNoLiquidity = !market.amm?.id && !market.hasWinner;
+  const hasInvalid = formattedOutcomes.find((outcome) => outcome.isInvalid);
   return (
     <section className={Styles.SimpleChartSection}>
       <MultiButtonSelection
@@ -294,14 +300,16 @@ export const SimpleChartSection = ({ market, cash, transactions }) => {
             <SelectOutcomeButton
               key={`${outcome.id}_${outcome.name}`}
               cash={cash}
-              outcome={outcome}
+              outcome={hasInvalid ? outcome : { ...outcome, id: outcome.id + 1 }}
               toggleSelected={toggleOutcome}
               isSelected={selectedOutcomes[outcome.outcomeIdx]}
             />
           )
         )}
       </div>
-      {formattedOutcomes.length > 6 && <button onClick={() => setShowMore(!showMore)} >{`View ${showMore ? "Less" : "More"}`}</button>}
+      {formattedOutcomes.length > 6 && (
+        <button onClick={() => setShowMore(!showMore)}>{`View ${showMore ? "Less" : "More"}`}</button>
+      )}
     </section>
   );
 };
@@ -311,6 +319,7 @@ export default SimpleChartSection;
 // helper functions:
 const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostRecentTradetime = 0) => {
   const series: any[] = [];
+  const hasInvalid = formattedOutcomes.find((outcome) => outcome.isInvalid);
   priceTimeArray.forEach((priceTimeData, index) => {
     const length = priceTimeData.length;
     const isSelected = selectedOutcomes[index];
@@ -330,10 +339,10 @@ const handleSeries = (priceTimeArray, selectedOutcomes, formattedOutcomes, mostR
           lineWidth: isSelected ? HIGHLIGHTED_LINE_WIDTH : NORMAL_LINE_WIDTH,
         },
       },
-      color: SERIES_COLORS[outcome.id],
+      color: SERIES_COLORS[hasInvalid ? outcome.id : outcome.id + 1],
       fillColor: {
         linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-        stops: SERIES_GRADIENTS[outcome.id],
+        stops: SERIES_GRADIENTS[hasInvalid ? outcome.id : outcome.id + 1],
       },
       marker: {
         enabled: false,
@@ -444,7 +453,7 @@ const getOptions = ({ maxPrice = createBigNumber(1), minPrice = createBigNumber(
 });
 
 export const getFormattedOutcomes = ({ market: { amm } }: { market: MarketInfo }) =>
-  orderOutcomesForDisplay(amm.ammOutcomes).map((outcome, outcomeIdx) => ({
+  orderOutcomesForDisplay(amm.ammOutcomes, amm?.market?.marketFactoryType).map((outcome, outcomeIdx) => ({
     ...outcome,
     outcomeIdx,
     label: (outcome?.name).toLowerCase(),
