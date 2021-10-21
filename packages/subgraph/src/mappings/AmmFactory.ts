@@ -2,7 +2,7 @@ import {
   AmmFactory as AmmFactoryContract,
   LiquidityChanged,
   PoolCreated,
-  SharesSwapped
+  SharesSwapped,
 } from "../../generated/AmmFactory/AmmFactory";
 import { BPool as BPoolContract } from "../../generated/AmmFactory/BPool";
 import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
@@ -15,7 +15,7 @@ import {
   getOrCreateOutcomes,
   getOrCreateRemoveLiquidity,
   getOrCreateSender,
-  getOrCreateTrade
+  getOrCreateTrade,
 } from "../helpers/AmmFactoryHelper";
 import { handlePositionFromLiquidityChangedEvent, handlePositionFromTradeEvent } from "../helpers/CommonHandlers";
 import { getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance } from "../helpers/CommonHelper";

@@ -6,7 +6,7 @@ import {
   MarketResolved,
   NflMarketFactory as NflMarketFactoryContract,
   SettlementFeeClaimed,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/NflMarketFactoryV2/NflMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";

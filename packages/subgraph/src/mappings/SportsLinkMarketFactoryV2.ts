@@ -6,7 +6,7 @@ import {
   MarketResolved,
   SettlementFeeClaimed,
   SportsLinkMarketFactory as SportsLinkMarketFactoryContract,
-  WinningsClaimed
+  WinningsClaimed,
 } from "../../generated/SportsLinkMarketFactoryV2/SportsLinkMarketFactory";
 import { getOrCreateClaimedFees, getOrCreateClaimedProceeds } from "../helpers/AbstractMarketFactoryHelper";
 import { bigIntToHexString, SHARES_DECIMALS, USDC_DECIMALS } from "../utils";

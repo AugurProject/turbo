@@ -139,7 +139,11 @@ export const Dropdown = ({
         </span>
         {SimpleChevron}
       </button>
-      <div>
+      <div
+        className={classNames({
+          [`${Styles.mobileOverlay}`]: showList,
+        })}
+      >
         <div
           className={classNames(Styles.list, {
             [`${Styles.active}`]: showList,

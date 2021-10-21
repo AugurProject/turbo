@@ -644,7 +644,7 @@ const BetslipFooter = () => {
       {onBetslip ? (
         <>
           <p>
-            You're betting <b>{formatDai(totalWager).full}</b> to win{" "}
+          You're betting <b>{formatDai(totalWager).full}</b> to win{" "}
             <b>{isInvalid ? "-" : formatDai(totalToWin).full}</b>
           </p>
           <SecondaryThemeButton text="Cancel All" icon={TrashIcon} reverseContent action={() => cancelAllBets()} />

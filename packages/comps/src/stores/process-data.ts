@@ -299,7 +299,7 @@ const prepareRemoveLiquidity = (transactions, market: MarketInfo, cash: Cash) =>
       bigUnitPostfix: false,
     }).full;
     const processed = sharedProcessed(remove, market, cash);
-    processed.tx_type = TransactionTypes.ADD_LIQUIDITY;
+    processed.tx_type = TransactionTypes.REMOVE_LIQUIDITY;
     processed.sender = remove.sender.id;
     processed.displayShares = lpTokens;
     processed.displayCollateral = formatCash(String(collateral.abs()), cash.name);

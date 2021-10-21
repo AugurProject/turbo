@@ -5,7 +5,7 @@ import {
   MmaMarket,
   NbaMarket,
   NflMarket,
-  TeamSportsMarket
+  TeamSportsMarket,
 } from "../../generated/schema";
 
 export function getOrCreateTeamSportsMarket(
@@ -130,7 +130,11 @@ export function getOrCreateNbaMarket(id: string, createIfNotFound: boolean = tru
   return entity as NbaMarket;
 }
 
-export function getOrCreateGroupedMarket(id: string, createIfNotFound: boolean = true, save: boolean = true): GroupedMarket {
+export function getOrCreateGroupedMarket(
+  id: string,
+  createIfNotFound: boolean = true,
+  save: boolean = true
+): GroupedMarket {
   let entity = GroupedMarket.load(id);
 
   if (entity == null && createIfNotFound) {
