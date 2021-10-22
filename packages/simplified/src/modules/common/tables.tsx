@@ -266,10 +266,10 @@ export const PositionFooter = ({
         });
       });
   };
-  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares) !== "0";
+  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares, amm?.ammOutcomes) !== "0";
 
   if (!claimableWinnings && !showTradeButton && !hasCompleteSets) return null;
-
+  
   return (
     <div className={Styles.PositionFooter}>
       <span>

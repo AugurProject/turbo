@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import Styles from "./market-view.styles.less";
-import ButtonStyles from '../common/buttons.styles.less';
+import ButtonStyles from "../common/buttons.styles.less";
 import classNames from "classnames";
 import SimpleChartSection from "../common/charts";
 import { PositionsLiquidityViewSwitcher, TransactionsTable } from "../common/tables";
@@ -142,9 +142,9 @@ const MarketView = ({ defaultMarket = null }) => {
   const { cashes, markets, ammExchanges, transactions } = useDataStore();
   useScrollToTopOnMount();
   const market: MarketInfo = !!defaultMarket ? defaultMarket : markets[marketId];
-
-  const selectedOutcome = market ? market.outcomes[1] : DefaultMarketOutcomes[1];
   const amm: AmmExchange = ammExchanges[marketId];
+  const hasInvalid = Boolean(amm?.ammOutcomes.find((o) => o.isInvalid));
+  const selectedOutcome = market ? (hasInvalid ? market.outcomes[1] : market.outcomes[0]) : DefaultMarketOutcomes[1];
 
   useEffect(() => {
     if (!market) {
@@ -163,7 +163,7 @@ const MarketView = ({ defaultMarket = null }) => {
   useEffect(() => {
     if (timeoutId && market) {
       clearTimeout(timeoutId);
-      timeoutId = null
+      timeoutId = null;
     }
   }, [market]);
 
@@ -240,7 +240,11 @@ const MarketView = ({ defaultMarket = null }) => {
           <span>Transactions</span>
           <TransactionsTable transactions={marketTransactions} />
         </div>
-        <SecondaryThemeButton text="Buy / Sell" action={() => setShowTradingForm(true)} customClass={ButtonStyles.BuySellButton} />
+        <SecondaryThemeButton
+          text="Buy / Sell"
+          action={() => setShowTradingForm(true)}
+          customClass={ButtonStyles.BuySellButton}
+        />
       </section>
       <section
         className={classNames({
