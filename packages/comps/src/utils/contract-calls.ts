@@ -650,7 +650,7 @@ export const cashOutAllShares = (
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[], ammOutcomes): string => {
-  const shares = (ammOutcomes|| []).map((s, i) => new BN(outcomeShares[i] || "0"));
+  const shares = (ammOutcomes || []).map((s, i) => new BN(outcomeShares[i] || "0"));
   const amount = BigNumber.min(...shares);
   if (isNaN(Number(amount.toFixed()))) return "0";
   const isDust = amount.lte(DUST_POSITION_AMOUNT);
@@ -1029,8 +1029,8 @@ export const getUserBalances = async (
           userBalances[collection][marketId] = {
             ammExchange: exchange,
             positions: [],
-            outcomeSharesRaw: [],
-            outcomeShares: [],
+            outcomeSharesRaw: exchange.ammOutcomes.map((o) => null) || [],
+            outcomeShares: exchange.ammOutcomes.map((o) => null) || [],
           };
           // calc user position here **
           const position = getPositionUsdValues(
