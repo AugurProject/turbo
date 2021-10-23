@@ -71,6 +71,6 @@ jobs:
           files: |
             LICENSE
             sport.tar.gz
-            release.tar.gz
+            turbo.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
