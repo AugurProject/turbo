@@ -266,17 +266,18 @@ export const PositionFooter = ({
         });
       });
   };
-  const hasCompleteSets = getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares, amm?.ammOutcomes) !== "0";
+  const hasCompleteSets =
+    getCompleteSetsAmount(balances?.marketShares[marketId]?.outcomeShares, amm?.ammOutcomes) !== "0";
 
   if (!claimableWinnings && !showTradeButton && !hasCompleteSets) return null;
-  
+
   return (
     <div className={Styles.PositionFooter}>
       <span>
         {claimableWinnings && <p>{`${formatPercent(settlementFee).full} fee charged on settlement`}</p>}
         {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
       </span>
-      {hasCompleteSets && (
+      {hasCompleteSets && !hasWinner && (
         <PrimaryThemeButton
           text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
           action={cashOut}
@@ -298,9 +299,9 @@ export const PositionFooter = ({
           />
         </>
       )}
-      {showTradeButton && !hasWinner && (
+      {showTradeButton && (
         <MarketLink id={marketId} ammId={amm?.id}>
-          <SecondaryThemeButton text="trade" />
+          <SecondaryThemeButton text={!hasWinner ? "trade" : "view"} />
         </MarketLink>
       )}
     </div>
@@ -328,8 +329,7 @@ const applyFiltersAndSort = (passedInPositions, filter, setFilteredMarketPositio
     updatedFilteredPositions.sort((a, b) => (a?.claimableWinnings?.claimableBalance ? -1 : 1));
   }
   setFilteredMarketPositions(updatedFilteredPositions);
-}
-
+};
 
 export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const {
@@ -341,7 +341,6 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   const [filter, setFilter] = useState("");
   const [filteredMarketPositions, setFilteredMarketPositions] = useState([]);
 
-  
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
         ammExchange: AmmExchange;
@@ -349,13 +348,10 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
         claimableWinnings: Winnings;
         outcomeShares?: string[];
       }[]).filter(
-        (position) => {
-          const hasCompleteSets = getCompleteSetsAmount(position.outcomeShares, position.ammExchange.ammOutcomes) !== "0";
-          return hasCompleteSets ||
+        (position) =>
           showResolvedPositions ||
           position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner);
-        }
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
       )
     : [];
 
@@ -383,10 +379,17 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
     );
   });
 
-  return <>
-    <SearchInput placeHolder="Search Positions" value={filter} onChange={(e) => setFilter(e.target.value)} clearValue={() => setFilter("")} />
-    {positionVis}
-  </>;
+  return (
+    <>
+      <SearchInput
+        placeHolder="Search Positions"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        clearValue={() => setFilter("")}
+      />
+      {positionVis}
+    </>
+  );
 };
 
 export const PositionTable = ({
