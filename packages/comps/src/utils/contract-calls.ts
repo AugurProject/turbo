@@ -1109,7 +1109,7 @@ const populateClaimableWinnings = (
 ): void => {
   finalizedAmmExchanges.reduce((p, amm) => {
     const market = finalizedMarkets[amm.marketId];
-    const winningOutcome = market?.outcomes?.[market?.winner];
+    const winningOutcome = market.hasWinner ? market.outcomes[market.winner] : null;
     if (winningOutcome) {
       const outcomeBalances = marketShares[amm.marketId];
       const userShares = outcomeBalances?.positions.find((p) => p.outcomeId === winningOutcome.id);

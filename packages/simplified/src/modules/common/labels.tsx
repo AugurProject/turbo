@@ -41,16 +41,16 @@ export const AppViewStats = ({ small = false, liquidity = false, trading = false
   const totalAccountValue = useMemo(
     () =>
       handleValue(
-        isLogged ? (showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly) : 0
+        isLogged ? (showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValue) : 0
       ),
-    [isLogged, showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly]
+    [isLogged, showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValue]
   );
   const positionsValue = useMemo(
     () =>
       handleValue(
-        isLogged ? (showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly) : 0
+        isLogged ? (showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsd) : 0
       ),
-    [isLogged, showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly]
+    [isLogged, showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsd]
   );
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
   const usdValueLP = useMemo(() => handleValue(balances?.totalCurrentLiquidityUsd || 0), [
