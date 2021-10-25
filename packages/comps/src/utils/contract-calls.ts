@@ -650,6 +650,7 @@ export const cashOutAllShares = (
 };
 
 export const getCompleteSetsAmount = (outcomeShares: string[], ammOutcomes): string => {
+  if (!outcomeShares) return "0";
   const shares = (ammOutcomes || []).map((s, i) => new BN(outcomeShares[i] || "0"));
   const amount = BigNumber.min(...shares);
   if (isNaN(Number(amount.toFixed()))) return "0";
