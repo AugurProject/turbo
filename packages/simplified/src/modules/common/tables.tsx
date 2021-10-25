@@ -276,7 +276,7 @@ export const PositionFooter = ({
         {claimableWinnings && <p>{`${formatPercent(settlementFee).full} fee charged on settlement`}</p>}
         {hasCompleteSets && <p>No fee charged when cashing out shares</p>}
       </span>
-      {hasCompleteSets && !hasWinner && (
+      {hasCompleteSets && (
         <PrimaryThemeButton
           text={pendingCashOut ? AWAITING_CONFIRM : "Cash Out Shares"}
           action={cashOut}
@@ -298,7 +298,7 @@ export const PositionFooter = ({
           />
         </>
       )}
-      {showTradeButton && (
+      {showTradeButton && !hasWinner && (
         <MarketLink id={marketId} ammId={amm?.id}>
           <SecondaryThemeButton text="trade" />
         </MarketLink>
@@ -340,16 +340,22 @@ export const AllPositionTable = ({ page, claimableFirst = false }) => {
   } = useSimplifiedStore();
   const [filter, setFilter] = useState("");
   const [filteredMarketPositions, setFilteredMarketPositions] = useState([]);
+
+  
   const positions = marketShares
     ? ((Object.values(marketShares).filter((s) => s.positions.length) as unknown[]) as {
         ammExchange: AmmExchange;
         positions: PositionBalance[];
         claimableWinnings: Winnings;
+        outcomeShares?: string[];
       }[]).filter(
-        (position) =>
+        (position) => {
+          const hasCompleteSets = getCompleteSetsAmount(position.outcomeShares, position.ammExchange.ammOutcomes) !== "0";
+          return hasCompleteSets ||
           showResolvedPositions ||
           position?.claimableWinnings ||
-          (!showResolvedPositions && !position.ammExchange.market.hasWinner)
+          (!showResolvedPositions && !position.ammExchange.market.hasWinner);
+        }
       )
     : [];
 
