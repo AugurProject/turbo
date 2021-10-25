@@ -12,7 +12,6 @@ import {
 } from "@augurproject/comps";
 // @ts-ignore
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
-import { useSimplifiedStore } from "modules/stores/simplified";
 
 const { formatToken } = Formatter;
 const { getMaticUsdPrice } = ContractCalls;
@@ -33,10 +32,6 @@ const handleValue = (value, cashName = USDC) =>
 
 export const AppViewStats = ({ small = false, liquidity = false, trading = false }) => {
   const { isLogged } = useAppStatusStore();
-  const {
-    settings: { showResolvedPositions },
-  } = useSimplifiedStore();
-
   const { balances } = useUserStore();
   const totalAccountValue = useMemo(
     () =>
