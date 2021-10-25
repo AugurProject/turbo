@@ -12,7 +12,6 @@ import {
 } from "@augurproject/comps";
 // @ts-ignore
 import MetamaskIcon from "../ConnectAccount/assets/metamask.png";
-import { useSimplifiedStore } from "modules/stores/simplified";
 
 const { formatToken } = Formatter;
 const { getMaticUsdPrice } = ContractCalls;
@@ -33,24 +32,20 @@ const handleValue = (value, cashName = USDC) =>
 
 export const AppViewStats = ({ small = false, liquidity = false, trading = false }) => {
   const { isLogged } = useAppStatusStore();
-  const {
-    settings: { showResolvedPositions },
-  } = useSimplifiedStore();
-
   const { balances } = useUserStore();
   const totalAccountValue = useMemo(
     () =>
       handleValue(
-        isLogged ? (showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly) : 0
+        isLogged ? balances?.totalAccountValue : 0
       ),
-    [isLogged, showResolvedPositions ? balances?.totalAccountValue : balances?.totalAccountValueOpenOnly]
+    [isLogged, balances?.totalAccountValue]
   );
   const positionsValue = useMemo(
     () =>
       handleValue(
-        isLogged ? (showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly) : 0
+        isLogged ? balances?.totalPositionUsd : 0
       ),
-    [isLogged, showResolvedPositions ? balances?.totalPositionUsd : balances?.totalPositionUsdOpenOnly]
+    [isLogged, balances?.totalPositionUsd]
   );
   const usdValueUSDC = useMemo(() => handleValue(balances?.USDC?.usdValue || 0), [balances?.USDC?.usdValue]);
   const usdValueLP = useMemo(() => handleValue(balances?.totalCurrentLiquidityUsd || 0), [
