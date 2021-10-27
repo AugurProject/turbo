@@ -1,70 +1,51 @@
-# Getting Started with Create React App
+# Augur Comps
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Augur Comps are a collection of react components, react hooks, contract calls, and generally shared code between the two Augur Turbo UIs: Simplified UI (aka Augur Turbo) and the Sports UI (aka Augur Sportsbook).
 
-## Available Scripts
+## General Use
+When developing locally, you will want to run two commands for augur comps to ensure it watches and updates any changes you make to the UI. These commands should be run from the top level `augur` folder:
 
-In the project directory, you can run:
+```yarn comps types:watch```
 
-### `yarn start`
+and
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```yarn comps transpile:watch```.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Once these commands are watching the comps folder, any updates you make to comps will rebuild the file you changed and reload the UI. This is a great help when trying to implement a new feature or fix a bug in the UI.
 
-### `yarn test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## How to Import Comps
+In the index.tsx file we export any tools or components we plan to expose to the Augur UIs. Some things are exported in more than one spot for convience when importing multiple pieces of Augur Comps into an Augur UI. So you may find it easier to do something like this:
 
-### `yarn build`
+```
+import { useDataStore } from '@augurproject/comps'
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+or you may choose the alternate import if you plan to import multiple things from the Stores section of Comps:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+import { Stores } from '@augurproject/comps'
+const {
+  Data: { useDataStore },
+  User: { useUserStore },
+  AppStatus: { useAppStatusStore },
+} = Stores;
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Whichever import you choose is really dependant on personal preference/code style, either one will provide you with the same `useDataStore` hook in this example, with the second example also providing additional hooks.
 
-### `yarn eject`
+## Apollo
+The Apollo folder contains code used to describe queries used in the UIs and connection code for connecting to the Augur Subgraph. This data is used to populate historical information like profit and loss of an older trade for example.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Assets
+The Assets folder contains shared fonts, images, and baseline shared styles across the UIs. Things like theme colors and preset responsive breakpoints are setup here.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Components
+The Components folder contains common components used across both UIs. Examples include dropdown menus, buttons, labels, the connect account area, and more.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Stores
+The Stores folder contains hooks and stores that are shared across both UIs. An example would be the User Store which contains information related to the logged in user, like their balances or approval status for a certain action. Some of these stores assume a certain order or that other stores will exist. User and Data for example interact in this way where the data store expects the User Store to be present as well as AppStatusStore. The stores are roughly broken up into logical seperation of concerns. App Status Store cares about things like are we logged in, are we in a mobile view, do we have an modals showing -- etc. Things that are agnostic to the UI but are genrally things you may want to track for various interactions or ui states. Data Store is where you will find things like Markets, Market Transactions, AMMs, etc.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Utils
+The Utils folder contains various utility functions ranging from date manipulation, to formatting cash values for display, to processing data from the calls to the fetcher. Utils also contains shared link function for the various UIs as well as the Link components. You can also find the `contract-calls.ts` in the Utils folder. Please refer to the [README.md](src/utils/README.md) in `src/utils/` in order to learn more about the various Contract Calls available.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
