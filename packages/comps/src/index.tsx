@@ -39,7 +39,6 @@ import {
   getCategoryIconLabel,
   CATEGORIES_ICON_MAP as _CATEGORIES_ICON_MAP,
 } from "./components/common/category-icons-map";
-import _GraphDataStore, { useGraphDataStore, GraphDataStore } from "./stores/graph-data";
 import _DataStore, { useDataStore, DataStore } from "./stores/data";
 import _UserDataStore, { useUserStore, UserStore } from "./stores/user";
 import _AppStatusStore, { useAppStatusStore, AppStatusStore } from "./stores/app-status";
@@ -78,7 +77,6 @@ export const GraphClient = _GraphClient;
 export const Stores = {
   AppStatus: _AppStatusStore,
   Data: _DataStore,
-  GraphData: _GraphDataStore,
   User: _UserDataStore,
   ConnectAccount: {
     ConnectAccountProvider: _ConnectAccountProvider,
@@ -86,7 +84,6 @@ export const Stores = {
   Hooks: {
     useAppStatusStore,
     useUserStore,
-    useGraphDataStore,
     useDataStore,
     useCanExitCashPosition,
     useCanEnterCashPosition,
@@ -175,10 +172,8 @@ export {
   useUserBalances,
   useFinalizeUserTransactions,
   useScrollToTopOnMount,
-  useGraphDataStore,
   useApprovalStatus,
   useDataStore,
-  GraphDataStore,
   useHandleTheming,
   DataStore,
   createBigNumber,

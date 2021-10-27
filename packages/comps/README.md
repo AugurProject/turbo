@@ -26,9 +26,9 @@ or you may choose the alternate import if you plan to import multiple things fro
 ```
 import { Stores } from '@augurproject/comps'
 const {
-  useDataStore,
-  useUserStore,
-  useAppStatus,
+  Data: { useDataStore },
+  User: { useUserStore },
+  AppStatus: { useAppStatusStore },
 } = Stores;
 ```
 
