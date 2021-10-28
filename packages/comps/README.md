@@ -32,7 +32,7 @@ const {
 } = Stores;
 ```
 
-Whichever import you choose is really dependant on personal preference/code style, either one will provide you with the same `useDataStore` hook in this example, with the second example also providing additional hooks.
+Whichever import you choose is really dependent on personal preference/code style, either one will provide you with the same `useDataStore` hook in this example, with the second example also providing additional hooks.
 
 ## Apollo
 The Apollo folder contains code used to describe queries used in the UIs and connection code for connecting to the Augur Subgraph. This data is used to populate historical information like profit and loss of an older trade for example.

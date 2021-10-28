@@ -12,3 +12,6 @@ yarn simp start
 
 The default port is 3000, if this is taken the script will prompt the user to try 3001. Now any changes you make to the code will be watched, rebuilt, and refreshed for you in your browser.
 
+## Assets
+
+The Assets folder contains fonts, images, and most importantly the styles folder. The Styles folder contains the UI wide variables like theme coloring and some sizing for things such as a gutter size for the overall page.
