@@ -1,6 +1,6 @@
 # Augur Comps
 
-Augur Comps are a collection of react components, react hooks, contract calls, and generally shared code between the two Augur Turbo UIs: Simplified UI (aka Augur Turbo) and the Sports UI (aka Augur Sportsbook).
+Augur Comps are a collection of react components, react hooks, contract calls, and generally shared code between the two Augur Turbo UIs: [Augur Simplified](../simplified/README.md) and [Augur Sport](../sport/README.md) (aka Augur Sportsbook).
 
 ## General Use
 When developing locally, you will want to run two commands for augur comps to ensure it watches and updates any changes you make to the UI. These commands should be run from the top level `augur` folder:
