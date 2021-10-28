@@ -289,6 +289,7 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
 }
 
 export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
+  let addLiquidity = event.params.collateral.lt(ZERO);
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
@@ -306,8 +307,13 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   );
   let totalSupply: BigInt | null = null;
 
-  let collateralBigDecimal = roundBigDecimal(event.params.collateral.toBigDecimal().div(USDC_DECIMALS));
-  let collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
+  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let collateralBigInt = event.params.collateral;
+
+  if (!addLiquidity) {
+    collateralBigDecimal = roundBigDecimal(collateralBigDecimal);
+    collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
+  }
 
   if (!tryTotalSupply.reverted) {
     totalSupply = tryTotalSupply.value;
@@ -328,7 +334,7 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
   liquidityEntity.save();
 
-  if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
+  if (addLiquidity) {
     addLiquidityEvent(event, totalSupply);
   } else {
     removeLiquidityEvent(event, totalSupply);
