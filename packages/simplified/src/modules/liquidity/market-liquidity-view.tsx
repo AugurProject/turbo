@@ -719,7 +719,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped,
       const price = createBigNumber(outcome.price || 0);
       if (price.eq(ZERO)) {
         inputFormError = SET_PRICES;
-      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE)) {
+      } else if (Number(price.toFixed(2)) < Number(MIN_PRICE) && actionType === CREATE) {
         buttonError = INVALID_PRICE;
         lessThanMinPrice = true;
       } else {
@@ -727,7 +727,7 @@ const useErrorValidation = ({ isRemove, outcomes, amount, actionType, isGrouped,
       }
     });
     const total = createBigNumber(totalPrice.toFixed(2));
-    if (inputFormError === "" && !total.eq(ONE) && !isGrouped) {
+    if (inputFormError === "" && !total.eq(ONE) && !isGrouped && actionType === CREATE) {
       buttonError = INVALID_PRICE;
     }
     if (amount) {
