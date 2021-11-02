@@ -1,5 +1,12 @@
 import { LiquidityChanged, MasterChef as MasterChefContract, PoolCreated } from "../../generated/MasterChef/MasterChef";
-import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import {
+  bigIntToHexString,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL,
+  roundBigDecimal,
+  SHARES_DECIMALS,
+  USDC_DECIMALS,
+  ZERO
+} from "../utils";
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAddLiquidity,
@@ -8,12 +15,12 @@ import {
   getOrCreateMarket,
   getOrCreateOutcomes,
   getOrCreateRemoveLiquidity,
-  getOrCreateSender,
+  getOrCreateSender
 } from "../helpers/AmmFactoryHelper";
 import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
-  getOrCreatePositionBalance,
+  getOrCreatePositionBalance
 } from "../helpers/CommonHelper";
 
 export function handlePositionFromLiquidityChangedMasterChefEvent(
@@ -216,15 +223,16 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
   let removeLiquidityEntity = getOrCreateRemoveLiquidity(id, true, false);
   let liquidityPositionBalanceId = senderId + "-" + marketId;
   let sharesReturnedArray: BigInt[] = event.params.sharesReturned;
-  let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
-  let absCollateral = event.params.collateral.abs();
+  let collateralBigDecimal = roundBigDecimal(event.params.collateral.toBigDecimal().div(USDC_DECIMALS));
+  let collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
+  let absCollateral = collateralBigInt.abs();
   let absCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
   getOrCreateOutcomes(id);
   let liquidityPositionBalance = getOrCreateLiquidityPositionBalance(liquidityPositionBalanceId, true, false);
   liquidityPositionBalance.removeCollateral = absCollateral;
-  liquidityPositionBalance.removeCollateralBigDecimal = absCollateral.toBigDecimal().div(USDC_DECIMALS);
+  liquidityPositionBalance.removeCollateralBigDecimal = absCollateralBigDecimal;
   liquidityPositionBalance.sharesReturned = event.params.sharesReturned;
   let numberOfOutcomesThatGotShares = sharesReturnedArray.filter(
     (shares) => shares.toBigDecimal().div(SHARES_DECIMALS) >= DUST_POSITION_AMOUNT_BIG_DECIMAL
@@ -255,8 +263,8 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
 
   removeLiquidityEntity.transactionHash = event.transaction.hash.toHexString();
   removeLiquidityEntity.timestamp = event.block.timestamp;
-  removeLiquidityEntity.collateral = bigIntToHexString(event.params.collateral);
-  removeLiquidityEntity.collateralBigInt = event.params.collateral;
+  removeLiquidityEntity.collateral = bigIntToHexString(collateralBigInt);
+  removeLiquidityEntity.collateralBigInt = collateralBigInt;
   removeLiquidityEntity.collateralBigDecimal = collateralBigDecimal;
   removeLiquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
   removeLiquidityEntity.marketId = marketId;
@@ -277,19 +285,11 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
     }
   }
 
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.avgPricePerOutcome = new Array<BigDecimal>();
-  // liquidityPositionBalance.addCollateral = ZERO;
-  // liquidityPositionBalance.addCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.removeCollateral = ZERO;
-  // liquidityPositionBalance.removeCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.save();
-
   removeLiquidityEntity.save();
 }
 
 export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
+  let addLiquidity = event.params.collateral.lt(ZERO);
   let id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
@@ -306,7 +306,14 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
     event.params.marketId
   );
   let totalSupply: BigInt | null = null;
+
   let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
+  let collateralBigInt = event.params.collateral;
+
+  if (!addLiquidity) {
+    collateralBigDecimal = roundBigDecimal(collateralBigDecimal);
+    collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
+  }
 
   if (!tryTotalSupply.reverted) {
     totalSupply = tryTotalSupply.value;
@@ -319,15 +326,15 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   liquidityEntity.marketId = marketId;
   liquidityEntity.sender = senderId;
   liquidityEntity.recipient = event.params.recipient.toHexString();
-  liquidityEntity.collateral = bigIntToHexString(event.params.collateral);
-  liquidityEntity.collateralBigInt = event.params.collateral;
+  liquidityEntity.collateral = bigIntToHexString(collateralBigInt);
+  liquidityEntity.collateralBigInt = collateralBigInt;
   liquidityEntity.collateralBigDecimal = collateralBigDecimal;
   liquidityEntity.lpTokens = bigIntToHexString(event.params.lpTokens);
   liquidityEntity.sharesReturned = event.params.sharesReturned;
 
   liquidityEntity.save();
 
-  if (bigIntToHexString(event.params.collateral).substr(0, 1) == "-") {
+  if (addLiquidity) {
     addLiquidityEvent(event, totalSupply);
   } else {
     removeLiquidityEvent(event, totalSupply);

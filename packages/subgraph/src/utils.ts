@@ -82,3 +82,9 @@ export function mapArray(arr: BigInt[]): string[] {
 export function bigIntMillisToSeconds(millis: BigInt): BigInt {
   return millis.div(BigInt.fromI32(1000));
 }
+
+export function roundBigDecimal(numberToRound: BigDecimal): BigDecimal {
+  let parsedNumber: number = parseFloat(numberToRound.toString());
+  let roundedNumber: number = Math.round((parsedNumber + Number.EPSILON) * 100) / 100;
+  return BigDecimal.fromString(roundedNumber.toString());
+}
