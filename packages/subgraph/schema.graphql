@@ -348,3 +348,16 @@ type SharesMinted @entity {
   receiver: Sender!
   receiverId: String!
 }
+
+type TotalVolumePerDay @entity {
+  "Date in YYYY-MM-DD format."
+  id: ID!
+  "Buy and sell summed up"
+  totalVolumeFromTrades: BigDecimal!
+  totalVolumeFromBuy: BigDecimal!
+  totalVolumeFromSell: BigDecimal!
+  "Add and remove liquidity summed up"
+  totalVolumeFromLiquidity: BigDecimal!
+  totalVolumeFromAddLiquidity: BigDecimal!
+  totalVolumeFromRemoveLiquidity: BigDecimal!
+}

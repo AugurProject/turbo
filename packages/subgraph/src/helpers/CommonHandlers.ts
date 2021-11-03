@@ -1,5 +1,13 @@
 import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
-import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import {
+  ADD_LIQUIDITY,
+  bigIntToHexString, BUY,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL,
+  getYearMonthDate, REMOVE_LIQUIDITY, SELL,
+  SHARES_DECIMALS,
+  USDC_DECIMALS,
+  ZERO
+} from "../utils";
 import { LiquidityChanged, SharesSwapped } from "../../generated/AmmFactory/AmmFactory";
 import { BigInt } from "@graphprotocol/graph-ts/index";
 import { BigDecimal } from "@graphprotocol/graph-ts";
@@ -7,7 +15,7 @@ import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted,
+  getOrCreateSharesMinted, getOrCreateTotalVolumePerDay
 } from "./CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 
@@ -161,5 +169,26 @@ export function handleGenericSharesMintedEvent(params: GenericSharesMintedParams
   entity.amountBigDecimal = params.amount.toBigDecimal().div(SHARES_DECIMALS);
   entity.receiver = params.receiver.toHexString();
   entity.receiverId = params.receiver.toHexString();
+  entity.save();
+}
+
+export function handleTotalVolumePerDay(collateral: BigInt, timestamp: BigInt, type: u32): void {
+  let id = getYearMonthDate(timestamp);
+  let absCollateral = collateral.abs().toBigDecimal().div(USDC_DECIMALS);
+  let entity = getOrCreateTotalVolumePerDay(id, true, false);
+
+  if (type === ADD_LIQUIDITY || type === REMOVE_LIQUIDITY)
+    entity.totalVolumeFromLiquidity = entity.totalVolumeFromLiquidity.plus(absCollateral);
+  if (type === BUY || type === SELL)
+    entity.totalVolumeFromTrades = entity.totalVolumeFromTrades.plus(absCollateral);
+  if (type === ADD_LIQUIDITY)
+    entity.totalVolumeFromAddLiquidity = entity.totalVolumeFromAddLiquidity.plus(absCollateral);
+  if (type === REMOVE_LIQUIDITY)
+    entity.totalVolumeFromRemoveLiquidity = entity.totalVolumeFromRemoveLiquidity.plus(absCollateral);
+  if (type === BUY)
+    entity.totalVolumeFromBuy = entity.totalVolumeFromBuy.plus(absCollateral);
+  if (type === SELL)
+    entity.totalVolumeFromSell = entity.totalVolumeFromSell.plus(absCollateral);
+
   entity.save();
 }

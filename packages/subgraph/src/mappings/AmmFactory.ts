@@ -5,7 +5,14 @@ import {
   SharesSwapped,
 } from "../../generated/AmmFactory/AmmFactory";
 import { BPool as BPoolContract } from "../../generated/AmmFactory/BPool";
-import { bigIntToHexString, DUST_POSITION_AMOUNT_BIG_DECIMAL, SHARES_DECIMALS, USDC_DECIMALS, ZERO } from "../utils";
+import {
+  ADD_LIQUIDITY,
+  bigIntToHexString, BUY,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL, SELL,
+  SHARES_DECIMALS,
+  USDC_DECIMALS,
+  ZERO
+} from "../utils";
 import { BigInt } from "@graphprotocol/graph-ts";
 import {
   getOrCreateAddLiquidity,
@@ -17,7 +24,11 @@ import {
   getOrCreateSender,
   getOrCreateTrade,
 } from "../helpers/AmmFactoryHelper";
-import { handlePositionFromLiquidityChangedEvent, handlePositionFromTradeEvent } from "../helpers/CommonHandlers";
+import {
+  handlePositionFromLiquidityChangedEvent,
+  handlePositionFromTradeEvent,
+  handleTotalVolumePerDay
+} from "../helpers/CommonHandlers";
 import { getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance } from "../helpers/CommonHelper";
 
 export function handlePoolCreatedEvent(event: PoolCreated): void {
@@ -198,15 +209,6 @@ function removeLiquidityEvent(event: LiquidityChanged, totalSupply: BigInt | nul
     }
   }
 
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.avgPricePerOutcome = new Array<BigDecimal>();
-  // liquidityPositionBalance.addCollateral = ZERO;
-  // liquidityPositionBalance.addCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.removeCollateral = ZERO;
-  // liquidityPositionBalance.removeCollateralBigDecimal = ZERO.toBigDecimal();
-  // liquidityPositionBalance.sharesReturned = new Array<BigInt>();
-  // liquidityPositionBalance.save();
-
   removeLiquidityEntity.save();
 }
 
@@ -259,6 +261,8 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   let marketId = event.params.marketFactory.toHexString() + "-" + event.params.marketId.toString();
   let senderId = event.params.user.toHexString();
   let tradeEntity = getOrCreateTrade(id, true, false);
+  let buy = event.params.collateral.lt(ZERO);
+
   getOrCreateMarket(marketId);
   getOrCreateSender(senderId);
 
@@ -291,6 +295,12 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
   calculateInitialCostPerOutcome(senderId, marketId, logId, event.params.collateral, outcome, event.params.shares);
 
   handlePositionFromTradeEvent(event);
+
+  if (buy) {
+    handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, BUY);
+  } else {
+    handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, SELL);
+  }
 
   tradeEntity.save();
 }
