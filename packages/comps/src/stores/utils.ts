@@ -130,14 +130,14 @@ export function useCanEnterCashPosition({ name, address }: Cash, ammFactory: str
   return canEnterPosition;
 }
 
-export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions }) {
+export function useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions, useWalletRpc }) {
   const {
     loginAccount,
     actions: { updateUserBalances },
   } = useUserStore();
   useEffect(() => {
     const fetchUserBalances = async (library, account, ammExchanges, cashes, markets, transactions) => {
-      const provider = getDefaultProvider() || library;
+      const provider = useWalletRpc ? library : getDefaultProvider() || library;
       const currentBlockNumber = library ? await library.getBlockNumber() : 0;
       return getUserBalances(provider, account, ammExchanges, cashes, markets, transactions, currentBlockNumber);
     };
