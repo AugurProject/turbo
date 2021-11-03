@@ -25,7 +25,7 @@ const { parsePath, parseQuery } = PathUtils;
 
 const AppBody = () => {
   const { markets, cashes, ammExchanges, blocknumber, transactions } = useDataStore();
-  const { isMobile, modal } = useAppStatusStore();
+  const { isMobile, modal, isWalletRpc } = useAppStatusStore();
   const {
     sidebarType,
     showTradingForm,
@@ -36,7 +36,7 @@ const AppBody = () => {
   const path = parsePath(location.pathname)[0];
   const sidebarOut = sidebarType && isMobile;
 
-  useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions });
+  useUserBalances({ ammExchanges, blocknumber, cashes, markets, transactions, isWalletRpc });
   useFinalizeUserTransactions(blocknumber);
 
   useEffect(() => {

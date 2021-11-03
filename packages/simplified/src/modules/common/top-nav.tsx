@@ -12,6 +12,7 @@ import {
   PARA_CONFIG,
   Constants,
   Components,
+  AppStatusStore,
 } from "@augurproject/comps";
 const { parsePath, makePath } = PathUtils;
 const { MARKET, MARKETS, PORTFOLIO, LIQUIDITY, SIDEBAR_TYPES, TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME } = Constants;
@@ -30,6 +31,9 @@ export const SettingsButton = () => {
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
+  const { actions: { setIsWalletRpc } } = AppStatusStore;
+  const { isWalletRpc } = AppStatusStore.get();
+
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
   const is24hour = timeFormat === TWENTY_FOUR_HOUR_TIME;
@@ -79,6 +83,16 @@ export const SettingsButton = () => {
               toggle={is24hour}
               setToggle={() =>
                 updateSettings({ timeFormat: is24hour ? TWELVE_HOUR_TIME : TWENTY_FOUR_HOUR_TIME }, account)
+              }
+            />
+          </li>
+          <li>
+            <label htmlFor="isWalletRpc">Use wallet RPC endpoint</label>
+            <ToggleSwitch
+              id="isWalletRpc"
+              toggle={isWalletRpc}
+              setToggle={() =>
+                setIsWalletRpc(!isWalletRpc)
               }
             />
           </li>

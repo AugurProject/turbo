@@ -668,6 +668,7 @@ export interface Settings {
   slippage: string;
   showInvalidMarkets: boolean;
   showLiquidMarkets: boolean;
+  isWalletRpc: boolean;
 }
 
 export interface SeenPositionWarnings {
@@ -682,6 +683,7 @@ export interface AppStatusState {
   isDegraded: boolean;
   isLowRewards: boolean;
   isEmptyRewards: boolean;
+  isWalletRpc: boolean;
   modal: Modal;
 }
 
