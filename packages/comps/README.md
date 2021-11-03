@@ -1,6 +1,6 @@
 # Augur Comps
 
-Augur Comps are a collection of react components, react hooks, contract calls, and generally shared code between the two Augur Turbo UIs: Simplified UI (aka Augur Turbo) and the Sports UI (aka Augur Sportsbook).
+Augur Comps are a collection of react components, react hooks, contract calls, and generally shared code between the two Augur Turbo UIs: [Augur Simplified](../simplified/README.md) and [Augur Sport](../sport/README.md) (aka Augur Sportsbook).
 
 ## General Use
 When developing locally, you will want to run two commands for augur comps to ensure it watches and updates any changes you make to the UI. These commands should be run from the top level `augur` folder:
@@ -32,7 +32,7 @@ const {
 } = Stores;
 ```
 
-Whichever import you choose is really dependant on personal preference/code style, either one will provide you with the same `useDataStore` hook in this example, with the second example also providing additional hooks.
+Whichever import you choose is really dependent on personal preference/code style, either one will provide you with the same `useDataStore` hook in this example, with the second example also providing additional hooks.
 
 ## Apollo
 The Apollo folder contains code used to describe queries used in the UIs and connection code for connecting to the Augur Subgraph. This data is used to populate historical information like profit and loss of an older trade for example.
