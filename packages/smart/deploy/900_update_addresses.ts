@@ -29,6 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { address: collateral } = await deployments.get("Collateral");
   const { address: reputationToken } = await deployments.get("Reputation");
   const { address: balancerFactory } = await deployments.get("BFactory");
+  const { address: evenTheOdds } = await deployments.get("EvenTheOdds");
 
   const ammFactory = await deployments.get("AMMFactory").catch(() => undefined);
   const masterChef = await deployments.get("MasterChef").catch(() => undefined);
@@ -89,6 +90,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const addresses: Addresses = {
     reputationToken,
     balancerFactory,
+    evenTheOdds,
     marketFactories,
     info: {
       graphName: graphChainNames[chainId],
