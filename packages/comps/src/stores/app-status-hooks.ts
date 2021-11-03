@@ -21,7 +21,7 @@ const {
   IS_DEGRADED,
   IS_LOW_REWARDS,
   IS_EMPTY_REWARDS,
-  USE_WALLET_RPC,
+  IS_WALLET_RPC,
 } = APP_STATE_KEYS;
 
 export function AppStatusReducer(state, action) {
@@ -56,7 +56,7 @@ export function AppStatusReducer(state, action) {
     }
     case SET_WALLET_RPC: {
       const { isWalletRpc } = action;
-      updatedState[USE_WALLET_RPC] = Boolean(isWalletRpc);
+      updatedState[IS_WALLET_RPC] = Boolean(isWalletRpc);
       break;
     }
     case SET_REWARDS_STATUS: {

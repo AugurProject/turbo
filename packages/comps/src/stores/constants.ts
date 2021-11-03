@@ -129,7 +129,7 @@ export const APP_STATE_KEYS = {
   IS_DEGRADED: "isDegraded",
   IS_LOW_REWARDS: "isLowRewards",
   IS_EMPTY_REWARDS: "isEmptyRewards",
-  USE_WALLET_RPC: "isWalletRpc",
+  IS_WALLET_RPC: "isWalletRpc",
 };
 
 export const APP_STATUS_ACTIONS = {
