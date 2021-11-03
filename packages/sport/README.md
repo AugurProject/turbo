@@ -12,3 +12,10 @@ yarn sport start
 
 The default port is 3000, if this is taken the script will prompt the user to try 3001. Now any changes you make to the code will be watched, rebuilt, and refreshed for you in your browser.
 
+## Assets
+
+The Assets folder contains fonts, images, and most importantly the styles folder. The Styles folder contains the UI wide variables like theme coloring and some sizing for things such as a gutter size for the overall page. You'll note that the UI is currently designed to almost always reference these defined variables in the styles folder, which enables the quicker introduction of new themes.
+
+## Modules
+
+These folders contain Augur Sport UI specific components that aren't shared with other Augur UIs. Things like market page view, or my bets page view, for example would exist here. For shared components, such as buttons or dropdowns, see [Augur Comps](../comps/README.md).
