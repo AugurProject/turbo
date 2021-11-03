@@ -1,7 +1,8 @@
 import { LiquidityChanged, MasterChef as MasterChefContract, PoolCreated } from "../../generated/MasterChef/MasterChef";
 import {
+  ADD_LIQUIDITY,
   bigIntToHexString,
-  DUST_POSITION_AMOUNT_BIG_DECIMAL,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL, REMOVE_LIQUIDITY,
   roundBigDecimal,
   SHARES_DECIMALS,
   USDC_DECIMALS,
@@ -22,6 +23,7 @@ import {
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance
 } from "../helpers/CommonHelper";
+import { handleTotalVolumePerDay } from "../helpers/CommonHandlers";
 
 export function handlePositionFromLiquidityChangedMasterChefEvent(
   event: LiquidityChanged,
@@ -310,10 +312,10 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   let collateralBigDecimal = event.params.collateral.toBigDecimal().div(USDC_DECIMALS);
   let collateralBigInt = event.params.collateral;
 
-  if (!addLiquidity) {
-    collateralBigDecimal = roundBigDecimal(collateralBigDecimal);
-    collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
-  }
+  // if (!addLiquidity) {
+  //   collateralBigDecimal = roundBigDecimal(collateralBigDecimal);
+  //   collateralBigInt = BigInt.fromString(collateralBigDecimal.times(USDC_DECIMALS).toString());
+  // }
 
   if (!tryTotalSupply.reverted) {
     totalSupply = tryTotalSupply.value;
@@ -336,7 +338,9 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
 
   if (addLiquidity) {
     addLiquidityEvent(event, totalSupply);
+    handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, ADD_LIQUIDITY);
   } else {
     removeLiquidityEvent(event, totalSupply);
+    handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, REMOVE_LIQUIDITY);
   }
 }

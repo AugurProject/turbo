@@ -1,4 +1,4 @@
-import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance, SharesMinted } from "../../generated/schema";
+import { InitialCostPerMarket, LiquidityPositionBalance, PositionBalance, SharesMinted, TotalVolumePerDay } from "../../generated/schema";
 import { ZERO } from "../utils";
 import { BigDecimal, BigInt } from "@graphprotocol/graph-ts/index";
 
@@ -90,3 +90,29 @@ export function getOrCreateSharesMinted(
 
   return entity as SharesMinted;
 }
+
+export function getOrCreateTotalVolumePerDay(
+  id: string,
+  createIfNotFound: boolean = true,
+  save: boolean = true
+): TotalVolumePerDay {
+  let entity = TotalVolumePerDay.load(id);
+
+  if (entity == null && createIfNotFound) {
+    entity = new TotalVolumePerDay(id);
+    let zeroBigDecimal = ZERO.toBigDecimal();
+    entity.totalVolumeFromTrades = zeroBigDecimal;
+    entity.totalVolumeFromBuy = zeroBigDecimal;
+    entity.totalVolumeFromSell = zeroBigDecimal;
+    entity.totalVolumeFromLiquidity = zeroBigDecimal;
+    entity.totalVolumeFromAddLiquidity = zeroBigDecimal;
+    entity.totalVolumeFromRemoveLiquidity = zeroBigDecimal;
+
+    if (save) {
+      entity.save();
+    }
+  }
+
+  return entity as TotalVolumePerDay;
+}
+
