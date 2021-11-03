@@ -31,8 +31,8 @@ export const SettingsButton = () => {
     actions: { updateSettings },
   } = useSimplifiedStore();
   const { account } = useUserStore();
-  const { actions: { setUseWalletRpc } } = AppStatusStore;
-  const { useWalletRpc } = AppStatusStore.get();
+  const { actions: { setIsWalletRpc } } = AppStatusStore;
+  const { isWalletRpc } = AppStatusStore.get();
 
   const [open, setOpened] = useState(false);
   const settingsRef = useRef(null);
@@ -87,12 +87,12 @@ export const SettingsButton = () => {
             />
           </li>
           <li>
-            <label htmlFor="useWalletRpc">Use wallet RPC endpoint</label>
+            <label htmlFor="isWalletRpc">Use wallet RPC endpoint</label>
             <ToggleSwitch
-              id="useWalletRpc"
-              toggle={useWalletRpc}
+              id="isWalletRpc"
+              toggle={isWalletRpc}
               setToggle={() =>
-                setUseWalletRpc(!useWalletRpc)
+                setIsWalletRpc(!isWalletRpc)
               }
             />
           </li>

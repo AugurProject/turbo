@@ -21,7 +21,7 @@ export const DEFAULT_SPORT_STATE = {
     oddsFormat: Constants.ODDS_TYPE.DECIMAL,
     showLiquidMarkets: true,
     theme: Constants.THEME_OPTIONS.LIGHT,
-    useWalletRpc: false,
+    isWalletRpc: false,
   },
   marketEvents: {},
   filteredEvents: [],

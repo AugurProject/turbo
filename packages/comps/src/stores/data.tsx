@@ -47,10 +47,10 @@ export const DataProvider = ({ loadType = MARKET_LOAD_TYPE.SIMPLIFIED, children 
     let intervalId = null;
     const getMarkets = async () => {
       const { account: userAccount, loginAccount } = UserStore.get();
-      const { isRpcDown, useWalletRpc } = AppStatusStore.get();
+      const { isRpcDown, isWalletRpc } = AppStatusStore.get();
       const { blocknumber: dblock, markets: dmarkets, ammExchanges: damm } = DataStore.get();
       const { actions: { setRewardsStatus, setIsRpcDown } } = AppStatusStore;
-      const provider = useWalletRpc ? loginAccount?.library : getDefaultProvider() || loginAccount?.library;
+      const provider = isWalletRpc ? loginAccount?.library : getDefaultProvider() || loginAccount?.library;
       let infos = { markets: dmarkets, ammExchanges: damm, blocknumber: dblock };
 
       try {

@@ -107,7 +107,7 @@ export const STUBBED_APP_STATUS_ACTIONS = {
   setIsRpcDown: (rpcDown) => {},
   setIsDegraded: (isDegraded) => {},
   setRewardsStatus: (rewardsStatus) => {},
-  setUseWalletRpc: (useWalletRpc) => {},
+  setIsWalletRpc: (isWalletRpc) => {},
 };
 
 export const DEFAULT_APP_STATUS_STATE: AppStatusState = {
@@ -117,7 +117,7 @@ export const DEFAULT_APP_STATUS_STATE: AppStatusState = {
   isDegraded: false,
   isLowRewards: false,
   isEmptyRewards: false,
-  useWalletRpc: false,
+  isWalletRpc: false,
   modal: {},
 };
 
@@ -129,7 +129,7 @@ export const APP_STATE_KEYS = {
   IS_DEGRADED: "isDegraded",
   IS_LOW_REWARDS: "isLowRewards",
   IS_EMPTY_REWARDS: "isEmptyRewards",
-  USE_WALLET_RPC: "useWalletRpc",
+  USE_WALLET_RPC: "isWalletRpc",
 };
 
 export const APP_STATUS_ACTIONS = {

@@ -55,8 +55,8 @@ export function AppStatusReducer(state, action) {
       break;
     }
     case SET_WALLET_RPC: {
-      const { useWalletRpc } = action;
-      updatedState[USE_WALLET_RPC] = Boolean(useWalletRpc);
+      const { isWalletRpc } = action;
+      updatedState[USE_WALLET_RPC] = Boolean(isWalletRpc);
       break;
     }
     case SET_REWARDS_STATUS: {
@@ -87,7 +87,7 @@ export const useAppStatus = (defaultState = MOCK_APP_STATUS_STATE) => {
       setIsRpcDown: (isRpcDown) => dispatch({ type: SET_RPC_DOWN, isRpcDown }),
       setIsDegraded: (isDegraded) => dispatch({ type: SET_DEGRADED, isDegraded }),
       setRewardsStatus: (rewardsStatus) => dispatch({ type: SET_REWARDS_STATUS, rewardsStatus }),
-      setUseWalletRpc: (useWalletRpc) => dispatch({ type: SET_WALLET_RPC, useWalletRpc }),
+      setIsWalletRpc: (isWalletRpc) => dispatch({ type: SET_WALLET_RPC, isWalletRpc }),
     },
   };
 };
