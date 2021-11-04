@@ -1,12 +1,4 @@
-import {
-  CryptoMarket,
-  GroupedMarket,
-  MlbMarket,
-  MmaMarket,
-  NbaMarket,
-  NflMarket,
-  TeamSportsMarket,
-} from "../../generated/schema";
+import { CryptoMarket, MlbMarket, MmaMarket, NbaMarket, NflMarket, TeamSportsMarket } from "../../generated/schema";
 
 export function getOrCreateTeamSportsMarket(
   id: string,
@@ -128,27 +120,4 @@ export function getOrCreateNbaMarket(id: string, createIfNotFound: boolean = tru
   }
 
   return entity as NbaMarket;
-}
-
-export function getOrCreateGroupedMarket(
-  id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true
-): GroupedMarket {
-  let entity = GroupedMarket.load(id);
-
-  if (entity == null && createIfNotFound) {
-    entity = new GroupedMarket(id);
-    let splitId = id.split("-");
-    let MARKET_FACTORY_ID = 0;
-    let MARKET_INDEX = 1;
-    entity.marketFactory = splitId[MARKET_FACTORY_ID];
-    entity.marketIndex = splitId[MARKET_INDEX];
-
-    if (save) {
-      entity.save();
-    }
-  }
-
-  return entity as GroupedMarket;
 }
