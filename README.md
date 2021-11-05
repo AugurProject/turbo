@@ -58,6 +58,8 @@ yarn build
 DEFAULT_NETWORK_ID=137 yarn simp start
 ```
 
+- See the [Augur Simplified UI](packages/simplified/README.md), [Augur Sport UI](packages/sport/README.md), and [Augur Comps](packages/comps/README.md) for more information.
+
 ### Advance dev
 If making code changes in Comps, it's convenient to have watchers running in separate shells to keep comps updated and simply refresh the UI.
 `yarn comps transpile:watch` and `yarn comps types:watch`
