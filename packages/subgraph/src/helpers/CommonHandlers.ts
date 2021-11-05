@@ -1,9 +1,12 @@
 import { getOrCreateMarket, getOrCreateSender } from "./AmmFactoryHelper";
 import {
   ADD_LIQUIDITY,
-  bigIntToHexString, BUY,
+  bigIntToHexString,
+  BUY,
   DUST_POSITION_AMOUNT_BIG_DECIMAL,
-  getYearMonthDate, REMOVE_LIQUIDITY, SELL,
+  getYearMonthDate,
+  REMOVE_LIQUIDITY,
+  SELL,
   SHARES_DECIMALS,
   USDC_DECIMALS,
   ZERO
@@ -15,7 +18,9 @@ import {
   getOrCreateInitialCostPerMarket,
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance,
-  getOrCreateSharesMinted, getOrCreateTotalVolumePerDay
+  getOrCreateSharesMinted,
+  getOrCreateTotalVolumePerDay,
+  getOrCreateTotalVolumePerMarketPerDay
 } from "./CommonHelper";
 import { GenericSharesMintedParams } from "../types";
 
@@ -176,6 +181,27 @@ export function handleTotalVolumePerDay(collateral: BigInt, timestamp: BigInt, t
   let id = getYearMonthDate(timestamp);
   let absCollateral = collateral.abs().toBigDecimal().div(USDC_DECIMALS);
   let entity = getOrCreateTotalVolumePerDay(id, true, false);
+
+  if (type === ADD_LIQUIDITY || type === REMOVE_LIQUIDITY)
+    entity.totalVolumeFromLiquidity = entity.totalVolumeFromLiquidity.plus(absCollateral);
+  if (type === BUY || type === SELL)
+    entity.totalVolumeFromTrades = entity.totalVolumeFromTrades.plus(absCollateral);
+  if (type === ADD_LIQUIDITY)
+    entity.totalVolumeFromAddLiquidity = entity.totalVolumeFromAddLiquidity.plus(absCollateral);
+  if (type === REMOVE_LIQUIDITY)
+    entity.totalVolumeFromRemoveLiquidity = entity.totalVolumeFromRemoveLiquidity.plus(absCollateral);
+  if (type === BUY)
+    entity.totalVolumeFromBuy = entity.totalVolumeFromBuy.plus(absCollateral);
+  if (type === SELL)
+    entity.totalVolumeFromSell = entity.totalVolumeFromSell.plus(absCollateral);
+
+  entity.save();
+}
+
+export function handleTotalVolumePerMarketPerDay(collateral: BigInt, timestamp: BigInt, type: u32, marketId: string): void {
+  let id = getYearMonthDate(timestamp) + "-" + marketId;
+  let absCollateral = collateral.abs().toBigDecimal().div(USDC_DECIMALS);
+  let entity = getOrCreateTotalVolumePerMarketPerDay(id, true, false);
 
   if (type === ADD_LIQUIDITY || type === REMOVE_LIQUIDITY)
     entity.totalVolumeFromLiquidity = entity.totalVolumeFromLiquidity.plus(absCollateral);
