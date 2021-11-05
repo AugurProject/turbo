@@ -5,7 +5,6 @@ module.exports = {
       label: 'Augur Turbo Guides',
       items: [
         'getting-started',
-        'turbo',
         'hardhat-tasks',
       ],
     },
@@ -13,6 +12,7 @@ module.exports = {
       type: 'category',
       label: 'API Documentation',
       items: [
+        'turbo',
         'contract-api'
       ],
     },
