@@ -1,3 +1,8 @@
+---
+title: Turbo Contract Overview
+slug: /contract-overview
+---
+
 Augur Turbo's contracts are structured such that they are mostly independent.
 This makes it easy to upgrade smart contracts without special authority.
 
