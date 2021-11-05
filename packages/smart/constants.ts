@@ -1,4 +1,5 @@
 export interface Addresses {
+  evenTheOdds?: string;
   reputationToken: string;
   balancerFactory: string;
   // Lower index is newer.

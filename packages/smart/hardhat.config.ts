@@ -78,6 +78,11 @@ export const config: HardhatUserConfig = {
       default: 0,
       maticMainnet: "0x6FBD37365bac1fC61EAb2b35ba4024B32b136be6",
     },
+    // This exists for tests.
+    plebeian: {
+      default: 1,
+      maticMainnet: NULL_ADDRESS,
+    },
   },
   networks: {
     localhost: {
