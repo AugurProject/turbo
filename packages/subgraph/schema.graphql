@@ -339,3 +339,16 @@ type TotalVolumePerDay @entity {
   totalVolumeFromAddLiquidity: BigDecimal!
   totalVolumeFromRemoveLiquidity: BigDecimal!
 }
+
+type TotalVolumePerMarketPerDay @entity {
+  "Date in YYYY-MM-DD format-marketFactory-marketIndex."
+  id: ID!
+  "Buy and sell summed up"
+  totalVolumeFromTrades: BigDecimal!
+  totalVolumeFromBuy: BigDecimal!
+  totalVolumeFromSell: BigDecimal!
+  "Add and remove liquidity summed up"
+  totalVolumeFromLiquidity: BigDecimal!
+  totalVolumeFromAddLiquidity: BigDecimal!
+  totalVolumeFromRemoveLiquidity: BigDecimal!
+}

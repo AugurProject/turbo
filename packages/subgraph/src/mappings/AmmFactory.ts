@@ -2,13 +2,14 @@ import {
   AmmFactory as AmmFactoryContract,
   LiquidityChanged,
   PoolCreated,
-  SharesSwapped,
+  SharesSwapped
 } from "../../generated/AmmFactory/AmmFactory";
 import { BPool as BPoolContract } from "../../generated/AmmFactory/BPool";
 import {
-  ADD_LIQUIDITY,
-  bigIntToHexString, BUY,
-  DUST_POSITION_AMOUNT_BIG_DECIMAL, SELL,
+  bigIntToHexString,
+  BUY,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL,
+  SELL,
   SHARES_DECIMALS,
   USDC_DECIMALS,
   ZERO
@@ -22,12 +23,13 @@ import {
   getOrCreateOutcomes,
   getOrCreateRemoveLiquidity,
   getOrCreateSender,
-  getOrCreateTrade,
+  getOrCreateTrade
 } from "../helpers/AmmFactoryHelper";
 import {
   handlePositionFromLiquidityChangedEvent,
   handlePositionFromTradeEvent,
-  handleTotalVolumePerDay
+  handleTotalVolumePerDay,
+  handleTotalVolumePerMarketPerDay
 } from "../helpers/CommonHandlers";
 import { getOrCreateInitialCostPerMarket, getOrCreateLiquidityPositionBalance } from "../helpers/CommonHelper";
 
@@ -298,8 +300,10 @@ export function handleSharesSwappedEvent(event: SharesSwapped): void {
 
   if (buy) {
     handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, BUY);
+    handleTotalVolumePerMarketPerDay(event.params.collateral, event.block.timestamp, BUY, marketId);
   } else {
     handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, SELL);
+    handleTotalVolumePerMarketPerDay(event.params.collateral, event.block.timestamp, SELL, marketId);
   }
 
   tradeEntity.save();

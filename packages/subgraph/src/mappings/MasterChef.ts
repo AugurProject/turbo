@@ -2,7 +2,8 @@ import { LiquidityChanged, MasterChef as MasterChefContract, PoolCreated } from 
 import {
   ADD_LIQUIDITY,
   bigIntToHexString,
-  DUST_POSITION_AMOUNT_BIG_DECIMAL, REMOVE_LIQUIDITY,
+  DUST_POSITION_AMOUNT_BIG_DECIMAL,
+  REMOVE_LIQUIDITY,
   roundBigDecimal,
   SHARES_DECIMALS,
   USDC_DECIMALS,
@@ -23,7 +24,7 @@ import {
   getOrCreateLiquidityPositionBalance,
   getOrCreatePositionBalance
 } from "../helpers/CommonHelper";
-import { handleTotalVolumePerDay } from "../helpers/CommonHandlers";
+import { handleTotalVolumePerDay, handleTotalVolumePerMarketPerDay } from "../helpers/CommonHandlers";
 
 export function handlePositionFromLiquidityChangedMasterChefEvent(
   event: LiquidityChanged,
@@ -339,8 +340,10 @@ export function handleLiquidityChangedEvent(event: LiquidityChanged): void {
   if (addLiquidity) {
     addLiquidityEvent(event, totalSupply);
     handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, ADD_LIQUIDITY);
+    handleTotalVolumePerMarketPerDay(event.params.collateral, event.block.timestamp, ADD_LIQUIDITY, marketId);
   } else {
     removeLiquidityEvent(event, totalSupply);
     handleTotalVolumePerDay(event.params.collateral, event.block.timestamp, REMOVE_LIQUIDITY);
+    handleTotalVolumePerMarketPerDay(event.params.collateral, event.block.timestamp, REMOVE_LIQUIDITY, marketId);
   }
 }
