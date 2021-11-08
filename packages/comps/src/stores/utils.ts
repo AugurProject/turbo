@@ -185,7 +185,7 @@ export function useScrollToTopOnMount(...optionsTriggers) {
   }, [...optionsTriggers]);
 }
 
-const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION, MINT_SETS } = ApprovalAction;
+const { ADD_LIQUIDITY, REMOVE_LIQUIDITY, ENTER_POSITION, EXIT_POSITION, MINT_SETS, RESET_PRICES } = ApprovalAction;
 export const { UNKNOWN, PENDING, APPROVED } = ApprovalState;
 export function useApprovalStatus({
   amm,
@@ -250,6 +250,13 @@ export function useApprovalStatus({
         case MINT_SETS: {
           address = amm?.cash?.address;
           spender = amm?.marketFactoryAddress;
+          checkApprovalFunction = checkAllowance;
+          break;
+        }
+        case RESET_PRICES: {
+          const { evenTheOdds } = PARA_CONFIG;
+          address = amm?.cash?.address;
+          spender = evenTheOdds;
           checkApprovalFunction = checkAllowance;
           break;
         }
