@@ -300,6 +300,7 @@ export const MODAL_CONNECT_TO_POLYGON: string = "MODAL_CONNECT_TO_POLYGON";
 
 export const CREATE: string = "create";
 export const MINT_SETS: string = "mintSets";
+export const RESET_PRICES: string = "resetPrices";
 
 export const DefaultMarketOutcomes = [
   {

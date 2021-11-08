@@ -63,6 +63,7 @@ const {
   ZERO,
   SET_PRICES,
   MINT_SETS,
+  RESET_PRICES,
   ONE,
   INVALID_PRICE,
   INVALID_PRICE_GREATER_THAN_SUBTEXT,
@@ -142,16 +143,24 @@ export const MarketLiquidityView = () => {
         <MarketTitleArea {...{ ...market, timeFormat }} />
       </MarketLink>
       <LiquidityForm {...{ market, selectedAction, setSelectedAction, BackToLPPageAction, amount, setAmount }} />
-      {selectedAction !== MINT_SETS && <LiquidityWarningFooter />}
+      {selectedAction !== MINT_SETS && selectedAction !== RESET_PRICES && <LiquidityWarningFooter />}
     </div>
   );
 };
 
 const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount }) => {
   const isMint = selectedAction === MINT_SETS;
+  const isReset = selectedAction === RESET_PRICES;
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
+      <TinyThemeButton
+        action={() => {
+          setSelectedAction(isReset ? ADD : RESET_PRICES);
+        }}
+        text={isReset ? "Add/Remove" : "Reset Prices"}
+        small
+      />
       <TinyThemeButton
         action={() => {
           setSelectedAction(isMint ? ADD : MINT_SETS);
@@ -231,6 +240,14 @@ const getMintBreakdown = (outcomes, amount) => {
   }));
 };
 
+const getResetBreakdown = (outcomes, amount) => {
+  return outcomes.map((outcome) => ({
+    label: `${outcome.name} Shares`,
+    value: `${formatSimpleShares(amount).rounded}`,
+    svg: null,
+  }));
+};
+
 const LiquidityForm = ({
   market,
   selectedAction,
@@ -251,6 +268,7 @@ const LiquidityForm = ({
   const { blocknumber, cashes }: DataState = useDataStore();
   const isRemove = selectedAction === REMOVE;
   const isMint = selectedAction === MINT_SETS;
+  const isResetPrices = selectedAction === RESET_PRICES;
   const { amm, isGrouped, rewards } = market;
   const mustSetPrices = Boolean(!amm?.id);
   const hasInitialOdds = market?.initialOdds && market?.initialOdds?.length && mustSetPrices;
@@ -352,7 +370,13 @@ const LiquidityForm = ({
     setOutcomes([...newOutcomes]);
   };
 
-  const addTitle = isRemove ? "Increase Liqiudity" : isMint ? "Mint Complete Sets" : "Add Liquidity";
+  const addTitle = isRemove
+    ? "Increase Liqiudity"
+    : isMint
+    ? "Mint Complete Sets"
+    : isResetPrices
+    ? "Reset Prices"
+    : "Add Liquidity";
   const now = Math.floor(new Date().getTime() / 1000);
   const pendingRewards = balances.pendingRewards?.[amm?.marketId];
   const hasPendingBonus =
@@ -364,12 +388,17 @@ const LiquidityForm = ({
   const earlyBonus = now < rewards.earlyDepositEndTimestamp || !rewards.earlyDepositEndTimestamp;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
+    : isResetPrices
+    ? getResetBreakdown(outcomes, amount)
     : getCreateBreakdown(breakdown, market, balances, isRemove);
+
+  const notMintOrReset = !isMint && !isResetPrices;
   return (
     <section
       className={classNames(Styles.LiquidityForm, {
         [Styles.isRemove]: isRemove,
         [Styles.isMint]: isMint,
+        [Styles.isResetPrices]: isResetPrices,
       })}
     >
       <header>
@@ -382,7 +411,7 @@ const LiquidityForm = ({
         >
           {addTitle}
         </button>
-        {shareBalance && !isMint && (
+        {shareBalance && notMintOrReset && (
           <button
             className={classNames({ [Styles.selected]: isRemove })}
             onClick={() => {
@@ -393,7 +422,7 @@ const LiquidityForm = ({
             Remove Liquidity
           </button>
         )}
-        {!shareBalance && !isMint && earlyBonus && <span>Eligible for bonus rewards</span>}
+        {!shareBalance && notMintOrReset && earlyBonus && <span>Eligible for bonus rewards</span>}
       </header>
       <main>
         <AmountInput
@@ -429,6 +458,26 @@ const LiquidityForm = ({
           />
         </div>
         <section className={Styles.BreakdownAndAction}>
+          {isResetPrices && (
+            <>
+              <div className={Styles.Breakdown}>
+                <span>New Prices</span>
+                <InfoNumbers infoNumbers={infoNumbers} />
+              </div>
+              <div className={Styles.Breakdown}>
+                <span>USDC Needed to reset the prices</span>
+                <InfoNumbers
+                  infoNumbers={[
+                    {
+                      label: "amount",
+                      value: `${formatCash(amount, USDC).full}`,
+                      svg: USDCIcon,
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
           <div className={Styles.Breakdown}>
             {isRemove && hasPendingBonus && (
               <WarningBanner
@@ -455,8 +504,14 @@ const LiquidityForm = ({
               action={() =>
                 setModal({
                   type: MODAL_CONFIRM_TRANSACTION,
-                  title: isRemove ? "Remove Liquidity" : isMint ? "Mint Complete Sets" : "Add Liquidity",
-                  transactionButtonText: isRemove ? "Remove" : isMint ? "Mint" : "Add",
+                  title: isRemove
+                    ? "Remove Liquidity"
+                    : isMint
+                    ? "Mint Complete Sets"
+                    : isResetPrices
+                    ? "Reset Prices"
+                    : "Add Liquidity",
+                  transactionButtonText: isRemove ? "Remove" : isMint ? "Mint" : isResetPrices ? "Reset Prices" : "Add",
                   transactionAction: ({ onTrigger = null, onCancel = null }) => {
                     onTrigger && onTrigger();
                     confirmAction({
@@ -508,6 +563,27 @@ const LiquidityForm = ({
                     ? [
                         {
                           heading: "What you are depositing",
+                          infoNumbers: [
+                            {
+                              label: "amount",
+                              value: `${formatCash(amount, USDC).full}`,
+                              svg: USDCIcon,
+                            },
+                          ],
+                        },
+                        {
+                          heading: "What you'll recieve",
+                          infoNumbers,
+                        },
+                      ]
+                    : isResetPrices
+                    ? [
+                        {
+                          heading: "New Prices",
+                          infoNumbers: outcomes.map((o) => ({ label: o.name, value: "-" })),
+                        },
+                        {
+                          heading: "USDC Needed to reset the prices",
                           infoNumbers: [
                             {
                               label: "amount",

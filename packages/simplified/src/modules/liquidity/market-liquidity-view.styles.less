@@ -93,6 +93,7 @@
     flex-flow: row nowrap;
     align-items: center;
     justify-content: center;
+    margin-right: auto;
 
     > svg {
       height: @size-20;
@@ -107,6 +108,10 @@
         fill: var(--primary-text);
       }
     }
+  }
+
+  > button:not(:last-of-type):not(:first-of-type) {
+    margin-right: @size-8;
   }
 }
 
@@ -251,6 +256,7 @@
     }
   }
 
+  &.isResetPrices,
   &.isMint {
     max-width: 534px;
     width: 100%;
@@ -263,6 +269,22 @@
       > div.PricesAndOutcomes {
         display: none;
       }
+    }
+  }
+
+  &.isResetPrices {
+    > main {
+      > div[class*="AmountInput"] {
+        display: none;
+      }
+
+      > section.BreakdownAndAction {
+        > div.Breakdown:not(:nth-of-type(3)) {
+          padding-bottom: @size-24;
+          border-bottom: @size-1 solid var(--theme-border);
+        }
+      }
+
     }
   }
 }
