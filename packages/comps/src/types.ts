@@ -78,6 +78,7 @@ export interface ParaDeploys {
   balancerFactory: string;
   marketFactories: MarketFactory[];
   info: { uploadBlockNumber: number; graphName: string };
+  evenTheOdds: string;
 }
 export interface AmmTransaction {
   id: string;
