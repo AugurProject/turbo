@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
-import Styles from "./market-liquidity-view.styles.less";
+import Styles, { isResetPrices } from "./market-liquidity-view.styles.less";
 import CommonStyles from "../modal/modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { useHistory, useLocation } from "react-router";
@@ -45,6 +45,9 @@ const {
   estimateAddLiquidityPool,
   getRemoveLiquidity,
   mintCompleteSets,
+  isMarketPoolWhacked,
+  maxWhackedCollateralAmount,
+  estimateResetPrices,
 } = ContractCalls;
 const {
   PathUtils: { makePath, parseQuery },
@@ -119,12 +122,13 @@ export const MarketLiquidityView = () => {
   const [selectedAction, setSelectedAction] = useState(actionType);
   useScrollToTopOnMount();
   const isRemove = selectedAction === REMOVE;
+  const maxWhackedCollateral = market && maxWhackedCollateralAmount(market?.amm);
   const shareBalance =
     balances &&
     balances.lpTokens &&
     balances.lpTokens[market?.amm?.marketId] &&
     balances.lpTokens[market?.amm?.marketId].balance;
-  const [amount, setAmount] = useState(isRemove ? shareBalance : "");
+  const [amount, setAmount] = useState(isRemove ? shareBalance : isResetPrices ? maxWhackedCollateral?.collateralUsd : "");
   if (!market) {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
@@ -148,19 +152,20 @@ export const MarketLiquidityView = () => {
   );
 };
 
-const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount }) => {
+const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount, market }) => {
   const isMint = selectedAction === MINT_SETS;
   const isReset = selectedAction === RESET_PRICES;
+  const isWhacked = isMarketPoolWhacked(market.amm) || true;
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
-      <TinyThemeButton
+      {(isWhacked || (isReset && !isWhacked)) && <TinyThemeButton
         action={() => {
           setSelectedAction(isReset ? ADD : RESET_PRICES);
         }}
         text={isReset ? "Add/Remove" : "Reset Prices"}
         small
-      />
+      />}
       <TinyThemeButton
         action={() => {
           setSelectedAction(isMint ? ADD : MINT_SETS);
@@ -296,6 +301,8 @@ const LiquidityForm = ({
     ? ApprovalAction.REMOVE_LIQUIDITY
     : isMint
     ? ApprovalAction.MINT_SETS
+    : isResetPrices
+    ? ApprovalAction.RESET_PRICES
     : ApprovalAction.ADD_LIQUIDITY;
   const approvedMain = useApprovalStatus({
     cash,
@@ -345,6 +352,8 @@ const LiquidityForm = ({
       let results: LiquidityBreakdown;
       if (isRemove) {
         results = await getRemoveLiquidity(amm, loginAccount?.library, amount, account, cash, market?.hasWinner);
+      } else if (isResetPrices) {
+        results = await estimateResetPrices(loginAccount?.library, account, amm);
       } else {
         results = await estimateAddLiquidityPool(account, loginAccount?.library, amm, cash, amount);
       }
@@ -361,7 +370,7 @@ const LiquidityForm = ({
     return () => {
       isMounted = false;
     };
-  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove, selectedAction]);
+  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove, selectedAction, isResetPrices]);
 
   const actionButtonText = !amount ? "Enter Amount" : "Review";
   const setPrices = (price, index) => {
