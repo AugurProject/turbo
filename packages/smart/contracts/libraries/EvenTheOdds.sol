@@ -17,7 +17,7 @@ contract EvenTheOdds is BNum {
         BPool _bPool,
         uint256 _maxOutcome,
         uint256 _maxCollateralIn
-    ) public {
+    ) public returns (uint256 _collateralOut, uint256[] memory _balancesOut) {
         IERC20 _collateral = _marketFactory.collateral();
 
         // Will send remaining back.
@@ -69,12 +69,13 @@ contract EvenTheOdds is BNum {
         _setsToSell = (_setsToSell / _marketFactory.shareFactor()) * _marketFactory.shareFactor();
 
         // Send back collateral.
-        _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
+        _collateralOut = _marketFactory.burnShares(_marketId, _setsToSell, msg.sender);
 
         // Send back any lingering shares.
+        _balancesOut = new uint256[](_market.shareTokens.length);
         for (uint256 i = 0; i < _market.shareTokens.length; i++) {
-            uint256 _balance = _market.shareTokens[i].balanceOf(address(this));
-            _market.shareTokens[i].transfer(msg.sender, _balance);
+            _balancesOut[i] = _market.shareTokens[i].balanceOf(address(this));
+            _market.shareTokens[i].transfer(msg.sender, _balancesOut[i]);
         }
     }
 }

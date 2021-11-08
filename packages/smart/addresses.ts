@@ -123,7 +123,7 @@ export const addresses: AddressMapping = {
   80001: {
     reputationToken: "0x1A921b8a13372Cc81A415d02627756b5418a71c9",
     balancerFactory: "0xE152327f9700F1733d12e7a507045FB4A4606C6F",
-    evenTheOdds: "0xFBFeDa976aA69E8992Febd408E45E08b83619E80",
+    evenTheOdds: "0xd89515B7229E2b499e94c94BD40c28c6C2c2f82F",
     marketFactories: [
       {
         type: "Grouped",
