@@ -87,6 +87,7 @@ import {
   MarketFactoryContract,
   MasterChef,
   MasterChef__factory,
+  EvenTheOdds__factory,
 } from "@augurproject/smart";
 import { fetcherMarketsPerConfig, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
 
@@ -422,6 +423,102 @@ export function doRemoveLiquidity(
       : ammFactory.removeLiquidity(market.marketFactoryAddress, market.turboId, lpBalance, "0", account);
   }
 }
+
+export const maxWhackedCollateralAmount = (amm: AmmExchange) => {
+  const maxOutcome = amm.ammOutcomes.reduce(
+    (p, a) => (new BN(a.price).gt(new BN(p.price)) ? a : p),
+    amm.ammOutcomes[0]
+  );
+  const minOutcome = amm.ammOutcomes.reduce(
+    (p, a) => (new BN(a.price).lt(new BN(p.price)) ? a : p),
+    amm.ammOutcomes[0]
+  );
+
+  const decimals = amm.cash?.decimals || 6;
+  const usdc = createBigNumber(10).pow(createBigNumber(decimals));
+  const collateral = new BN(maxOutcome.balanceRaw)
+    .minus(new BN(minOutcome.balanceRaw))
+    .div(new BN(amm.shareFactor))
+    .div(usdc)
+    .decimalPlaces(0);
+  const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, usdc).toFixed();
+
+  console.log("collateral needed", maxOutcome.id, collateralUsd, collateral.toFixed());
+
+  return {
+    maxOutcomeId: maxOutcome.id,
+    collateralRaw: collateral.toFixed(),
+    collateralUsd,
+  };
+};
+
+const WHACK_PRICE = 0.7;
+const LOW_LIQ_USD = 50;
+export const isMarketPoolWhacked = (amm: AmmExchange) => {
+  if (!amm) return false;
+  // liquidity is less than $50
+  // and one outcome price is over 0.70
+  const isWhackPrice = amm.ammOutcomes.some((a) => Number(a.price) > WHACK_PRICE);
+  const isLowerLiq = Number(amm.liquidityUSD) < LOW_LIQ_USD;
+  return isWhackPrice && isLowerLiq;
+};
+
+export const estimateResetPrices = async (
+  library: Web3Provider,
+  account: string,
+  amm: AmmExchange
+): Promise<LiquidityBreakdown> => {
+  const { evenTheOdds } = PARA_CONFIG;
+  const contract = EvenTheOdds__factory.connect(evenTheOdds, getProviderOrSigner(library, account));
+  const factory = getMarketFactoryData(amm.marketFactoryAddress);
+
+  const maxCollateral = maxWhackedCollateralAmount(amm);
+
+  const results = await contract.callStatic.bringTokenBalanceToMatchOtherToken(
+    factory.address,
+    amm.turboId,
+    amm.id,
+    maxCollateral.maxOutcomeId,
+    maxCollateral.collateralRaw
+  );
+
+  let minAmounts = [];
+  let minAmountsRaw = [];
+  let collateralOut = "0";
+
+  if (results) {
+    minAmounts = results?._balancesOut
+      ? results._balancesOut.map((v, i) => ({
+          amount: lpTokensOnChainToDisplay(String(v)).toFixed(),
+          outcomeId: i,
+          hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
+        }))
+      : [];
+    minAmountsRaw = results?._balancesOut ? results._balancesOut.map((v) => new BN(String(v)).toFixed()) : [];
+    const usdcRaw = results?._collateralOut ? results?._collateralOut : collateralOut;
+    collateralOut = cashOnChainToDisplay(String(usdcRaw), amm?.cash?.decimals).toFixed();
+  }
+
+  return {
+    minAmounts,
+    cashAmount: collateralOut,
+  };
+};
+
+export const doResetPrices = async (library: Web3Provider, account: string, amm: AmmExchange) => {
+  if (!amm) return null;
+  const { evenTheOdds } = PARA_CONFIG;
+  const contract = EvenTheOdds__factory.connect(evenTheOdds, getProviderOrSigner(library, account));
+  const factory = getMarketFactoryData(amm.marketFactoryAddress);
+  const maxCollateral = maxWhackedCollateralAmount(amm);
+  return contract.bringTokenBalanceToMatchOtherToken(
+    factory.address,
+    amm.turboId,
+    amm.id,
+    maxCollateral.maxOutcomeId,
+    maxCollateral.collateralRaw
+  );
+};
 
 export const estimateBuyTrade = (
   amm: AmmExchange,
