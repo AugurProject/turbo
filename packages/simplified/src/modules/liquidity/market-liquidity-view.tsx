@@ -48,6 +48,7 @@ const {
   isMarketPoolWhacked,
   maxWhackedCollateralAmount,
   estimateResetPrices,
+  doResetPrices,
 } = ContractCalls;
 const {
   PathUtils: { makePath, parseQuery },
@@ -128,7 +129,9 @@ export const MarketLiquidityView = () => {
     balances.lpTokens &&
     balances.lpTokens[market?.amm?.marketId] &&
     balances.lpTokens[market?.amm?.marketId].balance;
-  const [amount, setAmount] = useState(isRemove ? shareBalance : isResetPrices ? maxWhackedCollateral?.collateralUsd : "");
+  const [amount, setAmount] = useState(
+    isRemove ? shareBalance : isResetPrices ? maxWhackedCollateral?.collateralUsd : ""
+  );
   if (!market) {
     return <div className={classNames(Styles.MarketLiquidityView)}>Market Not Found.</div>;
   }
@@ -159,13 +162,15 @@ const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmo
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
-      {(isWhacked || (isReset && !isWhacked)) && <TinyThemeButton
-        action={() => {
-          setSelectedAction(isReset ? ADD : RESET_PRICES);
-        }}
-        text={isReset ? "Add/Remove" : "Reset Prices"}
-        small
-      />}
+      {(isWhacked || (isReset && !isWhacked)) && (
+        <TinyThemeButton
+          action={() => {
+            setSelectedAction(isReset ? ADD : RESET_PRICES);
+          }}
+          text={isReset ? "Add/Remove" : "Reset Prices"}
+          small
+        />
+      )}
       <TinyThemeButton
         action={() => {
           setSelectedAction(isMint ? ADD : MINT_SETS);
@@ -370,7 +375,18 @@ const LiquidityForm = ({
     return () => {
       isMounted = false;
     };
-  }, [account, amount, tradingFeeSelection, cash, isApproved, buttonError, totalPrice, isRemove, selectedAction, isResetPrices]);
+  }, [
+    account,
+    amount,
+    tradingFeeSelection,
+    cash,
+    isApproved,
+    buttonError,
+    totalPrice,
+    isRemove,
+    selectedAction,
+    isResetPrices,
+  ]);
 
   const actionButtonText = !amount ? "Enter Amount" : "Review";
   const setPrices = (price, index) => {
@@ -397,9 +413,9 @@ const LiquidityForm = ({
   const earlyBonus = now < rewards.earlyDepositEndTimestamp || !rewards.earlyDepositEndTimestamp;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
-    : isResetPrices
-    ? getResetBreakdown(outcomes, amount)
-    : getCreateBreakdown(breakdown, market, balances, isRemove);
+    : // : isResetPrices
+      // ? getResetBreakdown(outcomes, amount)
+      getCreateBreakdown(breakdown, market, balances, isRemove);
 
   const notMintOrReset = !isMint && !isResetPrices;
   return (
@@ -736,6 +752,35 @@ const confirmAction = async ({
           marketDescription: `${market?.title} ${market?.description}`,
         });
       });
+  } else if (isResetPrices) {
+    await doResetPrices(loginAccount.library, account, amm).then((response) => {
+      const { hash } = response;
+      addTransaction({
+        hash,
+        chainId: loginAccount.chainId,
+        from: account,
+        seen: false,
+        status: TX_STATUS.PENDING,
+        addedTime: new Date().getTime(),
+        message: `Reset Prices`,
+        marketDescription: `${market?.title} ${market?.description}`,
+      });
+      afterSigningAction();
+    })
+    .catch((error) => {
+      onCancel && onCancel();
+      console.log("Error when trying to Reset Prices: ", error?.message);
+      addTransaction({
+        hash: `reset-prices-failed-${Date.now()}`,
+        chainId: loginAccount.chainId,
+        from: account,
+        seen: false,
+        status: TX_STATUS.FAILURE,
+        addedTime: new Date().getTime(),
+        message: `Reset Prices`,
+        marketDescription: `${market?.title} ${market?.description}`,
+      });
+    });
   } else {
     await addLiquidityPool(
       account,
