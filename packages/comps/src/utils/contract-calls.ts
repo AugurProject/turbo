@@ -435,13 +435,11 @@ export const maxWhackedCollateralAmount = (amm: AmmExchange) => {
   );
 
   const decimals = amm.cash?.decimals || 6;
-  const usdc = createBigNumber(10).pow(createBigNumber(decimals));
   const collateral = new BN(largeRatioOutcome.balanceRaw)
     .minus(new BN(smallRatioOutcome.balanceRaw))
     .div(new BN(amm.shareFactor))
-    .div(usdc)
     .decimalPlaces(0);
-  const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, usdc).toFixed();
+  const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, decimals).toFixed();
 
   console.log("collateral needed", smallRatioOutcome.id, collateralUsd, collateral.toFixed());
 
