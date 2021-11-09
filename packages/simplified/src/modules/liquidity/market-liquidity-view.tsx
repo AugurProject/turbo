@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import classNames from "classnames";
-import Styles, { isResetPrices } from "./market-liquidity-view.styles.less";
+import Styles from "./market-liquidity-view.styles.less";
 import CommonStyles from "../modal/modal.styles.less";
 import ButtonStyles from "../common/buttons.styles.less";
 import { useHistory, useLocation } from "react-router";
@@ -123,6 +123,7 @@ export const MarketLiquidityView = () => {
   const [selectedAction, setSelectedAction] = useState(actionType);
   useScrollToTopOnMount();
   const isRemove = selectedAction === REMOVE;
+  const isResetPrices = selectedAction === RESET_PRICES;
   const maxWhackedCollateral = market && maxWhackedCollateralAmount(market?.amm);
   const shareBalance =
     balances &&
@@ -144,7 +145,7 @@ export const MarketLiquidityView = () => {
   };
   return (
     <div className={classNames(Styles.MarketLiquidityView)}>
-      <BackBar {...{ market, selectedAction, setSelectedAction, BackToLPPageAction, setAmount }} />
+      <BackBar {...{ market, selectedAction, setSelectedAction, BackToLPPageAction, setAmount, maxWhackedCollateral }} />
       <MarketLink id={marketId} dontGoToMarket={false}>
         <CategoryIcon {...{ categories }} />
         <MarketTitleArea {...{ ...market, timeFormat }} />
@@ -155,10 +156,10 @@ export const MarketLiquidityView = () => {
   );
 };
 
-const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount, market }) => {
+const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmount, market, maxWhackedCollateral }) => {
   const isMint = selectedAction === MINT_SETS;
   const isReset = selectedAction === RESET_PRICES;
-  const isWhacked = isMarketPoolWhacked(market.amm) || true;
+  const isWhacked = isMarketPoolWhacked(market.amm);
   return (
     <div className={Styles.BackBar}>
       <button onClick={BackToLPPageAction}>{BackIcon} Back To Pools</button>
@@ -166,6 +167,11 @@ const BackBar = ({ BackToLPPageAction, selectedAction, setSelectedAction, setAmo
         <TinyThemeButton
           action={() => {
             setSelectedAction(isReset ? ADD : RESET_PRICES);
+            if (isReset) {
+              setAmount("");
+            } else {
+              setAmount(maxWhackedCollateral.collateralUsd);
+            }
           }}
           text={isReset ? "Add/Remove" : "Reset Prices"}
           small
@@ -570,6 +576,7 @@ const LiquidityForm = ({
                       afterSigningAction: BackToLPPageAction,
                       onCancel,
                       isMint,
+                      isResetPrices,
                     });
                   },
                   targetDescription: {
@@ -701,6 +708,7 @@ const confirmAction = async ({
   afterSigningAction = () => {},
   onCancel = null,
   isMint,
+  isResetPrices,
 }) => {
   const valid = checkConvertLiquidityProperties(account, market.marketId, amount, onChainFee, outcomes, cash);
   if (!valid) {
