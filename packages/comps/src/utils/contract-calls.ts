@@ -426,24 +426,25 @@ export function doRemoveLiquidity(
 }
 
 export const maxWhackedCollateralAmount = (amm: AmmExchange) => {
-  const smallRatioOutcome = amm.ammOutcomes.reduce(
-    (p, a) => (new BN(a.price).gt(new BN(p.price)) ? a : p),
+  const greatestBalanceOutcome = amm.ammOutcomes.reduce(
+    (p, a) => (new BN(a.balanceRaw).gt(new BN(p.balanceRaw)) ? a : p),
     amm.ammOutcomes[0]
   );
-  const largeRatioOutcome = amm.ammOutcomes.reduce(
-    (p, a) => (new BN(a.price).lt(new BN(p.price)) ? a : p),
+  const smallestBalanceOutcome = amm.ammOutcomes.reduce(
+    (p, a) => (new BN(a.balanceRaw).lt(new BN(p.balanceRaw)) ? a : p),
     amm.ammOutcomes[0]
   );
 
   const decimals = amm.cash?.decimals || 6;
-  const collateral = new BN(largeRatioOutcome.balanceRaw)
-    .minus(new BN(smallRatioOutcome.balanceRaw))
+  const collateral = new BN(greatestBalanceOutcome.balanceRaw)
+    .minus(new BN(smallestBalanceOutcome.balanceRaw))
     .div(new BN(amm.shareFactor))
+    .plus(1) // needs to be one over
     .decimalPlaces(0);
   const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, decimals).toFixed();
 
   return {
-    maxOutcomeId: smallRatioOutcome.id,
+    maxOutcomeId: greatestBalanceOutcome.id,
     collateralRaw: collateral.toFixed(),
     collateralUsd,
   };
@@ -470,14 +471,6 @@ export const estimateResetPrices = async (
   const factory = getMarketFactoryData(amm.marketFactoryAddress);
 
   const maxCollateral = maxWhackedCollateralAmount(amm);
-
-  console.log(
-    factory.address,
-    amm.turboId,
-    amm.id,
-    String(maxCollateral.maxOutcomeId),
-    String(maxCollateral.collateralRaw)
-  );
 
   let results = {
     _balancesOut: ["0", "0", "0"],
@@ -530,8 +523,8 @@ export const doResetPrices = async (library: Web3Provider, account: string, amm:
     maxCollateral.maxOutcomeId,
     maxCollateral.collateralRaw,
     {
-     // gasLimit: "800000",
-     // gasPrice: "10000000000",
+      //gasLimit: "800000",
+      //gasPrice: "10000000000",
     }
   );
 };
