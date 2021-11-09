@@ -21,6 +21,7 @@ import { MarketFactory } from "@augurproject/smart";
 import * as SportFetcher from "./fetcher-sport";
 import * as CryptoFetcher from "./fetcher-crypto";
 import * as GroupedFetcher from "./fetcher-grouped";
+import { getDefaultPrice } from "./get-default-price";
 
 export const getResolutionRules = (marketInfo: MarketInfo): string[] => {
   switch (marketInfo.marketFactoryType) {
@@ -299,7 +300,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
   const outcomePrices = calculatePrices(market, pool.ratios || pool.tokenRatios, pool.weights);
   const fee = new BN(String(pool.swapFee || "0")).toFixed();
   const balancesRaw = pool.balances || [];
-  const weights = pool.weights;
+  const weights = pool.weights ? pool.weights.map((w) => String(w)) : [];
   const id = pool.addr;
   const created = pool.addr !== NULL_ADDRESS;
   const ammOutcomes = market.outcomes.map((o, i) => ({
@@ -308,6 +309,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
     ratio: created ? toDisplayRatio(getArrayValue(pool.ratios || pool.tokenRatios, i)) : "",
     balanceRaw: created ? getArrayValue(pool.balances, i) : "",
     balance: created ? String(sharesOnChainToDisplay(getArrayValue(pool.balances, i))) : "",
+    defaultPrice: String(getDefaultPrice(o.id, weights)),
     ...o,
   }));
   const feeDecimal = fee ? new BN(String(fee)).div(new BN(10).pow(18)) : ZERO;
@@ -320,7 +322,7 @@ const decodePool = (market: MarketInfo, pool: any, factoryDetails: any, config: 
     feeRaw: fee,
     balancesRaw: balancesRaw ? balancesRaw.map((b) => String(b)) : [],
     shareFactor: new BN(String(factoryDetails.shareFactor)).toFixed(),
-    weights: weights ? weights.map((w) => String(w)) : [],
+    weights,
     liquidityUSD: getTotalLiquidity(outcomePrices, balancesRaw),
     turboId: market.turboId,
     marketId: market.marketId,

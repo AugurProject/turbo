@@ -90,6 +90,7 @@ import {
   EvenTheOdds__factory,
 } from "@augurproject/smart";
 import { fetcherMarketsPerConfig, isIgnoredMarket, isIgnoreOpendMarket } from "./derived-market-data";
+import { getDefaultPrice } from "./get-default-price";
 
 const trimDecimalValue = (value: string | BigNumber) => createBigNumber(value).decimalPlaces(6, 1).toFixed();
 
@@ -527,7 +528,11 @@ export const doResetPrices = async (library: Web3Provider, account: string, amm:
     amm.turboId,
     amm.id,
     maxCollateral.maxOutcomeId,
-    maxCollateral.collateralRaw
+    maxCollateral.collateralRaw,
+    {
+      gasLimit: "800000",
+      gasPrice: "10000000000",
+    }
   );
 };
 
@@ -1428,12 +1433,6 @@ const getUserTransactions = (transactions: AllMarketsTransactions, account: stri
       },
     };
   }, {});
-};
-
-const getDefaultPrice = (outcome: string, weights: string[]) => {
-  const total = weights.reduce((p, w) => p.plus(new BN(w)), ZERO);
-  const weight = new BN(weights[Number(outcome)]);
-  return weight.div(total);
 };
 
 const getInitPositionValues = (

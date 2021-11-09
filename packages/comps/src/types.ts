@@ -299,6 +299,7 @@ export interface AmmOutcome extends MarketOutcome {
   balance: string;
   marketId?: string;
   shareToken?: string;
+  defaultPrice?: string;
 }
 
 export interface Cash {
