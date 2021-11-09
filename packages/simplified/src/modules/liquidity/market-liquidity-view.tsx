@@ -250,10 +250,23 @@ const getMintBreakdown = (outcomes, amount) => {
   }));
 };
 
-const getResetBreakdown = (outcomes, amount) => {
+const getResetBreakdown = (breakdown, market) => {
+  const fullBreakdown = [
+    ...orderMinAmountsForDisplay(breakdown.minAmounts)
+      .filter((m) => !m.hide)
+      .map((m) => ({
+        label: `${market.outcomes[m.outcomeId]?.name} Shares`,
+        value: `${formatSimpleShares(m.amount).formatted}`,
+        svg: null,
+      }))
+  ];
+  return fullBreakdown;
+};
+
+const getResetedPricesBreakdown = (outcomes) => {
   return outcomes.map((outcome) => ({
-    label: `${outcome.name} Shares`,
-    value: `${formatSimpleShares(amount).rounded}`,
+    label: `${outcome.name}`,
+    value: `${formatCash(outcome.defaultPrice).full}`,
     svg: null,
   }));
 };
@@ -413,11 +426,12 @@ const LiquidityForm = ({
   const earlyBonus = now < rewards.earlyDepositEndTimestamp || !rewards.earlyDepositEndTimestamp;
   const infoNumbers = isMint
     ? getMintBreakdown(outcomes, amount)
-    : // : isResetPrices
-      // ? getResetBreakdown(outcomes, amount)
-      getCreateBreakdown(breakdown, market, balances, isRemove);
+    : isResetPrices
+    ? getResetBreakdown(breakdown, market)
+    : getCreateBreakdown(breakdown, market, balances, isRemove);
 
   const notMintOrReset = !isMint && !isResetPrices;
+  const resetPricesInfoNumbers = getResetedPricesBreakdown(outcomes);
   return (
     <section
       className={classNames(Styles.LiquidityForm, {
@@ -487,7 +501,7 @@ const LiquidityForm = ({
             <>
               <div className={Styles.Breakdown}>
                 <span>New Prices</span>
-                <InfoNumbers infoNumbers={infoNumbers} />
+                <InfoNumbers infoNumbers={resetPricesInfoNumbers} />
               </div>
               <div className={Styles.Breakdown}>
                 <span>USDC Needed to reset the prices</span>
@@ -605,7 +619,7 @@ const LiquidityForm = ({
                     ? [
                         {
                           heading: "New Prices",
-                          infoNumbers: outcomes.map((o) => ({ label: o.name, value: "-" })),
+                          infoNumbers: resetPricesInfoNumbers,
                         },
                         {
                           heading: "USDC Needed to reset the prices",
@@ -753,34 +767,35 @@ const confirmAction = async ({
         });
       });
   } else if (isResetPrices) {
-    await doResetPrices(loginAccount.library, account, amm).then((response) => {
-      const { hash } = response;
-      addTransaction({
-        hash,
-        chainId: loginAccount.chainId,
-        from: account,
-        seen: false,
-        status: TX_STATUS.PENDING,
-        addedTime: new Date().getTime(),
-        message: `Reset Prices`,
-        marketDescription: `${market?.title} ${market?.description}`,
+    await doResetPrices(loginAccount.library, account, amm)
+      .then((response) => {
+        const { hash } = response;
+        addTransaction({
+          hash,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.PENDING,
+          addedTime: new Date().getTime(),
+          message: `Reset Prices`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
+        afterSigningAction();
+      })
+      .catch((error) => {
+        onCancel && onCancel();
+        console.log("Error when trying to Reset Prices: ", error?.message);
+        addTransaction({
+          hash: `reset-prices-failed-${Date.now()}`,
+          chainId: loginAccount.chainId,
+          from: account,
+          seen: false,
+          status: TX_STATUS.FAILURE,
+          addedTime: new Date().getTime(),
+          message: `Reset Prices`,
+          marketDescription: `${market?.title} ${market?.description}`,
+        });
       });
-      afterSigningAction();
-    })
-    .catch((error) => {
-      onCancel && onCancel();
-      console.log("Error when trying to Reset Prices: ", error?.message);
-      addTransaction({
-        hash: `reset-prices-failed-${Date.now()}`,
-        chainId: loginAccount.chainId,
-        from: account,
-        seen: false,
-        status: TX_STATUS.FAILURE,
-        addedTime: new Date().getTime(),
-        message: `Reset Prices`,
-        marketDescription: `${market?.title} ${market?.description}`,
-      });
-    });
   } else {
     await addLiquidityPool(
       account,

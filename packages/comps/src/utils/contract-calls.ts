@@ -530,8 +530,8 @@ export const doResetPrices = async (library: Web3Provider, account: string, amm:
     maxCollateral.maxOutcomeId,
     maxCollateral.collateralRaw,
     {
-      gasLimit: "800000",
-      gasPrice: "10000000000",
+     // gasLimit: "800000",
+     // gasPrice: "10000000000",
     }
   );
 };
