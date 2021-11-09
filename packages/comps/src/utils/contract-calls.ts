@@ -441,8 +441,6 @@ export const maxWhackedCollateralAmount = (amm: AmmExchange) => {
     .decimalPlaces(0);
   const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, decimals).toFixed();
 
-  console.log("collateral needed", smallRatioOutcome.id, collateralUsd, collateral.toFixed());
-
   return {
     maxOutcomeId: smallRatioOutcome.id,
     collateralRaw: collateral.toFixed(),
@@ -472,16 +470,32 @@ export const estimateResetPrices = async (
 
   const maxCollateral = maxWhackedCollateralAmount(amm);
 
-  const results = await contract.callStatic.bringTokenBalanceToMatchOtherToken(
+  console.log(
     factory.address,
     amm.turboId,
     amm.id,
-    maxCollateral.maxOutcomeId,
-    maxCollateral.collateralRaw
+    String(maxCollateral.maxOutcomeId),
+    String(maxCollateral.collateralRaw)
   );
 
+  let results = {
+    _balancesOut: ["0", "0", "0"],
+    _collateralOut: "0",
+  };
+
+  try {
+    results = await contract.callStatic.bringTokenBalanceToMatchOtherToken(
+      factory.address,
+      amm.turboId,
+      amm.id,
+      maxCollateral.maxOutcomeId,
+      maxCollateral.collateralRaw
+    );
+  } catch (e) {
+    console.log(e);
+  }
+
   let minAmounts = [];
-  let minAmountsRaw = [];
   let collateralOut = "0";
 
   if (results) {
@@ -492,7 +506,6 @@ export const estimateResetPrices = async (
           hide: lpTokensOnChainToDisplay(String(v)).lt(DUST_POSITION_AMOUNT),
         }))
       : [];
-    minAmountsRaw = results?._balancesOut ? results._balancesOut.map((v) => new BN(String(v)).toFixed()) : [];
     const usdcRaw = results?._collateralOut ? results?._collateralOut : collateralOut;
     collateralOut = cashOnChainToDisplay(String(usdcRaw), amm?.cash?.decimals).toFixed();
   }

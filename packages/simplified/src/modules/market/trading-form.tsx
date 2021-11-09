@@ -14,6 +14,7 @@ import {
   Components,
   useApprovalStatus,
   ApprovalHooks,
+  PARA_CONFIG,
 } from "@augurproject/comps";
 import type { AmmOutcome, Cash, EstimateTradeResult, AmmExchange } from "@augurproject/comps/build/types";
 import { Slippage } from "../common/slippage";
@@ -496,6 +497,13 @@ export const ApprovalButton = ({
           address = amm?.cash?.address;
           spender = amm?.marketFactoryAddress;
           text = `Mint Complete Sets`;
+          break;
+        }
+        case ApprovalAction.RESET_PRICES: {
+          const { evenTheOdds } = PARA_CONFIG;
+          address = amm?.cash?.address;
+          spender = evenTheOdds;
+          text = `Reset Prices`;
           break;
         }
         case ApprovalAction.ADD_LIQUIDITY:
