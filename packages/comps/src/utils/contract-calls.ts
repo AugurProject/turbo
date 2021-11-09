@@ -425,28 +425,28 @@ export function doRemoveLiquidity(
 }
 
 export const maxWhackedCollateralAmount = (amm: AmmExchange) => {
-  const maxOutcome = amm.ammOutcomes.reduce(
+  const smallRatioOutcome = amm.ammOutcomes.reduce(
     (p, a) => (new BN(a.price).gt(new BN(p.price)) ? a : p),
     amm.ammOutcomes[0]
   );
-  const minOutcome = amm.ammOutcomes.reduce(
+  const largeRatioOutcome = amm.ammOutcomes.reduce(
     (p, a) => (new BN(a.price).lt(new BN(p.price)) ? a : p),
     amm.ammOutcomes[0]
   );
 
   const decimals = amm.cash?.decimals || 6;
   const usdc = createBigNumber(10).pow(createBigNumber(decimals));
-  const collateral = new BN(maxOutcome.balanceRaw)
-    .minus(new BN(minOutcome.balanceRaw))
+  const collateral = new BN(largeRatioOutcome.balanceRaw)
+    .minus(new BN(smallRatioOutcome.balanceRaw))
     .div(new BN(amm.shareFactor))
     .div(usdc)
     .decimalPlaces(0);
   const collateralUsd = convertOnChainCashAmountToDisplayCashAmount(collateral, usdc).toFixed();
 
-  console.log("collateral needed", maxOutcome.id, collateralUsd, collateral.toFixed());
+  console.log("collateral needed", smallRatioOutcome.id, collateralUsd, collateral.toFixed());
 
   return {
-    maxOutcomeId: maxOutcome.id,
+    maxOutcomeId: smallRatioOutcome.id,
     collateralRaw: collateral.toFixed(),
     collateralUsd,
   };
