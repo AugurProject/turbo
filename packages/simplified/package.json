@@ -1,9 +1,9 @@
 {
   "name": "@augurproject/simplified",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "private": true,
   "dependencies": {
-    "@augurproject/comps": "^1.5.3",
+    "@augurproject/comps": "^1.5.4",
     "@babel/core": "7.12.3",
     "@ethersproject/experimental": "5.0.7",
     "@ethersproject/solidity": "^5.0.7",
