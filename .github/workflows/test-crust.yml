@@ -1,10 +1,11 @@
-name: Release Tags
+name: Test Crust
 
-on: push
+on: # push
+  workflow_dispatch:
 
 jobs:
   build:
-    if: startsWith(github.ref, 'refs/tags/')
+    # if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +31,6 @@ jobs:
       - run: yarn
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") yarn build
       - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" HIDE_FAUCET="true" yarn simp build
-      - run: VERSION=$(node -e "console.log(require('./lerna.json').version)") NODE_OPTIONS="--max_old_space_size=6144" DEFAULT_NETWORK_ID="137" HIDE_FAUCET="true" yarn sport build
       - run: yarn smart generate:environments
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v6.2
@@ -39,13 +39,13 @@ jobs:
          files: |
           packages/smart/environments/matic.json
           packages/smart/addresses.ts
-      - name: Redeploy the subgraph when the environment changes
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        run: |
-          yarn subgraph prepare:abis
-          yarn subgraph prepare:matic
-          yarn subgraph codegen
-          yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
+      # - name: Redeploy the subgraph when the environment changes
+      #   if: steps.verify-changed-files.outputs.files_changed == 'true'
+      #   run: |
+      #     yarn subgraph prepare:abis
+      #     yarn subgraph prepare:matic
+      #     yarn subgraph codegen
+      #     yarn subgraph deploy:matic --access-token ${{ secrets.GRAPH_TOKEN }}
 
       - name: Pin to IPFS
         id: upload
@@ -53,6 +53,8 @@ jobs:
         with:
           path: './packages/simplified/build'
           seeds: ${{ secrets.CRUST_SEEDS }}
+
+      - run: echo ${{ steps.upload.outputs.hash }}
 
       - name: Pin to Crust
         uses: crustio/ipfs-crust-action@v2.0.3
@@ -62,31 +64,21 @@ jobs:
           cid: ${{ steps.upload.outputs.hash }}
           seeds: ${{ secrets.CRUST_SEEDS }}
 
-      - name: Compress action step
-        uses: master-atul/tar-action@v1.0.2
-        id: compress-turbo
-        with:
-          command: c
-          cwd: ./packages/simplified/
-          files: |
-            ./build
-          outPath: turbo.tar.gz
-      - name: Compress sporsbook action step
-        uses: master-atul/tar-action@v1.0.2
-        id: compress-sport
-        with:
-          command: c
-          cwd: ./packages/sport/
-          files: |
-            ./build
-          outPath: sport.tar.gz
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          files: |
-            LICENSE
-            sport.tar.gz
-            turbo.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Compress action step
+      #   uses: master-atul/tar-action@v1.0.2
+      #   id: compress
+      #   with:
+      #     command: c
+      #     cwd: ./packages/simplified/
+      #     files: |
+      #       ./build
+      #     outPath: release.tar.gz
+      # - name: Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     draft: true
+      #     files: |
+      #       LICENSE
+      #       release.tar.gz
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
